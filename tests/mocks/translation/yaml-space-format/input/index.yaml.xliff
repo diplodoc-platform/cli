@@ -31,6 +31,34 @@
         <source xml:space="preserve">Adfox</source>
         <target xml:space="preserve">Adfox</target>
       </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Плагин Varioqub Unity</source>
+        <target xml:space="preserve">Плагин Varioqub Unity</target>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](https://github.com/appmetrica/varioqub-unity-plugin)" id="g-5" x-begin="[" x-end="](https://github.com/appmetrica/varioqub-unity-plugin)">Varioqub Unity</g> —  это плагин для игровой платформы <g ctype="link" equiv-text="[{{text}}](http://docs.unity3d.com/)" id="g-6" x-begin="[" x-end="](http://docs.unity3d.com/)">Unity3d</g>.</source>
+        <target xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](https://github.com/appmetrica/varioqub-unity-plugin)" id="g-5" x-begin="[" x-end="](https://github.com/appmetrica/varioqub-unity-plugin)">Varioqub Unity</g> —  это плагин для игровой платформы <g ctype="link" equiv-text="[{{text}}](http://docs.unity3d.com/)" id="g-6" x-begin="[" x-end="](http://docs.unity3d.com/)">Unity3d</g>.</target>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Он включает поддержку Varioqub SDK для Android и iOS.</source>
+        <target xml:space="preserve">Он включает поддержку Varioqub SDK для Android и iOS.</target>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">История версий</source>
+        <target xml:space="preserve">История версий</target>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Версия 0.1.0</source>
+        <target xml:space="preserve">Версия 0.1.0</target>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-7" x-begin="**" x-end="**">10.07.2024</g></source>
+        <target xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-7" x-begin="**" x-end="**">10.07.2024</g></target>
+      </trans-unit>
+      <trans-unit id="12">
+        <source xml:space="preserve">первый релиз.</source>
+        <target xml:space="preserve">первый релиз.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

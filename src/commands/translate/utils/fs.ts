@@ -2,7 +2,8 @@ import type {AjvOptions, JSONObject, LinkedJSONObject} from '@diplodoc/translati
 
 import {dirname, resolve} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
-import {dump, load} from 'js-yaml';
+import {load} from 'js-yaml';
+import {stringify} from 'yaml';
 import {linkRefs, unlinkRefs} from '@diplodoc/translation';
 import {
     leadingSchemaJson,
@@ -43,7 +44,20 @@ function stringifyFile(content: JSONObject | string, path: string): string {
 
     switch (ext(path)) {
         case 'yaml':
-            return dump(content, {noRefs: true, lineWidth: -1});
+            return stringify(
+                content as Record<string, unknown>,
+                (_key, value) => {
+                    if (typeof value === 'string') {
+                        return value.replace(/[ \t]+$/, '');
+                    }
+                    return value;
+                },
+                {
+                    aliasDuplicateObjects: false,
+                    lineWidth: 0,
+                    singleQuote: true,
+                },
+            );
         case 'json':
             return JSON.stringify(content);
         default:

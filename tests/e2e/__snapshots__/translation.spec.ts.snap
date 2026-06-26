@@ -698,7 +698,7 @@ exports[`Translate command > compose yaml files with no extra spaces > filelist 
 
 exports[`Translate command > compose yaml files with no extra spaces 1`] = `
 "meta:
-  title: "Adfox/_— Справка"
+  title: Adfox — Справка
   description: 'Справка по работе с сервисом Adfox: управление инвентарем, рекламой, монетизация и аналитика.'
 fullScreen: true
 blocks:
@@ -711,6 +711,22 @@ blocks:
           url: https://yandex.ru/support/?lang=ru
         - text: Adfox
           url: https://yandex.ru/support/adfox/ru/?lang=ru
+  - type: tabs-block
+    title:
+      text: ''
+    items:
+      - tabName: Varioqub Unity
+        title: Плагин Varioqub Unity
+        text: |
+          [Varioqub Unity](https://github.com/appmetrica/varioqub-unity-plugin) —  это плагин для игровой платформы [Unity3d](http://docs.unity3d.com/). Он включает поддержку Varioqub SDK для Android и iOS.
+
+          #### История версий
+
+          ##### Версия 0.1.0
+
+          **10.07.2024**
+
+          - первый релиз.
 "
 `;
 
@@ -1434,11 +1450,10 @@ exports[`Translate command > extract yaml scheme files 3`] = `
     textWidth: l
     textContent:
       title: '%%%0%%%'
-      text: |2-
+      text: |2
          %%%1%%%
          - %%%2%%%
          - %%%3%%%
-         
   - type: card-layout-block
     colSizes:
       all: 12
