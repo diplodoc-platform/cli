@@ -34,7 +34,7 @@ jobs:
 
       - name: Upload audit results
         if: steps.audit.outcome == 'failure'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: npm-audit-report
           path: |
