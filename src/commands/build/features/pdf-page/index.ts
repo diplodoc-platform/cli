@@ -5,6 +5,7 @@ import type {Command} from '~/core/config';
 import type {PageContent} from '@diplodoc/page-constructor-extension';
 
 import {dirname, join} from 'node:path';
+import parse from 'node-html-parser';
 import {createServerPageConstructorContent} from '@diplodoc/page-constructor-extension/renderer';
 
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
@@ -21,6 +22,7 @@ import {
     getPdfUrl,
     isEntryHidden,
     joinPdfPageResults,
+    rebaseImgSrc,
     replacePCNestedLinks,
     ssrPageConstructorBlocks,
 } from './utils';
@@ -132,10 +134,12 @@ export class PdfPage {
                     'pdf',
                     async (content, _meta, file) => {
                         const html = createServerPageConstructorContent(content as PageContent);
+                        const root = parse(html);
+                        rebaseImgSrc(root, dirname(file));
 
                         results[file] = {
                             path: file,
-                            content: replacePCNestedLinks(html),
+                            content: replacePCNestedLinks(root.toString()),
                             title: '',
                         };
                     },
