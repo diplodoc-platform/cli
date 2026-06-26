@@ -33,12 +33,20 @@ class Extract {
     }
 }
 
+class Content {
+    run(input: string, args: string[], env?: Record<string, string>) {
+        return runner.runRaw(['content', '--input', input, ...args], env);
+    }
+}
+
 export class CliTestAdapter {
     readonly runner = runner;
 
     readonly build = new Build();
 
     readonly extract = new Extract();
+
+    readonly content = new Content();
 
     async testBuildPass(
         inputPath: string,

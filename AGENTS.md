@@ -39,6 +39,13 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
 3. **translate** — translating documentation
    - Location: `src/commands/translate/`
 
+4. **content** — render a single file to stdout/file (md or html content fragment)
+   - Location: `src/commands/content/`
+   - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).
+   - Root/file resolution is the pure `resolveContentConfig` (`src/commands/content/config-resolve.ts`): picks the project root from `-c`'s directory or CWD (falling back to the file's own dir when it lives outside that root), sets `config.input`/`output` to that root with `originAsInput = true`, stores the target as `config.file`, and populates `config.template` itself (build's `Templating` feature is not run).
+   - Note: `resolveConfig` treats `ENOTDIR` like `ENOENT` so a single-file `--input` doesn't break config discovery.
+   - Tests: unit specs co-located in `src/commands/content/*.spec.ts` (resolution, render md/html, emit stdout/`-o`, watch paths/rebuild, `ContentWatcher`) drive Sonar coverage; e2e lives in `tests/e2e/content.spec.ts` (out-of-process, not counted by Sonar).
+
 ## Tech Stack
 
 - **Language**: TypeScript

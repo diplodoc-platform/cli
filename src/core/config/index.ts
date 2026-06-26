@@ -216,8 +216,12 @@ export async function resolveConfig<T extends Hash = {}>(
         switch (error.code) {
             case 'YAMLException':
                 throw new Error(`Failed to parse ${path}: ${error.message}`);
+            // `ENOTDIR` happens when a config path is resolved through a regular
+            // file (e.g. when `--input` points to a single file); treat it, like
+            // `ENOENT`, as "no config".
             case 'ScopeException':
             case 'ENOENT':
+            case 'ENOTDIR':
                 if (fallback) {
                     return withConfigUtils(null, fallback);
                 } else {

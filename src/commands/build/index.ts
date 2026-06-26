@@ -15,7 +15,7 @@ import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as LocalSearchExtension} from '~/extensions/local-search';
 import {Command} from '~/core/config';
-import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
+import {PAGE_PROCESS_CONCURRENCY, YFM_CONFIG_FILENAME} from '~/constants';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
@@ -24,7 +24,7 @@ import {
 } from '~/core/program';
 
 import {getHooks, withHooks} from './hooks';
-import {OutputFormat, normalize, options, validate} from './config';
+import {buildConfigDefaults, normalize, options, validate} from './config';
 import {Run} from './run';
 import {handler} from './handler';
 import {Templating} from './features/templating';
@@ -62,31 +62,7 @@ const command = 'Build';
 
 @withHooks
 @withConfigScope('build')
-@withConfigDefaults(
-    () =>
-        ({
-            langs: [],
-            outputFormat: OutputFormat.html,
-            varsPreset: 'default',
-            vars: {},
-            ignore: [],
-            allowHtml: true,
-            sanitizeHtml: true,
-            addMapFile: false,
-            removeHiddenTocItems: false,
-            removeEmptyTocItems: false,
-            staticContent: false,
-            ignoreStage: [Stage.SKIP],
-            rawAddMeta: false,
-            addSystemMeta: false,
-            addResourcesMeta: true,
-            addMetadataMeta: true,
-            addAlternateMeta: true,
-            lint: {enabled: true, config: {}},
-            vcsPath: {enabled: true},
-            idGenerator: 'random',
-        }) as Partial<BuildConfig>,
-)
+@withConfigDefaults(buildConfigDefaults)
 export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     readonly name = command;
 

@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`content > renders a single file to an html content fragment 1`] = `
+"<p>Intro paragraph for Diplodoc.</p>
+<p>This is a shared snippet for <strong>Diplodoc</strong>.</p>
+<div class="yfm-note yfm-accent-info" note-type="info"><p class="yfm-note-title">Примечание</p>
+<div class="yfm-note-content"><p>A note block.</p>
+</div></div>"
+`;
+
+exports[`content > renders a single file to self-contained markdown 1`] = `
+"---
+title: Welcome
+---
+
+# Diplodoc 1.0
+
+Intro paragraph for Diplodoc.
+
+This is a shared snippet for **Diplodoc**.
+
+{% note info %}
+
+A note block.
+
+{% endnote %}"
+`;
+
+exports[`content > writes raw content (without markers) to the -o file 1`] = `
+"<p>Intro paragraph for Diplodoc.</p>
+<p>This is a shared snippet for <strong>Diplodoc</strong>.</p>
+<div class="yfm-note yfm-accent-info" note-type="info"><p class="yfm-note-title">Примечание</p>
+<div class="yfm-note-content"><p>A note block.</p>
+</div></div>"
+`;
