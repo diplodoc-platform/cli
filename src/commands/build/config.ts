@@ -13,6 +13,37 @@ export enum OutputFormat {
     html = 'html',
 }
 
+/**
+ * Default build config values.
+ *
+ * Extracted from the `@withConfigDefaults` decorator on the `Build` command so
+ * that sibling commands (e.g. `content`) can reuse the exact same defaults
+ * without duplicating them.
+ */
+export const buildConfigDefaults = (): Partial<BuildConfig> =>
+    ({
+        langs: [],
+        outputFormat: OutputFormat.html,
+        varsPreset: 'default',
+        vars: {},
+        ignore: [],
+        allowHtml: true,
+        sanitizeHtml: true,
+        addMapFile: false,
+        removeHiddenTocItems: false,
+        removeEmptyTocItems: false,
+        staticContent: false,
+        ignoreStage: [Stage.SKIP],
+        rawAddMeta: false,
+        addSystemMeta: false,
+        addResourcesMeta: true,
+        addMetadataMeta: true,
+        addAlternateMeta: true,
+        lint: {enabled: true, config: {}},
+        vcsPath: {enabled: true},
+        idGenerator: 'random',
+    }) as Partial<BuildConfig>;
+
 const outputFormat = option({
     flags: '-f, --output-format <value>',
     defaultInfo: 'html',

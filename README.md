@@ -87,6 +87,57 @@ For multilingual projects (`--langs en,ru`) content is placed in per-language su
     └── index.md
 ```
 
+## `yfm content`
+
+Process a **single** Markdown file and print the result to stdout (or write it to a file).
+Unlike `yfm build`, it does not traverse the whole project and does not produce a full page —
+for `html` it emits only the **content fragment** (no toc, header or page chrome).
+
+### Usage
+
+```bash
+# self-contained markdown to stdout
+yfm content -i ./page.md -f md
+
+# html content fragment into a file
+yfm content -i ./page.md -f html -o ./page.html
+```
+
+The result printed to stdout is wrapped in delimiter markers so it can be extracted from the
+surrounding diagnostic output:
+
+```
+<<<<<< YFM CONTENT START >>>>>>
+...content...
+<<<<<< YFM CONTENT END >>>>>>
+```
+
+Warnings and errors go to stderr; on any build error the process exits with a non-zero code.
+When `-o` is used, the raw content is written to the file (without the markers).
+
+### Project root
+
+Presets (`presets.yaml`), includes and variables are resolved relative to a project root:
+
+- by default the root is the **current working directory**;
+- pass `-c, --config <path>` to point at a `.yfm` — its directory becomes the root.
+
+### Options
+
+| Option                                   | Default   | Description                                              |
+| ---------------------------------------- | --------- | -------------------------------------------------------- |
+| `-i, --input <file>`                     | —         | Path to the Markdown file to process (required)          |
+| `-o, --output <file>`                    | stdout    | Write the result to a file instead of stdout             |
+| `-f, --output-format <md\|html>`         | `html`    | Output format                                            |
+| `-w, --watch`                            | `false`   | Re-render on changes to the file, its includes & presets |
+| `-c, --config <path>`                    | `.yfm`    | Config file; its directory becomes the project root      |
+| `--vars-preset <name>`                   | `default` | Variables preset to apply                                |
+| `-v, --vars <json>`                      | —         | Inline variables (JSON) overriding presets               |
+| `--allow-html` / `--no-allow-html`       | `true`    | Allow raw HTML in Markdown                               |
+| `--sanitize-html` / `--no-sanitize-html` | `true`    | Sanitize the produced HTML                               |
+| `--id-generator <strategy>`              | `random`  | Element id strategy: `random`, `deterministic`, etc.     |
+| `-s, --strict`                           | `false`   | Exit with a non-zero code on warnings                    |
+
 ## Source files
 
 ### Preparation

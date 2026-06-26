@@ -5,6 +5,7 @@ import {VERSION, YFM_CONFIG_FILENAME} from '~/constants';
 import {BaseProgram, withConfigDefaults} from '~/core/program';
 
 import {Build} from './build';
+import {Content} from './content';
 import {Init} from './init';
 import {Publish} from './publish';
 import {Translate} from './translate';
@@ -22,6 +23,7 @@ export {
 } from './build';
 export {Publish, Run as PublishRun, getHooks as getPublishHooks} from './publish';
 export {Translate, getHooks as getTranslateHooks} from './translate';
+export {Content} from './content';
 export {Init} from './init';
 
 @withConfigDefaults(() => ({
@@ -37,6 +39,8 @@ export class Program extends BaseProgram {
         .usage(USAGE);
 
     readonly build = new Build(undefined, {isDefaultCommand: true});
+
+    readonly content = new Content();
 
     readonly initProject = new Init();
 
@@ -56,5 +60,11 @@ export class Program extends BaseProgram {
         options.originAsInput,
     ];
 
-    protected readonly modules = [this.build, this.initProject, this.publish, this.translate];
+    protected readonly modules = [
+        this.build,
+        this.content,
+        this.initProject,
+        this.publish,
+        this.translate,
+    ];
 }
