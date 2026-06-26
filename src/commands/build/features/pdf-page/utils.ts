@@ -331,7 +331,7 @@ export function ssrPageConstructorBlocks(html: string): string {
             const content = JSON.parse(decodeURIComponent(encoded)) as PageContent;
             const rendered = createServerPageConstructorContent(content);
 
-            node.replaceWith(rendered);
+            node.replaceWith(replacePCNestedLinks(rendered));
         } catch {}
     }
 
