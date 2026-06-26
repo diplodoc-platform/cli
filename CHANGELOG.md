@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.47.2](https://github.com/diplodoc-platform/cli/compare/v5.47.1...v5.47.2) (2026-06-26)
+
+
+### Bug Fixes
+
+* fixed pc md images ([#2021](https://github.com/diplodoc-platform/cli/issues/2021)) ([c7451e2](https://github.com/diplodoc-platform/cli/commit/c7451e25d0fd05927476ab52a467c7ebd452e754))
+
 ## [5.47.1](https://github.com/diplodoc-platform/cli/compare/v5.47.0...v5.47.1) (2026-06-25)
 
 
