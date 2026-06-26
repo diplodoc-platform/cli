@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.47.3](https://github.com/diplodoc-platform/cli/compare/v5.47.2...v5.47.3) (2026-06-26)
+
+
+### Bug Fixes
+
+* add codeLineWrapping to BaseConfig ([c3640cc](https://github.com/diplodoc-platform/cli/commit/c3640cc98e838c5687cf7c3e500f74615fcef373))
+* **deps:** Update @diplodoc/transform@4.76.2 ([a442127](https://github.com/diplodoc-platform/cli/commit/a442127763aaba36e1737de9aa6a23cef9dc4284))
+* exclude build dir from repeated input ([3bbbc7d](https://github.com/diplodoc-platform/cli/commit/3bbbc7d24b6b3bb525a6678e130d59dc4703da00))
+
 ## [5.47.2](https://github.com/diplodoc-platform/cli/compare/v5.47.1...v5.47.2) (2026-06-26)
 
 
