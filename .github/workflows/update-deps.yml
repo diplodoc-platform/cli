@@ -14,6 +14,7 @@ on:
         type: choice
         options:
           # === packages ===
+          - '@diplodoc/ajv'
           - '@diplodoc/client'
           - '@diplodoc/components'
           - '@diplodoc/directive'
@@ -22,6 +23,7 @@ on:
           - '@diplodoc/transform'
           - '@diplodoc/translation'
           - '@diplodoc/utils'
+          - '@diplodoc/vsc'
           - '@diplodoc/yfmlint'
           # === extensions ===
           - '@diplodoc/algolia-extension'
@@ -37,7 +39,6 @@ on:
           - '@diplodoc/quote-link-extension'
           - '@diplodoc/search-extension'
           - '@diplodoc/tabs-extension'
-
 
       update_as_dev:
         description: 'Update as devDependency (only for single package selection)'
@@ -63,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
