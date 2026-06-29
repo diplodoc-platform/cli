@@ -43,6 +43,7 @@ import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
 import {Watch} from './features/watch';
+import {YaMake} from './features/ya-make';
 import {Legacy} from './features/legacy';
 import {TocFiltering} from './features/toc-filtering';
 import {NeuroExpert} from './features/neuro-expert';
@@ -95,6 +96,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     readonly search = new Search();
 
     readonly watch = new Watch();
+
+    readonly yaMake = new YaMake();
 
     readonly legacy = new Legacy();
 
@@ -163,6 +166,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.changelogs,
         this.search,
         this.watch,
+        this.yaMake,
         this.md,
         this.html,
         this.themer,
