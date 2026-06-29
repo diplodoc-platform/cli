@@ -84,7 +84,7 @@
     "@diplodoc/liquid": "^1.5.2",
     "@diplodoc/transform": "^4.76.2",
     "@diplodoc/translation": "^1.7.24",
-    "@diplodoc/utils": "^2.3.0",
+    "@diplodoc/utils": "^2.3.1",
     "@gravity-ui/uikit-themer": "^1.7.0",
     "@inquirer/prompts": "^8.3.2",
     "chalk": "^4.1.2",
