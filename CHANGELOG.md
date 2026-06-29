@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.48.0](https://github.com/diplodoc-platform/cli/compare/v5.47.3...v5.48.0) (2026-06-29)
+
+
+### Features
+
+* Add mode "content" for single file DOCSTOOLS-5984 ([3792860](https://github.com/diplodoc-platform/cli/commit/37928602baa469b7308c82c1b9fde38d006c4cb0))
+* added support for documentation with ya.make ([#2030](https://github.com/diplodoc-platform/cli/issues/2030)) ([00ed72b](https://github.com/diplodoc-platform/cli/commit/00ed72be43d070466cc4ff4387cf1dbdbee86c21))
+
+
+### Bug Fixes
+
+* add `raw` param for content mode ([035b978](https://github.com/diplodoc-platform/cli/commit/035b9785507bc73a3991652430dfc1c903020b7c))
+* **template:** preserve whitespace in body interpolation in Template.dump ([a4c491a](https://github.com/diplodoc-platform/cli/commit/a4c491a7ee5cda0f9f9c864d96c71d0574a9f891)), closes [#1893](https://github.com/diplodoc-platform/cli/issues/1893)
+* yaml compose format fix ([0ca1043](https://github.com/diplodoc-platform/cli/commit/0ca1043610c80a8ba58cde250dfb2d4d8cf27f43))
+
 ## [5.47.3](https://github.com/diplodoc-platform/cli/compare/v5.47.2...v5.47.3) (2026-06-26)
 
 
