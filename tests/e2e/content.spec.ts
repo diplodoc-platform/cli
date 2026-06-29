@@ -46,6 +46,16 @@ describe('content', () => {
         expect(content(report.stdout)).toMatchSnapshot();
     });
 
+    test('prints only the content (no markers/banners) in raw mode', async () => {
+        const report = await TestAdapter.content.run(INDEX, ['-c', CONFIG, '-f', 'md', '--raw']);
+
+        expect(report.code).toEqual(0);
+        expect(report.stdout).not.toContain(START);
+        expect(report.stdout).not.toContain(END);
+        expect(report.stdout).not.toContain('Using v');
+        expect(report.stdout.trim()).toMatchSnapshot();
+    });
+
     test('writes raw content (without markers) to the -o file', async () => {
         const file = join(OUTPUT, 'page.html');
         const report = await TestAdapter.content.run(INDEX, [

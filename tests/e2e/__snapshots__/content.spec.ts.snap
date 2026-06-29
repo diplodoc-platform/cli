@@ -1,5 +1,23 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`content > prints only the content (no markers/banners) in raw mode 1`] = `
+"---
+title: Welcome
+---
+
+# Diplodoc 1.0
+
+Intro paragraph for Diplodoc.
+
+This is a shared snippet for **Diplodoc**.
+
+{% note info %}
+
+A note block.
+
+{% endnote %}"
+`;
+
 exports[`content > renders a single file to an html content fragment 1`] = `
 "<p>Intro paragraph for Diplodoc.</p>
 <p>This is a shared snippet for <strong>Diplodoc</strong>.</p>

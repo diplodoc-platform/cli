@@ -7,6 +7,7 @@ import './require';
 
 import * as threads from '~/commands/threads';
 import {Program, parse} from '~/commands';
+import {isRawContentRun} from '~/commands/content';
 import {MAIN_TIMER_ID} from '~/constants';
 import {stats} from '~/core/logger';
 import {console, noop} from '~/core/utils';
@@ -45,20 +46,24 @@ export const run = async (argv: string[]) => {
 
 if (isMainThread && require.main === module) {
     (async () => {
+        const silent = isRawContentRun(process.argv);
+
         // eslint-disable-next-line no-console
         console.time(MAIN_TIMER_ID);
 
-        if (global.VERSION) {
+        if (!silent && global.VERSION) {
             // eslint-disable-next-line no-console
             console.log(`Using v${global.VERSION} version`);
         }
 
         const report = await run(process.argv);
 
-        // eslint-disable-next-line no-console
-        console.timeEnd(MAIN_TIMER_ID);
+        if (!silent) {
+            // eslint-disable-next-line no-console
+            console.timeEnd(MAIN_TIMER_ID);
+        }
 
-        if (report.code) {
+        if (report.code && !silent) {
             // eslint-disable-next-line no-console
             console.log(
                 red(dedent`
