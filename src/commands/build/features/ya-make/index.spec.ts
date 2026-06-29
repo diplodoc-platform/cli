@@ -49,7 +49,7 @@ describe('YaMake', () => {
     });
 
     describe('Command hook', () => {
-        it('registers --ya-make option', () => {
+        it('registers --arcadia-root option', () => {
             const {commandTap} = setup();
             const seen: unknown[] = [];
             commandTap({addOption: (o: unknown) => seen.push(o)});
@@ -58,9 +58,10 @@ describe('YaMake', () => {
     });
 
     describe('Config hook', () => {
-        it('returns config unchanged when --ya-make is not set', async () => {
+        it('returns config unchanged when --arcadia-root is not set and ya.make is absent', async () => {
             const {configTap} = setup();
             const config = {input: tmp, output: join(tmp, 'out')} as BuildConfig;
+            // No arcadiaRoot in args; even if ya is detected, ya.make doesn't exist in tmp
             const result = await configTap(config, {});
             expect(result.input).toBe(tmp);
             expect(result.yaMake).toBeUndefined();
@@ -69,7 +70,7 @@ describe('YaMake', () => {
         it('returns config unchanged when ya.make does not exist', async () => {
             const {configTap} = setup();
             const config = {input: tmp, output: join(tmp, 'out')} as BuildConfig;
-            const result = await configTap(config, {yaMake: '/arcadia'});
+            const result = await configTap(config, {arcadiaRoot: '/arcadia'});
             expect(result.input).toBe(tmp);
             expect(result.yaMake).toBeUndefined();
         });
@@ -79,7 +80,7 @@ describe('YaMake', () => {
             const {configTap} = setup();
             const out = join(tmp, 'out');
             const config = {input: tmp, output: out} as BuildConfig;
-            const result = await configTap(config, {yaMake: tmp});
+            const result = await configTap(config, {arcadiaRoot: tmp});
             expect(result.yaMake?.root).toBe(tmp);
             expect(result.input).toBe(join(out, '.ya-make-input'));
             expect(existsSync(join(out, '.ya-make-input'))).toBe(true);

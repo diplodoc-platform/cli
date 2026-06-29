@@ -12,9 +12,10 @@ import {defined} from '~/core/config';
 import {console} from '~/core/utils';
 
 import {options} from './config';
+import {collectWatchPaths, detectArcadiaRoot} from './utils';
 
 export type YaMakeArgs = {
-    yaMake?: string;
+    arcadiaRoot?: string;
 };
 
 export type YaMakeConfig = {
@@ -25,45 +26,26 @@ export type YaMakeConfig = {
     };
 };
 
-function collectWatchPaths(parsed: YaMakeParsed): string[] {
-    const paths: string[] = [];
-
-    if (parsed.docsDir) {
-        paths.push(parsed.docsDir);
-    }
-
-    const candidates = [
-        ...parsed.copyFiles.map(({from}) => from),
-        ...parsed.includeSources,
-        ...parsed.peerDirs,
-        ...parsed.copyFileSingle.map(({src}) => src),
-    ];
-
-    for (const p of candidates) {
-        if (!paths.includes(p) && existsSync(p)) {
-            paths.push(p);
-        }
-    }
-
-    return paths;
-}
-
 export class YaMake {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('YaMake', (command: Command) => {
-            command.addOption(options.yaMake);
+            command.addOption(options.arcadiaRoot);
         });
 
         getBaseHooks(program).Config.tapPromise(
             {name: 'YaMake', stage: 10},
             async (config, args) => {
-                const yaMakeRoot = defined('yaMake', args, config) as string | undefined;
-                if (!yaMakeRoot) {
+                const yamakePath = join(config.input, 'ya.make');
+
+                if (!existsSync(yamakePath)) {
                     return config;
                 }
 
-                const yamakePath = join(config.input, 'ya.make');
-                if (!existsSync(yamakePath)) {
+                const yaMakeRoot =
+                    (defined('arcadiaRoot', args, config) as string | undefined) ??
+                    detectArcadiaRoot();
+
+                if (!yaMakeRoot) {
                     return config;
                 }
 
