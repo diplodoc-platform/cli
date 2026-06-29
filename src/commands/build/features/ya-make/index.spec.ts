@@ -1,5 +1,6 @@
 import type {BuildConfig} from '../..';
 import type {FullTap} from 'tapable';
+import type {FSWatcher} from 'chokidar';
 
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {join} from 'node:path';
@@ -116,7 +117,7 @@ describe('YaMake', () => {
 
         it('starts watcher for existing docsDir', async () => {
             const mockOn = vi.fn().mockReturnThis();
-            vi.mocked(chokidar.watch).mockReturnValue({on: mockOn} as any);
+            vi.mocked(chokidar.watch).mockReturnValue({on: mockOn} as unknown as FSWatcher);
 
             const docsDir = join(tmp, 'common');
             mkdirSync(docsDir);
@@ -141,7 +142,7 @@ describe('YaMake', () => {
         describe('file event handler', () => {
             const getHandler = async (docsDir: string, assembledDir: string) => {
                 const mockOn = vi.fn().mockReturnThis();
-                vi.mocked(chokidar.watch).mockReturnValue({on: mockOn} as any);
+                vi.mocked(chokidar.watch).mockReturnValue({on: mockOn} as unknown as FSWatcher);
 
                 const {afterRunTap} = setup();
                 const parsed = {

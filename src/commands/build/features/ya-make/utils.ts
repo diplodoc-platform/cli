@@ -44,6 +44,7 @@ export function detectArcadiaRoot(): string | undefined {
     if (process.platform === 'win32') {
         return detectArcadiaRootWindows();
     }
+
     return detectArcadiaRootUnix();
 }
 
