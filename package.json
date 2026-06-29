@@ -84,7 +84,7 @@
     "@diplodoc/liquid": "^1.5.2",
     "@diplodoc/transform": "^4.76.2",
     "@diplodoc/translation": "^1.7.24",
-    "@diplodoc/utils": "^2.2.3",
+    "@diplodoc/utils": "^2.3.0",
     "@gravity-ui/uikit-themer": "^1.7.0",
     "@inquirer/prompts": "^8.3.2",
     "chalk": "^4.1.2",
@@ -96,7 +96,6 @@
     "glob": "^10.4.5",
     "highlight.js": "^11.10.0",
     "js-yaml": "4.1.0",
-    "yaml": "^2.8.0",
     "katex": "0.16.9",
     "lodash": "4.17.21",
     "markdown-it": "^13.0.2",
@@ -108,7 +107,8 @@
     "postcss": "^8.5.15",
     "tapable": "2.2.1",
     "threads": "1.7.0",
-    "ts-dedent": "2.2.0"
+    "ts-dedent": "2.2.0",
+    "yaml": "^2.8.0"
   },
   "peerDependencies": {
     "strip-ansi": "^7.1.0",
