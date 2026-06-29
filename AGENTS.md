@@ -43,6 +43,7 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).
    - Root/file resolution is the pure `resolveContentConfig` (`src/commands/content/config-resolve.ts`): picks the project root from `-c`'s directory or CWD (falling back to the file's own dir when it lives outside that root), sets `config.input`/`output` to that root with `originAsInput = true`, stores the target as `config.file`, and populates `config.template` itself (build's `Templating` feature is not run).
+   - stdout has two modes: default wraps the result in `CONTENT_START`/`CONTENT_END` markers (so it can be fished out of the framework banners); `--raw` (`config.raw`) emits only the content. In raw mode `src/index.ts` also skips the version/timer/completion banners via `isRawContentRun(argv)` (exported from the content command). `-o` always writes raw (no markers), regardless of `--raw`.
    - Note: `resolveConfig` treats `ENOTDIR` like `ENOENT` so a single-file `--input` doesn't break config discovery.
    - Tests: unit specs co-located in `src/commands/content/*.spec.ts` (resolution, render md/html, emit stdout/`-o`, watch paths/rebuild, `ContentWatcher`) drive Sonar coverage; e2e lives in `tests/e2e/content.spec.ts` (out-of-process, not counted by Sonar).
 

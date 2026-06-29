@@ -29,12 +29,22 @@ export type {ContentArgs, ContentConfig};
 export const CONTENT_START = '<<<<<< YFM CONTENT START >>>>>>';
 export const CONTENT_END = '<<<<<< YFM CONTENT END >>>>>>';
 
+/**
+ * Detects a `content --raw` invocation from raw process argv. Used by the
+ * entrypoint to keep top-level banners (version line, build timer, completion
+ * banner) off stdout, so raw mode emits the rendered content and nothing else.
+ */
+export function isRawContentRun(argv: string[]): boolean {
+    return argv.includes(NAME) && (argv.includes('--raw') || argv.includes('--raw=true'));
+}
+
 @withConfigScope('build')
 @withConfigDefaults(
     () =>
         ({
             ...buildConfigDefaults(),
             watch: false,
+            raw: false,
             quiet: true,
         }) as Partial<ContentConfig>,
 )
@@ -51,6 +61,7 @@ export class Content extends BaseProgram<ContentConfig, ContentArgs> {
         options.output,
         options.outputFormat,
         options.watch,
+        options.raw,
         options.varsPreset,
         options.vars,
         options.allowHtml,
@@ -127,6 +138,12 @@ export class Content extends BaseProgram<ContentConfig, ContentArgs> {
         if (this.config.outputFile) {
             await mkdir(dirname(this.config.outputFile), {recursive: true});
             await writeFile(this.config.outputFile, content, 'utf8');
+
+            return;
+        }
+
+        if (this.config.raw) {
+            process.stdout.write(content);
 
             return;
         }

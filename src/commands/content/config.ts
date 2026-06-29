@@ -16,9 +16,13 @@ export const DESCRIPTION = `
     Errors and warnings are written to stderr; on stdout the result is wrapped
     in delimiter markers. On any build error the process exits with a non-zero code.
 
+    Use ${bold('--raw')} to print only the content to stdout (no delimiter markers
+    and no framework banners), e.g. when piping the result to another tool.
+
     Example:
       {{PROGRAM}} ${underline('content -i ./page.md -f md')}
       {{PROGRAM}} ${underline('content -i ./page.md -f html -o ./page.html')}
+      {{PROGRAM}} ${underline('content -i ./page.md -f md --raw > page.md')}
 `;
 
 const absolute = (path: string) => resolve(process.cwd(), path);
@@ -46,10 +50,21 @@ const watch = option({
     default: false,
 });
 
+const raw = option({
+    flags: '--raw',
+    desc: `
+        Print only the content to stdout, without the start/end delimiter markers
+        and without framework banners (version line, build timer, completion banner).
+        Has no effect when -o/--output is set.
+    `,
+    default: false,
+});
+
 export const options = {
     input,
     output,
     watch,
+    raw,
     outputFormat: buildOptions.outputFormat,
     varsPreset: buildOptions.varsPreset,
     vars: buildOptions.vars,

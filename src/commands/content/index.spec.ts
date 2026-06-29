@@ -22,7 +22,7 @@ vi.mock('./features/watch', () => ({
 
 import {ContentWatcher} from './features/watch';
 
-import {CONTENT_END, CONTENT_START, Content} from './index';
+import {CONTENT_END, CONTENT_START, Content, isRawContentRun} from './index';
 
 const MOCK = resolve(__dirname, '../../../tests/mocks/content');
 const INDEX = join(MOCK, 'index.md') as AbsolutePath;
@@ -142,6 +142,17 @@ describe('Content command', () => {
             await priv(content).emit();
 
             expect(write).toHaveBeenCalledWith(`${CONTENT_START}\nBODY\n${CONTENT_END}\n`);
+        });
+
+        it('writes only the content (no delimiters) to stdout in raw mode', async () => {
+            const content = new Content();
+            priv(content).config = {raw: true};
+            vi.spyOn(priv(content), 'render').mockResolvedValue('BODY');
+            const write = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+
+            await priv(content).emit();
+
+            expect(write).toHaveBeenCalledWith('BODY');
         });
 
         it('writes raw content (no delimiters) to the -o file', async () => {
@@ -275,6 +286,22 @@ describe('Content command', () => {
             await flush();
 
             expect(error).toHaveBeenCalled();
+        });
+    });
+
+    describe('isRawContentRun', () => {
+        it('is true for a content invocation with --raw', () => {
+            expect(isRawContentRun(['node', 'yfm', 'content', '-i', 'a.md', '--raw'])).toEqual(
+                true,
+            );
+        });
+
+        it('is false for a content invocation without --raw', () => {
+            expect(isRawContentRun(['node', 'yfm', 'content', '-i', 'a.md'])).toEqual(false);
+        });
+
+        it('is false for other commands even with --raw', () => {
+            expect(isRawContentRun(['node', 'yfm', 'build', '--raw'])).toEqual(false);
         });
     });
 });

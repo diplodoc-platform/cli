@@ -4,6 +4,7 @@ export type ContentArgs = BuildArgs & {
     input: AbsolutePath;
     output?: AbsolutePath;
     watch?: boolean;
+    raw?: boolean;
 };
 
 export type ContentConfig = BuildConfig & {
@@ -13,4 +14,10 @@ export type ContentConfig = BuildConfig & {
     watch: boolean;
     /** User-specified output file (`-o`). When absent, the result goes to stdout. */
     outputFile?: AbsolutePath;
+    /**
+     * Raw stdout mode. When `true`, the content is printed to stdout as-is,
+     * without the start/end delimiter markers and without framework banners
+     * (version line, build timer, completion banner). Defaults to `false`.
+     */
+    raw: boolean;
 };

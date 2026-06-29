@@ -115,6 +115,16 @@ surrounding diagnostic output:
 Warnings and errors go to stderr; on any build error the process exits with a non-zero code.
 When `-o` is used, the raw content is written to the file (without the markers).
 
+Pass `--raw` to print **only** the content to stdout — without the delimiter markers and
+without the framework banners (version line, build timer, completion banner). This is handy
+when piping the result straight to another tool or file:
+
+```bash
+yfm content -i ./page.md -f md --raw > page.md
+```
+
+`--raw` has no effect together with `-o` (file output is always raw).
+
 ### Project root
 
 Presets (`presets.yaml`), includes and variables are resolved relative to a project root:
@@ -124,19 +134,20 @@ Presets (`presets.yaml`), includes and variables are resolved relative to a proj
 
 ### Options
 
-| Option                                   | Default   | Description                                              |
-| ---------------------------------------- | --------- | -------------------------------------------------------- |
-| `-i, --input <file>`                     | —         | Path to the Markdown file to process (required)          |
-| `-o, --output <file>`                    | stdout    | Write the result to a file instead of stdout             |
-| `-f, --output-format <md\|html>`         | `html`    | Output format                                            |
-| `-w, --watch`                            | `false`   | Re-render on changes to the file, its includes & presets |
-| `-c, --config <path>`                    | `.yfm`    | Config file; its directory becomes the project root      |
-| `--vars-preset <name>`                   | `default` | Variables preset to apply                                |
-| `-v, --vars <json>`                      | —         | Inline variables (JSON) overriding presets               |
-| `--allow-html` / `--no-allow-html`       | `true`    | Allow raw HTML in Markdown                               |
-| `--sanitize-html` / `--no-sanitize-html` | `true`    | Sanitize the produced HTML                               |
-| `--id-generator <strategy>`              | `random`  | Element id strategy: `random`, `deterministic`, etc.     |
-| `-s, --strict`                           | `false`   | Exit with a non-zero code on warnings                    |
+| Option                                   | Default   | Description                                               |
+| ---------------------------------------- | --------- | --------------------------------------------------------- |
+| `-i, --input <file>`                     | —         | Path to the Markdown file to process (required)           |
+| `-o, --output <file>`                    | stdout    | Write the result to a file instead of stdout              |
+| `-f, --output-format <md\|html>`         | `html`    | Output format                                             |
+| `-w, --watch`                            | `false`   | Re-render on changes to the file, its includes & presets  |
+| `--raw`                                  | `false`   | Print only the content to stdout (no markers, no banners) |
+| `-c, --config <path>`                    | `.yfm`    | Config file; its directory becomes the project root       |
+| `--vars-preset <name>`                   | `default` | Variables preset to apply                                 |
+| `-v, --vars <json>`                      | —         | Inline variables (JSON) overriding presets                |
+| `--allow-html` / `--no-allow-html`       | `true`    | Allow raw HTML in Markdown                                |
+| `--sanitize-html` / `--no-sanitize-html` | `true`    | Sanitize the produced HTML                                |
+| `--id-generator <strategy>`              | `random`  | Element id strategy: `random`, `deterministic`, etc.      |
+| `-s, --strict`                           | `false`   | Exit with a non-zero code on warnings                     |
 
 ## Source files
 
