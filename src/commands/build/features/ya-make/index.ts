@@ -25,6 +25,29 @@ export type YaMakeConfig = {
     };
 };
 
+function collectWatchPaths(parsed: YaMakeParsed): string[] {
+    const paths: string[] = [];
+
+    if (parsed.docsDir) {
+        paths.push(parsed.docsDir);
+    }
+
+    const candidates = [
+        ...parsed.copyFiles.map(({from}) => from),
+        ...parsed.includeSources,
+        ...parsed.peerDirs,
+        ...parsed.copyFileSingle.map(({src}) => src),
+    ];
+
+    for (const p of candidates) {
+        if (!paths.includes(p) && existsSync(p)) {
+            paths.push(p);
+        }
+    }
+
+    return paths;
+}
+
 export class YaMake {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('YaMake', (command: Command) => {
@@ -64,35 +87,7 @@ export class YaMake {
                 }
 
                 const {parsed, assembledDir} = run.config.yaMake;
-                const watchPaths: string[] = [];
-
-                if (parsed.docsDir) {
-                    watchPaths.push(parsed.docsDir);
-                }
-
-                for (const {from} of parsed.copyFiles) {
-                    if (!watchPaths.includes(from) && existsSync(from)) {
-                        watchPaths.push(from);
-                    }
-                }
-
-                for (const src of parsed.includeSources) {
-                    if (!watchPaths.includes(src) && existsSync(src)) {
-                        watchPaths.push(src);
-                    }
-                }
-
-                for (const peerDir of parsed.peerDirs) {
-                    if (!watchPaths.includes(peerDir) && existsSync(peerDir)) {
-                        watchPaths.push(peerDir);
-                    }
-                }
-
-                for (const {src} of parsed.copyFileSingle) {
-                    if (!watchPaths.includes(src) && existsSync(src)) {
-                        watchPaths.push(src);
-                    }
-                }
+                const watchPaths = collectWatchPaths(parsed);
 
                 if (!watchPaths.length) {
                     return;
@@ -103,6 +98,7 @@ export class YaMake {
                     .on('all', (type: string, absPath: string) => {
                         try {
                             const target = resolveTarget(absPath, parsed, assembledDir);
+
                             if (!target) {
                                 return;
                             }
