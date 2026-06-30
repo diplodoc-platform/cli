@@ -1,1 +1,4 @@
 allowHtml: true
+llms: 
+  enabled: true
+  description: 'Documentation description fot test llms.txt generation.'

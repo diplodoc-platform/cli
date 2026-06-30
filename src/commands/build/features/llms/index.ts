@@ -5,7 +5,6 @@ import type {EntryTocItem, Toc} from '~/core/toc';
 import {dirname, join} from 'node:path';
 
 import {getHooks as getBaseHooks} from '~/core/program';
-import {valuable} from '~/core/config';
 import {normalizePath, setExt} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
 
@@ -21,7 +20,10 @@ export type LlmsArgs = {
 };
 
 export type LlmsConfig = {
-    llms: boolean;
+    llms: {
+        enabled: boolean;
+        description?: string;
+    };
 };
 
 type LlmsEntry = {
@@ -58,23 +60,21 @@ export class Llms {
         });
 
         getBaseHooks(program).Config.tap('Llms', (config, args) => {
-            let llms = false;
+            const llmsArg = args.llms || false;
+            const llmsEnabled = config?.llms?.enabled || false;
+            const llmsDescription = config?.llms?.description || '';
 
-            if (valuable(config.llms)) {
-                llms = Boolean(config.llms);
-            }
-
-            if (valuable(args.llms)) {
-                llms = Boolean(args.llms);
-            }
-
-            config.llms = llms;
+            config.llms = {
+                ...(typeof config.llms === 'object' ? config.llms : {}),
+                enabled: llmsArg || llmsEnabled,
+                description: llmsDescription,
+            };
 
             return config;
         });
 
         getBaseHooks<Run>(program).AfterAnyRun.tapPromise('Llms', async (run) => {
-            if (!run.config.llms) {
+            if (!run.config.llms?.enabled) {
                 return;
             }
 
@@ -125,6 +125,14 @@ export class Llms {
             lines.push(`# ${title}`, '');
         }
 
+        const description = run.config.llms?.description || '';
+
+        if (description) {
+            lines.push(`> ${description}`, '');
+        }
+
+        lines.push('## Documentation', '');
+
         for (const entry of entries) {
             const meta = await run.meta.dump(entry.path);
             const description = typeof meta.description === 'string' ? meta.description : '';
@@ -139,6 +147,13 @@ export class Llms {
 
             lines.push(`- [${name}](${href})${suffix}`);
         }
+
+        lines.push(
+            '',
+            '---',
+            '',
+            `For more comprehensive documentation, see [${LLMS_FULL_FILENAME}](/${LLMS_FULL_FILENAME})`,
+        );
 
         return lines.join('\n') + '\n';
     }
