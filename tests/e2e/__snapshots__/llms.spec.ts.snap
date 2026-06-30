@@ -26,7 +26,9 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html > filel
 
 exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 1`] = `
 "allowHtml: true
-"
+llms: 
+  enabled: true
+  description: 'Documentation description fot test llms.txt generation.'"
 `;
 
 exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 2`] = `
@@ -89,9 +91,17 @@ Returns the list of things.
 exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 5`] = `
 "# My Product
 
+> Documentation description fot test llms.txt generation.
+
+## Documentation
+
 - [Overview](index.md): What this product is and how to get started.
 - [Getting Started](start.md): Install the product and build your first project.
 - [API Reference](api.md): Full reference of the public HTTP endpoints.
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
 "
 `;
 
@@ -131,7 +141,9 @@ path: toc.yaml
 
 exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 8`] = `
 "allowHtml: true
-"
+llms: 
+  enabled: true
+  description: 'Documentation description fot test llms.txt generation.'"
 `;
 
 exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 9`] = `
@@ -219,9 +231,17 @@ Returns the list of things.
 exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 12`] = `
 "# My Product
 
+> Documentation description fot test llms.txt generation.
+
+## Documentation
+
 - [Overview](index.html): What this product is and how to get started.
 - [Getting Started](start.html): Install the product and build your first project.
 - [API Reference](api.html): Full reference of the public HTTP endpoints.
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
 "
 `;
 
