@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.48.1](https://github.com/diplodoc-platform/cli/compare/v5.48.0...v5.48.1) (2026-06-30)
+
+
+### Bug Fixes
+
+* adjust llms.txt/llms-full.txt format to meet llmstxt.org spec ([25c491a](https://github.com/diplodoc-platform/cli/commit/25c491aa1959587cb97465a5262957efba19f277))
+* **deps:** Update @diplodoc/ajv@0.0.6 ([#2033](https://github.com/diplodoc-platform/cli/issues/2033)) ([34a8078](https://github.com/diplodoc-platform/cli/commit/34a8078bc80b73aa0c591ca574842c4ab32fbbce))
+
 ## [5.48.0](https://github.com/diplodoc-platform/cli/compare/v5.47.3...v5.48.0) (2026-06-29)
 
 
