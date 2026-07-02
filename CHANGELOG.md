@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.48.2](https://github.com/diplodoc-platform/cli/compare/v5.48.1...v5.48.2) (2026-07-02)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/translation@1.7.26 ([7ba5159](https://github.com/diplodoc-platform/cli/commit/7ba51599ad9244d78af8896a2061f3d77dc78357))
+
 ## [5.48.1](https://github.com/diplodoc-platform/cli/compare/v5.48.0...v5.48.1) (2026-06-30)
 
 
