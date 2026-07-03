@@ -1,5 +1,5 @@
 {
-  "extends": "@diplodoc/tsconfig",
+  "extends": "@diplodoc/infra/tsconfig.json",
   "compilerOptions": {
     "lib": ["ES2019"],
     "target": "ES2019",
