@@ -12,7 +12,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  integration-test:
+    name: integration test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
