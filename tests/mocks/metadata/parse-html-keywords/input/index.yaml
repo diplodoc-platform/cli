@@ -1,0 +1,86 @@
+meta:
+  title: Общая поддержка Яндекса
+  description: 'Поддержка для пользователей, которые столкнулись с проблемой или у которых возникли вопросы по сервисам Яндекса.'
+  keywords:
+    - keyword: Номер телефона {{yandex}}
+    - keyword: Яндекс контакты {{no-var}}
+    - keyword: Телефон {{yandex-taxi}}
+    - keyword: номер телефона {{yandex-taxi}}
+
+fullScreen: true
+blocks:
+  - type: 'header-block'
+
+    title: 'Общая поддержка Яндекса'
+    description: 'Поддержка для пользователей, которые столкнулись с проблемой или у которых возникли вопросы по сервисам Яндекса. Наша задача — предоставить необходимую помощь в поиске контактов нужной службы поддержки.'
+    additionalInfo: 'Сотрудники помогут определить, к какой службе поддержки относится вопрос, а также предоставят контакты для обращения в соответствующие службы.'
+    size: 'l'
+    background:
+      light:
+        image:
+          desktop: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/header.svg'
+          mobile: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/header.svg'
+        color: '#EEF1F7'
+        fullWidth: true
+        fullWidthMedia: true
+      dark:
+        image:
+          desktop: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/header-dark.svg'
+          mobile: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/header-dark.svg'
+        color: '#262626'
+        fullWidth: true
+        fullWidthMedia: true
+
+    resetPaddings: true
+
+
+  - type: card-layout-block
+    resetPaddings: true
+    title: ''
+    description: ''
+    children:
+      - type: basic-card
+        text: |
+
+              Если у вас возникла проблема, но вы не знаете, к какому сервису относится вопрос, обратитесь в Общую поддержку по номеру или электронной почте.
+
+              Время работы — круглосуточно.
+        size: l
+      - type: basic-card
+        title: Колл-центр
+        list:
+          - icon:
+              light: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/icon-phone.svg'
+              dark: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/icon-phone-black.svg'
+            title: '8 800 250-96-39'
+            text: 'Бесплатно по России'
+          - icon:
+              light: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/icon-phone.svg'
+              dark: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/icon-phone-black.svg'
+            title: '+7 495 974-35-81'
+          - icon:
+              light: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/icon-phone.svg'
+              dark: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/icon-phone-black.svg'
+            title: '+7 495 739-70-00'
+
+        size: l
+
+        theme: light
+      - type: basic-card
+        title: Почта
+        list:
+          - icon:
+              light: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/icon-mail.svg'
+              dark: 'https://yastatic.net/s3/doc-binary/docs/support/contact/ru/icon-mail-black.svg'
+            title: <a href="support@yandex-team.ru" target="_self">support@yandex-team.ru</a>
+
+
+
+        theme: light
+        size: l
+    colSizes:
+      all: 12
+      xl: 4
+      lg: 4
+      md: 4
+      sm: 12
