@@ -29,11 +29,14 @@ type FileTrieEntryPoint = {
     tocMapping: Record<string, string>;
 };
 
+type RestrictedAccessMap = Record<string, string[][]>;
+
 type BuildManifestFormat = {
     fileTrie: FileTrieEntryPoint;
     yfmConfig: unknown;
     redirects: Redirects;
     openapiCompanions?: OpenapiCompanionEntry[];
+    restrictedAccess?: RestrictedAccessMap;
 };
 
 const MANIFEST_FILENAME = 'yfm-build-manifest.json';
@@ -81,12 +84,14 @@ export class BuildManifest {
                 const fileTrie = this.buildFileTrie(run);
                 const yfmConfig = await this.readYfmConfig(run);
                 const openapiCompanions = this.collectOpenapiCompanions(run);
+                const restrictedAccess = await this.collectRestrictedAccess(run);
 
                 const manifest: BuildManifestFormat = {
                     redirects,
                     fileTrie,
                     yfmConfig,
                     ...(openapiCompanions.length ? {openapiCompanions} : {}),
+                    ...(Object.keys(restrictedAccess).length ? {restrictedAccess} : {}),
                 };
 
                 await run.write(
@@ -122,6 +127,29 @@ export class BuildManifest {
         return [...byCompanionPath.values()].sort((a, b) =>
             a.companionPath.localeCompare(b.companionPath),
         );
+    }
+
+    /**
+     * Collects per-page restricted-access rules from the finalized metadata store.
+     * Uses the same `meta.dump()` output that md2md writes into page frontmatter.
+     */
+    private async collectRestrictedAccess(run: Run): Promise<RestrictedAccessMap> {
+        const entries: [string, string[][]][] = [];
+
+        for (const path of run.toc.entries) {
+            const meta = await run.meta.dump(path);
+            const access = meta['restricted-access'];
+
+            if (!access?.length) {
+                continue;
+            }
+
+            entries.push([path.replace(/\..+$/, ''), access]);
+        }
+
+        entries.sort(([left], [right]) => left.localeCompare(right));
+
+        return Object.fromEntries(entries);
     }
 
     private async readYfmConfig(run: Run): Promise<unknown> {
