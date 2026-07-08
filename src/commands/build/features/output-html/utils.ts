@@ -1,7 +1,9 @@
 import type Token from 'markdown-it/lib/token';
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
+import type MarkdownIt from 'markdown-it';
 
 import url from 'url';
+import {colorPlugin} from '@diplodoc/color-extension';
 import notes from '@diplodoc/transform/lib/plugins/notes';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import code from '@diplodoc/transform/lib/plugins/code';
@@ -80,6 +82,7 @@ export function getBaseMdItPlugins() {
             },
         }),
         blockAnchor,
+        (md: MarkdownIt) => colorPlugin(md, {inline: true}),
         noTranslate({mode: 'render'}),
     ];
 }
