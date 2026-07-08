@@ -30,11 +30,23 @@ describe('Preprocess', () => {
 
     generateFilesYamlTestTemplate('HashIncludes=true,Autotitles=true', 'mocks/preprocess');
 
-    generateFilesYamlTestTemplate(
-        'HashIncludes=true,Autotitles=true,Svg=true',
-        'mocks/preprocess',
-        ['--merge-svg'],
-    );
+    test('HashIncludes=true,Autotitles=true,Svg=true', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/preprocess');
+        const args = ['--merge-svg', '--keep-not-var', '--id-generator', 'deterministic'];
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: args.join(' '),
+        });
+        await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
+            md2md: false,
+            md2html: true,
+            args: ['--id-generator', 'deterministic'].join(' '),
+        });
+        await compareDirectories(outputPath);
+        await compareDirectories(outputPath + '-html');
+    });
 
     // generateFilesYamlTestTemplate('Nested toc restricted access', 'mocks/preprocess/test3');
 });
