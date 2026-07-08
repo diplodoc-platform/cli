@@ -184,7 +184,13 @@ export class EntryService {
         metadata.filter(isPublicMeta).map(template.addMeta);
 
         Object.entries(restYamlConfigMeta)
-            .map(([name, content]) => ({name, content}))
+            .map(([name, content]) => {
+                if (name === 'keywords' && Array.isArray(content)) {
+                    const cleanKeywords = this.cleanKeywords(content);
+                    return {name, content: cleanKeywords};
+                }
+                return {name, content};
+            })
             .filter(isPublicMeta)
             .map(template.addMeta);
 
@@ -292,5 +298,19 @@ export class EntryService {
         } else {
             return this.run.markdown;
         }
+    }
+
+    private cleanKeywords(content: any[]): string {
+        return content
+            .map((k: any) => {
+                const str = typeof k === 'object' && k && 'keyword' in k ? k.keyword : k;
+
+                return str
+                    .replace(/\{\{[^}]*\}\}/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            })
+            .filter((str: string) => str.length > 2)
+            .join(', ');
     }
 }
