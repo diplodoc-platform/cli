@@ -1,4 +1,6 @@
-import {describe, test} from 'vitest';
+import {describe, expect, test} from 'vitest';
+import {join} from 'node:path';
+import {readFile} from 'node:fs/promises';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
@@ -16,4 +18,26 @@ describe('Restricted access', () => {
     generateFilesYamlTestTemplate('Nested restricted access', 'mocks/restricted-access/test2');
 
     generateFilesYamlTestTemplate('Nested toc restricted access', 'mocks/restricted-access/test3');
+
+    test('emits restrictedAccess map in build manifest', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/restricted-access/test1');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            args: '--build-manifest',
+        });
+
+        const manifest = JSON.parse(
+            await readFile(join(outputPath, 'yfm-build-manifest.json'), 'utf-8'),
+        );
+
+        expect(manifest.restrictedAccess).toEqual({
+            index: [['admin']],
+            'plugins/index': [['admin']],
+            'plugins/index2': [['admin'], ['admin', 'user']],
+            'plugins/index3': [['admin']],
+            'plugins/index4': [['admin'], ['customInFile']],
+        });
+        expect(manifest.restrictedAccess).not.toHaveProperty('plugins/index.md');
+    });
 });
