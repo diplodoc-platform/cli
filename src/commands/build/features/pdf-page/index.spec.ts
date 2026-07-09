@@ -151,6 +151,48 @@ describe('PDF Page Utils', () => {
             expect(originalHref).not.toBe('#page_anchor1');
             expect(originalId).not.toBe('page_anchor1');
         });
+
+        it('should add page prefix to non-heading elements with id', () => {
+            const html = parse(`
+                <div>
+                    <h1>Title</h1>
+                    <p id="custom-anchor">Some text</p>
+                    <summary id="cut-title">Cut content</summary>
+                    <hr id="block-anchor" class="visually-hidden"/>
+                </div>
+            `);
+
+            addPagePrefixToAnchors(html, options);
+
+            expect(html.querySelector('p')?.getAttribute('id')).toBe('page_custom-anchor');
+            expect(html.querySelector('summary')?.getAttribute('id')).toBe('page_cut-title');
+            expect(html.querySelector('hr')?.getAttribute('id')).toBe('page_block-anchor');
+        });
+
+        it('should add page prefix to same-page fragment links', () => {
+            const html = parse(`
+                <div>
+                    <h1>Title</h1>
+                    <a href="#custom-anchor">Link to text</a>
+                    <a href="#cut-title">Link to cut</a>
+                    <a href="other-page.md#section">Cross-page link</a>
+                    <a href="https://example.com">External link</a>
+                </div>
+            `);
+
+            addPagePrefixToAnchors(html, options);
+
+            const links = Array.from(html.querySelectorAll('a:not(.yfm-anchor)')).map((a) =>
+                a.getAttribute('href'),
+            );
+
+            expect(links).toEqual([
+                '#page_custom-anchor',
+                '#page_cut-title',
+                'other-page.md#section',
+                'https://example.com',
+            ]);
+        });
     });
 
     describe('getPdfUrl', () => {
