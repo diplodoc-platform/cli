@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.49.2](https://github.com/diplodoc-platform/cli/compare/v5.49.1...v5.49.2) (2026-07-09)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/ajv@0.0.7 ([0b2791c](https://github.com/diplodoc-platform/cli/commit/0b2791cf42696486040a12d7261d68bf14045816))
+* edit meta keywords parse ([80b5612](https://github.com/diplodoc-platform/cli/commit/80b56125ae5bf89359e65aae09c1f202bb2ae67c))
+
 ## [5.49.1](https://github.com/diplodoc-platform/cli/compare/v5.49.0...v5.49.1) (2026-07-09)
 
 
