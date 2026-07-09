@@ -19,6 +19,20 @@ describe('Crawler manifest', () => {
         expect(JSON.parse(manifestContent)).toMatchSnapshot();
     });
 
+    test('generates crawler-manifest.json when -f html', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/crawler-manifest/with-links');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: false,
+            md2html: true,
+            args: '--crawler-manifest',
+        });
+
+        const manifestContent = await readFile(join(outputPath, 'crawler-manifest.json'), 'utf-8');
+
+        expect(JSON.parse(manifestContent)).toMatchSnapshot();
+    });
+
     test('does not generate manifest when --crawler-manifest flag is absent', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/crawler-manifest/with-links');
 

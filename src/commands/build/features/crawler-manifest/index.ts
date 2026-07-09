@@ -55,88 +55,94 @@ export class CrawlerManifest {
             return config;
         });
 
-        getBuildHooks(program)
-            .BeforeRun.for('md')
-            .tap('CrawlerManifest', (run: Run) => {
-                this.links.clear();
+        for (const format of ['md', 'html'] as const) {
+            getBuildHooks(program)
+                .BeforeRun.for(format)
+                .tap('CrawlerManifest', (run: Run) => {
+                    this.links.clear();
 
-                getTocHooks(run.toc).Loaded.tapPromise('CrawlerManifest', async (toc: Toc) => {
+                    getTocHooks(run.toc).Loaded.tapPromise('CrawlerManifest', async (toc: Toc) => {
+                        if (!run.config.crawlerManifest) {
+                            return;
+                        }
+
+                        const externalLinks: string[] = [];
+
+                        walkLinks(toc as unknown as object, (value) => {
+                            if (isExternalHref(value)) {
+                                externalLinks.push(value);
+                            }
+                        });
+
+                        const filtered = this.filterLinks(externalLinks);
+
+                        if (filtered.length > 0) {
+                            this.links.set(toc.path, [
+                                ...(this.links.get(toc.path) ?? []),
+                                ...filtered,
+                            ]);
+                        }
+                    });
+                });
+
+            getBuildHooks(program)
+                .Entry.for(format)
+                .tapPromise('CrawlerManifest', async (run: Run, entry) => {
                     if (!run.config.crawlerManifest) {
                         return;
                     }
 
-                    const externalLinks: string[] = [];
+                    if (
+                        !entry.endsWith('.md') &&
+                        !entry.endsWith('.yaml') &&
+                        !entry.endsWith('.yml')
+                    ) {
+                        return;
+                    }
 
-                    walkLinks(toc as unknown as object, (value) => {
-                        if (isExternalHref(value)) {
-                            externalLinks.push(value);
-                        }
-                    });
-
-                    const filtered = this.filterLinks(externalLinks);
+                    const externalLinks = await collectLinks(run, entry);
+                    const filtered = this.filterLinks([...new Set(externalLinks)]);
 
                     if (filtered.length > 0) {
-                        this.links.set(toc.path, [
-                            ...(this.links.get(toc.path) ?? []),
-                            ...filtered,
-                        ]);
+                        this.links.set(entry, filtered);
                     }
                 });
-            });
 
-        getBuildHooks(program)
-            .Entry.for('md')
-            .tapPromise('CrawlerManifest', async (run: Run, entry) => {
-                if (!run.config.crawlerManifest) {
-                    return;
-                }
-
-                if (!entry.endsWith('.md') && !entry.endsWith('.yaml') && !entry.endsWith('.yml')) {
-                    return;
-                }
-
-                const externalLinks = await collectLinks(run, entry);
-                const filtered = this.filterLinks([...new Set(externalLinks)]);
-
-                if (filtered.length > 0) {
-                    this.links.set(entry, filtered);
-                }
-            });
-
-        getBuildHooks(program)
-            .AfterRun.for('md')
-            .tapPromise('CrawlerManifest', async (run: Run) => {
-                if (!run.config.crawlerManifest) {
-                    return;
-                }
-
-                for (const {from, to} of run.redirects.files) {
-                    if (isExternalHref(to) && !this.isExcluded(to)) {
-                        const key = from.startsWith('/') ? from.slice(1) : from;
-                        const existing = this.links.get(key) ?? [];
-
-                        this.links.set(key, [...existing, to]);
+            getBuildHooks(program)
+                .AfterRun.for(format)
+                .tapPromise('CrawlerManifest', async (run: Run) => {
+                    if (!run.config.crawlerManifest) {
+                        return;
                     }
-                }
 
-                if (this.links.size === 0) {
-                    return;
-                }
+                    for (const {from, to} of run.redirects.files) {
+                        if (isExternalHref(to) && !this.isExcluded(to)) {
+                            const key = from.startsWith('/') ? from.slice(1) : from;
+                            const existing = this.links.get(key) ?? [];
 
-                const links = Object.fromEntries(this.links);
-                const notifications = crawlerNotifications(run.config as CrawlerConfig);
-                const manifest: Record<string, unknown> = {links};
+                            this.links.set(key, [...existing, to]);
+                        }
+                    }
 
-                if (notifications) {
-                    manifest['notifications'] = notifications;
-                }
+                    if (this.links.size === 0) {
+                        return;
+                    }
 
-                await run.write(
-                    join(run.output, MANIFEST_FILENAME),
-                    JSON.stringify(manifest),
-                    true,
-                );
-            });
+                    const links = Object.fromEntries(this.links);
+                    const notifications = crawlerNotifications(run.config as CrawlerConfig);
+                    const manifest: Record<string, unknown> = {links};
+
+                    if (notifications) {
+                        manifest['notifications'] = notifications;
+                    }
+
+                    await run.write(
+                        join(run.output, MANIFEST_FILENAME),
+                        JSON.stringify(manifest),
+                        true,
+                    );
+                });
+        }
     }
 
     private isExcluded(url: string): boolean {
