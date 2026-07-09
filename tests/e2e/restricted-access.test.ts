@@ -19,6 +19,21 @@ describe('Restricted access', () => {
 
     generateFilesYamlTestTemplate('Nested toc restricted access', 'mocks/restricted-access/test3');
 
+    test('emits empty restrictedAccess when the project has no restrictions', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/generate-map/test1');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            args: '--build-manifest',
+        });
+
+        const manifest = JSON.parse(
+            await readFile(join(outputPath, 'yfm-build-manifest.json'), 'utf-8'),
+        );
+
+        expect(manifest.restrictedAccess).toEqual({});
+    });
+
     test('emits restrictedAccess map in build manifest', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/restricted-access/test1');
 

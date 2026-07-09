@@ -36,7 +36,7 @@ type BuildManifestFormat = {
     yfmConfig: unknown;
     redirects: Redirects;
     openapiCompanions?: OpenapiCompanionEntry[];
-    restrictedAccess?: RestrictedAccessMap;
+    restrictedAccess: RestrictedAccessMap;
 };
 
 const MANIFEST_FILENAME = 'yfm-build-manifest.json';
@@ -90,8 +90,8 @@ export class BuildManifest {
                     redirects,
                     fileTrie,
                     yfmConfig,
+                    restrictedAccess,
                     ...(openapiCompanions.length ? {openapiCompanions} : {}),
-                    ...(Object.keys(restrictedAccess).length ? {restrictedAccess} : {}),
                 };
 
                 await run.write(
