@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.49.1](https://github.com/diplodoc-platform/cli/compare/v5.49.0...v5.49.1) (2026-07-09)
+
+
+### Bug Fixes
+
+* add RA in builm manifest with empty rules ([92ae662](https://github.com/diplodoc-platform/cli/commit/92ae662febcfcc1b3870555fa6a525bb2c53d2b3))
+* add restricted-access to build-manifest DOCSTOOLS-6180 ([36c2ca8](https://github.com/diplodoc-platform/cli/commit/36c2ca8e11a9375eb02791d86dadc3c70c7f23d8))
+* added crawler-manifest when -f html ([#2049](https://github.com/diplodoc-platform/cli/issues/2049)) ([c91a625](https://github.com/diplodoc-platform/cli/commit/c91a6255d55c2d145e614fb54cd65abf63216720))
+
 ## [5.49.0](https://github.com/diplodoc-platform/cli/compare/v5.48.2...v5.49.0) (2026-07-09)
 
 
