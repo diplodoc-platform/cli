@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.49.0](https://github.com/diplodoc-platform/cli/compare/v5.48.2...v5.49.0) (2026-07-09)
+
+
+### Features
+
+* added color extension ([#2045](https://github.com/diplodoc-platform/cli/issues/2045)) ([3d97b50](https://github.com/diplodoc-platform/cli/commit/3d97b50874360b68ca5b4ac637bae09f9e485e44))
+
+
+### Bug Fixes
+
+* update transform ([ff298ef](https://github.com/diplodoc-platform/cli/commit/ff298ef717193f70704a528a486f068055f2e591))
+* update transform + tests DOCSTOOLS-6054 ([6445a1f](https://github.com/diplodoc-platform/cli/commit/6445a1f39468c20f6d0e9dda1da410dc0350593d))
+
 ## [5.48.2](https://github.com/diplodoc-platform/cli/compare/v5.48.1...v5.48.2) (2026-07-02)
 
 
