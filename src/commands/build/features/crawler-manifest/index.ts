@@ -12,7 +12,7 @@ import {isExternalHref, walkLinks} from '~/core/utils';
 import {valuable} from '~/core/config';
 
 import {options} from './config';
-import {collectCrawlerExcludes, collectLinks, crawlerNotifications} from './utils';
+import {collectCrawlerExcludes, collectLinks, crawlerNotifications, isFakeLink} from './utils';
 
 export type CrawlerManifestArgs = {
     crawlerManifest: boolean;
@@ -116,7 +116,7 @@ export class CrawlerManifest {
                     }
 
                     for (const {from, to} of run.redirects.files) {
-                        if (isExternalHref(to) && !this.isExcluded(to)) {
+                        if (isExternalHref(to) && !isFakeLink(to) && !this.isExcluded(to)) {
                             const key = from.startsWith('/') ? from.slice(1) : from;
                             const existing = this.links.get(key) ?? [];
 
@@ -154,10 +154,6 @@ export class CrawlerManifest {
     }
 
     private filterLinks(links: string[]): string[] {
-        if (this.excludeUrls.size === 0 && this.excludeRegexps.length === 0) {
-            return links;
-        }
-
-        return links.filter((url) => !this.isExcluded(url));
+        return links.filter((url) => !isFakeLink(url) && !this.isExcluded(url));
     }
 }

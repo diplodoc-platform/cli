@@ -9,6 +9,7 @@ import {
     crawlerNotifications,
     extractExternalLinks,
     extractIncludePaths,
+    isFakeLink,
     parseRegexps,
 } from './utils';
 
@@ -579,6 +580,80 @@ plain https://plain.example.com text
 
             expect(result.urls).toEqual([]);
             expect(result.regexps).toEqual([]);
+        });
+    });
+
+    describe('isFakeLink', () => {
+        it('rejects bare IPv4 address', () => {
+            expect(isFakeLink('http://127.0.0.1')).toBe(true);
+        });
+
+        it('rejects IPv4 with port', () => {
+            expect(isFakeLink('http://127.0.0.1:16443')).toBe(true);
+        });
+
+        it('rejects IPv4 without protocol', () => {
+            expect(isFakeLink('192.168.31.251:9000')).toBe(true);
+        });
+
+        it('rejects private network IP', () => {
+            expect(isFakeLink('http://10.0.0.1:8080')).toBe(true);
+        });
+
+        it('rejects wildcard domain with protocol', () => {
+            expect(isFakeLink('https://*.appmetrica.yandex.net')).toBe(true);
+        });
+
+        it('rejects wildcard domain without protocol', () => {
+            expect(isFakeLink('*.storage.yandex.net')).toBe(true);
+        });
+
+        it('rejects bare .md filename without protocol (linkified markdown file)', () => {
+            expect(isFakeLink('add-contact.md')).toBe(true);
+        });
+
+        it('rejects ftp:// link (not crawlable)', () => {
+            expect(isFakeLink('ftp://files.example.com')).toBe(true);
+        });
+
+        it('rejects protocol-relative URL (not resolvable by crawler)', () => {
+            expect(isFakeLink('//cdn.example.com/lib.js')).toBe(true);
+        });
+
+        it('rejects mailto: link', () => {
+            expect(isFakeLink('mailto:user@example.com')).toBe(true);
+        });
+
+        it('rejects tel: link', () => {
+            expect(isFakeLink('tel:+1234567890')).toBe(true);
+        });
+
+        it('accepts .md hostname with explicit http protocol', () => {
+            expect(isFakeLink('http://add-contact.md')).toBe(false);
+        });
+
+        it('accepts .md hostname with https protocol', () => {
+            expect(isFakeLink('https://add-info.md/some/path')).toBe(false);
+        });
+
+        it('accepts normal https URL', () => {
+            expect(isFakeLink('https://example.com')).toBe(false);
+        });
+
+        it('accepts normal http URL', () => {
+            expect(isFakeLink('http://example.com')).toBe(false);
+        });
+
+        it('accepts linkified domain without protocol', () => {
+            expect(isFakeLink('example.com')).toBe(false);
+        });
+
+        it('accepts normal URL with .md in path', () => {
+            expect(isFakeLink('https://example.com/page.md')).toBe(false);
+        });
+
+        it('accepts URL with query and fragment', () => {
+            expect(isFakeLink('https://example.com?q=1#section')).toBe(false);
         });
     });
 
