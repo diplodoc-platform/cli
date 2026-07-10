@@ -1,6 +1,7 @@
 import type {BaseProgram} from '~/core/program';
 import type {Translate, TranslateArgs, TranslateConfig} from '~/commands/translate';
 import type {LLMClient} from './clients/types';
+import type {GlossaryPair, PromptMode} from './prompts';
 
 import {ok} from 'assert';
 import {join} from 'node:path';
@@ -17,8 +18,6 @@ import {resolvePromptValue} from './prompts';
 import {YandexGptClient} from './clients/yandexgpt';
 import {AnthropicClient} from './clients/anthropic';
 import {createOpenAIClient, createOpenRouterClient} from './clients/openai';
-
-import type {GlossaryPair, PromptMode} from './prompts';
 
 const PROVIDER_NAMES = ['yandexgpt', 'openai', 'openrouter', 'anthropic'] as const;
 type ProviderName = (typeof PROVIDER_NAMES)[number];
@@ -88,7 +87,6 @@ function makeClientFactory(provider: ProviderName) {
     return function clientFactory(config: AITranslationConfig): LLMClient {
         switch (provider) {
             case 'yandexgpt':
-                ok(config.folder, 'Yandex AI Studio: --folder is required');
                 return new YandexGptClient({
                     token: config.auth,
                     folder: config.folder,
@@ -156,112 +154,97 @@ export class Extension {
     private registerProvider(program: Translate, providerName: ProviderName) {
         getHooks(program)
             .Provider.for(providerName)
-            .tap(`${ExtensionName}.${providerName}`, (_provider, _config) => {
-                getBaseHooks(program).Command.tap(
-                    `${ExtensionName}.${providerName}`,
-                    (command) => {
-                        command
-                            .addOption(options.auth)
-                            .addOption(options.model)
-                            .addOption(options.apiBase)
-                            .addOption(options.systemPrompt)
-                            .addOption(options.userPrompt)
-                            .addOption(options.promptMode)
-                            .addOption(options.glossary)
-                            .addOption(options.temperature)
-                            .addOption(options.maxOutputTokens)
-                            .addOption(options.maxBatchTokens)
-                            .addOption(options.maxConcurrency)
-                            .addOption(options.retry);
+            .tap(`${ExtensionName}.${providerName}`, (_provider, config) => {
+                getBaseHooks(program).Command.tap(`${ExtensionName}.${providerName}`, (command) => {
+                    command
+                        .addOption(options.auth)
+                        .addOption(options.model)
+                        .addOption(options.apiBase)
+                        .addOption(options.systemPrompt)
+                        .addOption(options.userPrompt)
+                        .addOption(options.promptMode)
+                        .addOption(options.glossary)
+                        .addOption(options.temperature)
+                        .addOption(options.maxOutputTokens)
+                        .addOption(options.maxBatchTokens)
+                        .addOption(options.maxConcurrency)
+                        .addOption(options.retry);
 
-                        if (providerName === 'yandexgpt') {
-                            command.addOption(options.folder);
-                        }
-                    },
-                );
+                    if (providerName === 'yandexgpt') {
+                        command.addOption(options.folder);
+                    }
+                });
 
                 getBaseHooks(
                     program as BaseProgram<
                         TranslateConfig & Partial<Config>,
                         TranslateArgs & Partial<Args>
                     >,
-                ).Config.tapPromise(
-                    `${ExtensionName}.${providerName}`,
-                    async (config, args) => {
-                        ok(!config.auth, 'Do not store `authToken` in public config');
+                ).Config.tapPromise(`${ExtensionName}.${providerName}`, async (config, args) => {
+                    ok(!config.auth, 'Do not store `authToken` in public config');
 
-                        const rawAuth = args.auth || readEnvAuth(providerName);
+                    const rawAuth = args.auth || readEnvAuth(providerName);
+                    ok(
+                        rawAuth,
+                        `Required param --auth is not configured for provider "${providerName}"`,
+                    );
+                    config.auth = resolveToken(rawAuth);
+
+                    const model =
+                        (defined('model', args, config) as string | undefined) ||
+                        DEFAULT_MODELS[providerName];
+                    config.model = model;
+
+                    const apiBase = defined('apiBase', args, config);
+                    if (apiBase) {
+                        config.apiBase = apiBase;
+                    }
+
+                    if (providerName === 'yandexgpt') {
+                        config.folder = defined('folder', args, config);
+
+                        const qualified = model.startsWith('gpt://') || model.startsWith('ds://');
                         ok(
-                            rawAuth,
-                            `Required param --auth is not configured for provider "${providerName}"`,
+                            config.folder || qualified,
+                            'Yandex AI Studio: --folder is required when --model is a short name',
                         );
-                        config.auth = resolveToken(rawAuth);
+                    }
 
-                        const model =
-                            (defined('model', args, config) as string | undefined) ||
-                            DEFAULT_MODELS[providerName];
-                        config.model = model;
+                    config.systemPrompt = resolvePromptValue(
+                        defined('systemPrompt', args, config) || undefined,
+                    );
+                    config.userPrompt = resolvePromptValue(
+                        defined('userPrompt', args, config) || undefined,
+                    );
+                    config.promptMode =
+                        (defined('promptMode', args, config) as PromptMode) || 'append';
 
-                        const apiBase = defined('apiBase', args, config);
-                        if (apiBase) {
-                            config.apiBase = apiBase;
-                        }
+                    config.temperature = numberOr(defined('temperature', args, config), 0);
+                    config.maxOutputTokens = intOr(defined('maxOutputTokens', args, config), 4000);
+                    config.maxBatchTokens = intOr(defined('maxBatchTokens', args, config), 2000);
+                    config.maxConcurrency = intOr(defined('maxConcurrency', args, config), 5);
+                    config.retry = intOr(defined('retry', args, config), 3);
 
-                        if (providerName === 'yandexgpt') {
-                            config.folder = defined('folder', args, config);
-                            if (!config.folder && !model.startsWith('gpt://')) {
-                                ok(
-                                    false,
-                                    'Yandex AI Studio: --folder is required when --model is a short name',
-                                );
-                            }
-                        }
+                    let glossary: AbsolutePath | undefined;
+                    if (own<string, 'glossary'>(args, 'glossary')) {
+                        glossary = join(args.input, args.glossary);
+                    } else if (own<string, 'glossary'>(config, 'glossary')) {
+                        glossary = config.resolve(config.glossary);
+                    }
 
-                        config.systemPrompt = resolvePromptValue(
-                            defined('systemPrompt', args, config) || undefined,
-                        );
-                        config.userPrompt = resolvePromptValue(
-                            defined('userPrompt', args, config) || undefined,
-                        );
-                        config.promptMode =
-                            (defined('promptMode', args, config) as PromptMode) || 'append';
+                    if (glossary) {
+                        const glossaryConfig = await resolveConfig(glossary, {
+                            defaults: {glossaryPairs: []},
+                        });
+                        config.glossaryPairs = glossaryConfig.glossaryPairs || [];
+                    } else {
+                        config.glossaryPairs = [];
+                    }
 
-                        config.temperature = numberOr(defined('temperature', args, config), 0);
-                        config.maxOutputTokens = intOr(
-                            defined('maxOutputTokens', args, config),
-                            4000,
-                        );
-                        config.maxBatchTokens = intOr(
-                            defined('maxBatchTokens', args, config),
-                            2000,
-                        );
-                        config.maxConcurrency = intOr(
-                            defined('maxConcurrency', args, config),
-                            5,
-                        );
-                        config.retry = intOr(defined('retry', args, config), 3);
+                    return config;
+                });
 
-                        let glossary: AbsolutePath | undefined;
-                        if (own<string, 'glossary'>(args, 'glossary')) {
-                            glossary = join(args.input, args.glossary);
-                        } else if (own<string, 'glossary'>(config, 'glossary')) {
-                            glossary = config.resolve(config.glossary);
-                        }
-
-                        if (glossary) {
-                            const glossaryConfig = await resolveConfig(glossary, {
-                                defaults: {glossaryPairs: []},
-                            });
-                            config.glossaryPairs = glossaryConfig.glossaryPairs || [];
-                        } else {
-                            config.glossaryPairs = [];
-                        }
-
-                        return config;
-                    },
-                );
-
-                const provider = new Provider(makeClientFactory(providerName), _config);
+                const provider = new Provider(makeClientFactory(providerName), config);
 
                 provider.pipe(program.logger);
 

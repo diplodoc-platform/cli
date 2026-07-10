@@ -1,8 +1,8 @@
 import type {ChatMessage, CompletionOptions, CompletionResult, LLMClient} from './types';
 
-import axios, {AxiosError} from 'axios';
+import axios from 'axios';
 
-import {LLMAuthError, LLMRateLimitError, LLMRequestError, LLMResponseError} from '../utils';
+import {LLMResponseError, throwLLMError} from '../utils';
 import {yandexAuthHeader} from '../auth';
 
 const DEFAULT_ENDPOINT = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion';
@@ -29,8 +29,8 @@ type YandexCompletionResponse = {
 
 export type YandexGptClientOptions = {
     token: string;
-    folder: string;
     model: string;
+    folder?: string;
     endpoint?: string;
     timeout?: number;
 };
@@ -70,16 +70,13 @@ export class YandexGptClient implements LLMClient {
 
     constructor(options: YandexGptClientOptions) {
         this.token = options.token;
-        this.folder = options.folder;
+        this.folder = options.folder || '';
         this.model = options.model;
         this.endpoint = options.endpoint || DEFAULT_ENDPOINT;
         this.timeout = options.timeout ?? 60_000;
     }
 
-    async complete(
-        messages: ChatMessage[],
-        options: CompletionOptions,
-    ): Promise<CompletionResult> {
+    async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
         const yandexMessages: YandexMessage[] = messages.map((m) => ({
             role: m.role,
             text: m.content,
@@ -126,23 +123,8 @@ export class YandexGptClient implements LLMClient {
                     outputTokens: Number(data.result.usage?.completionTokens ?? 0),
                 },
             };
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            if (error instanceof AxiosError && error.response) {
-                const {status, statusText, data} = error.response;
-                const message = data?.message || data?.error?.message || statusText;
-
-                if (status === 401 || status === 403) {
-                    throw new LLMAuthError(`Yandex AI Studio auth failed: ${message}`);
-                }
-                if (status === 429) {
-                    throw new LLMRateLimitError(message);
-                }
-                throw new LLMRequestError(status, message, {
-                    retryable: status >= 500 && status < 600,
-                });
-            }
-            throw error;
+        } catch (error) {
+            throwLLMError(error, 'Yandex AI Studio');
         }
     }
 }
