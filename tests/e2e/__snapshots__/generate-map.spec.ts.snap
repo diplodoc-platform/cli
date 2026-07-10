@@ -79,6 +79,7 @@ exports[`Generate map for > project with external links in toc 2`] = `
     },
   },
   "redirects": {},
+  "restrictedAccess": {},
   "yfmConfig": {},
 }
 `;
@@ -209,6 +210,7 @@ exports[`Generate map for > project with multiple language 2`] = `
     },
   },
   "redirects": {},
+  "restrictedAccess": {},
   "yfmConfig": {},
 }
 `;
@@ -306,6 +308,7 @@ exports[`Generate map for > project with single language and toc include - only 
     },
   },
   "redirects": {},
+  "restrictedAccess": {},
   "yfmConfig": {},
 }
 `;
@@ -403,6 +406,7 @@ exports[`Generate map for > project with single language and toc include 2`] = `
     },
   },
   "redirects": {},
+  "restrictedAccess": {},
   "yfmConfig": {},
 }
 `;

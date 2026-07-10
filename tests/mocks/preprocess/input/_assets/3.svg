@@ -1,0 +1,1 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80"><?plantuml 1.0?><text x="10" y="20">SAI_POLICER_STAT_*</text><text x="10" y="40">*_PPS</text><path fill="none" d="M10 60h160" style="stroke:#000;stroke-width:1"/><path d="m170 60-8-3v6z" style="stroke:#000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:10"/><?plantuml-src inline-edge-cases?></svg>

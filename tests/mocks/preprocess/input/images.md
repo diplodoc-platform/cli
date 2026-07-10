@@ -71,6 +71,10 @@ Term
 ![Text link `backtick`](_assets/1.svg "Text link title `backtick`"){ width="100" }
 Text link `backtick`.
 
+18. `![svg inline edge cases](_assets/3.svg)`
+![svg inline edge cases](_assets/3.svg)
+
+
 20. Сodeblocks - no inline svg
 ```
 Codeblock fence

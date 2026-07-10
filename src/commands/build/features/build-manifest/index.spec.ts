@@ -79,6 +79,60 @@ describe('Build manifest feature', () => {
         });
     });
 
+    describe('collectRestrictedAccess method', () => {
+        const collect = async (
+            entries: string[],
+            dumpByPath: Record<string, Record<string, unknown>>,
+        ) => {
+            const buildManifest = new BuildManifest();
+            const run = {
+                toc: {entries},
+                meta: {
+                    dump: async (path: string) => dumpByPath[path] ?? {},
+                },
+            };
+
+            // @ts-ignore - accessing private method for testing
+            return buildManifest.collectRestrictedAccess(run);
+        };
+
+        it('returns an empty map when no entries have restricted-access', async () => {
+            const result = await collect(['index.md', 'guide.md'], {
+                'index.md': {title: 'Home'},
+                'guide.md': {},
+            });
+
+            expect(result).toEqual({});
+        });
+
+        it('maps paths without extension and sorts keys deterministically', async () => {
+            const result = await collect(['plugins/index2.md', 'index.md', 'plugins/index4.md'], {
+                'index.md': {'restricted-access': [['admin']]},
+                'plugins/index2.md': {
+                    'restricted-access': [['admin'], ['admin', 'user']],
+                },
+                'plugins/index4.md': {
+                    'restricted-access': [['admin'], ['customInFile']],
+                },
+            });
+
+            expect(result).toEqual({
+                index: [['admin']],
+                'plugins/index2': [['admin'], ['admin', 'user']],
+                'plugins/index4': [['admin'], ['customInFile']],
+            });
+        });
+
+        it('skips entries with empty restricted-access arrays', async () => {
+            const result = await collect(['index.md', 'open.md'], {
+                'index.md': {'restricted-access': []},
+                'open.md': {},
+            });
+
+            expect(result).toEqual({});
+        });
+    });
+
     describe('buildFileTrie method', () => {
         const createRun = (entries: string[]) =>
             ({

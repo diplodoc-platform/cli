@@ -9,7 +9,7 @@ import MarkdownIt from 'markdown-it';
 import {INCLUDE_REGEX, findLink} from '~/core/markdown';
 import {isExternalHref, normalizePath, walkLinks} from '~/core/utils';
 
-import {FILE_BLOCK_REGEX, REGEXP_LITERAL} from './constants';
+import {FILE_BLOCK_REGEX, IPV4_HOST_RE, REGEXP_LITERAL} from './constants';
 
 const md = new MarkdownIt({html: true, linkify: true});
 const mdNoLinkify = new MarkdownIt({html: true, linkify: false});
@@ -203,6 +203,45 @@ export function collectCrawlerExcludes(config: CrawlerConfig): {
         urls,
         regexps: parseRegexps(regexpPatterns),
     };
+}
+
+export function isFakeLink(url: string): boolean {
+    const protocolMatch = /^([a-z][a-z0-9+.-]*):\/\//.exec(url);
+
+    if (protocolMatch) {
+        const scheme = protocolMatch[1];
+
+        if (scheme !== 'http' && scheme !== 'https') {
+            return true;
+        }
+    }
+
+    if (url.startsWith('//')) {
+        return true;
+    }
+
+    const nonSchemeProto = /^[+\w]{1,10}:(?!\/)/.exec(url);
+    if (nonSchemeProto) {
+        return true;
+    }
+
+    const withoutProtocol = protocolMatch ? url.slice(protocolMatch[0].length) : url;
+    const host = withoutProtocol.split(/[/?#]/)[0];
+    const hostWithoutPort = host.replace(/:\d+$/, '');
+
+    if (IPV4_HOST_RE.test(host)) {
+        return true;
+    }
+
+    if (hostWithoutPort.startsWith('*.')) {
+        return true;
+    }
+
+    if (!protocolMatch && hostWithoutPort.endsWith('.md')) {
+        return true;
+    }
+
+    return false;
 }
 
 export function crawlerNotifications(config: CrawlerConfig): CrawlerNotifications | undefined {
