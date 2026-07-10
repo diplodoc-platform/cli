@@ -1,8 +1,8 @@
 import type {ChatMessage, CompletionOptions, CompletionResult, LLMClient} from './types';
 
-import axios, {AxiosError} from 'axios';
+import axios from 'axios';
 
-import {LLMAuthError, LLMRateLimitError, LLMRequestError, LLMResponseError} from '../utils';
+import {LLMResponseError, throwLLMError} from '../utils';
 
 const DEFAULT_BASE_URL = 'https://api.anthropic.com/v1';
 const ANTHROPIC_VERSION = '2023-06-01';
@@ -38,10 +38,7 @@ export class AnthropicClient implements LLMClient {
         this.timeout = options.timeout ?? 60_000;
     }
 
-    async complete(
-        messages: ChatMessage[],
-        options: CompletionOptions,
-    ): Promise<CompletionResult> {
+    async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
         const system = messages
             .filter((m) => m.role === 'system')
             .map((m) => m.content)
@@ -87,23 +84,8 @@ export class AnthropicClient implements LLMClient {
                     outputTokens: data.usage?.output_tokens ?? 0,
                 },
             };
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            if (error instanceof AxiosError && error.response) {
-                const {status, statusText, data} = error.response;
-                const message = data?.error?.message || data?.message || statusText;
-
-                if (status === 401 || status === 403) {
-                    throw new LLMAuthError(`Anthropic auth failed: ${message}`);
-                }
-                if (status === 429) {
-                    throw new LLMRateLimitError(message);
-                }
-                throw new LLMRequestError(status, message, {
-                    retryable: status >= 500 && status < 600,
-                });
-            }
-            throw error;
+        } catch (error) {
+            throwLLMError(error, 'Anthropic');
         }
     }
 }

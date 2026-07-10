@@ -12,8 +12,7 @@ import {LogLevel} from '~/core/logger';
 import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
 import {TranslateLogger} from '../../logger';
 
-import {Defer, backoff, bytes, estimateTokens, wait} from './utils';
-import {LLMResponseError} from './utils/errors';
+import {Defer, LLMResponseError, backoff, bytes, estimateTokens} from './utils';
 import {buildMessages, splitFragments} from './prompts';
 
 const onFatalError = () => {
@@ -254,13 +253,14 @@ function makeTranslator(params: TranslatorParams): Translate {
         return parts;
     }
 
-    async function translateWithFallback(fragments: string[]): Promise<string[]> {
+    async function translateWithFallback(path: string, fragments: string[]): Promise<string[]> {
         try {
             return await translateBatch(fragments);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof LLMResponseError && fragments.length > 1) {
                 logger.warn(
+                    path,
                     `Batch of ${fragments.length} fragments failed (${error.message}); retrying one-by-one.`,
                 );
                 const result: string[] = [];
@@ -274,7 +274,7 @@ function makeTranslator(params: TranslatorParams): Translate {
         }
     }
 
-    return async function translate(_path: string, texts: string[]) {
+    return async function translate(path: string, texts: string[]) {
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
         let buffer: string[] = [];
@@ -287,10 +287,23 @@ function makeTranslator(params: TranslatorParams): Translate {
             const batch = buffer;
             requests.push(
                 schedule(async () => {
-                    const translated = await translateWithFallback(batch);
-                    translated.forEach((text, i) => {
-                        cache.get(batch[i])?.resolve(text);
-                    });
+                    try {
+                        const translated = await translateWithFallback(path, batch);
+                        translated.forEach((text, i) => {
+                            cache.get(batch[i])?.resolve(text);
+                        });
+                    } catch (error) {
+                        // Reject and evict pending defers, otherwise files sharing
+                        // the same units would await them forever.
+                        for (const text of batch) {
+                            const defer = cache.get(text);
+                            if (defer) {
+                                cache.delete(text);
+                                defer.promise.catch(() => {});
+                                defer.reject(error);
+                            }
+                        }
+                    }
                 }),
             );
             buffer = [];
@@ -300,8 +313,9 @@ function makeTranslator(params: TranslatorParams): Translate {
         for (const text of texts) {
             const tokens = estimateTokens(text);
 
-            if (cache.has(text)) {
-                promises.push(cache.get(text)!.promise);
+            const cached = cache.get(text);
+            if (cached) {
+                promises.push(cached.promise);
                 continue;
             }
 
@@ -328,26 +342,27 @@ function scheduler(limit: number) {
     let active = 0;
     const queue: (() => void)[] = [];
 
+    // Passes the freed slot directly to the next queued task,
+    // so `active` never exceeds `limit`.
     const next = () => {
-        if (active >= limit) {
-            return;
-        }
         const task = queue.shift();
         if (task) {
             task();
+        } else {
+            active--;
         }
     };
 
     return async function <T>(action: () => Promise<T>): Promise<T> {
         if (active >= limit) {
             await new Promise<void>((resolve) => queue.push(resolve));
+        } else {
+            active++;
         }
-        active++;
+
         try {
             return await action();
         } finally {
-            active--;
-            await wait(0);
             next();
         }
     };

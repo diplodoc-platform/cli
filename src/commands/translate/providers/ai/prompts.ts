@@ -1,7 +1,9 @@
+import type {ChatMessage} from './clients/types';
+
 import {existsSync, readFileSync} from 'node:fs';
 import {dedent} from 'ts-dedent';
 
-import type {ChatMessage} from './clients/types';
+import {escapeRegExp} from './utils';
 
 export type PromptMode = 'append' | 'replace';
 
@@ -68,7 +70,9 @@ function renderGlossary(pairs: GlossaryPair[]): string {
     if (!pairs.length) {
         return '';
     }
-    const lines = pairs.map(({sourceText, translatedText}) => `- ${sourceText} → ${translatedText}`);
+    const lines = pairs.map(
+        ({sourceText, translatedText}) => `- ${sourceText} → ${translatedText}`,
+    );
     return `Use these required term translations:\n${lines.join('\n')}\n`;
 }
 
@@ -76,15 +80,11 @@ function joinFragments(fragments: string[]): string {
     return fragments.join(`\n${FRAGMENT_SEPARATOR}\n`);
 }
 
-function escapeRegExp(value: string) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 /**
  * Splits an LLM response back into fragments using the delimiter.
  */
 export function splitFragments(text: string): string[] {
-    const delimiter = new RegExp(`\\s*\\n?${escapeRegExp(FRAGMENT_SEPARATOR)}\\n?\\s*`, 'g');
+    const delimiter = new RegExp(`\\s*${escapeRegExp(FRAGMENT_SEPARATOR)}\\s*`, 'g');
     return text.split(delimiter).map((part) => part.replace(/^\n+|\n+$/g, ''));
 }
 
@@ -99,13 +99,14 @@ export function buildMessages(fragments: string[], config: PromptConfig): ChatMe
     const {systemPrompt, userPrompt, promptMode, sourceLanguage, targetLanguage, glossaryPairs} =
         config;
 
+    const joined = joinFragments(fragments);
     const vars = {
         source: sourceLanguage,
         target: targetLanguage,
         glossary: renderGlossary(glossaryPairs),
         separator: FRAGMENT_SEPARATOR,
-        fragments: joinFragments(fragments),
-        text: joinFragments(fragments),
+        fragments: joined,
+        text: joined,
     };
 
     let system: string;

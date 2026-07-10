@@ -1,4 +1,10 @@
-export {LLMRequestError, LLMAuthError, LLMRateLimitError, LLMResponseError} from './errors';
+export {
+    LLMRequestError,
+    LLMAuthError,
+    LLMRateLimitError,
+    LLMResponseError,
+    throwLLMError,
+} from './errors';
 
 export class Defer<T = string> {
     resolve!: (text: T) => void;
@@ -33,24 +39,19 @@ export async function wait(interval: number) {
 }
 
 export async function backoff<T>(action: () => Promise<T>, retries: number): Promise<T> {
-    let attempt = 0;
-    let lastError: unknown;
+    const attempts = Math.max(0, retries) + 1;
 
-    while (attempt < retries) {
+    for (let attempt = 0; ; attempt++) {
         try {
             return await action();
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-            lastError = error;
-            if (!canRetry(error) || attempt === retries - 1) {
+            if (!canRetry(error) || attempt >= attempts - 1) {
                 throw error;
             }
             await wait(Math.pow(2, attempt) * 1000);
-            attempt++;
         }
     }
-
-    throw lastError;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

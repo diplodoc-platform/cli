@@ -1,7 +1,6 @@
 import {existsSync, readFileSync} from 'node:fs';
 
 const YANDEX_BEARER_PREFIXES = ['y0_', 't1.'];
-const YANDEX_API_KEY_PREFIX = 'AQVN';
 
 /**
  * Resolves an auth token from a CLI value.
@@ -30,10 +29,6 @@ export function yandexAuthHeader(token: string): string {
         if (token.startsWith(prefix)) {
             return 'Bearer ' + token;
         }
-    }
-
-    if (token.startsWith(YANDEX_API_KEY_PREFIX)) {
-        return 'Api-Key ' + token;
     }
 
     return 'Api-Key ' + token;

@@ -1,8 +1,8 @@
 import type {ChatMessage, CompletionOptions, CompletionResult, LLMClient} from './types';
 
-import axios, {AxiosError} from 'axios';
+import axios from 'axios';
 
-import {LLMAuthError, LLMRateLimitError, LLMRequestError, LLMResponseError} from '../utils';
+import {LLMResponseError, throwLLMError} from '../utils';
 
 const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1';
 const DEFAULT_OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
@@ -46,10 +46,7 @@ export class OpenAICompatibleClient implements LLMClient {
         this.extraHeaders = options.extraHeaders || {};
     }
 
-    async complete(
-        messages: ChatMessage[],
-        options: CompletionOptions,
-    ): Promise<CompletionResult> {
+    async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
         try {
             const {data} = await axios.post<OpenAIChatResponse>(
                 `${this.baseUrl}/chat/completions`,
@@ -70,42 +67,29 @@ export class OpenAICompatibleClient implements LLMClient {
                 },
             );
 
-            const choice = data.choices?.[0];
-            if (!choice) {
-                throw new LLMResponseError(`${this.name} returned no choices`);
+            const text = data.choices?.[0]?.message?.content;
+            if (!text) {
+                throw new LLMResponseError(`${this.name} returned an empty response`);
             }
 
             return {
-                text: choice.message.content,
+                text,
                 usage: {
                     inputTokens: data.usage?.prompt_tokens ?? 0,
                     outputTokens: data.usage?.completion_tokens ?? 0,
                 },
             };
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            if (error instanceof AxiosError && error.response) {
-                const {status, statusText, data} = error.response;
-                const message = data?.error?.message || data?.message || statusText;
-
-                if (status === 401 || status === 403) {
-                    throw new LLMAuthError(`${this.name} auth failed: ${message}`);
-                }
-                if (status === 429) {
-                    throw new LLMRateLimitError(message);
-                }
-                throw new LLMRequestError(status, message, {
-                    retryable: status >= 500 && status < 600,
-                });
-            }
-            throw error;
+        } catch (error) {
+            throwLLMError(error, this.name);
         }
     }
 }
 
-export function createOpenAIClient(opts: Omit<OpenAICompatibleClientOptions, 'name' | 'baseUrl'> & {
-    baseUrl?: string;
-}) {
+export function createOpenAIClient(
+    opts: Omit<OpenAICompatibleClientOptions, 'name' | 'baseUrl'> & {
+        baseUrl?: string;
+    },
+) {
     return new OpenAICompatibleClient({
         ...opts,
         name: 'openai',
