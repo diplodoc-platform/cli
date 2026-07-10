@@ -31,6 +31,7 @@ const excludedMetaFields = [
     'noIndex',
     'canonical',
     'alternate',
+    'restricted-access',
 ];
 
 function isPublicMeta(record: {name?: string; property?: string}) {
@@ -38,6 +39,17 @@ function isPublicMeta(record: {name?: string; property?: string}) {
         (record.name && !excludedMetaFields.includes(record.name)) ||
         (record.property && !excludedMetaFields.includes(record.property))
     );
+}
+
+function stripUnresolvedVars(str: string): string {
+    if (typeof str !== 'string') return str;
+    const parts = str.split('{{');
+    let result = parts[0];
+    for (let i = 1; i < parts.length; i++) {
+        const closeIdx = parts[i].indexOf('}}');
+        result += closeIdx !== -1 ? parts[i].substring(closeIdx + 2) : parts[i];
+    }
+    return result.replace(/\s+/g, ' ').trim();
 }
 
 @withHooks
@@ -127,6 +139,7 @@ export class EntryService {
             description,
             canonical = '',
             alternate = [],
+            __metadata = [],
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
@@ -155,11 +168,17 @@ export class EntryService {
               } as Parameters<typeof render>[0])
             : '';
 
-        template.setTitle(title);
+        template.setTitle(stripUnresolvedVars(title));
         template.addBody(`<div id="root">${html}</div>`);
         template.setFaviconSrc(faviconSrc);
-        template.setCanonical(canonical);
-        template.addAlternates(alternate);
+        template.setCanonical(stripUnresolvedVars(canonical));
+
+        template.addAlternates(
+            alternate.map((a: {href: string; hreflang?: string}) => ({
+                ...a,
+                href: stripUnresolvedVars(a.href),
+            })),
+        );
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);
@@ -167,7 +186,7 @@ export class EntryService {
         }
 
         if (description && !metadata.some((meta: Hash) => meta.name === 'description')) {
-            metadata.push({name: 'description', content: description});
+            metadata.push({name: 'description', content: stripUnresolvedVars(description)});
         }
 
         if (restYamlConfigMeta.updatedAt) {
@@ -181,7 +200,15 @@ export class EntryService {
             });
         }
 
-        metadata.filter(isPublicMeta).map(template.addMeta);
+        metadata
+            .filter(isPublicMeta)
+            .map((m: Hash) => ({...m, content: stripUnresolvedVars(m.content)}))
+            .map(template.addMeta);
+
+        (Array.isArray(__metadata) ? __metadata : [])
+            .filter(isPublicMeta)
+            .map((m: Hash) => ({...m, content: stripUnresolvedVars(m.content)}))
+            .map(template.addMeta);
 
         if (Array.isArray(restYamlConfigMeta.keywords)) {
             restYamlConfigMeta.keywords = this.cleanKeywords(restYamlConfigMeta.keywords).join(
@@ -194,9 +221,11 @@ export class EntryService {
         }
 
         Object.entries(restYamlConfigMeta)
-            .map(([name, content]) => {
-                return {name, content};
-            })
+            .filter(([, content]) => typeof content === 'string')
+            .map(([name, content]) => ({
+                name,
+                content: stripUnresolvedVars(content as string),
+            }))
             .filter(isPublicMeta)
             .map(template.addMeta);
 

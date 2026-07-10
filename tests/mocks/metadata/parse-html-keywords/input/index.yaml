@@ -1,16 +1,94 @@
 meta:
-  title: Общая поддержка Яндекса
-  description: 'Поддержка для пользователей, которые столкнулись с проблемой или у которых возникли вопросы по сервисам Яндекса.'
+  title: Заголовок {{yandex}} и {{missing-title}}
+  description: 'Описание для {{yandex}}, регион {{region}}, и {{no-such-var}} в конце.'
+  noIndex: false
   keywords:
-    - keyword: Номер телефона {{yandex}}
+    - keyword: Есть переменная {{yandex}}
     - keyword: "{{ yandex }}"
-    - keyword: "helm in {{ yandex }}"
-    - keyword: Тест нет переменной {{no-var}}
-    - keyword: Телефон {{yandex-taxi}}
-    - keyword: номер телефона {{yandex-taxi}}
-    - keyword: тест на список {{yandex-taxi}}, тест на числа, 1234567890
-    - keyword: тест на число с буквами и символами, YNX-123
-    - keyword: 
+    - keyword: "с пробелами {{  yandex  }}"
+    - keyword: Нет переменной {{no-var}}
+    - keyword: Совсем нет {{missing}} тут
+    - keyword: "{{ absent }}"
+    - keyword: Дефис есть {{yandex-taxi}}
+    - keyword: Дефис нет {{yandex-market-missing}}
+    - keyword: Микс {{yandex}} + {{no-var}} + {{region}}
+    - keyword: слитно{{yandex}}текст
+    - keyword: "числа {{yandex}}, 1234567890, YNX-123"
+    - keyword: ""
+  canonical: 'https://example.com/{{yandex}}/{{region}}/{{missing-path}}/support'
+  copyright: '© {{year}} {{yandex}}. {{no-var}} Все права защищены.'
+  alternate:
+    - href: 'https://example.com/{{lang}}/support'
+      hreflang: en
+    - href: 'https://example.com/{{missing-lang}}/support'
+      hreflang: ru
+  metadata:
+    - name: robots
+      content: index, follow
+    - property: 'og:title'
+      content: 'OG {{yandex}} / {{no-var}}'
+    - property: 'og:description'
+      content: 'Описание {{region}} и {{missing}}'
+    - name: author-var
+      content: 'Автор {{author-name}}'
+    - http-equiv: content-language
+      content: '{{lang}}'
+  restricted-access:
+    - - '{{access-group}}'
+      - staff
+    - - '{{missing-group}}'
+  script:
+    - '/assets/js/support.js'
+    - 'https://cdn.example.com/{{yandex}}/analytics.js'
+    - 'https://cdn.example.com/{{missing-cdn}}/script.js'
+  style:
+    - '/assets/css/{{theme}}.css'
+    - 'https://cdn.example.com/{{missing-theme}}.css'
+  vcsPath: 'docs/{{yandex}}/index.md'
+  sourcePath: 'src/{{missing-src}}/index.md'
+  updatedAt: '2024-05-15T12:34:56Z'
+  author:
+    avatar: 'https://avatars.example.com/{{login}}.png'
+    email: '{{login}}@example.com'
+    login: iivanov
+    name: 'Иван {{surname}}'
+    url: 'https://example.com/users/{{missing-user}}'
+  contributors:
+    - avatar: 'https://avatars.example.com/ppetrov.png'
+      email: ppetrov@example.com
+      login: '{{login}}'
+      name: Пётр Петров
+      url: 'https://example.com/users/ppetrov'
+    - avatar: 'https://avatars.example.com/msidorova.png'
+      email: msidorova@example.com
+      login: msidorova
+      name: Мария Сидорова
+      url: 'https://example.com/users/msidorova'  
+  editable: true
+  csp:
+    - script-src:
+        - "'self'"
+        - 'https://cdn.example.com'
+    - style-src:
+        - "'self'"
+  resources:
+    script:
+      - '/assets/js/legacy-support.js'
+    style:
+      - '/assets/css/legacy.css'
+    csp:
+      - default-src:
+          - "'self'"
+  __system:
+    buildId: 'build-{{yandex}}-001'
+    env: production
+  __metadata:
+    - name: yandex-verification
+      content: 'abc123{{yandex}}'
+    - property: 'article:published_time'
+      content: '2024-05-15T12:34:56Z'
+    - http-equiv: content-language
+      content: ru
 
 fullScreen: true
 blocks:
