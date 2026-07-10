@@ -39,6 +39,22 @@ describe('EntryService', () => {
             ).toEqual(['Номер телефона', 'контакт']);
         });
 
+        it('flattens nested arrays within keyword properties safely', () => {
+            expect(cleanKeywords([{keyword: ['nested', 'list', 'elements']}])).toEqual([
+                'nested list elements',
+            ]);
+            expect(cleanKeywords([{keyword: ['mixed', 123, 'data']}])).toEqual(['mixed 123 data']);
+        });
+
+        it('handles broken or unclosed template brackets gracefully', () => {
+            expect(
+                cleanKeywords(['text {{unclosed-template', {keyword: 'normal {{var}}'}]),
+            ).toEqual(['text unclosed-template', 'normal']);
+            expect(cleanKeywords(['multiple {{ broken {{ brackets'])).toEqual([
+                'multiple broken brackets',
+            ]);
+        });
+
         it('converts numbers (barcodes, years) safely to strings without crashing', () => {
             expect(cleanKeywords([4670028541173, 2026])).toEqual(['4670028541173', '2026']);
             expect(cleanKeywords([{keyword: 777}, 'plain'])).toEqual(['777', 'plain']);
