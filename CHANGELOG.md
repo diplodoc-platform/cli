@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.49.3](https://github.com/diplodoc-platform/cli/compare/v5.49.2...v5.49.3) (2026-07-10)
+
+
+### Bug Fixes
+
+* filter fake links ([#2054](https://github.com/diplodoc-platform/cli/issues/2054)) ([c0c19a5](https://github.com/diplodoc-platform/cli/commit/c0c19a50ee53f9924dc049e15c8766f604b77529))
+
 ## [5.49.2](https://github.com/diplodoc-platform/cli/compare/v5.49.1...v5.49.2) (2026-07-09)
 
 
