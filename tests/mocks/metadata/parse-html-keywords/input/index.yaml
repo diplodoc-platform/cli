@@ -3,9 +3,14 @@ meta:
   description: 'Поддержка для пользователей, которые столкнулись с проблемой или у которых возникли вопросы по сервисам Яндекса.'
   keywords:
     - keyword: Номер телефона {{yandex}}
-    - keyword: Яндекс контакты {{no-var}}
+    - keyword: "{{ yandex }}"
+    - keyword: "helm in {{ yandex }}"
+    - keyword: Тест нет переменной {{no-var}}
     - keyword: Телефон {{yandex-taxi}}
     - keyword: номер телефона {{yandex-taxi}}
+    - keyword: тест на список {{yandex-taxi}}, тест на числа, 1234567890
+    - keyword: тест на число с буквами и символами, YNX-123
+    - keyword: 
 
 fullScreen: true
 blocks:

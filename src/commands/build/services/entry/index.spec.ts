@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 
 import {EntryService} from './EntryService';
 
-const cleanKeywords = (content: any[]) => {
+const cleanKeywords = (content: any[]): string[] => {
     return (EntryService.prototype as any).cleanKeywords(content);
 };
 
@@ -18,25 +18,44 @@ const createMockService = (relationsMock: any) => {
 describe('EntryService', () => {
     describe('cleanKeywords', () => {
         it('keeps and formats valid plain string items', () => {
-            expect(cleanKeywords(['foo', 'bar'])).toEqual('foo, bar');
+            expect(cleanKeywords(['foo', 'bar'])).toEqual(['foo', 'bar']);
         });
 
         it('extracts target values from object keywords mapping cleanly', () => {
-            expect(cleanKeywords([{keyword: 'Yandex'}, {keyword: 'taxi'}])).toEqual('Yandex, taxi');
-            expect(cleanKeywords(['plain', {keyword: 'wrapped'}])).toEqual('plain, wrapped');
+            expect(cleanKeywords([{keyword: 'Yandex'}, {keyword: 'taxi'}])).toEqual([
+                'Yandex',
+                'taxi',
+            ]);
+            expect(cleanKeywords(['plain', {keyword: 'wrapped'}])).toEqual(['plain', 'wrapped']);
         });
 
         it('strips away layout template brackets and duplicate middle spaces', () => {
-            expect(cleanKeywords([{keyword: '  wrapped   spacing '}, 'normal'])).toEqual(
-                'wrapped spacing, normal',
-            );
+            expect(cleanKeywords([{keyword: '  wrapped   spacing '}, 'normal'])).toEqual([
+                'wrapped spacing',
+                'normal',
+            ]);
             expect(
                 cleanKeywords([{keyword: 'Номер телефона {{yandex}}'}, 'контакт {{unknown-var}}']),
-            ).toEqual('Номер телефона, контакт');
+            ).toEqual(['Номер телефона', 'контакт']);
         });
 
-        it('filters out short keywords falling below length threshold', () => {
-            expect(cleanKeywords(['ok', 'sh', 'longer-word'])).toEqual('longer-word');
+        it('converts numbers (barcodes, years) safely to strings without crashing', () => {
+            expect(cleanKeywords([4670028541173, 2026])).toEqual(['4670028541173', '2026']);
+            expect(cleanKeywords([{keyword: 777}, 'plain'])).toEqual(['777', 'plain']);
+        });
+
+        it('handles null, undefined and unexpected types by filtering them out', () => {
+            expect(cleanKeywords([null, undefined, 'valid-word'])).toEqual(['valid-word']);
+            expect(cleanKeywords([{}, {keyword: null}, 'test'])).toEqual(['test']);
+        });
+
+        it('handles booleans correctly by converting or filtering them', () => {
+            expect(cleanKeywords([true, false, 'word'])).toEqual(['true', 'false', 'word']);
+        });
+
+        it('returns empty array if input content is empty or invalid', () => {
+            expect(cleanKeywords([])).toEqual([]);
+            expect((EntryService.prototype as any).cleanKeywords(null)).toEqual(null);
         });
     });
 

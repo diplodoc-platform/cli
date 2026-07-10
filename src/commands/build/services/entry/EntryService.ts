@@ -183,12 +183,18 @@ export class EntryService {
 
         metadata.filter(isPublicMeta).map(template.addMeta);
 
+        if (Array.isArray(restYamlConfigMeta.keywords)) {
+            restYamlConfigMeta.keywords = this.cleanKeywords(restYamlConfigMeta.keywords).join(
+                ', ',
+            );
+
+            if (state.data?.meta) {
+                state.data.meta.keywords = restYamlConfigMeta.keywords;
+            }
+        }
+
         Object.entries(restYamlConfigMeta)
             .map(([name, content]) => {
-                if (name === 'keywords' && Array.isArray(content)) {
-                    const cleanKeywords = this.cleanKeywords(content);
-                    return {name, content: cleanKeywords};
-                }
                 return {name, content};
             })
             .filter(isPublicMeta)
@@ -300,17 +306,42 @@ export class EntryService {
         }
     }
 
-    private cleanKeywords(content: any[]): string {
+    private cleanKeywords(content: any) {
+        if (!Array.isArray(content)) {
+            return content;
+        }
+
         return content
             .map((k: any) => {
-                const str = typeof k === 'object' && k && 'keyword' in k ? k.keyword : k;
+                let rawValue = typeof k === 'object' && k && 'keyword' in k ? k.keyword : k;
 
-                return str
-                    .replace(/\{\{[^}]*\}\}/g, '')
-                    .replace(/\s+/g, ' ')
-                    .trim();
+                if (Array.isArray(rawValue)) {
+                    rawValue = rawValue.join(' ');
+                }
+
+                if (
+                    rawValue === null ||
+                    rawValue === undefined ||
+                    (typeof rawValue === 'object' && !Object.keys(rawValue).length)
+                ) {
+                    return '';
+                }
+
+                const strValue = String(rawValue);
+
+                const parts = strValue.split('{{');
+                let cleanStr = parts[0];
+                for (let i = 1; i < parts.length; i++) {
+                    const closeIdx = parts[i].indexOf('}}');
+                    if (closeIdx !== -1) {
+                        cleanStr += parts[i].substring(closeIdx + 2);
+                    } else {
+                        cleanStr += parts[i];
+                    }
+                }
+
+                return cleanStr.replace('[', '').replace(']', '').replace(/\s+/g, ' ').trim();
             })
-            .filter((str: string) => str.length > 2)
-            .join(', ');
+            .filter((str) => typeof str === 'string' && str.length > 0);
     }
 }

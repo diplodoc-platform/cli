@@ -52,8 +52,19 @@ describe('Parse and render HTML meta keywords', () => {
 
         const html = readFileSync(htmlPath, 'utf8');
 
-        expect(html).toMatch(
-            /<meta name="keywords" content="Номер телефона Yandex, Яндекс контакты, Телефон яндекс такси, номер телефона яндекс такси"/,
-        );
+        const expectedKeywords = [
+            'Номер телефона Yandex',
+            'Yandex',
+            'helm in Yandex',
+            'Тест нет переменной',
+            'Телефон яндекс такси',
+            'номер телефона яндекс такси',
+            'тест на список яндекс такси, тест на числа, 1234567890',
+            'тест на число с буквами и символами, YNX-123',
+        ].join(', ');
+
+        const regex = new RegExp(`<meta name=["']keywords["'] content=["']${expectedKeywords}["']`);
+
+        expect(html).toMatch(regex);
     }, 45000);
 });
