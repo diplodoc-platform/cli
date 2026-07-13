@@ -1,3 +1,11 @@
 default:
   yandex: Yandex
   yandex-taxi: яндекс такси
+  region: Москва
+  year: '2024'
+  lang: en
+  theme: dark
+  login: iivanov
+  surname: Иванов
+  access-group: internal
+  author-name: Иван Иванов

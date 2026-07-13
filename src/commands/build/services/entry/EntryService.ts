@@ -31,6 +31,7 @@ const excludedMetaFields = [
     'noIndex',
     'canonical',
     'alternate',
+    'restricted-access',
 ];
 
 function isPublicMeta(record: {name?: string; property?: string}) {
@@ -38,6 +39,17 @@ function isPublicMeta(record: {name?: string; property?: string}) {
         (record.name && !excludedMetaFields.includes(record.name)) ||
         (record.property && !excludedMetaFields.includes(record.property))
     );
+}
+
+function stripUnresolvedVars(str: string): string {
+    if (typeof str !== 'string') return str;
+    const parts = str.split('{{');
+    let result = parts[0];
+    for (let i = 1; i < parts.length; i++) {
+        const closeIdx = parts[i].indexOf('}}');
+        result += closeIdx !== -1 ? parts[i].substring(closeIdx + 2) : parts[i];
+    }
+    return result.replace(/\s+/g, ' ').trim();
 }
 
 @withHooks
@@ -127,6 +139,7 @@ export class EntryService {
             description,
             canonical = '',
             alternate = [],
+            __metadata = [],
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
@@ -155,11 +168,17 @@ export class EntryService {
               } as Parameters<typeof render>[0])
             : '';
 
-        template.setTitle(title);
+        template.setTitle(stripUnresolvedVars(title));
         template.addBody(`<div id="root">${html}</div>`);
         template.setFaviconSrc(faviconSrc);
-        template.setCanonical(canonical);
-        template.addAlternates(alternate);
+        template.setCanonical(stripUnresolvedVars(canonical));
+
+        template.addAlternates(
+            alternate.map((a: {href: string; hreflang?: string}) => ({
+                ...a,
+                href: stripUnresolvedVars(a.href),
+            })),
+        );
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);
@@ -167,7 +186,7 @@ export class EntryService {
         }
 
         if (description && !metadata.some((meta: Hash) => meta.name === 'description')) {
-            metadata.push({name: 'description', content: description});
+            metadata.push({name: 'description', content: stripUnresolvedVars(description)});
         }
 
         if (restYamlConfigMeta.updatedAt) {
@@ -181,16 +200,38 @@ export class EntryService {
             });
         }
 
-        metadata.filter(isPublicMeta).map(template.addMeta);
+        metadata
+            .filter(isPublicMeta)
+            .map((m: Hash) => ({...m, content: stripUnresolvedVars(m.content)}))
+            .forEach(template.addMeta);
+
+        (Array.isArray(__metadata) ? __metadata : [])
+            .filter(isPublicMeta)
+            .map((m: Hash) => ({...m, content: stripUnresolvedVars(m.content)}))
+            .forEach(template.addMeta);
+
+        if (Array.isArray(restYamlConfigMeta.keywords)) {
+            this.normalizeKeywords(restYamlConfigMeta);
+
+            if (state.data?.meta) {
+                state.data.meta.keywords = restYamlConfigMeta.keywords;
+            }
+        }
+
+        Object.keys(restYamlConfigMeta).forEach((key) => {
+            const value = restYamlConfigMeta[key];
+
+            if (Array.isArray(value) && value.every((item) => typeof item === 'string')) {
+                restYamlConfigMeta[key] = value.join(',');
+            }
+        });
 
         Object.entries(restYamlConfigMeta)
-            .map(([name, content]) => {
-                if (name === 'keywords' && Array.isArray(content)) {
-                    const cleanKeywords = this.cleanKeywords(content);
-                    return {name, content: cleanKeywords};
-                }
-                return {name, content};
-            })
+            .filter(([, content]) => typeof content === 'string')
+            .map(([name, content]) => ({
+                name,
+                content: stripUnresolvedVars(content as string),
+            }))
             .filter(isPublicMeta)
             .map(template.addMeta);
 
@@ -300,17 +341,50 @@ export class EntryService {
         }
     }
 
-    private cleanKeywords(content: any[]): string {
+    private normalizeKeywords(meta: Hash): void {
+        if (!Array.isArray(meta.keywords)) {
+            return;
+        }
+
+        meta.keywords = this.cleanKeywords(meta.keywords).join(', ');
+    }
+
+    private cleanKeywords(content: any) {
+        if (!Array.isArray(content)) {
+            return content;
+        }
+
         return content
             .map((k: any) => {
-                const str = typeof k === 'object' && k && 'keyword' in k ? k.keyword : k;
+                let rawValue = typeof k === 'object' && k && 'keyword' in k ? k.keyword : k;
 
-                return str
-                    .replace(/\{\{[^}]*\}\}/g, '')
-                    .replace(/\s+/g, ' ')
-                    .trim();
+                if (Array.isArray(rawValue)) {
+                    rawValue = rawValue.join(' ');
+                }
+
+                if (
+                    rawValue === null ||
+                    rawValue === undefined ||
+                    (typeof rawValue === 'object' && !Object.keys(rawValue).length)
+                ) {
+                    return '';
+                }
+
+                const strValue = String(rawValue);
+
+                const parts = strValue.split('{{');
+                let cleanStr = parts[0];
+                for (let i = 1; i < parts.length; i++) {
+                    const closeIdx = parts[i].indexOf('}}');
+                    if (closeIdx !== -1) {
+                        cleanStr += parts[i].substring(closeIdx + 2);
+                    } else {
+                        cleanStr += parts[i];
+                    }
+                }
+
+                return cleanStr.replace('[', '').replace(']', '').replace(/\s+/g, ' ').trim();
             })
-            .filter((str: string) => str.length > 2)
-            .join(', ');
+            .filter((str) => typeof str === 'string' && str.length > 0);
     }
 }
