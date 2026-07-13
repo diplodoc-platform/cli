@@ -139,6 +139,26 @@ export function addPagePrefixToAnchors(root: HTMLElement, options: PreprocessPdf
         prepareAnchorAttrs(node, pathname, anchor);
     }
 
+    for (const node of elements(
+        root,
+        '[id]:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.yfm-anchor)',
+    )) {
+        const id = node.getAttribute('id');
+
+        if (id) {
+            node.setAttribute('id', `${anchor}_${id}`);
+        }
+    }
+
+    for (const node of elements(root, 'a:not(.yfm-anchor)')) {
+        const href = node.getAttribute('href') || '';
+
+        if (href.startsWith('#')) {
+            const fragment = href.slice(1);
+            node.setAttribute('href', `${pathname}#${anchor}_${fragment}`);
+        }
+    }
+
     const mainHeader = root.querySelector('h1');
     if (mainHeader) {
         const node = parse(
