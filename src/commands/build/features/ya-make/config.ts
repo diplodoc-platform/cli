@@ -7,7 +7,7 @@ const arcadiaRoot = option({
     desc: `
         Path to Arcadia root. Enables ya.make support.
 
-        Resolves DOCS_DIR and DOCS_COPY_FILES macros from ya.make
+        Resolves DOCS_DIR, DOCS_CONFIG, and DOCS_COPY_FILES macros from ya.make
         in the input directory and assembles all referenced files
         before building.
 
