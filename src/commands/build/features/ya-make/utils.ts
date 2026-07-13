@@ -55,10 +55,6 @@ export function collectWatchPaths(parsed: YaMakeParsed): string[] {
         paths.push(parsed.docsDir);
     }
 
-    if (parsed.docsConfig && !paths.includes(parsed.docsConfig) && existsSync(parsed.docsConfig)) {
-        paths.push(parsed.docsConfig);
-    }
-
     const candidates = [
         ...parsed.copyFiles.map(({from}) => from),
         ...parsed.includeSources,
