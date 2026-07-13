@@ -10,7 +10,7 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
 
 `@diplodoc/cli` is a CLI tool for building documentation from Markdown files with Yandex Flavored Markdown (YFM) support. The project allows you to build full-fledged documentation with navigation, internal transitions, and full YFM support.
 
-## Project Structure
+## Project Structure 2
 
 ### Main Directories
 
