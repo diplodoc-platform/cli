@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {join} from 'node:path';
-import {mkdirSync, rmSync} from 'node:fs';
+import {mkdirSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {execFileSync} from 'node:child_process';
 
@@ -142,5 +142,33 @@ describe('collectWatchPaths', () => {
             copyFileSingle: [],
         });
         expect(result.filter((p) => p === dir)).toHaveLength(1);
+    });
+
+    it('includes existing docsConfig file', () => {
+        const configFile = join(tmp, 'config.yml');
+        writeFileSync(configFile, 'title: test');
+        const result = collectWatchPaths({
+            arcadiaRoot: tmp,
+            docsDir: undefined,
+            docsConfig: configFile,
+            copyFiles: [],
+            includeSources: [],
+            peerDirs: [],
+            copyFileSingle: [],
+        });
+        expect(result).toContain(configFile);
+    });
+
+    it('omits docsConfig when file does not exist', () => {
+        const result = collectWatchPaths({
+            arcadiaRoot: tmp,
+            docsDir: undefined,
+            docsConfig: join(tmp, 'missing-config.yml'),
+            copyFiles: [],
+            includeSources: [],
+            peerDirs: [],
+            copyFileSingle: [],
+        });
+        expect(result).toHaveLength(0);
     });
 });
