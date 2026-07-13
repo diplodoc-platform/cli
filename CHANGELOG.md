@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.49.4](https://github.com/diplodoc-platform/cli/compare/v5.49.3...v5.49.4) (2026-07-13)
+
+
+### Bug Fixes
+
+* added DOCS_CONFIG support ([#2060](https://github.com/diplodoc-platform/cli/issues/2060)) ([cdfed90](https://github.com/diplodoc-platform/cli/commit/cdfed90f5a29b40985578c2870900f9de77bc854))
+
 ## [5.49.3](https://github.com/diplodoc-platform/cli/compare/v5.49.2...v5.49.3) (2026-07-10)
 
 
