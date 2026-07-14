@@ -1,7 +1,5 @@
-import type {UrlWithStringQuery} from 'node:url';
-
-import {parse} from 'node:url';
-import {cloneDeepWith, isString, pick} from 'lodash';
+import {formatHref, parseHref} from '@diplodoc/utils';
+import {cloneDeepWith, isString} from 'lodash';
 
 import {normalizePath} from './path';
 
@@ -77,7 +75,9 @@ export function isMediaLink(link: string) {
     return MEDIA_FORMATS.test(link) || DOC_FORMATS.test(link);
 }
 
-type LocalUrlInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
+type LocalUrlInfo = {
+    hash: string | null;
+    search: string | null;
     path: NormalizedPath;
 };
 
@@ -97,17 +97,11 @@ export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
     }
 
     try {
-        const parsed = parse(unescapeAll(url));
+        const {pathname, search, hash} = parseHref(unescapeAll(url));
 
-        if (parsed.host || parsed.protocol) {
-            return null;
-        }
+        const path = pathname === null ? null : normalizePath(formatHref({pathname, search}));
 
-        if (parsed.path) {
-            parsed.path = normalizePath(parsed.path);
-        }
-
-        return pick(parsed, ['path', 'search', 'hash']) as T;
+        return {path, search, hash} as T;
     } catch {
         return null;
     }

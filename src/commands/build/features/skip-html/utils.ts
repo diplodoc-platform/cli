@@ -2,7 +2,7 @@ import type Token from 'markdown-it/lib/token';
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
 import type {Heading} from '@diplodoc/transform/lib/typings';
 
-import url from 'url';
+import {parseHref} from '@diplodoc/utils';
 
 import {filterTokens, isExternalHref, shortLink} from '~/core/utils';
 
@@ -23,7 +23,7 @@ export function walkLinks(state: StateCore, handler: LinkWalker) {
 
         filterTokens(childrenTokens, 'link_open', (link, {index}) => {
             const href = getHrefTokenAttr(link);
-            const {pathname, hash} = url.parse(href);
+            const {pathname, hash} = parseHref(href);
 
             if (!(pathname || hash)) {
                 return;

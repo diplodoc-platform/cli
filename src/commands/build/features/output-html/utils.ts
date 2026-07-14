@@ -2,7 +2,7 @@ import type Token from 'markdown-it/lib/token';
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
 import type MarkdownIt from 'markdown-it';
 
-import url from 'url';
+import {parseHref} from '@diplodoc/utils';
 import {colorPlugin} from '@diplodoc/color-extension';
 import notes from '@diplodoc/transform/lib/plugins/notes';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
@@ -138,7 +138,7 @@ export function walkLinks(state: StateCore, handler: LinkWalker) {
         filterTokens(childrenTokens, 'link_open', (link, {index}) => {
             const tokenClass = link.attrGet('class');
             const href = getHrefTokenAttr(link);
-            const {pathname, hash} = url.parse(href);
+            const {pathname, hash} = parseHref(href);
 
             /*  Don't process anchor links */
             const isYfmAnchor = tokenClass ? tokenClass.includes('yfm-anchor') : false;
