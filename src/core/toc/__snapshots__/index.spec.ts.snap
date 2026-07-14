@@ -172,6 +172,55 @@ path: toc.yaml
 "
 `;
 
+exports[`toc-loader > navigation footer pass-through > should preserve footer alongside header 1`] = `
+"title: Test
+navigation:
+  logo:
+    url: ./
+  header:
+    leftItems:
+      - text: Docs
+        type: link
+        url: ./docs.md
+    rightItems:
+      - type: controls
+  footer:
+    withDivider: true
+    copyright: My Company
+    menuItems:
+      - text: Terms
+        url: https://example.com/terms
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation footer pass-through > should preserve footer config in navigation 1`] = `
+"title: Test
+navigation:
+  footer:
+    withDivider: true
+    moreButtonTitle: Show more
+    copyright: Copyright 2025
+    menuItems:
+      - text: About
+        url: https://example.com/about
+      - text: GitHub
+        url: https://github.com/example
+        target: _blank
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation footer pass-through > should preserve footer with view clear 1`] = `
+"title: Test
+navigation:
+  footer:
+    view: clear
+    copyright: 2025 My Service
+path: toc.yaml
+"
+`;
+
 exports[`toc-loader > navigation header items filtering > should filter both leftItems and rightItems 1`] = `
 "title: Test
 navigation:

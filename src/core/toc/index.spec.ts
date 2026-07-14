@@ -943,6 +943,72 @@ describe('toc-loader', () => {
         );
     });
 
+    describe('navigation footer pass-through', () => {
+        it(
+            'should preserve footer config in navigation',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      footer:
+                        withDivider: true
+                        moreButtonTitle: Show more
+                        copyright: Copyright 2025
+                        menuItems:
+                          - text: About
+                            url: https://example.com/about
+                          - text: GitHub
+                            url: https://github.com/example
+                            target: _blank
+                `,
+                {},
+                {},
+            ),
+        );
+
+        it(
+            'should preserve footer alongside header',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      logo:
+                        url: ./
+                      header:
+                        leftItems:
+                          - text: Docs
+                            type: link
+                            url: ./docs.md
+                        rightItems:
+                          - type: controls
+                      footer:
+                        withDivider: true
+                        copyright: My Company
+                        menuItems:
+                          - text: Terms
+                            url: https://example.com/terms
+                `,
+                {},
+                {},
+            ),
+        );
+
+        it(
+            'should preserve footer with view clear',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      footer:
+                        view: clear
+                        copyright: 2025 My Service
+                `,
+                {},
+                {},
+            ),
+        );
+    });
+
     describe('label', () => {
         it(
             'should handle string label',

@@ -44,12 +44,29 @@ export type NavigationHeaderItem = Filter & {
     [key: string]: unknown;
 };
 
+export type NavigationFooterMenuItem = {
+    text: string;
+    url?: string;
+    target?: string;
+};
+
+export type NavigationFooter = {
+    withDivider?: boolean;
+    view?: 'normal' | 'clear';
+    moreButtonTitle?: string;
+    copyright?: string;
+    logo?: string | object;
+    logoWrapperClassName?: string;
+    menuItems: NavigationFooterMenuItem[];
+};
+
 export type Navigation = {
     logo?: object;
     header?: {
         leftItems?: NavigationHeaderItem[];
         rightItems?: NavigationHeaderItem[];
     };
+    footer?: NavigationFooter;
 };
 
 export type RawTocItem = Filter & {
