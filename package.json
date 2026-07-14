@@ -112,6 +112,9 @@
     "ts-dedent": "2.2.0",
     "yaml": "^2.8.0"
   },
+  "overrides": {
+    "@gravity-ui/page-constructor": "8.13.2"
+  },
   "peerDependencies": {
     "strip-ansi": "^7.1.0",
     "vitest": "^3.2.1"
