@@ -97,12 +97,21 @@ jobs:
           git add tests/**/__snapshots__/
 
           # Commit changes
-          git commit -m "test: update e2e snapshots" --no-verify
+          BRANCH="${{ steps.pr_info.outputs.branch_name }}"
+          git fetch origin "${BRANCH}"
+          REMOTE_TIP="$(git rev-parse "origin/${BRANCH}")"
 
-          # Push to PR branch
-          git push origin ${{ steps.pr_info.outputs.branch_name }}
+          git commit --amend --no-edit --no-verify
+          if git push --force-with-lease origin "${BRANCH}"; then
+            echo "::notice::Pushed amended snapshot commit on ${BRANCH}"
+          else
+            echo "::warning::Force-push failed, falling back to a regular commit"
+            git reset --soft "${REMOTE_TIP}"
+            git commit -m "test: update e2e snapshots" --no-verify
+            git push origin "${BRANCH}"
+          fi
 
-          echo "::notice::Snapshots updated and pushed to branch ${{ steps.pr_info.outputs.branch_name }}"
+          echo "::notice::Snapshots updated on branch ${BRANCH}"
 
       - name: Comment on PR
         if: steps.check_changes.outputs.has_changes == 'true'
