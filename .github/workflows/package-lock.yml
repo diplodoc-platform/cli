@@ -55,7 +55,16 @@ jobs:
           git config --global user.email "95919151+yc-ui-bot@users.noreply.github.com"
           git config --global user.name "yc-ui-bot"
 
-          # Commit and push
           git add package-lock.json
-          git commit -m "chore: Update package-lock.json" --no-verify
-          git push origin HEAD:${BRANCH_NAME}
+          git fetch origin "${BRANCH_NAME}"
+          REMOTE_TIP="$(git rev-parse "origin/${BRANCH_NAME}")"
+
+          git commit --amend --no-edit --no-verify
+          if git push --force-with-lease origin "HEAD:${BRANCH_NAME}"; then
+            echo "::notice::Pushed amended lockfile commit on ${BRANCH_NAME}"
+          else
+            echo "::warning::Force-push failed, falling back to a regular commit"
+            git reset --soft "${REMOTE_TIP}"
+            git commit -m "chore: Update package-lock.json" --no-verify
+            git push origin "HEAD:${BRANCH_NAME}"
+          fi

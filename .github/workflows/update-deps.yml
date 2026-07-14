@@ -44,7 +44,7 @@ on:
         description: 'Update as devDependency (only for single package selection)'
         required: false
         type: boolean
-        default: '@diplodoc/transform'
+        default: false
       packages:
         description: 'Package names to update (comma-separated, e.g., "@diplodoc/transform,dev:@diplodoc/client"). Use "dev:" prefix for devDependencies. If empty, uses single package selection above.'
         required: false
