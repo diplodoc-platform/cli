@@ -2,7 +2,7 @@ import type StateCore from 'markdown-it/lib/rules_core/state_core';
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
 import type {Logger} from '~/core/logger';
 
-import url from 'url';
+import {formatHref, parseHref} from '@diplodoc/utils';
 import {bold} from 'chalk';
 import {dirname, isAbsolute, join} from 'node:path';
 
@@ -39,7 +39,7 @@ export default ((md, opts) => {
                 return;
             }
 
-            const parsed = url.parse(href);
+            const parsed = parseHref(href);
             const {pathname} = parsed;
 
             if (isAbsolute(href) || href.includes('//')) {
@@ -60,7 +60,7 @@ export default ((md, opts) => {
 
                 link.attrSet(
                     'href',
-                    url.format({
+                    formatHref({
                         ...parsed,
                         pathname,
                     }),
@@ -81,7 +81,7 @@ export default ((md, opts) => {
 
                 link.attrSet(
                     'href',
-                    url.format({
+                    formatHref({
                         ...parsed,
                         pathname: file.replace(PAGE_LINK_REGEXP, '.html'),
                     }),

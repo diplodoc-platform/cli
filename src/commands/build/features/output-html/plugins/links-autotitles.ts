@@ -2,7 +2,7 @@ import type StateCore from 'markdown-it/lib/rules_core/state_core';
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
 import type {Logger} from '~/core/logger';
 
-import url from 'url';
+import {parseHref} from '@diplodoc/utils';
 import {bold} from 'chalk';
 import {dirname, join} from 'node:path';
 
@@ -26,7 +26,7 @@ export default ((md, opts) => {
 
             const isEmptyLink = nextToken.type === 'link_close';
             const isTitleRefLink = nextToken.type === 'text' && nextToken.content === '{#T}';
-            const {pathname, hash} = url.parse(href);
+            const {pathname, hash} = parseHref(href);
             const file = pathname ? join(dirname(state.env.path || path), pathname) : path;
             const normalizedFile = normalizePath(file);
             const isPageFile = PAGE_LINK_REGEXP.test(normalizedFile);
