@@ -19,6 +19,7 @@ import {DESCRIPTION, NAME, options} from './config';
 import {Extract} from './commands/extract';
 import {Compose} from './commands/compose';
 import {Extension as YandexTranslation} from './providers/yandex';
+import {Extension as AITranslation} from './providers/ai';
 import {resolveSource, resolveTargets, resolveVars} from './utils';
 import {Run} from './run';
 import {configDefaults} from './utils/config';
@@ -89,6 +90,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         this.extract,
         this.compose,
         new YandexTranslation(),
+        new AITranslation(),
         new ExtractOpenapiIncluderFakeExtension(),
     ];
 
