@@ -10,6 +10,22 @@ name: Release Package to npm
 # - Prerelease: triggered by manual dispatch with 'prerelease' type (only from non-protected branches)
 # - Deprecate: triggered by manual dispatch with 'deprecate' type (marks a version as deprecated)
 
+# GitHub auto-generates a run-name from event data when run-name is not set
+# explicitly (e.g. it uses the release tag_name for `release` events, which is
+# why runs triggered by the `release` event show "vX.XX.XX" instead of the
+# workflow name). workflow_dispatch events carry no such default, so without an
+# explicit run-name every manual run (prerelease/deprecate) just shows the
+# workflow name. The run-name below makes all trigger types display something
+# meaningful in the Actions history.
+run-name: >-
+  ${{
+    github.event_name == 'release' && format('Release: {0}', github.event.release.tag_name)
+    || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'deprecate' && inputs.deprecate_new_latest != '' && format('Deprecate: {0} -> {1}', inputs.deprecate_version, inputs.deprecate_new_latest))
+    || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'deprecate' && format('Deprecate: {0}', inputs.deprecate_version))
+    || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'prerelease' && format('Prerelease: {0}', github.ref_name))
+    || github.workflow
+  }}
+
 on:
   release:
     types: [published]
