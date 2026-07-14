@@ -92,6 +92,13 @@ describe('Errors', () => {
         ]);
     });
 
+    test('mocks/errors/lint-loglevel', ({html}: TestResult) => {
+        expectErrors(html, [
+            'ERR index.md: 5: MD010 / no-hard-tabs Hard tabs [Column: 1]',
+            'ERR index.md: 1: MD018 / no-missing-space-atx No space after hash on atx style heading [Context: "#Heading without a space after..."]',
+        ]);
+    });
+
     it('translate extract with filtered links', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
 
