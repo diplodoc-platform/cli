@@ -54,6 +54,7 @@
     "build:types": "tspc -p tsconfig.lib.json || true; tspc -p tsconfig.build.json || true",
     "build:clean": "rm -rf build lib",
     "e2e": "npm run build && vitest run -c vitest.integration.config.ts",
+    "e2e:update": "npm run e2e -- -u",
     "prepublishOnly": "npm run lint && npm run build && npm run build:types",
     "start": "node build/index.js",
     "test": "vitest run -c vitest.units.config.ts",
