@@ -160,4 +160,52 @@ describe('Links plugin', () => {
             expect(html).not.toContain('.html');
         });
     });
+
+    describe('opaque scheme links (mailto:, tel:)', () => {
+        it('should not treat mailto link ending in .md as a page link', () => {
+            const md = createMarkdownIt();
+
+            const html = md.render('[centru@datepersonale.md](mailto:centru@datepersonale.md)');
+
+            expect(html).toContain('href="mailto:centru@datepersonale.md"');
+            expect(html).not.toContain('YFM003');
+            expect(html).not.toContain('.html');
+        });
+
+        it('should not treat tel link as a page link', () => {
+            const md = createMarkdownIt();
+
+            const html = md.render('[+123456](tel:+123456)');
+
+            expect(html).toContain('href="tel:+123456"');
+            expect(html).not.toContain('YFM003');
+        });
+
+        it('should not set YFM003 for missing mailto target that ends in .md', () => {
+            const md = createMarkdownIt([]);
+
+            const tokens = md.parse('[mail](mailto:foo@bar.md)', {});
+
+            const linkToken = tokens
+                .find((t) => t.type === 'inline')
+                ?.children?.find((t) => t.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM003')).toBeNull();
+        });
+    });
+
+    describe('relative links with an accidental double slash', () => {
+        it('should not attempt to resolve a relative link containing "//" and leave it untouched', () => {
+            const md = createMarkdownIt(['termsofuse/index.md']);
+
+            const tokens = md.parse('[Terms](../termsofuse//index.md)', {});
+
+            const linkToken = tokens
+                .find((t) => t.type === 'inline')
+                ?.children?.find((t) => t.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM003')).toBeNull();
+            expect(linkToken?.attrGet('href')).toBe('../termsofuse//index.md');
+        });
+    });
 });

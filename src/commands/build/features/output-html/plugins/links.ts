@@ -6,7 +6,7 @@ import {formatHref, parseHref} from '@diplodoc/utils';
 import {bold} from 'chalk';
 import {dirname, isAbsolute, join} from 'node:path';
 
-import {normalizePath} from '~/core/utils';
+import {isExternalHref, normalizePath} from '~/core/utils';
 
 import {walkLinks} from '../utils';
 
@@ -39,12 +39,12 @@ export default ((md, opts) => {
                 return;
             }
 
-            const parsed = parseHref(href);
-            const {pathname} = parsed;
-
-            if (isAbsolute(href) || href.includes('//')) {
+            if (isAbsolute(href) || isExternalHref(href) || href.includes('//')) {
                 return;
             }
+
+            const parsed = parseHref(href);
+            const {pathname} = parsed;
 
             const isAssetsLink = pathname && pathname.startsWith(`${DOC_ASSETS_FOLDER}/`);
             const hasDownloadAttr = link.attrGet('download') !== null;

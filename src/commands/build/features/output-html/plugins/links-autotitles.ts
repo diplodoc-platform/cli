@@ -6,7 +6,7 @@ import {parseHref} from '@diplodoc/utils';
 import {bold} from 'chalk';
 import {dirname, join} from 'node:path';
 
-import {normalizePath} from '~/core/utils';
+import {isExternalHref, normalizePath} from '~/core/utils';
 
 import {walkLinks} from '../utils';
 
@@ -23,6 +23,10 @@ export default ((md, opts) => {
         walkLinks(state, (link, href, tokens, idx) => {
             const {path, titles} = opts;
             const nextToken = tokens[idx + 1];
+
+            if (isExternalHref(href)) {
+                return;
+            }
 
             const isEmptyLink = nextToken.type === 'link_close';
             const isTitleRefLink = nextToken.type === 'text' && nextToken.content === '{#T}';
