@@ -52,6 +52,7 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     skipped: [string, string][];
     vars: Hash;
     dryRun: boolean;
+    timeout: number;
 } & ConfigDefaults;
 
 @withHooks
@@ -76,6 +77,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         options.exclude,
         options.vars,
         options.dryRun,
+        options.timeout,
         options.config(YFM_CONFIG_FILENAME),
     ];
 
@@ -124,6 +126,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 vars,
                 provider: defined('provider', args, config),
                 dryRun: defined('dryRun', args, config) || false,
+                timeout: (defined('timeout', args, config) as number) ?? 5000,
             });
         });
     }

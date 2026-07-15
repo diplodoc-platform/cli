@@ -39,7 +39,17 @@ export class Provider {
     }
 
     async translate(files: string[], config: TranslateConfig & YandexTranslationConfig) {
-        const {input, output, auth, folder, source, target: targets, vars, dryRun} = config;
+        const {
+            input,
+            output,
+            auth,
+            folder,
+            source,
+            target: targets,
+            vars,
+            dryRun,
+            timeout,
+        } = config;
 
         try {
             for (const target of targets) {
@@ -53,6 +63,7 @@ export class Provider {
                     folderId: folder,
                     vars,
                     dryRun,
+                    timeout,
                 };
 
                 const cache = new Map<string, Defer>();
@@ -115,6 +126,7 @@ type RequesterParams = {
     sourceLanguage: string;
     targetLanguage: string;
     dryRun: boolean;
+    timeout: number;
 };
 
 type Request = {
@@ -171,7 +183,7 @@ function scheduler(limit: number, interval: number) {
 }
 
 function requester(params: RequesterParams, cache: Cache) {
-    const {auth, folderId, sourceLanguage, targetLanguage, dryRun} = params;
+    const {auth, folderId, sourceLanguage, targetLanguage, dryRun, timeout} = params;
     const schedule = scheduler(REQUESTS_LIMIT, 1000);
 
     const request = function request(texts: string[]) {
@@ -196,7 +208,7 @@ function requester(params: RequesterParams, cache: Cache) {
                     axios({
                         method: 'POST',
                         url: 'https://translate.api.cloud.yandex.net/translate/v2/translate',
-                        timeout: 5000,
+                        timeout,
                         maxRedirects: 0,
                         headers: {
                             Authorization: auth,
