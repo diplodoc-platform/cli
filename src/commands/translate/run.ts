@@ -16,7 +16,9 @@ import {MarkdownService} from '~/core/markdown';
 
 import {FileLoader, resolveFiles} from './utils';
 
-type CommonRunConfig = Omit<TranslateConfig, 'provider'> & ExtractConfig & ConfigDefaults;
+type CommonRunConfig = Omit<TranslateConfig, 'provider' | 'timeout'> &
+    ExtractConfig &
+    ConfigDefaults;
 
 export class Run extends BaseRun<CommonRunConfig> {
     readonly vars: VarsService;

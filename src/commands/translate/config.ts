@@ -101,6 +101,16 @@ const dryRun = option({
     desc: 'Do not execute target translation provider, but only calculate required quota.',
 });
 
+const timeout = option({
+    flags: '--timeout <ms>',
+    desc: `
+        Timeout in milliseconds for a single translation API request.
+        Increase this value if the provider times out on large files.
+    `,
+    defaultInfo: '5000',
+    parser: Number,
+});
+
 const useSource = option({
     flags: '--use-source',
     desc: `
@@ -160,6 +170,7 @@ export const options = {
     exclude,
     vars,
     dryRun,
+    timeout,
     useSource,
     schema,
     filter,

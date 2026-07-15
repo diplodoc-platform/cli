@@ -278,6 +278,40 @@ describe('Translate command', () => {
             );
         });
 
+        describe('timeout', () => {
+            const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
+
+            test('should use default value', '', {
+                timeout: 5000,
+            });
+
+            test('should handle arg', '--timeout 30000', {
+                timeout: 30000,
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    timeout: 15000,
+                },
+                {
+                    timeout: 15000,
+                },
+            );
+
+            test(
+                'should handle arg with priority over config',
+                '--timeout 30000',
+                {
+                    timeout: 15000,
+                },
+                {
+                    timeout: 30000,
+                },
+            );
+        });
+
         describe('yandex provider', () => {
             describe('folder', () => {
                 const test = testConfig<YandexTranslationConfig>(
