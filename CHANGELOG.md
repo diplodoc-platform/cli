@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.50.1](https://github.com/diplodoc-platform/cli/compare/v5.50.0...v5.50.1) (2026-07-15)
+
+
+### Bug Fixes
+
+* add timeout arg for translate provider ([23dce21](https://github.com/diplodoc-platform/cli/commit/23dce21f75d53c322ccc2f9b3b61938735ec1aca))
+
 ## [5.50.0](https://github.com/diplodoc-platform/cli/compare/v5.49.4...v5.50.0) (2026-07-15)
 
 
