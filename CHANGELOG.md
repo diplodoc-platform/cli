@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.50.0](https://github.com/diplodoc-platform/cli/compare/v5.49.4...v5.50.0) (2026-07-15)
+
+
+### Features
+
+* added footer ([#2073](https://github.com/diplodoc-platform/cli/issues/2073)) ([53f79ed](https://github.com/diplodoc-platform/cli/commit/53f79ed7b5b134633278bfafd680a8c39e97cf4f))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/ajv@0.1.1 ([#2072](https://github.com/diplodoc-platform/cli/issues/2072)) ([08f6d39](https://github.com/diplodoc-platform/cli/commit/08f6d39c30bf43bab3087142bffc1917abc51bfb))
+* **deps:** Update @diplodoc/client@5.8.1 ([#2070](https://github.com/diplodoc-platform/cli/issues/2070)) ([a56b9aa](https://github.com/diplodoc-platform/cli/commit/a56b9aadd2316ff3e83d32a286015560a79c362c))
+* **deps:** Update dev:@diplodoc/mermaid-extension@2.2.0 ([#2069](https://github.com/diplodoc-platform/cli/issues/2069)) ([e2c4f4a](https://github.com/diplodoc-platform/cli/commit/e2c4f4a412e2a1916064388b888dccff74821432))
+* fixed anchors to non-heading elements ([#2052](https://github.com/diplodoc-platform/cli/issues/2052)) ([5f509fe](https://github.com/diplodoc-platform/cli/commit/5f509fed5183c0e8e4e898be21991f612b8c652d))
+* meta fields parse to html and update snapshots ([45e9975](https://github.com/diplodoc-platform/cli/commit/45e997535931c3971361cf1a003a6d19a075e116))
+
 ## [5.49.4](https://github.com/diplodoc-platform/cli/compare/v5.49.3...v5.49.4) (2026-07-13)
 
 
