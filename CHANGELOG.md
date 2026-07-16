@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.50.2](https://github.com/diplodoc-platform/cli/compare/v5.50.1...v5.50.2) (2026-07-16)
+
+
+### Bug Fixes
+
+* **ci:** update snapshot DOCSTOOLS-6241 ([d3e1726](https://github.com/diplodoc-platform/cli/commit/d3e172659d40249ad3782bc342f18d25845fa5a8))
+* **ci:** update snapshots with amend on default ([06cd209](https://github.com/diplodoc-platform/cli/commit/06cd209d031d305581d99aebed2ec7545b2b6029))
+* remove node url DOCSTOOLS-6242 ([d2aaea5](https://github.com/diplodoc-platform/cli/commit/d2aaea5b8e648d2e2ba9c637e1040059f7ba256b))
+
 ## [5.50.1](https://github.com/diplodoc-platform/cli/compare/v5.50.0...v5.50.1) (2026-07-15)
 
 
