@@ -34,7 +34,20 @@ on:
   # Re-approve once the other PR workflows finish and all non-excluded checks are
   # green — so an approval never covers unreviewed new code while CI is pending.
   workflow_run:
+    # Required by GitHub: list the workflows whose completion should trigger
+    # a re-approve. These are the CI workflows that run on pull_request and
+    # whose green conclusion means the bot PR is safe to approve again.
+    workflows:
+      - Quality
+      - Coverage
+      - Security
+      - Update package-lock.json
     types: [completed]
+    # Only re-approve on the automated bot PR branches — avoids needless runs
+    # on regular feature branches (the `if` below still guards the job body).
+    branches:
+      - 'ci/update-deps/**'
+      - 'release-please--**'
 
 permissions:
   contents: read
