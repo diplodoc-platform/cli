@@ -4,6 +4,8 @@ exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preser
 "[
   "included.md",
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "toc.yaml"
 ]"
 `;
@@ -56,6 +58,43 @@ Here we include the content from the included page:
 `;
 
 exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preserve meta information in includes 3`] = `
+"# Main Page
+
+This is the main page content.
+
+## Including another page
+
+Here we include the content from the included page:
+
+[Included Page](./included.md)
+
+# Included Page
+
+This is the content of the included page.
+
+## Section 1
+
+Some content in section 1.
+
+## Section 2
+
+Some content in section 2.
+"
+`;
+
+exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preserve meta information in includes 4`] = `
+"## Documentation
+
+- [Main Page](index.md)
+- [Included Page](included.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preserve meta information in includes 5`] = `
 "items:
   - name: Main Page
     href: index.md

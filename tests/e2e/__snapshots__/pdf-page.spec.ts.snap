@@ -6,6 +6,8 @@ exports[`Pdf generation with md2md phase, only files structure > Generates md2md
   "__assets/start-page.css",
   "__images/mountain.jpg",
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "page1.md",
   "page2.md",
   "pdf-endings/pdf-ending-page1.md",
@@ -22,6 +24,8 @@ exports[`Pdf generation with md2md phase, only files structure > Generates md2md
   "__assets/start-page.css",
   "__images/mountain.jpg",
   "index.html",
+  "llms-full.txt",
+  "llms.txt",
   "page1.html",
   "page2.html",
   "pdf/pdf-page-toc.js",
@@ -276,6 +280,8 @@ exports[`Pdf page with custom icon > md2md copies custom pdf icon asset to outpu
   ".yfm",
   "_assets/custom-pdf-icon.svg",
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "toc.yaml"
 ]"
 `;

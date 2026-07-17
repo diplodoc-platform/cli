@@ -277,6 +277,8 @@ exports[`Allow load custom resources > md2md with custom resources > filelist 1`
   "_assets/script/test1.js",
   "_assets/style/test.css",
   "index.yaml",
+  "llms-full.txt",
+  "llms.txt",
   "page.md",
   "project/config.md",
   "toc.yaml"
@@ -314,6 +316,30 @@ links:
 `;
 
 exports[`Allow load custom resources > md2md with custom resources 3`] = `
+"# Documentation
+
+Lorem
+
+Lorem
+"
+`;
+
+exports[`Allow load custom resources > md2md with custom resources 4`] = `
+"# Documentation
+
+## Documentation
+
+- [Documentation](index.yaml)
+- [Documentation](page.md): Some test description
+- [Config](project/config.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Allow load custom resources > md2md with custom resources 5`] = `
 "---
 metadata:
   - name: generator
@@ -335,7 +361,7 @@ vcsPath: page.md
 Lorem"
 `;
 
-exports[`Allow load custom resources > md2md with custom resources 4`] = `
+exports[`Allow load custom resources > md2md with custom resources 6`] = `
 "---
 metadata:
   - name: generator
@@ -349,7 +375,7 @@ vcsPath: project/config.md
 Lorem"
 `;
 
-exports[`Allow load custom resources > md2md with custom resources 5`] = `
+exports[`Allow load custom resources > md2md with custom resources 7`] = `
 "title: Documentation
 href: index.yaml
 items:

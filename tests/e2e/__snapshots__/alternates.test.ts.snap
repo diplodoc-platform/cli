@@ -6,14 +6,20 @@ exports[`Alternates > internal > filelist 1`] = `
   "az/about.md",
   "az/deep/test.md",
   "az/index.yaml",
+  "az/llms-full.txt",
+  "az/llms.txt",
   "az/toc.yaml",
   "en/about.md",
   "en/deep/test.md",
   "en/index.yaml",
+  "en/llms-full.txt",
+  "en/llms.txt",
   "en/toc.yaml",
   "ru/about.md",
   "ru/deep/test.md",
   "ru/index.yaml",
+  "ru/llms-full.txt",
+  "ru/llms.txt",
   "ru/toc.yaml"
 ]"
 `;
@@ -24,15 +30,21 @@ exports[`Alternates > internal > filelist 2`] = `
   "az/about.html",
   "az/deep/test.html",
   "az/index.html",
+  "az/llms-full.txt",
+  "az/llms.txt",
   "az/toc.js",
   "en/about.html",
   "en/deep/test.html",
   "en/index.html",
+  "en/llms-full.txt",
+  "en/llms.txt",
   "en/toc.js",
   "index.html",
   "ru/about.html",
   "ru/deep/test.html",
   "ru/index.html",
+  "ru/llms-full.txt",
+  "ru/llms.txt",
   "ru/toc.js"
 ]"
 `;
@@ -96,6 +108,30 @@ meta:
 `;
 
 exports[`Alternates > internal 5`] = `
+"# About
+
+Content
+
+# Test
+
+Content
+"
+`;
+
+exports[`Alternates > internal 6`] = `
+"## Documentation
+
+- [index.yaml](index.yaml)
+- [About](about.md)
+- [Test](deep/test.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Alternates > internal 7`] = `
 "href: index.yaml
 items:
   - href: about.md
@@ -106,7 +142,7 @@ path: az/toc.yaml
 "
 `;
 
-exports[`Alternates > internal 6`] = `
+exports[`Alternates > internal 8`] = `
 "---
 metadata:
   - name: generator
@@ -124,7 +160,7 @@ Content
 "
 `;
 
-exports[`Alternates > internal 7`] = `
+exports[`Alternates > internal 9`] = `
 "---
 metadata:
   - name: generator
@@ -142,7 +178,7 @@ Content
 "
 `;
 
-exports[`Alternates > internal 8`] = `
+exports[`Alternates > internal 10`] = `
 "links:
   - url: ./about
     name: About
@@ -159,7 +195,31 @@ meta:
 "
 `;
 
-exports[`Alternates > internal 9`] = `
+exports[`Alternates > internal 11`] = `
+"# About
+
+Content
+
+# Test
+
+Content
+"
+`;
+
+exports[`Alternates > internal 12`] = `
+"## Documentation
+
+- [index.yaml](index.yaml)
+- [About](about.md)
+- [Test](deep/test.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Alternates > internal 13`] = `
 "href: index.yaml
 items:
   - href: about.md
@@ -170,7 +230,7 @@ path: en/toc.yaml
 "
 `;
 
-exports[`Alternates > internal 10`] = `
+exports[`Alternates > internal 14`] = `
 "---
 metadata:
   - name: generator
@@ -190,7 +250,7 @@ Content
 "
 `;
 
-exports[`Alternates > internal 11`] = `
+exports[`Alternates > internal 15`] = `
 "---
 metadata:
   - name: generator
@@ -208,7 +268,7 @@ Content
 "
 `;
 
-exports[`Alternates > internal 12`] = `
+exports[`Alternates > internal 16`] = `
 "links:
   - url: ./about
     name: About
@@ -225,7 +285,31 @@ meta:
 "
 `;
 
-exports[`Alternates > internal 13`] = `
+exports[`Alternates > internal 17`] = `
+"# About
+
+Content
+
+# Test
+
+Content
+"
+`;
+
+exports[`Alternates > internal 18`] = `
+"## Documentation
+
+- [index.yaml](index.yaml)
+- [About](about.md)
+- [Test](deep/test.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Alternates > internal 19`] = `
 "href: index.yaml
 items:
   - href: about.md
@@ -236,12 +320,12 @@ path: ru/toc.yaml
 "
 `;
 
-exports[`Alternates > internal 14`] = `
+exports[`Alternates > internal 20`] = `
 "langs: ['ru', 'en', {'lang': 'az', 'tld': 'az'}]
 "
 `;
 
-exports[`Alternates > internal 15`] = `
+exports[`Alternates > internal 21`] = `
 "<!DOCTYPE html>
 <html lang="az" dir="ltr">
     <head>
@@ -273,7 +357,7 @@ exports[`Alternates > internal 15`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 16`] = `
+exports[`Alternates > internal 22`] = `
 "<!DOCTYPE html>
 <html lang="az" dir="ltr">
     <head>
@@ -305,7 +389,7 @@ exports[`Alternates > internal 16`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 17`] = `
+exports[`Alternates > internal 23`] = `
 "<!DOCTYPE html>
 <html lang="az" dir="ltr">
     <head>
@@ -337,9 +421,33 @@ exports[`Alternates > internal 17`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 18`] = `"window.__DATA__.data.toc = {"href":"az/index.html","items":[{"href":"az/about.html","name":"About","id":"UUID"},{"href":"az/deep/test.html","name":"Test","id":"UUID"}],"path":"az/toc.yaml","id":"UUID"};"`;
+exports[`Alternates > internal 24`] = `
+"# About
 
-exports[`Alternates > internal 19`] = `
+Content
+
+# Test
+
+Content
+"
+`;
+
+exports[`Alternates > internal 25`] = `
+"## Documentation
+
+- [index.yaml](index.yaml)
+- [About](about.md)
+- [Test](deep/test.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Alternates > internal 26`] = `"window.__DATA__.data.toc = {"href":"az/index.html","items":[{"href":"az/about.html","name":"About","id":"UUID"},{"href":"az/deep/test.html","name":"Test","id":"UUID"}],"path":"az/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates > internal 27`] = `
 "<!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
@@ -371,7 +479,7 @@ exports[`Alternates > internal 19`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 20`] = `
+exports[`Alternates > internal 28`] = `
 "<!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
@@ -403,7 +511,7 @@ exports[`Alternates > internal 20`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 21`] = `
+exports[`Alternates > internal 29`] = `
 "<!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
@@ -435,9 +543,33 @@ exports[`Alternates > internal 21`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 22`] = `"window.__DATA__.data.toc = {"href":"en/index.html","items":[{"href":"en/about.html","name":"About","id":"UUID"},{"href":"en/deep/test.html","name":"Test","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
+exports[`Alternates > internal 30`] = `
+"# About
 
-exports[`Alternates > internal 23`] = `
+Content
+
+# Test
+
+Content
+"
+`;
+
+exports[`Alternates > internal 31`] = `
+"## Documentation
+
+- [index.yaml](index.yaml)
+- [About](about.md)
+- [Test](deep/test.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Alternates > internal 32`] = `"window.__DATA__.data.toc = {"href":"en/index.html","items":[{"href":"en/about.html","name":"About","id":"UUID"},{"href":"en/deep/test.html","name":"Test","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates > internal 33`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -457,7 +589,7 @@ exports[`Alternates > internal 23`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 24`] = `
+exports[`Alternates > internal 34`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -490,7 +622,7 @@ exports[`Alternates > internal 24`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 25`] = `
+exports[`Alternates > internal 35`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -522,7 +654,7 @@ exports[`Alternates > internal 25`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 26`] = `
+exports[`Alternates > internal 36`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -554,7 +686,31 @@ exports[`Alternates > internal 26`] = `
 </html>"
 `;
 
-exports[`Alternates > internal 27`] = `"window.__DATA__.data.toc = {"href":"ru/index.html","items":[{"href":"ru/about.html","name":"About","id":"UUID"},{"href":"ru/deep/test.html","name":"Test","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;
+exports[`Alternates > internal 37`] = `
+"# About
+
+Content
+
+# Test
+
+Content
+"
+`;
+
+exports[`Alternates > internal 38`] = `
+"## Documentation
+
+- [index.yaml](index.yaml)
+- [About](about.md)
+- [Test](deep/test.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Alternates > internal 39`] = `"window.__DATA__.data.toc = {"href":"ru/index.html","items":[{"href":"ru/about.html","name":"About","id":"UUID"},{"href":"ru/deep/test.html","name":"Test","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;
 
 exports[`Alternates > skip-html-extension > filelist 1`] = `
 "[

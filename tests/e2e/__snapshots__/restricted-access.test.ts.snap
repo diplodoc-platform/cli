@@ -2,6 +2,8 @@
 
 exports[`Restricted access > Nested restricted access > filelist 1`] = `
 "[
+  "llms-full.txt",
+  "llms.txt",
   "plugins/index.md",
   "project/index.md",
   "toc.yaml"
@@ -9,6 +11,25 @@ exports[`Restricted access > Nested restricted access > filelist 1`] = `
 `;
 
 exports[`Restricted access > Nested restricted access 1`] = `
+"# Yandex Flavored Markdown
+"
+`;
+
+exports[`Restricted access > Nested restricted access 2`] = `
+"# Yandex Flavored Markdown
+
+## Documentation
+
+- [Overview](plugins/index.md)
+- [Overview](project/index.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Restricted access > Nested restricted access 3`] = `
 "---
 metadata:
   - name: generator
@@ -23,7 +44,7 @@ vcsPath: plugins/index.md
 "
 `;
 
-exports[`Restricted access > Nested restricted access 2`] = `
+exports[`Restricted access > Nested restricted access 4`] = `
 "---
 metadata:
   - name: generator
@@ -36,7 +57,7 @@ vcsPath: project/index.md
 "
 `;
 
-exports[`Restricted access > Nested restricted access 3`] = `
+exports[`Restricted access > Nested restricted access 5`] = `
 "title: Yandex Flavored Markdown
 items:
   - name: Plugins
@@ -65,6 +86,8 @@ exports[`Restricted access > Nested toc restricted access > filelist 1`] = `
   "a1.md",
   "folder1/a1.md",
   "folder1/folder2/a1.md",
+  "llms-full.txt",
+  "llms.txt",
   "toc.yaml"
 ]"
 `;
@@ -113,6 +136,28 @@ This is the /folder1/folder1/a1.md file content.
 `;
 
 exports[`Restricted access > Nested toc restricted access 4`] = `
+"This is the /a1.md file content.
+
+This is the /folder1/a1.md file content.
+
+This is the /folder1/folder1/a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access 5`] = `
+"## Documentation
+
+- [A1](a1.md)
+- [A1](folder1/a1.md)
+- [A1](folder1/folder2/a1.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access 6`] = `
 "items:
   - name: A1
     href: a1.md
@@ -140,6 +185,8 @@ path: toc.yaml
 exports[`Restricted access > Simple restricted access > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "plugins/index.md",
   "plugins/index2.md",
   "plugins/index3.md",
@@ -161,6 +208,28 @@ vcsPath: index.md
 `;
 
 exports[`Restricted access > Simple restricted access 2`] = `
+"# Yandex Flavored Markdown
+"
+`;
+
+exports[`Restricted access > Simple restricted access 3`] = `
+"# Yandex Flavored Markdown
+
+## Documentation
+
+- [Yandex Flavored Markdown](index.md)
+- [Overview](plugins/index.md)
+- [Overview 2](plugins/index2.md)
+- [Overview 3](plugins/index3.md)
+- [Overview 4](plugins/index4.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Restricted access > Simple restricted access 4`] = `
 "---
 metadata:
   - name: generator
@@ -172,7 +241,7 @@ vcsPath: plugins/index.md
 "
 `;
 
-exports[`Restricted access > Simple restricted access 3`] = `
+exports[`Restricted access > Simple restricted access 5`] = `
 "---
 metadata:
   - name: generator
@@ -186,7 +255,7 @@ vcsPath: plugins/index2.md
 "
 `;
 
-exports[`Restricted access > Simple restricted access 4`] = `
+exports[`Restricted access > Simple restricted access 6`] = `
 "---
 metadata:
   - name: generator
@@ -198,7 +267,7 @@ vcsPath: plugins/index3.md
 "
 `;
 
-exports[`Restricted access > Simple restricted access 5`] = `
+exports[`Restricted access > Simple restricted access 7`] = `
 "---
 metadata:
   - name: generator
@@ -211,7 +280,7 @@ vcsPath: plugins/index4.md
 "
 `;
 
-exports[`Restricted access > Simple restricted access 6`] = `
+exports[`Restricted access > Simple restricted access 8`] = `
 "title: Yandex Flavored Markdown
 items:
   - name: Yandex Flavored Markdown

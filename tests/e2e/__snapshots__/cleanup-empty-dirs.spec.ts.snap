@@ -6,6 +6,30 @@ exports[`Cleanup empty directories with stage filtering > should cleanup directo
 `;
 
 exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 2`] = `
+"# Active Section
+
+# Active Page
+
+This is an active page that should be included in the build.
+
+Active variable: {{active_var}}
+"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 3`] = `
+"# Active Section
+
+## Documentation
+
+- [Active Page](page.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 4`] = `
 "---
 metadata:
   - name: generator
@@ -19,13 +43,13 @@ This is an active page that should be included in the build.
 Active variable: {{active_var}}"
 `;
 
-exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 3`] = `
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 5`] = `
 "default:
   active_var: active_value
 "
 `;
 
-exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 4`] = `
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 6`] = `
 "title: Active Section
 items:
   - name: Active Page
@@ -34,7 +58,7 @@ path: active/toc.yaml
 "
 `;
 
-exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 5`] = `
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 7`] = `
 "---
 metadata:
   - name: generator
@@ -48,13 +72,44 @@ This is the main page content.
 Root variable: {{root_var}}"
 `;
 
-exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 6`] = `
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 8`] = `
+"# Test Documentation
+
+# Main Page
+
+This is the main page content.
+
+Root variable: {{root_var}}
+
+# Active Page
+
+This is an active page that should be included in the build.
+
+Active variable: {{active_var}}
+"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 9`] = `
+"# Test Documentation
+
+## Documentation
+
+- [index.md](index.md)
+- [Active Section](active/page.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 10`] = `
 "default:
   root_var: root_value
 "
 `;
 
-exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 7`] = `
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 11`] = `
 "title: Test Documentation
 href: index.md
 items:

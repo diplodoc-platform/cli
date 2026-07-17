@@ -3,6 +3,8 @@
 exports[`Includes with conditions > Consecutive includes with false condition in the middle > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "toc.yaml"
 ]"
 `;
@@ -10,6 +12,8 @@ exports[`Includes with conditions > Consecutive includes with false condition in
 exports[`Includes with conditions > Consecutive includes with false condition in the middle > filelist 2`] = `
 "[
   "index.html",
+  "llms-full.txt",
+  "llms.txt",
   "toc.js"
 ]"
 `;
@@ -40,6 +44,32 @@ This is the third include.
 `;
 
 exports[`Includes with conditions > Consecutive includes with false condition in the middle 2`] = `
+"# Test Includes Conditions
+
+{% note info %}
+
+This is the first include.
+
+{% endnote %}
+
+
+
+This is the third include.
+"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 3`] = `
+"## Documentation
+
+- [Test Includes Conditions](index.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 4`] = `
 "items:
   - name: Test Includes Conditions
     href: index.md
@@ -47,7 +77,7 @@ path: toc.yaml
 "
 `;
 
-exports[`Includes with conditions > Consecutive includes with false condition in the middle 3`] = `
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 5`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -75,4 +105,30 @@ exports[`Includes with conditions > Consecutive includes with false condition in
 </html>"
 `;
 
-exports[`Includes with conditions > Consecutive includes with false condition in the middle 4`] = `"window.__DATA__.data.toc = {"items":[{"name":"Test Includes Conditions","href":"index.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 6`] = `
+"# Test Includes Conditions
+
+{% note info %}
+
+This is the first include.
+
+{% endnote %}
+
+
+
+This is the third include.
+"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 7`] = `
+"## Documentation
+
+- [Test Includes Conditions](index.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 8`] = `"window.__DATA__.data.toc = {"items":[{"name":"Test Includes Conditions","href":"index.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

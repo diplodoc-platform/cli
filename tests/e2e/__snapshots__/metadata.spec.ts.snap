@@ -121,6 +121,8 @@ exports[`Allow load custom resources > md2html with metadata 5`] = `"window.__DA
 exports[`Allow load custom resources > md2md with metadata > filelist 1`] = `
 "[
   "index.yaml",
+  "llms-full.txt",
+  "llms.txt",
   "page.md",
   "project/config.md",
   "toc.yaml"
@@ -149,6 +151,30 @@ links:
 `;
 
 exports[`Allow load custom resources > md2md with metadata 2`] = `
+"# Documentation
+
+Lorem
+
+Lorem
+"
+`;
+
+exports[`Allow load custom resources > md2md with metadata 3`] = `
+"# Documentation
+
+## Documentation
+
+- [Documentation](index.yaml)
+- [Documentation](page.md): Some test description
+- [Config](project/config.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Allow load custom resources > md2md with metadata 4`] = `
 "---
 metadata:
   - name: generator
@@ -170,7 +196,7 @@ vcsPath: page.md
 Lorem"
 `;
 
-exports[`Allow load custom resources > md2md with metadata 3`] = `
+exports[`Allow load custom resources > md2md with metadata 5`] = `
 "---
 metadata:
   - name: generator
@@ -187,7 +213,7 @@ vcsPath: project/config.md
 Lorem"
 `;
 
-exports[`Allow load custom resources > md2md with metadata 4`] = `
+exports[`Allow load custom resources > md2md with metadata 6`] = `
 "title: Documentation
 href: index.yaml
 items:
