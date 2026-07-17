@@ -66,6 +66,62 @@ describe('LLMs Plugin Architecture', () => {
         llmsInstance = new Llms();
     });
 
+    describe('resolveLlmsEnabled logic', () => {
+        describe('when --llms flag is explicitly passed', () => {
+            it('enables generation for md, regardless of config', () => {
+                expect(llmsInstance.resolveLlmsEnabled(true, undefined, true)).toBe(true);
+                expect(llmsInstance.resolveLlmsEnabled(true, false, true)).toBe(true);
+                expect(llmsInstance.resolveLlmsEnabled(true, true, true)).toBe(true);
+            });
+
+            it('enables generation for html, regardless of config', () => {
+                expect(llmsInstance.resolveLlmsEnabled(true, undefined, false)).toBe(true);
+                expect(llmsInstance.resolveLlmsEnabled(true, false, false)).toBe(true);
+                expect(llmsInstance.resolveLlmsEnabled(true, true, false)).toBe(true);
+            });
+        });
+
+        describe('when --no-llms flag is explicitly passed', () => {
+            it('disables generation for md, regardless of config', () => {
+                expect(llmsInstance.resolveLlmsEnabled(false, undefined, true)).toBe(false);
+                expect(llmsInstance.resolveLlmsEnabled(false, true, true)).toBe(false);
+                expect(llmsInstance.resolveLlmsEnabled(false, false, true)).toBe(false);
+            });
+
+            it('disables generation for html, regardless of config', () => {
+                expect(llmsInstance.resolveLlmsEnabled(false, undefined, false)).toBe(false);
+                expect(llmsInstance.resolveLlmsEnabled(false, true, false)).toBe(false);
+                expect(llmsInstance.resolveLlmsEnabled(false, false, false)).toBe(false);
+            });
+        });
+
+        describe('when flag is not passed at all', () => {
+            it('disables generation when config explicitly sets enabled: false (md)', () => {
+                expect(llmsInstance.resolveLlmsEnabled(undefined, false, true)).toBe(false);
+            });
+
+            it('disables generation when config explicitly sets enabled: false (html)', () => {
+                expect(llmsInstance.resolveLlmsEnabled(undefined, false, false)).toBe(false);
+            });
+
+            it('enables generation for md when config explicitly sets enabled: true', () => {
+                expect(llmsInstance.resolveLlmsEnabled(undefined, true, true)).toBe(true);
+            });
+
+            it('enables generation for html when config explicitly sets enabled: true', () => {
+                expect(llmsInstance.resolveLlmsEnabled(undefined, true, false)).toBe(true);
+            });
+
+            it('enables generation for md when there is no llms config section at all', () => {
+                expect(llmsInstance.resolveLlmsEnabled(undefined, undefined, true)).toBe(true);
+            });
+
+            it('disables generation for html when there is no llms config section at all', () => {
+                expect(llmsInstance.resolveLlmsEnabled(undefined, undefined, false)).toBe(false);
+            });
+        });
+    });
+
     describe('renderIndex logic', () => {
         it('should correctly format llms.txt index with title and description', async () => {
             const run = createMockRun({outputFormat: OutputFormat.html});

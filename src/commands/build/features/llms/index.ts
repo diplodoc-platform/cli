@@ -60,13 +60,14 @@ export class Llms {
         });
 
         getBaseHooks(program).Config.tap('Llms', (config, args) => {
-            const llmsArg = args.llms || false;
-            const llmsEnabled = config?.llms?.enabled || false;
+            const configLlmsEnabled: boolean | undefined = config?.llms?.enabled;
             const llmsDescription = config?.llms?.description || '';
+            const onlyMd = config.outputFormat === OutputFormat.md;
+            const llmsEnabled = this.resolveLlmsEnabled(args.llms, configLlmsEnabled, onlyMd);
 
             config.llms = {
                 ...(typeof config.llms === 'object' ? config.llms : {}),
-                enabled: llmsArg || llmsEnabled,
+                enabled: llmsEnabled,
                 description: llmsDescription,
             };
 
@@ -86,6 +87,28 @@ export class Llms {
                 }
             }
         });
+    }
+
+    private resolveLlmsEnabled(
+        flagLlmsEnabled: boolean | undefined,
+        configLlmsEnabled: boolean | undefined,
+        onlyMd: boolean,
+    ): boolean {
+        switch (flagLlmsEnabled) {
+            case true:
+                return true;
+            case false:
+                return false;
+            default:
+                switch (configLlmsEnabled) {
+                    case true:
+                        return true;
+                    case false:
+                        return false;
+                    default:
+                        return onlyMd;
+                }
+        }
     }
 
     private async generate(run: Run, toc: Toc) {
