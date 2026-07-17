@@ -3,7 +3,11 @@
 exports[`Include toc > Nested toc inclusions with mixed including modes > filelist 1`] = `
 "[
   "product1/article1.md",
+  "product1/llms-full.txt",
+  "product1/llms.txt",
   "product1/toc.yaml",
+  "product2/llms-full.txt",
+  "product2/llms.txt",
   "product2/overlay1/article1.md",
   "product2/overlay2/article1.md",
   "product2/overlay3/article1.md",
@@ -29,11 +33,11 @@ This is the core include.
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 2`] = `
-"title: Product 1 title
-items:
-  - name: Article1
-    href: article1.md
-path: product1/toc.yaml
+"# Product 1 title
+
+This is the core content of Article 1.
+
+This is the core include.
 "
 `;
 
@@ -59,6 +63,66 @@ path: toc.yaml
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 3`] = `
+"# Product 1 title
+
+## Documentation
+
+- [Article1](article1.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Nested toc inclusions with mixed including modes 4`] = `
+"title: Product 1 title
+items:
+  - name: Article1
+    href: article1.md
+path: product1/toc.yaml
+"
+`;
+
+exports[`Include toc > Nested toc inclusions with mixed including modes 5`] = `
+"# Product 2 title
+
+This is the product 2 specific article.
+
+Check here link to [Article1 overlay 1](overlay1/article1.md)
+Check here link to [Article1 overlay 2](overlay2/article1.md)
+
+This is the overlay content of Article 1 for product 2.
+
+This is the core include.
+
+This is the overlay number #2  of Article 1 content for product 2.
+
+This is the core include.
+
+This is the core content of Article 1.
+
+This is the core include.
+"
+`;
+
+exports[`Include toc > Nested toc inclusions with mixed including modes 6`] = `
+"# Product 2 title
+
+## Documentation
+
+- [P2 Article](p2.md)
+- [Article1](overlay1/article1.md)
+- [Article1](overlay2/article1.md)
+- [Article1](overlay3/article1.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Nested toc inclusions with mixed including modes 7`] = `
 "---
 metadata:
   - name: generator
@@ -74,7 +138,7 @@ This is the core include.
 "
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes 4`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 8`] = `
 "---
 metadata:
   - name: generator
@@ -90,7 +154,7 @@ This is the core include.
 "
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes 5`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 9`] = `
 "---
 metadata:
   - name: generator
@@ -106,7 +170,7 @@ This is the core include.
 "
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes 6`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 10`] = `
 "---
 metadata:
   - name: generator
@@ -119,7 +183,7 @@ Check here link to [Article1 overlay 1](overlay1/article1.md)
 Check here link to [Article1 overlay 2](overlay2/article1.md)"
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes 7`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 11`] = `
 "title: Product 2 title
 items:
   - name: P2 Article
@@ -145,6 +209,8 @@ exports[`Include toc > Toc is included in link mode > filelist 1`] = `
   "a1.md",
   "folder1/a1.md",
   "folder1/folder2/a1.md",
+  "llms-full.txt",
+  "llms.txt",
   "toc.yaml"
 ]"
 `;
@@ -183,6 +249,28 @@ This is the /folder1/folder1/a1.md file content.
 `;
 
 exports[`Include toc > Toc is included in link mode 4`] = `
+"This is the /a1.md file content.
+
+This is the /folder1/a1.md file content.
+
+This is the /folder1/folder1/a1.md file content.
+"
+`;
+
+exports[`Include toc > Toc is included in link mode 5`] = `
+"## Documentation
+
+- [A1](a1.md)
+- [A1](folder1/a1.md)
+- [A1](folder1/folder2/a1.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Toc is included in link mode 6`] = `
 "items:
   - name: A1
     href: a1.md
@@ -206,6 +294,8 @@ exports[`Include toc > Toc is included inline, not as a new section > filelist 1
   "fileB.md",
   "fileC.md",
   "fileX.md",
+  "llms-full.txt",
+  "llms.txt",
   "toc.yaml"
 ]"
 `;
@@ -290,6 +380,48 @@ vcsPath: fileX.md
 `;
 
 exports[`Include toc > Toc is included inline, not as a new section 7`] = `
+"# File 1
+
+# File A
+
+---
+
+Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+
+---
+
+# File B
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+
+---
+
+Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+
+---
+
+# File C
+
+# File X
+"
+`;
+
+exports[`Include toc > Toc is included inline, not as a new section 8`] = `
+"## Documentation
+
+- [Name1](file1.md)
+- [NameA](fileA.md): YFM description
+- [NameB](fileB.md)
+- [NameC](fileC.md)
+- [NameX](fileX.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Toc is included inline, not as a new section 9`] = `
 "items:
   - name: Name1
     href: file1.md
@@ -309,6 +441,8 @@ exports[`Include toc > Toc root merge on non root dir > filelist 1`] = `
 "[
   ".yfm",
   "ru/index.yaml",
+  "ru/llms-full.txt",
+  "ru/llms.txt",
   "ru/toc.yaml"
 ]"
 `;
@@ -337,6 +471,24 @@ meta:
 `;
 
 exports[`Include toc > Toc root merge on non root dir 3`] = `
+"# Toc
+"
+`;
+
+exports[`Include toc > Toc root merge on non root dir 4`] = `
+"# Toc
+
+## Documentation
+
+- [sub-page](index.yaml)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Toc root merge on non root dir 5`] = `
 "title: Toc
 items:
   - name: sub-page
@@ -349,6 +501,8 @@ exports[`Include toc > Toc with expressions > filelist 1`] = `
 "[
   "a1.md",
   "index.yaml",
+  "llms-full.txt",
+  "llms.txt",
   "toc.yaml"
 ]"
 `;
@@ -382,6 +536,27 @@ links:
 `;
 
 exports[`Include toc > Toc with expressions 3`] = `
+"# Title A
+
+This is the /a1.md file content.
+"
+`;
+
+exports[`Include toc > Toc with expressions 4`] = `
+"# Title A
+
+## Documentation
+
+- [Meta A](index.yaml)
+- [A1](a1.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Toc with expressions 5`] = `
 "title: Title A
 href: index.yaml
 items:
@@ -393,6 +568,8 @@ path: toc.yaml
 
 exports[`Include toc > Toc with generic includer > filelist 1`] = `
 "[
+  "llms-full.txt",
+  "llms.txt",
   "test/index.md",
   "test/sub/sub-1.md",
   "test/sub/sub-2.md",
@@ -403,6 +580,45 @@ exports[`Include toc > Toc with generic includer > filelist 1`] = `
 `;
 
 exports[`Include toc > Toc with generic includer 1`] = `
+"# main
+
+# H1
+
+# H1
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+
+# H1
+
+# H1
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+
+# H1
+"
+`;
+
+exports[`Include toc > Toc with generic includer 2`] = `
+"# main
+
+## Documentation
+
+- [test](test/test.md)
+- [index](test/index.md)
+- [sub-2](test/sub/sub-2.md)
+- [sub-1](test/sub/sub-1.md)
+- [sub-3](test/sub/sub/sub-3.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Toc with generic includer 3`] = `
 "---
 metadata:
   - name: generator
@@ -416,7 +632,7 @@ vcsPath: test/index.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer 2`] = `
+exports[`Include toc > Toc with generic includer 4`] = `
 "---
 metadata:
   - name: generator
@@ -431,7 +647,7 @@ vcsPath: test/sub/sub-1.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer 3`] = `
+exports[`Include toc > Toc with generic includer 5`] = `
 "---
 metadata:
   - name: generator
@@ -441,7 +657,7 @@ vcsPath: test/sub/sub-2.md
 # H1"
 `;
 
-exports[`Include toc > Toc with generic includer 4`] = `
+exports[`Include toc > Toc with generic includer 6`] = `
 "---
 metadata:
   - name: generator
@@ -451,7 +667,7 @@ vcsPath: test/sub/sub/sub-3.md
 # H1"
 `;
 
-exports[`Include toc > Toc with generic includer 5`] = `
+exports[`Include toc > Toc with generic includer 7`] = `
 "---
 metadata:
   - name: generator
@@ -461,7 +677,7 @@ vcsPath: test/test.md
 # H1"
 `;
 
-exports[`Include toc > Toc with generic includer 6`] = `
+exports[`Include toc > Toc with generic includer 8`] = `
 "title: main
 items:
   - name: test
@@ -484,6 +700,8 @@ path: toc.yaml
 
 exports[`Include toc > Toc with generic includer and linkIndex option > filelist 1`] = `
 "[
+  "llms-full.txt",
+  "llms.txt",
   "test/index.md",
   "test/sub/index.md",
   "test/sub/sub-1.md",
@@ -495,6 +713,48 @@ exports[`Include toc > Toc with generic includer and linkIndex option > filelist
 `;
 
 exports[`Include toc > Toc with generic includer and linkIndex option 1`] = `
+"# main
+
+# H1
+
+# H1
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+
+# Sub index
+
+# H1
+
+# H1
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+
+# H1
+"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 2`] = `
+"# main
+
+## Documentation
+
+- [test](test/test.md)
+- [index](test/index.md)
+- [sub](test/sub/index.md)
+- [sub-2](test/sub/sub-2.md)
+- [sub-1](test/sub/sub-1.md)
+- [sub-3](test/sub/sub/sub-3.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 3`] = `
 "---
 metadata:
   - name: generator
@@ -508,7 +768,7 @@ vcsPath: test/index.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer and linkIndex option 2`] = `
+exports[`Include toc > Toc with generic includer and linkIndex option 4`] = `
 "---
 metadata:
   - name: generator
@@ -518,7 +778,7 @@ vcsPath: test/sub/index.md
 # Sub index"
 `;
 
-exports[`Include toc > Toc with generic includer and linkIndex option 3`] = `
+exports[`Include toc > Toc with generic includer and linkIndex option 5`] = `
 "---
 metadata:
   - name: generator
@@ -533,7 +793,7 @@ vcsPath: test/sub/sub-1.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer and linkIndex option 4`] = `
+exports[`Include toc > Toc with generic includer and linkIndex option 6`] = `
 "---
 metadata:
   - name: generator
@@ -543,7 +803,7 @@ vcsPath: test/sub/sub-2.md
 # H1"
 `;
 
-exports[`Include toc > Toc with generic includer and linkIndex option 5`] = `
+exports[`Include toc > Toc with generic includer and linkIndex option 7`] = `
 "---
 metadata:
   - name: generator
@@ -553,7 +813,7 @@ vcsPath: test/sub/sub/sub-3.md
 # H1"
 `;
 
-exports[`Include toc > Toc with generic includer and linkIndex option 6`] = `
+exports[`Include toc > Toc with generic includer and linkIndex option 8`] = `
 "---
 metadata:
   - name: generator
@@ -563,7 +823,7 @@ vcsPath: test/test.md
 # H1"
 `;
 
-exports[`Include toc > Toc with generic includer and linkIndex option 7`] = `
+exports[`Include toc > Toc with generic includer and linkIndex option 9`] = `
 "title: main
 items:
   - name: test
@@ -587,6 +847,8 @@ path: toc.yaml
 
 exports[`Include toc > Toc with generic includer keeps index.md as child item by default > filelist 1`] = `
 "[
+  "llms-full.txt",
+  "llms.txt",
   "test/index.md",
   "test/sub/index.md",
   "test/sub/sub-1.md",
@@ -598,6 +860,48 @@ exports[`Include toc > Toc with generic includer keeps index.md as child item by
 `;
 
 exports[`Include toc > Toc with generic includer keeps index.md as child item by default 1`] = `
+"# main
+
+# H1
+
+# H1
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+
+# H1
+
+# H1
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+
+# Sub index
+
+# H1
+"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 2`] = `
+"# main
+
+## Documentation
+
+- [test](test/test.md)
+- [index](test/index.md)
+- [sub-2](test/sub/sub-2.md)
+- [sub-1](test/sub/sub-1.md)
+- [index](test/sub/index.md)
+- [sub-3](test/sub/sub/sub-3.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 3`] = `
 "---
 metadata:
   - name: generator
@@ -611,7 +915,7 @@ vcsPath: test/index.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer keeps index.md as child item by default 2`] = `
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 4`] = `
 "---
 metadata:
   - name: generator
@@ -621,7 +925,7 @@ vcsPath: test/sub/index.md
 # Sub index"
 `;
 
-exports[`Include toc > Toc with generic includer keeps index.md as child item by default 3`] = `
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 5`] = `
 "---
 metadata:
   - name: generator
@@ -636,7 +940,7 @@ vcsPath: test/sub/sub-1.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer keeps index.md as child item by default 4`] = `
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 6`] = `
 "---
 metadata:
   - name: generator
@@ -646,7 +950,7 @@ vcsPath: test/sub/sub-2.md
 # H1"
 `;
 
-exports[`Include toc > Toc with generic includer keeps index.md as child item by default 5`] = `
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 7`] = `
 "---
 metadata:
   - name: generator
@@ -656,7 +960,7 @@ vcsPath: test/sub/sub/sub-3.md
 # H1"
 `;
 
-exports[`Include toc > Toc with generic includer keeps index.md as child item by default 6`] = `
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 8`] = `
 "---
 metadata:
   - name: generator
@@ -666,7 +970,7 @@ vcsPath: test/test.md
 # H1"
 `;
 
-exports[`Include toc > Toc with generic includer keeps index.md as child item by default 7`] = `
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 9`] = `
 "title: main
 items:
   - name: test
@@ -691,6 +995,8 @@ path: toc.yaml
 
 exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory > filelist 1`] = `
 "[
+  "llms-full.txt",
+  "llms.txt",
   "test/index.md",
   "test/sub/index.md",
   "test/sub/sub-1.md",
@@ -702,6 +1008,48 @@ exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.m
 `;
 
 exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 1`] = `
+"# main
+
+# Test page
+
+# Root index
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+
+# Sub section
+
+# Sub two
+
+# Sub one
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+
+# Sub three
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 2`] = `
+"# main
+
+## Documentation
+
+- [Test page](test/test.md)
+- [Root index](test/index.md)
+- [Sub section](test/sub/index.md)
+- [Sub two](test/sub/sub-2.md)
+- [Sub one](test/sub/sub-1.md)
+- [Sub three](test/sub/sub/sub-3.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 3`] = `
 "---
 metadata:
   - name: generator
@@ -715,7 +1063,7 @@ vcsPath: test/index.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 2`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 4`] = `
 "---
 metadata:
   - name: generator
@@ -726,7 +1074,7 @@ vcsPath: test/sub/index.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 3`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 5`] = `
 "---
 metadata:
   - name: generator
@@ -741,7 +1089,7 @@ vcsPath: test/sub/sub-1.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 4`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 6`] = `
 "---
 metadata:
   - name: generator
@@ -752,7 +1100,7 @@ vcsPath: test/sub/sub-2.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 5`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 7`] = `
 "---
 metadata:
   - name: generator
@@ -763,7 +1111,7 @@ vcsPath: test/sub/sub/sub-3.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 6`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 8`] = `
 "---
 metadata:
   - name: generator
@@ -774,7 +1122,7 @@ vcsPath: test/test.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 7`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 9`] = `
 "title: main
 items:
   - name: Test page

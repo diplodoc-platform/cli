@@ -4,6 +4,8 @@ exports[`Toc label > should pass TocLabel object through to toc output > filelis
 "[
   ".yfm",
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "page1.md",
   "toc.yaml"
 ]"
@@ -13,6 +15,8 @@ exports[`Toc label > should pass TocLabel object through to toc output > filelis
 "[
   ".yfm",
   "index.html",
+  "llms-full.txt",
+  "llms.txt",
   "page1.html",
   "toc.js"
 ]"
@@ -37,6 +41,33 @@ Content
 `;
 
 exports[`Toc label > should pass TocLabel object through to toc output 3`] = `
+"# Toc Label Test
+
+# Toc Label Test
+
+Content
+
+# Page 1
+
+Content
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 4`] = `
+"# Toc Label Test
+
+## Documentation
+
+- [index.md](index.md)
+- [Page 1](page1.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 5`] = `
 "---
 metadata:
   - name: generator
@@ -49,7 +80,7 @@ Content
 "
 `;
 
-exports[`Toc label > should pass TocLabel object through to toc output 4`] = `
+exports[`Toc label > should pass TocLabel object through to toc output 6`] = `
 "title: Toc Label Test
 href: index.md
 label:
@@ -63,12 +94,12 @@ path: toc.yaml
 "
 `;
 
-exports[`Toc label > should pass TocLabel object through to toc output 5`] = `
+exports[`Toc label > should pass TocLabel object through to toc output 7`] = `
 "allowHtml: true
 "
 `;
 
-exports[`Toc label > should pass TocLabel object through to toc output 6`] = `
+exports[`Toc label > should pass TocLabel object through to toc output 8`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -96,7 +127,34 @@ exports[`Toc label > should pass TocLabel object through to toc output 6`] = `
 </html>"
 `;
 
-exports[`Toc label > should pass TocLabel object through to toc output 7`] = `
+exports[`Toc label > should pass TocLabel object through to toc output 9`] = `
+"# Toc Label Test
+
+# Toc Label Test
+
+Content
+
+# Page 1
+
+Content
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 10`] = `
+"# Toc Label Test
+
+## Documentation
+
+- [index.md](index.md)
+- [Page 1](page1.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 11`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -124,4 +182,4 @@ exports[`Toc label > should pass TocLabel object through to toc output 7`] = `
 </html>"
 `;
 
-exports[`Toc label > should pass TocLabel object through to toc output 8`] = `"window.__DATA__.data.toc = {"title":"Toc Label Test","href":"index.html","label":{"title":"Preview","description":"This service is in preview","theme":"info"},"items":[{"name":"Page 1","href":"page1.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Toc label > should pass TocLabel object through to toc output 12`] = `"window.__DATA__.data.toc = {"title":"Toc Label Test","href":"index.html","label":{"title":"Preview","description":"This service is in preview","theme":"info"},"items":[{"name":"Page 1","href":"page1.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

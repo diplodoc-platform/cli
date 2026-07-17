@@ -17,7 +17,11 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false > filelist 1`] = `
   "level0.md",
   "level1/level1.md",
   "level1/level2/level2.md",
+  "level1/llms-full.txt",
+  "level1/llms.txt",
   "level1/toc.yaml",
+  "llms-full.txt",
+  "llms.txt",
   "mermaid.md",
   "sub/folder/item-1.md",
   "toc.yaml"
@@ -441,6 +445,35 @@ vcsPath: level1/level2/level2.md
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=false 12`] = `
+"# Level 1 svg header ![Level 1 svg header](../_assets/1.svg)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
+
+[Level 2 svg header ![Level 2 svg header](../_assets/1.svg)](level2/level2.md)
+
+[Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)
+
+# Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
+
+[Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 13`] = `
+"## Documentation
+
+- [level1](level1.md)
+- [level2](level2/level2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 14`] = `
 "items:
   - name: level1
     href: level1.md
@@ -450,7 +483,391 @@ path: level1/toc.yaml
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 13`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 15`] = `
+"# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](mermaid.md)
+
+[Mermaid info](mermaid.md#info)
+
+[Latex usage](latex.md)
+
+[noext-link](includes)
+
+Bob
+
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](mermaid.md)
+
+[Mermaid info](mermaid.md#info)
+
+[Latex usage](latex.md)
+
+[noext-link](includes)
+
+Bob
+
+# Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+# Item 1
+
+Item 1 text
+
+[Images ![svg image 1](../../_assets/1.svg)](../../images.md)
+
+[Autotitles ![](../../_assets/1.svg)](../../autotitle.md)
+
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+
+# Latex usage
+
+$/sqrt{3x-1}+(1+x)^2$
+
+# Images ![svg image 1](_assets/1.svg)
+
+![simple image](_assets/1.png)
+
+<!-- ![comm svg image 1](_assets/1.svg) -->
+1. \`![code svg image 1](_assets/1.svg)\`
+![svg image 11](_assets/1.svg)
+
+<!-- ![comm svg image 2](_assets/1.svg "Mountain" =100x200) -->
+2. \`![code svg image 2](_assets/1.svg "Mountain" =100x200)\`
+![svg image 2](_assets/1.svg "Mountain" =100x200)
+
+<!-- ![comm reference image 3][image1] -->
+3. \`![code reference image 3][image1]\`
+![reference image 3][image1]
+
+4. \`![code image1][]\`
+![image1][]
+
+[image1]: _assets/1.svg "Svg"
+
+<!-- [![comm svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain) -->
+5. \`[![code svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)\`
+[![svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)
+
+<!-- [![comm svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain) -->
+6. \`[![code svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)\`
+[![svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)
+
+7. \`![title][code]{width=100 height=200}\`
+![title][code]{width=100 height=200}
+
+8. \`![code][]{width=100}\`
+![code][]{width=100}
+
+[code]: _assets/1.svg
+
+9. \`[![code Source Code][badge-source]][source]\`
+[![Source Code][badge-source]][source]
+
+10. \`![no inline for reference][png]\`
+![no inline for reference][png]
+
+[badge-source]: _assets/1.svg
+[png]: _assets/1.png
+[source]: https://github.com/ramsey/uuid/tree/3.x
+
+11. Definition list 
+Term
+:   Definition with 
+
+    ![img](_assets/1.svg)
+    and more text
+
+12. \`![code svg image 12](_assets/1.svg){inline=false}\`
+![svg image 12](_assets/1.svg){inline=false}
+
+13. \`![code svg image 13](_assets/1.svg){width=100  inline=false}\`
+![svg image 13](_assets/1.svg){width=100  inline=false}
+
+14. \`![code svg image 14](_assets/1.svg){inline=true width=100 }\`
+![svg image 14](_assets/1.svg){inline=true width=100 }
+
+15. \`![code svg image 15][code]{inline=true}\`
+![svg image 15][code]{inline=true}
+
+16. \`![svg with xml header](_assets/2.svg)\`
+![svg with xml header](_assets/2.svg)
+
+17. Text link \`backtick\`.
+![Text link \`backtick\`](_assets/1.svg "Text link title \`backtick\`"){ width="100" }
+Text link \`backtick\`.
+
+18. \`![svg inline edge cases](_assets/3.svg)\`
+![svg inline edge cases](_assets/3.svg)
+
+
+20. Сodeblocks - no inline svg
+\`\`\`
+Codeblock fence
+![code svg image 20.1](_assets/1.svg)
+\`\`\`
+
+\`\`\`\`
+Codeblock in codeblock
+\`\`\`
+![code svg image 20.2](_assets/1.svg)
+\`\`\`
+![code svg image 20.2](_assets/1.svg)
+\`\`\`\`
+
+~~~
+Codeblock tilda
+![code svg image 20.3](_assets/1.svg)
+~~~
+
+\`\`\`\`\`\`\`md translate=no
+Codeblock 10 fence
+![code svg image 20.4](_assets/1.svg)
+\`\`\`\`\`\`\`
+
+    Codeblock 4 spaces
+    ![code svg image 20.5](_assets/1.svg)
+    row 3
+
+1. Codeblock 4 spaces in list
+
+        ![code svg image 20.6](_assets/1.svg)
+1. Codeblock fence in list with bad gap
+  \`\`\`
+  ![code svg image 20.7](_assets/1.svg)
+  \`\`\`
+
+\`\`\`md
+Codeblock with inline code
+   \`![code svg image 22](_assets/1.svg)\`
+1. ![code svg image 23](_assets/1.svg)
+\`\`\`
+
+1. Codeblock in table with asset
+
+#|
+|| **col1** | **col2** | **col3** ||
+|| col1 | 
+\`\`\`swift 
+some code ![svg image 24](_assets/1.svg =120x)
+\`\`\` | ![svg image 24](_assets/1.svg =120x) ||
+|#
+
+1. Codeblock in cat
+
+{% cut "first level" %}
+
+![svg image 25](_assets/1.svg)
+\`\`\`md
+![code svg image 25](_assets/1.svg)
+\`\`\`
+  {% cut "second level" %}
+
+  ![svg image 25](_assets/1.svg)
+
+  \`\`\`md
+  ![code svg image 26](_assets/1.svg)
+  \`\`\`
+
+  {% endcut %}
+
+{% endcut %}
+
+1. Codeblock in tabs
+
+{% list tabs %}
+- first
+
+  ![svg image 25](_assets/1.svg)
+  \`\`\`md
+  ![code svg image 25](_assets/1.svg)
+  \`\`\`
+- second
+
+  ![svg image 25](_assets/1.svg)
+  \`\`\`md
+  ![code svg image 25](_assets/1.svg)
+  \`\`\`
+{% endlist %}
+
+1. ![](_assets/2.svg)[link text](1.md). Text.
+
+# Autotitles ![](_assets/1.svg)
+
+Empty title
+[Title](./1.md)
+
+### Uploading Attributes via Import File {#create-attribute-with-template}
+
+Empty subtitle
+[Subtitle](./1.md#subtitle)
+
+Special title
+[Title](./1.md)
+
+Special subtitle
+[Subtitle](./1.md#subtitle)
+
+Empty local title
+[Header](#header)
+
+Special local title
+[Header](#header)
+
+Reference link
+[Mermaid usage][link]
+
+Reference link with hash
+[Subtitle][link-with-hash]
+
+[link]: ./mermaid.md
+[link-with-hash]: ./1.md#subtitle
+
+Link another level
+[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](./includes/level11.md)
+
+## Header {#header}
+
+Content
+
+#### Step 1. Follow the steps described in the [Uploading Attributes via Import File](#create-attribute-with-template) section
+
+Text
+
+Bob
+
+Test
+
+Link after include
+[Title](./1.md)
+
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
+Bob
+
+Include with big indent
+
+- list item
+
+  Link to mermaid diagram from 2 level
+  [Mermaid usage](mermaid.md)
+
+  - User
+    Bob
+
+Link to mermaid diagram from 1 level
+[Mermaid usage](mermaid.md)
+
+Link after include
+[Subtitle](./1.md#subtitle)
+
+# Level 11 svg header ![Level 11 svg header](../_assets/1.svg)
+
+# Level root svg header ![Level root svg header](_assets/1.svg)
+
+[Images ![svg image 1](../../_assets/1.svg)](images.md)
+
+[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](level1/level1.md)
+
+[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level1/level2/level2.md)
+
+# Level 1 svg header ![Level 1 svg header](../_assets/1.svg)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
+
+[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level2/level2.md)
+
+[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](../includes/level11.md)
+
+# Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
+
+[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](../level1.md)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 16`] = `
+"## Documentation
+
+- [Md item with not_var syntax](1.md)
+- [Md item named without extension](1.md)
+- [Included Item](included-item.md)
+- [Item 1](sub/folder/item-1.md)
+- [Mermaid usage](mermaid.md)
+- [Latex usage](latex.md)
+- [Images](images.md)
+- [Autotitle](autotitle.md)
+- [includes](includes.md)
+- [level11](includes/level11.md)
+- [level0](level0.md)
+- [level1](level1/level1.md)
+- [level2](level1/level2/level2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 17`] = `
 "---
 metadata:
   - name: generator
@@ -473,7 +890,7 @@ Some mermaid info
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 14`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 18`] = `
 "---
 metadata:
   - name: generator
@@ -490,7 +907,7 @@ Item 1 text
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 15`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 19`] = `
 "items:
   - name: Md item with not_var syntax
     href: 1.md
@@ -541,7 +958,11 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true > filelist 1`] = `
   "level0.md",
   "level1/level1.md",
   "level1/level2/level2.md",
+  "level1/llms-full.txt",
+  "level1/llms.txt",
   "level1/toc.yaml",
+  "llms-full.txt",
+  "llms.txt",
   "mermaid.md",
   "sub/folder/item-1.md",
   "toc.yaml"
@@ -965,6 +1386,35 @@ vcsPath: level1/level2/level2.md
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 12`] = `
+"# Level 1 svg header ![Level 1 svg header](../_assets/1.svg)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
+
+[Level 2 svg header ![Level 2 svg header](../_assets/1.svg)](level2/level2.md)
+
+[Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)
+
+# Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
+
+[Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 13`] = `
+"## Documentation
+
+- [level1](level1.md)
+- [level2](level2/level2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 14`] = `
 "items:
   - name: level1
     href: level1.md
@@ -974,7 +1424,391 @@ path: level1/toc.yaml
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 13`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 15`] = `
+"# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](mermaid.md)
+
+[Mermaid info](mermaid.md#info)
+
+[Latex usage](latex.md)
+
+[noext-link](includes)
+
+Bob
+
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](mermaid.md)
+
+[Mermaid info](mermaid.md#info)
+
+[Latex usage](latex.md)
+
+[noext-link](includes)
+
+Bob
+
+# Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+# Item 1
+
+Item 1 text
+
+[Images ![svg image 1](../../_assets/1.svg)](../../images.md)
+
+[Autotitles ![](../../_assets/1.svg)](../../autotitle.md)
+
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+
+# Latex usage
+
+$/sqrt{3x-1}+(1+x)^2$
+
+# Images ![svg image 1](_assets/1.svg)
+
+![simple image](_assets/1.png)
+
+<!-- ![comm svg image 1](_assets/1.svg) -->
+1. \`![code svg image 1](_assets/1.svg)\`
+![svg image 11](_assets/1.svg)
+
+<!-- ![comm svg image 2](_assets/1.svg "Mountain" =100x200) -->
+2. \`![code svg image 2](_assets/1.svg "Mountain" =100x200)\`
+![svg image 2](_assets/1.svg "Mountain" =100x200)
+
+<!-- ![comm reference image 3][image1] -->
+3. \`![code reference image 3][image1]\`
+![reference image 3][image1]
+
+4. \`![code image1][]\`
+![image1][]
+
+[image1]: _assets/1.svg "Svg"
+
+<!-- [![comm svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain) -->
+5. \`[![code svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)\`
+[![svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)
+
+<!-- [![comm svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain) -->
+6. \`[![code svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)\`
+[![svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)
+
+7. \`![title][code]{width=100 height=200}\`
+![title][code]{width=100 height=200}
+
+8. \`![code][]{width=100}\`
+![code][]{width=100}
+
+[code]: _assets/1.svg
+
+9. \`[![code Source Code][badge-source]][source]\`
+[![Source Code][badge-source]][source]
+
+10. \`![no inline for reference][png]\`
+![no inline for reference][png]
+
+[badge-source]: _assets/1.svg
+[png]: _assets/1.png
+[source]: https://github.com/ramsey/uuid/tree/3.x
+
+11. Definition list 
+Term
+:   Definition with 
+
+    ![img](_assets/1.svg)
+    and more text
+
+12. \`![code svg image 12](_assets/1.svg){inline=false}\`
+![svg image 12](_assets/1.svg){inline=false}
+
+13. \`![code svg image 13](_assets/1.svg){width=100  inline=false}\`
+![svg image 13](_assets/1.svg){width=100  inline=false}
+
+14. \`![code svg image 14](_assets/1.svg){inline=true width=100 }\`
+![svg image 14](_assets/1.svg){inline=true width=100 }
+
+15. \`![code svg image 15][code]{inline=true}\`
+![svg image 15][code]{inline=true}
+
+16. \`![svg with xml header](_assets/2.svg)\`
+![svg with xml header](_assets/2.svg)
+
+17. Text link \`backtick\`.
+![Text link \`backtick\`](_assets/1.svg "Text link title \`backtick\`"){ width="100" }
+Text link \`backtick\`.
+
+18. \`![svg inline edge cases](_assets/3.svg)\`
+![svg inline edge cases](_assets/3.svg)
+
+
+20. Сodeblocks - no inline svg
+\`\`\`
+Codeblock fence
+![code svg image 20.1](_assets/1.svg)
+\`\`\`
+
+\`\`\`\`
+Codeblock in codeblock
+\`\`\`
+![code svg image 20.2](_assets/1.svg)
+\`\`\`
+![code svg image 20.2](_assets/1.svg)
+\`\`\`\`
+
+~~~
+Codeblock tilda
+![code svg image 20.3](_assets/1.svg)
+~~~
+
+\`\`\`\`\`\`\`md translate=no
+Codeblock 10 fence
+![code svg image 20.4](_assets/1.svg)
+\`\`\`\`\`\`\`
+
+    Codeblock 4 spaces
+    ![code svg image 20.5](_assets/1.svg)
+    row 3
+
+1. Codeblock 4 spaces in list
+
+        ![code svg image 20.6](_assets/1.svg)
+1. Codeblock fence in list with bad gap
+  \`\`\`
+  ![code svg image 20.7](_assets/1.svg)
+  \`\`\`
+
+\`\`\`md
+Codeblock with inline code
+   \`![code svg image 22](_assets/1.svg)\`
+1. ![code svg image 23](_assets/1.svg)
+\`\`\`
+
+1. Codeblock in table with asset
+
+#|
+|| **col1** | **col2** | **col3** ||
+|| col1 | 
+\`\`\`swift 
+some code ![svg image 24](_assets/1.svg =120x)
+\`\`\` | ![svg image 24](_assets/1.svg =120x) ||
+|#
+
+1. Codeblock in cat
+
+{% cut "first level" %}
+
+![svg image 25](_assets/1.svg)
+\`\`\`md
+![code svg image 25](_assets/1.svg)
+\`\`\`
+  {% cut "second level" %}
+
+  ![svg image 25](_assets/1.svg)
+
+  \`\`\`md
+  ![code svg image 26](_assets/1.svg)
+  \`\`\`
+
+  {% endcut %}
+
+{% endcut %}
+
+1. Codeblock in tabs
+
+{% list tabs %}
+- first
+
+  ![svg image 25](_assets/1.svg)
+  \`\`\`md
+  ![code svg image 25](_assets/1.svg)
+  \`\`\`
+- second
+
+  ![svg image 25](_assets/1.svg)
+  \`\`\`md
+  ![code svg image 25](_assets/1.svg)
+  \`\`\`
+{% endlist %}
+
+1. ![](_assets/2.svg)[link text](1.md). Text.
+
+# Autotitles ![](_assets/1.svg)
+
+Empty title
+[Title](./1.md)
+
+### Uploading Attributes via Import File {#create-attribute-with-template}
+
+Empty subtitle
+[Subtitle](./1.md#subtitle)
+
+Special title
+[Title](./1.md)
+
+Special subtitle
+[Subtitle](./1.md#subtitle)
+
+Empty local title
+[Header](#header)
+
+Special local title
+[Header](#header)
+
+Reference link
+[Mermaid usage][link]
+
+Reference link with hash
+[Subtitle][link-with-hash]
+
+[link]: ./mermaid.md
+[link-with-hash]: ./1.md#subtitle
+
+Link another level
+[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](./includes/level11.md)
+
+## Header {#header}
+
+Content
+
+#### Step 1. Follow the steps described in the [Uploading Attributes via Import File](#create-attribute-with-template) section
+
+Text
+
+Bob
+
+Test
+
+Link after include
+[Title](./1.md)
+
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
+Bob
+
+Include with big indent
+
+- list item
+
+  Link to mermaid diagram from 2 level
+  [Mermaid usage](mermaid.md)
+
+  - User
+    Bob
+
+Link to mermaid diagram from 1 level
+[Mermaid usage](mermaid.md)
+
+Link after include
+[Subtitle](./1.md#subtitle)
+
+# Level 11 svg header ![Level 11 svg header](../_assets/1.svg)
+
+# Level root svg header ![Level root svg header](_assets/1.svg)
+
+[Images ![svg image 1](../../_assets/1.svg)](images.md)
+
+[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](level1/level1.md)
+
+[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level1/level2/level2.md)
+
+# Level 1 svg header ![Level 1 svg header](../_assets/1.svg)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
+
+[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level2/level2.md)
+
+[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](../includes/level11.md)
+
+# Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
+
+[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](../level1.md)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 16`] = `
+"## Documentation
+
+- [Md item with not_var syntax](1.md)
+- [Md item named without extension](1.md)
+- [Included Item](included-item.md)
+- [Item 1](sub/folder/item-1.md)
+- [Mermaid usage](mermaid.md)
+- [Latex usage](latex.md)
+- [Images](images.md)
+- [Autotitle](autotitle.md)
+- [includes](includes.md)
+- [level11](includes/level11.md)
+- [level0](level0.md)
+- [level1](level1/level1.md)
+- [level2](level1/level2/level2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 17`] = `
 "---
 metadata:
   - name: generator
@@ -997,7 +1831,7 @@ Some mermaid info
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 14`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 18`] = `
 "---
 metadata:
   - name: generator
@@ -1014,7 +1848,7 @@ Item 1 text
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 15`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 19`] = `
 "items:
   - name: Md item with not_var syntax
     href: 1.md
@@ -1065,7 +1899,11 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true > filelist 1`] 
   "level0.md",
   "level1/level1.md",
   "level1/level2/level2.md",
+  "level1/llms-full.txt",
+  "level1/llms.txt",
   "level1/toc.yaml",
+  "llms-full.txt",
+  "llms.txt",
   "mermaid.md",
   "sub/folder/item-1.md",
   "toc.yaml"
@@ -1089,7 +1927,11 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true > filelist 2`] 
   "level0.html",
   "level1/level1.html",
   "level1/level2/level2.html",
+  "level1/llms-full.txt",
+  "level1/llms.txt",
   "level1/toc.js",
+  "llms-full.txt",
+  "llms.txt",
   "mermaid.html",
   "sub/folder/item-1.html",
   "toc.js"
@@ -1513,6 +2355,35 @@ vcsPath: level1/level2/level2.md
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 12`] = `
+"# Level 1 svg header ![Level 1 svg header](../_assets/1.svg)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
+
+[Level 2 svg header ![Level 2 svg header](../_assets/1.svg)](level2/level2.md)
+
+[Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)
+
+# Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
+
+[Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 13`] = `
+"## Documentation
+
+- [level1](level1.md)
+- [level2](level2/level2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 14`] = `
 "items:
   - name: level1
     href: level1.md
@@ -1522,7 +2393,391 @@ path: level1/toc.yaml
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 13`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 15`] = `
+"# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](mermaid.md)
+
+[Mermaid info](mermaid.md#info)
+
+[Latex usage](latex.md)
+
+[noext-link](includes)
+
+Bob
+
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](mermaid.md)
+
+[Mermaid info](mermaid.md#info)
+
+[Latex usage](latex.md)
+
+[noext-link](includes)
+
+Bob
+
+# Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+# Item 1
+
+Item 1 text
+
+[Images ![svg image 1](../../_assets/1.svg)](../../images.md)
+
+[Autotitles ![](../../_assets/1.svg)](../../autotitle.md)
+
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+
+# Latex usage
+
+$/sqrt{3x-1}+(1+x)^2$
+
+# Images ![svg image 1](_assets/1.svg)
+
+![simple image](_assets/1.png)
+
+<!-- ![comm svg image 1](_assets/1.svg) -->
+1. \`![code svg image 1](_assets/1.svg)\`
+![svg image 11](_assets/1.svg)
+
+<!-- ![comm svg image 2](_assets/1.svg "Mountain" =100x200) -->
+2. \`![code svg image 2](_assets/1.svg "Mountain" =100x200)\`
+![svg image 2](_assets/1.svg "Mountain" =100x200)
+
+<!-- ![comm reference image 3][image1] -->
+3. \`![code reference image 3][image1]\`
+![reference image 3][image1]
+
+4. \`![code image1][]\`
+![image1][]
+
+[image1]: _assets/1.svg "Svg"
+
+<!-- [![comm svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain) -->
+5. \`[![code svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)\`
+[![svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)
+
+<!-- [![comm svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain) -->
+6. \`[![code svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)\`
+[![svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)
+
+7. \`![title][code]{width=100 height=200}\`
+![title][code]{width=100 height=200}
+
+8. \`![code][]{width=100}\`
+![code][]{width=100}
+
+[code]: _assets/1.svg
+
+9. \`[![code Source Code][badge-source]][source]\`
+[![Source Code][badge-source]][source]
+
+10. \`![no inline for reference][png]\`
+![no inline for reference][png]
+
+[badge-source]: _assets/1.svg
+[png]: _assets/1.png
+[source]: https://github.com/ramsey/uuid/tree/3.x
+
+11. Definition list 
+Term
+:   Definition with 
+
+    ![img](_assets/1.svg)
+    and more text
+
+12. \`![code svg image 12](_assets/1.svg){inline=false}\`
+![svg image 12](_assets/1.svg){inline=false}
+
+13. \`![code svg image 13](_assets/1.svg){width=100  inline=false}\`
+![svg image 13](_assets/1.svg){width=100  inline=false}
+
+14. \`![code svg image 14](_assets/1.svg){inline=true width=100 }\`
+![svg image 14](_assets/1.svg){inline=true width=100 }
+
+15. \`![code svg image 15][code]{inline=true}\`
+![svg image 15][code]{inline=true}
+
+16. \`![svg with xml header](_assets/2.svg)\`
+![svg with xml header](_assets/2.svg)
+
+17. Text link \`backtick\`.
+![Text link \`backtick\`](_assets/1.svg "Text link title \`backtick\`"){ width="100" }
+Text link \`backtick\`.
+
+18. \`![svg inline edge cases](_assets/3.svg)\`
+![svg inline edge cases](_assets/3.svg)
+
+
+20. Сodeblocks - no inline svg
+\`\`\`
+Codeblock fence
+![code svg image 20.1](_assets/1.svg)
+\`\`\`
+
+\`\`\`\`
+Codeblock in codeblock
+\`\`\`
+![code svg image 20.2](_assets/1.svg)
+\`\`\`
+![code svg image 20.2](_assets/1.svg)
+\`\`\`\`
+
+~~~
+Codeblock tilda
+![code svg image 20.3](_assets/1.svg)
+~~~
+
+\`\`\`\`\`\`\`md translate=no
+Codeblock 10 fence
+![code svg image 20.4](_assets/1.svg)
+\`\`\`\`\`\`\`
+
+    Codeblock 4 spaces
+    ![code svg image 20.5](_assets/1.svg)
+    row 3
+
+1. Codeblock 4 spaces in list
+
+        ![code svg image 20.6](_assets/1.svg)
+1. Codeblock fence in list with bad gap
+  \`\`\`
+  ![code svg image 20.7](_assets/1.svg)
+  \`\`\`
+
+\`\`\`md
+Codeblock with inline code
+   \`![code svg image 22](_assets/1.svg)\`
+1. ![code svg image 23](_assets/1.svg)
+\`\`\`
+
+1. Codeblock in table with asset
+
+#|
+|| **col1** | **col2** | **col3** ||
+|| col1 | 
+\`\`\`swift 
+some code ![svg image 24](_assets/1.svg =120x)
+\`\`\` | ![svg image 24](_assets/1.svg =120x) ||
+|#
+
+1. Codeblock in cat
+
+{% cut "first level" %}
+
+![svg image 25](_assets/1.svg)
+\`\`\`md
+![code svg image 25](_assets/1.svg)
+\`\`\`
+  {% cut "second level" %}
+
+  ![svg image 25](_assets/1.svg)
+
+  \`\`\`md
+  ![code svg image 26](_assets/1.svg)
+  \`\`\`
+
+  {% endcut %}
+
+{% endcut %}
+
+1. Codeblock in tabs
+
+{% list tabs %}
+- first
+
+  ![svg image 25](_assets/1.svg)
+  \`\`\`md
+  ![code svg image 25](_assets/1.svg)
+  \`\`\`
+- second
+
+  ![svg image 25](_assets/1.svg)
+  \`\`\`md
+  ![code svg image 25](_assets/1.svg)
+  \`\`\`
+{% endlist %}
+
+1. ![](_assets/2.svg)[link text](1.md). Text.
+
+# Autotitles ![](_assets/1.svg)
+
+Empty title
+[Title](./1.md)
+
+### Uploading Attributes via Import File {#create-attribute-with-template}
+
+Empty subtitle
+[Subtitle](./1.md#subtitle)
+
+Special title
+[Title](./1.md)
+
+Special subtitle
+[Subtitle](./1.md#subtitle)
+
+Empty local title
+[Header](#header)
+
+Special local title
+[Header](#header)
+
+Reference link
+[Mermaid usage][link]
+
+Reference link with hash
+[Subtitle][link-with-hash]
+
+[link]: ./mermaid.md
+[link-with-hash]: ./1.md#subtitle
+
+Link another level
+[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](./includes/level11.md)
+
+## Header {#header}
+
+Content
+
+#### Step 1. Follow the steps described in the [Uploading Attributes via Import File](#create-attribute-with-template) section
+
+Text
+
+Bob
+
+Test
+
+Link after include
+[Title](./1.md)
+
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
+Bob
+
+Include with big indent
+
+- list item
+
+  Link to mermaid diagram from 2 level
+  [Mermaid usage](mermaid.md)
+
+  - User
+    Bob
+
+Link to mermaid diagram from 1 level
+[Mermaid usage](mermaid.md)
+
+Link after include
+[Subtitle](./1.md#subtitle)
+
+# Level 11 svg header ![Level 11 svg header](../_assets/1.svg)
+
+# Level root svg header ![Level root svg header](_assets/1.svg)
+
+[Images ![svg image 1](../../_assets/1.svg)](images.md)
+
+[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](level1/level1.md)
+
+[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level1/level2/level2.md)
+
+# Level 1 svg header ![Level 1 svg header](../_assets/1.svg)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
+
+[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level2/level2.md)
+
+[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](../includes/level11.md)
+
+# Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
+
+[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](../level1.md)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 16`] = `
+"## Documentation
+
+- [Md item with not_var syntax](1.md)
+- [Md item named without extension](1.md)
+- [Included Item](included-item.md)
+- [Item 1](sub/folder/item-1.md)
+- [Mermaid usage](mermaid.md)
+- [Latex usage](latex.md)
+- [Images](images.md)
+- [Autotitle](autotitle.md)
+- [includes](includes.md)
+- [level11](includes/level11.md)
+- [level0](level0.md)
+- [level1](level1/level1.md)
+- [level2](level1/level2/level2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 17`] = `
 "---
 metadata:
   - name: generator
@@ -1545,7 +2800,7 @@ Some mermaid info
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 14`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 18`] = `
 "---
 metadata:
   - name: generator
@@ -1562,7 +2817,7 @@ Item 1 text
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 15`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 19`] = `
 "items:
   - name: Md item with not_var syntax
     href: 1.md
@@ -1596,12 +2851,12 @@ path: toc.yaml
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 16`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 20`] = `
 "allowHtml: true
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 17`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 21`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1629,7 +2884,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 17`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 18`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 22`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1657,7 +2912,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 18`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 19`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 23`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1685,7 +2940,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 19`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 20`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 24`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1713,7 +2968,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 20`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 21`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 25`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1741,7 +2996,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 21`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 22`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 26`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1769,7 +3024,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 22`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 23`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 27`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1797,7 +3052,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 23`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 24`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 28`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1825,7 +3080,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 24`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 25`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 29`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1853,7 +3108,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 25`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 26`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 30`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1881,9 +3136,422 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 26`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 27`] = `"window.__DATA__.data.toc = {"items":[{"name":"level1","href":"level1/level1.html","id":"UUID"},{"name":"level2","href":"level1/level2/level2.html","id":"UUID"}],"path":"level1/toc.yaml","id":"UUID"};"`;
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 31`] = `
+"# Level 1 svg header ![Level 1 svg header](../_assets/1.svg)
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 28`] = `
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
+
+[Level 2 svg header ![Level 2 svg header](../_assets/1.svg)](level2/level2.md)
+
+[Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)
+
+# Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
+
+[Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 32`] = `
+"## Documentation
+
+- [level1](level1.md)
+- [level2](level2/level2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 33`] = `"window.__DATA__.data.toc = {"items":[{"name":"level1","href":"level1/level1.html","id":"UUID"},{"name":"level2","href":"level1/level2/level2.html","id":"UUID"}],"path":"level1/toc.yaml","id":"UUID"};"`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 34`] = `
+"# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](mermaid.md)
+
+[Mermaid info](mermaid.md#info)
+
+[Latex usage](latex.md)
+
+[noext-link](includes)
+
+Bob
+
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](mermaid.md)
+
+[Mermaid info](mermaid.md#info)
+
+[Latex usage](latex.md)
+
+[noext-link](includes)
+
+Bob
+
+# Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+# Item 1
+
+Item 1 text
+
+[Images ![svg image 1](../../_assets/1.svg)](../../images.md)
+
+[Autotitles ![](../../_assets/1.svg)](../../autotitle.md)
+
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+
+# Latex usage
+
+$/sqrt{3x-1}+(1+x)^2$
+
+# Images ![svg image 1](_assets/1.svg)
+
+![simple image](_assets/1.png)
+
+<!-- ![comm svg image 1](_assets/1.svg) -->
+1. \`![code svg image 1](_assets/1.svg)\`
+![svg image 11](_assets/1.svg)
+
+<!-- ![comm svg image 2](_assets/1.svg "Mountain" =100x200) -->
+2. \`![code svg image 2](_assets/1.svg "Mountain" =100x200)\`
+![svg image 2](_assets/1.svg "Mountain" =100x200)
+
+<!-- ![comm reference image 3][image1] -->
+3. \`![code reference image 3][image1]\`
+![reference image 3][image1]
+
+4. \`![code image1][]\`
+![image1][]
+
+[image1]: _assets/1.svg "Svg"
+
+<!-- [![comm svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain) -->
+5. \`[![code svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)\`
+[![svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)
+
+<!-- [![comm svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain) -->
+6. \`[![code svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)\`
+[![svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)
+
+7. \`![title][code]{width=100 height=200}\`
+![title][code]{width=100 height=200}
+
+8. \`![code][]{width=100}\`
+![code][]{width=100}
+
+[code]: _assets/1.svg
+
+9. \`[![code Source Code][badge-source]][source]\`
+[![Source Code][badge-source]][source]
+
+10. \`![no inline for reference][png]\`
+![no inline for reference][png]
+
+[badge-source]: _assets/1.svg
+[png]: _assets/1.png
+[source]: https://github.com/ramsey/uuid/tree/3.x
+
+11. Definition list 
+Term
+:   Definition with 
+
+    ![img](_assets/1.svg)
+    and more text
+
+12. \`![code svg image 12](_assets/1.svg){inline=false}\`
+![svg image 12](_assets/1.svg){inline=false}
+
+13. \`![code svg image 13](_assets/1.svg){width=100  inline=false}\`
+![svg image 13](_assets/1.svg){width=100  inline=false}
+
+14. \`![code svg image 14](_assets/1.svg){inline=true width=100 }\`
+![svg image 14](_assets/1.svg){inline=true width=100 }
+
+15. \`![code svg image 15][code]{inline=true}\`
+![svg image 15][code]{inline=true}
+
+16. \`![svg with xml header](_assets/2.svg)\`
+![svg with xml header](_assets/2.svg)
+
+17. Text link \`backtick\`.
+![Text link \`backtick\`](_assets/1.svg "Text link title \`backtick\`"){ width="100" }
+Text link \`backtick\`.
+
+18. \`![svg inline edge cases](_assets/3.svg)\`
+![svg inline edge cases](_assets/3.svg)
+
+
+20. Сodeblocks - no inline svg
+\`\`\`
+Codeblock fence
+![code svg image 20.1](_assets/1.svg)
+\`\`\`
+
+\`\`\`\`
+Codeblock in codeblock
+\`\`\`
+![code svg image 20.2](_assets/1.svg)
+\`\`\`
+![code svg image 20.2](_assets/1.svg)
+\`\`\`\`
+
+~~~
+Codeblock tilda
+![code svg image 20.3](_assets/1.svg)
+~~~
+
+\`\`\`\`\`\`\`md translate=no
+Codeblock 10 fence
+![code svg image 20.4](_assets/1.svg)
+\`\`\`\`\`\`\`
+
+    Codeblock 4 spaces
+    ![code svg image 20.5](_assets/1.svg)
+    row 3
+
+1. Codeblock 4 spaces in list
+
+        ![code svg image 20.6](_assets/1.svg)
+1. Codeblock fence in list with bad gap
+  \`\`\`
+  ![code svg image 20.7](_assets/1.svg)
+  \`\`\`
+
+\`\`\`md
+Codeblock with inline code
+   \`![code svg image 22](_assets/1.svg)\`
+1. ![code svg image 23](_assets/1.svg)
+\`\`\`
+
+1. Codeblock in table with asset
+
+#|
+|| **col1** | **col2** | **col3** ||
+|| col1 | 
+\`\`\`swift 
+some code ![svg image 24](_assets/1.svg =120x)
+\`\`\` | ![svg image 24](_assets/1.svg =120x) ||
+|#
+
+1. Codeblock in cat
+
+{% cut "first level" %}
+
+![svg image 25](_assets/1.svg)
+\`\`\`md
+![code svg image 25](_assets/1.svg)
+\`\`\`
+  {% cut "second level" %}
+
+  ![svg image 25](_assets/1.svg)
+
+  \`\`\`md
+  ![code svg image 26](_assets/1.svg)
+  \`\`\`
+
+  {% endcut %}
+
+{% endcut %}
+
+1. Codeblock in tabs
+
+{% list tabs %}
+- first
+
+  ![svg image 25](_assets/1.svg)
+  \`\`\`md
+  ![code svg image 25](_assets/1.svg)
+  \`\`\`
+- second
+
+  ![svg image 25](_assets/1.svg)
+  \`\`\`md
+  ![code svg image 25](_assets/1.svg)
+  \`\`\`
+{% endlist %}
+
+1. ![](_assets/2.svg)[link text](1.md). Text.
+
+# Autotitles ![](_assets/1.svg)
+
+Empty title
+[Title](./1.md)
+
+### Uploading Attributes via Import File {#create-attribute-with-template}
+
+Empty subtitle
+[Subtitle](./1.md#subtitle)
+
+Special title
+[Title](./1.md)
+
+Special subtitle
+[Subtitle](./1.md#subtitle)
+
+Empty local title
+[Header](#header)
+
+Special local title
+[Header](#header)
+
+Reference link
+[Mermaid usage][link]
+
+Reference link with hash
+[Subtitle][link-with-hash]
+
+[link]: ./mermaid.md
+[link-with-hash]: ./1.md#subtitle
+
+Link another level
+[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](./includes/level11.md)
+
+## Header {#header}
+
+Content
+
+#### Step 1. Follow the steps described in the [Uploading Attributes via Import File](#create-attribute-with-template) section
+
+Text
+
+Bob
+
+Test
+
+Link after include
+[Title](./1.md)
+
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
+Bob
+
+Include with big indent
+
+- list item
+
+  Link to mermaid diagram from 2 level
+  [Mermaid usage](mermaid.md)
+
+  - User
+    Bob
+
+Link to mermaid diagram from 1 level
+[Mermaid usage](mermaid.md)
+
+Link after include
+[Subtitle](./1.md#subtitle)
+
+# Level 11 svg header ![Level 11 svg header](../_assets/1.svg)
+
+# Level root svg header ![Level root svg header](_assets/1.svg)
+
+[Images ![svg image 1](../../_assets/1.svg)](images.md)
+
+[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](level1/level1.md)
+
+[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level1/level2/level2.md)
+
+# Level 1 svg header ![Level 1 svg header](../_assets/1.svg)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
+
+[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level2/level2.md)
+
+[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](../includes/level11.md)
+
+# Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
+
+[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](../level1.md)
+
+[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 35`] = `
+"## Documentation
+
+- [Md item with not_var syntax](1.md)
+- [Md item named without extension](1.md)
+- [Included Item](included-item.md)
+- [Item 1](sub/folder/item-1.md)
+- [Mermaid usage](mermaid.md)
+- [Latex usage](latex.md)
+- [Images](images.md)
+- [Autotitle](autotitle.md)
+- [includes](includes.md)
+- [level11](includes/level11.md)
+- [level0](level0.md)
+- [level1](level1/level1.md)
+- [level2](level1/level2/level2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 36`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1911,7 +3579,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 28`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 29`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 37`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1939,4 +3607,4 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 29`] = `
 </html>"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 30`] = `"window.__DATA__.data.toc = {"items":[{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"level11","href":"includes/level11.html","id":"UUID"},{"name":"level0","href":"level0.html","id":"UUID"},{"name":"level1","href":"level1/level1.html","id":"UUID"},{"name":"level2","href":"level1/level2/level2.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 38`] = `"window.__DATA__.data.toc = {"items":[{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"level11","href":"includes/level11.html","id":"UUID"},{"name":"level0","href":"level0.html","id":"UUID"},{"name":"level1","href":"level1/level1.html","id":"UUID"},{"name":"level2","href":"level1/level2/level2.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

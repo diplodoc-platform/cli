@@ -3,6 +3,8 @@
 exports[`Translate command > build translated md files and remove no-translate directives > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "no-translate.md",
   "openapi/index.md",
   "openapi/test-controller/getWithPayloadResponse.md",
@@ -28,6 +30,258 @@ asdfasdfasdf"
 `;
 
 exports[`Translate command > build translated md files and remove no-translate directives 2`] = `
+"# Test123
+
+## Index header
+
+adsfasdfasdfasdfasdf
+
+lorem
+
+asdfasdfasdf
+
+# No-translate directive
+
+## Block directive
+### No-translate header
+
+:::html-block
+testsetsets
+:::
+
+::: any-other-directive
+content test
+:::
+
+Should not be translated.
+Can use **markup** inside.
+
+
+::: some-other-directive
+content here
+:::
+content here
+::: some-other-directive
+nested content
+:::
+
+## Leaf directive
+
+## /usr/local/bin/application
+**C:/Program Files/Application/config.ini**
+~/Documents/project/src/main.rs
+
+
+- GET /api/v1/users — get all users
+- POST /api/v1/auth/login — authorization
+- PUT /api/v1/users/{id} — update users data
+
+## Simple case leaf
+Install using command.
+The default port is unless specified. Next sentence.
+Set NODE_ENV=production for production builds.
+
+## Simple case inline
+Install using npm install @company/package command.
+The default port is 8080 unless specified.
+Set NODE_ENV=production for production builds.
+
+## Few inline directives
+Use **GET /api/v1/users** to list users and POST /api/v1/users to create.
+
+## Empty inline directive
+This is text with empty  directive.
+
+<!-- markdownlint-disable-file -->
+
+# OpenAPI definition
+
+##version: v0##
+
+## Sections
+
+- [test-controller](test-controller/index.md)
+
+
+## Specification
+
+{% cut "Open API" %}
+
+\`\`\`text translate=no
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Simple get operation. тест новой верстки 3",
+                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "operationId": "getWithPayloadResponse",
+                "responses": {
+                    "200": {
+                        "description": "200!!!!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "A": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RecurceTop": {
+                "type": "object",
+                "properties": {
+                    "A": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecurceMiddle": {
+                "type": "object",
+                "properties": {
+                    "B": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "A": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+\`\`\`
+
+{% endcut %}
+
+# test-controller
+
+<!-- markdownlint-disable-file -->
+
+## Endpoints
+
+- [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
+
+<div class="openapi">
+
+# Simple get operation. тест новой верстки 3
+
+<!-- markdownlint-disable-file -->
+
+Defines a simple get skip this operation with no inputs and a complex
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method}
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+200!!!!
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+\`\`\`json translate=no
+{
+  "A": "example"
+}
+\`\`\`
+
+{% endcut %}
+
+#|
+|| **Name** | **Description** ||
+||
+
+_A_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+</div>
+
+</div>
+
+</div>
+
+[*Deprecated]: No longer supported, please use an alternative and newer version.
+"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 3`] = `
+"# Test123
+
+## Documentation
+
+- [index.md](index.md)
+- [Не переводить](no-translate.md)
+- [Overview](openapi/index.md)
+- [Overview](openapi/test-controller/index.md)
+- [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 4`] = `
 "---
 metadata:
   - name: generator
@@ -90,7 +344,7 @@ This is text with empty  directive.
 "
 `;
 
-exports[`Translate command > build translated md files and remove no-translate directives 3`] = `
+exports[`Translate command > build translated md files and remove no-translate directives 5`] = `
 "---
 metadata:
   - name: generator
@@ -188,7 +442,7 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Translate command > build translated md files and remove no-translate directives 4`] = `
+exports[`Translate command > build translated md files and remove no-translate directives 6`] = `
 "---
 metadata:
   - name: generator
@@ -268,7 +522,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Translate command > build translated md files and remove no-translate directives 5`] = `
+exports[`Translate command > build translated md files and remove no-translate directives 7`] = `
 "---
 metadata:
   - name: generator
@@ -285,7 +539,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Translate command > build translated md files and remove no-translate directives 6`] = `
+exports[`Translate command > build translated md files and remove no-translate directives 8`] = `
 "title: Test123
 href: index.md
 items:
@@ -308,6 +562,8 @@ path: toc.yaml
 exports[`Translate command > build translated static files and remove no-translate directives > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "no-translate.md",
   "openapi/index.md",
   "openapi/test-controller/getWithPayloadResponse.md",
@@ -333,6 +589,258 @@ asdfasdfasdf"
 `;
 
 exports[`Translate command > build translated static files and remove no-translate directives 2`] = `
+"# Test123
+
+## Index header
+
+adsfasdfasdfasdfasdf
+
+lorem
+
+asdfasdfasdf
+
+# No-translate directive
+
+## Block directive
+### No-translate header
+
+:::html-block
+testsetsets
+:::
+
+::: any-other-directive
+content test
+:::
+
+Should not be translated.
+Can use **markup** inside.
+
+
+::: some-other-directive
+content here
+:::
+content here
+::: some-other-directive
+nested content
+:::
+
+## Leaf directive
+
+## /usr/local/bin/application
+**C:/Program Files/Application/config.ini**
+~/Documents/project/src/main.rs
+
+
+- GET /api/v1/users — get all users
+- POST /api/v1/auth/login — authorization
+- PUT /api/v1/users/{id} — update users data
+
+## Simple case leaf
+Install using command.
+The default port is unless specified. Next sentence.
+Set NODE_ENV=production for production builds.
+
+## Simple case inline
+Install using npm install @company/package command.
+The default port is 8080 unless specified.
+Set NODE_ENV=production for production builds.
+
+## Few inline directives
+Use **GET /api/v1/users** to list users and POST /api/v1/users to create.
+
+## Empty inline directive
+This is text with empty  directive.
+
+<!-- markdownlint-disable-file -->
+
+# OpenAPI definition
+
+##version: v0##
+
+## Sections
+
+- [test-controller](test-controller/index.md)
+
+
+## Specification
+
+{% cut "Open API" %}
+
+\`\`\`text translate=no
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Simple get operation. тест новой верстки 3",
+                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "operationId": "getWithPayloadResponse",
+                "responses": {
+                    "200": {
+                        "description": "200!!!!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "A": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RecurceTop": {
+                "type": "object",
+                "properties": {
+                    "A": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecurceMiddle": {
+                "type": "object",
+                "properties": {
+                    "B": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "A": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+\`\`\`
+
+{% endcut %}
+
+# test-controller
+
+<!-- markdownlint-disable-file -->
+
+## Endpoints
+
+- [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
+
+<div class="openapi">
+
+# Simple get operation. тест новой верстки 3
+
+<!-- markdownlint-disable-file -->
+
+Defines a simple get skip this operation with no inputs and a complex
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method}
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+200!!!!
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+\`\`\`json translate=no
+{
+  "A": "example"
+}
+\`\`\`
+
+{% endcut %}
+
+#|
+|| **Name** | **Description** ||
+||
+
+_A_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+</div>
+
+</div>
+
+</div>
+
+[*Deprecated]: No longer supported, please use an alternative and newer version.
+"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 3`] = `
+"# Test123
+
+## Documentation
+
+- [index.md](index.md)
+- [Не переводить](no-translate.md)
+- [Overview](openapi/index.md)
+- [Overview](openapi/test-controller/index.md)
+- [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 4`] = `
 "---
 metadata:
   - name: generator
@@ -395,7 +903,7 @@ This is text with empty  directive.
 "
 `;
 
-exports[`Translate command > build translated static files and remove no-translate directives 3`] = `
+exports[`Translate command > build translated static files and remove no-translate directives 5`] = `
 "---
 metadata:
   - name: generator
@@ -493,7 +1001,7 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Translate command > build translated static files and remove no-translate directives 4`] = `
+exports[`Translate command > build translated static files and remove no-translate directives 6`] = `
 "---
 metadata:
   - name: generator
@@ -573,7 +1081,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Translate command > build translated static files and remove no-translate directives 5`] = `
+exports[`Translate command > build translated static files and remove no-translate directives 7`] = `
 "---
 metadata:
   - name: generator
@@ -590,7 +1098,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Translate command > build translated static files and remove no-translate directives 6`] = `
+exports[`Translate command > build translated static files and remove no-translate directives 8`] = `
 "title: Test123
 href: index.md
 items:

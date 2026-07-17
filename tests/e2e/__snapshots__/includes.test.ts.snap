@@ -7,6 +7,8 @@ exports[`Includes > Various include scenarios > filelist 1`] = `
   "index.md",
   "level1/level2/page2.md",
   "level1/page1.md",
+  "llms-full.txt",
+  "llms.txt",
   "toc-include.md",
   "toc.yaml"
 ]"
@@ -19,6 +21,8 @@ exports[`Includes > Various include scenarios > filelist 2`] = `
   "index.html",
   "level1/level2/page2.html",
   "level1/page1.html",
+  "llms-full.txt",
+  "llms.txt",
   "toc-include.html",
   "toc.js"
 ]"
@@ -620,6 +624,517 @@ Some paragraph with anchor {#p2}
 `;
 
 exports[`Includes > Various include scenarios 5`] = `
+"# Test Includes
+
+This is a test page for various include scenarios.
+
+## Include from root level
+
+This is an include from the root level.
+
+[Link to level1](level1/page1.md)
+
+[Link to level2](level1/level2/page2.md)
+
+[Link to index](index.md)
+
+## Include with anchor [→ level1](level1/page1.md) {#include-with-anchor}
+
+## Section 2 {#section2}
+
+This is content of section 2.
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Include from level1
+
+This is an include from level 1.
+
+[Link to page1](level1/page1.md)
+
+[Link to index](index.md)
+
+[Link to level2](level1/level2/page2.md)
+
+## Include with anchor [→ root](index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include from level2
+
+This is an include from level 2.
+
+[Link to page2](level1/level2/page2.md)
+
+[Link to page1](level1/page1.md)
+
+[Link to index](index.md)
+
+## Include with anchor [→ level1](level1/page1.md) {#include-with-anchor}
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include with missing file
+
+<!-- {% include [missing](includes/missing.md) %} -->
+
+## Include file that is in toc
+
+[Link to toc-include](toc-include.md)
+
+# Toc Include
+
+This file is included in the toc.
+
+[Link to index](index.md)
+
+[Link to page1](level1/page1.md)
+
+[Link to page2](level1/level2/page2.md)
+
+## Include with anchor
+
+## Section 1 {#section1}
+
+This is content of section 1.
+
+## Links to different levels
+
+[Link to level1](level1/page1.md)
+
+[Link to level2](level1/level2/page2.md)
+
+## Include with anchor
+
+## Section 1 {#section1}
+
+This is content of section 1.
+
+## Include with multiple anchors
+
+## Section 2 {#section2}
+
+This is content of section 2.
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Include with paragraph anchor
+
+Some paragraph with anchor {#p1}
+
+## Nested includes
+
+# Nested include [→ index](index.md) {#nested-include}
+
+This is a nested include.
+
+This is an include from level 1.
+
+[Link to page1](level1/page1.md)
+
+[Link to index](index.md)
+
+[Link to level2](level1/level2/page2.md)
+
+## Include with anchor [→ root](index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Deep nested includes
+
+# Deep nested include [→ index](index.md) {#deep-nested-include}
+
+[Link to index](index.md)
+
+[Link to level1 page1](level1/page1.md)
+
+[Link to level2 page2](level1/level2/page2.md)
+
+This is a deep nested include.
+
+# User include [→ index](index.md) {#user-include}
+
+[Link to index](index.md)
+
+This is a user include with variable substitution: Alice
+
+![img 3](_assets/4.png)
+
+## Commented includes
+
+<!-- {% include [commented](includes/commented-include.md) %} -->
+
+## Include with variable substitution
+
+# User include [→ index](index.md) {#user-include}
+
+[Link to index](index.md)
+
+This is a user include with variable substitution: Alice
+## Include without title
+
+# Include without title [→ index](index.md) {#include-without-title}
+
+[Link to index](index.md)
+
+This is a test for include without title.
+
+## Include without title from the same directory
+
+[Link to index](index.md)
+
+This is a user include with variable substitution: Alice
+
+## Include without title with anchor
+
+This is content of section 1.
+
+## Include without title with paragraph anchor
+
+Some paragraph with anchor {#p1}
+
+[Link to index](index.md)
+
+## Include with anchor {#anchor}
+
+{% include notitle [anchor](#anchor) %}
+{% include [anchor](#anchor) %}
+
+# Include without title [→ index](index.md) {#include-without-title}
+
+[Link to index](index.md)
+
+This is a test for include without title.
+
+## Include without title from the same directory
+
+[Link to index](index.md)
+
+This is a user include with variable substitution: Alice
+
+## Include without title with anchor
+
+This is content of section 1.
+
+## Include without title with paragraph anchor
+
+Some paragraph with anchor {#p1}
+
+[Link to index](index.md)
+
+# Toc Include
+
+This file is included in the toc.
+
+[Link to index](index.md)
+
+[Link to page1](level1/page1.md)
+
+[Link to page2](level1/level2/page2.md)
+
+## Include with anchor
+
+## Section 1 {#section1}
+
+This is content of section 1.
+
+# Page 1
+
+This is page 1 at level 1.
+
+## Include from level1
+
+This is an include from level 1.
+
+[Link to page1](page1.md)
+
+[Link to index](../index.md)
+
+[Link to level2](level2/page2.md)
+
+## Include with anchor [→ root](../index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include from root
+
+This is an include from the root level.
+
+[Link to level1](page1.md)
+
+[Link to level2](level2/page2.md)
+
+[Link to index](../index.md)
+
+## Include with anchor [→ level1](page1.md) {#include-with-anchor}
+
+## Section 2 {#section2}
+
+This is content of section 2.
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Include from level2
+
+This is an include from level 2.
+
+[Link to page2](level2/page2.md)
+
+[Link to page1](page1.md)
+
+[Link to index](../index.md)
+
+## Include with anchor [→ level1](page1.md) {#include-with-anchor}
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Links to different levels
+
+[Link to index](../index.md)
+
+[Link to level2](level2/page2.md)
+
+## Nested include
+
+# Nested include [→ index](../index.md) {#nested-include}
+
+This is a nested include.
+
+This is an include from level 1.
+
+[Link to page1](page1.md)
+
+[Link to index](../index.md)
+
+[Link to level2](level2/page2.md)
+
+## Include with anchor [→ root](../index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include with anchor
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+# Page 2
+
+This is page 2 at level 2.
+
+## Include from level2
+
+This is an include from level 2.
+
+[Link to page2](page2.md)
+
+[Link to page1](../page1.md)
+
+[Link to index](../../index.md)
+
+## Include with anchor [→ level1](../page1.md) {#include-with-anchor}
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include from level1
+
+This is an include from level 1.
+
+[Link to page1](../page1.md)
+
+[Link to index](../../index.md)
+
+[Link to level2](page2.md)
+
+## Include with anchor [→ root](../../index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include from root
+
+This is an include from the root level.
+
+[Link to level1](../page1.md)
+
+[Link to level2](page2.md)
+
+[Link to index](../../index.md)
+
+## Include with anchor [→ level1](../page1.md) {#include-with-anchor}
+
+## Section 2 {#section2}
+
+This is content of section 2.
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Links to different levels
+
+[Link to index](../../index.md)
+
+[Link to page1](../page1.md)
+
+## Nested include
+
+# Nested include [→ index](../../index.md) {#nested-include}
+
+This is a nested include.
+
+This is an include from level 1.
+
+[Link to page1](../page1.md)
+
+[Link to index](../../index.md)
+
+[Link to level2](page2.md)
+
+## Include with anchor [→ root](../../index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include with anchor
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+"
+`;
+
+exports[`Includes > Various include scenarios 6`] = `
+"## Documentation
+
+- [Test Includes](index.md)
+- [Toc Include](toc-include.md)
+- [Page 1](level1/page1.md)
+- [Page 2](level1/level2/page2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Includes > Various include scenarios 7`] = `
 "---
 metadata:
   - name: generator
@@ -645,7 +1160,7 @@ This is content of section 1.
 <!-- endsource: includes/fragments.md -->"
 `;
 
-exports[`Includes > Various include scenarios 6`] = `
+exports[`Includes > Various include scenarios 8`] = `
 "items:
   - name: Test Includes
     href: index.md
@@ -663,9 +1178,9 @@ path: toc.yaml
 "
 `;
 
-exports[`Includes > Various include scenarios 7`] = `"projectTitle: Test Includes"`;
+exports[`Includes > Various include scenarios 9`] = `"projectTitle: Test Includes"`;
 
-exports[`Includes > Various include scenarios 8`] = `
+exports[`Includes > Various include scenarios 10`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -693,7 +1208,7 @@ exports[`Includes > Various include scenarios 8`] = `
 </html>"
 `;
 
-exports[`Includes > Various include scenarios 9`] = `
+exports[`Includes > Various include scenarios 11`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -721,7 +1236,7 @@ exports[`Includes > Various include scenarios 9`] = `
 </html>"
 `;
 
-exports[`Includes > Various include scenarios 10`] = `
+exports[`Includes > Various include scenarios 12`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -749,7 +1264,518 @@ exports[`Includes > Various include scenarios 10`] = `
 </html>"
 `;
 
-exports[`Includes > Various include scenarios 11`] = `
+exports[`Includes > Various include scenarios 13`] = `
+"# Test Includes
+
+This is a test page for various include scenarios.
+
+## Include from root level
+
+This is an include from the root level.
+
+[Link to level1](level1/page1.md)
+
+[Link to level2](level1/level2/page2.md)
+
+[Link to index](index.md)
+
+## Include with anchor [→ level1](level1/page1.md) {#include-with-anchor}
+
+## Section 2 {#section2}
+
+This is content of section 2.
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Include from level1
+
+This is an include from level 1.
+
+[Link to page1](level1/page1.md)
+
+[Link to index](index.md)
+
+[Link to level2](level1/level2/page2.md)
+
+## Include with anchor [→ root](index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include from level2
+
+This is an include from level 2.
+
+[Link to page2](level1/level2/page2.md)
+
+[Link to page1](level1/page1.md)
+
+[Link to index](index.md)
+
+## Include with anchor [→ level1](level1/page1.md) {#include-with-anchor}
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include with missing file
+
+<!-- {% include [missing](includes/missing.md) %} -->
+
+## Include file that is in toc
+
+[Link to toc-include](toc-include.md)
+
+# Toc Include
+
+This file is included in the toc.
+
+[Link to index](index.md)
+
+[Link to page1](level1/page1.md)
+
+[Link to page2](level1/level2/page2.md)
+
+## Include with anchor
+
+## Section 1 {#section1}
+
+This is content of section 1.
+
+## Links to different levels
+
+[Link to level1](level1/page1.md)
+
+[Link to level2](level1/level2/page2.md)
+
+## Include with anchor
+
+## Section 1 {#section1}
+
+This is content of section 1.
+
+## Include with multiple anchors
+
+## Section 2 {#section2}
+
+This is content of section 2.
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Include with paragraph anchor
+
+Some paragraph with anchor {#p1}
+
+## Nested includes
+
+# Nested include [→ index](index.md) {#nested-include}
+
+This is a nested include.
+
+This is an include from level 1.
+
+[Link to page1](level1/page1.md)
+
+[Link to index](index.md)
+
+[Link to level2](level1/level2/page2.md)
+
+## Include with anchor [→ root](index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Deep nested includes
+
+# Deep nested include [→ index](index.md) {#deep-nested-include}
+
+[Link to index](index.md)
+
+[Link to level1 page1](level1/page1.md)
+
+[Link to level2 page2](level1/level2/page2.md)
+
+This is a deep nested include.
+
+# User include [→ index](index.md) {#user-include}
+
+[Link to index](index.md)
+
+This is a user include with variable substitution: Alice
+
+![img 3](_assets/4.png)
+
+## Commented includes
+
+<!-- {% include [commented](includes/commented-include.md) %} -->
+
+## Include with variable substitution
+
+# User include [→ index](index.md) {#user-include}
+
+[Link to index](index.md)
+
+This is a user include with variable substitution: Alice
+## Include without title
+
+# Include without title [→ index](index.md) {#include-without-title}
+
+[Link to index](index.md)
+
+This is a test for include without title.
+
+## Include without title from the same directory
+
+[Link to index](index.md)
+
+This is a user include with variable substitution: Alice
+
+## Include without title with anchor
+
+This is content of section 1.
+
+## Include without title with paragraph anchor
+
+Some paragraph with anchor {#p1}
+
+[Link to index](index.md)
+
+## Include with anchor {#anchor}
+
+{% include notitle [anchor](#anchor) %}
+{% include [anchor](#anchor) %}
+
+# Include without title [→ index](index.md) {#include-without-title}
+
+[Link to index](index.md)
+
+This is a test for include without title.
+
+## Include without title from the same directory
+
+[Link to index](index.md)
+
+This is a user include with variable substitution: Alice
+
+## Include without title with anchor
+
+This is content of section 1.
+
+## Include without title with paragraph anchor
+
+Some paragraph with anchor {#p1}
+
+[Link to index](index.md)
+
+# Toc Include
+
+This file is included in the toc.
+
+[Link to index](index.md)
+
+[Link to page1](level1/page1.md)
+
+[Link to page2](level1/level2/page2.md)
+
+## Include with anchor
+
+## Section 1 {#section1}
+
+This is content of section 1.
+
+# Page 1
+
+This is page 1 at level 1.
+
+## Include from level1
+
+This is an include from level 1.
+
+[Link to page1](page1.md)
+
+[Link to index](../index.md)
+
+[Link to level2](level2/page2.md)
+
+## Include with anchor [→ root](../index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include from root
+
+This is an include from the root level.
+
+[Link to level1](page1.md)
+
+[Link to level2](level2/page2.md)
+
+[Link to index](../index.md)
+
+## Include with anchor [→ level1](page1.md) {#include-with-anchor}
+
+## Section 2 {#section2}
+
+This is content of section 2.
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Include from level2
+
+This is an include from level 2.
+
+[Link to page2](level2/page2.md)
+
+[Link to page1](page1.md)
+
+[Link to index](../index.md)
+
+## Include with anchor [→ level1](page1.md) {#include-with-anchor}
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Links to different levels
+
+[Link to index](../index.md)
+
+[Link to level2](level2/page2.md)
+
+## Nested include
+
+# Nested include [→ index](../index.md) {#nested-include}
+
+This is a nested include.
+
+This is an include from level 1.
+
+[Link to page1](page1.md)
+
+[Link to index](../index.md)
+
+[Link to level2](level2/page2.md)
+
+## Include with anchor [→ root](../index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include with anchor
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+# Page 2
+
+This is page 2 at level 2.
+
+## Include from level2
+
+This is an include from level 2.
+
+[Link to page2](page2.md)
+
+[Link to page1](../page1.md)
+
+[Link to index](../../index.md)
+
+## Include with anchor [→ level1](../page1.md) {#include-with-anchor}
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include from level1
+
+This is an include from level 1.
+
+[Link to page1](../page1.md)
+
+[Link to index](../../index.md)
+
+[Link to level2](page2.md)
+
+## Include with anchor [→ root](../../index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include from root
+
+This is an include from the root level.
+
+[Link to level1](../page1.md)
+
+[Link to level2](page2.md)
+
+[Link to index](../../index.md)
+
+## Include with anchor [→ level1](../page1.md) {#include-with-anchor}
+
+## Section 2 {#section2}
+
+This is content of section 2.
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Links to different levels
+
+[Link to index](../../index.md)
+
+[Link to page1](../page1.md)
+
+## Nested include
+
+# Nested include [→ index](../../index.md) {#nested-include}
+
+This is a nested include.
+
+This is an include from level 1.
+
+[Link to page1](../page1.md)
+
+[Link to index](../../index.md)
+
+[Link to level2](page2.md)
+
+## Include with anchor [→ root](../../index.md) {#include-with-anchor}
+
+### Subsection 2.1 {#subsection21}
+
+This is content of subsection 2.1.
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## Include with anchor
+
+## Section 3 {#section3}
+
+This is content of section 3.
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+"
+`;
+
+exports[`Includes > Various include scenarios 14`] = `
+"## Documentation
+
+- [Test Includes](index.md)
+- [Toc Include](toc-include.md)
+- [Page 1](level1/page1.md)
+- [Page 2](level1/level2/page2.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Includes > Various include scenarios 15`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -777,4 +1803,4 @@ exports[`Includes > Various include scenarios 11`] = `
 </html>"
 `;
 
-exports[`Includes > Various include scenarios 12`] = `"window.__DATA__.data.toc = {"items":[{"name":"Test Includes","href":"index.html","id":"UUID"},{"name":"Toc Include","href":"toc-include.html","id":"UUID"},{"name":"Level 1","items":[{"name":"Page 1","href":"level1/page1.html","id":"UUID"},{"name":"Level 2","items":[{"name":"Page 2","href":"level1/level2/page2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Includes > Various include scenarios 16`] = `"window.__DATA__.data.toc = {"items":[{"name":"Test Includes","href":"index.html","id":"UUID"},{"name":"Toc Include","href":"toc-include.html","id":"UUID"},{"name":"Level 1","items":[{"name":"Page 1","href":"level1/page1.html","id":"UUID"},{"name":"Level 2","items":[{"name":"Page 2","href":"level1/level2/page2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

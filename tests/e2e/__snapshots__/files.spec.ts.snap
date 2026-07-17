@@ -10,6 +10,8 @@ exports[`Static files from _assets directory > Download link should be enabled >
   "_assets/test.xlsx",
   "_assets/test.yaml",
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "pc-index.yaml",
   "toc.yaml"
 ]"
@@ -25,6 +27,8 @@ exports[`Static files from _assets directory > Download link should be enabled >
   "_assets/test.xlsx",
   "_assets/test.yaml",
   "index.html",
+  "llms-full.txt",
+  "llms.txt",
   "pc-index.html",
   "toc.js"
 ]"
@@ -57,6 +61,43 @@ vcsPath: index.md
 `;
 
 exports[`Static files from _assets directory > Download link should be enabled 2`] = `
+"# Test123
+
+### Download static file
+
+Текст {% file src="_assets/test.yaml" name="Configuration File" %} потом текст
+
+Текст {% file src="_assets/test.txt" name="Configuration File txt" %} потом текст
+
+Текст {% file src="_assets/test.docx" name="Configuration File txt" %} потом текст
+
+Текст <a href="_assets/test.xlsx" download="Config">Скачать</a> потом текст
+
+Текст <a href="_assets/test.csv" download="Config">Скачать</a> потом текст
+
+Текст [Download](_assets/test.pdf){download="Config"} потом текст
+
+Текст [Download](_assets/test.pptx){download="Config"} потом текст
+
+[Link to pc page](./pc-index.yaml)
+"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 3`] = `
+"# Test123
+
+## Documentation
+
+- [index.md](index.md)
+- [Yaml index](pc-index.yaml)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 4`] = `
 "description: []
 meta:
   metadata:
@@ -94,7 +135,7 @@ links:
 "
 `;
 
-exports[`Static files from _assets directory > Download link should be enabled 3`] = `
+exports[`Static files from _assets directory > Download link should be enabled 5`] = `
 "title: Test123
 href: index.md
 path: toc.yaml
@@ -104,7 +145,7 @@ items:
 "
 `;
 
-exports[`Static files from _assets directory > Download link should be enabled 4`] = `
+exports[`Static files from _assets directory > Download link should be enabled 6`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -132,7 +173,44 @@ exports[`Static files from _assets directory > Download link should be enabled 4
 </html>"
 `;
 
-exports[`Static files from _assets directory > Download link should be enabled 5`] = `
+exports[`Static files from _assets directory > Download link should be enabled 7`] = `
+"# Test123
+
+### Download static file
+
+Текст {% file src="_assets/test.yaml" name="Configuration File" %} потом текст
+
+Текст {% file src="_assets/test.txt" name="Configuration File txt" %} потом текст
+
+Текст {% file src="_assets/test.docx" name="Configuration File txt" %} потом текст
+
+Текст <a href="_assets/test.xlsx" download="Config">Скачать</a> потом текст
+
+Текст <a href="_assets/test.csv" download="Config">Скачать</a> потом текст
+
+Текст [Download](_assets/test.pdf){download="Config"} потом текст
+
+Текст [Download](_assets/test.pptx){download="Config"} потом текст
+
+[Link to pc page](./pc-index.yaml)
+"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 8`] = `
+"# Test123
+
+## Documentation
+
+- [index.md](index.md)
+- [Yaml index](pc-index.yaml)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 9`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -161,4 +239,4 @@ exports[`Static files from _assets directory > Download link should be enabled 5
 </html>"
 `;
 
-exports[`Static files from _assets directory > Download link should be enabled 6`] = `"window.__DATA__.data.toc = {"title":"Test123","href":"index.html","path":"toc.yaml","items":[{"name":"Yaml index","href":"pc-index.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Static files from _assets directory > Download link should be enabled 10`] = `"window.__DATA__.data.toc = {"title":"Test123","href":"index.html","path":"toc.yaml","items":[{"name":"Yaml index","href":"pc-index.html","id":"UUID"}],"id":"UUID"};"`;

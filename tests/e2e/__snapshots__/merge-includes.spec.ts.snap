@@ -3,6 +3,8 @@
 exports[`Merge includes (md2md) > basic: simple include is inlined > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -22,6 +24,39 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > basic: simple include is inlined 2`] = `
+"# Merge Includes Basic
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+Content before include.
+
+## Included Section
+
+This is the included content.
+
+Content after include.
+"
+`;
+
+exports[`Merge includes (md2md) > basic: simple include is inlined 3`] = `
+"# Merge Includes Basic
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > basic: simple include is inlined 4`] = `
 "---
 metadata:
   - name: generator
@@ -42,7 +77,7 @@ Content after include.
 "
 `;
 
-exports[`Merge includes (md2md) > basic: simple include is inlined 3`] = `
+exports[`Merge includes (md2md) > basic: simple include is inlined 5`] = `
 "title: Merge Includes Basic
 href: index.md
 items:
@@ -55,6 +90,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -74,6 +111,33 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter 2`] = `
+"# Merge Includes Empty Parent Frontmatter
+
+# Index
+
+Welcome page.
+
+# Working with Excel data
+
+Some included content paragraph.
+"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter 3`] = `
+"# Merge Includes Empty Parent Frontmatter
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md): How to import and export Excel tables
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter 4`] = `
 "---
 metadata:
   - name: generator
@@ -93,7 +157,7 @@ Some included content paragraph.
 "
 `;
 
-exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter 3`] = `
+exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter 5`] = `
 "title: Merge Includes Empty Parent Frontmatter
 href: index.md
 items:
@@ -106,6 +170,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -125,6 +191,33 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes 2`] = `
+"# Merge Includes Empty Parent Frontmatter Chain
+
+# Index
+
+Welcome page.
+
+# Working with Excel data
+
+Some included content paragraph.
+"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes 3`] = `
+"# Merge Includes Empty Parent Frontmatter Chain
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes 4`] = `
 "---
 metadata:
   - name: generator
@@ -142,7 +235,7 @@ Some included content paragraph.
 "
 `;
 
-exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes 3`] = `
+exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes 5`] = `
 "title: Merge Includes Empty Parent Frontmatter Chain
 href: index.md
 items:
@@ -155,6 +248,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -172,6 +267,43 @@ vcsPath: index.md
 `;
 
 exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline 2`] = `
+"# Hash Fallback Test
+
+# Hash Fallback Test
+
+# Main Document
+
+{% list tabs %}
+
+- Tab 1
+
+    \`\`\`
+    # Heading inside code
+    \`\`\`
+
+    Content of tab 1.
+
+{% endlist %}
+
+Content of section B.
+"
+`;
+
+exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline 3`] = `
+"# Hash Fallback Test
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline 4`] = `
 "---
 metadata:
   - name: generator
@@ -200,7 +332,7 @@ Content of section B.
 "
 `;
 
-exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline 3`] = `
+exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline 5`] = `
 "title: Hash Fallback Test
 href: index.md
 items:
@@ -213,6 +345,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -232,6 +366,43 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> 2`] = `
+"# Merge Includes Hash Section HTML
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+Content before list.
+
+1. First item
+
+2. Second item with hash-section include (section has no HTML, but other section in same file does):
+
+   Just plain text content without any HTML blocks.
+
+3. Third item
+
+Content after list.
+"
+`;
+
+exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> 3`] = `
+"# Merge Includes Hash Section HTML
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> 4`] = `
 "---
 metadata:
   - name: generator
@@ -256,7 +427,7 @@ Content after list.
 "
 `;
 
-exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> 3`] = `
+exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> 5`] = `
 "title: Merge Includes Hash Section HTML
 href: index.md
 items:
@@ -269,6 +440,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -288,6 +461,71 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity 2`] = `
+"# Merge Includes HTML Comment Blanks
+
+# Index
+
+Welcome page.
+
+# Main
+
+Intro paragraph.
+
+- Item one with cut
+
+   {% cut "Examples" %}
+
+   - [Real link one](https://example.com/one)
+
+   - [Real link two](https://example.com/two)
+
+   <!--
+   #|
+   ||
+   **Header A**
+    |
+   **Header B**
+   ||
+   
+   ||
+   Body cell A1
+   
+   with blank lines inside the comment
+   
+   |
+   Body cell B1
+   ||
+   
+   ||
+   Body cell A2
+   |
+   Body cell B2
+   ||
+   |# -->
+
+   {% endcut %}
+
+- Item two
+
+After list paragraph that must still render.
+"
+`;
+
+exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity 3`] = `
+"# Merge Includes HTML Comment Blanks
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity 4`] = `
 "---
 metadata:
   - name: generator
@@ -340,7 +578,7 @@ After list paragraph that must still render.
 "
 `;
 
-exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity 3`] = `
+exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity 5`] = `
 "title: Merge Includes HTML Comment Blanks
 href: index.md
 items:
@@ -353,6 +591,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -372,6 +612,52 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback 2`] = `
+"# Merge Includes HTML in List
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+Content before list.
+
+- List item with inline include (any non-zero indent → HTML block must use fallback)
+
+   {% include [styles](_includes/styles.md) %}
+
+- Another list item
+
+Content after list.
+
+{% included (_includes/styles.md) %}
+<style>
+
+.yfm .highlight {
+    background: yellow;
+}
+
+</style>
+
+{% endincluded %}
+"
+`;
+
+exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback 3`] = `
+"# Merge Includes HTML in List
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback 4`] = `
 "---
 metadata:
   - name: generator
@@ -402,7 +688,7 @@ Content after list.
 {% endincluded %}"
 `;
 
-exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback 3`] = `
+exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback 5`] = `
 "title: Merge Includes HTML in List
 href: index.md
 items:
@@ -415,6 +701,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -434,6 +722,44 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined 2`] = `
+"# Include After Fence
+
+# Index
+
+Welcome page.
+
+# Main
+
+Some intro text.
+
+\`\`\`javascript
+<script type="text/javascript">
+function setCookie(name, value){
+    document.cookie = name + "=" + value + ";path=/";
+}
+</script>
+\`\`\`
+[Написать в чат](https://example.com/chat){.button}
+
+Footer text.
+"
+`;
+
+exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined 3`] = `
+"# Include After Fence
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined 4`] = `
 "---
 metadata:
   - name: generator
@@ -461,7 +787,7 @@ Footer text.
 "
 `;
 
-exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined 3`] = `
+exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined 5`] = `
 "title: Include After Fence
 href: index.md
 items:
@@ -474,6 +800,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -493,6 +821,52 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded 2`] = `
+"# Include In Code Block
+
+# Index
+
+Welcome page.
+
+# Main
+
+Real include below — should be inlined:
+
+
+
+Steps:
+
+1. Open the resource file.
+1. Insert the include directive into the file:
+
+    \`\`\`plaintext
+    {% include notitle [glossary](_includes/glossary.md) %}
+
+    [*glossary]: Magic line
+    \`\`\`
+
+1. Use the keys from glossary.
+
+End of page.
+
+[*glossary__glossary]: Glossary section
+"
+`;
+
+exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded 3`] = `
+"# Include In Code Block
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded 4`] = `
 "---
 metadata:
   - name: generator
@@ -523,7 +897,7 @@ End of page.
 [*glossary__glossary]: Glossary section"
 `;
 
-exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded 3`] = `
+exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded 5`] = `
 "title: Include In Code Block
 href: index.md
 items:
@@ -536,6 +910,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -555,6 +931,55 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 2`] = `
+"# Merge Includes Indent Paragraph In Include
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+{% list tabs %}
+
+- Mobile banner
+
+
+    {% include [requirements](_includes/requirements.md) %}
+
+    For more details see the requirements page.
+
+{% endlist %}
+
+{% included (_includes/requirements.md) %}
+1/. Format: HTML5.
+
+2/. The banner stretches to fit the screen.
+
+3/. The banner must stretch to 100% of the screen width.
+
+  Width is set as a percentage value: 100%.
+
+4/. Maximum archive size is 75 KB.
+
+{% endincluded %}
+"
+`;
+
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 3`] = `
+"# Merge Includes Indent Paragraph In Include
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 4`] = `
 "---
 metadata:
   - name: generator
@@ -588,7 +1013,7 @@ vcsPath: main.md
 {% endincluded %}"
 `;
 
-exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 3`] = `
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 5`] = `
 "title: Merge Includes Indent Paragraph In Include
 href: index.md
 items:
@@ -601,6 +1026,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -620,6 +1047,66 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback 2`] = `
+"# Merge Includes Inline Context
+
+# Index
+
+Welcome page.
+
+# Document with inline includes
+
+Standalone include (should be inlined):
+
+## Note Content {#note}
+
+This is an important note.
+
+With multiple lines.
+
+Inline in text (should fallback): See {% include [note](_includes/snippet.md#note) %} for details.
+
+Standalone table include (should be inlined):
+
+## Table Content {#table}
+
+#|
+|| Header 1 | Header 2 ||
+|| Cell 1 | Cell 2 ||
+|#
+
+{% included (_includes/snippet.md) %}
+## Note Content {#note}
+
+This is an important note.
+
+With multiple lines.
+
+## Table Content {#table}
+
+#|
+|| Header 1 | Header 2 ||
+|| Cell 1 | Cell 2 ||
+|#
+
+{% endincluded %}
+"
+`;
+
+exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback 3`] = `
+"# Merge Includes Inline Context
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback 4`] = `
 "---
 metadata:
   - name: generator
@@ -668,7 +1155,7 @@ With multiple lines.
 {% endincluded %}"
 `;
 
-exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback 3`] = `
+exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback 5`] = `
 "title: Merge Includes Inline Context
 href: index.md
 items:
@@ -681,6 +1168,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -700,6 +1189,45 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 2`] = `
+"# Merge Includes Nested
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+Before outer include.
+
+## Outer Section
+
+Content from outer include.
+
+### Inner Section
+
+Content from inner include.
+
+End of outer include.
+
+After outer include.
+"
+`;
+
+exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 3`] = `
+"# Merge Includes Nested
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 4`] = `
 "---
 metadata:
   - name: generator
@@ -728,7 +1256,7 @@ After outer include.
 "
 `;
 
-exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 3`] = `
+exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 5`] = `
 "title: Merge Includes Nested
 href: index.md
 items:
@@ -741,6 +1269,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -760,6 +1290,39 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 2`] = `
+"# Merge Includes Relative Paths
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+## Section With Links
+
+See [the guide](_includes/guide.md) for more details.
+
+![diagram](_includes/sub/images/diagram.png)
+
+[ref-link]: _includes/reference.md "Reference"
+"
+`;
+
+exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 3`] = `
+"# Merge Includes Relative Paths
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 4`] = `
 "---
 metadata:
   - name: generator
@@ -780,7 +1343,7 @@ See [the guide](_includes/guide.md) for more details.
 "
 `;
 
-exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 3`] = `
+exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 5`] = `
 "title: Merge Includes Relative Paths
 href: index.md
 items:
@@ -793,6 +1356,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -812,6 +1377,41 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) 2`] = `
+"# Merge Includes Term Extract
+
+# Index
+
+Welcome page.
+
+# API Docs
+
+Use the [API](*api) and [SDK](*sdk) to build apps.
+
+## Chapter
+
+Chapter content with [link](_includes/local.md).
+
+[*api]: Application Programming Interface
+
+[*sdk]: Software Development Kit
+"
+`;
+
+exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) 3`] = `
+"# Merge Includes Term Extract
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) 4`] = `
 "---
 metadata:
   - name: generator
@@ -833,7 +1433,7 @@ Chapter content with [link](_includes/local.md).
 [*sdk]: Software Development Kit"
 `;
 
-exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) 3`] = `
+exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) 5`] = `
 "title: Merge Includes Term Extract
 href: index.md
 items:
@@ -846,6 +1446,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -865,6 +1467,64 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) 2`] = `
+"# Merge Includes Term Inline
+
+# Index
+
+Welcome page.
+
+# API Reference
+
+Метод возвращает данные для [площадки](*placeID).
+
+Параметр [тип синхронизации](*syncFactor) указывает вид кода.
+
+Параметр [обязательный](*requiredParam) является обязательным.
+
+Обычный инклюд на отдельной строке (до термов — инлайнится):
+
+## Required {#requiredParam}
+
+Обязательный параметр.
+
+[*placeID]: ID площадки.
+
+Читайте также:
+
+- [Получить список](list.md)
+
+[*syncFactor]: Вид кода.
+
+Допустимые значения:
+
+- \`1\` — асинхронный;
+- \`2\` — синхронный.
+
+[*requiredParam]: Обязательный параметр.
+    
+ID площадки.
+
+Читайте также:
+
+- [Получить список](list.md)
+"
+`;
+
+exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) 3`] = `
+"# Merge Includes Term Inline
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) 4`] = `
 "---
 metadata:
   - name: generator
@@ -909,7 +1569,7 @@ ID площадки.
 - [Получить список](list.md)"
 `;
 
-exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) 3`] = `
+exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) 5`] = `
 "title: Merge Includes Term Inline
 href: index.md
 items:
@@ -923,6 +1583,8 @@ exports[`Merge includes (md2md) > without flag: includes are NOT merged > fileli
 "[
   "_includes/simple-hash.md",
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -949,6 +1611,39 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > without flag: includes are NOT merged 3`] = `
+"# Merge Includes Basic
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+Content before include.
+
+## Included Section
+
+This is the included content.
+
+Content after include.
+"
+`;
+
+exports[`Merge includes (md2md) > without flag: includes are NOT merged 4`] = `
+"# Merge Includes Basic
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > without flag: includes are NOT merged 5`] = `
 "---
 metadata:
   - name: generator
@@ -965,7 +1660,7 @@ Content after include.
 "
 `;
 
-exports[`Merge includes (md2md) > without flag: includes are NOT merged 4`] = `
+exports[`Merge includes (md2md) > without flag: includes are NOT merged 6`] = `
 "title: Merge Includes Basic
 href: index.md
 items:
@@ -978,6 +1673,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -997,6 +1694,50 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line 2`] = `
+"# Merge Includes YFM Table HTML Block
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+#|
+|| **Option** | **Details** ||
+|| Option A |
+Some description of option A.
+
+[Subscribe](https://example.com/subscribe){.button}
+
+<style>
+a.button {
+  color: black;
+  background: yellow;
+}
+</style>
+||
+|| Option B | Plain text cell. ||
+|#
+
+Content after table.
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line 3`] = `
+"# Merge Includes YFM Table HTML Block
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line 4`] = `
 "---
 metadata:
   - name: generator
@@ -1026,7 +1767,7 @@ Content after table.
 "
 `;
 
-exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line 3`] = `
+exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line 5`] = `
 "title: Merge Includes YFM Table HTML Block
 href: index.md
 items:
@@ -1039,6 +1780,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -1058,6 +1801,43 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined 2`] = `
+"# Merge Includes YFM Table
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+#|
+|| **Option** | **Details** ||
+|| Option A |
+Some description of option A.
+
+Buy now at [our store](https://example.com/store).
+||
+|| Option B | Plain text cell. ||
+|#
+
+Content after table.
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined 3`] = `
+"# Merge Includes YFM Table
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined 4`] = `
 "---
 metadata:
   - name: generator
@@ -1080,7 +1860,7 @@ Content after table.
 "
 `;
 
-exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined 3`] = `
+exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined 5`] = `
 "title: Merge Includes YFM Table
 href: index.md
 items:
@@ -1093,6 +1873,8 @@ path: toc.yaml
 exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} > filelist 1`] = `
 "[
   "index.md",
+  "llms-full.txt",
+  "llms.txt",
   "main.md",
   "toc.yaml"
 ]"
@@ -1112,6 +1894,57 @@ Welcome page.
 `;
 
 exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} 2`] = `
+"# Merge Includes YFM Table Pipe In Content
+
+# Index
+
+Welcome page.
+
+# Main Document
+
+#|
+||
+**Criterion**
+|
+**Description**
+||
+||
+**regular expression**
+|
+This is used for tracking goal identifiers that match a pattern.
+
+{% cut "Example" %}
+
+{% include [example](_includes/example.md) %}
+
+{% endcut %}
+||
+|#
+
+Content after table.
+
+{% included (_includes/example.md) %}
+If you want to track clicking a particular button with the ID that contains \`button\` or \`buy\`, you can specify the following condition: \`button|buy\`.
+
+{% endincluded %}
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} 3`] = `
+"# Merge Includes YFM Table Pipe In Content
+
+## Documentation
+
+- [index.md](index.md)
+- [Main](main.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} 4`] = `
 "---
 metadata:
   - name: generator
@@ -1147,7 +1980,7 @@ If you want to track clicking a particular button with the ID that contains \`bu
 {% endincluded %}"
 `;
 
-exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} 3`] = `
+exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} 5`] = `
 "title: Merge Includes YFM Table Pipe In Content
 href: index.md
 items:

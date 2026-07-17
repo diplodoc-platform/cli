@@ -23,6 +23,10 @@ exports[`Regression > internal > filelist 1`] = `
   "includes/fragments.md",
   "index.yaml",
   "latex.md",
+  "llms-full.txt",
+  "llms.txt",
+  "merge/llms-full.txt",
+  "merge/llms.txt",
   "merge/merge.md",
   "merge/merged.md",
   "merge/toc.yaml",
@@ -62,6 +66,10 @@ exports[`Regression > internal > filelist 2`] = `
   "includes/fragments.html",
   "index.html",
   "latex.html",
+  "llms-full.txt",
+  "llms.txt",
+  "merge/llms-full.txt",
+  "merge/llms.txt",
   "merge/merge.html",
   "merge/merged.html",
   "merge/toc.js",
@@ -589,6 +597,1021 @@ $/sqrt{3x-1}+(1+x)^2$
 `;
 
 exports[`Regression > internal 17`] = `
+"# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](./mermaid.md)
+
+[Mermaid info](./mermaid.md#info)
+
+[Latex usage](./latex.md)
+
+[noext-link](./includes)
+
+Bob
+
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](./mermaid.md)
+
+[Mermaid info](./mermaid.md#info)
+
+[Latex usage](./latex.md)
+
+[noext-link](./includes)
+
+Bob
+
+# Merged item
+
+Should be linked in toc.yaml
+
+### F1 {#f1}
+Content F1
+
+## F2 {#f2}
+Content F2
+
+### F2.1 {#f2.1}
+Content F2.1
+
+## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## F4 {#f4}
+Content F4
+[Header](../autotitle.md#header)
+
+### F4.1 {#f4.1}
+link with [some term1](*term1)
+
+{% list tabs %}
+
+- Название таба 1
+
+  Текст таба 1.
+
+  * Можно использовать списки.
+  * И **другую** разметку.
+
+- Название таба 2
+
+  Текст таба 2.
+
+{% endlist %}
+
+[*term1]: Some description
+
+# Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+![pdf](_assets/empty.pdf)
+
+# Item 1
+
+Item 1 text
+
+[Images](../../images.md)
+
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+
+# Latex usage
+
+$/sqrt{3x-1}+(1+x)^2$
+
+# Images
+
+![simple image](_assets/1.png)
+
+<!-- comment -->![with leading comment](_assets/2.png)
+
+![with trailing comment](_assets/3.png)<!-- comment -->
+
+<!-- ![commented](_assets/4.png) -->
+
+![with backslash](_assets/5/_1.png)
+
+[![img 3](_assets/3.png)](latex.md)
+
+# Autotitles
+
+Empty title
+[Title](./1.md)
+
+Empty subtitle
+[Subtitle](./1.md#subtitle)
+
+Special title
+[Title](./1.md)
+
+Special subtitle
+[Subtitle](./1.md#subtitle)
+
+Empty local title
+[Header](#header)
+
+Special local title
+[Header](#header)
+
+Circular title
+[Header](./autotitle.md#header)
+
+Autotitle from include
+<!-- [{#T}](includes/fragments.md#f3) -->
+
+Include with autotitle
+<!-- {% include [test](includes/fragments.md#f4) %} -->
+
+link with [some local term1](*term1-1)
+
+{% list tabs %}
+
+- Название таба 1
+
+  Текст таба 1.
+
+  * Можно использовать списки.
+  * И **другую** разметку.
+
+- Название таба 2
+
+  Текст таба 2.
+
+{% endlist %}
+
+All fragments
+
+### F1 {#f1}
+Content F1
+
+## F2 {#f2}
+Content F2
+
+### F2.1 {#f2.1}
+Content F2.1
+
+## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## F4 {#f4}
+Content F4
+[Header](autotitle.md#header)
+
+### F4.1 {#f4.1}
+link with [some term1](*term1)
+
+{% list tabs %}
+
+- Название таба 1
+
+  Текст таба 1.
+
+  * Можно использовать списки.
+  * И **другую** разметку.
+
+- Название таба 2
+
+  Текст таба 2.
+
+{% endlist %}
+
+
+## Header {#header}
+
+Content2
+
+<style>
+
+.yfm .border-yes {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+</style>
+
+[*term1-1]: ## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+[*term1]: Some description
+
+Text
+
+Bob
+
+Test
+
+### F1 {#f1}
+Content F1
+
+## F2 {#f2}
+Content F2
+
+Some paragraph with anchor {#p1}
+
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
+Bob
+
+[![img 3](_assets/3.png)](latex.md)
+
+^[?](*term)^
+
+[[?](*term)](http://ya.ru)
+
+[Term 1](*term1) [Term 2](*term2)
+
+Link after include
+[Subtitle](./1.md#subtitle)
+
+Autotitle include
+<!-- [{#T}](includes/fragments.md#f3) -->
+
+Link after include
+
+## Mermaid
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+
+[*term]: Test terms
+
+[*term1]: ## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+[*term2]: ## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+# Entry that is also used as include
+
+This file is both an entry (in toc) and included by another file.
+
+# Includer of entry
+
+This file includes another file that is also an entry.
+
+# Entry that is also used as include
+
+This file is both an entry (in toc) and included by another file.
+
+# Note 1
+
+Note content 1
+
+# Note 1
+
+Note content 1
+
+Note content 1
+
+# Sub note 1
+
+Note content 1
+
+# Sub note 2
+
+Note content 2
+
+<!-- markdownlint-disable-file -->
+
+# OpenAPI definition
+
+##version: v0##
+
+## Sections
+
+- [test-controller](test-controller/index.md)
+
+
+## Specification
+
+{% cut "Open API" %}
+
+\`\`\`text translate=no
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Simple get operation. тест новой верстки 3",
+                "description": "Defines a simple get operation with no inputs and a complex",
+                "operationId": "getWithPayloadResponse",
+                "responses": {
+                    "200": {
+                        "description": "200!!!!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "A": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/hidden-test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Test x-hidden attribute",
+                "description": "Test various x-hidden scenarios",
+                "operationId": "getHiddenTest",
+                "responses": {
+                    "200": {
+                        "description": "Response with hidden fields",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Response object with various hidden field scenarios",
+                                    "properties": {
+                                        "visibleField": {
+                                            "type": "string",
+                                            "description": "This field should be visible"
+                                        },
+                                        "directlyHiddenField": {
+                                            "type": "string",
+                                            "description": "This field should be hidden (direct x-hidden)",
+                                            "x-hidden": true
+                                        },
+                                        "refToHiddenField": {
+                                            "type": "string",
+                                            "description": "This field should be hidden",
+                                            "x-hidden": true
+                                        },
+                                        "refToHiddenObject": {
+                                            "type": "object",
+                                            "description": "This entire object should be hidden",
+                                            "x-hidden": true,
+                                            "properties": {
+                                                "secret": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "nestedObject": {
+                                            "type": "object",
+                                            "description": "Object with hidden properties",
+                                            "properties": {
+                                                "visibleNested": {
+                                                    "type": "string"
+                                                },
+                                                "hiddenNested": {
+                                                    "type": "string",
+                                                    "x-hidden": true
+                                                },
+                                                "refToHiddenInNested": {
+                                                    "type": "string",
+                                                    "description": "This field should be hidden",
+                                                    "x-hidden": true
+                                                }
+                                            }
+                                        },
+                                        "arrayWithHiddenItems": {
+                                            "type": "array",
+                                            "description": "Array with hidden item schema",
+                                            "items": {
+                                                "type": "string",
+                                                "description": "This field should be hidden",
+                                                "x-hidden": true
+                                            }
+                                        },
+                                        "mixedVisibility": {
+                                            "type": "object",
+                                            "properties": {
+                                                "field1": {
+                                                    "type": "string"
+                                                },
+                                                "field2": {
+                                                    "type": "string",
+                                                    "description": "This field should be hidden",
+                                                    "x-hidden": true
+                                                },
+                                                "field3": {
+                                                    "type": "string"
+                                                },
+                                                "field4": {
+                                                    "type": "string",
+                                                    "x-hidden": true
+                                                },
+                                                "field5": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RecurceTop": {
+                "type": "object",
+                "properties": {
+                    "A": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecurceMiddle": {
+                "type": "object",
+                "properties": {
+                    "B": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "A": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "HiddenField": {
+                "type": "string",
+                "description": "This field should be hidden",
+                "x-hidden": true
+            },
+            "HiddenObject": {
+                "type": "object",
+                "description": "This entire object should be hidden",
+                "x-hidden": true,
+                "properties": {
+                    "secret": {
+                        "type": "string"
+                    }
+                }
+            },
+            "HiddenTestResponse": {
+                "type": "object",
+                "description": "Response object with various hidden field scenarios",
+                "properties": {
+                    "visibleField": {
+                        "type": "string",
+                        "description": "This field should be visible"
+                    },
+                    "directlyHiddenField": {
+                        "type": "string",
+                        "description": "This field should be hidden (direct x-hidden)",
+                        "x-hidden": true
+                    },
+                    "refToHiddenField": {
+                        "type": "string",
+                        "description": "This field should be hidden",
+                        "x-hidden": true
+                    },
+                    "refToHiddenObject": {
+                        "type": "object",
+                        "description": "This entire object should be hidden",
+                        "x-hidden": true,
+                        "properties": {
+                            "secret": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "nestedObject": {
+                        "type": "object",
+                        "description": "Object with hidden properties",
+                        "properties": {
+                            "visibleNested": {
+                                "type": "string"
+                            },
+                            "hiddenNested": {
+                                "type": "string",
+                                "x-hidden": true
+                            },
+                            "refToHiddenInNested": {
+                                "type": "string",
+                                "description": "This field should be hidden",
+                                "x-hidden": true
+                            }
+                        }
+                    },
+                    "arrayWithHiddenItems": {
+                        "type": "array",
+                        "description": "Array with hidden item schema",
+                        "items": {
+                            "type": "string",
+                            "description": "This field should be hidden",
+                            "x-hidden": true
+                        }
+                    },
+                    "mixedVisibility": {
+                        "type": "object",
+                        "properties": {
+                            "field1": {
+                                "type": "string"
+                            },
+                            "field2": {
+                                "type": "string",
+                                "description": "This field should be hidden",
+                                "x-hidden": true
+                            },
+                            "field3": {
+                                "type": "string"
+                            },
+                            "field4": {
+                                "type": "string",
+                                "x-hidden": true
+                            },
+                            "field5": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+\`\`\`
+
+{% endcut %}
+
+# test-controller
+
+<!-- markdownlint-disable-file -->
+
+## Endpoints
+
+- [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
+- [Test x-hidden attribute](getHiddenTest.md)
+
+<div class="openapi">
+
+# Simple get operation. тест новой верстки 3
+
+<!-- markdownlint-disable-file -->
+
+Defines a simple get operation with no inputs and a complex
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method}
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+200!!!!
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+\`\`\`json translate=no
+{
+  "A": "example"
+}
+\`\`\`
+
+{% endcut %}
+
+#|
+|| **Name** | **Description** ||
+||
+
+_A_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+</div>
+
+</div>
+
+</div>
+
+[*Deprecated]: No longer supported, please use an alternative and newer version.
+
+<div class="openapi">
+
+# Test x-hidden attribute
+
+<!-- markdownlint-disable-file -->
+
+Test various x-hidden scenarios
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method}
+\`\`\`text translate=no
+http://localhost:8080/hidden-test
+\`\`\`
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+Response with hidden fields
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+\`\`\`json translate=no
+{
+  "visibleField": "example",
+  "nestedObject": {
+    "visibleNested": "example"
+  },
+  "arrayWithHiddenItems": [
+    "example"
+  ],
+  "mixedVisibility": {
+    "field1": "example",
+    "field3": "example",
+    "field5": "example"
+  }
+}
+\`\`\`
+
+{% endcut %}
+
+#|
+|| **Name** | **Description** ||
+||
+
+_arrayWithHiddenItems_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: [HiddenField](#entity-HiddenField)[]
+
+Array with hidden item schema
+
+{% cut "**Example**" %}{.json-schema-example}
+
+\`\`\`json translate=no
+[
+  "example"
+]
+\`\`\`
+
+{% endcut %}
+{.table-cell}
+||
+||
+
+_mixedVisibility_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+{% cut "**Type**: object" %}
+
+#|
+||
+
+_field1_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+||
+
+_field3_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+||
+
+_field5_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+{% endcut %}
+
+{% cut "**Example**" %}{.json-schema-example}
+
+\`\`\`json translate=no
+{
+  "field1": "example",
+  "field3": "example",
+  "field5": "example"
+}
+\`\`\`
+
+{% endcut %}
+{.table-cell}
+||
+||
+
+_nestedObject_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+{% cut "**Type**: object" %}
+
+#|
+||
+
+_visibleNested_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+{% endcut %}
+
+Object with hidden properties
+
+{% cut "**Example**" %}{.json-schema-example}
+
+\`\`\`json translate=no
+{
+  "visibleNested": "example"
+}
+\`\`\`
+
+{% endcut %}
+{.table-cell}
+||
+||
+
+_visibleField_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+This field should be visible
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+</div>
+
+</div>
+
+</div>
+
+[*Deprecated]: No longer supported, please use an alternative and newer version.
+"
+`;
+
+exports[`Regression > internal 18`] = `
+"## Documentation
+
+- [Verbose root (index.yaml) will be transformed to index.html](index.yaml)
+- [Root will be transformed to index.html](/index.yaml)
+- [Md item with not_var syntax](1.md)
+- [Md item named without extension](1.md)
+- [Multitoc item](merge/merged.md)
+- [Fragments](includes/fragments.md)
+- [Included Item](included-item.md)
+- [Item 1](sub/folder/item-1.md)
+- [Mermaid usage](mermaid.md)
+- [Latex usage](latex.md)
+- [Images](images.md)
+- [Autotitle](autotitle.md)
+- [includes](includes.md)
+- [Entry as include](entry-as-include.md)
+- [Includer of entry](includer-of-entry.md)
+- [Note 1](generic/1.md)
+- [Note 1](generic/2.md)
+- [3](generic/3.md)
+- [Sub note 1](generic/Sub notes/1.md)
+- [Sub note 2](generic/Sub notes/2.md)
+- [Overview](openapi/index.md)
+- [Overview](openapi/test-controller/index.md)
+- [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
+- [Test x-hidden attribute](openapi/test-controller/getHiddenTest.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Regression > internal 19`] = `
+"# Should use merged item
+
+[merged](./merged.md)
+
+Tool: Hammer and Laser
+
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](./mermaid.md)
+
+[Mermaid info](./mermaid.md#info)
+
+[Latex usage](./latex.md)
+
+[noext-link](./includes)
+
+Bob
+
+# Merged item
+
+Should be linked in toc.yaml
+"
+`;
+
+exports[`Regression > internal 20`] = `
+"## Documentation
+
+- [Use merged](merge.md)
+- [Multitoc item](../1.md)
+- [Merged item](merged.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Regression > internal 21`] = `
 "---
 metadata:
   - name: generator
@@ -607,7 +1630,7 @@ Tool: Hammer and Laser
 "
 `;
 
-exports[`Regression > internal 18`] = `
+exports[`Regression > internal 22`] = `
 "---
 metadata:
   - name: generator
@@ -623,7 +1646,7 @@ Should be linked in toc.yaml
 "
 `;
 
-exports[`Regression > internal 19`] = `
+exports[`Regression > internal 23`] = `
 "items:
   - name: Use merged
     href: merge.md
@@ -635,7 +1658,7 @@ path: merge/toc.yaml
 "
 `;
 
-exports[`Regression > internal 20`] = `
+exports[`Regression > internal 24`] = `
 "---
 metadata:
   - name: generator
@@ -660,7 +1683,7 @@ Some mermaid info
 "
 `;
 
-exports[`Regression > internal 21`] = `
+exports[`Regression > internal 25`] = `
 "---
 metadata:
   - name: generator
@@ -954,9 +1977,9 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Regression > internal 22`] = `"{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/test":{"get":{"tags":["test-controller"],"summary":"Simple get operation. тест новой верстки 3","description":"Defines a simple get operation with no inputs and a complex","operationId":"getWithPayloadResponse","responses":{"200":{"description":"200!!!!","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RecurceTop"}}}}}}},"/hidden-test":{"get":{"tags":["test-controller"],"summary":"Test x-hidden attribute","description":"Test various x-hidden scenarios","operationId":"getHiddenTest","responses":{"200":{"description":"Response with hidden fields","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HiddenTestResponse"}}}}}}}},"components":{"schemas":{"RecurceTop":{"type":"object","properties":{"A":{"type":"string"}}},"HiddenTestResponse":{"type":"object","description":"Response object with various hidden field scenarios","properties":{"visibleField":{"type":"string","description":"This field should be visible"},"refToHiddenField":{"$ref":"#/components/schemas/HiddenField"},"refToHiddenObject":{"$ref":"#/components/schemas/HiddenObject"},"nestedObject":{"type":"object","description":"Object with hidden properties","properties":{"visibleNested":{"type":"string"},"refToHiddenInNested":{"$ref":"#/components/schemas/HiddenField"}}},"arrayWithHiddenItems":{"type":"array","description":"Array with hidden item schema","items":{"$ref":"#/components/schemas/HiddenField"}},"mixedVisibility":{"type":"object","properties":{"field1":{"type":"string"},"field2":{"$ref":"#/components/schemas/HiddenField"},"field3":{"type":"string"},"field5":{"type":"string"}}}}}}}}"`;
+exports[`Regression > internal 26`] = `"{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/test":{"get":{"tags":["test-controller"],"summary":"Simple get operation. тест новой верстки 3","description":"Defines a simple get operation with no inputs and a complex","operationId":"getWithPayloadResponse","responses":{"200":{"description":"200!!!!","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RecurceTop"}}}}}}},"/hidden-test":{"get":{"tags":["test-controller"],"summary":"Test x-hidden attribute","description":"Test various x-hidden scenarios","operationId":"getHiddenTest","responses":{"200":{"description":"Response with hidden fields","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HiddenTestResponse"}}}}}}}},"components":{"schemas":{"RecurceTop":{"type":"object","properties":{"A":{"type":"string"}}},"HiddenTestResponse":{"type":"object","description":"Response object with various hidden field scenarios","properties":{"visibleField":{"type":"string","description":"This field should be visible"},"refToHiddenField":{"$ref":"#/components/schemas/HiddenField"},"refToHiddenObject":{"$ref":"#/components/schemas/HiddenObject"},"nestedObject":{"type":"object","description":"Object with hidden properties","properties":{"visibleNested":{"type":"string"},"refToHiddenInNested":{"$ref":"#/components/schemas/HiddenField"}}},"arrayWithHiddenItems":{"type":"array","description":"Array with hidden item schema","items":{"$ref":"#/components/schemas/HiddenField"}},"mixedVisibility":{"type":"object","properties":{"field1":{"type":"string"},"field2":{"$ref":"#/components/schemas/HiddenField"},"field3":{"type":"string"},"field5":{"type":"string"}}}}}}}}"`;
 
-exports[`Regression > internal 23`] = `
+exports[`Regression > internal 27`] = `
 "---
 metadata:
   - name: generator
@@ -1154,7 +2177,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 24`] = `
+exports[`Regression > internal 28`] = `
 "---
 metadata:
   - name: generator
@@ -1236,7 +2259,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 25`] = `
+exports[`Regression > internal 29`] = `
 "---
 metadata:
   - name: generator
@@ -1256,7 +2279,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Regression > internal 26`] = `
+exports[`Regression > internal 30`] = `
 "files:
   - from: c.md
     to: d.md
@@ -1266,7 +2289,7 @@ common:
 "
 `;
 
-exports[`Regression > internal 27`] = `
+exports[`Regression > internal 31`] = `
 "---
 metadata:
   - name: generator
@@ -1283,7 +2306,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression > internal 28`] = `
+exports[`Regression > internal 32`] = `
 "items:
   - name: Verbose root (index.yaml) will be transformed to index.html
     href: index.yaml
@@ -1348,13 +2371,13 @@ path: toc.yaml
 "
 `;
 
-exports[`Regression > internal 29`] = `
+exports[`Regression > internal 33`] = `
 "preprocess:
   mergeAutotitles: true
 "
 `;
 
-exports[`Regression > internal 30`] = `
+exports[`Regression > internal 34`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1382,7 +2405,7 @@ exports[`Regression > internal 30`] = `
 </html>"
 `;
 
-exports[`Regression > internal 31`] = `
+exports[`Regression > internal 35`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1410,7 +2433,7 @@ exports[`Regression > internal 31`] = `
 </html>"
 `;
 
-exports[`Regression > internal 32`] = `
+exports[`Regression > internal 36`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1438,7 +2461,7 @@ exports[`Regression > internal 32`] = `
 </html>"
 `;
 
-exports[`Regression > internal 33`] = `
+exports[`Regression > internal 37`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1466,7 +2489,7 @@ exports[`Regression > internal 33`] = `
 </html>"
 `;
 
-exports[`Regression > internal 34`] = `
+exports[`Regression > internal 38`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1494,7 +2517,7 @@ exports[`Regression > internal 34`] = `
 </html>"
 `;
 
-exports[`Regression > internal 35`] = `
+exports[`Regression > internal 39`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1522,7 +2545,7 @@ exports[`Regression > internal 35`] = `
 </html>"
 `;
 
-exports[`Regression > internal 36`] = `
+exports[`Regression > internal 40`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1550,7 +2573,7 @@ exports[`Regression > internal 36`] = `
 </html>"
 `;
 
-exports[`Regression > internal 37`] = `
+exports[`Regression > internal 41`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1578,7 +2601,7 @@ exports[`Regression > internal 37`] = `
 </html>"
 `;
 
-exports[`Regression > internal 38`] = `
+exports[`Regression > internal 42`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1606,7 +2629,7 @@ exports[`Regression > internal 38`] = `
 </html>"
 `;
 
-exports[`Regression > internal 39`] = `
+exports[`Regression > internal 43`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1634,7 +2657,7 @@ exports[`Regression > internal 39`] = `
 </html>"
 `;
 
-exports[`Regression > internal 40`] = `
+exports[`Regression > internal 44`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1662,7 +2685,7 @@ exports[`Regression > internal 40`] = `
 </html>"
 `;
 
-exports[`Regression > internal 41`] = `
+exports[`Regression > internal 45`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1690,7 +2713,7 @@ exports[`Regression > internal 41`] = `
 </html>"
 `;
 
-exports[`Regression > internal 42`] = `
+exports[`Regression > internal 46`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1718,7 +2741,7 @@ exports[`Regression > internal 42`] = `
 </html>"
 `;
 
-exports[`Regression > internal 43`] = `
+exports[`Regression > internal 47`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1746,7 +2769,7 @@ exports[`Regression > internal 43`] = `
 </html>"
 `;
 
-exports[`Regression > internal 44`] = `
+exports[`Regression > internal 48`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1774,7 +2797,7 @@ exports[`Regression > internal 44`] = `
 </html>"
 `;
 
-exports[`Regression > internal 45`] = `
+exports[`Regression > internal 49`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1802,7 +2825,1022 @@ exports[`Regression > internal 45`] = `
 </html>"
 `;
 
-exports[`Regression > internal 46`] = `
+exports[`Regression > internal 50`] = `
+"# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](./mermaid.md)
+
+[Mermaid info](./mermaid.md#info)
+
+[Latex usage](./latex.md)
+
+[noext-link](./includes)
+
+Bob
+
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](./mermaid.md)
+
+[Mermaid info](./mermaid.md#info)
+
+[Latex usage](./latex.md)
+
+[noext-link](./includes)
+
+Bob
+
+# Merged item
+
+Should be linked in toc.yaml
+
+### F1 {#f1}
+Content F1
+
+## F2 {#f2}
+Content F2
+
+### F2.1 {#f2.1}
+Content F2.1
+
+## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## F4 {#f4}
+Content F4
+[Header](../autotitle.md#header)
+
+### F4.1 {#f4.1}
+link with [some term1](*term1)
+
+{% list tabs %}
+
+- Название таба 1
+
+  Текст таба 1.
+
+  * Можно использовать списки.
+  * И **другую** разметку.
+
+- Название таба 2
+
+  Текст таба 2.
+
+{% endlist %}
+
+[*term1]: Some description
+
+# Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+![pdf](_assets/empty.pdf)
+
+# Item 1
+
+Item 1 text
+
+[Images](../../images.md)
+
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+
+# Latex usage
+
+$/sqrt{3x-1}+(1+x)^2$
+
+# Images
+
+![simple image](_assets/1.png)
+
+<!-- comment -->![with leading comment](_assets/2.png)
+
+![with trailing comment](_assets/3.png)<!-- comment -->
+
+<!-- ![commented](_assets/4.png) -->
+
+![with backslash](_assets/5/_1.png)
+
+[![img 3](_assets/3.png)](latex.md)
+
+# Autotitles
+
+Empty title
+[Title](./1.md)
+
+Empty subtitle
+[Subtitle](./1.md#subtitle)
+
+Special title
+[Title](./1.md)
+
+Special subtitle
+[Subtitle](./1.md#subtitle)
+
+Empty local title
+[Header](#header)
+
+Special local title
+[Header](#header)
+
+Circular title
+[Header](./autotitle.md#header)
+
+Autotitle from include
+<!-- [{#T}](includes/fragments.md#f3) -->
+
+Include with autotitle
+<!-- {% include [test](includes/fragments.md#f4) %} -->
+
+link with [some local term1](*term1-1)
+
+{% list tabs %}
+
+- Название таба 1
+
+  Текст таба 1.
+
+  * Можно использовать списки.
+  * И **другую** разметку.
+
+- Название таба 2
+
+  Текст таба 2.
+
+{% endlist %}
+
+All fragments
+
+### F1 {#f1}
+Content F1
+
+## F2 {#f2}
+Content F2
+
+### F2.1 {#f2.1}
+Content F2.1
+
+## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## F4 {#f4}
+Content F4
+[Header](autotitle.md#header)
+
+### F4.1 {#f4.1}
+link with [some term1](*term1)
+
+{% list tabs %}
+
+- Название таба 1
+
+  Текст таба 1.
+
+  * Можно использовать списки.
+  * И **другую** разметку.
+
+- Название таба 2
+
+  Текст таба 2.
+
+{% endlist %}
+
+
+## Header {#header}
+
+Content2
+
+<style>
+
+.yfm .border-yes {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+</style>
+
+[*term1-1]: ## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+[*term1]: Some description
+
+Text
+
+Bob
+
+Test
+
+### F1 {#f1}
+Content F1
+
+## F2 {#f2}
+Content F2
+
+Some paragraph with anchor {#p1}
+
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
+Bob
+
+[![img 3](_assets/3.png)](latex.md)
+
+^[?](*term)^
+
+[[?](*term)](http://ya.ru)
+
+[Term 1](*term1) [Term 2](*term2)
+
+Link after include
+[Subtitle](./1.md#subtitle)
+
+Autotitle include
+<!-- [{#T}](includes/fragments.md#f3) -->
+
+Link after include
+
+## Mermaid
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+
+[*term]: Test terms
+
+[*term1]: ## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+[*term2]: ## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+# Entry that is also used as include
+
+This file is both an entry (in toc) and included by another file.
+
+# Includer of entry
+
+This file includes another file that is also an entry.
+
+# Entry that is also used as include
+
+This file is both an entry (in toc) and included by another file.
+
+# Note 1
+
+Note content 1
+
+# Note 1
+
+Note content 1
+
+Note content 1
+
+# Sub note 1
+
+Note content 1
+
+# Sub note 2
+
+Note content 2
+
+<!-- markdownlint-disable-file -->
+
+# OpenAPI definition
+
+##version: v0##
+
+## Sections
+
+- [test-controller](test-controller/index.md)
+
+
+## Specification
+
+{% cut "Open API" %}
+
+\`\`\`text translate=no
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Simple get operation. тест новой верстки 3",
+                "description": "Defines a simple get operation with no inputs and a complex",
+                "operationId": "getWithPayloadResponse",
+                "responses": {
+                    "200": {
+                        "description": "200!!!!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "A": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/hidden-test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Test x-hidden attribute",
+                "description": "Test various x-hidden scenarios",
+                "operationId": "getHiddenTest",
+                "responses": {
+                    "200": {
+                        "description": "Response with hidden fields",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Response object with various hidden field scenarios",
+                                    "properties": {
+                                        "visibleField": {
+                                            "type": "string",
+                                            "description": "This field should be visible"
+                                        },
+                                        "directlyHiddenField": {
+                                            "type": "string",
+                                            "description": "This field should be hidden (direct x-hidden)",
+                                            "x-hidden": true
+                                        },
+                                        "refToHiddenField": {
+                                            "type": "string",
+                                            "description": "This field should be hidden",
+                                            "x-hidden": true
+                                        },
+                                        "refToHiddenObject": {
+                                            "type": "object",
+                                            "description": "This entire object should be hidden",
+                                            "x-hidden": true,
+                                            "properties": {
+                                                "secret": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "nestedObject": {
+                                            "type": "object",
+                                            "description": "Object with hidden properties",
+                                            "properties": {
+                                                "visibleNested": {
+                                                    "type": "string"
+                                                },
+                                                "hiddenNested": {
+                                                    "type": "string",
+                                                    "x-hidden": true
+                                                },
+                                                "refToHiddenInNested": {
+                                                    "type": "string",
+                                                    "description": "This field should be hidden",
+                                                    "x-hidden": true
+                                                }
+                                            }
+                                        },
+                                        "arrayWithHiddenItems": {
+                                            "type": "array",
+                                            "description": "Array with hidden item schema",
+                                            "items": {
+                                                "type": "string",
+                                                "description": "This field should be hidden",
+                                                "x-hidden": true
+                                            }
+                                        },
+                                        "mixedVisibility": {
+                                            "type": "object",
+                                            "properties": {
+                                                "field1": {
+                                                    "type": "string"
+                                                },
+                                                "field2": {
+                                                    "type": "string",
+                                                    "description": "This field should be hidden",
+                                                    "x-hidden": true
+                                                },
+                                                "field3": {
+                                                    "type": "string"
+                                                },
+                                                "field4": {
+                                                    "type": "string",
+                                                    "x-hidden": true
+                                                },
+                                                "field5": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RecurceTop": {
+                "type": "object",
+                "properties": {
+                    "A": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecurceMiddle": {
+                "type": "object",
+                "properties": {
+                    "B": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "A": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "HiddenField": {
+                "type": "string",
+                "description": "This field should be hidden",
+                "x-hidden": true
+            },
+            "HiddenObject": {
+                "type": "object",
+                "description": "This entire object should be hidden",
+                "x-hidden": true,
+                "properties": {
+                    "secret": {
+                        "type": "string"
+                    }
+                }
+            },
+            "HiddenTestResponse": {
+                "type": "object",
+                "description": "Response object with various hidden field scenarios",
+                "properties": {
+                    "visibleField": {
+                        "type": "string",
+                        "description": "This field should be visible"
+                    },
+                    "directlyHiddenField": {
+                        "type": "string",
+                        "description": "This field should be hidden (direct x-hidden)",
+                        "x-hidden": true
+                    },
+                    "refToHiddenField": {
+                        "type": "string",
+                        "description": "This field should be hidden",
+                        "x-hidden": true
+                    },
+                    "refToHiddenObject": {
+                        "type": "object",
+                        "description": "This entire object should be hidden",
+                        "x-hidden": true,
+                        "properties": {
+                            "secret": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "nestedObject": {
+                        "type": "object",
+                        "description": "Object with hidden properties",
+                        "properties": {
+                            "visibleNested": {
+                                "type": "string"
+                            },
+                            "hiddenNested": {
+                                "type": "string",
+                                "x-hidden": true
+                            },
+                            "refToHiddenInNested": {
+                                "type": "string",
+                                "description": "This field should be hidden",
+                                "x-hidden": true
+                            }
+                        }
+                    },
+                    "arrayWithHiddenItems": {
+                        "type": "array",
+                        "description": "Array with hidden item schema",
+                        "items": {
+                            "type": "string",
+                            "description": "This field should be hidden",
+                            "x-hidden": true
+                        }
+                    },
+                    "mixedVisibility": {
+                        "type": "object",
+                        "properties": {
+                            "field1": {
+                                "type": "string"
+                            },
+                            "field2": {
+                                "type": "string",
+                                "description": "This field should be hidden",
+                                "x-hidden": true
+                            },
+                            "field3": {
+                                "type": "string"
+                            },
+                            "field4": {
+                                "type": "string",
+                                "x-hidden": true
+                            },
+                            "field5": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+\`\`\`
+
+{% endcut %}
+
+# test-controller
+
+<!-- markdownlint-disable-file -->
+
+## Endpoints
+
+- [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
+- [Test x-hidden attribute](getHiddenTest.md)
+
+<div class="openapi">
+
+# Simple get operation. тест новой верстки 3
+
+<!-- markdownlint-disable-file -->
+
+Defines a simple get operation with no inputs and a complex
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method}
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+200!!!!
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+\`\`\`json translate=no
+{
+  "A": "example"
+}
+\`\`\`
+
+{% endcut %}
+
+#|
+|| **Name** | **Description** ||
+||
+
+_A_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+</div>
+
+</div>
+
+</div>
+
+[*Deprecated]: No longer supported, please use an alternative and newer version.
+
+<div class="openapi">
+
+# Test x-hidden attribute
+
+<!-- markdownlint-disable-file -->
+
+Test various x-hidden scenarios
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method}
+\`\`\`text translate=no
+http://localhost:8080/hidden-test
+\`\`\`
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+Response with hidden fields
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+\`\`\`json translate=no
+{
+  "visibleField": "example",
+  "nestedObject": {
+    "visibleNested": "example"
+  },
+  "arrayWithHiddenItems": [
+    "example"
+  ],
+  "mixedVisibility": {
+    "field1": "example",
+    "field3": "example",
+    "field5": "example"
+  }
+}
+\`\`\`
+
+{% endcut %}
+
+#|
+|| **Name** | **Description** ||
+||
+
+_arrayWithHiddenItems_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: [HiddenField](#entity-HiddenField)[]
+
+Array with hidden item schema
+
+{% cut "**Example**" %}{.json-schema-example}
+
+\`\`\`json translate=no
+[
+  "example"
+]
+\`\`\`
+
+{% endcut %}
+{.table-cell}
+||
+||
+
+_mixedVisibility_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+{% cut "**Type**: object" %}
+
+#|
+||
+
+_field1_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+||
+
+_field3_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+||
+
+_field5_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+{% endcut %}
+
+{% cut "**Example**" %}{.json-schema-example}
+
+\`\`\`json translate=no
+{
+  "field1": "example",
+  "field3": "example",
+  "field5": "example"
+}
+\`\`\`
+
+{% endcut %}
+{.table-cell}
+||
+||
+
+_nestedObject_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+{% cut "**Type**: object" %}
+
+#|
+||
+
+_visibleNested_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+{% endcut %}
+
+Object with hidden properties
+
+{% cut "**Example**" %}{.json-schema-example}
+
+\`\`\`json translate=no
+{
+  "visibleNested": "example"
+}
+\`\`\`
+
+{% endcut %}
+{.table-cell}
+||
+||
+
+_visibleField_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+This field should be visible
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+</div>
+
+</div>
+
+</div>
+
+[*Deprecated]: No longer supported, please use an alternative and newer version.
+"
+`;
+
+exports[`Regression > internal 51`] = `
+"## Documentation
+
+- [Verbose root (index.yaml) will be transformed to index.html](index.yaml)
+- [Root will be transformed to index.html](/index.yaml)
+- [Md item with not_var syntax](1.md)
+- [Md item named without extension](1.md)
+- [Multitoc item](merge/merged.md)
+- [Fragments](includes/fragments.md)
+- [Included Item](included-item.md)
+- [Item 1](sub/folder/item-1.md)
+- [Mermaid usage](mermaid.md)
+- [Latex usage](latex.md)
+- [Images](images.md)
+- [Autotitle](autotitle.md)
+- [includes](includes.md)
+- [Entry as include](entry-as-include.md)
+- [Includer of entry](includer-of-entry.md)
+- [Note 1](generic/1.md)
+- [Note 1](generic/2.md)
+- [3](generic/3.md)
+- [Sub note 1](generic/Sub notes/1.md)
+- [Sub note 2](generic/Sub notes/2.md)
+- [Overview](openapi/index.md)
+- [Overview](openapi/test-controller/index.md)
+- [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
+- [Test x-hidden attribute](openapi/test-controller/getHiddenTest.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Regression > internal 52`] = `
+"# Should use merged item
+
+[merged](./merged.md)
+
+Tool: Hammer and Laser
+
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](./mermaid.md)
+
+[Mermaid info](./mermaid.md#info)
+
+[Latex usage](./latex.md)
+
+[noext-link](./includes)
+
+Bob
+
+# Merged item
+
+Should be linked in toc.yaml
+"
+`;
+
+exports[`Regression > internal 53`] = `
+"## Documentation
+
+- [Use merged](merge.md)
+- [Multitoc item](../1.md)
+- [Merged item](merged.md)
+
+---
+
+For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
+"
+`;
+
+exports[`Regression > internal 54`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1830,7 +3868,7 @@ exports[`Regression > internal 46`] = `
 </html>"
 `;
 
-exports[`Regression > internal 47`] = `
+exports[`Regression > internal 55`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1858,9 +3896,9 @@ exports[`Regression > internal 47`] = `
 </html>"
 `;
 
-exports[`Regression > internal 48`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 56`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
 
-exports[`Regression > internal 49`] = `
+exports[`Regression > internal 57`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1888,7 +3926,7 @@ exports[`Regression > internal 49`] = `
 </html>"
 `;
 
-exports[`Regression > internal 50`] = `
+exports[`Regression > internal 58`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1916,9 +3954,9 @@ exports[`Regression > internal 50`] = `
 </html>"
 `;
 
-exports[`Regression > internal 51`] = `"{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/test":{"get":{"tags":["test-controller"],"summary":"Simple get operation. тест новой верстки 3","description":"Defines a simple get operation with no inputs and a complex","operationId":"getWithPayloadResponse","responses":{"200":{"description":"200!!!!","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RecurceTop"}}}}}}},"/hidden-test":{"get":{"tags":["test-controller"],"summary":"Test x-hidden attribute","description":"Test various x-hidden scenarios","operationId":"getHiddenTest","responses":{"200":{"description":"Response with hidden fields","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HiddenTestResponse"}}}}}}}},"components":{"schemas":{"RecurceTop":{"type":"object","properties":{"A":{"type":"string"}}},"HiddenTestResponse":{"type":"object","description":"Response object with various hidden field scenarios","properties":{"visibleField":{"type":"string","description":"This field should be visible"},"refToHiddenField":{"$ref":"#/components/schemas/HiddenField"},"refToHiddenObject":{"$ref":"#/components/schemas/HiddenObject"},"nestedObject":{"type":"object","description":"Object with hidden properties","properties":{"visibleNested":{"type":"string"},"refToHiddenInNested":{"$ref":"#/components/schemas/HiddenField"}}},"arrayWithHiddenItems":{"type":"array","description":"Array with hidden item schema","items":{"$ref":"#/components/schemas/HiddenField"}},"mixedVisibility":{"type":"object","properties":{"field1":{"type":"string"},"field2":{"$ref":"#/components/schemas/HiddenField"},"field3":{"type":"string"},"field5":{"type":"string"}}}}}}}}"`;
+exports[`Regression > internal 59`] = `"{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/test":{"get":{"tags":["test-controller"],"summary":"Simple get operation. тест новой верстки 3","description":"Defines a simple get operation with no inputs and a complex","operationId":"getWithPayloadResponse","responses":{"200":{"description":"200!!!!","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RecurceTop"}}}}}}},"/hidden-test":{"get":{"tags":["test-controller"],"summary":"Test x-hidden attribute","description":"Test various x-hidden scenarios","operationId":"getHiddenTest","responses":{"200":{"description":"Response with hidden fields","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HiddenTestResponse"}}}}}}}},"components":{"schemas":{"RecurceTop":{"type":"object","properties":{"A":{"type":"string"}}},"HiddenTestResponse":{"type":"object","description":"Response object with various hidden field scenarios","properties":{"visibleField":{"type":"string","description":"This field should be visible"},"refToHiddenField":{"$ref":"#/components/schemas/HiddenField"},"refToHiddenObject":{"$ref":"#/components/schemas/HiddenObject"},"nestedObject":{"type":"object","description":"Object with hidden properties","properties":{"visibleNested":{"type":"string"},"refToHiddenInNested":{"$ref":"#/components/schemas/HiddenField"}}},"arrayWithHiddenItems":{"type":"array","description":"Array with hidden item schema","items":{"$ref":"#/components/schemas/HiddenField"}},"mixedVisibility":{"type":"object","properties":{"field1":{"type":"string"},"field2":{"$ref":"#/components/schemas/HiddenField"},"field3":{"type":"string"},"field5":{"type":"string"}}}}}}}}"`;
 
-exports[`Regression > internal 52`] = `
+exports[`Regression > internal 60`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1946,7 +3984,7 @@ exports[`Regression > internal 52`] = `
 </html>"
 `;
 
-exports[`Regression > internal 53`] = `
+exports[`Regression > internal 61`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1974,7 +4012,7 @@ exports[`Regression > internal 53`] = `
 </html>"
 `;
 
-exports[`Regression > internal 54`] = `
+exports[`Regression > internal 62`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -2002,7 +4040,7 @@ exports[`Regression > internal 54`] = `
 </html>"
 `;
 
-exports[`Regression > internal 55`] = `
+exports[`Regression > internal 63`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -2030,4 +4068,4 @@ exports[`Regression > internal 55`] = `
 </html>"
 `;
 
-exports[`Regression > internal 56`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Fragments","href":"includes/fragments.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"},{"href":"openapi/test-controller/getHiddenTest.html","name":"Test x-hidden attribute","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 64`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Fragments","href":"includes/fragments.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"},{"href":"openapi/test-controller/getHiddenTest.html","name":"Test x-hidden attribute","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
