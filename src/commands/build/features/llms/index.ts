@@ -4,6 +4,7 @@ import type {EntryTocItem, Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 
+import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {normalizePath, setExt} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
@@ -60,14 +61,15 @@ export class Llms {
         });
 
         getBaseHooks(program).Config.tap('Llms', (config, args) => {
-            const configLlmsEnabled: boolean | undefined = config?.llms?.enabled;
             const llmsDescription = config?.llms?.description || '';
             const onlyMd = config.outputFormat === OutputFormat.md;
-            const llmsEnabled = this.resolveLlmsEnabled(args.llms, configLlmsEnabled, onlyMd);
+            const llmsArg = defined('llms', args);
+
+            const enabled = this.resolveLlmsEnabled(llmsArg, config.llms, onlyMd);
 
             config.llms = {
                 ...(typeof config.llms === 'object' ? config.llms : {}),
-                enabled: llmsEnabled,
+                enabled,
                 description: llmsDescription,
             };
 
@@ -90,25 +92,16 @@ export class Llms {
     }
 
     private resolveLlmsEnabled(
-        flagLlmsEnabled: boolean | undefined,
-        configLlmsEnabled: boolean | undefined,
+        llmsArg: boolean | null,
+        config: Partial<LlmsConfig['llms']> | undefined,
         onlyMd: boolean,
     ): boolean {
-        switch (flagLlmsEnabled) {
-            case true:
-                return true;
-            case false:
-                return false;
-            default:
-                switch (configLlmsEnabled) {
-                    case true:
-                        return true;
-                    case false:
-                        return false;
-                    default:
-                        return onlyMd;
-                }
+        if (!Object.is(llmsArg, null)) {
+            return llmsArg as boolean;
         }
+
+        const configRaw = defined('enabled', config || {}, {enabled: 'md'});
+        return configRaw === 'md' ? onlyMd : (configRaw as boolean);
     }
 
     private async generate(run: Run, toc: Toc) {
