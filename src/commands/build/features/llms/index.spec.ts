@@ -59,6 +59,8 @@ function createMockRun(
     } as unknown as Run;
 }
 
+const makeLlmsArgs = (llms: boolean | null) => ({llms}) as any;
+
 describe('LLMs Plugin Architecture', () => {
     let llmsInstance: any;
 
@@ -69,63 +71,99 @@ describe('LLMs Plugin Architecture', () => {
     describe('resolveLlmsEnabled logic', () => {
         describe('when --llms flag is explicitly passed', () => {
             it('enables generation for md, regardless of config', () => {
-                expect(llmsInstance.resolveLlmsEnabled(true, undefined, true)).toBe(true);
-                expect(llmsInstance.resolveLlmsEnabled(true, {enabled: false}, true)).toBe(true);
-                expect(llmsInstance.resolveLlmsEnabled(true, {enabled: true}, true)).toBe(true);
+                expect(llmsInstance.resolveLlmsEnabled(makeLlmsArgs(true), undefined, true)).toBe(
+                    true,
+                );
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(true), {enabled: false}, true),
+                ).toBe(true);
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(true), {enabled: true}, true),
+                ).toBe(true);
             });
 
             it('enables generation for html, regardless of config', () => {
-                expect(llmsInstance.resolveLlmsEnabled(true, undefined, false)).toBe(true);
-                expect(llmsInstance.resolveLlmsEnabled(true, {enabled: false}, false)).toBe(true);
-                expect(llmsInstance.resolveLlmsEnabled(true, {enabled: true}, false)).toBe(true);
+                expect(llmsInstance.resolveLlmsEnabled(makeLlmsArgs(true), undefined, false)).toBe(
+                    true,
+                );
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(true), {enabled: false}, false),
+                ).toBe(true);
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(true), {enabled: true}, false),
+                ).toBe(true);
             });
         });
 
         describe('when --no-llms flag is explicitly passed', () => {
             it('disables generation for md, regardless of config', () => {
-                expect(llmsInstance.resolveLlmsEnabled(false, undefined, true)).toBe(false);
-                expect(llmsInstance.resolveLlmsEnabled(false, {enabled: true}, true)).toBe(false);
-                expect(llmsInstance.resolveLlmsEnabled(false, {enabled: false}, true)).toBe(false);
+                expect(llmsInstance.resolveLlmsEnabled(makeLlmsArgs(false), undefined, true)).toBe(
+                    false,
+                );
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(false), {enabled: true}, true),
+                ).toBe(false);
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(false), {enabled: false}, true),
+                ).toBe(false);
             });
 
             it('disables generation for html, regardless of config', () => {
-                expect(llmsInstance.resolveLlmsEnabled(false, undefined, false)).toBe(false);
-                expect(llmsInstance.resolveLlmsEnabled(false, {enabled: true}, false)).toBe(false);
-                expect(llmsInstance.resolveLlmsEnabled(false, {enabled: false}, false)).toBe(false);
+                expect(llmsInstance.resolveLlmsEnabled(makeLlmsArgs(false), undefined, false)).toBe(
+                    false,
+                );
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(false), {enabled: true}, false),
+                ).toBe(false);
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(false), {enabled: false}, false),
+                ).toBe(false);
             });
         });
 
         describe('when flag is not passed at all', () => {
             it('disables generation when config explicitly sets enabled: false (md)', () => {
-                expect(llmsInstance.resolveLlmsEnabled(null, {enabled: false}, true)).toBe(false);
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(null), {enabled: false}, true),
+                ).toBe(false);
             });
 
             it('disables generation when config explicitly sets enabled: false (html)', () => {
-                expect(llmsInstance.resolveLlmsEnabled(null, {enabled: false}, false)).toBe(false);
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(null), {enabled: false}, false),
+                ).toBe(false);
             });
 
             it('enables generation for md when config explicitly sets enabled: true', () => {
-                expect(llmsInstance.resolveLlmsEnabled(null, {enabled: true}, true)).toBe(true);
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(null), {enabled: true}, true),
+                ).toBe(true);
             });
 
             it('enables generation for html when config explicitly sets enabled: true', () => {
-                expect(llmsInstance.resolveLlmsEnabled(null, {enabled: true}, false)).toBe(true);
+                expect(
+                    llmsInstance.resolveLlmsEnabled(makeLlmsArgs(null), {enabled: true}, false),
+                ).toBe(true);
             });
 
             it('enables generation for md when there is no llms config section at all', () => {
-                expect(llmsInstance.resolveLlmsEnabled(null, undefined, true)).toBe(true);
+                expect(llmsInstance.resolveLlmsEnabled(makeLlmsArgs(null), undefined, true)).toBe(
+                    true,
+                );
             });
 
             it('disables generation for html when there is no llms config section at all', () => {
-                expect(llmsInstance.resolveLlmsEnabled(null, undefined, false)).toBe(false);
+                expect(llmsInstance.resolveLlmsEnabled(makeLlmsArgs(null), undefined, false)).toBe(
+                    false,
+                );
             });
 
             it('enables generation for md when config object exists but has no enabled key', () => {
-                expect(llmsInstance.resolveLlmsEnabled(null, {}, true)).toBe(true);
+                expect(llmsInstance.resolveLlmsEnabled(makeLlmsArgs(null), {}, true)).toBe(true);
             });
 
             it('disables generation for html when config object exists but has no enabled key', () => {
-                expect(llmsInstance.resolveLlmsEnabled(null, {}, false)).toBe(false);
+                expect(llmsInstance.resolveLlmsEnabled(makeLlmsArgs(null), {}, false)).toBe(false);
             });
         });
     });

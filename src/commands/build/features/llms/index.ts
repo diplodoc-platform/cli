@@ -1,4 +1,4 @@
-import type {Build, Run} from '~/commands/build';
+import type {Build, BuildArgs, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {EntryTocItem, Toc} from '~/core/toc';
 
@@ -63,9 +63,8 @@ export class Llms {
         getBaseHooks(program).Config.tap('Llms', (config, args) => {
             const llmsDescription = config?.llms?.description || '';
             const onlyMd = config.outputFormat === OutputFormat.md;
-            const llmsArg = defined('llms', args);
 
-            const enabled = this.resolveLlmsEnabled(llmsArg, config.llms, onlyMd);
+            const enabled = this.resolveLlmsEnabled(args, config.llms, onlyMd);
 
             config.llms = {
                 ...(typeof config.llms === 'object' ? config.llms : {}),
@@ -92,15 +91,17 @@ export class Llms {
     }
 
     private resolveLlmsEnabled(
-        llmsArg: boolean | null,
+        args: BuildArgs,
         config: Partial<LlmsConfig['llms']> | undefined,
         onlyMd: boolean,
     ): boolean {
+        const llmsArg = defined('llms', args);
+
         if (!Object.is(llmsArg, null)) {
             return llmsArg as boolean;
         }
 
-        const configRaw = defined('enabled', config || {}, {enabled: 'md'});
+        const configRaw = defined('enabled', config || {}, {enabled: onlyMd});
         return configRaw === 'md' ? onlyMd : (configRaw as boolean);
     }
 
