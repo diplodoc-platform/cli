@@ -130,7 +130,7 @@
     "@diplodoc/latex-extension": "^1.4.1",
     "@diplodoc/mermaid-extension": "^2.2.0",
     "@diplodoc/openapi-extension": "^5.2.1",
-    "@diplodoc/page-constructor-extension": "^0.13.7",
+    "@diplodoc/page-constructor-extension": "^0.13.8",
     "@diplodoc/search-extension": "^3.0.5",
     "@diplodoc/yfmlint": "^1.7.5",
     "@octokit/core": "4.2.4",
