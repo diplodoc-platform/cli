@@ -196,17 +196,12 @@ export class Llms {
             parts.join(LLMS_SEPARATOR) + LLMS_TRAILING_NEWLINE,
             'utf8',
         );
-        let limitReached = false;
 
         // Assemble fully self-contained markdown (all includes merged),
         // independent of the build's output format — see MarkdownCollector.
         const collector = new MarkdownCollector(run, SELF_CONTAINED);
 
         for (const entry of entries) {
-            if (limitReached) {
-                break;
-            }
-
             // Leading (yaml) pages have no markdown body to inline; they still
             // appear in the index above.
             if (!entry.path.endsWith('.md')) {
@@ -231,7 +226,6 @@ export class Llms {
                     `llms-full.txt: size limit reached at ${currentSize} bytes ` +
                         `(limit ${maxSize}), stopped before adding ${entry.path}`,
                 );
-                limitReached = true;
                 break;
             }
 
