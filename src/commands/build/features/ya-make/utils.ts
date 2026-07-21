@@ -22,22 +22,24 @@ export function detectArcadiaRootFromAlias(): string | undefined {
     return undefined;
 }
 
-const SYSTEM_PATH = [
-    '/usr/local/bin',
-    '/usr/bin',
-    '/bin',
-    '/usr/sbin',
-    '/sbin',
-    '/opt/homebrew/bin/arc',
-].join(':');
+// Known absolute install locations for the `arc` binary
+// Invoking `arc` by absolute path avoids PATH resolution, which
+// could otherwise execute a malicious `arc` planted in an attacker-writable PATH
+// entry (SonarQube typescript:S4036 / CWE-427).
+const ARC_BINARY_CANDIDATES = ['/usr/bin/arc', '/usr/local/bin/arc', '/opt/homebrew/bin/arc'];
 
 export function detectArcadiaRootFromArc(): string | undefined {
+    const arcBinary = ARC_BINARY_CANDIDATES.find((candidate) => existsSync(candidate));
+
+    if (!arcBinary) {
+        return undefined;
+    }
+
     try {
-        const output = execFileSync('arc', ['root'], {
+        const output = execFileSync(arcBinary, ['root'], {
             encoding: 'utf8',
             stdio: ['ignore', 'pipe', 'ignore'],
             timeout: 3000,
-            env: {...process.env, PATH: SYSTEM_PATH},
         }).trim();
 
         if (output) {
