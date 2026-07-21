@@ -11,19 +11,25 @@ import {OutputFormat} from '~/commands/build/config';
 
 import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
 
-import {options} from './config';
+import {options, resolveLlmsFullMaxSize} from './config';
 
 export const LLMS_INDEX_FILENAME = 'llms.txt';
 export const LLMS_FULL_FILENAME = 'llms-full.txt';
 
+const LLMS_SEPARATOR = '\n\n';
+const LLMS_SEPARATOR_SIZE = Buffer.byteLength(LLMS_SEPARATOR, 'utf8');
+const LLMS_TRAILING_NEWLINE = '\n';
+
 export type LlmsArgs = {
     llms: boolean;
+    llmsFullMaxSize: number;
 };
 
 export type LlmsConfig = {
     llms: {
         enabled: boolean;
         description?: string;
+        llmsFullMaxSize: number;
     };
 };
 
@@ -58,6 +64,7 @@ export class Llms {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Llms', (command: Command) => {
             command.addOption(options.llms);
+            command.addOption(options.llmsFullMaxSize);
         });
 
         getBaseHooks(program).Config.tap('Llms', (config, args) => {
@@ -65,11 +72,13 @@ export class Llms {
             const onlyMd = config.outputFormat === OutputFormat.md;
 
             const enabled = this.resolveLlmsEnabled(args, config.llms, onlyMd);
+            const llmsFullMaxSize = resolveLlmsFullMaxSize(args, config.llms || {});
 
             config.llms = {
                 ...(typeof config.llms === 'object' ? config.llms : {}),
                 enabled,
                 description: llmsDescription,
+                llmsFullMaxSize,
             };
 
             return config;
@@ -182,30 +191,70 @@ export class Llms {
             parts.push(`# ${title}`);
         }
 
+        const maxSize = run.config.llms.llmsFullMaxSize;
+        let currentSize = Buffer.byteLength(
+            parts.join(LLMS_SEPARATOR) + LLMS_TRAILING_NEWLINE,
+            'utf8',
+        );
+        let limitReached = false;
+
         // Assemble fully self-contained markdown (all includes merged),
         // independent of the build's output format — see MarkdownCollector.
         const collector = new MarkdownCollector(run, SELF_CONTAINED);
 
         for (const entry of entries) {
+            if (limitReached) {
+                break;
+            }
+
             // Leading (yaml) pages have no markdown body to inline; they still
             // appear in the index above.
             if (!entry.path.endsWith('.md')) {
                 continue;
             }
 
-            let body = '';
-            try {
-                body = (await collector.collect(entry.path)).trim();
-            } catch (error) {
-                run.logger.warn(`llms-full.txt: unable to assemble ${entry.path}: ${error}`);
+            const body = await this.collectBody(run, collector, entry.path);
+
+            if (!body) {
                 continue;
             }
 
-            if (body) {
-                parts.push(body);
+            // Check whether adding this article would exceed the size limit.
+            const candidateSize =
+                currentSize +
+                (parts.length > 0 ? LLMS_SEPARATOR_SIZE : 0) +
+                Buffer.byteLength(body, 'utf8');
+
+            if (candidateSize > maxSize) {
+                run.logger.info(
+                    'YFM022',
+                    `llms-full.txt: size limit reached at ${currentSize} bytes ` +
+                        `(limit ${maxSize}), stopped before adding ${entry.path}`,
+                );
+                limitReached = true;
+                break;
             }
+
+            parts.push(body);
+            currentSize = candidateSize;
         }
 
-        return parts.join('\n\n') + '\n';
+        return parts.join(LLMS_SEPARATOR) + LLMS_TRAILING_NEWLINE;
+    }
+
+    private async collectBody(
+        run: Run,
+        collector: MarkdownCollector,
+        entryPath: NormalizedPath,
+    ): Promise<string> {
+        try {
+            const body = await collector.collect(entryPath);
+
+            return body.trim();
+        } catch (error) {
+            run.logger.warn(`llms-full.txt: unable to assemble ${entryPath}: ${error}`);
+
+            return '';
+        }
     }
 }
