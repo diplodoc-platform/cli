@@ -22,12 +22,22 @@ export function detectArcadiaRootFromAlias(): string | undefined {
     return undefined;
 }
 
+const SYSTEM_PATH = [
+    '/usr/local/bin',
+    '/usr/bin',
+    '/bin',
+    '/usr/sbin',
+    '/sbin',
+    '/opt/homebrew/bin/arc',
+].join(':');
+
 export function detectArcadiaRootFromArc(): string | undefined {
     try {
         const output = execFileSync('arc', ['root'], {
             encoding: 'utf8',
             stdio: ['ignore', 'pipe', 'ignore'],
             timeout: 3000,
+            env: {...process.env, PATH: SYSTEM_PATH},
         }).trim();
 
         if (output) {

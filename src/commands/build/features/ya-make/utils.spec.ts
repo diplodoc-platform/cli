@@ -90,6 +90,25 @@ describe('detectArcadiaRootFromArc', () => {
 
         expect(detectArcadiaRootFromArc()).toBeUndefined();
     });
+
+    it('resolves the `arc` binary via a fixed system PATH, not the inherited PATH', () => {
+        let capturedEnv: NodeJS.ProcessEnv | undefined;
+        vi.mocked(execFileSync).mockImplementation((_file, _args, options) => {
+            capturedEnv = (options as {env?: NodeJS.ProcessEnv})?.env;
+            return '/codenv/arcadia\n';
+        });
+
+        detectArcadiaRootFromArc();
+
+        const entries = (capturedEnv?.PATH ?? '').split(':');
+        expect(entries.length).toBeGreaterThan(0);
+        // No relative/empty entries and nothing an attacker could shadow via cwd.
+        for (const entry of entries) {
+            expect(entry.startsWith('/')).toBe(true);
+        }
+        expect(entries).not.toContain('.');
+        expect(entries).not.toContain('');
+    });
 });
 
 describe('detectArcadiaRootWindows', () => {
