@@ -214,6 +214,10 @@ export class BuildStats {
 
             const output = await readOutputSize(run);
 
+            const config = run.config as Hash<unknown>;
+            const workerMaxOldSpace =
+                typeof config.workerMaxOldSpace === 'number' ? config.workerMaxOldSpace : null;
+
             const stats: BuildStatsFormat = {
                 schemaVersion: SCHEMA_VERSION,
                 cli: {
@@ -236,12 +240,10 @@ export class BuildStats {
                     langs: (run.config.langs ?? []).map(toLangCode),
                     inputDir: run.originalInput,
                     outputDir: run.output,
-                    features: collectFeatures(run.config as Hash<unknown>),
+                    features: collectFeatures(config),
                     memoryUsageMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
                     worker: {
-                        maxOldSpace:
-                            ((run.config as Hash<unknown>).workerMaxOldSpace as
-                                number | undefined) ?? null,
+                        maxOldSpace: workerMaxOldSpace,
                     },
                 },
                 counters: {
