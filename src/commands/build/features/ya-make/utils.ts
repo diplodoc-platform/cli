@@ -4,7 +4,7 @@ import {dirname, win32} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {existsSync} from 'node:fs';
 
-export function detectArcadiaRootUnix(): string | undefined {
+export function detectArcadiaRootFromAlias(): string | undefined {
     try {
         const output = execFileSync('/bin/bash', ['-ic', 'alias ya'], {
             encoding: 'utf8',
@@ -20,6 +20,38 @@ export function detectArcadiaRootUnix(): string | undefined {
     } catch {}
 
     return undefined;
+}
+
+// Known absolute install locations for the `arc` binary
+// Invoking `arc` by absolute path avoids PATH resolution, which
+// could otherwise execute a malicious `arc` planted in an attacker-writable PATH
+// entry (SonarQube typescript:S4036 / CWE-427).
+const ARC_BINARY_CANDIDATES = ['/usr/bin/arc', '/usr/local/bin/arc', '/opt/homebrew/bin/arc'];
+
+export function detectArcadiaRootFromArc(): string | undefined {
+    const arcBinary = ARC_BINARY_CANDIDATES.find((candidate) => existsSync(candidate));
+
+    if (!arcBinary) {
+        return undefined;
+    }
+
+    try {
+        const output = execFileSync(arcBinary, ['root'], {
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'ignore'],
+            timeout: 3000,
+        }).trim();
+
+        if (output) {
+            return output;
+        }
+    } catch {}
+
+    return undefined;
+}
+
+export function detectArcadiaRootUnix(): string | undefined {
+    return detectArcadiaRootFromAlias() ?? detectArcadiaRootFromArc();
 }
 
 export function detectArcadiaRootWindows(): string | undefined {
