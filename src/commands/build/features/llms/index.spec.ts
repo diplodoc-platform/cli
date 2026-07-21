@@ -1,4 +1,4 @@
-import type {Run} from '~/commands/build';
+import type {BuildArgs, Run} from '~/commands/build';
 import type {LlmsConfig} from './index';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
@@ -20,6 +20,22 @@ vi.mock('~/core/program', () => ({
     }),
 }));
 
+vi.mock('~/core/config', () => ({
+    defined: (option: string, ...scopes: Record<string, unknown>[]) => {
+        for (const scope of scopes) {
+            if (option in scope) {
+                return scope[option];
+            }
+        }
+        return null;
+    },
+    option: vi.fn(),
+}));
+
+vi.mock('~/commands/config', () => ({
+    options: {},
+}));
+
 vi.mock('../output-md/collect', () => {
     return {
         SELF_CONTAINED: 'self-contained',
@@ -36,6 +52,7 @@ function createMockRun(
         outputFormat?: OutputFormat;
         enabled?: boolean;
         description?: string;
+        llmsFullMaxSize?: number;
     } = {},
 ): Run {
     return {
@@ -44,6 +61,7 @@ function createMockRun(
             llms: {
                 enabled: options.enabled ?? true,
                 description: options.description ?? 'AI Assistant Context Description',
+                llmsFullMaxSize: options.llmsFullMaxSize ?? 4 * 1024 ** 2,
             },
         } as unknown as LlmsConfig & {outputFormat: OutputFormat},
         meta: {
@@ -55,17 +73,32 @@ function createMockRun(
         logger: {
             warn: vi.fn(),
             error: vi.fn(),
+            info: vi.fn(),
         },
     } as unknown as Run;
 }
 
-const makeLlmsArgs = (llms: boolean | null) => ({llms}) as any;
+const makeLlmsArgs = (llms: boolean | null) => ({llms}) as unknown as BuildArgs;
+
+/**
+ * Exposes private methods of Llms for testing.
+ * Avoids `any` while allowing access to private members.
+ */
+type TestableLlms = {
+    resolveLlmsEnabled(
+        args: BuildArgs,
+        config: Partial<LlmsConfig['llms']> | undefined,
+        onlyMd: boolean,
+    ): boolean;
+    renderIndex(run: Run, title: string, entries: unknown[]): Promise<string>;
+    renderFull(run: Run, title: string, entries: unknown[]): Promise<string>;
+};
 
 describe('LLMs Plugin Architecture', () => {
-    let llmsInstance: any;
+    let llmsInstance: TestableLlms;
 
     beforeEach(() => {
-        llmsInstance = new Llms();
+        llmsInstance = new Llms() as unknown as TestableLlms;
     });
 
     describe('resolveLlmsEnabled logic', () => {
@@ -253,6 +286,74 @@ describe('LLMs Plugin Architecture', () => {
             const result = await llmsInstance.renderFull(run, 'Full Book', entries);
 
             expect(result.trim()).toBe('# Full Book');
+        });
+
+        it('should add all articles when within llmsFullMaxSize limit', async () => {
+            const run = createMockRun({llmsFullMaxSize: 1024 * 1024});
+            const entries = [
+                {
+                    href: normalizedPath('page1.md'),
+                    path: normalizedPath('docs/page1.md'),
+                    name: 'Page 1',
+                },
+                {
+                    href: normalizedPath('page2.md'),
+                    path: normalizedPath('docs/page2.md'),
+                    name: 'Page 2',
+                },
+            ];
+
+            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+
+            expect(result).toContain('# Full Book');
+            expect(result).toContain('Collected Markdown Content');
+            expect(run.logger.info).not.toHaveBeenCalled();
+        });
+
+        it('should stop adding articles and log YFM022 when limit is exceeded', async () => {
+            // Set a very small limit so the first article already exceeds it
+            const run = createMockRun({llmsFullMaxSize: 10});
+            const entries = [
+                {
+                    href: normalizedPath('page1.md'),
+                    path: normalizedPath('docs/page1.md'),
+                    name: 'Page 1',
+                },
+                {
+                    href: normalizedPath('page2.md'),
+                    path: normalizedPath('docs/page2.md'),
+                    name: 'Page 2',
+                },
+            ];
+
+            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+
+            // Title is always present
+            expect(result).toContain('# Full Book');
+            // The first article should NOT be added (it exceeds the 10-byte limit)
+            expect(result).not.toContain('Collected Markdown Content');
+            // YFM022 should be logged as info
+            expect(run.logger.info).toHaveBeenCalledWith(
+                'YFM022',
+                expect.stringContaining('size limit reached'),
+            );
+        });
+
+        it('should use default llmsFullMaxSize (4M) when not specified', async () => {
+            const run = createMockRun();
+            const entries = [
+                {
+                    href: normalizedPath('page1.md'),
+                    path: normalizedPath('docs/page1.md'),
+                    name: 'Page 1',
+                },
+            ];
+
+            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+
+            expect(result).toContain('# Full Book');
+            expect(result).toContain('Collected Markdown Content');
+            expect(run.logger.info).not.toHaveBeenCalled();
         });
     });
 });

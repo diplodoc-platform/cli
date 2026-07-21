@@ -1,0 +1,11 @@
+title: My Product
+href: index.md
+
+items:
+  - name: Getting Started
+    href: start.md
+  - name: API Reference
+    href: api.md
+  - name: Beta Feature
+    href: beta.md
+    when: showBeta

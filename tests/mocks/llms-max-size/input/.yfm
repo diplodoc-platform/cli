@@ -1,0 +1,5 @@
+allowHtml: true
+llms:
+  enabled: true
+  description: 'Documentation with llmsFullMaxSize from config.'
+  llmsFullMaxSize: 2K

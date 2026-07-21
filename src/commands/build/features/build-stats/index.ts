@@ -241,8 +241,7 @@ export class BuildStats {
                     worker: {
                         maxOldSpace:
                             ((run.config as Hash<unknown>).workerMaxOldSpace as
-                                | number
-                                | undefined) ?? null,
+                                number | undefined) ?? null,
                     },
                 },
                 counters: {
