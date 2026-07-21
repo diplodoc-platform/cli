@@ -4,7 +4,7 @@ import {dirname, win32} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {existsSync} from 'node:fs';
 
-export function detectArcadiaRootUnix(): string | undefined {
+export function detectArcadiaRootFromAlias(): string | undefined {
     try {
         const output = execFileSync('/bin/bash', ['-ic', 'alias ya'], {
             encoding: 'utf8',
@@ -20,6 +20,26 @@ export function detectArcadiaRootUnix(): string | undefined {
     } catch {}
 
     return undefined;
+}
+
+export function detectArcadiaRootFromArc(): string | undefined {
+    try {
+        const output = execFileSync('arc', ['root'], {
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'ignore'],
+            timeout: 3000,
+        }).trim();
+
+        if (output) {
+            return output;
+        }
+    } catch {}
+
+    return undefined;
+}
+
+export function detectArcadiaRootUnix(): string | undefined {
+    return detectArcadiaRootFromAlias() ?? detectArcadiaRootFromArc();
 }
 
 export function detectArcadiaRootWindows(): string | undefined {

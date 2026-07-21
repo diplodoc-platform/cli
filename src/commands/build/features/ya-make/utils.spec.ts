@@ -4,7 +4,12 @@ import {mkdirSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {execFileSync} from 'node:child_process';
 
-import {collectWatchPaths, detectArcadiaRootUnix, detectArcadiaRootWindows} from './utils';
+import {
+    collectWatchPaths,
+    detectArcadiaRootFromArc,
+    detectArcadiaRootUnix,
+    detectArcadiaRootWindows,
+} from './utils';
 
 vi.mock('node:child_process');
 
@@ -36,6 +41,54 @@ describe('detectArcadiaRootUnix', () => {
     it('returns undefined when output does not contain ya alias', () => {
         vi.mocked(execFileSync).mockReturnValue('');
         expect(detectArcadiaRootUnix()).toBeUndefined();
+    });
+
+    it('falls back to `arc root` when alias is unavailable', () => {
+        vi.mocked(execFileSync).mockImplementation((file) => {
+            if (file === 'arc') {
+                return '/codenv/arcadia\n';
+            }
+
+            return '';
+        });
+
+        expect(detectArcadiaRootUnix()).toBe('/codenv/arcadia');
+    });
+
+    it('prefers the `ya` alias over `arc root`', () => {
+        vi.mocked(execFileSync).mockImplementation((file) => {
+            if (file === 'arc') {
+                throw new Error('arc should not be called');
+            }
+
+            return "alias ya='/Users/user/arcadia/ya'";
+        });
+
+        expect(detectArcadiaRootUnix()).toBe('/Users/user/arcadia');
+    });
+});
+
+describe('detectArcadiaRootFromArc', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    it('returns trimmed `arc root` output', () => {
+        vi.mocked(execFileSync).mockReturnValue('/codenv/arcadia\n');
+
+        expect(detectArcadiaRootFromArc()).toBe('/codenv/arcadia');
+    });
+
+    it('returns undefined when arc throws', () => {
+        vi.mocked(execFileSync).mockImplementation(() => {
+            throw new Error('arc: not found');
+        });
+
+        expect(detectArcadiaRootFromArc()).toBeUndefined();
+    });
+
+    it('returns undefined on empty output', () => {
+        vi.mocked(execFileSync).mockReturnValue('   \n');
+
+        expect(detectArcadiaRootFromArc()).toBeUndefined();
     });
 });
 
