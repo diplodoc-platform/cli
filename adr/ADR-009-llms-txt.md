@@ -97,6 +97,45 @@ converts string values like `'4K'` or `'8M'` to bytes. The `disableIfZero`
 option means `'0'` is treated as "use default", not "0 bytes" — consistent with
 `maxAssetSize`.
 
+### Stripping `<style>` and `<script>` from llms-full.txt
+
+`<style>` and `<script>` HTML blocks are useless for LLM consumption — LLMs
+don't execute JavaScript or apply CSS, so these tags only add noise to the
+corpus. They can enter the assembled markdown through includes or direct HTML
+in source `.md` files.
+
+After `MarkdownCollector.collect()`, each article body is passed through
+`stripHtmlTags(body, ['style', 'script'])` (see `llms/utils.ts`). This function:
+
+- Removes `<style>...</style>` and `<script>...</script>` blocks (with content)
+- Handles tags with attributes (`<script type="text/javascript">`)
+- Handles multiline blocks
+- **Preserves** tags inside fenced code blocks (`...` / ~~~...~~~) —
+  documentation often shows these as examples
+
+#### Known limitations (accepted for simplicity and performance)
+
+Code block detection uses a simple regex that matches fenced code blocks
+(``` and ~~~). This is intentionally lightweight to avoid a second full
+markdown-it parse on every article (the loader already parses each file
+once). The following edge cases are **not** handled and are accepted as
+known limitations:
+
+| Case                             | Example                        | Effect                                        | Impact                                                     |
+| -------------------------------- | ------------------------------ | --------------------------------------------- | ---------------------------------------------------------- |
+| 4-space indented code blocks     | `    <style>...</style>`       | Tags stripped                                 | Low — most docs use fences, not indented blocks            |
+| YFM shorthand table cell closers | ` ```\|` / ` ```\|\|`          | Fence not detected → tags stripped            | Low — only affects YFM table cells with inline code blocks |
+| Deflist marker + fence opener    | `:   ``` `                     | Fence not detected → tags stripped            | Low — rare pattern                                         |
+| Blockquote-wrapped fences        | `> ``` `                       | Fence not detected → tags stripped            | Low — rare in practice                                     |
+| Unterminated fences              | ` ```go ` (no closing ` ``` `) | Rest of content not protected → tags stripped | Low — malformed markdown                                   |
+| Fence inside HTML comment        | `<!-- ``` ... ``` -->`         | May create phantom fence range                | Low — rare                                                 |
+
+A false negative (tag inside an undetected code block gets stripped) only
+affects the LLM corpus quality, not the build itself. See ADR-006 for the
+full list of edge cases that were encountered and fixed in the loader's
+fence detection — those fixes are not replicated here to keep the
+implementation simple and fast.
+
 ## Consequences
 
 - `llms-full.txt` may be truncated for large docs — this is intentional and
