@@ -83,7 +83,7 @@
     "@diplodoc/client": "^5.9.2",
     "@diplodoc/color-extension": "^0.1.1",
     "@diplodoc/liquid": "^1.5.2",
-    "@diplodoc/transform": "^4.77.1",
+    "@diplodoc/transform": "^4.77.2",
     "@diplodoc/translation": "^1.7.26",
     "@diplodoc/utils": "^2.3.5",
     "@gravity-ui/uikit-themer": "^1.7.0",
