@@ -848,14 +848,7 @@ link with [some term1](*term1)
 
 Content2
 
-<style>
 
-.yfm .border-yes {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-}
-
-</style>
 
 [*term1-1]: ## F3 {#f3}
 Content F3
@@ -3077,14 +3070,7 @@ link with [some term1](*term1)
 
 Content2
 
-<style>
 
-.yfm .border-yes {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-}
-
-</style>
 
 [*term1-1]: ## F3 {#f3}
 Content F3
