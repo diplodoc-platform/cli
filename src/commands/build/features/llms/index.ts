@@ -11,6 +11,7 @@ import {OutputFormat} from '~/commands/build/config';
 
 import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
 
+import {stripHtmlTags} from './utils';
 import {options, resolveLlmsFullMaxSize} from './config';
 
 export const LLMS_INDEX_FILENAME = 'llms.txt';
@@ -244,7 +245,10 @@ export class Llms {
         try {
             const body = await collector.collect(entryPath);
 
-            return body.trim();
+            // Strip <style> and <script> blocks — they are useless for LLM
+            // consumption (LLMs don't execute JS or apply CSS) and only add
+            // noise to the corpus. Code blocks are protected (see stripHtmlTags).
+            return stripHtmlTags(body, ['style', 'script']);
         } catch (error) {
             run.logger.warn(`llms-full.txt: unable to assemble ${entryPath}: ${error}`);
 
