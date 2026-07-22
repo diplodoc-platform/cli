@@ -631,13 +631,7 @@ Content before list.
 Content after list.
 
 {% included (_includes/styles.md) %}
-<style>
 
-.yfm .highlight {
-    background: yellow;
-}
-
-</style>
 
 {% endincluded %}
 "
@@ -1709,12 +1703,7 @@ Some description of option A.
 
 [Subscribe](https://example.com/subscribe){.button}
 
-<style>
-a.button {
-  color: black;
-  background: yellow;
-}
-</style>
+
 ||
 || Option B | Plain text cell. ||
 |#
