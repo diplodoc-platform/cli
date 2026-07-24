@@ -277,6 +277,13 @@ export class TocService {
         return data.type === 'generator';
     }
 
+    /**
+     * Checks that a run.input relative path exists on disk.
+     */
+    @bounded hasFile(path: NormalizedPath): boolean {
+        return this.run.exists(normalizePath(join(this.run.input, path)) as AbsolutePath);
+    }
+
     @memoize('path')
     private async _dump(file: NormalizedPath, toc: Toc): Promise<VFile<Toc>> {
         const vfile = new VFile<Toc>(file, copyJson(toc), dump);
@@ -528,6 +535,7 @@ export class TocService {
     private loaderContext(path: NormalizedPath, {from, mode, base}: Partial<IncludeInfo> = {}) {
         return {
             path,
+            source: path,
             from: from || path,
             mode,
             base,

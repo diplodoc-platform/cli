@@ -25,6 +25,12 @@ import {getFirstValuable, isRelative, resolveLabel} from './utils';
 export type LoaderContext = LiquidContext & {
     /** Relative to run.input path to current processing toc */
     path: NormalizedPath;
+    /**
+     * Real filesystem source path of the current toc.
+     * For merge includes `path` is rewritten to the merge target (flattened) location,
+     * so `source` keeps the original path to resolve nested includes that are read from disk.
+     */
+    source: NormalizedPath;
     /** Path of last include level */
     from: NormalizedPath;
     /** Path of last include level with 'merge' mode */
@@ -444,7 +450,7 @@ async function rebaseIncludes(this: LoaderContext, toc: RawToc): Promise<RawToc>
         if (isLinkMode(this)) {
             item.include.path = join(dirname(this.path), item.include.path);
         } else {
-            item.include.path = join(dirname(this.base || this.path), item.include.path);
+            item.include.path = rebaseMergeIncludePath.call(this, item.include.path);
         }
 
         return item;
@@ -453,6 +459,32 @@ async function rebaseIncludes(this: LoaderContext, toc: RawToc): Promise<RawToc>
     await this.toc.walkItems([toc], rebaseIncludes);
 
     return toc;
+}
+
+/**
+ * Resolves a merge include path to a run.input relative path.
+ *
+ * By default the path is resolved relative to the merge base, which supports the "overlay"
+ * layout where an included toc references sibling tocs placed next to the base toc.
+ *
+ * For a merge nested inside another merge, `path` is already rewritten to the flattened merge
+ * target location, while `base` points at the outermost merge target. Resolving relative to
+ * `base` then drops the intermediate directories of tocs authored relative to their own
+ * directory (e.g. `b/toc.yaml` inside `a/toc.yaml` should read `a/b/toc.yaml`). When the
+ * base-relative toc is absent, fall back to the containing toc's real source directory.
+ */
+function rebaseMergeIncludePath(this: LoaderContext, includePath: RelativePath): RelativePath {
+    const baseRelative = join(dirname(this.base || this.path), includePath) as RelativePath;
+
+    if (this.source !== this.path && !this.toc.hasFile(normalizePath(baseRelative))) {
+        const sourceRelative = join(dirname(this.source), includePath) as RelativePath;
+
+        if (this.toc.hasFile(normalizePath(sourceRelative))) {
+            return sourceRelative;
+        }
+    }
+
+    return baseRelative;
 }
 
 /**
