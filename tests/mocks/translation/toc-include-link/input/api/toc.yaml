@@ -1,0 +1,8 @@
+title: Директ API v6
+items:
+  - name: API v6
+    href: index.md
+    items:
+      - include:
+          path: ./common/toc.yaml
+          mode: link

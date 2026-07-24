@@ -1,8 +1,12 @@
 import type {TranslateRunArgs} from '../fixtures';
 
-import {describe, test} from 'vitest';
+import {readFileSync} from 'node:fs';
+import {join} from 'node:path';
 
-import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
+import {glob} from 'glob';
+import {describe, expect, test} from 'vitest';
+
+import {TestAdapter, cleanupDirectory, compareDirectories, getTestPaths} from '../fixtures';
 
 const generateMapTestTemplate = (
     testTitle: string,
@@ -228,4 +232,33 @@ describe('Translate command', () => {
         },
         false,
     );
+
+    test('do not extract link-included tocs on their own', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/translation/toc-include-link');
+
+        await cleanupDirectory(outputPath);
+
+        const report = await TestAdapter.extract.run(inputPath, outputPath, [
+            '--source',
+            'ru-RU',
+            '--target',
+            'es-ES',
+        ]);
+
+        // Regression guard: link-included tocs used to throw `Error while finding toc dir.`
+        expect(report.errors).toEqual([]);
+        expect(report.code).toBe(0);
+
+        const produced = (await glob('**/*', {cwd: outputPath, nodir: true, posix: true})).sort();
+
+        // Link-included tocs are inlined into their parent toc, so they must not be
+        // extracted as standalone units.
+        expect(produced).not.toContain('api/toc.yaml.xliff');
+        expect(produced).not.toContain('api/common/toc.yaml.xliff');
+
+        // ...but every title they contribute still lands in the parent toc.
+        const rootXliff = readFileSync(join(outputPath, 'toc.yaml.xliff'), 'utf8');
+        expect(rootXliff).toContain('API v6');
+        expect(rootXliff).toContain('Общее');
+    });
 });
