@@ -2,7 +2,6 @@ import type {TranslateRunArgs} from '../fixtures';
 
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
-
 import {glob} from 'glob';
 import {describe, expect, test} from 'vitest';
 
@@ -260,5 +259,35 @@ describe('Translate command', () => {
         const rootXliff = readFileSync(join(outputPath, 'toc.yaml.xliff'), 'utf8');
         expect(rootXliff).toContain('API v6');
         expect(rootXliff).toContain('Общее');
+    });
+
+    test('extract nested merge-included tocs with source-relative nested path', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/translation/toc-include-merge-nested');
+
+        await cleanupDirectory(outputPath);
+
+        const report = await TestAdapter.extract.run(inputPath, outputPath, [
+            '--source',
+            'ru-RU',
+            '--target',
+            'es-ES',
+        ]);
+
+        // Regression guard: a merge-include nested inside another merge-include used to throw
+        // `Unable to resolve b/toc.yaml`, because the nested include path was resolved relative
+        // to the merge base (root) instead of the containing toc directory (a/).
+        expect(report.errors).toEqual([]);
+        expect(report.code).toBe(0);
+
+        // The deep article title, contributed by a/b/toc.yaml, still lands in the root toc.
+        const rootXliff = readFileSync(join(outputPath, 'toc.yaml.xliff'), 'utf8');
+        expect(rootXliff).toContain('Глубокая статья');
+
+        // ...and the deep article, flattened into the merge root, is extracted with its content.
+        const produced = (await glob('**/*', {cwd: outputPath, nodir: true, posix: true})).sort();
+        expect(produced).toContain('deep.md.xliff');
+
+        const deepXliff = readFileSync(join(outputPath, 'deep.md.xliff'), 'utf8');
+        expect(deepXliff).toContain('Глубокое содержимое.');
     });
 });

@@ -1,0 +1,4 @@
+items:
+  - include:
+      path: b/toc.yaml
+      mode: merge

@@ -48,10 +48,16 @@ function mockData(run: RunSpy, content: string, vars: Preset, files: Files, copy
         .calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
         .thenResolve(content);
 
+    // Only the mocked files exist on disk; everything else resolves to false.
+    when(run.exists).calledWith(expect.anything()).thenReturn(false);
+
     for (const [path, content] of Object.entries(files)) {
+        const absolute = normalizePath(join(run.input, path)) as AbsolutePath;
+
         when(run.read)
-            .calledWith(normalizePath(join(run.input, path)) as AbsolutePath)
+            .calledWith(absolute)
             .thenResolve(content as string);
+        when(run.exists).calledWith(absolute).thenReturn(true);
     }
 
     for (const [from, to] of copy) {
