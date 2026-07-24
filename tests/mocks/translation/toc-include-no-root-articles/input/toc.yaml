@@ -1,0 +1,7 @@
+title: Заголовок
+items:
+  - name: Начало
+    href: index.md
+  - name: Поддержка
+    include:
+      path: support/toc.yaml
