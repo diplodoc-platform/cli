@@ -1,8 +1,11 @@
 import type {TranslateRunArgs} from '../fixtures';
 
-import {describe, test} from 'vitest';
+import {readFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {glob} from 'glob';
+import {describe, expect, test} from 'vitest';
 
-import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
+import {TestAdapter, cleanupDirectory, compareDirectories, getTestPaths} from '../fixtures';
 
 const generateMapTestTemplate = (
     testTitle: string,
@@ -228,4 +231,65 @@ describe('Translate command', () => {
         },
         false,
     );
+
+    test('do not extract link-included tocs on their own', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/translation/toc-include-link');
+
+        await cleanupDirectory(outputPath);
+
+        const report = await TestAdapter.extract.run(inputPath, outputPath, [
+            '--source',
+            'ru-RU',
+            '--target',
+            'es-ES',
+        ]);
+
+        // Regression guard: link-included tocs used to throw `Error while finding toc dir.`
+        expect(report.errors).toEqual([]);
+        expect(report.code).toBe(0);
+
+        const produced = (await glob('**/*', {cwd: outputPath, nodir: true, posix: true})).sort();
+
+        // Link-included tocs are inlined into their parent toc, so they must not be
+        // extracted as standalone units.
+        expect(produced).not.toContain('api/toc.yaml.xliff');
+        expect(produced).not.toContain('api/common/toc.yaml.xliff');
+
+        // ...but every title they contribute still lands in the parent toc.
+        const rootXliff = readFileSync(join(outputPath, 'toc.yaml.xliff'), 'utf8');
+        expect(rootXliff).toContain('API v6');
+        expect(rootXliff).toContain('Общее');
+    });
+
+    test('do not extract included tocs from sections without root articles', async () => {
+        const {inputPath, outputPath} = getTestPaths(
+            'mocks/translation/toc-include-no-root-articles',
+        );
+
+        await cleanupDirectory(outputPath);
+
+        const report = await TestAdapter.extract.run(inputPath, outputPath, [
+            '--source',
+            'ru-RU',
+            '--target',
+            'es-ES',
+        ]);
+
+        // Regression guard: a section pulled in with a default (merge) include used
+        // to crash extract with `Error while finding toc dir.` when all of its
+        // articles live in subdirectories - nothing at the section root puts the
+        // section directory into the merged-directories filter, so its toc leaked
+        // into the extraction list.
+        expect(report.errors).toEqual([]);
+        expect(report.code).toBe(0);
+
+        const produced = (await glob('**/*', {cwd: outputPath, nodir: true, posix: true})).sort();
+
+        expect(produced).not.toContain('support/toc.yaml.xliff');
+
+        // Section titles are inlined into the parent toc and stay translatable.
+        const rootXliff = readFileSync(join(outputPath, 'toc.yaml.xliff'), 'utf8');
+        expect(rootXliff).toContain('Поддержка');
+        expect(rootXliff).toContain('Частые вопросы');
+    });
 });
