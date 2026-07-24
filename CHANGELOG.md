@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.50.4](https://github.com/diplodoc-platform/cli/compare/v5.50.3...v5.50.4) (2026-07-21)
+
+
+### Bug Fixes
+
+* add llms format resolve with defined method ([b3ffe47](https://github.com/diplodoc-platform/cli/commit/b3ffe47a5018b90532672001e45d37952ca2af6e))
+* Add llmsFullMaxSize param DOCSTOOLS-6204 ([6304521](https://github.com/diplodoc-platform/cli/commit/6304521b8fdef4f193f13e084df4788c7bada74b))
+* add resolve llms enable ([0deaac2](https://github.com/diplodoc-platform/cli/commit/0deaac22af74275e43e7fb382f42b11fc73aa3ba))
+* added arc root ([#2099](https://github.com/diplodoc-platform/cli/issues/2099)) ([6db7f17](https://github.com/diplodoc-platform/cli/commit/6db7f1769d631d78f960ac8bb8b445ee139b4100))
+* **deps:** Update @diplodoc/transform@4.77.1, @diplodoc/client@5.9.2 ([55e5529](https://github.com/diplodoc-platform/cli/commit/55e5529f6d8160485e7b180ddc333b8468085e24))
+* **deps:** Update @diplodoc/utils@2.3.5 ([#2100](https://github.com/diplodoc-platform/cli/issues/2100)) ([2aea830](https://github.com/diplodoc-platform/cli/commit/2aea830c83165a40421ed64afdf7dcde65fcf2b8))
+* updated e2e snapshots ([d604ee1](https://github.com/diplodoc-platform/cli/commit/d604ee10fa8dc1d81e1419221d50526c21786082))
+
 ## [5.50.3](https://github.com/diplodoc-platform/cli/compare/v5.50.2...v5.50.3) (2026-07-20)
 
 
