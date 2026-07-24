@@ -136,6 +136,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.interfaceToc,
         options.interfaceSearch,
         options.interfaceFeedback,
+        options.interfaceGallery,
         options.pdfDebug,
         options.disableCsp,
         options.maxInlineSvgSize,
