@@ -42,6 +42,7 @@ export const buildConfigDefaults = (): Partial<BuildConfig> =>
         lint: {enabled: true, config: {}},
         vcsPath: {enabled: true},
         idGenerator: 'random',
+        gallery: true,
     }) as Partial<BuildConfig>;
 
 const outputFormat = option({
@@ -179,6 +180,15 @@ const interfaceFeedback = option({
     flags: '--interface-feedback',
     desc: `
         Feedback (likes, dislikes) will be removed from html output.
+    `,
+    default: true,
+    parser: () => false,
+});
+
+const interfaceGallery = option({
+    flags: '--interface-gallery',
+    desc: `
+        Gallery viewer for images will be removed or disabled in html output.
     `,
     default: true,
     parser: () => false,
@@ -385,7 +395,7 @@ export function resolveAiConfig<C extends BuildConfig>(config: C, args: BuildArg
 }
 
 function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
-    const interfaceProps = ['toc', 'search', 'feedback'] as const;
+    const interfaceProps = ['toc', 'search', 'feedback', 'gallery'] as const;
     type InterfaceProp = (typeof interfaceProps)[number];
 
     const configInterface = config['interface'] || {};
@@ -547,6 +557,7 @@ export const options = {
     interfaceToc,
     interfaceSearch,
     interfaceFeedback,
+    interfaceGallery,
     feedbackUrl,
     pdfDebug,
     disableCsp,

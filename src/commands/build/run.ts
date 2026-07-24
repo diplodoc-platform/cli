@@ -237,6 +237,7 @@ export class Run extends BaseRun<BuildConfig> {
                 enabled: this.config.content.maxInlineSvgSize !== 0,
                 maxFileSize: this.config.content.maxInlineSvgSize,
             },
+            gallery: this.config.interface?.gallery,
             multilineTermDefinitions:
                 this.config.content.multilineTermDefinitions ??
                 this.config.multilineTermDefinitions,
