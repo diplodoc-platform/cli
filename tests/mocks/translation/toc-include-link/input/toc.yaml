@@ -1,0 +1,7 @@
+title: Заголовок
+items:
+  - name: Начало
+    href: index.md
+  - include:
+      path: api/toc.yaml
+      mode: link
