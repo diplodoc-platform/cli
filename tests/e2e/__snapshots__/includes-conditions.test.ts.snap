@@ -91,7 +91,7 @@ exports[`Includes with conditions > Consecutive includes with false condition in
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;div class=\\"yfm-note yfm-accent-info\\" note-type=\\"info\\"&gt;&lt;p class=\\"yfm-note-title\\"&gt;Примечание&lt;/p&gt;/n&lt;div class=\\"yfm-note-content\\"&gt;&lt;p&gt;This is the first include.&lt;/p&gt;/n&lt;/div&gt;&lt;/div&gt;/n/n&lt;p&gt;This is the third include.&lt;/p&gt;/n/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Test Includes Conditions"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;div class=\\"yfm-note yfm-accent-info\\" note-type=\\"info\\"&gt;&lt;p class=\\"yfm-note-title\\"&gt;Примечание&lt;/p&gt;/n&lt;div class=\\"yfm-note-content\\"&gt;&lt;p&gt;This is the first include.&lt;/p&gt;/n&lt;/div&gt;&lt;/div&gt;/n/n&lt;p&gt;This is the third include.&lt;/p&gt;/n/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Test Includes Conditions"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

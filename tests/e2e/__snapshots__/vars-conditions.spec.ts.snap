@@ -30,7 +30,7 @@ exports[`Vars and conditions > Vars and conditions 2`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Контент из переменной&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Index page"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Контент из переменной&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Index page"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -58,7 +58,7 @@ exports[`Vars and conditions > Vars and conditions 3`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"blocks":[{"type":"header-block","title":"&lt;p&gt;Тестовая страница&lt;/p&gt;/n","description":"&lt;p&gt;Description: aboba&lt;/p&gt;/n"}],"links":[]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.yaml"},"title":""},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":true,"data":{"blocks":[{"type":"header-block","title":"&lt;p&gt;Тестовая страница&lt;/p&gt;/n","description":"&lt;p&gt;Description: aboba&lt;/p&gt;/n"}],"links":[]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.yaml"},"title":""},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -86,7 +86,7 @@ exports[`Vars and conditions > Vars and conditions 4`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;div class=\\"yfm-page-constructor\\" data-content-encoded=\\"%7B%22blocks%22%3A%5B%7B%22type%22%3A%22header-block%22%2C%22title%22%3A%22%3Cp%3EWhen%202%3C%2Fp%3E%5Cn%22%2C%22description%22%3A%22%3Cp%3E%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D0%B7%D0%B0%D0%B3%D0%BE%D0%BB%D0%BE%D0%B2%D0%BE%D0%BA%20%D0%B4%D0%BB%D1%8F%20%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B8%20when%202%3C%2Fp%3E%5Cn%22%7D%5D%7D\\" data-rendered=\\"false\\"&gt;&lt;/div&gt;&lt;h1&gt;Page 2&lt;/h1&gt;/n&lt;p&gt;&lt;/p&gt;/n&lt;p&gt;&lt;/p&gt;/n&lt;p&gt;Документация&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_bundle/page-constructor-extension.css"],"script":["_bundle/page-constructor-extension.js"],"vcsPath":"page2.md"},"headings":[],"title":""},"router":{"pathname":"page2","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;div class=\\"yfm-page-constructor\\" data-content-encoded=\\"%7B%22blocks%22%3A%5B%7B%22type%22%3A%22header-block%22%2C%22title%22%3A%22%3Cp%3EWhen%202%3C%2Fp%3E%5Cn%22%2C%22description%22%3A%22%3Cp%3E%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D0%B7%D0%B0%D0%B3%D0%BE%D0%BB%D0%BE%D0%B2%D0%BE%D0%BA%20%D0%B4%D0%BB%D1%8F%20%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B8%20when%202%3C%2Fp%3E%5Cn%22%7D%5D%7D\\" data-rendered=\\"false\\"&gt;&lt;/div&gt;&lt;h1&gt;Page 2&lt;/h1&gt;/n&lt;p&gt;&lt;/p&gt;/n&lt;p&gt;&lt;/p&gt;/n&lt;p&gt;Документация&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_bundle/page-constructor-extension.css"],"script":["_bundle/page-constructor-extension.js"],"vcsPath":"page2.md"},"headings":[],"title":""},"router":{"pathname":"page2","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -114,7 +114,7 @@ exports[`Vars and conditions > Vars and conditions 5`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"blocks":[],"links":[]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page5.yaml"},"title":""},"router":{"pathname":"page5","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":true,"data":{"blocks":[],"links":[]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page5.yaml"},"title":""},"router":{"pathname":"page5","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

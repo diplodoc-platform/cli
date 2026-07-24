@@ -113,7 +113,7 @@ exports[`Toc label > should pass TocLabel object through to toc output 8`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Toc Label Test"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Toc Label Test"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -168,7 +168,7 @@ exports[`Toc label > should pass TocLabel object through to toc output 11`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

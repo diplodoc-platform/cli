@@ -33,7 +33,7 @@ exports[`Markdown options from .yfm config > Markdown options from .yfm config 1
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;First sentence/nSecond sentence/nThird sentence&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"breaks.md"},"headings":[],"title":"Breaks test"},"router":{"pathname":"breaks","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;First sentence/nSecond sentence/nThird sentence&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"breaks.md"},"headings":[],"title":"Breaks test"},"router":{"pathname":"breaks","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -61,7 +61,7 @@ exports[`Markdown options from .yfm config > Markdown options from .yfm config 1
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Visit &lt;a href=\\"http://example.myext\\"&gt;example.myext&lt;/a&gt; for custom TLD.&lt;/p&gt;/n&lt;p&gt;Standard &lt;a href=\\"http://example.com\\"&gt;example.com&lt;/a&gt; link.&lt;/p&gt;/n&lt;p&gt;Unknown example.faketld should not be linked.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify-tlds.md"},"headings":[],"title":"Linkify TLDs test"},"router":{"pathname":"linkify-tlds","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Visit &lt;a href=\\"http://example.myext\\"&gt;example.myext&lt;/a&gt; for custom TLD.&lt;/p&gt;/n&lt;p&gt;Standard &lt;a href=\\"http://example.com\\"&gt;example.com&lt;/a&gt; link.&lt;/p&gt;/n&lt;p&gt;Unknown example.faketld should not be linked.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify-tlds.md"},"headings":[],"title":"Linkify TLDs test"},"router":{"pathname":"linkify-tlds","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -89,7 +89,7 @@ exports[`Markdown options from .yfm config > Markdown options from .yfm config 1
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Visit &lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;https://example.com&lt;/a&gt; for more info.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify.md"},"headings":[],"title":"Linkify test"},"router":{"pathname":"linkify","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Visit &lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;https://example.com&lt;/a&gt; for more info.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify.md"},"headings":[],"title":"Linkify test"},"router":{"pathname":"linkify","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -136,7 +136,7 @@ exports[`Markdown options from .yfm config > Markdown options from .yfm config 2
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;First sentence&lt;br /&gt;/nSecond sentence&lt;br /&gt;/nThird sentence&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"breaks.md"},"headings":[],"title":"Breaks test"},"router":{"pathname":"breaks","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;First sentence&lt;br /&gt;/nSecond sentence&lt;br /&gt;/nThird sentence&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"breaks.md"},"headings":[],"title":"Breaks test"},"router":{"pathname":"breaks","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -164,7 +164,7 @@ exports[`Markdown options from .yfm config > Markdown options from .yfm config 2
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Visit example.myext for custom TLD.&lt;/p&gt;/n&lt;p&gt;Standard example.com link.&lt;/p&gt;/n&lt;p&gt;Unknown example.faketld should not be linked.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify-tlds.md"},"headings":[],"title":"Linkify TLDs test"},"router":{"pathname":"linkify-tlds","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Visit example.myext for custom TLD.&lt;/p&gt;/n&lt;p&gt;Standard example.com link.&lt;/p&gt;/n&lt;p&gt;Unknown example.faketld should not be linked.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify-tlds.md"},"headings":[],"title":"Linkify TLDs test"},"router":{"pathname":"linkify-tlds","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -192,7 +192,7 @@ exports[`Markdown options from .yfm config > Markdown options from .yfm config 2
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Visit https://example.com for more info.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify.md"},"headings":[],"title":"Linkify test"},"router":{"pathname":"linkify","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Visit https://example.com for more info.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify.md"},"headings":[],"title":"Linkify test"},"router":{"pathname":"linkify","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
