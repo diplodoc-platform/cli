@@ -201,6 +201,61 @@ describe('LLMs Plugin Architecture', () => {
         });
     });
 
+    describe('Config hook preserves url', () => {
+        const applyConfig = (config: Record<string, unknown>) => {
+            new Llms().apply({
+                Command: {tap: vi.fn()},
+                Config: {tap: (fn: Function) => fn(config, {llms: null})},
+                AfterAnyRun: {tapPromise: vi.fn()},
+            } as any);
+        };
+
+        it('preserves url from raw config', () => {
+            const config = {
+                outputFormat: OutputFormat.md,
+                llms: {
+                    enabled: true,
+                    url: 'https://example.com/llms.txt',
+                    llmsFullMaxSize: 4 * 1024 ** 2,
+                },
+            } as unknown as LlmsConfig & {outputFormat: OutputFormat};
+
+            applyConfig(config as unknown as Record<string, unknown>);
+
+            expect(config.llms.url).toBe('https://example.com/llms.txt');
+        });
+
+        it('preserves url even when enabled is false', () => {
+            const config = {
+                outputFormat: OutputFormat.md,
+                llms: {
+                    enabled: false,
+                    url: 'https://example.com/llms.txt',
+                    llmsFullMaxSize: 4 * 1024 ** 2,
+                },
+            } as unknown as LlmsConfig & {outputFormat: OutputFormat};
+
+            applyConfig(config as unknown as Record<string, unknown>);
+
+            expect(config.llms.url).toBe('https://example.com/llms.txt');
+            expect(config.llms.enabled).toBe(false);
+        });
+
+        it('leaves url undefined when not set in config', () => {
+            const config = {
+                outputFormat: OutputFormat.md,
+                llms: {
+                    enabled: true,
+                    llmsFullMaxSize: 4 * 1024 ** 2,
+                },
+            } as unknown as LlmsConfig & {outputFormat: OutputFormat};
+
+            applyConfig(config as unknown as Record<string, unknown>);
+
+            expect(config.llms.url).toBeUndefined();
+        });
+    });
+
     describe('renderIndex logic', () => {
         it('should correctly format llms.txt index with title and description', async () => {
             const run = createMockRun({outputFormat: OutputFormat.html});

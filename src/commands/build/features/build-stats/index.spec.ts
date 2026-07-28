@@ -78,6 +78,32 @@ describe('BuildStats', () => {
 
             expect(features).toEqual(['addMapFile', 'singlePage', 'staticContent']);
         });
+
+        it('includes "llms" when llms.enabled is true', () => {
+            const features = collectFeatures({
+                singlePage: true,
+                llms: {enabled: true, llmsFullMaxSize: 4 * 1024 ** 2},
+            });
+
+            expect(features).toEqual(['llms', 'singlePage']);
+        });
+
+        it('excludes "llms" when llms.enabled is false', () => {
+            const features = collectFeatures({
+                singlePage: true,
+                llms: {enabled: false, llmsFullMaxSize: 4 * 1024 ** 2},
+            });
+
+            expect(features).toEqual(['singlePage']);
+        });
+
+        it('excludes "llms" when llms config is absent', () => {
+            const features = collectFeatures({
+                singlePage: true,
+            });
+
+            expect(features).toEqual(['singlePage']);
+        });
     });
 
     describe('snapshot', () => {

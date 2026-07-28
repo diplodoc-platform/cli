@@ -294,9 +294,16 @@ function toLangCode(lang: string | {lang: string}): string {
 // Surface every config field that resolved to literal `true`. No whitelist —
 // whatever flags the user (or defaults) turned on shows up here.
 export function collectFeatures(config: Hash<unknown>): string[] {
-    return Object.keys(config)
-        .filter((key) => config[key] === true)
-        .sort();
+    const keys = Object.keys(config).filter((key) => config[key] === true);
+
+    // llms is an object, not a boolean; surface it when generation is enabled
+    // (including --llms flag and the md-output default).
+    const llmsConfig = config.llms as {enabled?: boolean} | undefined;
+    if (llmsConfig?.enabled === true && !keys.includes('llms')) {
+        keys.push('llms');
+    }
+
+    return keys.sort();
 }
 
 type GraphCounters = BuildStatsFormat['counters']['graph'];
