@@ -30,6 +30,11 @@ export type LlmsConfig = {
         enabled: boolean;
         description?: string;
         llmsFullMaxSize: number;
+        /**
+         * Override URL for `llms.txt` used in md companion AI hints.
+         * When set, md companions link to this URL instead of the generated `llms.txt`.
+         */
+        url?: string;
     };
 };
 
@@ -79,6 +84,7 @@ export class Llms {
                 enabled,
                 description: llmsDescription,
                 llmsFullMaxSize,
+                url: config?.llms?.url,
             };
 
             return config;
