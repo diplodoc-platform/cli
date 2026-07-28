@@ -126,7 +126,7 @@
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
     "@aws-sdk/lib-storage": "^3.758.0",
-    "@diplodoc/infra": "2.2.1",
+    "@diplodoc/infra": "2.2.2",
     "@diplodoc/latex-extension": "^1.4.1",
     "@diplodoc/mermaid-extension": "^2.2.1",
     "@diplodoc/openapi-extension": "^5.2.3",
