@@ -54,6 +54,11 @@ on:
         required: true
         type: string
         default: 'latest'
+      create_pr:
+        description: 'Create PR when running on a non-master branch. Ignored on master.'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -62,6 +67,11 @@ permissions:
 jobs:
   update-package:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.publish.outputs.changed }}
+      branch: ${{ steps.publish.outputs.branch }}
+      pr_number: ${{ steps.publish.outputs.pr_number }}
+      pr_url: ${{ steps.publish.outputs.pr_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -129,6 +139,7 @@ jobs:
         run: npm install --no-workspaces --package-lock-only
 
       - name: Create and publish PR
+        id: publish
         env:
           GH_TOKEN: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
           # See "Update packages" step above — inputs go through env, never
@@ -137,12 +148,30 @@ jobs:
           INPUT_PACKAGE: ${{ inputs.package }}
           INPUT_VERSION: ${{ inputs.version }}
           INPUT_UPDATE_AS_DEV: ${{ inputs.update_as_dev }}
+          INPUT_CREATE_PR: ${{ inputs.create_pr }}
         run: |
           set -e
 
+          # Determine the base branch from the branch selected in the GitHub
+          # Actions UI (workflow_dispatch). GITHUB_REF_NAME is automatically
+          # set by the runner (e.g. "master", "feature/foo").
+          BASE_BRANCH="${GITHUB_REF_NAME:-master}"
+          echo "branch=$BASE_BRANCH" >> "$GITHUB_OUTPUT"
+
           # Check if there are any changes
-          if [[ -z $(git diff --stat | grep -E "package.json|package-lock.json") ]]; then
-            echo "::info::Nothing to update"
+          if [[ -n $(git status --porcelain -- package.json package-lock.json) ]]; then
+            CHANGED=true
+          else
+            CHANGED=false
+          fi
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+
+          # On master there is nothing to do without changes: the dedicated
+          # update branch and its PR are created from the diff itself.
+          # On a non-master branch with create_pr an existing PR may still need
+          # to be reported, so keep going.
+          if [[ "$CHANGED" != "true" && ( "$BASE_BRANCH" == "master" || "$INPUT_CREATE_PR" != "true" ) ]]; then
+            echo "::notice::Nothing to update"
             exit 0
           fi
 
@@ -203,11 +232,57 @@ jobs:
           SAFE_VERSION=$(echo "$INPUT_VERSION" | tr -c 'A-Za-z0-9._-' '_')
           BRANCH_NAME="ci/update-deps/${SAFE_FIRST_PACKAGE}-${SAFE_VERSION}"
 
-          git push -f origin ":$BRANCH_NAME" || true
-          git checkout -b "$BRANCH_NAME"
-          git add package.json package-lock.json
-          git commit -m "fix(deps): Update $VERSIONS" --no-verify
-          git push -u origin "$BRANCH_NAME"
+          if [[ "$BASE_BRANCH" == "master" ]]; then
+            # For master: create a dedicated branch, push, and open a PR.
+            # create_pr is ignored here — this path always opens a PR.
+            git push -f origin ":$BRANCH_NAME" || true
+            git checkout -b "$BRANCH_NAME"
+            git add package.json package-lock.json
+            git commit -m "fix(deps): Update $VERSIONS" --no-verify
+            git push -u origin "$BRANCH_NAME"
 
-          # Create PR
-          gh pr create --title "fix(deps): Update $VERSIONS" --body "Automated dependency update" --base master
+            PR_URL=$(gh pr create --title "fix(deps): Update $VERSIONS" \
+              --body "Automated dependency update" --base "$BASE_BRANCH" --head "$BRANCH_NAME")
+            echo "branch=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+            echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+            echo "pr_number=${PR_URL##*/}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # For non-master branches: commit directly to the selected branch.
+          if [[ "$CHANGED" == "true" ]]; then
+            git add package.json package-lock.json
+            git commit -m "fix(deps): Update $VERSIONS" --no-verify
+            git push origin "$BASE_BRANCH"
+            echo "::notice::Commit pushed to $BASE_BRANCH"
+          fi
+
+          # Without create_pr the author opens the PR themselves — historical
+          # behaviour, kept as the default.
+          if [[ "$INPUT_CREATE_PR" != "true" ]]; then
+            exit 0
+          fi
+
+          # Idempotent PR create-or-reuse: a re-run on the same branch must not
+          # produce a second PR.
+          EXISTING=$(gh pr list --head "$BASE_BRANCH" --base master --state open \
+            --json number,url --jq '.[0] // empty')
+
+          if [[ -n "$EXISTING" ]]; then
+            PR_NUMBER=$(echo "$EXISTING" | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).number')
+            PR_URL=$(echo "$EXISTING" | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).url')
+            echo "::notice::Reusing existing PR #$PR_NUMBER"
+          else
+            # Fails when the branch has no commits ahead of master; that is not
+            # an error for a no-op re-run.
+            if ! PR_URL=$(gh pr create --title "fix(deps): Update $VERSIONS" \
+              --body "Automated dependency update" --base master --head "$BASE_BRANCH"); then
+              echo "::notice::No PR created for $BASE_BRANCH"
+              exit 0
+            fi
+            PR_NUMBER="${PR_URL##*/}"
+            echo "::notice::Created PR #$PR_NUMBER"
+          fi
+
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
