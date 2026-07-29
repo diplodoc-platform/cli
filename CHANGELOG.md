@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.50.5](https://github.com/diplodoc-platform/cli/compare/v5.50.4...v5.50.5) (2026-07-29)
+
+
+### Bug Fixes
+
+* Add llms url, add llms feature in build-stats DOCSTOOLS-5956 ([913c0ef](https://github.com/diplodoc-platform/cli/commit/913c0ef4666d9d7bddb2b03dc2b888e77536ac7b))
+* **deps:** Update @diplodoc/ajv@0.1.4, @diplodoc/client@5.10.0, @diplodoc/translation@1.7.28, dev:@diplodoc/mermaid-extension@2.2.1, dev:@diplodoc/openapi-extension@5.2.3, dev:@diplodoc/page-constructor-extension@0.13.11 ([#2122](https://github.com/diplodoc-platform/cli/issues/2122)) ([ef5c92f](https://github.com/diplodoc-platform/cli/commit/ef5c92f16e4a6312a38ccc27ebe560c76c216dc7))
+* **deps:** Update @diplodoc/ajv@0.1.5 ([831b7b5](https://github.com/diplodoc-platform/cli/commit/831b7b5ae00496603bdf5d3b77fb2e21f7e87b15))
+* **deps:** Update @diplodoc/transform@4.77.6 ([ed78a59](https://github.com/diplodoc-platform/cli/commit/ed78a599ac7764bbfd60c0603b7850c2921a142a))
+* **deps:** Update @diplodoc/transform@4.77.7 ([#2121](https://github.com/diplodoc-platform/cli/issues/2121)) ([447391a](https://github.com/diplodoc-platform/cli/commit/447391a9be38d29b3c612990e5b90b97725601a5))
+
 ## [5.50.4](https://github.com/diplodoc-platform/cli/compare/v5.50.3...v5.50.4) (2026-07-21)
 
 
