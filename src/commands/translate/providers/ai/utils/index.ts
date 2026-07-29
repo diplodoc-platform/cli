@@ -1,3 +1,5 @@
+import {randomInt} from 'node:crypto';
+
 export {
     LLMRequestError,
     LLMAuthError,
@@ -67,7 +69,7 @@ function retryInterval(error: any, attempt: number): number {
         return error.retryAfter * 1000;
     }
 
-    return Math.pow(2, attempt) * 1000 * (1 + Math.random());
+    return Math.pow(2, attempt) * 1000 * (1 + randomInt(0, 1000) / 1000);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
