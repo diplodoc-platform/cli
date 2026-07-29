@@ -1,7 +1,6 @@
 import type {ChatMessage} from './clients/types';
 
 import {existsSync, readFileSync} from 'node:fs';
-import {escapeRegExp} from 'lodash';
 import {dedent} from 'ts-dedent';
 
 export type PromptMode = 'append' | 'replace';
@@ -98,8 +97,7 @@ function joinFragments(fragments: string[]): string {
  * Splits an LLM response back into fragments using the delimiter.
  */
 export function splitFragments(text: string): string[] {
-    const delimiter = new RegExp(`\\s*${escapeRegExp(FRAGMENT_SEPARATOR)}\\s*`, 'g');
-    return text.split(delimiter).map((part) => part.replace(/^\n+|\n+$/g, ''));
+    return text.split(FRAGMENT_SEPARATOR).map((part) => part.trim());
 }
 
 /**

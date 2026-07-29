@@ -115,14 +115,14 @@ const glossary = option({
 const temperature = option({
     flags: '--temperature <num>',
     desc: 'Sampling temperature. Defaults to 0 for deterministic translation.',
-    parser: (value: string) => Number(value),
+    parser: Number,
     defaultInfo: 0,
 });
 
 const maxOutputTokens = option({
     flags: '--max-output-tokens <num>',
     desc: 'Maximum tokens in a single LLM response.',
-    parser: (value: string) => parseInt(value, 10),
+    parser: (value: string) => Number.parseInt(value, 10),
     defaultInfo: 4000,
 });
 
@@ -132,21 +132,21 @@ const maxBatchTokens = option({
         Token budget for a single LLM request. Translation units are batched up to this
         limit and sent together. Smaller values are safer but slower.
     `,
-    parser: (value: string) => parseInt(value, 10),
+    parser: (value: string) => Number.parseInt(value, 10),
     defaultInfo: 2000,
 });
 
 const maxConcurrency = option({
     flags: '--max-concurrency <num>',
     desc: 'Maximum concurrent LLM requests.',
-    parser: (value: string) => parseInt(value, 10),
+    parser: (value: string) => Number.parseInt(value, 10),
     defaultInfo: 5,
 });
 
 const retry = option({
     flags: '--retry <num>',
     desc: 'Number of retries on retryable LLM errors.',
-    parser: (value: string) => parseInt(value, 10),
+    parser: (value: string) => Number.parseInt(value, 10),
     defaultInfo: 3,
 });
 

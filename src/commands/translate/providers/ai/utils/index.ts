@@ -32,7 +32,7 @@ export function bytes(texts: string[]) {
 export function estimateTokens(text: string) {
     let ascii = 0;
     for (let i = 0; i < text.length; i++) {
-        if (text.charCodeAt(i) < 128) {
+        if ((text.codePointAt(i) ?? 0) < 128) {
             ascii++;
         }
     }

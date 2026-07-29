@@ -121,7 +121,7 @@ export function createOpenRouterClient(
         headers: {
             'HTTP-Referer': 'https://github.com/diplodoc-platform/cli',
             'X-Title': 'Diplodoc CLI',
-            ...(opts.headers || {}),
+            ...opts.headers,
         },
     });
 }

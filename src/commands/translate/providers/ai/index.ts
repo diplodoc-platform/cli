@@ -3,7 +3,7 @@ import type {Translate, TranslateArgs, TranslateConfig} from '~/commands/transla
 import type {LLMClient} from './clients/types';
 import type {GlossaryPair, PromptMode} from './prompts';
 
-import {ok} from 'assert';
+import {ok} from 'node:assert';
 import {join} from 'node:path';
 
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -105,9 +105,10 @@ function parseHeaders(value: unknown): Record<string, string> {
     if (Array.isArray(value)) {
         const headers: Record<string, string> = {};
         for (const entry of value) {
-            const match = String(entry).match(/^([^:]+):\s*(.*)$/);
-            ok(match, `Invalid api header "${entry}". Expected "Name: value" format.`);
-            headers[match[1].trim()] = match[2];
+            const text = String(entry);
+            const separator = text.indexOf(':');
+            ok(separator > 0, `Invalid api header "${entry}". Expected "Name: value" format.`);
+            headers[text.slice(0, separator).trim()] = text.slice(separator + 1).trim();
         }
         return headers;
     }
@@ -151,17 +152,20 @@ function numberOr(value: unknown, fallback: number): number {
 }
 
 function intOr(value: unknown, fallback: number): number {
-    if (value === null || value === undefined || value === '') {
-        return fallback;
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return Math.trunc(value);
     }
-    const n = parseInt(String(value), 10);
-    return Number.isFinite(n) ? n : fallback;
+    if (typeof value === 'string' && value !== '') {
+        const n = Number.parseInt(value, 10);
+        return Number.isFinite(n) ? n : fallback;
+    }
+    return fallback;
 }
 
 export class Extension {
     apply(program: Translate) {
         getBaseHooks(program).Command.tap(ExtensionName, (_command, opts) => {
-            const providerOption = opts.find((option) => option.flags.match('--provider'));
+            const providerOption = opts.find((option) => option.flags.includes('--provider'));
             ok(providerOption, 'Unable to configure `--provider` option.');
 
             const choices = providerOption.argChoices || [];
@@ -246,25 +250,18 @@ export class Extension {
                     }
 
                     // CLI prompt paths are resolved from cwd, config values from the config dir.
-                    const systemPrompt = own<string, 'systemPrompt'>(args, 'systemPrompt')
-                        ? resolvePromptValue(args.systemPrompt)
-                        : resolvePromptValue(
-                              own<string, 'systemPrompt'>(config, 'systemPrompt')
-                                  ? config.systemPrompt
-                                  : undefined,
-                              config.resolve,
-                          );
-                    const userPrompt = own<string, 'userPrompt'>(args, 'userPrompt')
-                        ? resolvePromptValue(args.userPrompt)
-                        : resolvePromptValue(
-                              own<string, 'userPrompt'>(config, 'userPrompt')
-                                  ? config.userPrompt
-                                  : undefined,
-                              config.resolve,
-                          );
+                    const resolvePrompt = (key: 'systemPrompt' | 'userPrompt') => {
+                        if (own<string, typeof key>(args, key)) {
+                            return resolvePromptValue(args[key]);
+                        }
+                        if (own<string, typeof key>(config, key)) {
+                            return resolvePromptValue(config[key], config.resolve);
+                        }
+                        return undefined;
+                    };
 
-                    config.systemPrompt = systemPrompt;
-                    config.userPrompt = userPrompt;
+                    config.systemPrompt = resolvePrompt('systemPrompt');
+                    config.userPrompt = resolvePrompt('userPrompt');
 
                     config.promptMode =
                         (defined('promptMode', args, config) as PromptMode) || 'append';
