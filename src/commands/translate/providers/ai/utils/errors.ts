@@ -27,8 +27,12 @@ export class LLMAuthError extends TranslateError {
 export class LLMRateLimitError extends TranslateError {
     retryable = true;
 
-    constructor(message: string) {
+    /** Server-suggested pause in seconds (Retry-After header). */
+    retryAfter?: number;
+
+    constructor(message: string, retryAfter?: number) {
         super(message, 'LLM_RATE_LIMIT');
+        this.retryAfter = retryAfter;
     }
 }
 
@@ -57,7 +61,11 @@ export function throwLLMError(error: unknown, provider: string): never {
                 throw new LLMAuthError(`${provider} auth failed: ${message}`);
             }
             if (status === 429) {
-                throw new LLMRateLimitError(message);
+                const retryAfter = Number(response.headers?.['retry-after']);
+                throw new LLMRateLimitError(
+                    message,
+                    Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : undefined,
+                );
             }
             throw new LLMRequestError(status, message, {
                 retryable: status >= 500 && status < 600,

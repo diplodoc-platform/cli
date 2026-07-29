@@ -128,7 +128,9 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 vars,
                 provider: defined('provider', args, config),
                 dryRun: defined('dryRun', args, config) || false,
-                timeout: (defined('timeout', args, config) as number) ?? 5000,
+                // No global default here: each provider applies its own
+                // (5s for yandex, 60s for LLM providers).
+                timeout: defined('timeout', args, config) as number,
             });
         });
     }

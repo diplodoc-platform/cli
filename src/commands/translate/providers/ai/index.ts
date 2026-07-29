@@ -24,6 +24,8 @@ type ProviderName = (typeof PROVIDER_NAMES)[number];
 
 const ExtensionName = 'AITranslation';
 
+const DEFAULT_TIMEOUT = 60_000;
+
 const DEFAULT_MODELS: Record<ProviderName, string> = {
     yandexgpt: 'yandexgpt-lite',
     openai: 'gpt-4o-mini',
@@ -31,11 +33,18 @@ const DEFAULT_MODELS: Record<ProviderName, string> = {
     anthropic: 'claude-sonnet-4-5',
 };
 
-const ENV_VARS: Record<ProviderName, string[]> = {
+const ENV_AUTH: Record<ProviderName, string[]> = {
     yandexgpt: ['YANDEX_API_KEY', 'YC_IAM_TOKEN'],
     openai: ['OPENAI_API_KEY'],
     openrouter: ['OPENROUTER_API_KEY'],
     anthropic: ['ANTHROPIC_API_KEY'],
+};
+
+const ENV_BASE_URL: Record<ProviderName, string[]> = {
+    yandexgpt: [],
+    openai: ['OPENAI_BASE_URL'],
+    openrouter: ['OPENROUTER_BASE_URL'],
+    anthropic: ['ANTHROPIC_BASE_URL'],
 };
 
 type Args = {
@@ -43,6 +52,7 @@ type Args = {
     folder?: string;
     model?: string;
     apiBase?: string;
+    apiHeader?: string[];
     systemPrompt?: string;
     userPrompt?: string;
     promptMode?: PromptMode;
@@ -59,6 +69,7 @@ type Config = {
     folder?: string;
     model: string;
     apiBase?: string;
+    apiHeaders: Record<string, string>;
     systemPrompt?: string;
     userPrompt?: string;
     promptMode: PromptMode;
@@ -73,8 +84,8 @@ type Config = {
 
 export type AITranslationConfig = TranslateConfig & Config;
 
-function readEnvAuth(provider: ProviderName): string | undefined {
-    for (const name of ENV_VARS[provider]) {
+function readEnv(names: string[]): string | undefined {
+    for (const name of names) {
         const value = process.env[name];
         if (value) {
             return value;
@@ -83,34 +94,50 @@ function readEnvAuth(provider: ProviderName): string | undefined {
     return undefined;
 }
 
+/**
+ * Accepts headers as a list of "Name: value" strings (CLI) or as a plain object (config).
+ */
+function parseHeaders(value: unknown): Record<string, string> {
+    if (!value) {
+        return {};
+    }
+
+    if (Array.isArray(value)) {
+        const headers: Record<string, string> = {};
+        for (const entry of value) {
+            const match = String(entry).match(/^([^:]+):\s*(.*)$/);
+            ok(match, `Invalid api header "${entry}". Expected "Name: value" format.`);
+            headers[match[1].trim()] = match[2];
+        }
+        return headers;
+    }
+
+    if (typeof value === 'object') {
+        return {...(value as Record<string, string>)};
+    }
+
+    return parseHeaders([value]);
+}
+
 function makeClientFactory(provider: ProviderName) {
     return function clientFactory(config: AITranslationConfig): LLMClient {
+        const common = {
+            token: config.auth,
+            model: config.model,
+            baseUrl: config.apiBase,
+            timeout: config.timeout,
+            headers: config.apiHeaders,
+        };
+
         switch (provider) {
             case 'yandexgpt':
-                return new YandexGptClient({
-                    token: config.auth,
-                    folder: config.folder,
-                    model: config.model,
-                    endpoint: config.apiBase,
-                });
+                return new YandexGptClient({...common, folder: config.folder});
             case 'openai':
-                return createOpenAIClient({
-                    token: config.auth,
-                    model: config.model,
-                    baseUrl: config.apiBase,
-                });
+                return createOpenAIClient(common);
             case 'openrouter':
-                return createOpenRouterClient({
-                    token: config.auth,
-                    model: config.model,
-                    baseUrl: config.apiBase,
-                });
+                return createOpenRouterClient(common);
             case 'anthropic':
-                return new AnthropicClient({
-                    token: config.auth,
-                    model: config.model,
-                    baseUrl: config.apiBase,
-                });
+                return new AnthropicClient(common);
         }
     };
 }
@@ -160,6 +187,7 @@ export class Extension {
                         .addOption(options.auth)
                         .addOption(options.model)
                         .addOption(options.apiBase)
+                        .addOption(options.apiHeader)
                         .addOption(options.systemPrompt)
                         .addOption(options.userPrompt)
                         .addOption(options.promptMode)
@@ -183,7 +211,7 @@ export class Extension {
                 ).Config.tapPromise(`${ExtensionName}.${providerName}`, async (config, args) => {
                     ok(!config.auth, 'Do not store `authToken` in public config');
 
-                    const rawAuth = args.auth || readEnvAuth(providerName);
+                    const rawAuth = args.auth || readEnv(ENV_AUTH[providerName]);
                     ok(
                         rawAuth,
                         `Required param --auth is not configured for provider "${providerName}"`,
@@ -195,10 +223,17 @@ export class Extension {
                         DEFAULT_MODELS[providerName];
                     config.model = model;
 
-                    const apiBase = defined('apiBase', args, config);
+                    const apiBase =
+                        defined('apiBase', args, config) || readEnv(ENV_BASE_URL[providerName]);
                     if (apiBase) {
                         config.apiBase = apiBase;
                     }
+
+                    config.apiHeaders = parseHeaders(
+                        own<string[], 'apiHeader'>(args, 'apiHeader')
+                            ? args.apiHeader
+                            : defined('apiHeaders', config),
+                    );
 
                     if (providerName === 'yandexgpt') {
                         config.folder = defined('folder', args, config);
@@ -210,20 +245,39 @@ export class Extension {
                         );
                     }
 
-                    config.systemPrompt = resolvePromptValue(
-                        defined('systemPrompt', args, config) || undefined,
-                    );
-                    config.userPrompt = resolvePromptValue(
-                        defined('userPrompt', args, config) || undefined,
-                    );
+                    // CLI prompt paths are resolved from cwd, config values from the config dir.
+                    const systemPrompt = own<string, 'systemPrompt'>(args, 'systemPrompt')
+                        ? resolvePromptValue(args.systemPrompt)
+                        : resolvePromptValue(
+                              own<string, 'systemPrompt'>(config, 'systemPrompt')
+                                  ? config.systemPrompt
+                                  : undefined,
+                              config.resolve,
+                          );
+                    const userPrompt = own<string, 'userPrompt'>(args, 'userPrompt')
+                        ? resolvePromptValue(args.userPrompt)
+                        : resolvePromptValue(
+                              own<string, 'userPrompt'>(config, 'userPrompt')
+                                  ? config.userPrompt
+                                  : undefined,
+                              config.resolve,
+                          );
+
+                    config.systemPrompt = systemPrompt;
+                    config.userPrompt = userPrompt;
+
                     config.promptMode =
                         (defined('promptMode', args, config) as PromptMode) || 'append';
 
                     config.temperature = numberOr(defined('temperature', args, config), 0);
                     config.maxOutputTokens = intOr(defined('maxOutputTokens', args, config), 4000);
                     config.maxBatchTokens = intOr(defined('maxBatchTokens', args, config), 2000);
-                    config.maxConcurrency = intOr(defined('maxConcurrency', args, config), 5);
+                    config.maxConcurrency = Math.max(
+                        1,
+                        intOr(defined('maxConcurrency', args, config), 5),
+                    );
                     config.retry = intOr(defined('retry', args, config), 3);
+                    config.timeout = intOr(defined('timeout', args, config), DEFAULT_TIMEOUT);
 
                     let glossary: AbsolutePath | undefined;
                     if (own<string, 'glossary'>(args, 'glossary')) {

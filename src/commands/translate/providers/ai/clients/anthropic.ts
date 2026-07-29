@@ -21,6 +21,7 @@ export type AnthropicClientOptions = {
     model: string;
     baseUrl?: string;
     timeout?: number;
+    headers?: Record<string, string>;
 };
 
 export class AnthropicClient implements LLMClient {
@@ -30,12 +31,14 @@ export class AnthropicClient implements LLMClient {
     private readonly model: string;
     private readonly baseUrl: string;
     private readonly timeout: number;
+    private readonly headers: Record<string, string>;
 
     constructor(options: AnthropicClientOptions) {
         this.token = options.token;
         this.model = options.model;
         this.baseUrl = (options.baseUrl || DEFAULT_BASE_URL).replace(/\/$/, '');
         this.timeout = options.timeout ?? 60_000;
+        this.headers = options.headers || {};
     }
 
     async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
@@ -64,9 +67,18 @@ export class AnthropicClient implements LLMClient {
                         'anthropic-version': ANTHROPIC_VERSION,
                         'Content-Type': 'application/json',
                         'User-Agent': 'github.com/diplodoc-platform/cli',
+                        ...this.headers,
                     },
                 },
             );
+
+            if (data.stop_reason === 'max_tokens') {
+                throw new LLMResponseError(
+                    'Anthropic response was truncated (stop_reason=max_tokens). ' +
+                        'Increase --max-output-tokens or reduce --max-batch-tokens.',
+                    false,
+                );
+            }
 
             const text = data.content
                 .filter((block) => block.type === 'text' && block.text)

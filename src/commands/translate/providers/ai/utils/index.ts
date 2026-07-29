@@ -25,13 +25,18 @@ export function bytes(texts: string[]) {
     return texts.reduce((sum, text) => sum + text.length, 0);
 }
 
-// Rough heuristic: ~4 chars per token. Good enough for budgeting and dry-run.
+// Rough heuristic for budgeting and dry-run: ~4 chars per token for
+// latin text, ~2 for the rest (Cyrillic and CJK tokenize much denser).
 export function estimateTokens(text: string) {
-    return Math.ceil(text.length / 4);
-}
+    let ascii = 0;
+    for (let i = 0; i < text.length; i++) {
+        if (text.charCodeAt(i) < 128) {
+            ascii++;
+        }
+    }
+    const other = text.length - ascii;
 
-export function escapeRegExp(value: string) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return Math.ceil(ascii / 4 + other / 2);
 }
 
 export async function wait(interval: number) {
@@ -49,9 +54,20 @@ export async function backoff<T>(action: () => Promise<T>, retries: number): Pro
             if (!canRetry(error) || attempt >= attempts - 1) {
                 throw error;
             }
-            await wait(Math.pow(2, attempt) * 1000);
+            await wait(retryInterval(error, attempt));
         }
     }
+}
+
+// Respects the server-provided Retry-After when available, otherwise
+// exponential backoff with jitter to avoid synchronized retries.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function retryInterval(error: any, attempt: number): number {
+    if (error?.retryAfter > 0) {
+        return error.retryAfter * 1000;
+    }
+
+    return Math.pow(2, attempt) * 1000 * (1 + Math.random());
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

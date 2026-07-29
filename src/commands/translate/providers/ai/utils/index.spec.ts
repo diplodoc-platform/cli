@@ -1,8 +1,22 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {LLMAuthError, LLMRateLimitError, backoff} from './index';
+import {LLMAuthError, LLMRateLimitError, backoff, estimateTokens} from './index';
 
 describe('translate ai utils', () => {
+    describe('estimateTokens', () => {
+        it('should estimate latin text at ~4 chars per token', () => {
+            expect(estimateTokens('a'.repeat(40))).toBe(10);
+        });
+
+        it('should estimate non-latin text at ~2 chars per token', () => {
+            expect(estimateTokens('ы'.repeat(40))).toBe(20);
+        });
+
+        it('should combine both estimates for mixed text', () => {
+            expect(estimateTokens('a'.repeat(4) + 'ы'.repeat(4))).toBe(3);
+        });
+    });
+
     describe('backoff', () => {
         beforeEach(() => {
             vi.useFakeTimers();
@@ -58,6 +72,24 @@ describe('translate ai utils', () => {
             const success = expect(promise).resolves.toBe('ok');
 
             await vi.runAllTimersAsync();
+            await success;
+
+            expect(action).toHaveBeenCalledTimes(2);
+        });
+
+        it('should honor server-provided retry-after', async () => {
+            const action = vi
+                .fn()
+                .mockRejectedValueOnce(new LLMRateLimitError('slow down', 7))
+                .mockResolvedValue('ok');
+
+            const promise = backoff(action, 1);
+            const success = expect(promise).resolves.toBe('ok');
+
+            await vi.advanceTimersByTimeAsync(6999);
+            expect(action).toHaveBeenCalledTimes(1);
+
+            await vi.advanceTimersByTimeAsync(1);
             await success;
 
             expect(action).toHaveBeenCalledTimes(2);

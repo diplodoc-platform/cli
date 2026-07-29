@@ -5,7 +5,8 @@ import axios from 'axios';
 import {LLMResponseError, throwLLMError} from '../utils';
 import {yandexAuthHeader} from '../auth';
 
-const DEFAULT_ENDPOINT = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion';
+const DEFAULT_BASE_URL = 'https://llm.api.cloud.yandex.net';
+const COMPLETION_PATH = '/foundationModels/v1/completion';
 
 type YandexMessage = {
     role: 'system' | 'user' | 'assistant';
@@ -31,8 +32,9 @@ export type YandexGptClientOptions = {
     token: string;
     model: string;
     folder?: string;
-    endpoint?: string;
+    baseUrl?: string;
     timeout?: number;
+    headers?: Record<string, string>;
 };
 
 /**
@@ -67,13 +69,15 @@ export class YandexGptClient implements LLMClient {
     private readonly model: string;
     private readonly endpoint: string;
     private readonly timeout: number;
+    private readonly headers: Record<string, string>;
 
     constructor(options: YandexGptClientOptions) {
         this.token = options.token;
         this.folder = options.folder || '';
         this.model = options.model;
-        this.endpoint = options.endpoint || DEFAULT_ENDPOINT;
+        this.endpoint = (options.baseUrl || DEFAULT_BASE_URL).replace(/\/$/, '') + COMPLETION_PATH;
         this.timeout = options.timeout ?? 60_000;
+        this.headers = options.headers || {};
     }
 
     async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
@@ -100,6 +104,7 @@ export class YandexGptClient implements LLMClient {
                         Authorization: yandexAuthHeader(this.token),
                         'Content-Type': 'application/json',
                         'User-Agent': 'github.com/diplodoc-platform/cli',
+                        ...this.headers,
                     },
                 },
             );
@@ -112,6 +117,14 @@ export class YandexGptClient implements LLMClient {
             if (alternative.status === 'ALTERNATIVE_STATUS_CONTENT_FILTER') {
                 throw new LLMResponseError(
                     'Yandex AI Studio rejected the request (content filter)',
+                    false,
+                );
+            }
+
+            if (alternative.status === 'ALTERNATIVE_STATUS_TRUNCATED_FINAL') {
+                throw new LLMResponseError(
+                    'Yandex AI Studio response was truncated. ' +
+                        'Increase --max-output-tokens or reduce --max-batch-tokens.',
                     false,
                 );
             }

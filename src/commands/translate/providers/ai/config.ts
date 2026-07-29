@@ -1,7 +1,7 @@
 import {cyan, gray} from 'chalk';
 import {dedent} from 'ts-dedent';
 
-import {option} from '~/core/config';
+import {option, toArray} from '~/core/config';
 
 const auth = option({
     flags: '--auth <value>',
@@ -12,6 +12,8 @@ const auth = option({
         Yandex AI Studio: IAM token (Bearer) or service-account API key.
         OpenAI / OpenRouter: Bearer key (sk-...).
         Anthropic: x-api-key (sk-ant-...).
+
+        Env fallback: YANDEX_API_KEY / YC_IAM_TOKEN, OPENAI_API_KEY, OPENROUTER_API_KEY, ANTHROPIC_API_KEY.
     `,
 });
 
@@ -38,8 +40,28 @@ const model = option({
 const apiBase = option({
     flags: '--api-base <url>',
     desc: `
-        Override the API base URL (useful for self-hosted or compatible endpoints).
+        Override the API base URL. Useful for self-hosted and internal
+        installations of compatible APIs.
+
+        The provider request path is appended automatically:
+        yandexgpt: <base>/foundationModels/v1/completion
+        openai / openrouter: <base>/chat/completions (include /v1 into the base)
+        anthropic: <base>/messages (include /v1 into the base)
+
+        Env fallback: OPENAI_BASE_URL, OPENROUTER_BASE_URL, ANTHROPIC_BASE_URL.
     `,
+});
+
+const apiHeader = option({
+    flags: '--api-header <header>',
+    desc: `
+        Additional HTTP header for LLM API requests in "Name: value" format.
+        Repeat the option to pass several headers.
+        Useful for internal gateways which require extra auth headers.
+
+        Config alternative: ${cyan('apiHeaders')} object in the yfm config.
+    `,
+    parser: toArray,
 });
 
 const systemPrompt = option({
@@ -67,11 +89,11 @@ const promptMode = option({
     desc: `
         How the user-supplied system prompt interacts with the default one.
 
-        ${cyan('append')} (default) — supplied system prompt is appended to the built-in default.
-        ${cyan('replace')} — supplied system prompt fully replaces the built-in default.
+        ${cyan('append')} - supplied system prompt is appended to the built-in default.
+        ${cyan('replace')} - supplied system prompt fully replaces the built-in default.
     `,
     choices: ['append', 'replace'],
-    default: 'append',
+    defaultInfo: 'append',
 });
 
 const glossaryExample = gray(dedent`
@@ -94,38 +116,38 @@ const temperature = option({
     flags: '--temperature <num>',
     desc: 'Sampling temperature. Defaults to 0 for deterministic translation.',
     parser: (value: string) => Number(value),
-    default: 0,
+    defaultInfo: 0,
 });
 
 const maxOutputTokens = option({
     flags: '--max-output-tokens <num>',
-    desc: 'Maximum tokens in a single LLM response. Default 4000.',
+    desc: 'Maximum tokens in a single LLM response.',
     parser: (value: string) => parseInt(value, 10),
-    default: 4000,
+    defaultInfo: 4000,
 });
 
 const maxBatchTokens = option({
     flags: '--max-batch-tokens <num>',
     desc: `
         Token budget for a single LLM request. Translation units are batched up to this
-        limit and sent together. Smaller values are safer but slower. Default 2000.
+        limit and sent together. Smaller values are safer but slower.
     `,
     parser: (value: string) => parseInt(value, 10),
-    default: 2000,
+    defaultInfo: 2000,
 });
 
 const maxConcurrency = option({
     flags: '--max-concurrency <num>',
-    desc: 'Maximum concurrent LLM requests. Default 5.',
+    desc: 'Maximum concurrent LLM requests.',
     parser: (value: string) => parseInt(value, 10),
-    default: 5,
+    defaultInfo: 5,
 });
 
 const retry = option({
     flags: '--retry <num>',
-    desc: 'Number of retries on retryable LLM errors. Default 3.',
+    desc: 'Number of retries on retryable LLM errors.',
     parser: (value: string) => parseInt(value, 10),
-    default: 3,
+    defaultInfo: 3,
 });
 
 export const options = {
@@ -133,6 +155,7 @@ export const options = {
     folder,
     model,
     apiBase,
+    apiHeader,
     systemPrompt,
     userPrompt,
     promptMode,

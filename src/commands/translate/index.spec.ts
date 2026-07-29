@@ -1,4 +1,5 @@
 import type {YandexTranslationConfig} from './providers/yandex';
+import type {AITranslationConfig} from './providers/ai';
 
 import {describe, expect, it, vi} from 'vitest';
 
@@ -310,6 +311,120 @@ describe('Translate command', () => {
                     timeout: 30000,
                 },
             );
+        });
+
+        describe('ai providers', () => {
+            describe('openai', () => {
+                const test = testConfig<AITranslationConfig>(
+                    '--source ru --target en --provider openai --auth sk-test',
+                );
+
+                test('should handle defaults', '', {
+                    provider: 'openai',
+                    model: 'gpt-4o-mini',
+                    promptMode: 'append',
+                    temperature: 0,
+                    maxOutputTokens: 4000,
+                    maxBatchTokens: 2000,
+                    maxConcurrency: 5,
+                    retry: 3,
+                    timeout: 60000,
+                    apiHeaders: {},
+                });
+
+                test(
+                    'should handle config values with priority over defaults',
+                    '',
+                    {
+                        temperature: 0.3,
+                        maxBatchTokens: 1000,
+                        promptMode: 'replace',
+                        timeout: 120000,
+                    },
+                    {
+                        temperature: 0.3,
+                        maxBatchTokens: 1000,
+                        promptMode: 'replace',
+                        timeout: 120000,
+                    },
+                );
+
+                test(
+                    'should handle args with priority over config',
+                    '--temperature 0.7 --max-batch-tokens 500',
+                    {
+                        temperature: 0.3,
+                        maxBatchTokens: 1000,
+                    },
+                    {
+                        temperature: 0.7,
+                        maxBatchTokens: 500,
+                    },
+                );
+
+                test('should handle api base arg', '--api-base https://llm.internal/v1', {
+                    apiBase: 'https://llm.internal/v1',
+                });
+
+                test(
+                    'should handle api base from config',
+                    '',
+                    {
+                        apiBase: 'https://llm.internal/v1',
+                    },
+                    {
+                        apiBase: 'https://llm.internal/v1',
+                    },
+                );
+
+                test('should parse api headers arg', '--api-header X-Org:team', {
+                    apiHeaders: {'X-Org': 'team'},
+                });
+
+                test(
+                    'should handle api headers object from config',
+                    '',
+                    {
+                        // @ts-ignore
+                        apiHeaders: {'X-Org': 'team'},
+                    },
+                    {
+                        apiHeaders: {'X-Org': 'team'},
+                    },
+                );
+
+                test('should clamp max concurrency to at least 1', '--max-concurrency 0', {
+                    maxConcurrency: 1,
+                });
+            });
+
+            describe('yandexgpt', () => {
+                const test = testConfig<AITranslationConfig>(
+                    '--source ru --target en --provider yandexgpt --auth y0_test',
+                );
+
+                it('should require folder for short model name', async () => {
+                    const instance = await run(
+                        '-o output --source ru --target en --provider yandexgpt --auth y0_test',
+                    );
+
+                    expect(instance.report.code).toBe(1);
+                    expect(instance.provider?.translate).not.toBeCalled();
+                });
+
+                test(
+                    'should allow qualified model uri without folder',
+                    '--model gpt://b1g/yandexgpt/latest',
+                    {
+                        model: 'gpt://b1g/yandexgpt/latest',
+                    },
+                );
+
+                test('should handle folder with short model name', '--folder b1g', {
+                    folder: 'b1g',
+                    model: 'yandexgpt-lite',
+                });
+            });
         });
 
         describe('yandex provider', () => {

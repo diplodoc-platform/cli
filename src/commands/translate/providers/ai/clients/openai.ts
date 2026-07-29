@@ -24,8 +24,11 @@ export type OpenAICompatibleClientOptions = {
     model: string;
     baseUrl?: string;
     timeout?: number;
-    extraHeaders?: Record<string, string>;
+    headers?: Record<string, string>;
     name?: string;
+    // OpenAI deprecated max_tokens in favor of max_completion_tokens,
+    // but most compatible gateways still expect max_tokens.
+    tokenParam?: 'max_tokens' | 'max_completion_tokens';
 };
 
 export class OpenAICompatibleClient implements LLMClient {
@@ -35,7 +38,8 @@ export class OpenAICompatibleClient implements LLMClient {
     private readonly model: string;
     private readonly baseUrl: string;
     private readonly timeout: number;
-    private readonly extraHeaders: Record<string, string>;
+    private readonly headers: Record<string, string>;
+    private readonly tokenParam: 'max_tokens' | 'max_completion_tokens';
 
     constructor(options: OpenAICompatibleClientOptions) {
         this.name = options.name || 'openai';
@@ -43,7 +47,8 @@ export class OpenAICompatibleClient implements LLMClient {
         this.model = options.model;
         this.baseUrl = (options.baseUrl || DEFAULT_OPENAI_BASE_URL).replace(/\/$/, '');
         this.timeout = options.timeout ?? 60_000;
-        this.extraHeaders = options.extraHeaders || {};
+        this.headers = options.headers || {};
+        this.tokenParam = options.tokenParam || 'max_tokens';
     }
 
     async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
@@ -54,7 +59,7 @@ export class OpenAICompatibleClient implements LLMClient {
                     model: this.model,
                     messages: messages.map((m) => ({role: m.role, content: m.content})),
                     temperature: options.temperature,
-                    max_tokens: options.maxTokens,
+                    [this.tokenParam]: options.maxTokens,
                 },
                 {
                     timeout: this.timeout,
@@ -62,12 +67,22 @@ export class OpenAICompatibleClient implements LLMClient {
                         Authorization: `Bearer ${this.token}`,
                         'Content-Type': 'application/json',
                         'User-Agent': 'github.com/diplodoc-platform/cli',
-                        ...this.extraHeaders,
+                        ...this.headers,
                     },
                 },
             );
 
-            const text = data.choices?.[0]?.message?.content;
+            const choice = data.choices?.[0];
+
+            if (choice?.finish_reason === 'length') {
+                throw new LLMResponseError(
+                    `${this.name} response was truncated (finish_reason=length). ` +
+                        'Increase --max-output-tokens or reduce --max-batch-tokens.',
+                    false,
+                );
+            }
+
+            const text = choice?.message?.content;
             if (!text) {
                 throw new LLMResponseError(`${this.name} returned an empty response`);
             }
@@ -86,28 +101,27 @@ export class OpenAICompatibleClient implements LLMClient {
 }
 
 export function createOpenAIClient(
-    opts: Omit<OpenAICompatibleClientOptions, 'name' | 'baseUrl'> & {
-        baseUrl?: string;
-    },
+    opts: Omit<OpenAICompatibleClientOptions, 'name' | 'tokenParam'>,
 ) {
     return new OpenAICompatibleClient({
         ...opts,
         name: 'openai',
         baseUrl: opts.baseUrl || DEFAULT_OPENAI_BASE_URL,
+        tokenParam: 'max_completion_tokens',
     });
 }
 
 export function createOpenRouterClient(
-    opts: Omit<OpenAICompatibleClientOptions, 'name' | 'baseUrl'> & {baseUrl?: string},
+    opts: Omit<OpenAICompatibleClientOptions, 'name' | 'tokenParam'>,
 ) {
     return new OpenAICompatibleClient({
         ...opts,
         name: 'openrouter',
         baseUrl: opts.baseUrl || DEFAULT_OPENROUTER_BASE_URL,
-        extraHeaders: {
+        headers: {
             'HTTP-Referer': 'https://github.com/diplodoc-platform/cli',
             'X-Title': 'Diplodoc CLI',
-            ...(opts.extraHeaders || {}),
+            ...(opts.headers || {}),
         },
     });
 }

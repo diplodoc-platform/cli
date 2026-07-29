@@ -19,9 +19,7 @@ const onFatalError = () => {
     process.exit(1);
 };
 
-type AITranslateConfig = TranslateConfig & AITranslationConfig;
-
-export type ClientFactory = (config: AITranslateConfig) => LLMClient;
+export type ClientFactory = (config: AITranslationConfig) => LLMClient;
 
 export class Provider {
     readonly logger: TranslateLogger;
@@ -41,7 +39,7 @@ export class Provider {
         this.logger.skipped(skipped);
     }
 
-    async translate(files: string[], config: AITranslateConfig) {
+    async translate(files: string[], config: AITranslationConfig) {
         const client = this.clientFactory(config);
         const {input, output, source, target: targets, vars, dryRun, maxConcurrency} = config;
 
@@ -60,7 +58,7 @@ export class Provider {
                     logger: this.logger,
                 });
 
-                const process = makeProcessor({
+                const processFile = makeProcessor({
                     input,
                     output,
                     sourceLanguage: source.language,
@@ -75,7 +73,7 @@ export class Provider {
                     asyncify(async (file: string) => {
                         try {
                             this.logger.translate(file);
-                            await process(file);
+                            await processFile(file);
                             if (!dryRun) {
                                 this.logger.translated(file);
                             }
@@ -182,7 +180,7 @@ function makeProcessor(params: ProcessorParams) {
 
 type TranslatorParams = {
     client: LLMClient;
-    config: AITranslateConfig;
+    config: AITranslationConfig;
     sourceLanguage: string;
     targetLanguage: string;
     cache: Map<string, Defer>;
@@ -190,7 +188,7 @@ type TranslatorParams = {
     logger: Logger;
 };
 
-function makeTranslator(params: TranslatorParams): Translate {
+export function makeTranslator(params: TranslatorParams): Translate {
     const {client, config, sourceLanguage, targetLanguage, cache, stat, logger} = params;
     const {
         systemPrompt,
@@ -312,6 +310,15 @@ function makeTranslator(params: TranslatorParams): Translate {
 
         for (const text of texts) {
             const tokens = estimateTokens(text);
+
+            if (tokens > maxBatchTokens) {
+                logger.warn(
+                    path,
+                    `Skip document part for translation. Part is too big (~${tokens} tokens > ${maxBatchTokens}).`,
+                );
+                promises.push(Promise.resolve(text));
+                continue;
+            }
 
             const cached = cache.get(text);
             if (cached) {

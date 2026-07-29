@@ -1,9 +1,8 @@
 import type {ChatMessage} from './clients/types';
 
 import {existsSync, readFileSync} from 'node:fs';
+import {escapeRegExp} from 'lodash';
 import {dedent} from 'ts-dedent';
-
-import {escapeRegExp} from './utils';
 
 export type PromptMode = 'append' | 'replace';
 
@@ -46,15 +45,30 @@ export {FRAGMENT_SEPARATOR};
 
 /**
  * Resolves a prompt value: if it is an existing file path, read it; otherwise use as-is.
+ * The optional `resolve` callback maps config-relative paths to absolute ones.
  */
-export function resolvePromptValue(value: string | undefined): string | undefined {
+export function resolvePromptValue(
+    value: string | undefined,
+    resolve?: (path: string) => string,
+): string | undefined {
     if (!value) {
         return undefined;
     }
 
     const trimmed = value.trim();
-    if (existsSync(trimmed)) {
-        return readFileSync(trimmed, 'utf8');
+
+    // A real file path never contains a line break.
+    if (!trimmed.includes('\n')) {
+        if (existsSync(trimmed)) {
+            return readFileSync(trimmed, 'utf8');
+        }
+
+        if (resolve) {
+            const resolved = resolve(trimmed);
+            if (existsSync(resolved)) {
+                return readFileSync(resolved, 'utf8');
+            }
+        }
     }
 
     return value;
