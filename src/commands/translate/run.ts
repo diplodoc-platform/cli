@@ -121,6 +121,14 @@ export class Run extends BaseRun<CommonRunConfig> {
                 return false;
             }
 
+            // Tocs consumed by an include (link or merge mode) are inlined into their
+            // parent toc during translate and are not registered as standalone toc
+            // nodes, so their strings are already extracted with the parent. See the
+            // same guard below in `finalFiles`.
+            if (!this.toc.isToc(toc)) {
+                return false;
+            }
+
             return true;
         });
 
@@ -140,6 +148,16 @@ export class Run extends BaseRun<CommonRunConfig> {
             const normalizedFile = normalizePath(file);
 
             if (copiedFromPaths.has(normalizedFile)) {
+                return false;
+            }
+
+            // Tocs consumed by an include are inlined into their parent toc during
+            // translate and are not registered as standalone toc nodes (they remain
+            // `source` graph nodes). Their strings are already extracted with the
+            // parent toc, so extracting them on their own both duplicates content and
+            // throws `Error while finding toc dir.` in TocService.for(). This is the
+            // primary guard: it runs for both the default and `--filter` file lists.
+            if (this.tocYamlList.has(normalizedFile) && !this.toc.isToc(normalizedFile)) {
                 return false;
             }
 
