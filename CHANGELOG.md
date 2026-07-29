@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.50.6](https://github.com/diplodoc-platform/cli/compare/v5.50.5...v5.50.6) (2026-07-29)
+
+
+### Bug Fixes
+
+* do not fail translate extract on link-included tocs ([#2107](https://github.com/diplodoc-platform/cli/issues/2107)) ([0fa0a5a](https://github.com/diplodoc-platform/cli/commit/0fa0a5a2afe6aa494584f3412bb74431e4e6b82a))
+
 ## [5.50.5](https://github.com/diplodoc-platform/cli/compare/v5.50.4...v5.50.5) (2026-07-29)
 
 
