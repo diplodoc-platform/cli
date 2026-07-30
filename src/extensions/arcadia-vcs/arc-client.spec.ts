@@ -671,4 +671,99 @@ describe('ArcClient', () => {
             },
         ]);
     });
+
+    it('should update cached mtimes using only the cached-to-current revision range', async () => {
+        const delta = dedent`
+            commit current
+            author: modifier
+            date: 2025-02-01T00:00:00Z
+            revision: 2
+
+                Update cached file
+
+            M   cached.md
+            A   new.md
+        `;
+        const cachedTime = Math.floor(new Date('2025-01-01T00:00:00Z').getTime() / 1000);
+        const currentTime = Math.floor(new Date('2025-02-01T00:00:00Z').getTime() / 1000);
+
+        arc(['root'], expect.anything()).thenResolve({stdout: baseDir} as Result);
+        arc(['log', '-n1', '--oneline'], expect.anything()).thenResolve({
+            stdout: 'current current message',
+        } as Result);
+        arc(['log', '--name-status', 'cached..current', '.'], expect.anything()).thenResolve({
+            stdout: delta,
+        } as Result);
+
+        const client = new ArcClient({vcs: {}}, baseDir, {
+            version: 1,
+            revision: 'cached',
+            scopes: ['.'],
+            mtimes: {'cached.md': cachedTime, 'untouched.md': cachedTime},
+            authors: {},
+            contributors: {},
+        });
+
+        await expect(client.getMTimes()).resolves.toEqual({
+            'cached.md': currentTime,
+            'new.md': currentTime,
+            'untouched.md': cachedTime,
+        });
+        await expect(client.getCache()).resolves.toMatchObject({
+            version: 1,
+            revision: 'current',
+            scopes: ['.'],
+        });
+    });
+
+    it('should request each incremental scope only once for all VCS metadata', async () => {
+        const delta = dedent`
+            commit current
+            author: modifier
+            date: 2025-02-01T00:00:00Z
+            revision: 2
+
+                Update cached file
+
+            M   cached.md
+        `;
+        arc(['root'], expect.anything()).thenResolve({stdout: baseDir} as Result);
+        arc(['log', '-n1', '--oneline'], expect.anything()).thenResolve({
+            stdout: 'current current message',
+        } as Result);
+        arc(['log', '--name-status', 'cached..current', '.'], expect.anything()).thenResolve({
+            stdout: delta,
+        } as Result);
+        const client = new ArcClient({vcs: {}}, baseDir, {
+            version: 1,
+            revision: 'cached',
+            scopes: ['.'],
+            mtimes: {'cached.md': 1},
+            authors: {'cached.md': {login: 'creator', commit: 'cached'}},
+            contributors: {'cached.md': [{login: 'creator', commit: 'cached'}]},
+        });
+
+        await Promise.all([client.getMTimes(), client.getAuthors(), client.getContributors()]);
+
+        const incrementalLogs = vi
+            .mocked(execa)
+            .mock.calls.filter((call) =>
+                ((call[1] || []) as unknown as string[]).includes('cached..current'),
+            );
+        expect(incrementalLogs).toHaveLength(1);
+    });
+
+    it('should reject a cache created for different scopes', async () => {
+        arc(['root'], expect.anything()).thenResolve({stdout: baseDir} as Result);
+        const client = new ArcClient({vcs: {}}, baseDir, {
+            version: 1,
+            revision: 'cached',
+            scopes: ['another/project'],
+            mtimes: {},
+            authors: {},
+            contributors: {},
+        });
+
+        await expect(client.getMTimes()).rejects.toThrow('different scopes');
+    });
 });

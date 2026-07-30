@@ -11,19 +11,27 @@ import {options} from './config';
 
 type Run = BaseRun<Config> & {
     vcs?: VcsService;
+    output: AbsolutePath;
 };
 
 export class Extension implements IExtension {
     apply(program: BaseProgram<BaseConfig & Config, BaseArgs & Args>) {
+        const connectors = new WeakMap<Run, ArcadiaVcsConnector>();
+
         getBaseHooks<Run>(program).BeforeAnyRun.tap('ArcadiaVcsConnector', (run) => {
             getVcsHooks(run.vcs).VcsConnector.tapPromise(
                 {name: 'ArcadiaVcsConnector', stage: 10},
                 async (_connector) => {
                     const connector = new ArcadiaVcsConnector(run);
+                    connectors.set(run, connector);
 
                     return connector.init();
                 },
             );
+        });
+
+        getBaseHooks<Run>(program).AfterAnyRun.tapPromise('ArcadiaVcsConnector', async (run) => {
+            await connectors.get(run)?.flushCache();
         });
 
         getBaseHooks(program).Command.tap('ArcadiaVcsConnector', (command) => {

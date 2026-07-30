@@ -1,6 +1,6 @@
 import type {Run} from '@diplodoc/cli/lib/run';
 import type {Contributor, SyncData, VcsConnector} from '@diplodoc/cli/lib/vcs';
-import type {Config} from './types';
+import type {ArcadiaVcsCache, Config} from './types';
 
 import {dirname} from 'node:path';
 import {uniqBy} from 'lodash';
@@ -8,7 +8,8 @@ import {uniqBy} from 'lodash';
 import {bounded, normalizePath} from '@diplodoc/cli/lib/utils';
 import {configPath} from '@diplodoc/cli/lib/config';
 
-import {ArcClient} from './arc-client';
+import {ArcClient, ArcadiaVcsCacheScopesError} from './arc-client';
+import {ArcadiaVcsCacheStore} from './cache-store';
 
 export class ArcadiaVcsConnector implements VcsConnector {
     private authorByPath: Record<NormalizedPath, Contributor> = {};
@@ -21,20 +22,41 @@ export class ArcadiaVcsConnector implements VcsConnector {
 
     private arc: ArcClient;
 
+    private cacheStore?: ArcadiaVcsCacheStore;
+
+    private root: AbsolutePath;
+
     private run: Run<Config>;
 
     private arcAvailable = false;
 
+    private cacheReady = false;
+
     constructor(run: Run<Config>) {
         this.run = run;
         this.config = run.config;
-        this.arc = new ArcClient(run.config, dirname(run.config[configPath] as AbsolutePath));
+        this.root = dirname(run.config[configPath] as AbsolutePath) as AbsolutePath;
+        this.arc = new ArcClient(run.config, this.root);
+        if (run.config.vcs?.cache) {
+            const output = (run as Run<Config> & {output: AbsolutePath}).output;
+            this.cacheStore = new ArcadiaVcsCacheStore(
+                run.config.vcs.cache,
+                this.root,
+                output,
+                (message) => run.logger.warn(message),
+            );
+        }
     }
 
     async init() {
         const {mtimes, authors, contributors} = this.config;
+        let cache: ArcadiaVcsCache | undefined;
 
         try {
+            cache = await this.cacheStore?.load();
+            if (cache) {
+                this.arc = new ArcClient(this.config, this.root, cache);
+            }
             await Promise.all(
                 [
                     mtimes.enabled && this.fillMTimes(),
@@ -43,6 +65,7 @@ export class ArcadiaVcsConnector implements VcsConnector {
                 ].filter(Boolean),
             );
             this.arcAvailable = true;
+            this.cacheReady = Boolean(this.cacheStore);
         } catch (error) {
             if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
                 this.run.logger.warn(
@@ -50,10 +73,26 @@ export class ArcadiaVcsConnector implements VcsConnector {
                 );
                 return this;
             }
+            if (cache && !(error instanceof ArcadiaVcsCacheScopesError)) {
+                await this.restoreCache(cache);
+                this.arcAvailable = true;
+                this.run.logger.warn(
+                    `Arcadia VCS incremental update failed; using cached VCS metadata: ${error}`,
+                );
+                return this;
+            }
             throw error;
         }
 
         return this;
+    }
+
+    async flushCache() {
+        if (!this.cacheStore || !this.cacheReady) {
+            return;
+        }
+
+        await this.cacheStore.save(await this.arc.getCache());
     }
 
     getData() {
@@ -134,5 +173,23 @@ export class ArcadiaVcsConnector implements VcsConnector {
 
     private async fillMTimes() {
         this.mtimeByPath = await this.arc.getMTimes();
+    }
+
+    private async restoreCache(cache: ArcadiaVcsCache) {
+        if (this.config.mtimes.enabled) {
+            this.mtimeByPath = {...cache.mtimes} as Record<NormalizedPath, number>;
+        }
+        if (this.config.authors.enabled) {
+            for (const [path, info] of Object.entries(cache.authors)) {
+                this.authorByPath[path as NormalizedPath] = await this.getUserByLogin(info.login);
+            }
+        }
+        if (this.config.contributors.enabled) {
+            for (const [path, infos] of Object.entries(cache.contributors)) {
+                this.contributorsByPath[path as NormalizedPath] = await Promise.all(
+                    infos.map(({login}) => this.getUserByLogin(login)),
+                );
+            }
+        }
     }
 }

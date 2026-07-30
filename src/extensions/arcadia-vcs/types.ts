@@ -2,6 +2,7 @@ export interface LogConfig {
     vcs: {
         scopes?: string[];
         initialCommit?: string;
+        cache?: ArcadiaVcsCacheConfig;
     };
     authors?: {
         ignore?: string[];
@@ -9,6 +10,22 @@ export interface LogConfig {
     contributors?: {
         ignore?: string[];
     };
+}
+
+export interface ArcadiaVcsCacheConfig {
+    source?: string;
+    seed?: string;
+    output?: string;
+    authEnv?: string;
+}
+
+export interface ArcadiaVcsCache {
+    version: 1;
+    revision: string;
+    scopes: string[];
+    mtimes: Record<string, number>;
+    authors: Record<string, {login: string; commit: string}>;
+    contributors: Record<string, Array<{login: string; commit: string}>>;
 }
 
 export type Config = {
@@ -25,6 +42,7 @@ export type Config = {
         enabled: boolean;
         scopes: string[];
         initialCommit?: string;
+        cache?: ArcadiaVcsCacheConfig;
     };
 };
 

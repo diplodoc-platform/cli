@@ -1,4 +1,4 @@
-import type {LogConfig} from './types';
+import type {ArcadiaVcsCache, LogConfig} from './types';
 
 import {relative} from 'node:path';
 import {execa} from 'execa';
@@ -11,14 +11,32 @@ export interface AuthorInfo {
     commit: string;
 }
 
+export class ArcadiaVcsCacheScopesError extends Error {}
+
 export class ArcClient {
     private config: LogConfig;
 
     private root: AbsolutePath;
 
-    constructor(config: LogConfig, root: AbsolutePath) {
+    private cache?: ArcadiaVcsCache;
+
+    private mtimes: Record<string, number>;
+
+    private authors: Record<string, AuthorInfo>;
+
+    private contributors: Record<string, AuthorInfo[]>;
+
+    private logs = new Map<RelativePath, Promise<string>>();
+
+    constructor(config: LogConfig, root: AbsolutePath, cache?: ArcadiaVcsCache) {
         this.config = config;
         this.root = root;
+        this.cache = cache;
+        this.mtimes = {...cache?.mtimes};
+        this.authors = {...cache?.authors};
+        this.contributors = Object.fromEntries(
+            Object.entries(cache?.contributors || {}).map(([path, infos]) => [path, [...infos]]),
+        );
     }
 
     @memoize()
@@ -28,10 +46,9 @@ export class ArcClient {
     }
 
     async getContributors() {
-        const base = await this.getBase();
-        const scopes = [base, ...(this.config.vcs.scopes || [])].map(normalizePath);
+        const scopes = await this.getScopes();
 
-        const result: Record<string, AuthorInfo[]> = {};
+        const result: Record<string, AuthorInfo[]> = this.contributors;
 
         for (const scope of scopes) {
             const commits = await this.parse(await this.log(scope));
@@ -60,10 +77,9 @@ export class ArcClient {
     }
 
     async getAuthors(): Promise<Record<string, {login: string; commit: string}>> {
-        const base = await this.getBase();
-        const scopes = [base, ...(this.config.vcs.scopes || [])].map(normalizePath);
+        const scopes = await this.getScopes();
 
-        const authors: Record<string, {login: string; commit: string}> = {};
+        const authors: Record<string, {login: string; commit: string}> = this.authors;
 
         for (const scope of scopes) {
             const commits = await this.parse(await this.log(scope));
@@ -86,10 +102,9 @@ export class ArcClient {
     }
 
     async getMTimes() {
-        const base = await this.getBase();
-        const scopes = [base, ...(this.config.vcs.scopes || [])].map(normalizePath);
+        const scopes = await this.getScopes();
 
-        const result: Record<string, number> = {};
+        const result: Record<string, number> = this.mtimes;
 
         for (const scope of scopes) {
             const commits = await this.parse(await this.log(scope));
@@ -103,6 +118,33 @@ export class ArcClient {
         }
 
         return result;
+    }
+
+    async getCache(): Promise<ArcadiaVcsCache> {
+        const scopes = await this.getScopes();
+
+        return {
+            version: 1,
+            revision: await this.lastCommit(),
+            scopes,
+            mtimes: this.mtimes,
+            authors: this.authors,
+            contributors: this.contributors,
+        };
+    }
+
+    @memoize()
+    private async getScopes() {
+        const base = await this.getBase();
+        const scopes = [base, ...(this.config.vcs.scopes || [])].map(normalizePath);
+
+        if (this.cache && !sameScopes(this.cache.scopes, scopes)) {
+            throw new ArcadiaVcsCacheScopesError(
+                `Arcadia VCS cache was created for different scopes: ${this.cache.scopes.join(', ')}`,
+            );
+        }
+
+        return scopes;
     }
 
     private async parse(content: string) {
@@ -197,15 +239,27 @@ export class ArcClient {
         return commits;
     }
 
+    @memoize()
     private async lastCommit() {
         const record = await this.run('log', '-n1', '--oneline');
         const [commit] = record.split(' ');
         return commit;
     }
 
-    private async log(scope: RelativePath): Promise<string> {
+    private log(scope: RelativePath): Promise<string> {
+        let result = this.logs.get(scope);
+        if (!result) {
+            result = this.loadLog(scope);
+            this.logs.set(scope, result);
+        }
+        return result;
+    }
+
+    private async loadLog(scope: RelativePath): Promise<string> {
         const filter: string[] = [scope];
-        if (this.config.vcs.initialCommit) {
+        if (this.cache?.revision) {
+            filter.unshift(`${this.cache.revision}..${await this.lastCommit()}`);
+        } else if (this.config.vcs.initialCommit) {
             filter.unshift(`${await this.lastCommit()}..${this.config.vcs.initialCommit}`);
         }
         return this.run('log', '--name-status', ...filter);
@@ -277,6 +331,10 @@ function followPaths<T>(
             }
         }
     }
+}
+
+function sameScopes(left: string[], right: string[]) {
+    return left.length === right.length && left.every((scope, index) => scope === right[index]);
 }
 
 function isUsefullPath(path: string) {
