@@ -13,6 +13,7 @@ import {Extract} from '../commands/extract';
 var resolveConfig: Mock;
 
 vi.mock('../providers/yandex/provider');
+vi.mock('../providers/ai/provider');
 vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;

@@ -81,6 +81,8 @@ export class Extension {
                     ok(config.auth, 'Required param auth is not configured');
                     ok(config.folder, 'Required param folder is not configured');
 
+                    config.timeout = (defined('timeout', args, config) as number) ?? 5000;
+
                     let glossary: AbsolutePath | undefined;
                     if (own<string, 'glossary'>(args, 'glossary')) {
                         glossary = join(args.input, args.glossary);
