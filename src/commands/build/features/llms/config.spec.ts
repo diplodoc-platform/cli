@@ -51,13 +51,27 @@ describe('resolveLlmsFullMaxSize', () => {
         expect(result).toBe(2 * 1024 ** 2);
     });
 
-    it('CLI default value (4M) falls back to YAML', () => {
+    it('CLI default value (4M as number) falls back to YAML', () => {
         // CLI arg equals default (4M) → falls back to YAML
         const result = resolveLlmsFullMaxSize(
             {llmsFullMaxSize: 4 * 1024 ** 2},
             {llmsFullMaxSize: '8M'},
         );
         expect(result).toBe(8 * 1024 ** 2);
+    });
+
+    it('CLI default value (4M as string) falls back to YAML', () => {
+        // In real CLI, the default '4M' is a string (not parsed by fileSizeConverter
+        // until explicitly passed via --llms-full-max-size). The resolver must
+        // parse it to bytes before comparing with defaultBytes.
+        const result = resolveLlmsFullMaxSize({llmsFullMaxSize: '4M'}, {llmsFullMaxSize: '8M'});
+        expect(result).toBe(8 * 1024 ** 2);
+    });
+
+    it('CLI default value (4M as string) falls back to YAML integer', () => {
+        // Same as above but YAML config has an integer (e.g. llmsFullMaxSize: 10)
+        const result = resolveLlmsFullMaxSize({llmsFullMaxSize: '4M'}, {llmsFullMaxSize: 10});
+        expect(result).toBe(10);
     });
 
     it('YAML "0" uses default (disableIfZero)', () => {
