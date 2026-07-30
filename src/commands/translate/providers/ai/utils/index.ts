@@ -7,6 +7,7 @@ export {
     LLMResponseError,
     throwLLMError,
 } from './errors';
+export {TranslationStore, cacheFingerprint} from './cache';
 
 export class Defer<T = string> {
     resolve!: (text: T) => void;

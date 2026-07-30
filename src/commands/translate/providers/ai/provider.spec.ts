@@ -3,11 +3,14 @@ import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
 import type {Defer} from './utils';
 
+import {mkdtempSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
 import {extractTitle, makeTranslator} from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
-import {LLMAuthError} from './utils';
+import {LLMAuthError, TranslationStore, cacheFingerprint} from './utils';
 
 type FakeComplete = (fragments: string[], call: number) => string[] | Error;
 
@@ -33,13 +36,18 @@ function makeClient(complete: FakeComplete) {
     return client;
 }
 
-function makeParams(client: LLMClient, config: Partial<AITranslationConfig> = {}) {
+function makeParams(
+    client: LLMClient,
+    config: Partial<AITranslationConfig> = {},
+    store?: TranslationStore,
+) {
     const warn = vi.fn();
-    const stat = {inputTokens: 0, outputTokens: 0, requests: 0, bytes: 0};
+    const stat = {inputTokens: 0, outputTokens: 0, requests: 0, bytes: 0, cached: 0};
     const cache = new Map<string, Defer>();
 
     return {
         params: {
+            store,
             client,
             config: {
                 userPrompt: '{{fragments}}',
@@ -187,6 +195,64 @@ describe('translate ai provider', () => {
             expect(messages[0].content).toContain(
                 'CONTEXT: Document context: file docs/ru/index.md.',
             );
+        });
+
+        it('should reuse translations from the persistent store', async () => {
+            const file = join(mkdtempSync(join(tmpdir(), 'yfm-ai-store-')), 'store.json');
+            const fingerprint = cacheFingerprint({model: 'fake'});
+
+            const warmup = new TranslationStore(file, fingerprint);
+            warmup.load();
+            warmup.set('One', 'T:One');
+            warmup.flush();
+
+            const client = makeClient(translated);
+            const store = new TranslationStore(file, fingerprint);
+            store.load();
+            const {params, stat} = makeParams(client, {}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', ['One']);
+
+            expect(result).toEqual(['T:One']);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
+        it('should save fresh translations into the persistent store', async () => {
+            const file = join(mkdtempSync(join(tmpdir(), 'yfm-ai-store-')), 'store.json');
+            const fingerprint = cacheFingerprint({model: 'fake'});
+
+            const client = makeClient(translated);
+            const store = new TranslationStore(file, fingerprint);
+            store.load();
+            const {params} = makeParams(client, {}, store);
+            const translate = makeTranslator(params);
+
+            await translate('file.md', ['One', 'Two']);
+            store.flush();
+
+            const reopened = new TranslationStore(file, fingerprint);
+            reopened.load();
+
+            expect(reopened.get('One')).toBe('T:One');
+            expect(reopened.get('Two')).toBe('T:Two');
+        });
+
+        it('should not poison the store on dry run', async () => {
+            const file = join(mkdtempSync(join(tmpdir(), 'yfm-ai-store-')), 'store.json');
+            const fingerprint = cacheFingerprint({model: 'fake'});
+
+            const client = makeClient(translated);
+            const store = new TranslationStore(file, fingerprint);
+            store.load();
+            const {params} = makeParams(client, {dryRun: true}, store);
+            const translate = makeTranslator(params);
+
+            await translate('file.md', ['One']);
+            store.flush();
+
+            expect(store.get('One')).toBeUndefined();
         });
 
         it('should estimate usage without client calls on dry run', async () => {
