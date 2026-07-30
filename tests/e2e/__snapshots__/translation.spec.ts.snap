@@ -19,6 +19,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: index.md
+alternate:
+  - href: index.md
+    type: text/markdown
+    title: Markdown version
 ---
 ## Index header
 
@@ -287,6 +291,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: no-translate.md
+alternate:
+  - href: no-translate.md
+    type: text/markdown
+    title: Markdown version
 ---
 # No-translate directive
 
@@ -350,6 +358,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/index.md
+alternate:
+  - href: openapi/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 <!-- markdownlint-disable-file -->
 
@@ -448,6 +460,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/test-controller/getWithPayloadResponse.md
+alternate:
+  - href: openapi/test-controller/getWithPayloadResponse.md
+    type: text/markdown
+    title: Markdown version
 ---
 <div class="openapi">
 
@@ -528,6 +544,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/test-controller/index.md
+alternate:
+  - href: openapi/test-controller/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # test-controller
 
@@ -578,6 +598,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: index.md
+alternate:
+  - href: index.md
+    type: text/markdown
+    title: Markdown version
 ---
 ## Index header
 
@@ -846,6 +870,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: no-translate.md
+alternate:
+  - href: no-translate.md
+    type: text/markdown
+    title: Markdown version
 ---
 # No-translate directive
 
@@ -909,6 +937,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/index.md
+alternate:
+  - href: openapi/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 <!-- markdownlint-disable-file -->
 
@@ -1007,6 +1039,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/test-controller/getWithPayloadResponse.md
+alternate:
+  - href: openapi/test-controller/getWithPayloadResponse.md
+    type: text/markdown
+    title: Markdown version
 ---
 <div class="openapi">
 
@@ -1087,6 +1123,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/test-controller/index.md
+alternate:
+  - href: openapi/test-controller/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # test-controller
 

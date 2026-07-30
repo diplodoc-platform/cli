@@ -18,6 +18,10 @@ metadata:
 title: Included Page Title
 description: This is the description for the included page
 vcsPath: included.md
+alternate:
+  - href: included.md
+    type: text/markdown
+    title: Markdown version
 ---
 
 # Included Page
@@ -42,6 +46,10 @@ metadata:
 title: Main Page Title
 description: This is the description for the main page
 vcsPath: index.md
+alternate:
+  - href: index.md
+    type: text/markdown
+    title: Markdown version
 ---
 
 # Main Page

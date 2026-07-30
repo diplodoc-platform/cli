@@ -38,6 +38,10 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 description: Full reference of the public HTTP endpoints.
 vcsPath: api.md
+alternate:
+  - href: api.md
+    type: text/markdown
+    title: Markdown version
 ---
 
 # API Reference
@@ -56,6 +60,10 @@ metadata:
 title: Overview
 description: What this product is and how to get started.
 vcsPath: index.md
+alternate:
+  - href: index.md
+    type: text/markdown
+    title: Markdown version
 ---
 
 # Overview
@@ -112,6 +120,10 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 description: Install the product and build your first project.
 vcsPath: start.md
+alternate:
+  - href: start.md
+    type: text/markdown
+    title: Markdown version
 ---
 
 # Getting Started

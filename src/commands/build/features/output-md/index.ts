@@ -13,7 +13,7 @@ import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
-import {addMetaFrontmatter, getCustomCollectPlugins} from './utils';
+import {addMetaFrontmatter, buildCompanionAlternate, getCustomCollectPlugins} from './utils';
 import {MarkdownCollector} from './collect';
 import {resolvePropagatedFrontmatter} from './frontmatter-propagation';
 import {options} from './config';
@@ -117,12 +117,16 @@ export class OutputMd {
                 const copiedIncludes = new Set<string>();
                 const copiedAssets = new Set<string>();
 
-                getMetaHooks(run.meta).Dump.tap('Build.Md', (meta) => {
+                getMetaHooks(run.meta).Dump.tap('Build.Md', (meta, file) => {
                     if (meta.alternate) {
                         // Expected type missing, to be compatible with old formats
                         // @ts-ignore
                         meta.alternate = meta.alternate.map(flow(get('href'), shortLink));
                     }
+
+                    // Add companion alternate link (md or yaml) to the frontmatter.
+                    // The viewer will resolve the relative href to an absolute companion URL.
+                    meta.alternate = [...(meta.alternate || []), buildCompanionAlternate(file)];
 
                     const hasTheme = run.exists(join(run.output, THEME_ASSETS_PATH));
                     if (hasTheme) {

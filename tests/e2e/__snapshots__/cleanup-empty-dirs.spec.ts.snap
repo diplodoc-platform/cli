@@ -35,6 +35,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: active/page.md
+alternate:
+  - href: active/page.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Active Page
 
@@ -64,6 +68,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: index.md
+alternate:
+  - href: index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Main Page
 
