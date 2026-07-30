@@ -43,14 +43,21 @@ export function resolveLlmsFullMaxSize(args: Hash, config: Hash): number {
     const argValue = defined('llmsFullMaxSize', args);
     const configValue = defined('llmsFullMaxSize', config);
 
-    const defaultBytes = fileSizeConverter({disableIfZero: true})(
-        LLMS_FULL_MAX_SIZE_DEFAULT,
-        LLMS_FULL_MAX_SIZE_DEFAULT,
-    );
+    const converter = fileSizeConverter({disableIfZero: true});
+    const defaultBytes = converter(LLMS_FULL_MAX_SIZE_DEFAULT, LLMS_FULL_MAX_SIZE_DEFAULT);
 
-    // If CLI is explicitly set (differs from default) — use it
-    if (argValue !== null && argValue !== defaultBytes) {
-        return argValue as number;
+    // If CLI is explicitly set — parse and use it.
+    // The CLI default is a string ('4M'), so we need to convert it to bytes
+    // before comparing with defaultBytes (number). If the parsed value equals
+    // the default, we fall through to config.
+    if (argValue !== null) {
+        const parsedArg =
+            typeof argValue === 'number'
+                ? argValue
+                : converter(argValue, LLMS_FULL_MAX_SIZE_DEFAULT);
+        if (parsedArg !== defaultBytes) {
+            return parsedArg as number;
+        }
     }
 
     // If YAML config is set — parse and use it
@@ -58,10 +65,7 @@ export function resolveLlmsFullMaxSize(args: Hash, config: Hash): number {
         if (typeof configValue === 'number') {
             return configValue;
         }
-        return (
-            fileSizeConverter({disableIfZero: true})(configValue, LLMS_FULL_MAX_SIZE_DEFAULT) ??
-            (defaultBytes as number)
-        );
+        return converter(configValue, LLMS_FULL_MAX_SIZE_DEFAULT) ?? (defaultBytes as number);
     }
 
     // Default
