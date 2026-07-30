@@ -129,8 +129,13 @@ export type DocContext = {
  */
 export function extractTitle(data: unknown): string | undefined {
     if (typeof data === 'string') {
-        const match = data.match(/^#[ \t]+(.+)$/m);
-        return match?.[1].trim();
+        for (const line of data.split('\n')) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('# ') || trimmed.startsWith('#\t')) {
+                return trimmed.slice(2).trim();
+            }
+        }
+        return undefined;
     }
 
     if (data && typeof data === 'object') {
