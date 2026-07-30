@@ -340,7 +340,7 @@ type TranslatorParams = {
  * The fingerprint covers everything that affects the output, so changing
  * the model, prompts or glossary safely resets the cache.
  */
-function makeStore(
+export function makeStore(
     client: LLMClient,
     config: AITranslationConfig,
     sourceLanguage: string,

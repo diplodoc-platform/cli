@@ -3,12 +3,12 @@ import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
 import type {Defer} from './utils';
 
-import {mkdtempSync} from 'node:fs';
+import {existsSync, mkdtempSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
-import {extractTitle, makeTranslator} from './provider';
+import {extractTitle, makeStore, makeTranslator} from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
 import {LLMAuthError, TranslationStore, cacheFingerprint} from './utils';
 
@@ -88,6 +88,69 @@ describe('translate ai provider', () => {
         it('should return undefined when there is no title', () => {
             expect(extractTitle('plain text')).toBeUndefined();
             expect(extractTitle({items: []})).toBeUndefined();
+        });
+    });
+
+    describe('makeStore', () => {
+        it('should return undefined without cacheDir', () => {
+            const client = makeClient(translated);
+
+            expect(makeStore(client, {} as AITranslationConfig, 'ru', 'en')).toBeUndefined();
+        });
+
+        it('should create a store file per provider and language pair', async () => {
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const client = makeClient(translated);
+            const config = {
+                cacheDir: dir,
+                model: 'model',
+                promptMode: 'append',
+                glossaryPairs: [],
+            } as unknown as AITranslationConfig;
+
+            const store = makeStore(client, config, 'ru', 'en');
+
+            expect(store).toBeDefined();
+            store?.load();
+            store?.set('Привет', 'Hello');
+            store?.flush();
+
+            const reopened = makeStore(client, config, 'ru', 'en');
+            reopened?.load();
+
+            expect(reopened?.get('Привет')).toBe('Hello');
+            expect(existsSync(join(dir, 'fake.ru-en.json'))).toBe(true);
+        });
+
+        it('should reset stored translations when the model changes', () => {
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const client = makeClient(translated);
+            const base = {
+                cacheDir: dir,
+                promptMode: 'append',
+                glossaryPairs: [],
+            };
+
+            const first = makeStore(
+                client,
+                {...base, model: 'a'} as unknown as AITranslationConfig,
+                'ru',
+                'en',
+            );
+            first?.load();
+            first?.set('Привет', 'Hello');
+            first?.flush();
+
+            const second = makeStore(
+                client,
+                {...base, model: 'b'} as unknown as AITranslationConfig,
+                'ru',
+                'en',
+            );
+            second?.load();
+
+            expect(second?.get('Привет')).toBeUndefined();
+>>>>>>> 8d19fa54 (chore(translate): cover store creation and cache args with tests)
         });
     });
 
