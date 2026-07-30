@@ -96,6 +96,28 @@ const promptMode = option({
     defaultInfo: 'append',
 });
 
+const judge = option({
+    flags: '--judge',
+    desc: `
+        Score translated units with a judge model after translation and
+        write a quality report to the output directory. Opt-in: roughly
+        doubles token usage. Segments below --judge-threshold are also
+        reported as warnings.
+    `,
+});
+
+const judgeModel = option({
+    flags: '--judge-model <name>',
+    desc: 'Model used for quality scoring. Defaults to the translation model.',
+});
+
+const judgeThreshold = option({
+    flags: '--judge-threshold <num>',
+    desc: 'Score below which a segment is reported as low quality.',
+    parser: (value: string) => Number.parseInt(value, 10),
+    defaultInfo: 70,
+});
+
 const glossaryExample = gray(dedent`
     glossaryPairs:
       - sourceText: string
@@ -160,6 +182,9 @@ export const options = {
     userPrompt,
     promptMode,
     glossary,
+    judge,
+    judgeModel,
+    judgeThreshold,
     temperature,
     maxOutputTokens,
     maxBatchTokens,

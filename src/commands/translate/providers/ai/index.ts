@@ -57,6 +57,9 @@ type Args = {
     userPrompt?: string;
     promptMode?: PromptMode;
     glossary?: string;
+    judge?: boolean;
+    judgeModel?: string;
+    judgeThreshold?: number;
     temperature?: number;
     maxOutputTokens?: number;
     maxBatchTokens?: number;
@@ -75,6 +78,9 @@ type Config = {
     promptMode: PromptMode;
     glossary?: string;
     glossaryPairs: GlossaryPair[];
+    judge: boolean;
+    judgeModel?: string;
+    judgeThreshold: number;
     temperature: number;
     maxOutputTokens: number;
     maxBatchTokens: number;
@@ -196,6 +202,9 @@ export class Extension {
                         .addOption(options.userPrompt)
                         .addOption(options.promptMode)
                         .addOption(options.glossary)
+                        .addOption(options.judge)
+                        .addOption(options.judgeModel)
+                        .addOption(options.judgeThreshold)
                         .addOption(options.temperature)
                         .addOption(options.maxOutputTokens)
                         .addOption(options.maxBatchTokens)
@@ -265,6 +274,11 @@ export class Extension {
 
                     config.promptMode =
                         (defined('promptMode', args, config) as PromptMode) || 'append';
+
+                    config.judge = Boolean(defined('judge', args, config));
+                    config.judgeModel =
+                        (defined('judgeModel', args, config) as string | undefined) || undefined;
+                    config.judgeThreshold = intOr(defined('judgeThreshold', args, config), 70);
 
                     config.temperature = numberOr(defined('temperature', args, config), 0);
                     config.maxOutputTokens = intOr(defined('maxOutputTokens', args, config), 4000);
