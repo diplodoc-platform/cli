@@ -1,9 +1,15 @@
 import type {Logger} from '~/core/logger';
+import type {TranslateConfig} from '~/commands/translate';
+import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
 
+import {mkdtempSync, readFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
 import {judgeTranslations, parseJudgeResponse} from './judge';
+import {Provider} from './provider';
 import {LLMAuthError} from './utils';
 
 function makeJudgeClient(respond: (count: number, call: number) => string | Error) {
@@ -135,6 +141,75 @@ describe('translate ai judge', () => {
 
             expect(verdicts).toEqual([]);
             expect(warn).toHaveBeenCalledWith('judge', expect.stringContaining('denied'));
+        });
+    });
+
+    describe('Provider.judge', () => {
+        const judgeConfig = (output: string) =>
+            ({
+                output,
+                model: 'model',
+                judgeThreshold: 95,
+                maxBatchTokens: 100,
+                maxOutputTokens: 100,
+                maxConcurrency: 1,
+                retry: 0,
+            }) as unknown as AITranslationConfig;
+
+        function makeProvider(client: LLMClient) {
+            const factory = vi.fn(() => client);
+            const provider = new Provider(factory, {} as TranslateConfig);
+            const logger = {warn: vi.fn(), stat: vi.fn()};
+
+            Object.assign(provider, {logger});
+
+            return {provider: provider as unknown as {judge: Function}, factory, logger};
+        }
+
+        it('should write a quality report and warn on low scores', async () => {
+            const output = mkdtempSync(join(tmpdir(), 'yfm-ai-judge-'));
+            const client = makeJudgeClient(() =>
+                JSON.stringify([
+                    {index: 1, score: 42, issue: 'meaning lost'},
+                    {index: 2, score: 100, issue: ''},
+                ]),
+            );
+            const {provider, logger} = makeProvider(client);
+
+            await provider.judge(
+                [
+                    {path: 'a.md', source: 'Один', translation: 'Uno'},
+                    {path: 'b.md', source: 'Два', translation: 'Two'},
+                ],
+                judgeConfig(output),
+                'ru',
+                'en',
+            );
+
+            const report = JSON.parse(
+                readFileSync(join(output, 'translate-quality.en.json'), 'utf8'),
+            );
+
+            expect(report.scored).toBe(2);
+            expect(report.low).toBe(1);
+            expect(report.segments[0]).toMatchObject({path: 'a.md', score: 42});
+            expect(logger.warn).toHaveBeenCalledWith('a.md', expect.stringContaining('42/100'));
+            expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('scored 2 units'));
+        });
+
+        it('should use the judge model for scoring when configured', async () => {
+            const output = mkdtempSync(join(tmpdir(), 'yfm-ai-judge-'));
+            const client = makeJudgeClient(allGood);
+            const {provider, factory} = makeProvider(client);
+
+            await provider.judge(
+                [{path: 'a.md', source: 'Один', translation: 'One'}],
+                {...judgeConfig(output), judgeModel: 'strong-model'},
+                'ru',
+                'en',
+            );
+
+            expect(factory).toHaveBeenCalledWith(expect.objectContaining({model: 'strong-model'}));
         });
     });
 });
