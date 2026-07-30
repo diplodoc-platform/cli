@@ -76,6 +76,10 @@ export type Alternate = {
     href: string;
     /** Language code (e.g., 'en', 'ru', 'fr') */
     hreflang?: string;
+    /** MIME type for format alternates (e.g., 'text/markdown', 'application/yaml') */
+    type?: string;
+    /** Human-readable title for the alternate link (e.g., 'Markdown version') */
+    title?: string;
 };
 
 /**

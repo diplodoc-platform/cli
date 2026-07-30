@@ -23,6 +23,10 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product1/core/article1.md
 vcsPath: product1/core/article1.md
+alternate:
+  - href: product1/article1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the core content of Article 1.
 
@@ -129,6 +133,10 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/overlay1/product/article1.md
 vcsPath: product2/overlay1/product/article1.md
+alternate:
+  - href: product2/overlay1/article1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the overlay content of Article 1 for product 2.
 
@@ -145,6 +153,10 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/overlay2/product/article1.md
 vcsPath: product2/overlay2/product/article1.md
+alternate:
+  - href: product2/overlay2/article1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the overlay number #2  of Article 1 content for product 2.
 
@@ -161,6 +173,10 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/core/article1.md
 vcsPath: product2/core/article1.md
+alternate:
+  - href: product2/overlay3/article1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the core content of Article 1.
 
@@ -176,6 +192,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: product2/p2.md
+alternate:
+  - href: product2/p2.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the product 2 specific article.
 
@@ -221,6 +241,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: a1.md
+alternate:
+  - href: a1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the /a1.md file content.
 "
@@ -232,6 +256,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: folder1/a1.md
+alternate:
+  - href: folder1/a1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the /folder1/a1.md file content.
 "
@@ -243,6 +271,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: folder1/folder2/a1.md
+alternate:
+  - href: folder1/folder2/a1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the /folder1/folder1/a1.md file content.
 "
@@ -311,6 +343,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: file1.md
+alternate:
+  - href: file1.md
+    type: text/markdown
+    title: Markdown version
 ---
 # File 1
 "
@@ -325,6 +361,10 @@ sourcePath: folder/fileA.md
 title: File A
 description: YFM description
 vcsPath: folder/fileA.md
+alternate:
+  - href: fileA.md
+    type: text/markdown
+    title: Markdown version
 ---
 # File A
 
@@ -343,6 +383,10 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: folder/fileB.md
 vcsPath: folder/fileB.md
+alternate:
+  - href: fileB.md
+    type: text/markdown
+    title: Markdown version
 ---
 # File B
 
@@ -363,6 +407,10 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: folder/folder/fileC.md
 vcsPath: folder/folder/fileC.md
+alternate:
+  - href: fileC.md
+    type: text/markdown
+    title: Markdown version
 ---
 # File C
 "
@@ -374,6 +422,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: fileX.md
+alternate:
+  - href: fileX.md
+    type: text/markdown
+    title: Markdown version
 ---
 # File X
 "
@@ -464,6 +516,9 @@ meta:
       content: Diplodoc Platform vDIPLODOC-VERSION
   alternate:
     - ru/
+    - href: ru/index.yaml
+      type: application/yaml
+      title: Yaml version
   sourcePath: ru/sub/folder/index.yaml
   canonical: ru/index.html
   vcsPath: ru/sub/folder/index.yaml
@@ -513,6 +568,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: a1.md
+alternate:
+  - href: a1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the /a1.md file content.
 "
@@ -528,6 +587,10 @@ meta:
       content: Diplodoc Platform vDIPLODOC-VERSION
   title: Meta A
   vcsPath: index.yaml
+  alternate:
+    - href: index.yaml
+      type: application/yaml
+      title: Yaml version
 links:
   - title: A1
     description: A1 desc
@@ -624,6 +687,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/index.md
+alternate:
+  - href: test/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1
 
@@ -638,6 +705,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-1.md
+alternate:
+  - href: test/sub/sub-1.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1
 
@@ -653,6 +724,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-2.md
+alternate:
+  - href: test/sub/sub-2.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1"
 `;
@@ -663,6 +738,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub/sub-3.md
+alternate:
+  - href: test/sub/sub/sub-3.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1"
 `;
@@ -673,6 +752,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/test.md
+alternate:
+  - href: test/test.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1"
 `;
@@ -760,6 +843,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/index.md
+alternate:
+  - href: test/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1
 
@@ -774,6 +861,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/index.md
+alternate:
+  - href: test/sub/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Sub index"
 `;
@@ -784,6 +875,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-1.md
+alternate:
+  - href: test/sub/sub-1.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1
 
@@ -799,6 +894,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-2.md
+alternate:
+  - href: test/sub/sub-2.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1"
 `;
@@ -809,6 +908,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub/sub-3.md
+alternate:
+  - href: test/sub/sub/sub-3.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1"
 `;
@@ -819,6 +922,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/test.md
+alternate:
+  - href: test/test.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1"
 `;
@@ -907,6 +1014,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/index.md
+alternate:
+  - href: test/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1
 
@@ -921,6 +1032,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/index.md
+alternate:
+  - href: test/sub/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Sub index"
 `;
@@ -931,6 +1046,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-1.md
+alternate:
+  - href: test/sub/sub-1.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1
 
@@ -946,6 +1065,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-2.md
+alternate:
+  - href: test/sub/sub-2.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1"
 `;
@@ -956,6 +1079,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub/sub-3.md
+alternate:
+  - href: test/sub/sub/sub-3.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1"
 `;
@@ -966,6 +1093,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/test.md
+alternate:
+  - href: test/test.md
+    type: text/markdown
+    title: Markdown version
 ---
 # H1"
 `;
@@ -1055,6 +1186,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/index.md
+alternate:
+  - href: test/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Root index
 
@@ -1069,6 +1204,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/index.md
+alternate:
+  - href: test/sub/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Sub section
 "
@@ -1080,6 +1219,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-1.md
+alternate:
+  - href: test/sub/sub-1.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Sub one
 
@@ -1095,6 +1238,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-2.md
+alternate:
+  - href: test/sub/sub-2.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Sub two
 "
@@ -1106,6 +1253,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub/sub-3.md
+alternate:
+  - href: test/sub/sub/sub-3.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Sub three
 "
@@ -1117,6 +1268,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/test.md
+alternate:
+  - href: test/test.md
+    type: text/markdown
+    title: Markdown version
 ---
 # Test page
 "

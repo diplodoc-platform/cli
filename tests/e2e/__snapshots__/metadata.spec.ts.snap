@@ -143,6 +143,10 @@ meta:
   title: Documentation
   noIndex: true
   vcsPath: index.yaml
+  alternate:
+    - href: index.yaml
+      type: application/yaml
+      title: Yaml version
 links:
   - title: Getting started with Documentation
     description: This guide will show you the basics of working with Documentation
@@ -191,6 +195,10 @@ interface:
   toc: false
   favicon-src: /favicon.ico
 vcsPath: page.md
+alternate:
+  - href: page.md
+    type: text/markdown
+    title: Markdown version
 ---
 
 Lorem"
@@ -208,6 +216,10 @@ metadata:
   - name: yfm
     value: builder in config
 vcsPath: project/config.md
+alternate:
+  - href: project/config.md
+    type: text/markdown
+    title: Markdown version
 ---
 
 Lorem"

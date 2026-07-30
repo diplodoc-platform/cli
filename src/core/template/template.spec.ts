@@ -155,4 +155,49 @@ describe('Template', () => {
             expect(html).toContain('<div>one</div>\n<div>two</div>');
         });
     });
+
+    describe('addAlternates', () => {
+        it('should render hreflang-only alternate as before', () => {
+            const template = new Template('index.html' as RelativePath, 'en');
+            template.addAlternates([{href: '/en/page.html', hreflang: 'en'}]);
+
+            const html = template.dump();
+
+            expect(html).toContain('<link rel="alternate" href="/en/page.html" hreflang="en" />');
+        });
+
+        it('should render type and title for companion alternate links', () => {
+            const template = new Template('index.html' as RelativePath, 'en');
+            template.addAlternates([
+                {
+                    href: '/en/page.md',
+                    type: 'text/markdown',
+                    title: 'Markdown version',
+                },
+            ]);
+
+            const html = template.dump();
+
+            expect(html).toContain(
+                '<link rel="alternate" href="/en/page.md" type="text/markdown" title="Markdown version" />',
+            );
+        });
+
+        it('should render yaml companion alternate with application/yaml type', () => {
+            const template = new Template('index.html' as RelativePath, 'en');
+            template.addAlternates([
+                {
+                    href: '/en/page.yaml',
+                    type: 'application/yaml',
+                    title: 'Yaml version',
+                },
+            ]);
+
+            const html = template.dump();
+
+            expect(html).toContain(
+                '<link rel="alternate" href="/en/page.yaml" type="application/yaml" title="Yaml version" />',
+            );
+        });
+    });
 });

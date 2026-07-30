@@ -40,6 +40,10 @@ restricted-access:
   - - userA
     - userB
 vcsPath: plugins/index.md
+alternate:
+  - href: plugins/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 "
 `;
@@ -53,6 +57,10 @@ restricted-access:
   - - userA
     - userB
 vcsPath: project/index.md
+alternate:
+  - href: project/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 "
 `;
@@ -98,6 +106,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: a1.md
+alternate:
+  - href: a1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the /a1.md file content.
 "
@@ -114,6 +126,10 @@ restricted-access:
   - - userAtoc2
     - userBtoc2
 vcsPath: folder1/a1.md
+alternate:
+  - href: folder1/a1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the /folder1/a1.md file content.
 "
@@ -130,6 +146,10 @@ restricted-access:
   - - userAtoc3
     - userBtoc3
 vcsPath: folder1/folder2/a1.md
+alternate:
+  - href: folder1/folder2/a1.md
+    type: text/markdown
+    title: Markdown version
 ---
 This is the /folder1/folder1/a1.md file content.
 "
@@ -203,6 +223,10 @@ metadata:
 restricted-access:
   - - admin
 vcsPath: index.md
+alternate:
+  - href: index.md
+    type: text/markdown
+    title: Markdown version
 ---
 "
 `;
@@ -237,6 +261,10 @@ metadata:
 restricted-access:
   - - admin
 vcsPath: plugins/index.md
+alternate:
+  - href: plugins/index.md
+    type: text/markdown
+    title: Markdown version
 ---
 "
 `;
@@ -251,6 +279,10 @@ restricted-access:
   - - admin
     - user
 vcsPath: plugins/index2.md
+alternate:
+  - href: plugins/index2.md
+    type: text/markdown
+    title: Markdown version
 ---
 "
 `;
@@ -263,6 +295,10 @@ metadata:
 restricted-access:
   - - admin
 vcsPath: plugins/index3.md
+alternate:
+  - href: plugins/index3.md
+    type: text/markdown
+    title: Markdown version
 ---
 "
 `;
@@ -276,6 +312,10 @@ restricted-access:
   - - admin
   - - customInFile
 vcsPath: plugins/index4.md
+alternate:
+  - href: plugins/index4.md
+    type: text/markdown
+    title: Markdown version
 ---
 "
 `;
