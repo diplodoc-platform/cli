@@ -5,7 +5,7 @@ import type {Defer} from './utils';
 
 import {describe, expect, it, vi} from 'vitest';
 
-import {makeTranslator} from './provider';
+import {extractTitle, makeTranslator} from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
 import {LLMAuthError} from './utils';
 
@@ -68,6 +68,21 @@ function makeParams(client: LLMClient, config: Partial<AITranslationConfig> = {}
 const translated = (fragments: string[]) => fragments.map((text) => `T:${text}`);
 
 describe('translate ai provider', () => {
+    describe('extractTitle', () => {
+        it('should extract the first H1 from markdown', () => {
+            expect(extractTitle('Intro\n\n# Page title\n\n## Sub')).toBe('Page title');
+        });
+
+        it('should extract the title field from yaml documents', () => {
+            expect(extractTitle({title: 'Toc title', items: []})).toBe('Toc title');
+        });
+
+        it('should return undefined when there is no title', () => {
+            expect(extractTitle('plain text')).toBeUndefined();
+            expect(extractTitle({items: []})).toBeUndefined();
+        });
+    });
+
     describe('makeTranslator', () => {
         it('should translate texts through the client', async () => {
             const client = makeClient(translated);
@@ -146,6 +161,32 @@ describe('translate ai provider', () => {
             expect(result).toEqual([oversized]);
             expect(client.complete).not.toHaveBeenCalled();
             expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('too big'));
+        });
+
+        it('should pass document context into prompts', async () => {
+            const client = makeClient(translated);
+            const {params} = makeParams(client, {systemPrompt: 'CONTEXT: {{context}}'});
+            const translate = makeTranslator(params);
+
+            await translate('docs/ru/index.md', ['One'], {title: 'Quickstart'});
+
+            const [messages] = vi.mocked(client.complete).mock.calls[0];
+            expect(messages[0].content).toContain(
+                'CONTEXT: Document context: document "Quickstart" (file docs/ru/index.md).',
+            );
+        });
+
+        it('should fall back to file path context without title', async () => {
+            const client = makeClient(translated);
+            const {params} = makeParams(client, {systemPrompt: 'CONTEXT: {{context}}'});
+            const translate = makeTranslator(params);
+
+            await translate('docs/ru/index.md', ['One']);
+
+            const [messages] = vi.mocked(client.complete).mock.calls[0];
+            expect(messages[0].content).toContain(
+                'CONTEXT: Document context: file docs/ru/index.md.',
+            );
         });
 
         it('should estimate usage without client calls on dry run', async () => {

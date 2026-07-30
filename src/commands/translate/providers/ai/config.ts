@@ -69,7 +69,7 @@ const systemPrompt = option({
     desc: `
         System prompt for the LLM. Accepts a string or a path to a file.
 
-        Supports placeholders: {{source}}, {{target}}, {{glossary}}, {{separator}}, {{fragments}}.
+        Supports placeholders: {{source}}, {{target}}, {{glossary}}, {{context}}, {{separator}}, {{fragments}}.
 
         By default the user prompt is appended to the built-in technical-translator system prompt.
         Use --prompt-mode replace to fully replace the default.
@@ -80,7 +80,7 @@ const userPrompt = option({
     flags: '--user-prompt <value>',
     desc: `
         User prompt template. Accepts a string or a path to a file.
-        Supports placeholders: {{source}}, {{target}}, {{glossary}}, {{separator}}, {{fragments}}, {{text}}.
+        Supports placeholders: {{source}}, {{target}}, {{glossary}}, {{context}}, {{separator}}, {{fragments}}, {{text}}.
     `,
 });
 
