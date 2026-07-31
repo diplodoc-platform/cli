@@ -44,6 +44,9 @@ alternate:
   - href: plugins/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 "
 `;
@@ -61,6 +64,9 @@ alternate:
   - href: project/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 "
 `;
@@ -110,6 +116,9 @@ alternate:
   - href: a1.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the /a1.md file content.
 "
@@ -130,6 +139,9 @@ alternate:
   - href: folder1/a1.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the /folder1/a1.md file content.
 "
@@ -150,6 +162,9 @@ alternate:
   - href: folder1/folder2/a1.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the /folder1/folder1/a1.md file content.
 "
@@ -227,6 +242,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 "
 `;
@@ -265,6 +283,9 @@ alternate:
   - href: plugins/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 "
 `;
@@ -283,6 +304,9 @@ alternate:
   - href: plugins/index2.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 "
 `;
@@ -299,6 +323,9 @@ alternate:
   - href: plugins/index3.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 "
 `;
@@ -316,6 +343,9 @@ alternate:
   - href: plugins/index4.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 "
 `;

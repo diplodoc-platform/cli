@@ -22,6 +22,9 @@ alternate:
   - href: included.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 
 # Included Page
@@ -50,6 +53,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 
 # Main Page

@@ -8,16 +8,16 @@ exports[`Build content map for > autotitle chain (hashIncludes default, mergeInc
       "size": 0,
     },
     "a.md": {
-      "hash": "sha256-eddda5cfbae0eafc7d2cb8fc3548600f83c5553c9b2141b7a6fecf7e92a4bd4a",
-      "size": 229,
+      "hash": "sha256-e19f736a55cd6146672e49a01be69b10da12cfd916a2f4fe93080beee94dad88",
+      "size": 292,
     },
     "b.md": {
-      "hash": "sha256-621b327193cccd65c7f04afe761395a7665a20cdac8be4876277f73d352ec81c",
-      "size": 233,
+      "hash": "sha256-5e4a83e7c57bde1a3ee7a53ba7a3e62619f10d65888b2fdd17aa1f39798c7776",
+      "size": 296,
     },
     "c.md": {
-      "hash": "sha256-b346d6adb39540e4024268ee64201e774e09a4ef05b75ec37dc6f9ae0fd5713c",
-      "size": 220,
+      "hash": "sha256-cb035ccd75faf9c8acf378f519accf7c2081f724598ee4bb096b46e3a28d51c4",
+      "size": 283,
     },
     "toc.yaml": {
       "hash": "sha256-8bf60b589e4bb972e7b9ca9d924f6f8911f9d41e268bf710f0d5197246b576fd",
@@ -37,16 +37,16 @@ exports[`Build content map for > autotitle chain (mergeIncludes on) 1`] = `
       "size": 0,
     },
     "a.md": {
-      "hash": "sha256-eddda5cfbae0eafc7d2cb8fc3548600f83c5553c9b2141b7a6fecf7e92a4bd4a",
-      "size": 229,
+      "hash": "sha256-e19f736a55cd6146672e49a01be69b10da12cfd916a2f4fe93080beee94dad88",
+      "size": 292,
     },
     "b.md": {
-      "hash": "sha256-621b327193cccd65c7f04afe761395a7665a20cdac8be4876277f73d352ec81c",
-      "size": 233,
+      "hash": "sha256-5e4a83e7c57bde1a3ee7a53ba7a3e62619f10d65888b2fdd17aa1f39798c7776",
+      "size": 296,
     },
     "c.md": {
-      "hash": "sha256-b346d6adb39540e4024268ee64201e774e09a4ef05b75ec37dc6f9ae0fd5713c",
-      "size": 220,
+      "hash": "sha256-cb035ccd75faf9c8acf378f519accf7c2081f724598ee4bb096b46e3a28d51c4",
+      "size": 283,
     },
     "toc.yaml": {
       "hash": "sha256-8bf60b589e4bb972e7b9ca9d924f6f8911f9d41e268bf710f0d5197246b576fd",
@@ -66,16 +66,16 @@ exports[`Build content map for > autotitle target with include (hashIncludes def
       "size": 0,
     },
     "_includes/snippet.md": {
-      "hash": "sha256-6ddfc7bf547e68bff61196f26379a3a3907683d94b3083d05689febe4d2ecf0e",
-      "size": 159,
+      "hash": "sha256-15e5534f3fd87d3799fc5ba720332adc871dc63ac87c27ab1baf6b083d5b5812",
+      "size": 57,
     },
     "a.md": {
-      "hash": "sha256-28d06a8af872323ff935049865343db55baa8e1519136cfc29023b11e2d8a9ca",
-      "size": 235,
+      "hash": "sha256-89ed4a2b26c6fa56820490392d1924b9c5069f6d627ae1c95f914e7c72ca5101",
+      "size": 298,
     },
     "b.md": {
-      "hash": "sha256-592437696d21c2c5c4857e368951684d9ee5ee9751730e8d3cbaeba74c48d352",
-      "size": 244,
+      "hash": "sha256-144c9ff69ad219b5872df8715c8cef647ca7c3369da5d598fea86ff366555f3f",
+      "size": 307,
     },
     "toc.yaml": {
       "hash": "sha256-f0e5f8342a96da110f1a0c3dc468ce8bf536d9971b7f6268b7afc6327ba2d163",
@@ -95,12 +95,12 @@ exports[`Build content map for > autotitle target with include (mergeIncludes on
       "size": 0,
     },
     "a.md": {
-      "hash": "sha256-28d06a8af872323ff935049865343db55baa8e1519136cfc29023b11e2d8a9ca",
-      "size": 235,
+      "hash": "sha256-89ed4a2b26c6fa56820490392d1924b9c5069f6d627ae1c95f914e7c72ca5101",
+      "size": 298,
     },
     "b.md": {
-      "hash": "sha256-003c883ddfead42eb365e6c7891b0fc7092682bbec1f7f126b42906ae7162c86",
-      "size": 321,
+      "hash": "sha256-469394046caa7710414631963797925c9ec1cc022656c5ed5eae0965c838dc74",
+      "size": 384,
     },
     "toc.yaml": {
       "hash": "sha256-f0e5f8342a96da110f1a0c3dc468ce8bf536d9971b7f6268b7afc6327ba2d163",
@@ -120,20 +120,20 @@ exports[`Build content map for > diamond includes (hashIncludes default, mergeIn
       "size": 0,
     },
     "_includes/branch-a.md": {
-      "hash": "sha256-7b8ccea81a5afa69b5297d556b11994e854c56fc375dfd1da35eadfd9996e00f",
-      "size": 204,
+      "hash": "sha256-3314f60ae1fcaaccab27d5075d5a8ad01bb5d139cc37f4240304d83a9ce88ace",
+      "size": 101,
     },
     "_includes/branch-b.md": {
-      "hash": "sha256-5af4469cc2cc309ea5b18ddf494554fd04fa68865c1d8f3aae9826a8dc65425f",
-      "size": 205,
+      "hash": "sha256-0d5505b5775980c435e7cb35b0452089980640ff5bc0878a45db8b23901099dd",
+      "size": 102,
     },
     "_includes/shared.md": {
-      "hash": "sha256-530fee754a1488fee73603d3307cfb87751310ea7b3a67b284a2708cd12ca23c",
-      "size": 156,
+      "hash": "sha256-42e099cba25de4c74b858b07c83d4feb6565738d4e21ad3e7208f6e35048931d",
+      "size": 55,
     },
     "index.md": {
-      "hash": "sha256-28ea9c8735907b0bc00201b9a3ec437cd6c78afed99ef8c88084a1a35aaf6aff",
-      "size": 358,
+      "hash": "sha256-1030bd55f81cfc832151d034a6df2ba08dfb9b6fbc6ad42526f41098c340d318",
+      "size": 421,
     },
     "toc.yaml": {
       "hash": "sha256-5309b6c21d914169deeb265ac1988546c6c0ab47d100b89c4083efb3f711f872",
@@ -153,8 +153,8 @@ exports[`Build content map for > diamond includes (mergeIncludes on) 1`] = `
       "size": 0,
     },
     "index.md": {
-      "hash": "sha256-9093683d77439fd2ce34f0caa73e3242e292fc60d9d3bd0f6638069c9eec2b17",
-      "size": 771,
+      "hash": "sha256-1b44f8840c74a08f69c42db29b25d211b1f56d6fe750b367a1511d40c594c7eb",
+      "size": 834,
     },
     "toc.yaml": {
       "hash": "sha256-5309b6c21d914169deeb265ac1988546c6c0ab47d100b89c4083efb3f711f872",
@@ -174,16 +174,16 @@ exports[`Build content map for > nested includes (hashIncludes default, mergeInc
       "size": 0,
     },
     "_includes/level1.md": {
-      "hash": "sha256-9b7485aaf58072f373641be1ec78f9896123e34cdadb713beba264fd480e2e36",
-      "size": 222,
+      "hash": "sha256-8720c7deb66b06273ae8fb303accf2a399e622b647e222cbb0dc12c74cdb0df7",
+      "size": 121,
     },
     "_includes/level2.md": {
-      "hash": "sha256-787c184e3f5a0722492e96268bcd34cbafff60597a28264d6a1d787c2ef55bc4",
-      "size": 163,
+      "hash": "sha256-2ce37af4320216777549f95a5e533efb4486802619b4916aae31764ba98f3339",
+      "size": 62,
     },
     "index.md": {
-      "hash": "sha256-1c05bafedc846cb2d49384cbaf2ac991cd1ab026b9a4872aa9e7472cdbe7fe47",
-      "size": 313,
+      "hash": "sha256-1dc06e09c335884a734398db83044cc58c9c0fc28f17b1a4d372b9389e52c19d",
+      "size": 376,
     },
     "toc.yaml": {
       "hash": "sha256-8044d42eecbbbfbf108ef785d04d322e72b2381cea30243cf3accc2ccf469f89",
@@ -203,8 +203,8 @@ exports[`Build content map for > nested includes (mergeIncludes on) 1`] = `
       "size": 0,
     },
     "index.md": {
-      "hash": "sha256-2b5ae84808b20962581c12a9d5cb766ae38efb0e10a2a5338f332259ceef4773",
-      "size": 546,
+      "hash": "sha256-1b39c884790b2020aaef42e70f1551994b552777f30f3fbd90f3c660a7d85cc3",
+      "size": 609,
     },
     "toc.yaml": {
       "hash": "sha256-8044d42eecbbbfbf108ef785d04d322e72b2381cea30243cf3accc2ccf469f89",
@@ -224,12 +224,12 @@ exports[`Build content map for > project with an include and a picture (mergeInc
       "size": 0,
     },
     "_includes/snippet.md": {
-      "hash": "sha256-468438ef9fe4562cd13cbec7140392a29f38500c6d09c74174ed1f92e73e9b4c",
-      "size": 128,
+      "hash": "sha256-25c382135c889a69ff3a79390f978f030364fc2fcec5e7db6e6e441c57791a61",
+      "size": 26,
     },
     "index.md": {
-      "hash": "sha256-0f6c019bb9912842e7d74f8bc1b6ed7ea4e37ae4b2bf94f569c79ef135c2cc4a",
-      "size": 292,
+      "hash": "sha256-00c364f08e5e7f50f84e2f57de50c881fb8de2ff3be664ddf5d2baf71aa06d8c",
+      "size": 355,
     },
     "logo.svg": {
       "hash": "sha256-d13530939abcb6584d6b07c97ded2d9fc6d5751ef4c0262afe36cee3fad0d51c",
@@ -257,8 +257,8 @@ exports[`Build content map for > project with an include and a picture (mergeInc
       "size": 0,
     },
     "index.md": {
-      "hash": "sha256-3f19545c5fee74ffcf3dcd14e268834d861733d1588152d76640a218b69fa104",
-      "size": 338,
+      "hash": "sha256-bb5671107354ea98a5a4f00e1b9d3d309615a36e73a1adaf2fda0f75f19dca61",
+      "size": 401,
     },
     "logo.svg": {
       "hash": "sha256-d13530939abcb6584d6b07c97ded2d9fc6d5751ef4c0262afe36cee3fad0d51c",
@@ -286,12 +286,12 @@ exports[`Build content map for > project with autotitle links between pages (mer
       "size": 0,
     },
     "index.md": {
-      "hash": "sha256-0eb286569d8ad0b932a4ac85b84d1ae577a7d1128b7c652171550f0a656be2fc",
-      "size": 234,
+      "hash": "sha256-2c58e18477e5ad4504f373f0058847bc87e7e873de0ddea5a3619853de3dc145",
+      "size": 297,
     },
     "other.md": {
-      "hash": "sha256-f3f71589a0773b5bb4aa98b2366a031c04eaa6febd98c32b118db673b22e3f4e",
-      "size": 212,
+      "hash": "sha256-2d1ed9265bdf19be76daf50e3a9983e8ca9e2df9285c7e6347b38291909ea337",
+      "size": 275,
     },
     "toc.yaml": {
       "hash": "sha256-1455d101a04ae60d37e5ace467d36e4c650e481d90f22ce46cd7b637c33cf541",
@@ -311,12 +311,12 @@ exports[`Build content map for > project with autotitle links between pages (mer
       "size": 0,
     },
     "index.md": {
-      "hash": "sha256-0eb286569d8ad0b932a4ac85b84d1ae577a7d1128b7c652171550f0a656be2fc",
-      "size": 234,
+      "hash": "sha256-2c58e18477e5ad4504f373f0058847bc87e7e873de0ddea5a3619853de3dc145",
+      "size": 297,
     },
     "other.md": {
-      "hash": "sha256-f3f71589a0773b5bb4aa98b2366a031c04eaa6febd98c32b118db673b22e3f4e",
-      "size": 212,
+      "hash": "sha256-2d1ed9265bdf19be76daf50e3a9983e8ca9e2df9285c7e6347b38291909ea337",
+      "size": 275,
     },
     "toc.yaml": {
       "hash": "sha256-1455d101a04ae60d37e5ace467d36e4c650e481d90f22ce46cd7b637c33cf541",

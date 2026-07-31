@@ -23,6 +23,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 ## Index header
 
@@ -295,6 +298,9 @@ alternate:
   - href: no-translate.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # No-translate directive
 
@@ -362,6 +368,9 @@ alternate:
   - href: openapi/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 <!-- markdownlint-disable-file -->
 
@@ -464,6 +473,9 @@ alternate:
   - href: openapi/test-controller/getWithPayloadResponse.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 <div class="openapi">
 
@@ -548,6 +560,9 @@ alternate:
   - href: openapi/test-controller/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # test-controller
 
@@ -602,6 +617,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 ## Index header
 
@@ -874,6 +892,9 @@ alternate:
   - href: no-translate.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # No-translate directive
 
@@ -941,6 +962,9 @@ alternate:
   - href: openapi/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 <!-- markdownlint-disable-file -->
 
@@ -1043,6 +1067,9 @@ alternate:
   - href: openapi/test-controller/getWithPayloadResponse.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 <div class="openapi">
 
@@ -1127,6 +1154,9 @@ alternate:
   - href: openapi/test-controller/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # test-controller
 

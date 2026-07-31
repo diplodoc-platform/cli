@@ -1,6 +1,11 @@
 import {describe, expect, it} from 'vitest';
 
-import {addMetaFrontmatter, buildCompanionAlternate} from './utils';
+import {
+    addMetaFrontmatter,
+    buildAlternateEntries,
+    buildCompanionAlternate,
+    buildLlmsAlternate,
+} from './utils';
 
 describe('addMetaFrontmatter', () => {
     it('should add YAML frontmatter to content', () => {
@@ -98,5 +103,124 @@ describe('buildCompanionAlternate', () => {
 
         // shortLink converts /index to / but keeps .md extension
         expect(result.href).toBe('ru/index.md');
+    });
+});
+
+describe('buildLlmsAlternate', () => {
+    const file = 'ru/about.md' as NormalizedPath;
+    const tocDir = 'ru' as NormalizedPath;
+
+    it('should use llms.url when set (absolute href)', () => {
+        const result = buildLlmsAlternate(
+            {enabled: true, url: 'https://example.com/llms.txt'},
+            file,
+            tocDir,
+        );
+
+        expect(result).not.toBeNull();
+        expect(result!.href).toBe('https://example.com/llms.txt');
+        expect(result!.type).toBe('text/markdown');
+        expect(result!.title).toBe('llms.txt');
+    });
+
+    it('should use llms.url even when enabled is false', () => {
+        const result = buildLlmsAlternate(
+            {enabled: false, url: 'https://example.com/llms.txt'},
+            file,
+            tocDir,
+        );
+
+        expect(result).not.toBeNull();
+        expect(result!.href).toBe('https://example.com/llms.txt');
+    });
+
+    it('should use relative llms.txt when enabled is true and no url', () => {
+        const result = buildLlmsAlternate({enabled: true}, file, tocDir);
+
+        expect(result).not.toBeNull();
+        expect(result!.href).toBe('llms.txt');
+        expect(result!.type).toBe('text/markdown');
+        expect(result!.title).toBe('llms.txt');
+    });
+
+    it('should compute relative path for pages in subdirectories', () => {
+        const deepFile = 'ru/deep/test.md' as NormalizedPath;
+        const result = buildLlmsAlternate({enabled: true}, deepFile, tocDir);
+
+        expect(result).not.toBeNull();
+        expect(result!.href).toBe('../llms.txt');
+    });
+
+    it('should return null when enabled is false and no url', () => {
+        const result = buildLlmsAlternate({enabled: false}, file, tocDir);
+
+        expect(result).toBeNull();
+    });
+
+    it('should return null when llms config is undefined', () => {
+        const result = buildLlmsAlternate(undefined, file, tocDir);
+
+        expect(result).toBeNull();
+    });
+});
+
+describe('buildAlternateEntries', () => {
+    const file = 'ru/about.md' as NormalizedPath;
+    const tocDir = 'ru' as NormalizedPath;
+
+    it('should return companion + llms entries for a regular md file with llms enabled', () => {
+        const entries = buildAlternateEntries(file, tocDir, {enabled: true});
+
+        expect(entries).toHaveLength(2);
+        expect(entries[0].type).toBe('text/markdown');
+        expect(entries[0].title).toBe('Markdown version');
+        expect(entries[1].type).toBe('text/markdown');
+        expect(entries[1].title).toBe('llms.txt');
+    });
+
+    it('should return only companion entry when llms is disabled', () => {
+        const entries = buildAlternateEntries(file, tocDir, {enabled: false});
+
+        expect(entries).toHaveLength(1);
+        expect(entries[0].title).toBe('Markdown version');
+    });
+
+    it('should return only companion entry when llms config is undefined', () => {
+        const entries = buildAlternateEntries(file, tocDir, undefined);
+
+        expect(entries).toHaveLength(1);
+        expect(entries[0].title).toBe('Markdown version');
+    });
+
+    it('should return empty array for include files', () => {
+        const includeFile = 'ru/_includes/level1.md' as NormalizedPath;
+        const entries = buildAlternateEntries(includeFile, tocDir, {enabled: true});
+
+        expect(entries).toHaveLength(0);
+    });
+
+    it('should return empty array for include files at root', () => {
+        const includeFile = '_includes/level1.md' as NormalizedPath;
+        const entries = buildAlternateEntries(includeFile, tocDir, {enabled: true});
+
+        expect(entries).toHaveLength(0);
+    });
+
+    it('should include llms.url entry when set', () => {
+        const entries = buildAlternateEntries(file, tocDir, {
+            enabled: false,
+            url: 'https://example.com/llms.txt',
+        });
+
+        expect(entries).toHaveLength(2);
+        expect(entries[1].href).toBe('https://example.com/llms.txt');
+    });
+
+    it('should compute relative llms.txt path for subdirectory pages', () => {
+        const deepFile = 'ru/deep/test.md' as NormalizedPath;
+        const entries = buildAlternateEntries(deepFile, tocDir, {enabled: true});
+
+        expect(entries).toHaveLength(2);
+        expect(entries[1].href).toBe('../llms.txt');
     });
 });

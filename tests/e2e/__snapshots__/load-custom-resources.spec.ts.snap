@@ -312,6 +312,9 @@ meta:
     - href: index.yaml
       type: application/yaml
       title: Yaml version
+    - href: llms.txt
+      type: text/markdown
+      title: llms.txt
 links:
   - title: Getting started with Documentation
     description: This guide will show you the basics of working with Documentation
@@ -364,6 +367,9 @@ alternate:
   - href: page.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 
 Lorem"
@@ -383,6 +389,9 @@ alternate:
   - href: project/config.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 Lorem"
 `;
