@@ -1,7 +1,7 @@
 import type {Collect, IncludeInfo, Location} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
 
-import {extname} from 'node:path';
+import {dirname, extname, relative} from 'node:path';
 import {createHash} from 'node:crypto';
 import {dump as yamlDump} from 'js-yaml';
 import * as mermaid from '@diplodoc/mermaid-extension';
@@ -50,6 +50,82 @@ export function buildCompanionAlternate(file: NormalizedPath): Alternate {
         type: companionExt === 'yaml' ? 'application/yaml' : 'text/markdown',
         title: companionExt === 'yaml' ? 'Yaml version' : 'Markdown version',
     };
+}
+
+/**
+ * Builds an llms.txt alternate link entry for the frontmatter / HTML `<head>`.
+ *
+ * - If `llms.url` is set — uses it as the absolute href (takes priority).
+ * - If `llms.enabled` is true — uses a relative href to `llms.txt` in the toc directory,
+ *   computed from the article's location (e.g. `../llms.txt` for a page in a subdirectory).
+ * - Otherwise — returns `null` (no llms.txt link).
+ *
+ * @param llmsConfig - Normalized llms config from `run.config.llms`
+ * @param file - Normalized document path (e.g. `ru/deep/test.md`)
+ * @param tocDir - Directory of the toc that owns the file (e.g. `ru`)
+ * @returns Alternate link object for llms.txt, or null when llms is disabled
+ */
+export function buildLlmsAlternate(
+    llmsConfig:
+        | {
+              enabled?: boolean;
+              url?: string;
+          }
+        | undefined,
+    file: NormalizedPath,
+    tocDir: NormalizedPath,
+): Alternate | null {
+    if (llmsConfig?.url) {
+        return {
+            href: llmsConfig.url,
+            type: 'text/markdown',
+            title: 'llms.txt',
+        };
+    }
+
+    if (llmsConfig?.enabled) {
+        // llms.txt sits in the toc directory; compute a relative path from the article.
+        const rel = relative(dirname(file), tocDir);
+        const href = rel ? `${rel}/llms.txt` : 'llms.txt';
+        return {
+            href,
+            type: 'text/markdown',
+            title: 'llms.txt',
+        };
+    }
+
+    return null;
+}
+
+/**
+ * Builds all alternate link entries (companion + llms.txt) for a document.
+ *
+ * Include files (`_includes/`) are skipped — they are not standalone articles
+ * and should not carry companion or llms.txt links.
+ *
+ * @param file - Normalized document path (e.g. `ru/about.md`)
+ * @param tocDir - Directory of the toc that owns the file (e.g. `ru`)
+ * @param llmsConfig - Normalized llms config from `run.config.llms`
+ * @returns Array of Alternate entries (may be empty)
+ */
+export function buildAlternateEntries(
+    file: NormalizedPath,
+    tocDir: NormalizedPath,
+    llmsConfig: {enabled?: boolean; url?: string} | undefined,
+): Alternate[] {
+    // Include files are not part of any toc — skip companion and llms links.
+    if (file.includes('/_includes/') || file.startsWith('_includes/')) {
+        return [];
+    }
+
+    const entries: Alternate[] = [buildCompanionAlternate(file)];
+
+    const llmsAlternate = buildLlmsAlternate(llmsConfig, file, tocDir);
+    if (llmsAlternate) {
+        entries.push(llmsAlternate);
+    }
+
+    return entries;
 }
 
 type Plugin = {

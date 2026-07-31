@@ -1,7 +1,7 @@
 import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
 import {flow} from 'lodash';
 
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
@@ -13,7 +13,7 @@ import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
-import {addMetaFrontmatter, buildCompanionAlternate, getCustomCollectPlugins} from './utils';
+import {addMetaFrontmatter, buildAlternateEntries, getCustomCollectPlugins} from './utils';
 import {MarkdownCollector} from './collect';
 import {resolvePropagatedFrontmatter} from './frontmatter-propagation';
 import {options} from './config';
@@ -124,9 +124,17 @@ export class OutputMd {
                         meta.alternate = meta.alternate.map(flow(get('href'), shortLink));
                     }
 
-                    // Add companion alternate link (md or yaml) to the frontmatter.
-                    // The viewer will resolve the relative href to an absolute companion URL.
-                    meta.alternate = [...(meta.alternate || []), buildCompanionAlternate(file)];
+                    // Add companion and llms.txt alternate links to the frontmatter.
+                    // buildAlternateEntries skips include files and handles toc resolution.
+                    try {
+                        const tocDir = dirname(run.toc.for(file).path) as NormalizedPath;
+                        const entries = buildAlternateEntries(file, tocDir, run.config.llms);
+                        if (entries.length) {
+                            meta.alternate = [...(meta.alternate || []), ...entries];
+                        }
+                    } catch {
+                        // File is not part of any toc (e.g. standalone include) — skip.
+                    }
 
                     const hasTheme = run.exists(join(run.output, THEME_ASSETS_PATH));
                     if (hasTheme) {

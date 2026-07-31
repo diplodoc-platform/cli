@@ -37,6 +37,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Toc Label Test
 
@@ -81,6 +84,9 @@ alternate:
   - href: page1.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Page 1
 
@@ -116,13 +122,14 @@ exports[`Toc label > should pass TocLabel object through to toc output 8`] = `
         <base href="./" />
         <title>Toc Label Test | Toc Label Test</title>
         <link rel="alternate" href="index.md" type="text/markdown" title="Markdown version" />
+        <link rel="alternate" href="llms.txt" type="text/markdown" title="llms.txt" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"index.md","type":"text/markdown","title":"Markdown version"}],"vcsPath":"index.md"},"headings":[],"title":"Toc Label Test"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"index.md","type":"text/markdown","title":"Markdown version"},{"href":"llms.txt","type":"text/markdown","title":"llms.txt"}],"vcsPath":"index.md"},"headings":[],"title":"Toc Label Test"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -171,6 +178,7 @@ exports[`Toc label > should pass TocLabel object through to toc output 11`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Page 1 | Toc Label Test</title>
+        <link rel="alternate" href="llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="page1.md" type="text/markdown" title="Markdown version" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -178,7 +186,7 @@ exports[`Toc label > should pass TocLabel object through to toc output 11`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"page1.md","type":"text/markdown","title":"Markdown version"}],"vcsPath":"page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"page1.md","type":"text/markdown","title":"Markdown version"}],"vcsPath":"page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

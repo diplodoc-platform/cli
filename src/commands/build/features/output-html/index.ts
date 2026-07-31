@@ -28,6 +28,7 @@ import {ASSETS_FOLDER} from '~/constants';
 
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {getHooks as getEntryHooks} from '../../services/entry';
+import {buildLlmsAlternate} from '../output-md/utils';
 
 import {filterBundledExtensionAssets, getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
 
@@ -61,7 +62,22 @@ export class OutputHtml {
                     });
                 });
 
-                getMetaHooks(run.meta).Dump.tap('Html', (meta) => {
+                getMetaHooks(run.meta).Dump.tap('Html', (meta, file) => {
+                    // Add llms.txt alternate link when llms is enabled or llms.url is set.
+                    // The relative href is computed from the article's location to the toc dir.
+                    // Include files (_includes/) are not part of any toc, so skip them.
+                    if (!file.includes('/_includes/') && !file.startsWith('_includes/')) {
+                        try {
+                            const tocDir = dirname(run.toc.for(file).path) as NormalizedPath;
+                            const llmsAlternate = buildLlmsAlternate(run.config.llms, file, tocDir);
+                            if (llmsAlternate) {
+                                meta.alternate = [...(meta.alternate || []), llmsAlternate];
+                            }
+                        } catch {
+                            // File is not part of any toc (e.g. standalone include) — skip llms link.
+                        }
+                    }
+
                     return filterBundledExtensionAssets(meta);
                 });
 

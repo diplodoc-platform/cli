@@ -20,6 +20,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -70,6 +73,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -115,6 +121,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -161,6 +170,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 
 
@@ -203,6 +215,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -248,6 +263,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 <!-- source: _includes/stub.md -->
 <!-- source: _includes/with-fm.md -->
@@ -289,6 +307,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Hash Fallback Test
 "
@@ -341,6 +362,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -394,6 +418,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -448,6 +475,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -497,6 +527,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -579,6 +612,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main
 
@@ -656,6 +692,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -713,6 +752,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -768,6 +810,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -823,6 +868,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main
 
@@ -875,6 +923,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -938,6 +989,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main
 
@@ -993,6 +1047,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -1059,6 +1116,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -1117,6 +1177,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -1194,6 +1257,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Document with inline includes
 
@@ -1267,6 +1333,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -1323,6 +1392,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -1376,6 +1448,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -1426,6 +1501,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -1471,6 +1549,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -1523,6 +1604,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # API Docs
 
@@ -1569,6 +1653,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -1644,6 +1731,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # API Reference
 
@@ -1705,13 +1795,7 @@ exports[`Merge includes (md2md) > without flag: includes are NOT merged > fileli
 `;
 
 exports[`Merge includes (md2md) > without flag: includes are NOT merged 1`] = `
-"---
-alternate:
-  - href: _includes/simple.md
-    type: text/markdown
-    title: Markdown version
----
-## Included Section
+"## Included Section
 
 This is the included content.
 "
@@ -1727,6 +1811,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -1777,6 +1864,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -1818,6 +1908,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -1874,6 +1967,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -1928,6 +2024,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -1982,6 +2081,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 
@@ -2029,6 +2131,9 @@ alternate:
   - href: index.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Index
 
@@ -2097,6 +2202,9 @@ alternate:
   - href: main.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Main Document
 

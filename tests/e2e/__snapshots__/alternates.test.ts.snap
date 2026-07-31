@@ -66,6 +66,9 @@ alternate:
   - href: az/about.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 canonical: az/about.html
 vcsPath: az/about.md
 ---
@@ -87,6 +90,9 @@ alternate:
   - href: az/deep/test.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 canonical: az/deep/test.html
 vcsPath: az/deep/test.md
 ---
@@ -111,6 +117,9 @@ meta:
     - href: az/index.yaml
       type: application/yaml
       title: Yaml version
+    - href: llms.txt
+      type: text/markdown
+      title: llms.txt
   canonical: az/index.html
   vcsPath: az/index.yaml
 "
@@ -163,6 +172,9 @@ alternate:
   - href: en/about.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 canonical: en/about.html
 vcsPath: en/about.md
 ---
@@ -184,6 +196,9 @@ alternate:
   - href: en/deep/test.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 canonical: en/deep/test.html
 vcsPath: en/deep/test.md
 ---
@@ -208,6 +223,9 @@ meta:
     - href: en/index.yaml
       type: application/yaml
       title: Yaml version
+    - href: llms.txt
+      type: text/markdown
+      title: llms.txt
   canonical: en/index.html
   vcsPath: en/index.yaml
 "
@@ -261,6 +279,9 @@ alternate:
   - href: ru/about.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 canonical: ru/about.html
 vcsPath: ru/about.md
 ---
@@ -283,6 +304,9 @@ alternate:
   - href: ru/deep/test.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 canonical: ru/deep/test.html
 vcsPath: ru/deep/test.md
 ---
@@ -307,6 +331,9 @@ meta:
     - href: ru/index.yaml
       type: application/yaml
       title: Yaml version
+    - href: llms.txt
+      type: text/markdown
+      title: llms.txt
   canonical: ru/index.html
   vcsPath: ru/index.yaml
 "
@@ -364,6 +391,7 @@ exports[`Alternates > internal 21`] = `
         <link rel="alternate" href="az/about.html" hreflang="az" />
         <link rel="alternate" href="az/about.md" type="text/markdown" title="Markdown version" />
         <link rel="alternate" href="en/about.html" hreflang="en" />
+        <link rel="alternate" href="llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="ru/about.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -371,7 +399,7 @@ exports[`Alternates > internal 21`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"az/about.md","type":"text/markdown","title":"Markdown version"},{"href":"en/about.html","hreflang":"en"},{"href":"ru/about.html","hreflang":"ru"}],"canonical":"az/about.html","vcsPath":"az/about.md"},"headings":[],"title":"About"},"router":{"pathname":"az/about","depth":2,"base":"../"},"lang":"az","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"az/about.md","type":"text/markdown","title":"Markdown version"},{"href":"en/about.html","hreflang":"en"},{"href":"llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"ru/about.html","hreflang":"ru"}],"canonical":"az/about.html","vcsPath":"az/about.md"},"headings":[],"title":"About"},"router":{"pathname":"az/about","depth":2,"base":"../"},"lang":"az","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -394,6 +422,7 @@ exports[`Alternates > internal 22`] = `
         <base href="../../" />
         <title>Test</title>
         <link rel="canonical" href="az/deep/test.html">
+        <link rel="alternate" href="../llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="az/deep/test.html" hreflang="az" />
         <link rel="alternate" href="az/deep/test.md" type="text/markdown" title="Markdown version" />
         <link rel="alternate" href="en/deep/test.html" hreflang="en" />
@@ -404,7 +433,7 @@ exports[`Alternates > internal 22`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/deep/test.html","hreflang":"az"},{"href":"az/deep/test.md","type":"text/markdown","title":"Markdown version"},{"href":"en/deep/test.html","hreflang":"en"},{"href":"ru/deep/test.html","hreflang":"ru"}],"canonical":"az/deep/test.html","vcsPath":"az/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"az/deep/test","depth":3,"base":"../../"},"lang":"az","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"../llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"az/deep/test.html","hreflang":"az"},{"href":"az/deep/test.md","type":"text/markdown","title":"Markdown version"},{"href":"en/deep/test.html","hreflang":"en"},{"href":"ru/deep/test.html","hreflang":"ru"}],"canonical":"az/deep/test.html","vcsPath":"az/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"az/deep/test","depth":3,"base":"../../"},"lang":"az","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -430,6 +459,7 @@ exports[`Alternates > internal 23`] = `
         <link rel="alternate" href="az/index.html" hreflang="az" />
         <link rel="alternate" href="az/index.yaml" type="application/yaml" title="Yaml version" />
         <link rel="alternate" href="en/index.html" hreflang="en" />
+        <link rel="alternate" href="llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="ru/index.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -437,7 +467,7 @@ exports[`Alternates > internal 23`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"links":[{"url":"az/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/index.html","hreflang":"az"},{"href":"az/index.yaml","type":"application/yaml","title":"Yaml version"},{"href":"en/index.html","hreflang":"en"},{"href":"ru/index.html","hreflang":"ru"}],"canonical":"az/index.html","vcsPath":"az/index.yaml"},"title":""},"router":{"pathname":"az/index","depth":2,"base":"../"},"lang":"az","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":true,"data":{"links":[{"url":"az/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/index.html","hreflang":"az"},{"href":"az/index.yaml","type":"application/yaml","title":"Yaml version"},{"href":"en/index.html","hreflang":"en"},{"href":"llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"ru/index.html","hreflang":"ru"}],"canonical":"az/index.html","vcsPath":"az/index.yaml"},"title":""},"router":{"pathname":"az/index","depth":2,"base":"../"},"lang":"az","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -489,6 +519,7 @@ exports[`Alternates > internal 27`] = `
         <link rel="alternate" href="az/about.html" hreflang="az" />
         <link rel="alternate" href="en/about.html" hreflang="en" />
         <link rel="alternate" href="en/about.md" type="text/markdown" title="Markdown version" />
+        <link rel="alternate" href="llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="ru/about.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -496,7 +527,7 @@ exports[`Alternates > internal 27`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"en/about.html","hreflang":"en"},{"href":"en/about.md","type":"text/markdown","title":"Markdown version"},{"href":"ru/about.html","hreflang":"ru"}],"canonical":"en/about.html","vcsPath":"en/about.md"},"headings":[],"title":"About"},"router":{"pathname":"en/about","depth":2,"base":"../"},"lang":"en","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"en/about.html","hreflang":"en"},{"href":"en/about.md","type":"text/markdown","title":"Markdown version"},{"href":"llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"ru/about.html","hreflang":"ru"}],"canonical":"en/about.html","vcsPath":"en/about.md"},"headings":[],"title":"About"},"router":{"pathname":"en/about","depth":2,"base":"../"},"lang":"en","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -519,6 +550,7 @@ exports[`Alternates > internal 28`] = `
         <base href="../../" />
         <title>Test</title>
         <link rel="canonical" href="en/deep/test.html">
+        <link rel="alternate" href="../llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="az/deep/test.html" hreflang="az" />
         <link rel="alternate" href="en/deep/test.html" hreflang="en" />
         <link rel="alternate" href="en/deep/test.md" type="text/markdown" title="Markdown version" />
@@ -529,7 +561,7 @@ exports[`Alternates > internal 28`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/deep/test.html","hreflang":"az"},{"href":"en/deep/test.html","hreflang":"en"},{"href":"en/deep/test.md","type":"text/markdown","title":"Markdown version"},{"href":"ru/deep/test.html","hreflang":"ru"}],"canonical":"en/deep/test.html","vcsPath":"en/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"en/deep/test","depth":3,"base":"../../"},"lang":"en","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"../llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"az/deep/test.html","hreflang":"az"},{"href":"en/deep/test.html","hreflang":"en"},{"href":"en/deep/test.md","type":"text/markdown","title":"Markdown version"},{"href":"ru/deep/test.html","hreflang":"ru"}],"canonical":"en/deep/test.html","vcsPath":"en/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"en/deep/test","depth":3,"base":"../../"},"lang":"en","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -555,6 +587,7 @@ exports[`Alternates > internal 29`] = `
         <link rel="alternate" href="az/index.html" hreflang="az" />
         <link rel="alternate" href="en/index.html" hreflang="en" />
         <link rel="alternate" href="en/index.yaml" type="application/yaml" title="Yaml version" />
+        <link rel="alternate" href="llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="ru/index.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -562,7 +595,7 @@ exports[`Alternates > internal 29`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"links":[{"url":"en/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/index.html","hreflang":"az"},{"href":"en/index.html","hreflang":"en"},{"href":"en/index.yaml","type":"application/yaml","title":"Yaml version"},{"href":"ru/index.html","hreflang":"ru"}],"canonical":"en/index.html","vcsPath":"en/index.yaml"},"title":""},"router":{"pathname":"en/index","depth":2,"base":"../"},"lang":"en","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":true,"data":{"links":[{"url":"en/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/index.html","hreflang":"az"},{"href":"en/index.html","hreflang":"en"},{"href":"en/index.yaml","type":"application/yaml","title":"Yaml version"},{"href":"llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"ru/index.html","hreflang":"ru"}],"canonical":"en/index.html","vcsPath":"en/index.yaml"},"title":""},"router":{"pathname":"en/index","depth":2,"base":"../"},"lang":"en","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -634,6 +667,7 @@ exports[`Alternates > internal 34`] = `
         <link rel="alternate" href="az/about.html" hreflang="az" />
         <link rel="alternate" href="en/about.html" hreflang="en" />
         <link rel="alternate" href="https://my-other-site.com/about" />
+        <link rel="alternate" href="llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="ru/about.html" hreflang="ru" />
         <link rel="alternate" href="ru/about.md" type="text/markdown" title="Markdown version" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
@@ -642,7 +676,7 @@ exports[`Alternates > internal 34`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"en/about.html","hreflang":"en"},{"href":"https://my-other-site.com/about"},{"href":"ru/about.html","hreflang":"ru"},{"href":"ru/about.md","type":"text/markdown","title":"Markdown version"}],"canonical":"ru/about.html","vcsPath":"ru/about.md"},"headings":[],"title":"About"},"router":{"pathname":"ru/about","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"en/about.html","hreflang":"en"},{"href":"https://my-other-site.com/about"},{"href":"llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"ru/about.html","hreflang":"ru"},{"href":"ru/about.md","type":"text/markdown","title":"Markdown version"}],"canonical":"ru/about.html","vcsPath":"ru/about.md"},"headings":[],"title":"About"},"router":{"pathname":"ru/about","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -665,6 +699,7 @@ exports[`Alternates > internal 35`] = `
         <base href="../../" />
         <title>Test</title>
         <link rel="canonical" href="ru/deep/test.html">
+        <link rel="alternate" href="../llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="az/deep/test.html" hreflang="az" />
         <link rel="alternate" href="en/deep/test.html" hreflang="en" />
         <link rel="alternate" href="ru/deep/test.html" hreflang="ru" />
@@ -675,7 +710,7 @@ exports[`Alternates > internal 35`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/deep/test.html","hreflang":"az"},{"href":"en/deep/test.html","hreflang":"en"},{"href":"ru/deep/test.html","hreflang":"ru"},{"href":"ru/deep/test.md","type":"text/markdown","title":"Markdown version"}],"canonical":"ru/deep/test.html","vcsPath":"ru/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"ru/deep/test","depth":3,"base":"../../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"../llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"az/deep/test.html","hreflang":"az"},{"href":"en/deep/test.html","hreflang":"en"},{"href":"ru/deep/test.html","hreflang":"ru"},{"href":"ru/deep/test.md","type":"text/markdown","title":"Markdown version"}],"canonical":"ru/deep/test.html","vcsPath":"ru/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"ru/deep/test","depth":3,"base":"../../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -700,6 +735,7 @@ exports[`Alternates > internal 36`] = `
         <link rel="canonical" href="ru/index.html">
         <link rel="alternate" href="az/index.html" hreflang="az" />
         <link rel="alternate" href="en/index.html" hreflang="en" />
+        <link rel="alternate" href="llms.txt" type="text/markdown" title="llms.txt" />
         <link rel="alternate" href="ru/index.html" hreflang="ru" />
         <link rel="alternate" href="ru/index.yaml" type="application/yaml" title="Yaml version" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
@@ -708,7 +744,7 @@ exports[`Alternates > internal 36`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"links":[{"url":"ru/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/index.html","hreflang":"az"},{"href":"en/index.html","hreflang":"en"},{"href":"ru/index.html","hreflang":"ru"},{"href":"ru/index.yaml","type":"application/yaml","title":"Yaml version"}],"canonical":"ru/index.html","vcsPath":"ru/index.yaml"},"title":""},"router":{"pathname":"ru/index","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":true,"data":{"links":[{"url":"ru/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/index.html","hreflang":"az"},{"href":"en/index.html","hreflang":"en"},{"href":"llms.txt","type":"text/markdown","title":"llms.txt"},{"href":"ru/index.html","hreflang":"ru"},{"href":"ru/index.yaml","type":"application/yaml","title":"Yaml version"}],"canonical":"ru/index.html","vcsPath":"ru/index.yaml"},"title":""},"router":{"pathname":"ru/index","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

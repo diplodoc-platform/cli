@@ -27,6 +27,9 @@ alternate:
   - href: product1/article1.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the core content of Article 1.
 
@@ -137,6 +140,9 @@ alternate:
   - href: product2/overlay1/article1.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the overlay content of Article 1 for product 2.
 
@@ -157,6 +163,9 @@ alternate:
   - href: product2/overlay2/article1.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the overlay number #2  of Article 1 content for product 2.
 
@@ -177,6 +186,9 @@ alternate:
   - href: product2/overlay3/article1.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the core content of Article 1.
 
@@ -196,6 +208,9 @@ alternate:
   - href: product2/p2.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the product 2 specific article.
 
@@ -245,6 +260,9 @@ alternate:
   - href: a1.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the /a1.md file content.
 "
@@ -260,6 +278,9 @@ alternate:
   - href: folder1/a1.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the /folder1/a1.md file content.
 "
@@ -275,6 +296,9 @@ alternate:
   - href: folder1/folder2/a1.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the /folder1/folder1/a1.md file content.
 "
@@ -347,6 +371,9 @@ alternate:
   - href: file1.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # File 1
 "
@@ -365,6 +392,9 @@ alternate:
   - href: fileA.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # File A
 
@@ -387,6 +417,9 @@ alternate:
   - href: fileB.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # File B
 
@@ -411,6 +444,9 @@ alternate:
   - href: fileC.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # File C
 "
@@ -426,6 +462,9 @@ alternate:
   - href: fileX.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # File X
 "
@@ -519,6 +558,9 @@ meta:
     - href: ru/index.yaml
       type: application/yaml
       title: Yaml version
+    - href: llms.txt
+      type: text/markdown
+      title: llms.txt
   sourcePath: ru/sub/folder/index.yaml
   canonical: ru/index.html
   vcsPath: ru/sub/folder/index.yaml
@@ -572,6 +614,9 @@ alternate:
   - href: a1.md
     type: text/markdown
     title: Markdown version
+  - href: llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 This is the /a1.md file content.
 "
@@ -591,6 +636,9 @@ meta:
     - href: index.yaml
       type: application/yaml
       title: Yaml version
+    - href: llms.txt
+      type: text/markdown
+      title: llms.txt
 links:
   - title: A1
     description: A1 desc
@@ -691,6 +739,9 @@ alternate:
   - href: test/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1
 
@@ -709,6 +760,9 @@ alternate:
   - href: test/sub/sub-1.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1
 
@@ -728,6 +782,9 @@ alternate:
   - href: test/sub/sub-2.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1"
 `;
@@ -742,6 +799,9 @@ alternate:
   - href: test/sub/sub/sub-3.md
     type: text/markdown
     title: Markdown version
+  - href: ../../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1"
 `;
@@ -756,6 +816,9 @@ alternate:
   - href: test/test.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1"
 `;
@@ -847,6 +910,9 @@ alternate:
   - href: test/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1
 
@@ -865,6 +931,9 @@ alternate:
   - href: test/sub/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Sub index"
 `;
@@ -879,6 +948,9 @@ alternate:
   - href: test/sub/sub-1.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1
 
@@ -898,6 +970,9 @@ alternate:
   - href: test/sub/sub-2.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1"
 `;
@@ -912,6 +987,9 @@ alternate:
   - href: test/sub/sub/sub-3.md
     type: text/markdown
     title: Markdown version
+  - href: ../../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1"
 `;
@@ -926,6 +1004,9 @@ alternate:
   - href: test/test.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1"
 `;
@@ -1018,6 +1099,9 @@ alternate:
   - href: test/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1
 
@@ -1036,6 +1120,9 @@ alternate:
   - href: test/sub/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Sub index"
 `;
@@ -1050,6 +1137,9 @@ alternate:
   - href: test/sub/sub-1.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1
 
@@ -1069,6 +1159,9 @@ alternate:
   - href: test/sub/sub-2.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1"
 `;
@@ -1083,6 +1176,9 @@ alternate:
   - href: test/sub/sub/sub-3.md
     type: text/markdown
     title: Markdown version
+  - href: ../../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1"
 `;
@@ -1097,6 +1193,9 @@ alternate:
   - href: test/test.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # H1"
 `;
@@ -1190,6 +1289,9 @@ alternate:
   - href: test/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Root index
 
@@ -1208,6 +1310,9 @@ alternate:
   - href: test/sub/index.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Sub section
 "
@@ -1223,6 +1328,9 @@ alternate:
   - href: test/sub/sub-1.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Sub one
 
@@ -1242,6 +1350,9 @@ alternate:
   - href: test/sub/sub-2.md
     type: text/markdown
     title: Markdown version
+  - href: ../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Sub two
 "
@@ -1257,6 +1368,9 @@ alternate:
   - href: test/sub/sub/sub-3.md
     type: text/markdown
     title: Markdown version
+  - href: ../../../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Sub three
 "
@@ -1272,6 +1386,9 @@ alternate:
   - href: test/test.md
     type: text/markdown
     title: Markdown version
+  - href: ../llms.txt
+    type: text/markdown
+    title: llms.txt
 ---
 # Test page
 "
