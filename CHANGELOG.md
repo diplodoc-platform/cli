@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.51.0](https://github.com/diplodoc-platform/cli/compare/v5.50.6...v5.51.0) (2026-07-31)
+
+
+### Features
+
+* **ai:** Add link alternate to md companion DOCSTOOLS-6313 ([f286589](https://github.com/diplodoc-platform/cli/commit/f286589d1eb85ddec46cfe5aa98ba3c9d2981fd4))
+* **ai:** Add link llms DOCSTOOLS-6317 ([926e5e2](https://github.com/diplodoc-platform/cli/commit/926e5e25929f2a9586fb3900bfedf01354309b00))
+* **translate:** add AI translation provider (Yandex AI Studio / OpenAI / OpenRouter / Anthropic) ([#1906](https://github.com/diplodoc-platform/cli/issues/1906)) ([2b2f8a9](https://github.com/diplodoc-platform/cli/commit/2b2f8a96838cfe05849f58c23090bf6692b60b5b))
+
+
+### Bug Fixes
+
+* Clear llms-full from style, script DOCSTOOLS-6205 ([70ca214](https://github.com/diplodoc-platform/cli/commit/70ca21405f96bf9fa29bbaf0777072de2dd044a5))
+* correct read llmsFullMaxSize DOCSTOOLS-6204 ([4330f44](https://github.com/diplodoc-platform/cli/commit/4330f4492cf519c5f45df17e1cb41b6088dbafe9))
+* **deps:** Update @diplodoc/client@5.10.2 ([#2133](https://github.com/diplodoc-platform/cli/issues/2133)) ([727ddb9](https://github.com/diplodoc-platform/cli/commit/727ddb9e32b388c59daf58aedf5dc7578c6d1283))
+* **deps:** Update @diplodoc/transform@4.77.8 ([#2130](https://github.com/diplodoc-platform/cli/issues/2130)) ([1a95b2b](https://github.com/diplodoc-platform/cli/commit/1a95b2bfbace46faaf52819e2b75670af76b0adc))
+
 ## [5.50.6](https://github.com/diplodoc-platform/cli/compare/v5.50.5...v5.50.6) (2026-07-29)
 
 
