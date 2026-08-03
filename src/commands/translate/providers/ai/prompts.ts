@@ -14,6 +14,8 @@ export type PromptConfig = {
     sourceLanguage: string;
     targetLanguage: string;
     glossaryPairs: GlossaryPair[];
+    /** Human-readable document context, e.g. `document "Quickstart" (file docs/ru/index.md)`. */
+    context?: string;
 };
 
 const FRAGMENT_SEPARATOR = '<<<§§§>>>';
@@ -34,6 +36,8 @@ export const DEFAULT_SYSTEM_PROMPT = dedent`
 export const DEFAULT_USER_PROMPT = dedent`
     Translate the following fragments from {{source}} into {{target}}.
     Return the translated fragments in the same order, separated by the exact delimiter line "{{separator}}".
+
+    {{context}}
 
     {{glossary}}
 
@@ -116,6 +120,7 @@ export function buildMessages(fragments: string[], config: PromptConfig): ChatMe
         source: sourceLanguage,
         target: targetLanguage,
         glossary: renderGlossary(glossaryPairs),
+        context: config.context ? `Document context: ${config.context}.` : '',
         separator: FRAGMENT_SEPARATOR,
         fragments: joined,
         text: joined,

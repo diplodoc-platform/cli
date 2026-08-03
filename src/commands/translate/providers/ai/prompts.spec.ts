@@ -90,5 +90,32 @@ describe('translate ai prompts', () => {
 
             expect(user.content).toContain('Value of {{source}} var');
         });
+
+        it('should render document context into the user message', () => {
+            const [, user] = buildMessages(['Hello'], {
+                ...config,
+                context: 'document "Quickstart" (file docs/ru/index.md)',
+            });
+
+            expect(user.content).toContain(
+                'Document context: document "Quickstart" (file docs/ru/index.md).',
+            );
+        });
+
+        it('should not render context prefix when context is absent', () => {
+            const [, user] = buildMessages(['Hello'], config);
+
+            expect(user.content).not.toContain('Document context');
+        });
+
+        it('should substitute context placeholder in a custom system prompt', () => {
+            const [system] = buildMessages(['Hello'], {
+                ...config,
+                context: 'file docs/ru/index.md',
+                systemPrompt: 'You are translating {{context}}',
+            });
+
+            expect(system.content).toContain('You are translating Document context');
+        });
     });
 });

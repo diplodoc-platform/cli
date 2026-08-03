@@ -117,7 +117,40 @@ type ProcessorParams = {
     translate: Translate;
 };
 
-type Translate = (path: string, texts: string[]) => Promise<string[]>;
+type Translate = (path: string, texts: string[], context?: DocContext) => Promise<string[]>;
+
+export type DocContext = {
+    title?: string;
+};
+
+/**
+ * Extracts a human-readable document title to use as translation context:
+ * the first H1 for markdown, the `title` field for yaml documents.
+ */
+export function extractTitle(data: unknown): string | undefined {
+    if (typeof data === 'string') {
+        for (const line of data.split('\n')) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('# ') || trimmed.startsWith('#\t')) {
+                return trimmed.slice(2).trim();
+            }
+        }
+        return undefined;
+    }
+
+    if (data && typeof data === 'object') {
+        const title = (data as {title?: unknown}).title;
+        if (typeof title === 'string') {
+            return title;
+        }
+    }
+
+    return undefined;
+}
+
+function describeDocument(path: string, context?: DocContext): string {
+    return context?.title ? `document "${context.title}" (file ${path})` : `file ${path}`;
+}
 
 function makeProcessor(params: ProcessorParams) {
     const {input, output, sourceLanguage, targetLanguage, vars, translate} = params;
@@ -171,7 +204,7 @@ function makeProcessor(params: ProcessorParams) {
             return;
         }
 
-        const parts = await translate(path, units);
+        const parts = await translate(path, units, {title: extractTitle(content.data)});
 
         content.set(compose(skeleton, parts, {useSource: true, schemas, ajvOptions}));
         await content.dump(outputPath);
@@ -205,7 +238,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
     const schedule = scheduler(maxConcurrency);
 
-    async function translateBatch(fragments: string[]): Promise<string[]> {
+    async function translateBatch(fragments: string[], context: string): Promise<string[]> {
         if (!fragments.length) {
             return [];
         }
@@ -217,6 +250,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             sourceLanguage,
             targetLanguage,
             glossaryPairs,
+            context,
         });
 
         if (dryRun) {
@@ -251,9 +285,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
         return parts;
     }
 
-    async function translateWithFallback(path: string, fragments: string[]): Promise<string[]> {
+    async function translateWithFallback(
+        path: string,
+        fragments: string[],
+        context: string,
+    ): Promise<string[]> {
         try {
-            return await translateBatch(fragments);
+            return await translateBatch(fragments, context);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof LLMResponseError && fragments.length > 1) {
@@ -263,7 +301,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 );
                 const result: string[] = [];
                 for (const fragment of fragments) {
-                    const single = await translateBatch([fragment]);
+                    const single = await translateBatch([fragment], context);
                     result.push(single[0]);
                 }
                 return result;
@@ -272,7 +310,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
         }
     }
 
-    return async function translate(path: string, texts: string[]) {
+    return async function translate(path: string, texts: string[], docContext?: DocContext) {
+        const context = describeDocument(path, docContext);
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
         let buffer: string[] = [];
@@ -286,7 +325,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             requests.push(
                 schedule(async () => {
                     try {
-                        const translated = await translateWithFallback(path, batch);
+                        const translated = await translateWithFallback(path, batch, context);
                         translated.forEach((text, i) => {
                             cache.get(batch[i])?.resolve(text);
                         });
