@@ -4,7 +4,7 @@ import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
 import type {JudgePair} from './judge';
 
-import {writeFileSync} from 'node:fs';
+import {writeFile} from 'node:fs/promises';
 import {extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
@@ -17,6 +17,8 @@ import {TranslateLogger} from '../../logger';
 import {Defer, LLMResponseError, backoff, bytes, estimateTokens} from './utils';
 import {buildMessages, splitFragments} from './prompts';
 import {judgeTranslations} from './judge';
+
+const SOURCE_PREVIEW_LIMIT = 80;
 
 const onFatalError = () => {
     process.exit(1);
@@ -161,7 +163,9 @@ export class Provider {
 
         for (const verdict of low) {
             const preview =
-                verdict.source.length > 80 ? verdict.source.slice(0, 80) + '...' : verdict.source;
+                verdict.source.length > SOURCE_PREVIEW_LIMIT
+                    ? verdict.source.slice(0, SOURCE_PREVIEW_LIMIT) + '...'
+                    : verdict.source;
             this.logger.warn(
                 verdict.path,
                 `Translation quality ${verdict.score}/100: ${preview}` +
@@ -170,7 +174,7 @@ export class Provider {
         }
 
         const report = join(resolve(config.output), `translate-quality.${targetLanguage}.json`);
-        writeFileSync(
+        await writeFile(
             report,
             JSON.stringify(
                 {
