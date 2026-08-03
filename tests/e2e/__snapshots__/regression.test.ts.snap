@@ -1646,6 +1646,7 @@ exports[`Regression > internal 18`] = `
 - [Overview](openapi/test-controller/index.md)
 - [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
 - [Test x-hidden attribute](openapi/test-controller/getHiddenTest.md)
+- [Overview](openapi/openapi-spec.openapi.json): OpenAPI specification
 
 ---
 
@@ -3954,6 +3955,7 @@ exports[`Regression > internal 51`] = `
 - [Overview](openapi/test-controller/index.md)
 - [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
 - [Test x-hidden attribute](openapi/test-controller/getHiddenTest.md)
+- [Overview](openapi/openapi-spec.openapi.json): OpenAPI specification
 
 ---
 

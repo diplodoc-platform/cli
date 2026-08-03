@@ -1,8 +1,8 @@
-import type {Build, BuildArgs, Run} from '~/commands/build';
+import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {EntryTocItem, Toc} from '~/core/toc';
 
-import {dirname, join} from 'node:path';
+import {dirname, join, relative} from 'node:path';
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -143,14 +143,14 @@ export class Llms {
 
         const title = toc.title || '';
 
-        const index = await this.renderIndex(run, title, entries);
+        const index = await this.renderIndex(run, title, entries, tocDir);
         const full = await this.renderFull(run, title, entries);
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
     }
 
-    private async renderIndex(run: Run, title: string, entries: LlmsEntry[]) {
+    private async renderIndex(run: Run, title: string, entries: LlmsEntry[], tocDir: string) {
         const html = run.config.outputFormat === OutputFormat.html;
         const lines: string[] = [];
 
@@ -181,6 +181,8 @@ export class Llms {
             lines.push(`- [${name}](${href})${suffix}`);
         }
 
+        this.appendOpenapiCompanions(run, entries, tocDir, lines);
+
         lines.push(
             '',
             '---',
@@ -189,6 +191,59 @@ export class Llms {
         );
 
         return lines.join('\n') + '\n';
+    }
+
+    /**
+     * Appends OpenAPI spec companion links to the llms.txt index.
+     *
+     * Companions are standalone `*.openapi.json` files emitted by the openapi
+     * includer extension (`run.openapiCompanions`). Each entry maps a generated
+     * leading page to its companion file. Only companions whose leading page is
+     * present in the current toc's entries are included — this keeps multi-lang
+     * builds and hidden-page filtering consistent with the rest of the index.
+     *
+     * The companion is a JSON file (not rendered html), so the link is the same
+     * for both md and html builds.
+     */
+    private appendOpenapiCompanions(
+        run: Run,
+        entries: LlmsEntry[],
+        tocDir: string,
+        lines: string[],
+    ): void {
+        const companions = (run as Run & {openapiCompanions?: OpenapiCompanionEntry[]})
+            .openapiCompanions;
+
+        if (!Array.isArray(companions) || companions.length === 0) {
+            return;
+        }
+
+        // Deduplicate by companionPath — same pattern as build-manifest feature.
+        const seen = new Set<string>();
+        for (const companion of companions) {
+            if (seen.has(companion.companionPath)) {
+                continue;
+            }
+
+            // Match companion to an entry in the current toc by leadingPage.
+            // leadingPage is the path without extension (e.g. "ru/api/index"),
+            // so strip the extension from the entry path to compare.
+            const matchingEntry = entries.find(
+                (entry) => setExt(entry.path, '') === companion.leadingPage,
+            );
+            if (!matchingEntry) {
+                continue;
+            }
+
+            seen.add(companion.companionPath);
+
+            const name = matchingEntry.name || 'API Reference';
+            // Normalize to forward slashes — llms.txt is a web-oriented format
+            // and `relative()` returns backslashes on Windows.
+            const companionHref = relative(tocDir, companion.companionPath).replace(/\\/g, '/');
+
+            lines.push(`- [${name}](${companionHref}): OpenAPI specification`);
+        }
     }
 
     private async renderFull(run: Run, title: string, entries: LlmsEntry[]) {
