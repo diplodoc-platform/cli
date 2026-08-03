@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.51.2](https://github.com/diplodoc-platform/cli/compare/v5.51.1...v5.51.2) (2026-08-03)
+
+
+### Bug Fixes
+
+* add gallery flag to config ([7f3a2a4](https://github.com/diplodoc-platform/cli/commit/7f3a2a4fa7103b7beb894e72f5c22338f2a44ee6))
+* update e2e snapshots ([e155a60](https://github.com/diplodoc-platform/cli/commit/e155a60a54ade89824822fdf926527e90df2cebb))
+
 ## [5.51.1](https://github.com/diplodoc-platform/cli/compare/v5.51.0...v5.51.1) (2026-08-03)
 
 
