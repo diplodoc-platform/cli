@@ -150,7 +150,6 @@ describe('translate ai provider', () => {
             second?.load();
 
             expect(second?.get('Привет')).toBeUndefined();
->>>>>>> 8d19fa54 (chore(translate): cover store creation and cache args with tests)
         });
     });
 

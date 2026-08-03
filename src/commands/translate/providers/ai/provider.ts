@@ -23,12 +23,7 @@ import {
     cacheFingerprint,
     estimateTokens,
 } from './utils';
-import {
-    DEFAULT_SYSTEM_PROMPT,
-    DEFAULT_USER_PROMPT,
-    buildMessages,
-    splitFragments,
-} from './prompts';
+import {DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, buildMessages, splitFragments} from './prompts';
 import {judgeTranslations} from './judge';
 
 const SOURCE_PREVIEW_LIMIT = 80;
