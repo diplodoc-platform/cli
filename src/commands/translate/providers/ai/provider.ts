@@ -23,7 +23,12 @@ import {
     cacheFingerprint,
     estimateTokens,
 } from './utils';
-import {buildMessages, splitFragments} from './prompts';
+import {
+    DEFAULT_SYSTEM_PROMPT,
+    DEFAULT_USER_PROMPT,
+    buildMessages,
+    splitFragments,
+} from './prompts';
 import {judgeTranslations} from './judge';
 
 const SOURCE_PREVIEW_LIMIT = 80;
@@ -351,6 +356,8 @@ export function makeStore(
     }
 
     const file = join(config.cacheDir, `${client.name}.${sourceLanguage}-${targetLanguage}.json`);
+    // Built-in prompts are part of the fingerprint too: when a CLI update
+    // changes them, stored translations are stale and must not be served.
     const fingerprint = cacheFingerprint({
         provider: client.name,
         model: config.model,
@@ -359,6 +366,8 @@ export function makeStore(
         promptMode: config.promptMode,
         systemPrompt: config.systemPrompt,
         userPrompt: config.userPrompt,
+        defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT,
+        defaultUserPrompt: DEFAULT_USER_PROMPT,
         glossaryPairs: config.glossaryPairs,
     });
 
