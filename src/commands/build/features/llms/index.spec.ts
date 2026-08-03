@@ -1,4 +1,4 @@
-import type {BuildArgs, Run} from '~/commands/build';
+import type {BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type {LlmsConfig} from './index';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
@@ -9,7 +9,10 @@ import {LLMS_FULL_FILENAME, Llms} from './index';
 
 vi.mock('~/core/utils', () => ({
     normalizePath: (path: string) => path as NormalizedPath,
-    setExt: (path: string, ext: string) => path.replace(/\.[^/.]+$/, `.${ext}`),
+    setExt: (path: string, ext: string) => {
+        const stripped = path.replace(/\.[^/.]+$/, '');
+        return ext ? `${stripped}.${ext}` : stripped;
+    },
 }));
 
 vi.mock('~/core/program', () => ({
@@ -53,6 +56,7 @@ function createMockRun(
         enabled?: boolean;
         description?: string;
         llmsFullMaxSize?: number;
+        openapiCompanions?: OpenapiCompanionEntry[];
     } = {},
 ): Run {
     return {
@@ -75,6 +79,7 @@ function createMockRun(
             error: vi.fn(),
             info: vi.fn(),
         },
+        openapiCompanions: options.openapiCompanions,
     } as unknown as Run;
 }
 
@@ -90,7 +95,7 @@ type TestableLlms = {
         config: Partial<LlmsConfig['llms']> | undefined,
         onlyMd: boolean,
     ): boolean;
-    renderIndex(run: Run, title: string, entries: unknown[]): Promise<string>;
+    renderIndex(run: Run, title: string, entries: unknown[], tocDir: string): Promise<string>;
     renderFull(run: Run, title: string, entries: unknown[]): Promise<string>;
 };
 
@@ -267,7 +272,7 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderIndex(run, 'My Product Docs', entries);
+            const result = await llmsInstance.renderIndex(run, 'My Product Docs', entries, 'docs');
 
             expect(result).toContain('# My Product Docs\n');
             expect(result).toContain('> AI Assistant Context Description\n');
@@ -290,7 +295,7 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderIndex(run, 'MD Project', entries);
+            const result = await llmsInstance.renderIndex(run, 'MD Project', entries, 'docs');
 
             expect(result).toContain('- [Setup Guide](setup.md): Detailed meta description text');
         });
@@ -305,9 +310,190 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderIndex(run, 'Fallback Title', entries);
+            const result = await llmsInstance.renderIndex(run, 'Fallback Title', entries, 'docs');
 
             expect(result).toContain('- [Meta Title Target](root.html)');
+        });
+    });
+
+    describe('renderIndex OpenAPI companion links', () => {
+        it('should add companion link when leading page matches an entry', async () => {
+            const run = createMockRun({
+                openapiCompanions: [
+                    {
+                        leadingPage: 'docs/api/index',
+                        companionPath: 'docs/api/petstore.openapi.json',
+                    },
+                ],
+            });
+            const entries = [
+                {
+                    href: normalizedPath('api/index.md'),
+                    path: normalizedPath('docs/api/index.md'),
+                    name: 'The complete API Reference',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).toContain(
+                '- [The complete API Reference](api/petstore.openapi.json): OpenAPI specification',
+            );
+        });
+
+        it('should not add companion link when no matching entry (different toc)', async () => {
+            const run = createMockRun({
+                openapiCompanions: [
+                    {leadingPage: 'ru/api/index', companionPath: 'ru/api/petstore.openapi.json'},
+                ],
+            });
+            const entries = [
+                {
+                    href: normalizedPath('intro.md'),
+                    path: normalizedPath('docs/intro.md'),
+                    name: 'Introduction',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).not.toContain('OpenAPI specification');
+        });
+
+        it('should not add companion link when openapiCompanions is empty', async () => {
+            const run = createMockRun({openapiCompanions: []});
+            const entries = [
+                {
+                    href: normalizedPath('api/index.md'),
+                    path: normalizedPath('docs/api/index.md'),
+                    name: 'API Reference',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).not.toContain('OpenAPI specification');
+        });
+
+        it('should not add companion link when openapiCompanions is undefined', async () => {
+            const run = createMockRun();
+            const entries = [
+                {
+                    href: normalizedPath('api/index.md'),
+                    path: normalizedPath('docs/api/index.md'),
+                    name: 'API Reference',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).not.toContain('OpenAPI specification');
+        });
+
+        it('should deduplicate companions with the same companionPath', async () => {
+            const run = createMockRun({
+                openapiCompanions: [
+                    {
+                        leadingPage: 'docs/api/index',
+                        companionPath: 'docs/api/petstore.openapi.json',
+                    },
+                    {
+                        leadingPage: 'docs/api/index',
+                        companionPath: 'docs/api/petstore.openapi.json',
+                    },
+                ],
+            });
+            const entries = [
+                {
+                    href: normalizedPath('api/index.md'),
+                    path: normalizedPath('docs/api/index.md'),
+                    name: 'API Reference',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            const matches = result.match(/OpenAPI specification/g);
+            expect(matches).toHaveLength(1);
+        });
+
+        it('should fallback to "API Reference" name when entry name is empty', async () => {
+            const run = createMockRun({
+                openapiCompanions: [
+                    {
+                        leadingPage: 'docs/api/index',
+                        companionPath: 'docs/api/petstore.openapi.json',
+                    },
+                ],
+            });
+            const entries = [
+                {
+                    href: normalizedPath('api/index.md'),
+                    path: normalizedPath('docs/api/index.md'),
+                    name: '',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).toContain(
+                '- [API Reference](api/petstore.openapi.json): OpenAPI specification',
+            );
+        });
+
+        it('should compute relative path from tocDir to companionPath', async () => {
+            const run = createMockRun({
+                openapiCompanions: [
+                    {
+                        leadingPage: 'docs/sub/api/index',
+                        companionPath: 'docs/sub/api/spec.openapi.json',
+                    },
+                ],
+            });
+            const entries = [
+                {
+                    href: normalizedPath('sub/api/index.md'),
+                    path: normalizedPath('docs/sub/api/index.md'),
+                    name: 'Sub API',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).toContain(
+                '- [Sub API](sub/api/spec.openapi.json): OpenAPI specification',
+            );
+        });
+
+        it('should add multiple companion links for different leading pages', async () => {
+            const run = createMockRun({
+                openapiCompanions: [
+                    {
+                        leadingPage: 'docs/api/index',
+                        companionPath: 'docs/api/petstore.openapi.json',
+                    },
+                    {leadingPage: 'docs/v2/index', companionPath: 'docs/v2/store.openapi.json'},
+                ],
+            });
+            const entries = [
+                {
+                    href: normalizedPath('api/index.md'),
+                    path: normalizedPath('docs/api/index.md'),
+                    name: 'Petstore API',
+                },
+                {
+                    href: normalizedPath('v2/index.md'),
+                    path: normalizedPath('docs/v2/index.md'),
+                    name: 'Store API',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).toContain(
+                '- [Petstore API](api/petstore.openapi.json): OpenAPI specification',
+            );
+            expect(result).toContain('- [Store API](v2/store.openapi.json): OpenAPI specification');
         });
     });
 
