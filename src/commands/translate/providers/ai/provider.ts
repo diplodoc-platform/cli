@@ -14,8 +14,16 @@ import {LogLevel} from '~/core/logger';
 import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
 import {TranslateLogger} from '../../logger';
 
-import {Defer, LLMResponseError, backoff, bytes, estimateTokens} from './utils';
-import {buildMessages, splitFragments} from './prompts';
+import {
+    Defer,
+    LLMResponseError,
+    TranslationStore,
+    backoff,
+    bytes,
+    cacheFingerprint,
+    estimateTokens,
+} from './utils';
+import {DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, buildMessages, splitFragments} from './prompts';
 import {judgeTranslations} from './judge';
 
 const SOURCE_PREVIEW_LIMIT = 80;
@@ -51,7 +59,10 @@ export class Provider {
         try {
             for (const target of targets) {
                 const cache = new Map<string, Defer>();
-                const stat = {inputTokens: 0, outputTokens: 0, requests: 0, bytes: 0};
+                const stat = {inputTokens: 0, outputTokens: 0, requests: 0, bytes: 0, cached: 0};
+                const store = makeStore(client, config, source.language, target.language);
+
+                store?.load();
 
                 const translate = makeTranslator({
                     client,
@@ -59,6 +70,7 @@ export class Provider {
                     sourceLanguage: source.language,
                     targetLanguage: target.language,
                     cache,
+                    store,
                     stat,
                     logger: this.logger,
                 });
@@ -92,6 +104,8 @@ export class Provider {
                         try {
                             this.logger.translate(file);
                             await processFile(file);
+                            // Flush after every file to keep progress on crashes.
+                            store?.flush();
                             if (!dryRun) {
                                 this.logger.translated(file);
                             }
@@ -109,9 +123,12 @@ export class Provider {
                     }),
                 );
 
+                store?.flush();
+
                 this.logger.stat(
                     `requests: ${stat.requests} input-tokens: ${stat.inputTokens} ` +
-                        `output-tokens: ${stat.outputTokens} bytes: ${stat.bytes}`,
+                        `output-tokens: ${stat.outputTokens} bytes: ${stat.bytes} ` +
+                        `cached-units: ${stat.cached}`,
                 );
 
                 if (pairs.length) {
@@ -307,12 +324,53 @@ type TranslatorParams = {
     sourceLanguage: string;
     targetLanguage: string;
     cache: Map<string, Defer>;
-    stat: {inputTokens: number; outputTokens: number; requests: number; bytes: number};
+    store?: TranslationStore;
+    stat: {
+        inputTokens: number;
+        outputTokens: number;
+        requests: number;
+        bytes: number;
+        cached: number;
+    };
     logger: Logger;
 };
 
+/**
+ * Creates a persistent translation store when --cache-dir is configured.
+ * The fingerprint covers everything that affects the output, so changing
+ * the model, prompts or glossary safely resets the cache.
+ */
+export function makeStore(
+    client: LLMClient,
+    config: AITranslationConfig,
+    sourceLanguage: string,
+    targetLanguage: string,
+): TranslationStore | undefined {
+    if (!config.cacheDir) {
+        return undefined;
+    }
+
+    const file = join(config.cacheDir, `${client.name}.${sourceLanguage}-${targetLanguage}.json`);
+    // Built-in prompts are part of the fingerprint too: when a CLI update
+    // changes them, stored translations are stale and must not be served.
+    const fingerprint = cacheFingerprint({
+        provider: client.name,
+        model: config.model,
+        source: sourceLanguage,
+        target: targetLanguage,
+        promptMode: config.promptMode,
+        systemPrompt: config.systemPrompt,
+        userPrompt: config.userPrompt,
+        defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT,
+        defaultUserPrompt: DEFAULT_USER_PROMPT,
+        glossaryPairs: config.glossaryPairs,
+    });
+
+    return new TranslationStore(file, fingerprint);
+}
+
 export function makeTranslator(params: TranslatorParams): Translate {
-    const {client, config, sourceLanguage, targetLanguage, cache, stat, logger} = params;
+    const {client, config, sourceLanguage, targetLanguage, cache, store, stat, logger} = params;
     const {
         systemPrompt,
         userPrompt,
@@ -418,6 +476,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         const translated = await translateWithFallback(path, batch, context);
                         translated.forEach((text, i) => {
                             cache.get(batch[i])?.resolve(text);
+                            if (!dryRun) {
+                                store?.set(batch[i], text);
+                            }
                         });
                     } catch (error) {
                         // Reject and evict pending defers, otherwise files sharing
@@ -446,6 +507,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     `Skip document part for translation. Part is too big (~${tokens} tokens > ${maxBatchTokens}).`,
                 );
                 promises.push(Promise.resolve(text));
+                continue;
+            }
+
+            const stored = store?.get(text);
+            if (stored !== undefined) {
+                stat.cached++;
+                promises.push(Promise.resolve(stored));
                 continue;
             }
 

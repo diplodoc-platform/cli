@@ -118,6 +118,21 @@ const judgeThreshold = option({
     defaultInfo: 70,
 });
 
+const cacheDir = option({
+    flags: '--cache-dir <path>',
+    desc: `
+        Enable a persistent translation cache in the given directory.
+        Repeated runs reuse stored translations and send only new or changed
+        units to the LLM. The cache is reset when the provider, model,
+        prompts or glossary change.
+    `,
+});
+
+const noCache = option({
+    flags: '--no-cache',
+    desc: 'Disable the persistent translation cache for this run.',
+});
+
 const glossaryExample = gray(dedent`
     glossaryPairs:
       - sourceText: string
@@ -185,6 +200,8 @@ export const options = {
     judge,
     judgeModel,
     judgeThreshold,
+    cacheDir,
+    noCache,
     temperature,
     maxOutputTokens,
     maxBatchTokens,

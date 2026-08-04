@@ -406,6 +406,15 @@ describe('Translate command', () => {
                     judge: true,
                     judgeThreshold: 80,
                 });
+
+                test('should resolve cache dir arg', '--cache-dir .translate-cache', {
+                    // @ts-ignore - asymmetric matcher in expected config
+                    cacheDir: expect.stringContaining('.translate-cache'),
+                });
+
+                test('should handle no-cache arg', '--cache-dir .translate-cache --no-cache', {
+                    cacheDir: undefined,
+                });
             });
 
             describe('yandexgpt', () => {

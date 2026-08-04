@@ -4,7 +4,7 @@ import type {LLMClient} from './clients/types';
 import type {GlossaryPair, PromptMode} from './prompts';
 
 import {ok} from 'node:assert';
-import {join} from 'node:path';
+import {join, resolve} from 'node:path';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks} from '~/commands/translate';
@@ -60,6 +60,8 @@ type Args = {
     judge?: boolean;
     judgeModel?: string;
     judgeThreshold?: number;
+    cacheDir?: string;
+    cache?: boolean;
     temperature?: number;
     maxOutputTokens?: number;
     maxBatchTokens?: number;
@@ -81,6 +83,7 @@ type Config = {
     judge: boolean;
     judgeModel?: string;
     judgeThreshold: number;
+    cacheDir?: AbsolutePath;
     temperature: number;
     maxOutputTokens: number;
     maxBatchTokens: number;
@@ -205,6 +208,8 @@ export class Extension {
                         .addOption(options.judge)
                         .addOption(options.judgeModel)
                         .addOption(options.judgeThreshold)
+                        .addOption(options.cacheDir)
+                        .addOption(options.noCache)
                         .addOption(options.temperature)
                         .addOption(options.maxOutputTokens)
                         .addOption(options.maxBatchTokens)
@@ -289,6 +294,16 @@ export class Extension {
                     );
                     config.retry = intOr(defined('retry', args, config), 3);
                     config.timeout = intOr(defined('timeout', args, config), DEFAULT_TIMEOUT);
+
+                    let cacheDir: AbsolutePath | undefined;
+                    if (args.cache !== false) {
+                        if (own<string, 'cacheDir'>(args, 'cacheDir')) {
+                            cacheDir = resolve(args.cacheDir) as AbsolutePath;
+                        } else if (own<string, 'cacheDir'>(config, 'cacheDir')) {
+                            cacheDir = config.resolve(config.cacheDir);
+                        }
+                    }
+                    config.cacheDir = cacheDir;
 
                     let glossary: AbsolutePath | undefined;
                     if (own<string, 'glossary'>(args, 'glossary')) {

@@ -3,11 +3,14 @@ import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
 import type {Defer} from './utils';
 
+import {existsSync, mkdtempSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
-import {extractTitle, makeTranslator} from './provider';
+import {extractTitle, makeStore, makeTranslator} from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
-import {LLMAuthError} from './utils';
+import {LLMAuthError, TranslationStore, cacheFingerprint} from './utils';
 
 type FakeComplete = (fragments: string[], call: number) => string[] | Error;
 
@@ -33,13 +36,18 @@ function makeClient(complete: FakeComplete) {
     return client;
 }
 
-function makeParams(client: LLMClient, config: Partial<AITranslationConfig> = {}) {
+function makeParams(
+    client: LLMClient,
+    config: Partial<AITranslationConfig> = {},
+    store?: TranslationStore,
+) {
     const warn = vi.fn();
-    const stat = {inputTokens: 0, outputTokens: 0, requests: 0, bytes: 0};
+    const stat = {inputTokens: 0, outputTokens: 0, requests: 0, bytes: 0, cached: 0};
     const cache = new Map<string, Defer>();
 
     return {
         params: {
+            store,
             client,
             config: {
                 userPrompt: '{{fragments}}',
@@ -80,6 +88,68 @@ describe('translate ai provider', () => {
         it('should return undefined when there is no title', () => {
             expect(extractTitle('plain text')).toBeUndefined();
             expect(extractTitle({items: []})).toBeUndefined();
+        });
+    });
+
+    describe('makeStore', () => {
+        it('should return undefined without cacheDir', () => {
+            const client = makeClient(translated);
+
+            expect(makeStore(client, {} as AITranslationConfig, 'ru', 'en')).toBeUndefined();
+        });
+
+        it('should create a store file per provider and language pair', async () => {
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const client = makeClient(translated);
+            const config = {
+                cacheDir: dir,
+                model: 'model',
+                promptMode: 'append',
+                glossaryPairs: [],
+            } as unknown as AITranslationConfig;
+
+            const store = makeStore(client, config, 'ru', 'en');
+
+            expect(store).toBeDefined();
+            store?.load();
+            store?.set('Привет', 'Hello');
+            store?.flush();
+
+            const reopened = makeStore(client, config, 'ru', 'en');
+            reopened?.load();
+
+            expect(reopened?.get('Привет')).toBe('Hello');
+            expect(existsSync(join(dir, 'fake.ru-en.json'))).toBe(true);
+        });
+
+        it('should reset stored translations when the model changes', () => {
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const client = makeClient(translated);
+            const base = {
+                cacheDir: dir,
+                promptMode: 'append',
+                glossaryPairs: [],
+            };
+
+            const first = makeStore(
+                client,
+                {...base, model: 'a'} as unknown as AITranslationConfig,
+                'ru',
+                'en',
+            );
+            first?.load();
+            first?.set('Привет', 'Hello');
+            first?.flush();
+
+            const second = makeStore(
+                client,
+                {...base, model: 'b'} as unknown as AITranslationConfig,
+                'ru',
+                'en',
+            );
+            second?.load();
+
+            expect(second?.get('Привет')).toBeUndefined();
         });
     });
 
@@ -187,6 +257,64 @@ describe('translate ai provider', () => {
             expect(messages[0].content).toContain(
                 'CONTEXT: Document context: file docs/ru/index.md.',
             );
+        });
+
+        it('should reuse translations from the persistent store', async () => {
+            const file = join(mkdtempSync(join(tmpdir(), 'yfm-ai-store-')), 'store.json');
+            const fingerprint = cacheFingerprint({model: 'fake'});
+
+            const warmup = new TranslationStore(file, fingerprint);
+            warmup.load();
+            warmup.set('One', 'T:One');
+            warmup.flush();
+
+            const client = makeClient(translated);
+            const store = new TranslationStore(file, fingerprint);
+            store.load();
+            const {params, stat} = makeParams(client, {}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', ['One']);
+
+            expect(result).toEqual(['T:One']);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
+        it('should save fresh translations into the persistent store', async () => {
+            const file = join(mkdtempSync(join(tmpdir(), 'yfm-ai-store-')), 'store.json');
+            const fingerprint = cacheFingerprint({model: 'fake'});
+
+            const client = makeClient(translated);
+            const store = new TranslationStore(file, fingerprint);
+            store.load();
+            const {params} = makeParams(client, {}, store);
+            const translate = makeTranslator(params);
+
+            await translate('file.md', ['One', 'Two']);
+            store.flush();
+
+            const reopened = new TranslationStore(file, fingerprint);
+            reopened.load();
+
+            expect(reopened.get('One')).toBe('T:One');
+            expect(reopened.get('Two')).toBe('T:Two');
+        });
+
+        it('should not poison the store on dry run', async () => {
+            const file = join(mkdtempSync(join(tmpdir(), 'yfm-ai-store-')), 'store.json');
+            const fingerprint = cacheFingerprint({model: 'fake'});
+
+            const client = makeClient(translated);
+            const store = new TranslationStore(file, fingerprint);
+            store.load();
+            const {params} = makeParams(client, {dryRun: true}, store);
+            const translate = makeTranslator(params);
+
+            await translate('file.md', ['One']);
+            store.flush();
+
+            expect(store.get('One')).toBeUndefined();
         });
 
         it('should estimate usage without client calls on dry run', async () => {
