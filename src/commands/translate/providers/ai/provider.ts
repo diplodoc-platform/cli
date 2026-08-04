@@ -2,7 +2,9 @@ import type {Logger} from '~/core/logger';
 import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
+import type {JudgePair} from './judge';
 
+import {writeFile} from 'node:fs/promises';
 import {extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
@@ -14,6 +16,9 @@ import {TranslateLogger} from '../../logger';
 
 import {Defer, LLMResponseError, backoff, bytes, estimateTokens} from './utils';
 import {buildMessages, splitFragments} from './prompts';
+import {judgeTranslations} from './judge';
+
+const SOURCE_PREVIEW_LIMIT = 80;
 
 const onFatalError = () => {
     process.exit(1);
@@ -58,6 +63,18 @@ export class Provider {
                     logger: this.logger,
                 });
 
+                const pairs: JudgePair[] = [];
+                const collect =
+                    config.judge && !dryRun
+                        ? (path: string, units: string[], parts: string[]) => {
+                              units.forEach((unit, index) => {
+                                  if (parts[index] !== undefined && parts[index] !== unit) {
+                                      pairs.push({path, source: unit, translation: parts[index]});
+                                  }
+                              });
+                          }
+                        : undefined;
+
                 const processFile = makeProcessor({
                     input,
                     output,
@@ -65,6 +82,7 @@ export class Provider {
                     targetLanguage: target.language,
                     vars,
                     translate,
+                    onTranslated: collect,
                 });
 
                 await eachLimit(
@@ -95,6 +113,10 @@ export class Provider {
                     `requests: ${stat.requests} input-tokens: ${stat.inputTokens} ` +
                         `output-tokens: ${stat.outputTokens} bytes: ${stat.bytes}`,
                 );
+
+                if (pairs.length) {
+                    await this.judge(pairs, config, source.language, target.language);
+                }
             }
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
@@ -106,6 +128,71 @@ export class Provider {
             process.exit(1);
         }
     }
+
+    /**
+     * Scores translated units with the judge model and writes a quality
+     * report next to the translated files. Best-effort: judge failures
+     * never fail the translation run.
+     */
+    private async judge(
+        pairs: JudgePair[],
+        config: AITranslationConfig,
+        sourceLanguage: string,
+        targetLanguage: string,
+    ) {
+        const client = this.clientFactory(
+            config.judgeModel ? {...config, model: config.judgeModel} : config,
+        );
+
+        const verdicts = await judgeTranslations({
+            client,
+            pairs,
+            sourceLanguage,
+            targetLanguage,
+            maxBatchTokens: config.maxBatchTokens,
+            maxOutputTokens: config.maxOutputTokens,
+            maxConcurrency: config.maxConcurrency,
+            retry: config.retry,
+            logger: this.logger,
+        });
+
+        const threshold = config.judgeThreshold;
+        const low = verdicts
+            .filter((verdict) => verdict.score < threshold)
+            .sort((a, b) => a.score - b.score);
+
+        for (const verdict of low) {
+            const preview =
+                verdict.source.length > SOURCE_PREVIEW_LIMIT
+                    ? verdict.source.slice(0, SOURCE_PREVIEW_LIMIT) + '...'
+                    : verdict.source;
+            this.logger.warn(
+                verdict.path,
+                `Translation quality ${verdict.score}/100: ${preview}` +
+                    (verdict.issue ? ` (${verdict.issue})` : ''),
+            );
+        }
+
+        const report = join(resolve(config.output), `translate-quality.${targetLanguage}.json`);
+        await writeFile(
+            report,
+            JSON.stringify(
+                {
+                    model: config.judgeModel || config.model,
+                    threshold,
+                    scored: verdicts.length,
+                    low: low.length,
+                    segments: low,
+                },
+                null,
+                2,
+            ),
+        );
+
+        this.logger.stat(
+            `judge: scored ${verdicts.length} units, ${low.length} below ${threshold} (${report})`,
+        );
+    }
 }
 
 type ProcessorParams = {
@@ -115,6 +202,7 @@ type ProcessorParams = {
     targetLanguage: string;
     vars: Hash;
     translate: Translate;
+    onTranslated?: (path: string, units: string[], parts: string[]) => void;
 };
 
 type Translate = (path: string, texts: string[], context?: DocContext) => Promise<string[]>;
@@ -153,7 +241,7 @@ function describeDocument(path: string, context?: DocContext): string {
 }
 
 function makeProcessor(params: ProcessorParams) {
-    const {input, output, sourceLanguage, targetLanguage, vars, translate} = params;
+    const {input, output, sourceLanguage, targetLanguage, vars, translate, onTranslated} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -205,6 +293,8 @@ function makeProcessor(params: ProcessorParams) {
         }
 
         const parts = await translate(path, units, {title: extractTitle(content.data)});
+
+        onTranslated?.(path, units, parts);
 
         content.set(compose(skeleton, parts, {useSource: true, schemas, ajvOptions}));
         await content.dump(outputPath);

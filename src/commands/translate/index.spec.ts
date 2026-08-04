@@ -396,6 +396,16 @@ describe('Translate command', () => {
                 test('should clamp max concurrency to at least 1', '--max-concurrency 0', {
                     maxConcurrency: 1,
                 });
+
+                test('should disable judge by default', '', {
+                    judge: false,
+                    judgeThreshold: 70,
+                });
+
+                test('should handle judge args', '--judge --judge-threshold 80', {
+                    judge: true,
+                    judgeThreshold: 80,
+                });
             });
 
             describe('yandexgpt', () => {
