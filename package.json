@@ -82,7 +82,6 @@
     "@diplodoc/ajv": "^0.1.5",
     "@diplodoc/client": "^5.10.2",
     "@diplodoc/color-extension": "^0.1.1",
-    "@diplodoc/components": "^5.17.4",
     "@diplodoc/liquid": "^1.5.2",
     "@diplodoc/transform": "^4.77.8",
     "@diplodoc/translation": "^1.7.28",
