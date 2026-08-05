@@ -123,8 +123,8 @@ const cacheDir = option({
     desc: `
         Enable a persistent translation cache in the given directory.
         Repeated runs reuse stored translations and send only new or changed
-        units to the LLM. The cache is reset when the provider, model,
-        prompts or glossary change.
+        units to the LLM. Each model keeps its own cache file; the cache is
+        reset when prompts or glossary change.
     `,
 });
 
