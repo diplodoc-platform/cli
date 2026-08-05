@@ -1,4 +1,4 @@
-import type {Logger} from '~/core/logger';
+import type {TranslateLogger} from '../../logger';
 import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
@@ -39,9 +39,11 @@ const allGood = (count: number) =>
 
 function makeParams(client: LLMClient, pairs: {source: string; translation: string}[]) {
     const warn = vi.fn();
+    const request = vi.fn();
 
     return {
         warn,
+        request,
         params: {
             client,
             pairs: pairs.map((pair) => ({path: 'file.md', ...pair})),
@@ -51,7 +53,7 @@ function makeParams(client: LLMClient, pairs: {source: string; translation: stri
             maxOutputTokens: 100,
             maxConcurrency: 2,
             retry: 0,
-            logger: {warn} as unknown as Logger,
+            logger: {warn, request} as unknown as TranslateLogger,
         },
     };
 }
@@ -159,7 +161,7 @@ describe('translate ai judge', () => {
         function makeProvider(client: LLMClient) {
             const factory = vi.fn(() => client);
             const provider = new Provider(factory, {} as TranslateConfig);
-            const logger = {warn: vi.fn(), stat: vi.fn()};
+            const logger = {warn: vi.fn(), stat: vi.fn(), request: vi.fn()};
 
             Object.assign(provider, {logger});
 
@@ -191,10 +193,13 @@ describe('translate ai judge', () => {
             );
 
             expect(report.scored).toBe(2);
+            expect(report.averageScore).toBe(71);
             expect(report.low).toBe(1);
             expect(report.segments[0]).toMatchObject({path: 'a.md', score: 42});
             expect(logger.warn).toHaveBeenCalledWith('a.md', expect.stringContaining('42/100'));
-            expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('scored 2 units'));
+            expect(logger.stat).toHaveBeenCalledWith(
+                expect.stringContaining('2 units scored, average score 71/100'),
+            );
         });
 
         it('should use the judge model for scoring when configured', async () => {

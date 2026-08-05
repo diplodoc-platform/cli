@@ -11,6 +11,7 @@ export class TranslateLogger extends Logger {
     readonly extracted = this.topic(LogLevel.INFO, 'EXTRACTED');
     readonly composed = this.topic(LogLevel.INFO, 'COMPOSED');
     readonly translated = this.topic(LogLevel.INFO, 'TRANSLATED');
+    readonly request = this.topic(LogLevel.INFO, 'REQUEST', gray);
     readonly stat = this.topic(LogLevel.INFO, 'PROCESSED');
 
     readonly _skipped = this.topic(LogLevel.INFO, 'SKIPPED', gray);

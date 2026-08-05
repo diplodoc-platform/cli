@@ -177,6 +177,11 @@ export class Provider {
         const low = verdicts
             .filter((verdict) => verdict.score < threshold)
             .sort((a, b) => a.score - b.score);
+        const average = verdicts.length
+            ? Math.round(
+                  (verdicts.reduce((sum, {score}) => sum + score, 0) / verdicts.length) * 10,
+              ) / 10
+            : 0;
 
         for (const verdict of low) {
             const preview =
@@ -198,6 +203,7 @@ export class Provider {
                     model: config.judgeModel || config.model,
                     threshold,
                     scored: verdicts.length,
+                    averageScore: average,
                     low: low.length,
                     segments: low,
                 },
@@ -207,7 +213,8 @@ export class Provider {
         );
 
         this.logger.stat(
-            `judge: scored ${verdicts.length} units, ${low.length} below ${threshold} (${report})`,
+            `judge: ${verdicts.length} units scored, average score ${average}/100, ` +
+                `${low.length} below threshold ${threshold} (${report})`,
         );
     }
 }
@@ -332,7 +339,7 @@ type TranslatorParams = {
         bytes: number;
         cached: number;
     };
-    logger: Logger;
+    logger: TranslateLogger;
 };
 
 /**
@@ -350,7 +357,12 @@ export function makeStore(
         return undefined;
     }
 
-    const file = join(config.cacheDir, `${client.name}.${sourceLanguage}-${targetLanguage}.json`);
+    // One file per model: switching models must not wipe another model's cache.
+    const model = config.model.replace(/[^\w.-]+/g, '-');
+    const file = join(
+        config.cacheDir,
+        `${client.name}.${model}.${sourceLanguage}-${targetLanguage}.json`,
+    );
     // Built-in prompts are part of the fingerprint too: when a CLI update
     // changes them, stored translations are stale and must not be served.
     const fingerprint = cacheFingerprint({
@@ -470,9 +482,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 return;
             }
             const batch = buffer;
+            const batchTokens = bufferTokens;
             requests.push(
                 schedule(async () => {
                     try {
+                        if (!dryRun) {
+                            logger.request(path, `${batch.length} units, ~${batchTokens} tokens`);
+                        }
                         const translated = await translateWithFallback(path, batch, context);
                         translated.forEach((text, i) => {
                             cache.get(batch[i])?.resolve(text);
