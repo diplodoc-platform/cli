@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.52.0](https://github.com/diplodoc-platform/cli/compare/v5.51.2...v5.52.0) (2026-08-05)
+
+
+### Features
+
+* **translate:** optional LLM-as-judge quality report for AI translations ([#2136](https://github.com/diplodoc-platform/cli/issues/2136)) ([305809a](https://github.com/diplodoc-platform/cli/commit/305809aaaa7ab00986bb892749bceaca09be2cc1))
+* **translate:** pass document context to AI translation prompts ([#2134](https://github.com/diplodoc-platform/cli/issues/2134)) ([2215c4d](https://github.com/diplodoc-platform/cli/commit/2215c4db7c6f7a967f9eacec4766e361629fd201))
+* **translate:** persistent translation cache for AI providers ([#2135](https://github.com/diplodoc-platform/cli/issues/2135)) ([84975c7](https://github.com/diplodoc-platform/cli/commit/84975c7ab6039dbf54b9909e9f6ecae96a00472c))
+
+
+### Bug Fixes
+
+* Add openapi spec links to llms.txt DOCSTOOLS-6346 ([eaed307](https://github.com/diplodoc-platform/cli/commit/eaed3073ba914bbadf65a59dd8f8c5e77da6c11a))
+* **deps:** Update @diplodoc/client@5.10.3 ([dad2eba](https://github.com/diplodoc-platform/cli/commit/dad2ebaa7cada2d7de77aa29850f0da278ad6860))
+* **deps:** Update @diplodoc/transform@4.77.10 ([368bd9a](https://github.com/diplodoc-platform/cli/commit/368bd9aa039894ffaaa00ff44357cebca9f504db))
+* remove diplodoc components from deps ([#2148](https://github.com/diplodoc-platform/cli/issues/2148)) ([5d06192](https://github.com/diplodoc-platform/cli/commit/5d06192d80d9ed5ef1e6bab7a043b001a1ee47f6))
+* **translate:** usability fixes for AI provider after field trial ([#2150](https://github.com/diplodoc-platform/cli/issues/2150)) ([deb30e4](https://github.com/diplodoc-platform/cli/commit/deb30e437ddc8216c6bed3caa303394fb55a8480))
+
 ## [5.51.2](https://github.com/diplodoc-platform/cli/compare/v5.51.1...v5.51.2) (2026-08-03)
 
 
