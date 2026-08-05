@@ -104,6 +104,8 @@ export class Template {
 
     private alternates: Alternate[] = [];
 
+    private tags: string[] = [];
+
     /**
      * Creates a new Template instance.
      *
@@ -326,6 +328,18 @@ export class Template {
     }
 
     /**
+     * Sets page tags (overwrites previous value).
+     *
+     * @param tags - Page tags
+     * @returns Template instance for method chaining
+     */
+    @bounded setTags(tags: string[]) {
+        this.tags = tags.filter((tag) => !tag.startsWith('_')).map(escapeAttributeValue);
+
+        return this;
+    }
+
+    /**
      * Generates the final HTML string from the template.
      *
      * Calculates base href, formats all metadata, styles, scripts, and body content
@@ -334,10 +348,24 @@ export class Template {
      * @returns Complete HTML document as string
      */
     dump() {
-        const {lang, title, styles, scripts, body, bodyClass, faviconSrc, canonical, alternates} =
-            this;
+        const {
+            lang,
+            title,
+            styles,
+            scripts,
+            body,
+            bodyClass,
+            faviconSrc,
+            canonical,
+            alternates,
+            tags,
+        } = this;
         const base = getDepthPath(getDepth(this.path) - 1);
         const faviconType = getFaviconType(faviconSrc);
+        const metadata = [
+            ...tags.map((tag) => ({property: 'article:tag', content: tag})),
+            ...this.meta,
+        ];
 
         // ts-dedent re-indents every line of a multi-line interpolation,
         // which corrupts whitespace-significant content (e.g. <pre><code> blocks) inside body
@@ -354,7 +382,7 @@ export class Template {
                     <title>${title}</title>
                     ${canonical ? `<link rel="canonical" href="${canonical}">` : ''}
                     ${Object.values(alternates).sort(compareAlternates).map(alternate).join('\n')}
-                    ${this.meta.map(meta).join('\n')}
+                    ${metadata.map(meta).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
                     ${faviconSrc && `<link rel="icon" type="${faviconType}" href="${faviconSrc}">`}
@@ -386,6 +414,14 @@ function trailing<T extends PositionInfo>(array: T[]) {
 
 function meta(record: Hash<string>) {
     return `<meta ${attributes(record)}>`;
+}
+
+function escapeAttributeValue(value: string) {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 function alternate({href, hreflang, type, title}: Alternate) {

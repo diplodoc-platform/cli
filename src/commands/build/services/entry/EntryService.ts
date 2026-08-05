@@ -13,6 +13,7 @@ import {render} from '@diplodoc/client/ssr';
 
 import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, THEME_ASSETS_PATH, VERSION} from '~/constants';
+import {getPublicState} from '~/core/meta';
 
 import {getHooks, withHooks} from './hooks';
 import {getTitle} from './utils/seo';
@@ -140,6 +141,7 @@ export class EntryService {
             canonical = '',
             alternate = [],
             __metadata = [],
+            tags = [],
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
@@ -179,6 +181,8 @@ export class EntryService {
                 href: stripUnresolvedVars(a.href),
             })),
         );
+
+        template.setTags(tags);
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);
@@ -248,7 +252,7 @@ export class EntryService {
 
         style.map(template.addStyle);
 
-        template.addScript(template.escape(JSON.stringify(state)), {
+        template.addScript(template.escape(JSON.stringify(getPublicState(state))), {
             inline: true,
             position: 'state',
             attrs: {

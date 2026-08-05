@@ -51,6 +51,18 @@ describe('MetaService', () => {
         metaService = new MetaService(createMockRun());
     });
 
+    describe('dump()', () => {
+        it('preserves technical tags in page data', async () => {
+            const file = 'test/file.md' as NormalizedPath;
+
+            metaService.add(file, {tags: ['info', '_internal', 'syntax']});
+
+            await expect(metaService.dump(file)).resolves.toMatchObject({
+                tags: ['info', '_internal', 'syntax'],
+            });
+        });
+    });
+
     describe('set() vs add()', () => {
         it('set() overwrites all existing metadata', () => {
             const file = 'test/file.md' as NormalizedPath;

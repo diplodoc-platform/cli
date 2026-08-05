@@ -86,17 +86,19 @@ export class LocalSearchProvider implements SearchProvider {
         }
     }
 
-    config(lang: string) {
+    config(lang: string, includeTags = true) {
         const skipHtmlExtension = this.run.config.skipHtmlExtension;
 
         const link = this.pageLink(lang);
         const prettyLink = skipHtmlExtension ? shortLink(link) : link;
+        const tags = includeTags ? this.indexer.getTags(lang) : [];
 
         return {
             ...this._config,
             api: this.apiLink,
             provider: 'local',
             link: prettyLink,
+            ...(tags.length && {tags}),
         };
     }
 

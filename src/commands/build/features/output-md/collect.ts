@@ -5,6 +5,7 @@ import type {HashedGraphNode} from './utils';
 import {join} from 'node:path';
 
 import {all, get} from '~/core/utils';
+import {getPublicMeta} from '~/core/meta';
 
 import {Scheduler, addMetaFrontmatter, rehashContent, signlink} from './utils';
 import {mergeSvg} from './plugins/merge-svg';
@@ -163,7 +164,7 @@ export class MarkdownCollector {
                 run.meta.addResources(graph.path, vcsMeta);
             }
 
-            const includeMeta = await run.meta.dump(graph.path);
+            const includeMeta = getPublicMeta(await run.meta.dump(graph.path));
             const lineWidth = config.disableMetaMaxLineWidth ? Infinity : undefined;
             const contentWithMeta = addMetaFrontmatter(hashed.content, includeMeta, lineWidth);
 

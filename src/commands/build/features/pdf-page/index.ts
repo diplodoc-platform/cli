@@ -10,6 +10,7 @@ import {createServerPageConstructorContent} from '@diplodoc/page-constructor-ext
 
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
+import {getPublicState} from '~/core/meta';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHook} from '~/core/leading';
 import {normalizePath} from '~/core/utils';
@@ -291,7 +292,11 @@ export class PdfPage {
 
                         const pdfHtmlPath = join(tocDir, PDF_DIRNAME, PDF_PAGE_FILENAME);
 
-                        await run.write(join(run.output, pdfDataPath), JSON.stringify(state), true);
+                        await run.write(
+                            join(run.output, pdfDataPath),
+                            JSON.stringify(getPublicState(state)),
+                            true,
+                        );
                         await run.write(join(run.output, pdfHtmlPath), page, true);
                     } catch (error) {
                         run.logger.error(error);
