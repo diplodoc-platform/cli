@@ -318,6 +318,9 @@ function makeProcessor(params: ProcessorParams) {
                 outputRoot,
                 path
                     .replace(inputRoot, '')
+                    // Dump passes an absolute path: on Windows it comes with
+                    // backslashes, so normalize before the language swap.
+                    .replace(/\\/g, '/')
                     .replace('/' + sourceLanguage + '/', '/' + targetLanguage + '/'),
             );
 
