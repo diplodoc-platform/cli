@@ -477,6 +477,16 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         const parts = splitFragments(result.text);
 
+        // Models sometimes emit stray edge delimiters (e.g. a lone separator
+        // for a fragment they decided to keep as is) - empty edge parts are
+        // framing noise, not translations.
+        while (parts.length > fragments.length && parts[parts.length - 1] === '') {
+            parts.pop();
+        }
+        while (parts.length > fragments.length && parts[0] === '') {
+            parts.shift();
+        }
+
         if (parts.length !== fragments.length) {
             throw new LLMResponseError(
                 `Expected ${fragments.length} fragments in LLM response, got ${parts.length}`,
@@ -484,9 +494,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
         }
 
         // Restore the wrapper; unwrap defensively in case the model echoed it.
+        // An empty translation of a non-empty fragment is never valid - keep
+        // the source text instead (matches the built-in prompt rules).
         return parts.map((part, index) => {
-            const {open, close} = wrappers[index];
-            return open + unwrapUnit(part).text + close;
+            const {open, text, close} = wrappers[index];
+            return open + (unwrapUnit(part).text || text) + close;
         });
     }
 

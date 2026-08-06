@@ -385,6 +385,27 @@ describe('translate ai provider', () => {
             expect(messages[1].content).toContain('Привет, <g id="g-1">мир</g>');
         });
 
+        it('should tolerate a stray trailing delimiter in the response', async () => {
+            const client = makeClient((fragments) => [...translated(fragments), '']);
+            const {params} = makeParams(client);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', ['One']);
+
+            expect(result).toEqual(['T:One']);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it('should keep the source text when the model returns an empty translation', async () => {
+            const client = makeClient(() => ['', '']);
+            const {params} = makeParams(client);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', ['Fake file']);
+
+            expect(result).toEqual(['Fake file']);
+        });
+
         it('should log a request line when a batch is sent', async () => {
             const client = makeClient(translated);
             const {params, request} = makeParams(client);
