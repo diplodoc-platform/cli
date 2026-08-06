@@ -10,6 +10,7 @@ import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
 
 import {LogLevel} from '~/core/logger';
+import {normalizePath} from '~/core/utils';
 
 import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
 import {TranslateLogger} from '../../logger';
@@ -316,12 +317,12 @@ function makeProcessor(params: ProcessorParams) {
         const outputPath = (path: string) =>
             join(
                 outputRoot,
-                path
-                    .replace(inputRoot, '')
-                    // Dump passes an absolute path: on Windows it comes with
-                    // backslashes, so normalize before the language swap.
-                    .replace(/\\/g, '/')
-                    .replace('/' + sourceLanguage + '/', '/' + targetLanguage + '/'),
+                // Dump passes an absolute path with os-dependent separators:
+                // normalize to posix before the language swap.
+                normalizePath(path.replace(inputRoot, '')).replace(
+                    '/' + sourceLanguage + '/',
+                    '/' + targetLanguage + '/',
+                ),
             );
 
         const content = new FileLoader(inputPath);
