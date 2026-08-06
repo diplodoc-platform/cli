@@ -80,9 +80,14 @@ export class Provider {
                     config.judge && !dryRun
                         ? (path: string, units: string[], parts: string[]) => {
                               units.forEach((unit, index) => {
-                                  if (parts[index] !== undefined && parts[index] !== unit) {
-                                      pairs.push({path, source: unit, translation: parts[index]});
+                                  if (parts[index] === undefined || parts[index] === unit) {
+                                      return;
                                   }
+                                  pairs.push({
+                                      path,
+                                      source: unwrapUnit(unit).text,
+                                      translation: unwrapUnit(parts[index]).text,
+                                  });
                               });
                           }
                         : undefined;
@@ -234,6 +239,38 @@ type Translate = (path: string, texts: string[], context?: DocContext) => Promis
 export type DocContext = {
     title?: string;
 };
+
+const SOURCE_OPEN = '<source';
+const SOURCE_CLOSE = '</source>';
+
+type UnitWrapper = {
+    open: string;
+    text: string;
+    close: string;
+};
+
+/**
+ * Units produced by extract are wrapped in an XLIFF `<source>` element.
+ * The wrapper is transport framing for compose, not translatable content:
+ * it is stripped before prompting and restored on the translated text,
+ * so composing does not depend on the model echoing XML back.
+ */
+export function unwrapUnit(unit: string): UnitWrapper {
+    const trimmed = unit.trim();
+
+    if (trimmed.startsWith(SOURCE_OPEN) && trimmed.endsWith(SOURCE_CLOSE)) {
+        const open = trimmed.indexOf('>');
+        if (open !== -1) {
+            return {
+                open: trimmed.slice(0, open + 1),
+                text: trimmed.slice(open + 1, -SOURCE_CLOSE.length),
+                close: SOURCE_CLOSE,
+            };
+        }
+    }
+
+    return {open: '', text: unit, close: ''};
+}
 
 /**
  * Extracts a human-readable document title to use as translation context:
@@ -403,15 +440,19 @@ export function makeTranslator(params: TranslatorParams): Translate {
             return [];
         }
 
-        const messages = buildMessages(fragments, {
-            systemPrompt,
-            userPrompt,
-            promptMode,
-            sourceLanguage,
-            targetLanguage,
-            glossaryPairs,
-            context,
-        });
+        const wrappers = fragments.map(unwrapUnit);
+        const messages = buildMessages(
+            wrappers.map((wrapper) => wrapper.text),
+            {
+                systemPrompt,
+                userPrompt,
+                promptMode,
+                sourceLanguage,
+                targetLanguage,
+                glossaryPairs,
+                context,
+            },
+        );
 
         if (dryRun) {
             const inputTokens = messages.reduce((sum, m) => sum + estimateTokens(m.content), 0);
@@ -442,7 +483,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
             );
         }
 
-        return parts;
+        // Restore the wrapper; unwrap defensively in case the model echoed it.
+        return parts.map((part, index) => {
+            const {open, close} = wrappers[index];
+            return open + unwrapUnit(part).text + close;
+        });
     }
 
     async function translateWithFallback(

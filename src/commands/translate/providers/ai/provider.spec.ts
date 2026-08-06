@@ -8,7 +8,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
-import {extractTitle, makeStore, makeTranslator} from './provider';
+import {extractTitle, makeStore, makeTranslator, unwrapUnit} from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
 import {LLMAuthError, TranslationStore, cacheFingerprint} from './utils';
 
@@ -184,6 +184,26 @@ describe('translate ai provider', () => {
         });
     });
 
+    describe('unwrapUnit', () => {
+        it('should split the xliff source wrapper from the text', () => {
+            const unit = '<source xml:space="preserve">Привет, <g id="g-1">мир</g></source>';
+
+            expect(unwrapUnit(unit)).toEqual({
+                open: '<source xml:space="preserve">',
+                text: 'Привет, <g id="g-1">мир</g>',
+                close: '</source>',
+            });
+        });
+
+        it('should pass plain text through unchanged', () => {
+            expect(unwrapUnit('Просто текст')).toEqual({
+                open: '',
+                text: 'Просто текст',
+                close: '',
+            });
+        });
+    });
+
     describe('makeTranslator', () => {
         it('should translate texts through the client', async () => {
             const client = makeClient(translated);
@@ -346,6 +366,23 @@ describe('translate ai provider', () => {
             store.flush();
 
             expect(store.get('One')).toBeUndefined();
+        });
+
+        it('should strip the xliff wrapper before prompting and restore it after', async () => {
+            const unit = '<source xml:space="preserve">Привет, <g id="g-1">мир</g></source>';
+            const client = makeClient(translated);
+            const {params} = makeParams(client);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([
+                '<source xml:space="preserve">T:Привет, <g id="g-1">мир</g></source>',
+            ]);
+
+            const [messages] = vi.mocked(client.complete).mock.calls[0];
+            expect(messages[1].content).not.toContain('<source');
+            expect(messages[1].content).toContain('Привет, <g id="g-1">мир</g>');
         });
 
         it('should log a request line when a batch is sent', async () => {
