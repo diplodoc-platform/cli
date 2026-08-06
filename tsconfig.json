@@ -8,12 +8,12 @@
     "module": "es2022",
     "moduleResolution": "bundler",
     "experimentalDecorators": false,
+    "types": ["node"],
     "paths": {
       "~/*": ["./src/*"],
       "@diplodoc/cli/lib/*": ["./src/core/*"],
       "@diplodoc/cli": ["./src"]
     }
   },
-  "include": ["src/path.d.ts", "src/globals.d.ts", "src"],
-  "types": ["node"]
+  "include": ["src/path.d.ts", "src/globals.d.ts", "src"]
 }
