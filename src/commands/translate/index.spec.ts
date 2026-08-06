@@ -279,6 +279,29 @@ describe('Translate command', () => {
             );
         });
 
+        describe('copyAssets', () => {
+            const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
+
+            test('should be disabled by default', '', {
+                copyAssets: false,
+            });
+
+            test('should handle arg', '--copy-assets', {
+                copyAssets: true,
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    copyAssets: true,
+                },
+                {
+                    copyAssets: true,
+                },
+            );
+        });
+
         describe('timeout', () => {
             const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
 

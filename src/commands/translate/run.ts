@@ -16,7 +16,7 @@ import {MarkdownService} from '~/core/markdown';
 
 import {FileLoader, resolveFiles} from './utils';
 
-type CommonRunConfig = Omit<TranslateConfig, 'provider' | 'timeout'> &
+type CommonRunConfig = Omit<TranslateConfig, 'provider' | 'timeout' | 'copyAssets'> &
     ExtractConfig &
     ConfigDefaults;
 
