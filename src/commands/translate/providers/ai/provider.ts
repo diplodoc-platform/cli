@@ -491,6 +491,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         }
                         const translated = await translateWithFallback(path, batch, context);
                         translated.forEach((text, i) => {
+                            // The model occasionally strips the <source> wrapper from
+                            // translated units; compose requires it, so restore it
+                            // before the text reaches the cache or other files.
+                            if (batch[i].includes('<source') && !text.includes('<source')) {
+                                text = `<source xml:space="preserve">${text.trim()}</source>`;
+                            }
                             cache.get(batch[i])?.resolve(text);
                             if (!dryRun) {
                                 store?.set(batch[i], text);

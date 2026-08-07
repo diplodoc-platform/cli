@@ -224,6 +224,22 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(1);
         });
 
+        it('should restore the <source> wrapper when the model strips it', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const wrapped = '<source xml:space="preserve">Plain translation</source>';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const client = makeClient(() => ['Plain translation']);
+            const {params} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrapped]);
+            expect(store.get(unit)).toBe(wrapped);
+        });
+
         it('should retry one-by-one when fragment count mismatches', async () => {
             const client = makeClient((fragments, call) => {
                 // First (batched) response merges everything into one fragment.
