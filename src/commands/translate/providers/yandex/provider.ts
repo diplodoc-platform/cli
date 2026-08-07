@@ -9,9 +9,15 @@ import axios, {AxiosError} from 'axios';
 import liquid from '@diplodoc/transform/lib/liquid';
 
 import {LogLevel} from '~/core/logger';
-import {normalizePath} from '~/core/utils';
 
-import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
+import {
+    FileLoader,
+    TranslateError,
+    compose,
+    extract,
+    languageRepath,
+    resolveSchemas,
+} from '../../utils';
 import {TranslateLogger} from '../../logger';
 
 import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
@@ -276,16 +282,7 @@ function processor(params: TranslatorParams, translate: Translate) {
         }
 
         const inputPath = join(inputRoot, path);
-        const output = (path: string) =>
-            join(
-                outputRoot,
-                // Dump passes an absolute path with os-dependent separators:
-                // normalize to posix before the language swap.
-                normalizePath(path.replace(inputRoot, '')).replace(
-                    '/' + sourceLanguage + '/',
-                    '/' + targetLanguage + '/',
-                ),
-            );
+        const output = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
 
         const content = new FileLoader(inputPath);
 
