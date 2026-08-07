@@ -8,7 +8,14 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
-import {Provider, extractTitle, makeStore, makeTranslator, unwrapUnit} from './provider';
+import {
+    Provider,
+    extractTitle,
+    makeStore,
+    makeTranslator,
+    untranslatedMarker,
+    unwrapUnit,
+} from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
 import {LLMAuthError, TranslationStore, cacheFingerprint} from './utils';
 
@@ -284,6 +291,34 @@ describe('translate ai provider', () => {
                 text: 'Просто текст',
                 close: '',
             });
+        });
+    });
+
+    describe('untranslatedMarker', () => {
+        it('should mark source-script text for cross-script pairs', () => {
+            const marker = untranslatedMarker('ru', 'en');
+
+            expect(marker?.test('Привет')).toBe(true);
+            expect(marker?.test('Hello')).toBe(false);
+        });
+
+        it('should not discriminate a Latin source', () => {
+            expect(untranslatedMarker('en', 'ru')).toBeNull();
+        });
+
+        it('should not discriminate same-script pairs', () => {
+            expect(untranslatedMarker('ru', 'uk')).toBeNull();
+        });
+
+        it('should ignore scripts shared with the target', () => {
+            const marker = untranslatedMarker('ja', 'zh');
+
+            expect(marker?.test('ドキュメント')).toBe(true);
+            expect(marker?.test('文档')).toBe(false);
+        });
+
+        it('should disable the check for unknown languages', () => {
+            expect(untranslatedMarker('!!', 'en')).toBeNull();
         });
     });
 

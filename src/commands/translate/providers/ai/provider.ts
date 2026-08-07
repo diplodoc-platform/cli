@@ -428,42 +428,56 @@ export function makeStore(
 }
 
 /**
- * Scripts of languages that do not use the Latin alphabet. Used to tell
- * a refused translation from a legitimately untranslatable unit: when the
- * source and target scripts differ, an identity response for a unit that
- * still contains source-script characters means the model failed to
- * translate it, while identity for code, names or numbers is valid.
+ * CLDR composite script codes (ISO 15924) that are not valid Unicode
+ * script property values: expanded into their component scripts.
  */
-const LANGUAGE_SCRIPTS: [RegExp, string[]][] = [
-    [/[Ѐ-ӿ]/, ['ru', 'uk', 'be', 'bg', 'sr', 'mk', 'kk', 'ky', 'mn']],
-    [/[Ͱ-Ͽ]/, ['el']],
-    [/[֐-׿]/, ['he']],
-    [/[؀-ۿ]/, ['ar', 'fa', 'ur']],
-    [/[ऀ-ॿ]/, ['hi']],
-    [/[一-鿿]/, ['zh']],
-    [/[぀-ヿ一-鿿]/, ['ja']],
-    [/[가-힯]/, ['ko']],
-];
+const COMPOSITE_SCRIPTS: Record<string, string[]> = {
+    Hans: ['Han'],
+    Hant: ['Han'],
+    Jpan: ['Han', 'Hiragana', 'Katakana'],
+    Kore: ['Hangul', 'Han'],
+};
 
-function scriptOf(language: string): RegExp | null {
-    const entry = LANGUAGE_SCRIPTS.find(([, languages]) => languages.includes(language));
-    return entry ? entry[0] : null;
+function scriptsOf(language: string): string[] {
+    try {
+        const script = new Intl.Locale(language).maximize().script;
+        if (!script) {
+            return [];
+        }
+
+        return COMPOSITE_SCRIPTS[script] || [script];
+    } catch {
+        return [];
+    }
 }
 
 /**
  * Returns a regexp matching source-script characters that must not survive
- * translation, or null when the pair cannot be discriminated by script
- * (e.g. Latin to Latin) and identity responses have to be trusted.
+ * translation, or null when the pair cannot be discriminated by script and
+ * identity responses have to be trusted. The script of a language comes
+ * from the CLDR likely-subtags data, so any language known to the runtime
+ * is supported. Scripts shared with the target do not discriminate (e.g.
+ * only kana counts for ja -> zh). A Latin source never discriminates:
+ * code, identifiers and product names are Latin in documents of any
+ * language, so a Latin identity response cannot be told apart from a
+ * legitimately untranslatable unit.
  */
 export function untranslatedMarker(sourceLanguage: string, targetLanguage: string): RegExp | null {
-    const source = scriptOf(sourceLanguage);
-    const target = scriptOf(targetLanguage);
+    const target = new Set(scriptsOf(targetLanguage));
+    const source = scriptsOf(sourceLanguage).filter(
+        (script) => script !== 'Latn' && !target.has(script),
+    );
 
-    if (!source || source === target) {
+    if (!source.length) {
         return null;
     }
 
-    return source;
+    try {
+        return new RegExp(source.map((script) => `\\p{Script=${script}}`).join('|'), 'u');
+    } catch {
+        // Script codes unknown to the regexp engine disable the check.
+        return null;
+    }
 }
 
 /**
