@@ -11,7 +11,14 @@ import liquid from '@diplodoc/transform/lib/liquid';
 
 import {LogLevel} from '~/core/logger';
 
-import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
+import {
+    FileLoader,
+    TranslateError,
+    compose,
+    extract,
+    languageRepath,
+    resolveSchemas,
+} from '../../utils';
 import {TranslateLogger} from '../../logger';
 
 import {
@@ -80,9 +87,14 @@ export class Provider {
                     config.judge && !dryRun
                         ? (path: string, units: string[], parts: string[]) => {
                               units.forEach((unit, index) => {
-                                  if (parts[index] !== undefined && parts[index] !== unit) {
-                                      pairs.push({path, source: unit, translation: parts[index]});
+                                  if (parts[index] === undefined || parts[index] === unit) {
+                                      return;
                                   }
+                                  pairs.push({
+                                      path,
+                                      source: unwrapUnit(unit).text,
+                                      translation: unwrapUnit(parts[index]).text,
+                                  });
                               });
                           }
                         : undefined;
@@ -235,6 +247,38 @@ export type DocContext = {
     title?: string;
 };
 
+const SOURCE_OPEN = '<source';
+const SOURCE_CLOSE = '</source>';
+
+type UnitWrapper = {
+    open: string;
+    text: string;
+    close: string;
+};
+
+/**
+ * Units produced by extract are wrapped in an XLIFF `<source>` element.
+ * The wrapper is transport framing for compose, not translatable content:
+ * it is stripped before prompting and restored on the translated text,
+ * so composing does not depend on the model echoing XML back.
+ */
+export function unwrapUnit(unit: string): UnitWrapper {
+    const trimmed = unit.trim();
+
+    if (trimmed.startsWith(SOURCE_OPEN) && trimmed.endsWith(SOURCE_CLOSE)) {
+        const open = trimmed.indexOf('>');
+        if (open !== -1) {
+            return {
+                open: trimmed.slice(0, open + 1),
+                text: trimmed.slice(open + 1, -SOURCE_CLOSE.length),
+                close: SOURCE_CLOSE,
+            };
+        }
+    }
+
+    return {open: '', text: unit, close: ''};
+}
+
 /**
  * Extracts a human-readable document title to use as translation context:
  * the first H1 for markdown, the `title` field for yaml documents.
@@ -276,13 +320,7 @@ function makeProcessor(params: ProcessorParams) {
         }
 
         const inputPath = join(inputRoot, path);
-        const outputPath = (path: string) =>
-            join(
-                outputRoot,
-                path
-                    .replace(inputRoot, '')
-                    .replace('/' + sourceLanguage + '/', '/' + targetLanguage + '/'),
-            );
+        const outputPath = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
 
         const content = new FileLoader(inputPath);
         await content.load();
@@ -403,15 +441,19 @@ export function makeTranslator(params: TranslatorParams): Translate {
             return [];
         }
 
-        const messages = buildMessages(fragments, {
-            systemPrompt,
-            userPrompt,
-            promptMode,
-            sourceLanguage,
-            targetLanguage,
-            glossaryPairs,
-            context,
-        });
+        const wrappers = fragments.map(unwrapUnit);
+        const messages = buildMessages(
+            wrappers.map((wrapper) => wrapper.text),
+            {
+                systemPrompt,
+                userPrompt,
+                promptMode,
+                sourceLanguage,
+                targetLanguage,
+                glossaryPairs,
+                context,
+            },
+        );
 
         if (dryRun) {
             const inputTokens = messages.reduce((sum, m) => sum + estimateTokens(m.content), 0);
@@ -436,13 +478,29 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         const parts = splitFragments(result.text);
 
+        // Models sometimes emit stray edge delimiters (e.g. a lone separator
+        // for a fragment they decided to keep as is) - empty edge parts are
+        // framing noise, not translations.
+        while (parts.length > fragments.length && parts[parts.length - 1] === '') {
+            parts.pop();
+        }
+        while (parts.length > fragments.length && parts[0] === '') {
+            parts.shift();
+        }
+
         if (parts.length !== fragments.length) {
             throw new LLMResponseError(
                 `Expected ${fragments.length} fragments in LLM response, got ${parts.length}`,
             );
         }
 
-        return parts;
+        // Restore the wrapper; unwrap defensively in case the model echoed it.
+        // An empty translation of a non-empty fragment is never valid - keep
+        // the source text instead (matches the built-in prompt rules).
+        return parts.map((part, index) => {
+            const {open, text, close} = wrappers[index];
+            return open + (unwrapUnit(part).text || text) + close;
+        });
     }
 
     async function translateWithFallback(

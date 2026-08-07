@@ -3,12 +3,12 @@ import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
 import type {Defer} from './utils';
 
-import {existsSync, mkdtempSync} from 'node:fs';
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
-import {extractTitle, makeStore, makeTranslator} from './provider';
+import {Provider, extractTitle, makeStore, makeTranslator, unwrapUnit} from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
 import {LLMAuthError, TranslationStore, cacheFingerprint} from './utils';
 
@@ -77,7 +77,83 @@ function makeParams(
 
 const translated = (fragments: string[]) => fragments.map((text) => `T:${text}`);
 
+function makeFullClient() {
+    return {
+        name: 'fake',
+        complete: vi.fn(async (messages: {role: string; content: string}[]) => {
+            // Judge requests are recognized by the reviewer system prompt.
+            if (messages[0].content.includes('strict reviewer')) {
+                const count = (messages[1].content.match(/^\[\d+\]$/gm) || []).length;
+                const scores = Array.from({length: count}, (_, i) => ({
+                    index: i + 1,
+                    score: 50 + i,
+                    issue: 'test issue',
+                }));
+                return {text: JSON.stringify(scores)};
+            }
+
+            const fragments = splitFragments(messages[messages.length - 1].content);
+            return {
+                text: fragments.map((text) => 'T:' + text).join(`\n${FRAGMENT_SEPARATOR}\n`),
+            };
+        }),
+    } as LLMClient;
+}
+
 describe('translate ai provider', () => {
+    describe('Provider.translate', () => {
+        it('should translate files end to end and write a judge report', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-e2e-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'test.md'), '# Заголовок\n\nПривет, мир.\n');
+
+            const client = makeFullClient();
+            const provider = new Provider(() => client, {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.translate(['ru/test.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                judge: true,
+                judgeThreshold: 80,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+            } as unknown as AITranslationConfig);
+
+            const result = readFileSync(join(output, 'en', 'test.md'), 'utf8');
+            expect(result).toContain('T:Заголовок');
+            expect(result).toContain('T:Привет, мир.');
+            expect(logger.error).not.toHaveBeenCalled();
+
+            const report = JSON.parse(
+                readFileSync(join(output, 'translate-quality.en.json'), 'utf8'),
+            );
+            expect(report.scored).toBeGreaterThan(0);
+            expect(report.low).toBeGreaterThan(0);
+            expect(logger.warn).toHaveBeenCalledWith('ru/test.md', expect.stringContaining('/100'));
+        });
+    });
+
     describe('extractTitle', () => {
         it('should extract the first H1 from markdown', () => {
             expect(extractTitle('Intro\n\n# Page title\n\n## Sub')).toBe('Page title');
@@ -181,6 +257,26 @@ describe('translate ai provider', () => {
             liteAgain?.load();
 
             expect(liteAgain?.get('Привет')).toBe('Hello');
+        });
+    });
+
+    describe('unwrapUnit', () => {
+        it('should split the xliff source wrapper from the text', () => {
+            const unit = '<source xml:space="preserve">Привет, <g id="g-1">мир</g></source>';
+
+            expect(unwrapUnit(unit)).toEqual({
+                open: '<source xml:space="preserve">',
+                text: 'Привет, <g id="g-1">мир</g>',
+                close: '</source>',
+            });
+        });
+
+        it('should pass plain text through unchanged', () => {
+            expect(unwrapUnit('Просто текст')).toEqual({
+                open: '',
+                text: 'Просто текст',
+                close: '',
+            });
         });
     });
 
@@ -346,6 +442,54 @@ describe('translate ai provider', () => {
             store.flush();
 
             expect(store.get('One')).toBeUndefined();
+        });
+
+        it('should strip the xliff wrapper before prompting and restore it after', async () => {
+            const unit = '<source xml:space="preserve">Привет, <g id="g-1">мир</g></source>';
+            const client = makeClient(translated);
+            const {params} = makeParams(client);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([
+                '<source xml:space="preserve">T:Привет, <g id="g-1">мир</g></source>',
+            ]);
+
+            const [messages] = vi.mocked(client.complete).mock.calls[0];
+            expect(messages[1].content).not.toContain('<source');
+            expect(messages[1].content).toContain('Привет, <g id="g-1">мир</g>');
+        });
+
+        it('should tolerate a stray trailing delimiter in the response', async () => {
+            const client = makeClient((fragments) => [...translated(fragments), '']);
+            const {params} = makeParams(client);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', ['One']);
+
+            expect(result).toEqual(['T:One']);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it('should drop a stray leading delimiter in the response', async () => {
+            const client = makeClient((fragments) => ['', ...translated(fragments)]);
+            const {params} = makeParams(client);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', ['One']);
+
+            expect(result).toEqual(['T:One']);
+        });
+
+        it('should keep the source text when the model returns an empty translation', async () => {
+            const client = makeClient(() => ['', '']);
+            const {params} = makeParams(client);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', ['Fake file']);
+
+            expect(result).toEqual(['Fake file']);
         });
 
         it('should log a request line when a batch is sent', async () => {

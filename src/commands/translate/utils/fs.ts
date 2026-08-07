@@ -14,6 +14,8 @@ import {
     tocSchemaJson,
 } from '@diplodoc/ajv';
 
+import {normalizePath} from '~/core/utils';
+
 const TRANSLATABLE_EXTENSIONS = ['.md', '.yaml'];
 
 type AssetsConfig = {
@@ -191,6 +193,30 @@ export class FileLoader<T = string | JSONObject> {
             await writeFile(output, text, 'utf8');
         }
     }
+}
+
+/**
+ * Builds the repath function for FileLoader.dump: maps an absolute input
+ * path into the output root, swapping the source language path segment
+ * for the target one. Dump passes os-dependent separators - normalize
+ * to posix before the language swap.
+ */
+export function languageRepath(params: {
+    inputRoot: string;
+    outputRoot: string;
+    sourceLanguage: string;
+    targetLanguage: string;
+}) {
+    const {inputRoot, outputRoot, sourceLanguage, targetLanguage} = params;
+
+    return (path: string) =>
+        join(
+            outputRoot,
+            normalizePath(path.replace(inputRoot, '')).replace(
+                '/' + sourceLanguage + '/',
+                '/' + targetLanguage + '/',
+            ),
+        );
 }
 
 async function loadFile<T = string | JSONObject>(path: AbsolutePath): Promise<T> {
