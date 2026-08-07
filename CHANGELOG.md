@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.53.0](https://github.com/diplodoc-platform/cli/compare/v5.52.0...v5.53.0) (2026-08-07)
+
+
+### Features
+
+* **translate:** copy assets into the translated output ([#2163](https://github.com/diplodoc-platform/cli/issues/2163)) ([ed1f0d9](https://github.com/diplodoc-platform/cli/commit/ed1f0d91275fe18061f538fc5e48f3f7093bed09))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.11.1 ([6e8ce7f](https://github.com/diplodoc-platform/cli/commit/6e8ce7fd68705746547f22a3e2c2256dbc0f4bf5))
+* Upgrade typescript to 5.9.3 DOCSTOOLS-6357 ([ad248cd](https://github.com/diplodoc-platform/cli/commit/ad248cdc7c11ab9d29730452ec8c2793f4baf6c8))
+* Upgrade typescript to 6.0.3 DOCSTOOLS-6359 ([8204740](https://github.com/diplodoc-platform/cli/commit/82047401aa7f59f9dd2a1cf0345d91d002a86e7d))
+
 ## [5.52.0](https://github.com/diplodoc-platform/cli/compare/v5.51.2...v5.52.0) (2026-08-05)
 
 
