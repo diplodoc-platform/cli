@@ -66,7 +66,14 @@ export class Provider {
         try {
             for (const target of targets) {
                 const cache = new Map<string, Defer>();
-                const stat = {inputTokens: 0, outputTokens: 0, requests: 0, bytes: 0, cached: 0};
+                const stat = {
+                    inputTokens: 0,
+                    outputTokens: 0,
+                    requests: 0,
+                    bytes: 0,
+                    cached: 0,
+                    untranslated: 0,
+                };
                 const store = makeStore(client, config, source.language, target.language);
 
                 store?.load();
@@ -140,7 +147,7 @@ export class Provider {
                 this.logger.stat(
                     `requests: ${stat.requests} input-tokens: ${stat.inputTokens} ` +
                         `output-tokens: ${stat.outputTokens} bytes: ${stat.bytes} ` +
-                        `cached-units: ${stat.cached}`,
+                        `cached-units: ${stat.cached} untranslated-units: ${stat.untranslated}`,
                 );
 
                 if (pairs.length) {
@@ -376,6 +383,7 @@ type TranslatorParams = {
         requests: number;
         bytes: number;
         cached: number;
+        untranslated: number;
     };
     logger: TranslateLogger;
 };
@@ -419,6 +427,80 @@ export function makeStore(
     return new TranslationStore(file, fingerprint);
 }
 
+/**
+ * Scripts of languages that do not use the Latin alphabet. Used to tell
+ * a refused translation from a legitimately untranslatable unit: when the
+ * source and target scripts differ, an identity response for a unit that
+ * still contains source-script characters means the model failed to
+ * translate it, while identity for code, names or numbers is valid.
+ */
+const LANGUAGE_SCRIPTS: [RegExp, string[]][] = [
+    [/[Ѐ-ӿ]/, ['ru', 'uk', 'be', 'bg', 'sr', 'mk', 'kk', 'ky', 'mn']],
+    [/[Ͱ-Ͽ]/, ['el']],
+    [/[֐-׿]/, ['he']],
+    [/[؀-ۿ]/, ['ar', 'fa', 'ur']],
+    [/[ऀ-ॿ]/, ['hi']],
+    [/[一-鿿]/, ['zh']],
+    [/[぀-ヿ一-鿿]/, ['ja']],
+    [/[가-힯]/, ['ko']],
+];
+
+function scriptOf(language: string): RegExp | null {
+    const entry = LANGUAGE_SCRIPTS.find(([, languages]) => languages.includes(language));
+    return entry ? entry[0] : null;
+}
+
+/**
+ * Returns a regexp matching source-script characters that must not survive
+ * translation, or null when the pair cannot be discriminated by script
+ * (e.g. Latin to Latin) and identity responses have to be trusted.
+ */
+export function untranslatedMarker(sourceLanguage: string, targetLanguage: string): RegExp | null {
+    const source = scriptOf(sourceLanguage);
+    const target = scriptOf(targetLanguage);
+
+    if (!source || source === target) {
+        return null;
+    }
+
+    return source;
+}
+
+/**
+ * Models occasionally wrap the whole response in a markdown code fence.
+ * The fence is never part of the translation.
+ */
+function stripFence(text: string): string {
+    const fenced = text.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n?\s*```$/);
+    return fenced ? fenced[1].trim() : text;
+}
+
+/**
+ * Normalizes a translation cached by older CLI versions, which stored raw
+ * model responses: strips markdown fences, converts a `<target>` echo into
+ * the canonical `<source>` wrapper and restores a stripped wrapper.
+ *
+ * Returns the unit text unchanged when the cached value is not a
+ * translation at all (the model echoed the source back) - callers treat
+ * that as a cache miss so the unit gets retried.
+ */
+export function normalizeCached(unit: string, stored: string): string {
+    let result = stripFence(stored.trim());
+
+    if (unit.includes(SOURCE_OPEN)) {
+        const target = result.match(/^<target(?:\s[^>]*)?>([\s\S]*)<\/target>$/);
+        if (target) {
+            result = target[1].trim();
+        }
+
+        if (!result.includes(SOURCE_OPEN)) {
+            result = `<source xml:space="preserve">${result}</source>`;
+        }
+    }
+
+    return result;
+}
+
 export function makeTranslator(params: TranslatorParams): Translate {
     const {client, config, sourceLanguage, targetLanguage, cache, store, stat, logger} = params;
     const {
@@ -435,6 +517,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
     } = config;
 
     const schedule = scheduler(maxConcurrency);
+    const marker = untranslatedMarker(sourceLanguage, targetLanguage);
 
     async function translateBatch(fragments: string[], context: string): Promise<string[]> {
         if (!fragments.length) {
@@ -499,7 +582,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // the source text instead (matches the built-in prompt rules).
         return parts.map((part, index) => {
             const {open, text, close} = wrappers[index];
-            return open + (unwrapUnit(part).text || text) + close;
+            return open + (unwrapUnit(stripFence(part)).text || text) + close;
         });
     }
 
@@ -549,6 +632,15 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         }
                         const translated = await translateWithFallback(path, batch, context);
                         translated.forEach((text, i) => {
+                            if (!dryRun && text === batch[i] && marker?.test(text)) {
+                                // The model returned source-script text unchanged.
+                                // Keep it out of the store so the next run retries,
+                                // and surface the miss in the stats.
+                                stat.untranslated++;
+                                logger.warn(path, 'Unit returned untranslated by the model.');
+                                cache.get(batch[i])?.resolve(text);
+                                return;
+                            }
                             cache.get(batch[i])?.resolve(text);
                             if (!dryRun) {
                                 store?.set(batch[i], text);
@@ -586,9 +678,20 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
             const stored = store?.get(text);
             if (stored !== undefined) {
-                stat.cached++;
-                promises.push(Promise.resolve(stored));
-                continue;
+                const normalized = normalizeCached(text, stored);
+                // Identity entries for units that still contain source-script
+                // characters were cached by older runs that stored untranslated
+                // responses. Treat them as misses so the unit gets another chance.
+                const refused = normalized === text && marker !== null && marker.test(text);
+                if (!refused) {
+                    if (normalized !== stored) {
+                        // Heal wrapper noise cached by older runs.
+                        store?.set(text, normalized);
+                    }
+                    stat.cached++;
+                    promises.push(Promise.resolve(normalized));
+                    continue;
+                }
             }
 
             const cached = cache.get(text);

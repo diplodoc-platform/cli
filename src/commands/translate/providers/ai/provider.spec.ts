@@ -43,7 +43,14 @@ function makeParams(
 ) {
     const warn = vi.fn();
     const request = vi.fn();
-    const stat = {inputTokens: 0, outputTokens: 0, requests: 0, bytes: 0, cached: 0};
+    const stat = {
+        inputTokens: 0,
+        outputTokens: 0,
+        requests: 0,
+        bytes: 0,
+        cached: 0,
+        untranslated: 0,
+    };
     const cache = new Map<string, Defer>();
 
     return {
@@ -318,6 +325,112 @@ describe('translate ai provider', () => {
 
             expect(again).toEqual(['T:Same']);
             expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it('should strip a markdown code fence around the response', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const clean = '<source xml:space="preserve">Plain translation</source>';
+            const client = makeClient(() => ['```text\nPlain translation\n```']);
+            const {params} = makeParams(client, {maxBatchTokens: 100});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([clean]);
+        });
+
+        it('should not cache units returned untranslated by the model', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const client = makeClient((fragments) => fragments);
+            const {params, warn, stat} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([unit]);
+            expect(store.get(unit)).toBeUndefined();
+            expect(stat.untranslated).toBe(1);
+            expect(warn).toHaveBeenCalledWith(
+                'file.md',
+                'Unit returned untranslated by the model.',
+            );
+        });
+
+        it('should cache identity responses for units without source-script text', async () => {
+            const unit = '<source xml:space="preserve">GitHub API</source>';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const client = makeClient((fragments) => fragments);
+            const {params, warn, stat} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([unit]);
+            expect(store.get(unit)).toBe(unit);
+            expect(stat.untranslated).toBe(0);
+            expect(warn).not.toHaveBeenCalled();
+        });
+
+        it('should retry units cached untranslated by older runs', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, unit);
+            const client = makeClient(translated);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            const retranslated = '<source xml:space="preserve">T:Исходный текст</source>';
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(result).toEqual([retranslated]);
+            expect(store.get(unit)).toBe(retranslated);
+            expect(stat.cached).toBe(0);
+        });
+
+        it('should heal wrapper noise in cached entries without new requests', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const clean = '<source xml:space="preserve">Cached translation</source>';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, '```xml\n' + clean + '\n```');
+            const client = makeClient(() => new Error('must not be called'));
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(result).toEqual([clean]);
+            expect(store.get(unit)).toBe(clean);
+            expect(stat.cached).toBe(1);
+        });
+
+        it('should heal a <target> wrapper in cached entries', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const clean = '<source xml:space="preserve">Cached translation</source>';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, '<target>Cached translation</target>');
+            const client = makeClient(() => new Error('must not be called'));
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(result).toEqual([clean]);
+            expect(store.get(unit)).toBe(clean);
+            expect(stat.cached).toBe(1);
         });
 
         it('should retry one-by-one when fragment count mismatches', async () => {
