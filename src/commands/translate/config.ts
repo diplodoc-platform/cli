@@ -111,6 +111,15 @@ const timeout = option({
     parser: Number,
 });
 
+const copyAssets = option({
+    flags: '--copy-assets',
+    desc: `
+        Copy non-translatable files (images and other assets) from the source
+        language directory to the target language directories in the output,
+        so the translated file set is buildable on its own.
+    `,
+});
+
 const useSource = option({
     flags: '--use-source',
     desc: `
@@ -170,6 +179,7 @@ export const options = {
     exclude,
     vars,
     dryRun,
+    copyAssets,
     timeout,
     useSource,
     schema,

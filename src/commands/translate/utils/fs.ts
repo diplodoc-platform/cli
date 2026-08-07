@@ -1,7 +1,9 @@
 import type {AjvOptions, JSONObject, LinkedJSONObject} from '@diplodoc/translation';
 
-import {dirname, resolve} from 'node:path';
+import {copyFileSync, existsSync, mkdirSync} from 'node:fs';
+import {dirname, extname, join, resolve} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {globSync} from 'glob';
 import {load} from 'js-yaml';
 import {stringify} from 'yaml';
 import {linkRefs, unlinkRefs} from '@diplodoc/translation';
@@ -11,6 +13,46 @@ import {
     presetsSchemaJson,
     tocSchemaJson,
 } from '@diplodoc/ajv';
+
+const TRANSLATABLE_EXTENSIONS = ['.md', '.yaml'];
+
+type AssetsConfig = {
+    input: string;
+    output: string;
+    source: {language: string};
+    target: {language: string}[];
+};
+
+/**
+ * Copies non-translatable files (images and other assets) from the source
+ * language directory to the target language directories in the output,
+ * so the translated file set is buildable on its own.
+ *
+ * Returns the number of copied files.
+ */
+export function copyAssets(config: AssetsConfig): number {
+    const from = resolve(config.input, config.source.language);
+    if (!existsSync(from)) {
+        return 0;
+    }
+
+    const assets = globSync('**/*', {cwd: from, nodir: true}).filter(
+        (file) => !TRANSLATABLE_EXTENSIONS.includes(extname(file)),
+    );
+
+    let copied = 0;
+    for (const target of config.target) {
+        const to = resolve(config.output, target.language);
+        for (const asset of assets) {
+            const dest = join(to, asset);
+            mkdirSync(dirname(dest), {recursive: true});
+            copyFileSync(join(from, asset), dest);
+            copied++;
+        }
+    }
+
+    return copied;
+}
 
 function last<T>(array: T[]): T | undefined {
     return array[array.length - 1];

@@ -20,7 +20,7 @@ import {Extract} from './commands/extract';
 import {Compose} from './commands/compose';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {Extension as AITranslation} from './providers/ai';
-import {resolveSource, resolveTargets, resolveVars} from './utils';
+import {copyAssets, resolveSource, resolveTargets, resolveVars} from './utils';
 import {Run} from './run';
 import {configDefaults} from './utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from './extract-openapi';
@@ -40,6 +40,7 @@ export type TranslateArgs = BaseArgs & {
     include?: string[];
     exclude?: string[];
     vars?: Hash;
+    copyAssets?: boolean;
 };
 
 export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
@@ -53,6 +54,7 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     skipped: [string, string][];
     vars: Hash;
     dryRun: boolean;
+    copyAssets: boolean;
     timeout: number;
 } & ConfigDefaults;
 
@@ -78,6 +80,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         options.exclude,
         options.vars,
         options.dryRun,
+        options.copyAssets,
         options.timeout,
         options.config(YFM_CONFIG_FILENAME),
     ];
@@ -128,6 +131,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 vars,
                 provider: defined('provider', args, config),
                 dryRun: defined('dryRun', args, config) || false,
+                copyAssets: defined('copyAssets', args, config) || false,
                 // No global default here: each provider applies its own
                 // (5s for yandex, 60s for LLM providers).
                 timeout: defined('timeout', args, config) as number,
@@ -145,8 +149,13 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
 
         if (this.provider) {
             await this.provider.skip(skipped, this.config);
+            await this.provider.translate(files, this.config);
 
-            return this.provider.translate(files, this.config);
+            if (this.config.copyAssets && !this.config.dryRun) {
+                copyAssets(this.config);
+            }
+
+            return;
         }
 
         // @ts-ignore
