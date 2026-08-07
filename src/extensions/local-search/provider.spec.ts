@@ -3,14 +3,14 @@ import {describe, expect, it} from 'vitest';
 import {LocalSearchProvider} from './provider';
 
 describe('LocalSearchProvider config', () => {
-    it('omits an empty tags list', () => {
+    it('exposes an empty tags list in search page config', () => {
         const provider = new LocalSearchProvider({config: {skipHtmlExtension: false}} as never, {
             enabled: true,
             tolerance: 2,
             confidence: 'phrased',
         });
 
-        expect(provider.config('en')).not.toHaveProperty('tags');
+        expect(provider.config('en')).toHaveProperty('tags', []);
     });
 
     it('exposes tags only in search page config', async () => {
@@ -27,6 +27,6 @@ describe('LocalSearchProvider config', () => {
         } as never);
 
         expect(provider.config('en')).toMatchObject({tags: ['info']});
-        expect(provider.config('en', false)).not.toHaveProperty('tags');
+        expect(provider.config('en', false)).toHaveProperty('tags', []);
     });
 });

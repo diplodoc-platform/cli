@@ -1,6 +1,7 @@
 import type {Alternate} from '~/core/meta';
 
 import {uniqBy} from 'lodash';
+import MarkdownIt from 'markdown-it';
 import {dedent} from 'ts-dedent';
 import {getCSP} from 'csp-header';
 
@@ -51,6 +52,7 @@ const RTL_LANGS = [
     'uz_AF',
     'yi',
 ];
+const {escapeHtml} = new MarkdownIt().utils;
 
 /**
  * Template builder for creating HTML pages programmatically.
@@ -334,7 +336,7 @@ export class Template {
      * @returns Template instance for method chaining
      */
     @bounded setTags(tags: string[]) {
-        this.tags = tags.filter((tag) => !tag.startsWith('_')).map(escapeAttributeValue);
+        this.tags = tags.filter((tag) => !tag.startsWith('_')).map(escapeHtml);
 
         return this;
     }
@@ -414,14 +416,6 @@ function trailing<T extends PositionInfo>(array: T[]) {
 
 function meta(record: Hash<string>) {
     return `<meta ${attributes(record)}>`;
-}
-
-function escapeAttributeValue(value: string) {
-    return value
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
 }
 
 function alternate({href, hreflang, type, title}: Alternate) {

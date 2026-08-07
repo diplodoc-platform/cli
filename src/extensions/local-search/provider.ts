@@ -98,7 +98,7 @@ export class LocalSearchProvider implements SearchProvider {
             api: this.apiLink,
             provider: 'local',
             link: prettyLink,
-            ...(tags.length && {tags}),
+            tags,
         };
     }
 
