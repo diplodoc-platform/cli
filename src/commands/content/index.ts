@@ -18,6 +18,7 @@ import {Run} from '~/commands/build';
 import {OutputFormat, buildConfigDefaults, normalize, validate} from '~/commands/build/config';
 import {MarkdownCollector, SELF_CONTAINED} from '~/commands/build/features/output-md/collect';
 import {addMetaFrontmatter} from '~/commands/build/features/output-md/utils';
+import {getPublicMeta} from '~/core/meta';
 import {getBaseMdItPlugins} from '~/commands/build/features/output-html/utils';
 
 import {DESCRIPTION, NAME, options} from './config';
@@ -119,7 +120,7 @@ export class Content extends BaseProgram<ContentConfig, ContentArgs> {
         if (outputFormat === OutputFormat.md) {
             const collector = new MarkdownCollector(this.run, SELF_CONTAINED);
             const content = await collector.collect(file);
-            const meta = await this.run.meta.dump(file);
+            const meta = getPublicMeta(await this.run.meta.dump(file));
 
             return addMetaFrontmatter(content, meta, undefined);
         }

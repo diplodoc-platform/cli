@@ -42,6 +42,27 @@ const createMockService = (relationsMock: RelationsMock): EntryService => {
 };
 
 describe('EntryService', () => {
+    describe('state', () => {
+        it('keeps technical tags in internal page metadata', async () => {
+            const service = new EntryService({
+                config: {
+                    langs: ['en'],
+                    analytics: {},
+                },
+            } as never);
+
+            const state = await service.state('en/page.md' as never, {
+                leading: false,
+                html: '<p>Page</p>',
+                headings: [],
+                meta: {tags: ['info', '_internal']},
+                title: 'Page',
+            });
+
+            expect(state.data.meta.tags).toEqual(['info', '_internal']);
+        });
+    });
+
     describe('cleanKeywords', () => {
         it('keeps and formats valid plain string items', () => {
             expect(cleanKeywords(['foo', 'bar'])).toEqual(['foo', 'bar']);

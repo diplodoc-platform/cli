@@ -1,6 +1,10 @@
 ---
 title: Page Title
 description: Some test description
+tags:
+  - info
+  - _internal
+  - syntax
 
 interface:
   toc: false

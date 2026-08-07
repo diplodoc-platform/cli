@@ -9,7 +9,7 @@ import {configPath, defined} from '~/core/config';
 import {THEME_ASSETS_PATH} from '~/constants';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
-import {getHooks as getMetaHooks} from '~/core/meta';
+import {getHooks as getMetaHooks, getPublicMeta} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
@@ -160,7 +160,7 @@ export class OutputMd {
                 );
 
                 getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', async (vfile) => {
-                    vfile.data.meta = await run.meta.dump(vfile.path);
+                    vfile.data.meta = getPublicMeta(await run.meta.dump(vfile.path));
                 });
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
@@ -171,7 +171,7 @@ export class OutputMd {
                         }
                     }
 
-                    const meta = await run.meta.dump(vfile.path);
+                    const meta = getPublicMeta(await run.meta.dump(vfile.path));
                     const lineWidth = config.disableMetaMaxLineWidth ? Infinity : undefined;
                     vfile.data = addMetaFrontmatter(vfile.data, meta, lineWidth);
                 });

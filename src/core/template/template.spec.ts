@@ -200,4 +200,18 @@ describe('Template', () => {
             );
         });
     });
+
+    describe('setTags', () => {
+        it('renders an article meta tag for every public page tag', () => {
+            const template = new Template('index.html' as RelativePath, 'en');
+
+            template.setTags(['info', '_internal', 'syn"tax']);
+
+            const html = template.dump();
+
+            expect(html).toContain('<meta property="article:tag" content="info">');
+            expect(html).toContain('<meta property="article:tag" content="syn&quot;tax">');
+            expect(html).not.toContain('_internal');
+        });
+    });
 });

@@ -8,6 +8,7 @@ import {dirname, join} from 'node:path';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {defined} from '~/core/config';
+import {getPublicState} from '~/core/meta';
 import {Template} from '~/core/template';
 import {normalizePath} from '~/core/utils';
 
@@ -145,7 +146,11 @@ export class SinglePage {
 
                         state.data.toc = tocData;
 
-                        await run.write(join(run.output, dataPath), JSON.stringify(state), true);
+                        await run.write(
+                            join(run.output, dataPath),
+                            JSON.stringify(getPublicState(state)),
+                            true,
+                        );
                         await run.write(join(run.output, htmlPath), page, true);
                     } catch (error) {
                         run.logger.error(error);

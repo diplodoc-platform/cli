@@ -16,7 +16,7 @@ export class Extension implements IExtension {
                         const provider = new LocalSearchProvider(run, config);
 
                         getEntryHooks(run.entry).State.tap('LocalSearch', (state) => {
-                            state.search = provider.config(state.lang);
+                            state.search = provider.config(state.lang, false);
                         });
 
                         getEntryHooks(run.entry).Page.tap('LocalSearch', (template) => {

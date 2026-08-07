@@ -134,6 +134,8 @@ export type Meta = {
     canonical?: string;
     /** Alternate language links */
     alternate?: Alternate[];
+    /** Page tags */
+    tags?: string[];
 } & VcsMetadata &
     Resources &
     Record<string, unknown>;
