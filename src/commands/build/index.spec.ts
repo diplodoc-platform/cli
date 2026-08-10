@@ -292,6 +292,38 @@ describe('Build command', () => {
             // test('should merge args ang config')
         });
 
+        describe('ignoreYaMake', () => {
+            test('should handle default', '', {
+                ignoreYaMake: false,
+            });
+
+            test('should handle arg', '--ignore-ya-make', {
+                ignoreYaMake: true,
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    ignoreYaMake: true,
+                },
+                {
+                    ignoreYaMake: true,
+                },
+            );
+
+            test(
+                'should prioritize CLI arg over config',
+                '--ignore-ya-make',
+                {
+                    ignoreYaMake: false,
+                },
+                {
+                    ignoreYaMake: true,
+                },
+            );
+        });
+
         describe('strict', () => {
             test('should handle default', '', {
                 strict: false,

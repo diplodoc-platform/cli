@@ -50,11 +50,11 @@ describe('YaMake', () => {
     });
 
     describe('Command hook', () => {
-        it('registers --arcadia-root option', () => {
+        it('registers ya.make options', () => {
             const {commandTap} = setup();
             const seen: unknown[] = [];
             commandTap({addOption: (o: unknown) => seen.push(o)});
-            expect(seen).toHaveLength(1);
+            expect(seen).toHaveLength(2);
         });
     });
 
@@ -74,6 +74,41 @@ describe('YaMake', () => {
             const result = await configTap(config, {arcadiaRoot: '/arcadia'});
             expect(result.input).toBe(tmp);
             expect(result.yaMake).toBeUndefined();
+        });
+
+        it('ignores ya.make when enabled by CLI argument', async () => {
+            writeFileSync(join(tmp, 'ya.make'), 'DOCS(html)\nEND()');
+            const {configTap} = setup();
+            const out = join(tmp, 'out');
+            const config = {input: tmp, output: out} as BuildConfig;
+
+            const result = await configTap(config, {
+                arcadiaRoot: tmp,
+                ignoreYaMake: true,
+            });
+
+            expect(result.ignoreYaMake).toBe(true);
+            expect(result.input).toBe(tmp);
+            expect(result.yaMake).toBeUndefined();
+            expect(existsSync(join(out, '.ya-make-input'))).toBe(false);
+        });
+
+        it('ignores ya.make when enabled in config', async () => {
+            writeFileSync(join(tmp, 'ya.make'), 'DOCS(html)\nEND()');
+            const {configTap} = setup();
+            const out = join(tmp, 'out');
+            const config = {
+                input: tmp,
+                output: out,
+                ignoreYaMake: true,
+            } as BuildConfig;
+
+            const result = await configTap(config, {arcadiaRoot: tmp});
+
+            expect(result.ignoreYaMake).toBe(true);
+            expect(result.input).toBe(tmp);
+            expect(result.yaMake).toBeUndefined();
+            expect(existsSync(join(out, '.ya-make-input'))).toBe(false);
         });
 
         it('assembles and redirects config.input when ya.make exists', async () => {

@@ -22,7 +22,7 @@ import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom
 import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filtering';
 import type {CodeHighlightConfig, ThemerArgs, ThemerConfig} from './features/themer';
 import type {WatchArgs, WatchConfig} from './features/watch';
-import type {YaMakeArgs, YaMakeConfig} from './features/ya-make';
+import type {YaMakeArgs, YaMakeConfig, YaMakeRawConfig} from './features/ya-make';
 import type {LlmsArgs, LlmsConfig} from './features/llms';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
@@ -183,6 +183,7 @@ export type BuildRawConfig = BaseArgs &
     TocFilteringConfig &
     PreprocessConfig &
     WatchConfig &
+    YaMakeRawConfig &
     ThemerConfig &
     NeuroExpertConfig &
     LlmsConfig;
