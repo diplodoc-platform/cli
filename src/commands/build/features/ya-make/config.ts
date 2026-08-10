@@ -16,4 +16,9 @@ const arcadiaRoot = option({
     parser: (value: string) => resolve(process.cwd(), value),
 });
 
-export const options = {arcadiaRoot};
+const ignoreYaMake = option({
+    flags: '--ignore-ya-make',
+    desc: 'Ignore ya.make in the input directory.',
+});
+
+export const options = {arcadiaRoot, ignoreYaMake};

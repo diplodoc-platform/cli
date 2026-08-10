@@ -14,11 +14,16 @@ import {console} from '~/core/utils';
 import {options} from './config';
 import {collectWatchPaths, detectArcadiaRoot} from './utils';
 
-export type YaMakeArgs = {
+export interface YaMakeRawConfig {
+    ignoreYaMake?: boolean;
+}
+
+export interface YaMakeArgs extends YaMakeRawConfig {
     arcadiaRoot?: string;
-};
+}
 
 export type YaMakeConfig = {
+    ignoreYaMake: boolean;
     yaMake?: {
         root: string;
         parsed: YaMakeParsed;
@@ -30,11 +35,18 @@ export class YaMake {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('YaMake', (command: Command) => {
             command.addOption(options.arcadiaRoot);
+            command.addOption(options.ignoreYaMake);
         });
 
         getBaseHooks(program).Config.tapPromise(
             {name: 'YaMake', stage: 10},
             async (config, args) => {
+                config.ignoreYaMake = Boolean(defined('ignoreYaMake', args, config));
+
+                if (config.ignoreYaMake) {
+                    return config;
+                }
+
                 const yamakePath = join(config.input, 'ya.make');
 
                 if (!existsSync(yamakePath)) {
