@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.54.0](https://github.com/diplodoc-platform/cli/compare/v5.53.0...v5.54.0) (2026-08-07)
+
+
+### Features
+
+* added page tags ([#2158](https://github.com/diplodoc-platform/cli/issues/2158)) ([1a864a3](https://github.com/diplodoc-platform/cli/commit/1a864a3d7437688dac42ebdb5ade0ab52c552878))
+
+
+### Bug Fixes
+
+* **translate:** stop relying on the model echoing xliff wrappers ([#2159](https://github.com/diplodoc-platform/cli/issues/2159)) ([b3605c1](https://github.com/diplodoc-platform/cli/commit/b3605c148d03bb6f1e9b764d0fd214eb514b7af9))
+* **yfmlint:** keep error level after double normalization [#5243](https://github.com/diplodoc-platform/cli/issues/5243) ([4c352b3](https://github.com/diplodoc-platform/cli/commit/4c352b3abd24cc5d8eed166d34414bfce977a261))
+
 ## [5.53.0](https://github.com/diplodoc-platform/cli/compare/v5.52.0...v5.53.0) (2026-08-07)
 
 
