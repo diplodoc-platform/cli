@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.54.1](https://github.com/diplodoc-platform/cli/compare/v5.54.0...v5.54.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* added ya.make ignore command ([#2177](https://github.com/diplodoc-platform/cli/issues/2177)) ([1f03917](https://github.com/diplodoc-platform/cli/commit/1f03917edcaea8c62d10711d41aa0f50004f77c8))
+* **deps:** Update @diplodoc/client@5.11.3 ([96be9fe](https://github.com/diplodoc-platform/cli/commit/96be9fe32f61485f4548f046203f0cff6bcba1ba))
+* **deps:** Update @diplodoc/transform@4.77.12 ([8fd3c7a](https://github.com/diplodoc-platform/cli/commit/8fd3c7aca39997c4d70370d11df8a70915a68f88))
+
 ## [5.54.0](https://github.com/diplodoc-platform/cli/compare/v5.53.0...v5.54.0) (2026-08-07)
 
 
