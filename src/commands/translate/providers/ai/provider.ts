@@ -24,6 +24,7 @@ import {TranslateLogger} from '../../logger';
 import {
     Defer,
     LLMResponseError,
+    RateGate,
     TranslationStore,
     backoff,
     bytes,
@@ -116,31 +117,7 @@ export class Provider {
                     onTranslated: collect,
                 });
 
-                await eachLimit(
-                    files,
-                    maxConcurrency,
-                    asyncify(async (file: string) => {
-                        try {
-                            this.logger.translate(file);
-                            await processFile(file);
-                            // Flush after every file to keep progress on crashes.
-                            store?.flush();
-                            if (!dryRun) {
-                                this.logger.translated(file);
-                            }
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        } catch (error: any) {
-                            if (error instanceof TranslateError) {
-                                this.logger.error(file, `${error.message}`, error.code);
-                                if (error.fatal) {
-                                    onFatalError();
-                                }
-                            } else {
-                                this.logger.error(file, error.message);
-                            }
-                        }
-                    }),
-                );
+                await this.processFiles({files, maxConcurrency, dryRun, store, processFile});
 
                 store?.flush();
 
@@ -166,6 +143,78 @@ export class Provider {
     }
 
     /**
+     * Runs files through the processor with bounded concurrency. Files
+     * that fail with transient errors (rate limits, 5xx) are queued and
+     * retried in one final sweep after the main pass, when the endpoint
+     * has usually recovered; the unit cache makes the sweep cheap.
+     */
+    private async processFiles(params: {
+        files: string[];
+        maxConcurrency: number;
+        dryRun: boolean;
+        store?: TranslationStore;
+        processFile: (file: string) => Promise<void>;
+    }) {
+        const {files, maxConcurrency, dryRun, store, processFile} = params;
+        const failed: string[] = [];
+
+        const run = async (file: string, finalPass: boolean) => {
+            try {
+                this.logger.translate(file);
+                await processFile(file);
+                // Flush after every file to keep progress on crashes.
+                store?.flush();
+                if (!dryRun) {
+                    this.logger.translated(file);
+                }
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (error: any) {
+                // Transient errors exhaust their retry budget under load,
+                // but the endpoint usually recovers by the end of the run -
+                // queue the file for one final sweep.
+                if (!finalPass && error?.retryable === true) {
+                    failed.push(file);
+                    this.logger.warn(
+                        file,
+                        `${error.message}; the file will be retried after the main pass.`,
+                    );
+                    return;
+                }
+                this.reportFileError(file, error);
+            }
+        };
+
+        await eachLimit(
+            files,
+            maxConcurrency,
+            asyncify((file: string) => run(file, false)),
+        );
+
+        if (failed.length) {
+            this.logger.info(
+                `Retrying ${failed.length} file(s) that failed with transient errors.`,
+            );
+            await eachLimit(
+                failed,
+                maxConcurrency,
+                asyncify((file: string) => run(file, true)),
+            );
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private reportFileError(file: string, error: any) {
+        if (error instanceof TranslateError) {
+            this.logger.error(file, `${error.message}`, error.code);
+            if (error.fatal) {
+                onFatalError();
+            }
+        } else {
+            this.logger.error(file, error.message);
+        }
+    }
+
+    /**
      * Scores translated units with the judge model and writes a quality
      * report next to the translated files. Best-effort: judge failures
      * never fail the translation run.
@@ -180,7 +229,7 @@ export class Provider {
             config.judgeModel ? {...config, model: config.judgeModel} : config,
         );
 
-        const verdicts = await judgeTranslations({
+        const {verdicts, skippedBatches, skippedPairs} = await judgeTranslations({
             client,
             pairs,
             sourceLanguage,
@@ -189,6 +238,7 @@ export class Provider {
             maxOutputTokens: config.maxOutputTokens,
             maxConcurrency: config.maxConcurrency,
             retry: config.retry,
+            rateLimitRetry: config.rateLimitRetry,
             logger: this.logger,
         });
 
@@ -222,6 +272,7 @@ export class Provider {
                     model: config.judgeModel || config.model,
                     threshold,
                     scored: verdicts.length,
+                    skipped: {batches: skippedBatches, pairs: skippedPairs},
                     averageScore: average,
                     low: low.length,
                     segments: low,
@@ -233,7 +284,9 @@ export class Provider {
 
         this.logger.stat(
             `judge: ${verdicts.length} units scored, average score ${average}/100, ` +
-                `${low.length} below threshold ${threshold} (${report})`,
+                `${low.length} below threshold ${threshold}` +
+                (skippedPairs ? `, ${skippedPairs} pair(s) unscored` : '') +
+                ` (${report})`,
         );
     }
 }
@@ -554,10 +607,14 @@ export function makeTranslator(params: TranslatorParams): Translate {
         maxBatchTokens,
         maxConcurrency,
         retry,
+        rateLimitRetry,
         dryRun,
     } = config;
 
     const schedule = scheduler(maxConcurrency);
+    // One gate per translator: a 429 from any request pauses all of them
+    // until the rate limit window elapses.
+    const gate = new RateGate();
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
 
     async function translateBatch(fragments: string[], context: string): Promise<string[]> {
@@ -591,6 +648,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         const result = await backoff(
             () => client.complete(messages, {temperature, maxTokens: maxOutputTokens}),
             retry,
+            {rateLimitRetries: rateLimitRetry, gate},
         );
 
         stat.requests++;

@@ -67,6 +67,7 @@ type Args = {
     maxBatchTokens?: number;
     maxConcurrency?: number;
     retry?: number;
+    rateLimitRetry?: number;
 };
 
 type Config = {
@@ -89,6 +90,7 @@ type Config = {
     maxBatchTokens: number;
     maxConcurrency: number;
     retry: number;
+    rateLimitRetry: number;
 };
 
 export type AITranslationConfig = TranslateConfig & Config;
@@ -214,7 +216,8 @@ export class Extension {
                         .addOption(options.maxOutputTokens)
                         .addOption(options.maxBatchTokens)
                         .addOption(options.maxConcurrency)
-                        .addOption(options.retry);
+                        .addOption(options.retry)
+                        .addOption(options.rateLimitRetry);
 
                     if (providerName === 'yandexgpt') {
                         command.addOption(options.folder);
@@ -293,6 +296,10 @@ export class Extension {
                         intOr(defined('maxConcurrency', args, config), 5),
                     );
                     config.retry = intOr(defined('retry', args, config), 3);
+                    config.rateLimitRetry = Math.max(
+                        0,
+                        intOr(defined('rateLimitRetry', args, config), 8),
+                    );
                     config.timeout = intOr(defined('timeout', args, config), DEFAULT_TIMEOUT);
 
                     let cacheDir: AbsolutePath | undefined;

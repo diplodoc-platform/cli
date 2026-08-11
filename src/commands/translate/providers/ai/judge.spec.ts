@@ -10,7 +10,7 @@ import {describe, expect, it, vi} from 'vitest';
 
 import {judgeTranslations, parseJudgeResponse} from './judge';
 import {Provider} from './provider';
-import {LLMAuthError} from './utils';
+import {LLMAuthError, LLMRateLimitError} from './utils';
 
 function makeJudgeClient(respond: (count: number, call: number) => string | Error) {
     let call = 0;
@@ -53,6 +53,7 @@ function makeParams(client: LLMClient, pairs: {source: string; translation: stri
             maxOutputTokens: 100,
             maxConcurrency: 2,
             retry: 0,
+            rateLimitRetry: 0,
             logger: {warn, request} as unknown as TranslateLogger,
         },
     };
@@ -93,12 +94,14 @@ describe('translate ai judge', () => {
                 {source: 'Два', translation: 'Two'},
             ]);
 
-            const verdicts = await judgeTranslations(params);
+            const {verdicts, skippedBatches, skippedPairs} = await judgeTranslations(params);
 
             expect(verdicts).toEqual([
                 {path: 'file.md', source: 'Один', translation: 'One', score: 90, issue: ''},
                 {path: 'file.md', source: 'Два', translation: 'Two', score: 91, issue: ''},
             ]);
+            expect(skippedBatches).toBe(0);
+            expect(skippedPairs).toBe(0);
         });
 
         it('should dedupe identical pairs before scoring', async () => {
@@ -108,7 +111,7 @@ describe('translate ai judge', () => {
                 {source: 'Один', translation: 'One'},
             ]);
 
-            const verdicts = await judgeTranslations(params);
+            const {verdicts} = await judgeTranslations(params);
 
             expect(verdicts).toHaveLength(1);
         });
@@ -129,9 +132,11 @@ describe('translate ai judge', () => {
             const client = makeJudgeClient(() => 'not a json');
             const {params, warn} = makeParams(client, [{source: 'Один', translation: 'One'}]);
 
-            const verdicts = await judgeTranslations(params);
+            const {verdicts, skippedBatches, skippedPairs} = await judgeTranslations(params);
 
             expect(verdicts).toEqual([]);
+            expect(skippedBatches).toBe(1);
+            expect(skippedPairs).toBe(1);
             expect(warn).toHaveBeenCalledWith('judge', expect.stringContaining('Unparsable'));
         });
 
@@ -139,10 +144,49 @@ describe('translate ai judge', () => {
             const client = makeJudgeClient(() => new LLMAuthError('denied'));
             const {params, warn} = makeParams(client, [{source: 'Один', translation: 'One'}]);
 
-            const verdicts = await judgeTranslations(params);
+            const {verdicts, skippedBatches, skippedPairs} = await judgeTranslations(params);
 
             expect(verdicts).toEqual([]);
+            expect(skippedBatches).toBe(1);
+            expect(skippedPairs).toBe(1);
             expect(warn).toHaveBeenCalledWith('judge', expect.stringContaining('denied'));
+        });
+
+        it('should count pairs the judge response omitted as skipped', async () => {
+            const client = makeJudgeClient(() =>
+                JSON.stringify([{index: 1, score: 90, issue: ''}]),
+            );
+            const {params} = makeParams(client, [
+                {source: 'Один', translation: 'One'},
+                {source: 'Два', translation: 'Two'},
+            ]);
+
+            const {verdicts, skippedBatches, skippedPairs} = await judgeTranslations(params);
+
+            expect(verdicts).toHaveLength(1);
+            expect(skippedBatches).toBe(0);
+            expect(skippedPairs).toBe(1);
+        });
+
+        it('should retry rate limited batches with the rate limit budget', async () => {
+            vi.useFakeTimers();
+            try {
+                const client = makeJudgeClient((count, call) =>
+                    call === 0 ? new LLMRateLimitError('slow down') : allGood(count),
+                );
+                const {params} = makeParams(client, [{source: 'Один', translation: 'One'}]);
+                params.rateLimitRetry = 1;
+
+                const promise = judgeTranslations(params);
+                await vi.runAllTimersAsync();
+                const {verdicts, skippedBatches} = await promise;
+
+                expect(verdicts).toHaveLength(1);
+                expect(skippedBatches).toBe(0);
+                expect(client.complete).toHaveBeenCalledTimes(2);
+            } finally {
+                vi.useRealTimers();
+            }
         });
     });
 
@@ -215,6 +259,27 @@ describe('translate ai judge', () => {
             );
 
             expect(factory).toHaveBeenCalledWith(expect.objectContaining({model: 'strong-model'}));
+        });
+
+        it('should report skipped pairs in the quality summary', async () => {
+            const output = mkdtempSync(join(tmpdir(), 'yfm-ai-judge-'));
+            const client = makeJudgeClient(() => new LLMAuthError('denied'));
+            const {provider, logger} = makeProvider(client);
+
+            await provider.judge(
+                [{path: 'a.md', source: 'Один', translation: 'One'}],
+                judgeConfig(output),
+                'ru',
+                'en',
+            );
+
+            const report = JSON.parse(
+                readFileSync(join(output, 'translate-quality.en.json'), 'utf8'),
+            );
+
+            expect(report.scored).toBe(0);
+            expect(report.skipped).toEqual({batches: 1, pairs: 1});
+            expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('1 pair(s) unscored'));
         });
     });
 });
