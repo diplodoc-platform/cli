@@ -483,10 +483,37 @@ export function untranslatedMarker(sourceLanguage: string, targetLanguage: strin
 /**
  * Models occasionally wrap the whole response in a markdown code fence.
  * The fence is never part of the translation.
+ *
+ * Fences are matched as CommonMark defines them: a run of at least three
+ * backticks or tildes, closed by a run of the same character at least as
+ * long, with an arbitrary info string on the opening line. The model
+ * picks the flavour and the length itself (a longer run when the payload
+ * contains fences of its own), so a fixed three-backtick prefix leaves
+ * the rest of the variants unhandled.
  */
 function stripFence(text: string): string {
-    const fenced = text.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n?\s*```$/);
-    return fenced ? fenced[1].trim() : text;
+    const body = text.trim();
+    const open = body.match(/^(`{3,}|~{3,})([^\n]*)\n/);
+
+    if (!open) {
+        return text;
+    }
+
+    const [prefix, markup, info] = open;
+
+    // A backtick fence cannot carry backticks in its info string.
+    if (markup[0] === '`' && info.includes('`')) {
+        return text;
+    }
+
+    const rest = body.slice(prefix.length);
+    const close = rest.match(/(?:^|\n)[ \t]*(`{3,}|~{3,})[ \t]*$/);
+
+    if (!close || close[1][0] !== markup[0] || close[1].length < markup.length) {
+        return text;
+    }
+
+    return rest.slice(0, close.index).trim();
 }
 
 /**

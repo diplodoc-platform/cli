@@ -13,6 +13,7 @@ import {
     extractTitle,
     makeStore,
     makeTranslator,
+    normalizeCached,
     untranslatedMarker,
     unwrapUnit,
 } from './provider';
@@ -319,6 +320,45 @@ describe('translate ai provider', () => {
 
         it('should disable the check for unknown languages', () => {
             expect(untranslatedMarker('!!', 'en')).toBeNull();
+        });
+    });
+
+    describe('normalizeCached', () => {
+        it('should strip a tilde fence', () => {
+            expect(normalizeCached('Исходный текст', '~~~\nПеревод\n~~~')).toBe('Перевод');
+        });
+
+        it('should strip fences longer than three characters', () => {
+            expect(normalizeCached('Исходный текст', '````\nПеревод\n````')).toBe('Перевод');
+            expect(normalizeCached('Исходный текст', '~~~~~\nПеревод\n~~~~~')).toBe('Перевод');
+        });
+
+        it('should accept a closing fence longer than the opening one', () => {
+            expect(normalizeCached('Исходный текст', '```\nПеревод\n`````')).toBe('Перевод');
+        });
+
+        it('should strip fences with an arbitrary info string', () => {
+            expect(normalizeCached('Исходный текст', '```js title="a.js"\nПеревод\n```')).toBe(
+                'Перевод',
+            );
+        });
+
+        it('should keep fences nested inside a longer wrapper', () => {
+            const stored = '````markdown\nПеревод\n\n```bash\nls\n```\n````';
+
+            expect(normalizeCached('Исходный текст', stored)).toBe('Перевод\n\n```bash\nls\n```');
+        });
+
+        it('should keep an unbalanced fence as is', () => {
+            const shortClose = '````\nПеревод\n```';
+            const otherChar = '```\nПеревод\n~~~';
+
+            expect(normalizeCached('Исходный текст', shortClose)).toBe(shortClose);
+            expect(normalizeCached('Исходный текст', otherChar)).toBe(otherChar);
+        });
+
+        it('should keep a value without a fence as is', () => {
+            expect(normalizeCached('Исходный текст', 'Перевод')).toBe('Перевод');
         });
     });
 
