@@ -10,6 +10,7 @@ import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
 
 import {LogLevel} from '~/core/logger';
+import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
 import {
     FileLoader,
@@ -484,36 +485,33 @@ export function untranslatedMarker(sourceLanguage: string, targetLanguage: strin
  * Models occasionally wrap the whole response in a markdown code fence.
  * The fence is never part of the translation.
  *
- * Fences are matched as CommonMark defines them: a run of at least three
- * backticks or tildes, closed by a run of the same character at least as
- * long, with an arbitrary info string on the opening line. The model
- * picks the flavour and the length itself (a longer run when the payload
- * contains fences of its own), so a fixed three-backtick prefix leaves
- * the rest of the variants unhandled.
+ * Only a wrapper counts: the first line has to open a fence and the last
+ * one has to close it. The model picks the flavour and the length itself
+ * (a longer run when the payload contains fences of its own), so both
+ * lines go through the shared CommonMark matchers.
  */
 function stripFence(text: string): string {
     const body = text.trim();
-    const open = body.match(/^(`{3,}|~{3,})([^\n]*)\n/);
+    const firstBreak = body.indexOf('\n');
 
-    if (!open) {
+    if (firstBreak === -1) {
         return text;
     }
 
-    const [prefix, markup, info] = open;
+    const fence = matchFenceOpen(body.slice(0, firstBreak));
 
-    // A backtick fence cannot carry backticks in its info string.
-    if (markup[0] === '`' && info.includes('`')) {
+    if (!fence) {
         return text;
     }
 
-    const rest = body.slice(prefix.length);
-    const close = rest.match(/(?:^|\n)[ \t]*(`{3,}|~{3,})[ \t]*$/);
+    const rest = body.slice(firstBreak + 1);
+    const lastBreak = rest.lastIndexOf('\n');
 
-    if (!close || close[1][0] !== markup[0] || close[1].length < markup.length) {
+    if (!isFenceClose(rest.slice(lastBreak + 1).trimStart(), fence.markup)) {
         return text;
     }
 
-    return rest.slice(0, close.index).trim();
+    return rest.slice(0, lastBreak + 1).trim();
 }
 
 /**
