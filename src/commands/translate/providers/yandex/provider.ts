@@ -56,6 +56,7 @@ export class Provider {
             vars,
             dryRun,
             timeout,
+            glossaryPairs = [],
         } = config;
 
         try {
@@ -66,7 +67,7 @@ export class Provider {
                     auth,
                     sourceLanguage: source.language,
                     targetLanguage: target.language,
-                    // yandexCloudTranslateGlossaryPairs,
+                    glossaryPairs,
                     folderId: folder,
                     vars,
                     dryRun,
@@ -118,13 +119,14 @@ export class Provider {
     }
 }
 
+type GlossaryPairs = YandexTranslationConfig['glossaryPairs'];
+
 type TranslatorParams = {
     input: string;
     output: string;
     sourceLanguage: string;
     targetLanguage: string;
     vars: Hash;
-    // yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 };
 
 type RequesterParams = {
@@ -134,6 +136,7 @@ type RequesterParams = {
     targetLanguage: string;
     dryRun: boolean;
     timeout: number;
+    glossaryPairs: GlossaryPairs;
 };
 
 type Request = {
@@ -190,8 +193,10 @@ function scheduler(limit: number, interval: number) {
 }
 
 function requester(params: RequesterParams, cache: Cache) {
-    const {auth, folderId, sourceLanguage, targetLanguage, dryRun, timeout} = params;
+    const {auth, folderId, sourceLanguage, targetLanguage, dryRun, timeout, glossaryPairs} = params;
     const schedule = scheduler(REQUESTS_LIMIT, 1000);
+    // The API rejects an empty glossary, so the field is omitted without pairs.
+    const glossaryConfig = glossaryPairs.length ? {glossaryData: {glossaryPairs}} : undefined;
 
     const request = function request(texts: string[]) {
         const resolve = (text: string, index: number) => {
@@ -228,6 +233,7 @@ function requester(params: RequesterParams, cache: Cache) {
                             sourceLanguageCode: sourceLanguage,
                             targetLanguageCode: targetLanguage,
                             format: 'HTML',
+                            glossaryConfig,
                         },
                     }),
                 );
