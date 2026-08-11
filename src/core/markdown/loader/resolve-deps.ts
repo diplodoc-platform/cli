@@ -3,7 +3,13 @@ import type {LoaderContext} from '../loader';
 
 import {dirname, join} from 'node:path';
 
-import {normalizePath, parseLocalUrl, rebasePath} from '~/core/utils';
+import {
+    fenceCloseTail,
+    matchFenceOpen,
+    normalizePath,
+    parseLocalUrl,
+    rebasePath,
+} from '~/core/utils';
 
 import {INCLUDE_REGEX, filterRanges, findIncludedBlockRanges, findLink} from '../utils';
 
@@ -49,8 +55,7 @@ function findFencedCodeBlockRanges(content: string, excludeRanges: Location[] = 
     };
 
     let openLine = -1;
-    let openChar = '';
-    let openLen = 0;
+    let openMarkup = '';
 
     // Strip a leading list-item or definition-list marker from a *trimmed*
     // line so we can recognise a fence opener that lives on the same line
@@ -107,23 +112,16 @@ function findFencedCodeBlockRanges(content: string, excludeRanges: Location[] = 
         if (openLine < 0) {
             // Looking for an opener — allow a single container prefix.
             const search = stripContainerPrefix(trimmed);
-            const fenceMatch = /^(`{3,}|~{3,})/.exec(search);
-            if (!fenceMatch) {
-                continue;
-            }
             // Indent is intentionally not limited to ≤ 3 spaces (CommonMark).
             // Fences inside lists / definition lists / cuts can use deeper
             // indent (e.g. `1.` + 4 spaces).  For "is this an include shown
             // as code?" we treat any ``` / ~~~ run as a fence.
-            const fence = fenceMatch[1];
-            // Backtick fence info string must not contain backticks.
-            const info = search.slice(fence.length);
-            if (fence[0] === '`' && info.includes('`')) {
+            const fence = matchFenceOpen(search);
+            if (!fence) {
                 continue;
             }
             openLine = i;
-            openChar = fence[0];
-            openLen = fence.length;
+            openMarkup = fence.markup;
             continue;
         }
 
@@ -131,33 +129,29 @@ function findFencedCodeBlockRanges(content: string, excludeRanges: Location[] = 
         // stripped: a `- ``` ` line while we're already inside a fence is
         // just text content (CommonMark code blocks consume `-` literally),
         // not a fresh closer.
-        const startMatch = /^(`{3,}|~{3,})/.exec(trimmed);
-        if (startMatch && startMatch[1][0] === openChar && startMatch[1].length >= openLen) {
-            // Closing fence: same char, length ≥ open.  CommonMark forbids
-            // any non-whitespace content after the closing run, but in YFM
-            // real-world docs frequently glue a shorthand-table cell
-            // separator (`|`, `||`, `|#`) onto the same line as the closer
-            // (e.g. ` ``` |`).  Treat those as valid closers — otherwise
-            // the next ` ``` ` we see would be paired with this opener and
-            // we'd swallow every `{% include %}` between them.  See Bug 25.
-            const after = trimmed.slice(startMatch[1].length).trim();
-            if (after === '' || /^(?:\|\||\|#|\|)$/.test(after)) {
-                // End at the LAST char of the close-fence line content
-                // (excluding the trailing newline).  `filterRanges` below
-                // treats touching ranges (`exclude[1] === point[0]`) as
-                // overlapping, so an exclusive end on the newline position
-                // would swallow an `{% include %}` that starts on the very
-                // next line.
-                ranges.push([lineStarts[openLine], lineStarts[i] + lines[i].length]);
-                openLine = -1;
-                continue;
-            }
+        // CommonMark forbids any non-whitespace content after the closing
+        // run, but in YFM real-world docs frequently glue a shorthand-table
+        // cell separator (`|`, `||`, `|#`) onto the same line as the closer
+        // (e.g. ` ``` |`).  Treat those as valid closers — otherwise the
+        // next ` ``` ` we see would be paired with this opener and we'd
+        // swallow every `{% include %}` between them.  See Bug 25.
+        const after = fenceCloseTail(trimmed, openMarkup);
+        if (after === '' || (after !== null && /^(?:\|\||\|#|\|)$/.test(after))) {
+            // End at the LAST char of the close-fence line content
+            // (excluding the trailing newline).  `filterRanges` below
+            // treats touching ranges (`exclude[1] === point[0]`) as
+            // overlapping, so an exclusive end on the newline position
+            // would swallow an `{% include %}` that starts on the very
+            // next line.
+            ranges.push([lineStarts[openLine], lineStarts[i] + lines[i].length]);
+            openLine = -1;
+            continue;
         }
 
         // No start-of-line closer.  Check if the fence is glued to the end
         // of a content line (Bug 28).
         const endMatch = END_CLOSE_RE.exec(lines[i]);
-        if (endMatch && endMatch[1][0] === openChar && endMatch[1].length >= openLen) {
+        if (endMatch && fenceCloseTail(lines[i].slice(endMatch.index), openMarkup) !== null) {
             ranges.push([lineStarts[openLine], lineStarts[i] + lines[i].length]);
             openLine = -1;
         }
