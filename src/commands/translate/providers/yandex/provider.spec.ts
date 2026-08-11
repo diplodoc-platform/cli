@@ -82,6 +82,15 @@ describe('translate yandex provider', () => {
         });
     });
 
+    it('should send a single request per batch', async () => {
+        const config = makeConfig([]);
+        const provider = new Provider(config);
+
+        await provider.translate(['ru/index.md'], config);
+
+        expect(request).toHaveBeenCalledOnce();
+    });
+
     it('should not send glossary config when glossary is not configured', async () => {
         const config = makeConfig([]);
         const provider = new Provider(config);

@@ -393,6 +393,7 @@ async function backoff(action: () => Promise<void>): Promise<void> {
     while (++retry < RETRY_LIMIT) {
         try {
             await action();
+            return;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (RequestError.canRetry(error)) {
