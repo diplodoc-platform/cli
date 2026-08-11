@@ -187,6 +187,19 @@ const retry = option({
     defaultInfo: 3,
 });
 
+const rateLimitRetry = option({
+    flags: '--rate-limit-retry <num>',
+    desc: `
+        Number of retries for rate limited (429) requests. Rate limits are
+        transient by definition, so they get a bigger budget than generic
+        retryable errors: waits grow exponentially up to 60 seconds per
+        attempt and honor the server-provided Retry-After header. While a
+        rate limit window lasts, all pending requests are paused together.
+    `,
+    parser: (value: string) => Number.parseInt(value, 10),
+    defaultInfo: 8,
+});
+
 export const options = {
     auth,
     folder,
@@ -207,4 +220,5 @@ export const options = {
     maxBatchTokens,
     maxConcurrency,
     retry,
+    rateLimitRetry,
 };

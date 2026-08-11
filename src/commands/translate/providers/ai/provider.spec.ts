@@ -18,7 +18,7 @@ import {
     unwrapUnit,
 } from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
-import {LLMAuthError, TranslationStore, cacheFingerprint} from './utils';
+import {LLMAuthError, LLMRateLimitError, TranslationStore, cacheFingerprint} from './utils';
 
 type FakeComplete = (fragments: string[], call: number) => string[] | Error;
 
@@ -166,6 +166,119 @@ describe('translate ai provider', () => {
             expect(report.scored).toBeGreaterThan(0);
             expect(report.low).toBeGreaterThan(0);
             expect(logger.warn).toHaveBeenCalledWith('ru/test.md', expect.stringContaining('/100'));
+        });
+
+        it('should retry files that failed with transient errors after the main pass', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-sweep-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'test.md'), '# Заголовок\n\nПривет, мир.\n');
+
+            let calls = 0;
+            const client: LLMClient = {
+                name: 'fake',
+                complete: vi.fn(async (messages) => {
+                    if (calls++ === 0) {
+                        throw new LLMRateLimitError('Too Many Requests');
+                    }
+                    const fragments = splitFragments(messages[messages.length - 1].content);
+                    return {
+                        text: fragments
+                            .map((text) => 'T:' + text)
+                            .join(`\n${FRAGMENT_SEPARATOR}\n`),
+                    };
+                }),
+            };
+
+            const provider = new Provider(() => client, {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.translate(['ru/test.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                judge: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+            } as unknown as AITranslationConfig);
+
+            const result = readFileSync(join(output, 'en', 'test.md'), 'utf8');
+            expect(result).toContain('T:Привет, мир.');
+            expect(logger.error).not.toHaveBeenCalled();
+            expect(logger.warn).toHaveBeenCalledWith(
+                'ru/test.md',
+                expect.stringContaining('retried after the main pass'),
+            );
+        });
+
+        it('should report files that keep failing on the final retry as errors', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-sweep-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'test.md'), 'Привет, мир.\n');
+
+            const client: LLMClient = {
+                name: 'fake',
+                complete: vi.fn(async () => {
+                    throw new LLMRateLimitError('Too Many Requests');
+                }),
+            };
+
+            const provider = new Provider(() => client, {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.translate(['ru/test.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                judge: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+            } as unknown as AITranslationConfig);
+
+            expect(logger.error).toHaveBeenCalledWith(
+                'ru/test.md',
+                'Too Many Requests',
+                'LLM_RATE_LIMIT',
+            );
         });
     });
 
@@ -506,6 +619,27 @@ describe('translate ai provider', () => {
             expect(result).toEqual([clean]);
             expect(store.get(unit)).toBe(clean);
             expect(stat.cached).toBe(1);
+        });
+
+        it('should retry rate limited requests with the rate limit budget', async () => {
+            vi.useFakeTimers();
+            try {
+                const client = makeClient((fragments, call) =>
+                    call === 0 ? new LLMRateLimitError('slow down') : translated(fragments),
+                );
+                const {params} = makeParams(client, {retry: 0, rateLimitRetry: 1});
+                const translate = makeTranslator(params);
+
+                const promise = translate('file.md', ['One']);
+                const success = expect(promise).resolves.toEqual(['T:One']);
+
+                await vi.runAllTimersAsync();
+                await success;
+
+                expect(client.complete).toHaveBeenCalledTimes(2);
+            } finally {
+                vi.useRealTimers();
+            }
         });
 
         it('should retry one-by-one when fragment count mismatches', async () => {
