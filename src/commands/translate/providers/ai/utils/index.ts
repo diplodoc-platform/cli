@@ -74,42 +74,61 @@ export type BackoffOptions = {
     gate?: RateGate;
 };
 
+type RetryBudget = {
+    failures: number;
+    rateLimitFailures: number;
+    retries: number;
+    rateLimitRetries: number;
+    gate?: RateGate;
+};
+
 export async function backoff<T>(
     action: () => Promise<T>,
     retries: number,
     options: BackoffOptions = {},
 ): Promise<T> {
-    const {gate} = options;
-    const attempts = Math.max(0, retries);
-    const rateLimitAttempts = Math.max(0, options.rateLimitRetries ?? retries);
-
-    let failures = 0;
-    let rateLimitFailures = 0;
+    const budget: RetryBudget = {
+        failures: 0,
+        rateLimitFailures: 0,
+        retries: Math.max(0, retries),
+        rateLimitRetries: Math.max(0, options.rateLimitRetries ?? retries),
+        gate: options.gate,
+    };
 
     for (;;) {
-        await gate?.wait();
+        await budget.gate?.wait();
         try {
             return await action();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            if (isRateLimit(error)) {
-                if (rateLimitFailures >= rateLimitAttempts) {
-                    throw error;
-                }
-                const interval = rateLimitInterval(error, rateLimitFailures++);
-                if (gate) {
-                    gate.pause(interval);
-                } else {
-                    await wait(interval);
-                }
-            } else {
-                if (!canRetry(error) || failures >= attempts) {
-                    throw error;
-                }
-                await wait(retryInterval(error, failures++));
-            }
+        } catch (error) {
+            await delayRetry(error, budget);
         }
     }
+}
+
+/**
+ * Waits before the next attempt or rethrows when the budget is exhausted.
+ * A rate limit pauses the shared gate instead of sleeping locally, so
+ * sibling requests hold until the window elapses.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function delayRetry(error: any, budget: RetryBudget): Promise<void> {
+    if (isRateLimit(error)) {
+        if (budget.rateLimitFailures >= budget.rateLimitRetries) {
+            throw error;
+        }
+        const interval = rateLimitInterval(error, budget.rateLimitFailures++);
+        if (budget.gate) {
+            budget.gate.pause(interval);
+        } else {
+            await wait(interval);
+        }
+        return;
+    }
+
+    if (!canRetry(error) || budget.failures >= budget.retries) {
+        throw error;
+    }
+    await wait(retryInterval(error, budget.failures++));
 }
 
 // A 429 is transient by definition, so it gets a separate budget with

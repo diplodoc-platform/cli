@@ -140,14 +140,7 @@ export class Provider {
                             );
                             return;
                         }
-                        if (error instanceof TranslateError) {
-                            this.logger.error(file, `${error.message}`, error.code);
-                            if (error.fatal) {
-                                onFatalError();
-                            }
-                        } else {
-                            this.logger.error(file, error.message);
-                        }
+                        this.reportFileError(file, error);
                     }
                 };
 
@@ -188,6 +181,18 @@ export class Provider {
                 this.logger.error(error);
             }
             process.exit(1);
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private reportFileError(file: string, error: any) {
+        if (error instanceof TranslateError) {
+            this.logger.error(file, `${error.message}`, error.code);
+            if (error.fatal) {
+                onFatalError();
+            }
+        } else {
+            this.logger.error(file, error.message);
         }
     }
 
