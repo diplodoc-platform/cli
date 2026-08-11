@@ -7,12 +7,15 @@ import {OutputFormat} from '~/commands/build/config';
 
 import {LLMS_FULL_FILENAME, Llms} from './index';
 
-vi.mock('~/core/utils', () => ({
+vi.mock('~/core/utils', async () => ({
     normalizePath: (path: string) => path as NormalizedPath,
     setExt: (path: string, ext: string) => {
         const stripped = path.replace(/\.[^/.]+$/, '');
         return ext ? `${stripped}.${ext}` : stripped;
     },
+    // `stripHtmlTags` protects code blocks with these; the real ones keep
+    // the aggregator under test working on real markdown.
+    ...(await import('~/core/utils/fence')),
 }));
 
 vi.mock('~/core/program', () => ({

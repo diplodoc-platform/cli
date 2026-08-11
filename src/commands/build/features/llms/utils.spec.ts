@@ -282,6 +282,14 @@ describe('stripHtmlTags', () => {
             // The inner code block is part of the outer code block — preserved
             expect(result).toContain('<style>.x { color: red; }</style>');
         });
+
+        it('does NOT remove <style> inside a block closed by a longer fence', () => {
+            // CommonMark lets the closing run be longer than the opening one.
+            const input = ['```html', '<style>.x { color: red; }</style>', '`````'].join('\n');
+            const result = stripHtmlTags(input, ['style', 'script']);
+
+            expect(result).toContain('<style>.x { color: red; }</style>');
+        });
     });
 
     describe('include file scenario', () => {

@@ -115,11 +115,12 @@ After `MarkdownCollector.collect()`, each article body is passed through
 
 #### Known limitations (accepted for simplicity and performance)
 
-Code block detection uses a simple regex that matches fenced code blocks
-(``` and ~~~). This is intentionally lightweight to avoid a second full
-markdown-it parse on every article (the loader already parses each file
-once). The following edge cases are **not** handled and are accepted as
-known limitations:
+Code block detection is a single pass over the lines that applies the
+CommonMark fence rules from `src/core/utils/fence.ts` (``` and ~~~, closing
+run at least as long as the opening one). This is intentionally lightweight
+to avoid a second full markdown-it parse on every article (the loader
+already parses each file once). The following edge cases are **not** handled
+and are accepted as known limitations:
 
 | Case                             | Example                        | Effect                                        | Impact                                                     |
 | -------------------------------- | ------------------------------ | --------------------------------------------- | ---------------------------------------------------------- |
