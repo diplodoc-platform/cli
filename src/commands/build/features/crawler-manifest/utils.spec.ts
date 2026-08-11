@@ -216,6 +216,24 @@ plain https://plain.example.com text
             expect(extractIncludePaths('`{% include [l](s.md) %}`')).toEqual([]);
         });
 
+        it('ignores includes inside a code block indented in a list', () => {
+            const content = [
+                '- item:',
+                '',
+                '    ```',
+                '    {% include [label](snippet.md) %}',
+                '    ```',
+            ].join('\n');
+
+            expect(extractIncludePaths(content)).toEqual([]);
+        });
+
+        it('does not treat inline code as a fence opener', () => {
+            const content = '```js`inline` text\n{% include [label](snippet.md) %}';
+
+            expect(extractIncludePaths(content)).toEqual(['snippet.md']);
+        });
+
         it('ignores includes with external urls', () => {
             expect(
                 extractIncludePaths('{% include [label](https://example.com/file.md) %}'),
