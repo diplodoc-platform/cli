@@ -37,6 +37,16 @@ describe('fence utils', () => {
             expect(matchFenceOpen('~~~foo`bar')).toEqual({markup: '~~~', info: 'foo`bar'});
         });
 
+        it('should open a tilde fence that wraps a backtick fence', () => {
+            // The whole point of the tilde flavour: showing a ``` block as
+            // an example. Only the run decides, the backticks below are
+            // content, and a backtick line never closes a tilde fence.
+            expect(matchFenceOpen('~~~')).toEqual({markup: '~~~', info: ''});
+            expect(matchFenceOpen('```js')).toEqual({markup: '```', info: 'js'});
+            expect(isFenceClose('```', '~~~')).toBe(false);
+            expect(isFenceClose('~~~', '~~~')).toBe(true);
+        });
+
         it('should not match an indented fence', () => {
             expect(matchFenceOpen('  ```')).toBeNull();
         });
