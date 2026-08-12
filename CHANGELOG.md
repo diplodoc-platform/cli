@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.54.2](https://github.com/diplodoc-platform/cli/compare/v5.54.1...v5.54.2) (2026-08-12)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/ajv@0.4.2 ([3a68198](https://github.com/diplodoc-platform/cli/commit/3a68198134a536e9aa696449d9de4c8ac8f33759))
+* **deps:** Update @diplodoc/client@5.11.4 ([a50b85a](https://github.com/diplodoc-platform/cli/commit/a50b85a19ee4e15348a8352e0a21c864ff89981e))
+* **deps:** Update @diplodoc/translation@1.7.30 ([#2182](https://github.com/diplodoc-platform/cli/issues/2182)) ([cf1e77b](https://github.com/diplodoc-platform/cli/commit/cf1e77bec5e4aacb47dd84082c336ab63aaaf9aa))
+* **translate:** retry untranslated units and heal poisoned cache entries ([#2170](https://github.com/diplodoc-platform/cli/issues/2170)) ([aa1a6a6](https://github.com/diplodoc-platform/cli/commit/aa1a6a641d9d3a01d1fbfe1e84f6715d7f8b10f8))
+* **translate:** survive sustained rate limit windows in ai provider ([#2186](https://github.com/diplodoc-platform/cli/issues/2186)) ([b92a350](https://github.com/diplodoc-platform/cli/commit/b92a3501727f0f0422782cae59c59427212c0b97))
+
 ## [5.54.1](https://github.com/diplodoc-platform/cli/compare/v5.54.0...v5.54.1) (2026-08-10)
 
 
