@@ -2,6 +2,7 @@ export * from './common';
 export * from './console';
 export * from './decorators';
 export * from './extension';
+export * from './fence';
 export * from './path';
 export * from './string';
 export * from './url';

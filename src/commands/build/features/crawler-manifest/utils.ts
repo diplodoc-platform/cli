@@ -7,7 +7,7 @@ import {load as yamlLoad} from 'js-yaml';
 import MarkdownIt from 'markdown-it';
 
 import {INCLUDE_REGEX, findLink} from '~/core/markdown';
-import {isExternalHref, normalizePath, walkLinks} from '~/core/utils';
+import {isExternalHref, isFenceClose, matchFenceOpen, normalizePath, walkLinks} from '~/core/utils';
 
 import {FILE_BLOCK_REGEX, IPV4_HOST_RE, REGEXP_LITERAL} from './constants';
 
@@ -60,29 +60,29 @@ export function extractExternalLinks(content: string, {linkify = true} = {}): st
 function stripFencedBlocks(content: string): string {
     const lines = content.split('\n');
     const out: string[] = [];
-    let fenceChar = '';
-    let fenceLen = 0;
+    let markup = '';
 
     for (const line of lines) {
-        const normalized = line.replace(/\r$/, '');
+        // Indent is not limited: fences inside lists, tabs and cuts are
+        // indented deeper than the three spaces CommonMark allows, and a
+        // link shown inside such a block is still an example, not a link
+        // worth crawling.
+        const normalized = line.replace(/\r$/, '').trimStart();
 
-        if (fenceLen === 0) {
-            const fence = /^(`{3,}|~{3,})/.exec(normalized);
-
-            if (fence) {
-                fenceChar = fence[1][0];
-                fenceLen = fence[1].length;
-            } else {
-                out.push(line);
+        if (markup) {
+            if (isFenceClose(normalized, markup)) {
+                markup = '';
             }
+
+            continue;
+        }
+
+        const fence = matchFenceOpen(normalized);
+
+        if (fence) {
+            markup = fence.markup;
         } else {
-            const re = fenceChar === '`' ? /^(`{3,})[ \t]*$/ : /^(~{3,})[ \t]*$/;
-            const fence = re.exec(normalized);
-
-            if (fence && fence[1].length >= fenceLen) {
-                fenceChar = '';
-                fenceLen = 0;
-            }
+            out.push(line);
         }
     }
 

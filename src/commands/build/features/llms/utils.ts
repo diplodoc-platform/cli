@@ -1,3 +1,50 @@
+import {isFenceClose, matchFenceOpen} from '~/core/utils';
+
+/**
+ * Replaces every fenced code block with a placeholder produced by `protect`.
+ *
+ * An unterminated fence is malformed markup rather than a code block: its
+ * lines are returned as content, so the rest of the document is still
+ * filtered (ADR-009 known limitation).
+ */
+function protectFencedBlocks(content: string, protect: (block: string) => string): string {
+    const lines = content.split('\n');
+    const out: string[] = [];
+    let block: string[] = [];
+    let markup = '';
+
+    for (const line of lines) {
+        // Leading whitespace is ignored on both ends: CommonMark allows up
+        // to three spaces, and fences inside list items are indented deeper.
+        const trimmed = line.trimStart();
+
+        if (markup) {
+            block.push(line);
+
+            if (isFenceClose(trimmed, markup)) {
+                out.push(protect(block.join('\n')));
+                block = [];
+                markup = '';
+            }
+
+            continue;
+        }
+
+        const fence = matchFenceOpen(trimmed);
+
+        if (fence) {
+            markup = fence.markup;
+            block = [line];
+        } else {
+            out.push(line);
+        }
+    }
+
+    out.push(...block);
+
+    return out.join('\n');
+}
+
 /**
  * Removes HTML tags (with content) from markdown text.
  *
@@ -16,9 +63,9 @@
  * them are preserved as-is. This is important because documentation often
  * shows `<style>`/`<script>` as examples inside code blocks.
  *
- * Code block detection uses a simple regex that matches fenced code blocks
- * (``` and ~~~). This is intentionally lightweight — it does not handle all
- * edge cases (YFM shorthand tables, deflist markers, blockquote-wrapped
+ * Code block detection is a single pass over the lines, without a second
+ * markdown-it parse. This is intentionally lightweight — it does not handle
+ * all edge cases (YFM shorthand tables, deflist markers, blockquote-wrapped
  * fences — see ADR-006 for details). These edge cases are accepted as
  * known limitations to keep the implementation simple and fast; a false
  * negative (tag inside an undetected code block gets stripped) only affects
@@ -49,14 +96,7 @@ export function stripHtmlTags(content: string, tags: string[]): string {
         return `${SENTINEL}${index}${SENTINEL}`;
     };
 
-    // Protect fence code blocks (```...``` and ~~~...~~~).
-    // Matches opening fence, content, and closing fence with the same marker.
-    // Allows optional leading whitespace (up to 3 spaces per CommonMark, but
-    // we allow any amount to also handle fences inside list items).
-    let result = content.replace(
-        /(^|\n)([ \t]*(`{3,}|~{3,})[^\n]*\n[^]*?\n[ \t]*\3)(?=\n|$)/g,
-        (_match, prefix, block) => prefix + protect(block),
-    );
+    let result = protectFencedBlocks(content, protect);
 
     // Strip HTML tags from non-code content. Process each tag separately
     // — this is faster than a combined alternation for large documents

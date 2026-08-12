@@ -4,11 +4,10 @@ import type {HashedGraphNode, Scheduler, StepFunction} from '../utils';
 import {basename, dirname, join, relative} from 'node:path';
 import slugify from 'slugify';
 
-import {isExternalHref, normalizePath} from '~/core/utils';
+import {fenceCloseTail, isExternalHref, matchFenceOpen, normalizePath} from '~/core/utils';
 
 import {contentWithoutFrontmatter} from '../../output-html/plugins/includes';
 
-const CODE_FENCE_RE = /^(`{3,}|~{3,})/;
 const LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g;
 const LINK_DEF_RE = /^(\s*\[(?!\*)[^\]]+\]:\s+)(\S+)(\s.*|)$/;
 const NOTITLE_RE = /\bnotitle\b/;
@@ -84,12 +83,11 @@ export function rebaseUrl(url: string, fromDir: string, toDir: string): string |
 
 interface FenceState {
     active: boolean;
-    char: string;
-    len: number;
+    markup: string;
 }
 
 function newFenceState(): FenceState {
-    return {active: false, char: '', len: 0};
+    return {active: false, markup: ''};
 }
 
 /**
@@ -98,24 +96,19 @@ function newFenceState(): FenceState {
  */
 function processCodeFence(trimmed: string, state: FenceState): boolean {
     if (state.active) {
-        const ch = state.char === '`' ? '`' : '~';
-        const closeRe = new RegExp(String.raw`^${ch}{${state.len},}(\s*$|\s*\|\|)`);
-        if (closeRe.test(trimmed)) {
+        // YFM authors glue a table row separator onto the closing line.
+        const tail = fenceCloseTail(trimmed, state.markup);
+        if (tail === '' || tail?.startsWith('||')) {
             state.active = false;
         }
         return true;
     }
 
-    const match = CODE_FENCE_RE.exec(trimmed);
-    if (match) {
-        const fence = match[1];
-        const info = trimmed.slice(fence.length);
-        if (!fence.startsWith('`') || !info.includes('`')) {
-            state.active = true;
-            state.char = fence[0];
-            state.len = fence.length;
-            return true;
-        }
+    const fence = matchFenceOpen(trimmed);
+    if (fence) {
+        state.active = true;
+        state.markup = fence.markup;
+        return true;
     }
 
     return false;
