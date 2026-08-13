@@ -78,12 +78,20 @@ function arcChangedFiles(root: AbsolutePath, ref: string, runner: VcsRunner) {
     return lines(diff).concat(untracked);
 }
 
-function realScope(input: AbsolutePath): AbsolutePath {
-    try {
-        return realpathSync(input) as AbsolutePath;
-    } catch {
-        return resolve(input) as AbsolutePath;
+function toRealPath(path: string): AbsolutePath {
+    // On Windows git may report the repository root with 8.3 short names
+    // (C:/Users/RUNNER~1/...), while the input path is expanded.
+    // realpathSync.native resolves both short names and symlinks,
+    // so both paths land in the same form and can be safely rebased.
+    for (const resolver of [realpathSync.native, realpathSync]) {
+        try {
+            return resolver(path) as AbsolutePath;
+        } catch {
+            // Path may not exist - try the next resolver.
+        }
     }
+
+    return resolve(path) as AbsolutePath;
 }
 
 /**
@@ -104,10 +112,11 @@ export function resolveVcsDiffFiles(
     const {type, root} = detectVcs(input, runner);
     const files =
         type === 'git' ? gitChangedFiles(root, ref, runner) : arcChangedFiles(root, ref, runner);
-    const scope = realScope(input);
+    const scope = toRealPath(input);
+    const base = toRealPath(root);
 
     const scoped = files
-        .map((file) => relative(scope, resolve(root, file)))
+        .map((file) => relative(scope, resolve(base, file)))
         .filter((file) => file && !file.startsWith('..') && !isAbsolute(file))
         .map((file) => normalizePath(file as RelativePath));
 

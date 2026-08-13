@@ -25,6 +25,11 @@ afterEach(() => {
     }
 });
 
+// resolveFiles returns platform-native separators, tests expect posix ones.
+function normalize(files: string[]) {
+    return files.map((file) => file.replace(/\\/g, '/'));
+}
+
 describe('resolveFiles', () => {
     it('keeps files matched by any of multiple include patterns', () => {
         const root = makeProject(['ru/a.md', 'ru/b.md', 'ru/c.md']);
@@ -39,7 +44,7 @@ describe('resolveFiles', () => {
             null,
         );
 
-        expect(result.sort()).toEqual(['ru/a.md', 'ru/b.md']);
+        expect(normalize(result).sort()).toEqual(['ru/a.md', 'ru/b.md']);
     });
 
     it('applies exclude to included files', () => {
@@ -55,6 +60,6 @@ describe('resolveFiles', () => {
             null,
         );
 
-        expect(result).toEqual(['ru/a.md']);
+        expect(normalize(result)).toEqual(['ru/a.md']);
     });
 });

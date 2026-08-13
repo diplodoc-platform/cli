@@ -152,7 +152,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             const changed = this.getVcsDiffFiles();
             const {include, files} = this.config;
 
-            if (!changed.length && !include.length && !(files && files.length)) {
+            if (!changed.length && !include.length && !files?.length) {
                 this.logger.info('No VCS changes found, nothing to translate.');
                 return;
             }
