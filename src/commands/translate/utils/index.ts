@@ -2,6 +2,7 @@ export type {Locale} from './config';
 export {resolveSchemas, FileLoader, copyAssets, languageRepath} from './fs';
 export {extract, compose} from './translate';
 export {resolveSource, resolveTargets, resolveFiles, resolveVars} from './config';
+export {resolveVcsDiffFiles} from './vcs';
 export {
     TranslateError,
     ExtractError,

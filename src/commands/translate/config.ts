@@ -83,6 +83,29 @@ const exclude = option({
     parser: toArray,
 });
 
+const includeVcsDiff = option({
+    flags: '--include-vcs-diff [ref]',
+    desc: `
+        Add files changed in the current VCS working copy (git or arc)
+        to the list of files for translation.
+
+        Optional value configures the ref to compute the diff against.
+        By default the diff is computed against HEAD.
+        Untracked files are always included.
+
+        Fails if input is not inside a git or arc repository.
+        If there are no changes, the command finishes successfully without translation.
+
+        Can be combined with ${cyan('--include')} - files from both sources are translated.
+        ${cyan('--exclude')} is also applied to files from VCS diff.
+
+        Example:
+          {{PROGRAM}} --include-vcs-diff
+          {{PROGRAM}} --include-vcs-diff trunk
+          {{PROGRAM}} --include-vcs-diff origin/main
+    `,
+});
+
 const vars = option({
     flags: '-v, --vars <json>',
     desc: `
@@ -177,6 +200,7 @@ export const options = {
     files,
     include,
     exclude,
+    includeVcsDiff,
     vars,
     dryRun,
     copyAssets,

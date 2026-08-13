@@ -2,8 +2,12 @@ import type {YandexTranslationConfig} from './providers/yandex';
 import type {AITranslationConfig} from './providers/ai';
 
 import {describe, expect, it, vi} from 'vitest';
+import {filter} from 'minimatch';
 
 import {runTranslate as run, runTranslateExtract as runExtract, testConfig} from './__tests__';
+import {resolveVcsDiffFiles} from './utils/vcs';
+
+vi.mock('./utils/vcs');
 
 describe('Translate command', () => {
     describe('config', () => {
@@ -572,5 +576,58 @@ describe('Translate command', () => {
                 refResolve: true,
             }),
         );
+    });
+
+    describe('includeVcsDiff', () => {
+        const baseArgs = '-o output --folder 1 --source ru --target en --auth y0_1';
+
+        it('should append vcs changed files to include', async () => {
+            vi.mocked(resolveVcsDiffFiles).mockReturnValue(['ru/changed.md'] as NormalizedPath[]);
+
+            const instance = await run(`${baseArgs} --include manual/** --include-vcs-diff`);
+
+            expect(resolveVcsDiffFiles).toBeCalledWith(expect.any(String), undefined);
+            expect(instance.config.include).toContain('manual/**');
+            expect(
+                instance.config.include.some((pattern) => filter(pattern)('ru/changed.md')),
+            ).toBe(true);
+        });
+
+        it('should escape glob special characters in changed paths', async () => {
+            vi.mocked(resolveVcsDiffFiles).mockReturnValue([
+                'ru/(v2)/index.md',
+            ] as NormalizedPath[]);
+
+            const instance = await run(`${baseArgs} --include-vcs-diff`);
+
+            expect(
+                instance.config.include.some((pattern) => filter(pattern)('ru/(v2)/index.md')),
+            ).toBe(true);
+        });
+
+        it('should pass ref to vcs diff', async () => {
+            vi.mocked(resolveVcsDiffFiles).mockReturnValue([]);
+
+            await run(`${baseArgs} --include-vcs-diff origin/main`);
+
+            expect(resolveVcsDiffFiles).toBeCalledWith(expect.any(String), 'origin/main');
+        });
+
+        it('should successfully skip translation when there are no vcs changes', async () => {
+            vi.mocked(resolveVcsDiffFiles).mockReturnValue([]);
+
+            const instance = await run(`${baseArgs} --include-vcs-diff`);
+
+            expect(instance.provider).toBeUndefined();
+            expect(instance.report.code).toBe(0);
+        });
+
+        it('should translate files from include when vcs diff is empty', async () => {
+            vi.mocked(resolveVcsDiffFiles).mockReturnValue([]);
+
+            const instance = await run(`${baseArgs} --include manual/** --include-vcs-diff`);
+
+            expect(instance.provider?.translate).toBeCalled();
+        });
     });
 });
