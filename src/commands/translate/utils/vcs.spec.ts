@@ -144,5 +144,29 @@ describe('resolveVcsDiffFiles', () => {
 
             expect(calls).toContainEqual(['arc', 'diff', '--name-only', 'trunk']);
         });
+
+        it('expands range ref into two commits for arc', () => {
+            const {calls, runner} = fakeArc('/repo');
+
+            resolveVcsDiffFiles('/repo' as AbsolutePath, 'r1..r2', runner);
+
+            expect(calls).toContainEqual(['arc', 'diff', '--name-only', 'r1', 'r2']);
+        });
+
+        it('expands merge-base range ref into -B form for arc', () => {
+            const {calls, runner} = fakeArc('/repo');
+
+            resolveVcsDiffFiles('/repo' as AbsolutePath, 'trunk...HEAD', runner);
+
+            expect(calls).toContainEqual(['arc', 'diff', '--name-only', '-B', 'trunk', 'HEAD']);
+        });
+
+        it('substitutes HEAD for open-ended range refs for arc', () => {
+            const {calls, runner} = fakeArc('/repo');
+
+            resolveVcsDiffFiles('/repo' as AbsolutePath, 'trunk..', runner);
+
+            expect(calls).toContainEqual(['arc', 'diff', '--name-only', 'trunk', 'HEAD']);
+        });
     });
 });

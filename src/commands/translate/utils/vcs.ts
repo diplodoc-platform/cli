@@ -68,8 +68,30 @@ function gitChangedFiles(root: AbsolutePath, ref: string, runner: VcsRunner) {
     return lines(diff).concat(lines(untracked));
 }
 
+/**
+ * Arc silently returns an empty diff for git range syntax (a..b, a...b),
+ * but supports the same semantics with positional commits:
+ * `arc diff a b` and `arc diff -B a b` (merge-base).
+ * Expand git-style ranges so the same ref value works for both VCS.
+ * An open-ended side of a range means HEAD, as in git.
+ */
+function arcDiffArgs(ref: string) {
+    for (const [separator, extra] of [
+        ['...', ['-B']],
+        ['..', []],
+    ] as [string, string[]][]) {
+        const parts = ref.split(separator);
+
+        if (parts.length === 2) {
+            return [...extra, ...parts.map((part) => part || 'HEAD')];
+        }
+    }
+
+    return [ref];
+}
+
 function arcChangedFiles(root: AbsolutePath, ref: string, runner: VcsRunner) {
-    const diff = runner('arc', ['diff', '--name-only', ref], root);
+    const diff = runner('arc', ['diff', '--name-only', ...arcDiffArgs(ref)], root);
     const status = JSON.parse(runner('arc', ['status', '--json'], root));
     const untracked = ((status?.status?.untracked || []) as ArcStatusEntry[])
         .filter((entry) => entry.type === 'file' && entry.path)
