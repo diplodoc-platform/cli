@@ -166,9 +166,12 @@ function skip(
     reason: string,
     negate = false,
 ) {
-    const mode = (value: boolean) => (negate ? !value : value);
     const patterns = ([] as string[]).concat(pattern).map((pattern) => filter(pattern));
-    const match = (value: string) => patterns.some((match) => mode(match(value)));
+    const match = (value: string) => {
+        const matched = patterns.some((match) => match(value));
+
+        return negate ? !matched : matched;
+    };
 
     return array.reduce(
         ([left, right], value) => {
