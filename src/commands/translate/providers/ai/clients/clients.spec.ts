@@ -73,6 +73,20 @@ describe('translate ai clients', () => {
             expect(config.headers.Authorization).toBe('Bearer t');
         });
 
+        it('should not send default Authorization when token is absent', async () => {
+            post.mockResolvedValueOnce({data: response});
+
+            const client = createOpenAIClient({
+                model: 'internal-model',
+                baseUrl: 'https://llm.internal/v1',
+                headers: {Authorization: 'OAuth secret'},
+            });
+            await client.complete(messages, completionOptions);
+
+            const [, , config] = post.mock.calls[0];
+            expect(config.headers.Authorization).toBe('OAuth secret');
+        });
+
         it('should throw on truncated response', async () => {
             post.mockResolvedValueOnce({
                 data: {

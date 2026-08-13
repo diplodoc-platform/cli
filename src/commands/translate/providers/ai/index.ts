@@ -47,6 +47,16 @@ const ENV_BASE_URL: Record<ProviderName, string[]> = {
     anthropic: ['ANTHROPIC_BASE_URL'],
 };
 
+// The header each client would build from --auth. When the same header
+// comes from --api-header / apiHeaders (internal gateways with their own
+// auth schemes), --auth becomes redundant and is not required.
+const AUTH_HEADER: Record<ProviderName, string> = {
+    yandexgpt: 'authorization',
+    openai: 'authorization',
+    openrouter: 'authorization',
+    anthropic: 'x-api-key',
+};
+
 type Args = {
     auth?: string;
     folder?: string;
@@ -70,7 +80,7 @@ type Args = {
 };
 
 type Config = {
-    auth: string;
+    auth?: string;
     folder?: string;
     model: string;
     apiBase?: string;
@@ -229,12 +239,21 @@ export class Extension {
                 ).Config.tapPromise(`${ExtensionName}.${providerName}`, async (config, args) => {
                     ok(!config.auth, 'Do not store `authToken` in public config');
 
+                    config.apiHeaders = parseHeaders(
+                        own<string[], 'apiHeader'>(args, 'apiHeader')
+                            ? args.apiHeader
+                            : defined('apiHeaders', config),
+                    );
+
                     const rawAuth = args.auth || readEnv(ENV_AUTH[providerName]);
+                    const hasAuthHeader = Object.keys(config.apiHeaders).some(
+                        (header) => header.toLowerCase() === AUTH_HEADER[providerName],
+                    );
                     ok(
-                        rawAuth,
+                        rawAuth || hasAuthHeader,
                         `Required param --auth is not configured for provider "${providerName}"`,
                     );
-                    config.auth = resolveToken(rawAuth);
+                    config.auth = rawAuth ? resolveToken(rawAuth) : undefined;
 
                     const model =
                         (defined('model', args, config) as string | undefined) ||
@@ -246,12 +265,6 @@ export class Extension {
                     if (apiBase) {
                         config.apiBase = apiBase;
                     }
-
-                    config.apiHeaders = parseHeaders(
-                        own<string[], 'apiHeader'>(args, 'apiHeader')
-                            ? args.apiHeader
-                            : defined('apiHeaders', config),
-                    );
 
                     if (providerName === 'yandexgpt') {
                         config.folder = defined('folder', args, config);

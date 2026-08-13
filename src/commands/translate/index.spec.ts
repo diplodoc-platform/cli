@@ -438,6 +438,33 @@ describe('Translate command', () => {
                 test('should handle no-cache arg', '--cache-dir .translate-cache --no-cache', {
                     cacheDir: undefined,
                 });
+
+                describe('auth via api headers', () => {
+                    const test = testConfig<AITranslationConfig>(
+                        '--source ru --target en --provider openai',
+                    );
+
+                    test(
+                        'should not require auth when Authorization header is supplied',
+                        '--api-header Authorization:OAuth-token',
+                        {
+                            auth: undefined,
+                            apiHeaders: {Authorization: 'OAuth-token'},
+                        },
+                    );
+
+                    it('should fail without auth and without auth header', async () => {
+                        vi.stubEnv('OPENAI_API_KEY', '');
+                        try {
+                            const instance = await run(
+                                '-o output --source ru --target en --provider openai --api-header X-Org:team',
+                            );
+                            expect(instance.report.code).toBe(1);
+                        } finally {
+                            vi.unstubAllEnvs();
+                        }
+                    });
+                });
             });
 
             describe('yandexgpt', () => {

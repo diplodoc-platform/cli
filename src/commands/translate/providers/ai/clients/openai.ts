@@ -20,7 +20,7 @@ type OpenAIChatResponse = {
 };
 
 export type OpenAICompatibleClientOptions = {
-    token: string;
+    token?: string;
     model: string;
     baseUrl?: string;
     timeout?: number;
@@ -34,7 +34,7 @@ export type OpenAICompatibleClientOptions = {
 export class OpenAICompatibleClient implements LLMClient {
     readonly name: string;
 
-    private readonly token: string;
+    private readonly token?: string;
     private readonly model: string;
     private readonly baseUrl: string;
     private readonly timeout: number;
@@ -64,7 +64,7 @@ export class OpenAICompatibleClient implements LLMClient {
                 {
                     timeout: this.timeout,
                     headers: {
-                        Authorization: `Bearer ${this.token}`,
+                        ...(this.token ? {Authorization: `Bearer ${this.token}`} : {}),
                         'Content-Type': 'application/json',
                         'User-Agent': 'github.com/diplodoc-platform/cli',
                         ...this.headers,

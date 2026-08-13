@@ -14,6 +14,9 @@ const auth = option({
         Anthropic: x-api-key (sk-ant-...).
 
         Env fallback: YANDEX_API_KEY / YC_IAM_TOKEN, OPENAI_API_KEY, OPENROUTER_API_KEY, ANTHROPIC_API_KEY.
+
+        Optional when the provider auth header (Authorization or x-api-key)
+        is already supplied via ${cyan('--api-header')} / ${cyan('apiHeaders')}.
     `,
 });
 

@@ -17,7 +17,7 @@ type AnthropicMessagesResponse = {
 };
 
 export type AnthropicClientOptions = {
-    token: string;
+    token?: string;
     model: string;
     baseUrl?: string;
     timeout?: number;
@@ -27,7 +27,7 @@ export type AnthropicClientOptions = {
 export class AnthropicClient implements LLMClient {
     readonly name = 'anthropic';
 
-    private readonly token: string;
+    private readonly token?: string;
     private readonly model: string;
     private readonly baseUrl: string;
     private readonly timeout: number;
@@ -63,7 +63,7 @@ export class AnthropicClient implements LLMClient {
                 {
                     timeout: this.timeout,
                     headers: {
-                        'x-api-key': this.token,
+                        ...(this.token ? {'x-api-key': this.token} : {}),
                         'anthropic-version': ANTHROPIC_VERSION,
                         'Content-Type': 'application/json',
                         'User-Agent': 'github.com/diplodoc-platform/cli',
