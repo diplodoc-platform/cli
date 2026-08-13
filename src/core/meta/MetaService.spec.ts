@@ -98,15 +98,21 @@ describe('MetaService', () => {
             );
         });
 
-        it('checks the tag length before lowercasing', async () => {
+        it('warns and truncates when lowercasing expands a tag past the limit', async () => {
             const file = 'test/file.md' as NormalizedPath;
+            const tag = 'İ'.repeat(32);
             const run = createMockRun();
             const metaService = new MetaService(run);
 
-            metaService.add(file, {tags: ['İ'.repeat(32)]});
-            await metaService.dump(file);
+            metaService.add(file, {tags: [tag]});
 
-            expect(run.logger.warn).not.toHaveBeenCalled();
+            await expect(metaService.dump(file)).resolves.toMatchObject({
+                tags: ['İ'.toLowerCase().repeat(16)],
+            });
+            expect(run.logger.warn).toHaveBeenCalledWith(
+                file,
+                `Tag "${tag}" exceeds 32 characters and will be truncated.`,
+            );
         });
     });
 

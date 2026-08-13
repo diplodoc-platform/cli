@@ -119,10 +119,9 @@ export class MetaService {
             meta.tags = [
                 ...new Set(
                     meta.tags.map((tag) => {
-                        const trimmedTag = tag.trim();
-                        const normalizedTag = Array.from(trimmedTag.toLowerCase());
+                        const normalizedTag = Array.from(tag.trim().toLowerCase());
 
-                        if (Array.from(trimmedTag).length > MAX_TAG_LENGTH) {
+                        if (normalizedTag.length > MAX_TAG_LENGTH) {
                             this.logger.warn(
                                 file,
                                 `Tag "${tag}" exceeds ${MAX_TAG_LENGTH} characters and will be truncated.`,
