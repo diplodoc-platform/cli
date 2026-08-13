@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.54.3](https://github.com/diplodoc-platform/cli/compare/v5.54.2...v5.54.3) (2026-08-13)
+
+
+### Bug Fixes
+
+* **deps:** Update dev:@diplodoc/search-extension@3.1.1, @diplodoc/client@5.11.5 ([#2191](https://github.com/diplodoc-platform/cli/issues/2191)) ([5483fae](https://github.com/diplodoc-platform/cli/commit/5483fae61ac87d4b08ef6fb3c3aac886faba1f55))
+* improved tag normalization ([#2190](https://github.com/diplodoc-platform/cli/issues/2190)) ([904c8b0](https://github.com/diplodoc-platform/cli/commit/904c8b02ad6be8ed3bcd7ba6a4c1d9befe2a9d61))
+
 ## [5.54.2](https://github.com/diplodoc-platform/cli/compare/v5.54.1...v5.54.2) (2026-08-12)
 
 
