@@ -1,7 +1,7 @@
 import type {Meta} from './types';
 import type {Run} from '~/core/run';
 
-import {beforeEach, describe, expect, it} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {MetaService} from './MetaService';
 
@@ -27,6 +27,7 @@ function createMockRun(config: Partial<MockConfig> = {}) {
         config: mockConfig,
         logger: {
             topic: () => () => {},
+            warn: vi.fn(),
         },
         fs: {},
         normalize: (path: string) => path,
@@ -52,14 +53,66 @@ describe('MetaService', () => {
     });
 
     describe('dump()', () => {
-        it('preserves technical tags in page data', async () => {
+        it('preserves an empty tags array', async () => {
             const file = 'test/file.md' as NormalizedPath;
 
-            metaService.add(file, {tags: ['info', '_internal', 'syntax']});
+            metaService.add(file, {tags: []});
+
+            await expect(metaService.dump(file)).resolves.toMatchObject({tags: []});
+        });
+
+        it('preserves normalized technical tags in page data', async () => {
+            const file = 'test/file.md' as NormalizedPath;
+
+            metaService.add(file, {
+                tags: [
+                    ' info ',
+                    '_Internal',
+                    '',
+                    'info',
+                    'Tag',
+                    'tag',
+                    'a'.repeat(33),
+                    `${'a'.repeat(32)}b`,
+                    '😀'.repeat(33),
+                ],
+            });
 
             await expect(metaService.dump(file)).resolves.toMatchObject({
-                tags: ['info', '_internal', 'syntax'],
+                tags: ['info', '_internal', 'tag', 'a'.repeat(32), '😀'.repeat(32)],
             });
+        });
+
+        it('warns when truncating a tag longer than 32 characters', async () => {
+            const file = 'test/file.md' as NormalizedPath;
+            const tag = 'A'.repeat(33);
+            const run = createMockRun();
+            const metaService = new MetaService(run);
+
+            metaService.add(file, {tags: [tag]});
+            await metaService.dump(file);
+
+            expect(run.logger.warn).toHaveBeenCalledWith(
+                file,
+                `Tag "${tag}" exceeds 32 characters and will be truncated.`,
+            );
+        });
+
+        it('warns and truncates when lowercasing expands a tag past the limit', async () => {
+            const file = 'test/file.md' as NormalizedPath;
+            const tag = 'İ'.repeat(32);
+            const run = createMockRun();
+            const metaService = new MetaService(run);
+
+            metaService.add(file, {tags: [tag]});
+
+            await expect(metaService.dump(file)).resolves.toMatchObject({
+                tags: ['İ'.toLowerCase().repeat(16)],
+            });
+            expect(run.logger.warn).toHaveBeenCalledWith(
+                file,
+                `Tag "${tag}" exceeds 32 characters and will be truncated.`,
+            );
         });
     });
 
