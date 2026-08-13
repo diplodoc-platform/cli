@@ -1,7 +1,7 @@
 import type {Run} from '~/core/run';
 import type {Alternate, Meta, RawResources} from './types';
 
-import {flow, omit, uniq} from 'lodash';
+import {flow, omit} from 'lodash';
 
 import {copyJson, get, normalizePath, shortLink, zip} from '~/core/utils';
 
@@ -19,6 +19,8 @@ type MetaItem = {
     property?: string;
     content: string;
 };
+
+const MAX_TAG_LENGTH = 32;
 
 /**
  * Service for managing page metadata in the CLI build process.
@@ -44,6 +46,8 @@ export class MetaService {
 
     private config: Config;
 
+    private logger: Run<Config>['logger'];
+
     private meta: Map<NormalizedPath, Meta> = new Map();
 
     /**
@@ -54,6 +58,7 @@ export class MetaService {
     constructor(run: Run<Config>) {
         // this.run = run;
         this.config = run.config;
+        this.logger = run.logger;
     }
 
     /**
@@ -107,7 +112,27 @@ export class MetaService {
                 continue;
             }
 
-            meta[field] = uniq(meta[field] as string[]).filter(Boolean);
+            meta[field] = [...new Set(meta[field] as string[])].filter(Boolean);
+        }
+
+        if (meta.tags) {
+            meta.tags = [
+                ...new Set(
+                    meta.tags.map((tag) => {
+                        const trimmedTag = tag.trim();
+                        const normalizedTag = Array.from(trimmedTag.toLowerCase());
+
+                        if (Array.from(trimmedTag).length > MAX_TAG_LENGTH) {
+                            this.logger.warn(
+                                file,
+                                `Tag "${tag}" exceeds ${MAX_TAG_LENGTH} characters and will be truncated.`,
+                            );
+                        }
+
+                        return normalizedTag.slice(0, MAX_TAG_LENGTH).join('');
+                    }),
+                ),
+            ].filter(Boolean);
         }
 
         if (meta.alternate?.length) {
@@ -224,11 +249,11 @@ export class MetaService {
         const meta = this.meta.get(file) || this.initialMeta();
 
         if (Array.isArray(resources.script)) {
-            meta.script = uniq([...(meta.script || []), ...resources.script]);
+            meta.script = [...new Set([...(meta.script || []), ...resources.script])];
         }
 
         if (Array.isArray(resources.style)) {
-            meta.style = uniq([...(meta.style || []), ...resources.style]);
+            meta.style = [...new Set([...(meta.style || []), ...resources.style])];
         }
 
         if (Array.isArray(resources.csp)) {
