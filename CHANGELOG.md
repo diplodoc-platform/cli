@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.54.4](https://github.com/diplodoc-platform/cli/compare/v5.54.3...v5.54.4) (2026-08-14)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.11.7 ([#2195](https://github.com/diplodoc-platform/cli/issues/2195)) ([f49c20e](https://github.com/diplodoc-platform/cli/commit/f49c20e96e72fdfd0fefdfceea031ccaf5013716))
+* fixed meta set ([#2194](https://github.com/diplodoc-platform/cli/issues/2194)) ([5c225c8](https://github.com/diplodoc-platform/cli/commit/5c225c8b54862acb6b7bc8fa47f761ea3aacf74a))
+
 ## [5.54.3](https://github.com/diplodoc-platform/cli/compare/v5.54.2...v5.54.3) (2026-08-13)
 
 
