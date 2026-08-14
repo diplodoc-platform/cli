@@ -108,11 +108,11 @@ export class MetaService {
         const meta = copyJson(this.meta.get(file)) || this.initialMeta();
 
         for (const field of ['script', 'style', 'keywords'] as const) {
-            if (!meta[field]) {
+            if (!Array.isArray(meta[field])) {
                 continue;
             }
 
-            meta[field] = [...new Set(meta[field] as string[])].filter(Boolean);
+            meta[field] = [...new Set(meta[field])].filter(Boolean);
         }
 
         if (meta.tags) {
