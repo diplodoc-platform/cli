@@ -1,7 +1,7 @@
 import type {Run} from '~/core/run';
 import type {Alternate, Meta, RawResources} from './types';
 
-import {flow, omit} from 'lodash';
+import {flow, omit, uniq} from 'lodash';
 
 import {copyJson, get, normalizePath, shortLink, zip} from '~/core/utils';
 
@@ -112,7 +112,7 @@ export class MetaService {
                 continue;
             }
 
-            meta[field] = [...new Set(meta[field] as string[])].filter(Boolean);
+            meta[field] = uniq(meta[field] as string[]).filter(Boolean);
         }
 
         if (meta.tags) {
@@ -248,11 +248,11 @@ export class MetaService {
         const meta = this.meta.get(file) || this.initialMeta();
 
         if (Array.isArray(resources.script)) {
-            meta.script = [...new Set([...(meta.script || []), ...resources.script])];
+            meta.script = uniq([...(meta.script || []), ...resources.script]);
         }
 
         if (Array.isArray(resources.style)) {
-            meta.style = [...new Set([...(meta.style || []), ...resources.style])];
+            meta.style = uniq([...(meta.style || []), ...resources.style]);
         }
 
         if (Array.isArray(resources.csp)) {
