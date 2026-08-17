@@ -58,17 +58,7 @@ export class BuildManifest {
         });
 
         getBaseHooks(program).Config.tapPromise('BuildManifest', async (config, args) => {
-            let buildManifest = false;
-
-            if (valuable(config.buildManifest)) {
-                buildManifest = Boolean(config.buildManifest);
-            }
-
-            if (valuable(args.buildManifest)) {
-                buildManifest = Boolean(args.buildManifest);
-            }
-
-            config.buildManifest = buildManifest;
+            config.buildManifest = this.resolveEnabled(config.buildManifest, args.buildManifest);
 
             return config;
         });
@@ -100,6 +90,20 @@ export class BuildManifest {
                     true,
                 );
             });
+    }
+
+    private resolveEnabled(configValue: unknown, argumentValue: unknown): boolean {
+        let enabled = true;
+
+        if (valuable(configValue)) {
+            enabled = Boolean(configValue);
+        }
+
+        if (valuable(argumentValue)) {
+            enabled = Boolean(argumentValue);
+        }
+
+        return enabled;
     }
 
     /**

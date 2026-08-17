@@ -2,7 +2,33 @@ import {describe, expect, it} from 'vitest';
 
 import {BuildManifest} from './index';
 
+type TestableBuildManifest = {
+    resolveEnabled(configValue: unknown, argumentValue: unknown): boolean;
+};
+
 describe('Build manifest feature', () => {
+    describe('resolveEnabled method', () => {
+        const resolveEnabled = (configValue?: boolean, argumentValue?: boolean) =>
+            (new BuildManifest() as unknown as TestableBuildManifest).resolveEnabled(
+                configValue,
+                argumentValue,
+            );
+
+        it('should enable the manifest by default', () => {
+            expect(resolveEnabled()).toBe(true);
+        });
+
+        it('should respect the config value', () => {
+            expect(resolveEnabled(false)).toBe(false);
+            expect(resolveEnabled(true)).toBe(true);
+        });
+
+        it('should let an explicit CLI flag override the config value', () => {
+            expect(resolveEnabled(false, true)).toBe(true);
+            expect(resolveEnabled(true, false)).toBe(false);
+        });
+    });
+
     describe('shouldReplaceFile method', () => {
         it('should prioritize .md files over .yaml files', () => {
             const buildManifest = new BuildManifest();
