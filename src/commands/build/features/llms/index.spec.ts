@@ -1,4 +1,5 @@
-import type {BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
+import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
+import type {Toc} from '~/core/toc';
 import type {LlmsConfig} from './index';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
@@ -8,7 +9,9 @@ import {OutputFormat} from '~/commands/build/config';
 import {LLMS_FULL_FILENAME, Llms} from './index';
 
 vi.mock('~/core/utils', async () => ({
-    normalizePath: (path: string) => path as NormalizedPath,
+    isExternalHref: (path: string) =>
+        /^(\w{1,10}:)?\/\//.test(path) || /^([+\w]{1,10}:)/.test(path),
+    normalizePath: (path: string) => path.replace(/\\/g, '/') as NormalizedPath,
     setExt: (path: string, ext: string) => {
         const stripped = path.replace(/\.[^/.]+$/, '');
         return ext ? `${stripped}.${ext}` : stripped;
@@ -98,6 +101,7 @@ type TestableLlms = {
         config: Partial<LlmsConfig['llms']> | undefined,
         onlyMd: boolean,
     ): boolean;
+    collectEntries(toc: Toc, tocDir: string): unknown[];
     renderIndex(run: Run, title: string, entries: unknown[], tocDir: string): Promise<string>;
     renderFull(run: Run, title: string, entries: unknown[]): Promise<string>;
 };
@@ -209,13 +213,76 @@ describe('LLMs Plugin Architecture', () => {
         });
     });
 
+    describe('collectEntries logic', () => {
+        it('should exclude hidden articles and descendants of hidden items', () => {
+            const toc = {
+                path: normalizedPath('docs/toc.yaml'),
+                id: 'docs',
+                items: [
+                    {
+                        id: 'visible-page',
+                        name: 'Visible page',
+                        href: normalizedPath('visible.md'),
+                    },
+                    {
+                        id: 'hidden-page',
+                        name: 'Hidden page',
+                        href: normalizedPath('hidden.md'),
+                        hidden: true,
+                    },
+                    {
+                        id: 'external-page',
+                        name: 'External page',
+                        href: normalizedPath('https://example.com'),
+                    },
+                    {
+                        id: 'hidden-section',
+                        name: 'Hidden section',
+                        hidden: true,
+                        items: [
+                            {
+                                id: 'hidden-child',
+                                name: 'Hidden child',
+                                href: normalizedPath('hidden-child.md'),
+                            },
+                        ],
+                    },
+                    {
+                        id: 'visible-section',
+                        name: 'Visible section',
+                        items: [
+                            {
+                                id: 'visible-child',
+                                name: 'Visible child',
+                                href: normalizedPath('visible-child.md'),
+                            },
+                        ],
+                    },
+                ],
+            } satisfies Toc;
+
+            expect(llmsInstance.collectEntries(toc, 'docs')).toEqual([
+                {
+                    href: 'visible.md',
+                    path: 'docs/visible.md',
+                    name: 'Visible page',
+                },
+                {
+                    href: 'visible-child.md',
+                    path: 'docs/visible-child.md',
+                    name: 'Visible child',
+                },
+            ]);
+        });
+    });
+
     describe('Config hook preserves url', () => {
         const applyConfig = (config: Record<string, unknown>) => {
             new Llms().apply({
                 Command: {tap: vi.fn()},
                 Config: {tap: (fn: Function) => fn(config, {llms: null})},
                 AfterAnyRun: {tapPromise: vi.fn()},
-            } as any);
+            } as unknown as Build);
         };
 
         it('preserves url from raw config', () => {
