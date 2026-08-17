@@ -45,6 +45,8 @@ type LlmsEntry = {
     // Full normalized path from the input root — used to read meta / markdown.
     path: NormalizedPath;
     name: string;
+    // Name of the parent toc item, used for artifacts that represent the whole section.
+    parentName: string;
 };
 
 type LlmsTocItem = {
@@ -147,7 +149,7 @@ export class Llms {
     private collectEntries(toc: LlmsTocItem, tocDir: string): LlmsEntry[] {
         const entries: LlmsEntry[] = [];
 
-        const visit = (item: LlmsTocItem) => {
+        const visit = (item: LlmsTocItem, parentName = '') => {
             if (item.hidden) {
                 return;
             }
@@ -157,10 +159,12 @@ export class Llms {
                     href: item.href,
                     path: normalizePath(join(tocDir, item.href)),
                     name: typeof item.name === 'string' ? item.name : '',
+                    parentName,
                 });
             }
 
-            item.items?.forEach(visit);
+            const childParentName = typeof item.name === 'string' ? item.name : parentName;
+            item.items?.forEach((child) => visit(child, childParentName));
         };
 
         visit(toc);
@@ -184,7 +188,10 @@ export class Llms {
 
         lines.push('## Documentation', '');
 
+        const seenOpenapiCompanions = new Set<string>();
         for (const entry of entries) {
+            this.appendOpenapiCompanions(run, entry, tocDir, lines, seenOpenapiCompanions);
+
             const meta = await run.meta.dump(entry.path);
             const description = typeof meta.description === 'string' ? meta.description : '';
             // Prefer the toc name; fall back to the page title (e.g. the root
@@ -199,8 +206,6 @@ export class Llms {
             lines.push(`- [${name}](${href})${suffix}`);
         }
 
-        this.appendOpenapiCompanions(run, entries, tocDir, lines);
-
         lines.push(
             '',
             '---',
@@ -212,7 +217,7 @@ export class Llms {
     }
 
     /**
-     * Appends OpenAPI spec companion links to the llms.txt index.
+     * Appends OpenAPI spec companion links immediately before their leading page.
      *
      * Companions are standalone `*.openapi.json` files emitted by the openapi
      * includer extension (`run.openapiCompanions`). Each entry maps a generated
@@ -225,9 +230,10 @@ export class Llms {
      */
     private appendOpenapiCompanions(
         run: Run,
-        entries: LlmsEntry[],
+        entry: LlmsEntry,
         tocDir: string,
         lines: string[],
+        seen: Set<string>,
     ): void {
         const companions = (run as Run & {openapiCompanions?: OpenapiCompanionEntry[]})
             .openapiCompanions;
@@ -236,26 +242,21 @@ export class Llms {
             return;
         }
 
-        // Deduplicate by companionPath — same pattern as build-manifest feature.
-        const seen = new Set<string>();
         for (const companion of companions) {
             if (seen.has(companion.companionPath)) {
                 continue;
             }
 
-            // Match companion to an entry in the current toc by leadingPage.
+            // Match companion to the current entry by leadingPage.
             // leadingPage is the path without extension (e.g. "ru/api/index"),
             // so strip the extension from the entry path to compare.
-            const matchingEntry = entries.find(
-                (entry) => setExt(entry.path, '') === companion.leadingPage,
-            );
-            if (!matchingEntry) {
+            if (setExt(entry.path, '') !== companion.leadingPage) {
                 continue;
             }
 
             seen.add(companion.companionPath);
 
-            const name = matchingEntry.name || 'API Reference';
+            const name = entry.parentName || entry.name || 'API Reference';
             // Normalize to forward slashes — llms.txt is a web-oriented format
             // and `relative()` returns backslashes on Windows.
             const companionHref = relative(tocDir, companion.companionPath).replace(/\\/g, '/');
