@@ -232,6 +232,15 @@ Main build logic is located in:
 - `src/commands/build/run.ts` — command execution
 - `src/commands/build/features/` — various build features
 
+### llms.txt OpenAPI companions
+
+`src/commands/build/features/llms/` collects entries from the resolved TOC recursively while
+excluding hidden subtrees and external links. Preserve the parent TOC item name on collected
+entries: for an OpenAPI include, the parent name labels the whole API section, while
+`leadingPage.name` labels only the generated landing page. In `llms.txt`, emit the companion
+`*.openapi.json` link with the parent name immediately before its matching landing-page link.
+`run.openapiCompanions` provides the `leadingPage -> companionPath` mapping.
+
 ### Extensions
 
 Extensions integrate with CLI through hooks. There are two integration patterns based on initialization approach:

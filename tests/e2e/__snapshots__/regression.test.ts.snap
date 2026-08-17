@@ -1642,11 +1642,11 @@ exports[`Regression > internal 18`] = `
 - [3](generic/3.md)
 - [Sub note 1](generic/Sub notes/1.md)
 - [Sub note 2](generic/Sub notes/2.md)
+- [openapi](openapi/openapi-spec.openapi.json): OpenAPI specification
 - [Overview](openapi/index.md)
 - [Overview](openapi/test-controller/index.md)
 - [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
 - [Test x-hidden attribute](openapi/test-controller/getHiddenTest.md)
-- [Overview](openapi/openapi-spec.openapi.json): OpenAPI specification
 
 ---
 
@@ -3951,11 +3951,11 @@ exports[`Regression > internal 51`] = `
 - [3](generic/3.md)
 - [Sub note 1](generic/Sub notes/1.md)
 - [Sub note 2](generic/Sub notes/2.md)
+- [openapi](openapi/openapi-spec.openapi.json): OpenAPI specification
 - [Overview](openapi/index.md)
 - [Overview](openapi/test-controller/index.md)
 - [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
 - [Test x-hidden attribute](openapi/test-controller/getHiddenTest.md)
-- [Overview](openapi/openapi-spec.openapi.json): OpenAPI specification
 
 ---
 

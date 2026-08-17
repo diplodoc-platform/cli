@@ -266,11 +266,13 @@ describe('LLMs Plugin Architecture', () => {
                     href: 'visible.md',
                     path: 'docs/visible.md',
                     name: 'Visible page',
+                    parentName: '',
                 },
                 {
                     href: 'visible-child.md',
                     path: 'docs/visible-child.md',
                     name: 'Visible child',
+                    parentName: 'Visible section',
                 },
             ]);
         });
@@ -387,7 +389,7 @@ describe('LLMs Plugin Architecture', () => {
     });
 
     describe('renderIndex OpenAPI companion links', () => {
-        it('should add companion link when leading page matches an entry', async () => {
+        it('should add companion before the leading page using its parent toc name', async () => {
             const run = createMockRun({
                 openapiCompanions: [
                     {
@@ -400,14 +402,16 @@ describe('LLMs Plugin Architecture', () => {
                 {
                     href: normalizedPath('api/index.md'),
                     path: normalizedPath('docs/api/index.md'),
-                    name: 'The complete API Reference',
+                    name: 'Resource list',
+                    parentName: 'API resources',
                 },
             ];
 
             const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
 
             expect(result).toContain(
-                '- [The complete API Reference](api/petstore.openapi.json): OpenAPI specification',
+                '- [API resources](api/petstore.openapi.json): OpenAPI specification\n' +
+                    '- [Resource list](api/index.html): Detailed meta description text',
             );
         });
 
