@@ -11,7 +11,7 @@ import {TestAdapter, getTestPaths} from '../fixtures';
  *  - its name is derived from the source spec (`petstore.yaml` -> `petstore.openapi.json`);
  *  - it is recorded in the build manifest with the exact emitted path and the sibling
  *    `index` leading page;
- *  - emission does not depend on `--build-manifest`;
+ *  - emission does not depend on whether the build manifest is enabled;
  *  - for static md2html builds the companion hint is baked into the leading page `<body>`
  *    as an HTML comment (the viewer does this at serve time for md2md, but md2html has no
  *    viewer), gated by the companion actually being emitted.
@@ -49,26 +49,25 @@ describe('OpenAPI spec companion (CLI build)', () => {
         expect(raw).toBe(JSON.stringify(json));
     });
 
-    it('emits the companion even without --build-manifest', async () => {
+    it('emits the companion when the build manifest is explicitly disabled', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/openapi-companion');
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,
             md2html: false,
+            args: '--no-build-manifest',
         });
 
         expect(existsSync(resolve(outputPath, COMPANION_PATH))).toBe(true);
-        // Manifest is opt-in, so it must be absent here.
         expect(existsSync(resolve(outputPath, 'yfm-build-manifest.json'))).toBe(false);
     });
 
-    it('records the companion in the build manifest with the exact emitted path', async () => {
+    it('records the companion in the default build manifest with the exact emitted path', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/openapi-companion');
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,
             md2html: false,
-            args: '--build-manifest',
         });
 
         const manifest = JSON.parse(
