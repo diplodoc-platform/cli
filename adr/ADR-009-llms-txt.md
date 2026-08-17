@@ -18,8 +18,9 @@ consumption. Two files are generated per TOC:
 
 - Machine-readable access to documentation without HTML parsing
 - LLMs can ingest the full documentation in a single file
-- The artifacts must stay consistent with the built "version" — hidden pages
-  and inactive `{% if %}` branches must not leak
+- The artifacts must stay consistent with the conditionally selected build
+  "version", while applying a stricter exposure policy: hidden pages and
+  inactive `{% if %}` branches must not leak
 
 ## Decision
 
@@ -27,11 +28,28 @@ consumption. Two files are generated per TOC:
 
 LLMS files are generated in the `AfterAnyRun` hook, so they work for both `md`
 and `html` builds. By that point the TOC is already resolved and filtered
-(vars/conditions, `removeHiddenTocItems`/`removeEmptyTocItems`), which keeps the
-artifacts consistent with the exact "version" produced by single-source
-publishing.
+(vars/conditions and `removeEmptyTocItems`), which keeps the artifacts
+consistent with the exact conditionally selected "version" produced by
+single-source publishing.
 
-Walking `run.toc.tocs` + `walkEntries` mirrors `SinglePage`.
+Each TOC in `run.toc.tocs` is processed separately.
+
+### Entry selection and hidden items
+
+Before either file is rendered, the TOC is traversed depth-first to build one
+shared list of documentation entries. The following rules apply:
+
+- An item with `hidden: true` is not added to the entry list
+- The descendants of an item with `hidden: true` are not traversed and are
+  therefore excluded as well
+- Hidden filtering is always applied, independently of the
+  `removeHiddenTocItems` build option
+- External links are not documentation entries and are ignored
+
+The regular build can therefore keep and render hidden pages when
+`removeHiddenTocItems` is disabled, while `llms.txt` and `llms-full.txt` never
+expose them. Both files, as well as OpenAPI companion matching for the index,
+use the same filtered entry list.
 
 ### llms.txt (index)
 
@@ -143,5 +161,7 @@ implementation simple and fast.
   logged as info, not an error
 - The file always contains at least the title and whatever articles fit
 - `0` means "use default" (not "no limit"), consistent with `maxAssetSize`
-- The artifacts are consistent with the built version: hidden pages and
-  inactive `{% if %}` branches do not leak into either file
+- Hidden pages and complete hidden subtrees never appear in either artifact,
+  regardless of `removeHiddenTocItems`; this does not prevent the regular build
+  from rendering them
+- Inactive `{% if %}` branches do not leak into either file

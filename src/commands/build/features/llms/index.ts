@@ -1,12 +1,12 @@
 import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {EntryTocItem, Toc} from '~/core/toc';
+import type {Toc} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
-import {normalizePath, setExt} from '~/core/utils';
+import {isExternalHref, normalizePath, setExt} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
 
 import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
@@ -47,17 +47,23 @@ type LlmsEntry = {
     name: string;
 };
 
+type LlmsTocItem = {
+    hidden?: boolean;
+    href?: NormalizedPath;
+    name?: string;
+    items?: LlmsTocItem[];
+};
+
 /**
  * Generates `llms.txt` (a compact index) and `llms-full.txt` (the whole
  * documentation concatenated) per toc, following the https://llmstxt.org spec.
  *
  * Runs in `AfterAnyRun`, so it works for both `md` and `html` builds. By that
  * point the toc is already resolved and filtered for the current build
- * (vars/conditions, `removeHiddenTocItems`/`removeEmptyTocItems`), which keeps
- * the artifacts consistent with the exact "version" produced by single-source
- * publishing — hidden pages don't leak into the index and inactive `{% if %}`
- * branches don't leak into the full text. Walking `run.toc.tocs` +
- * `walkEntries` mirrors `SinglePage`.
+ * (vars/conditions and `removeEmptyTocItems`). Hidden items are filtered here
+ * independently of `removeHiddenTocItems`, so hidden pages don't leak into
+ * either artifact while remaining available to the regular build. Walking
+ * `run.toc.tocs` mirrors `SinglePage`.
  *
  * `llms-full.txt` is assembled with {@link MarkdownCollector} — the same engine
  * `OutputMd` uses — so every include is merged into self-contained markdown
@@ -123,19 +129,7 @@ export class Llms {
 
     private async generate(run: Run, toc: Toc) {
         const tocDir = dirname(toc.path);
-        const entries: LlmsEntry[] = [];
-
-        await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
-            if (typeof item.href === 'string' && item.href) {
-                entries.push({
-                    href: item.href,
-                    path: normalizePath(join(tocDir, item.href)),
-                    name: typeof item.name === 'string' ? item.name : '',
-                });
-            }
-
-            return item;
-        });
+        const entries = this.collectEntries(toc, tocDir);
 
         if (!entries.length) {
             return;
@@ -148,6 +142,30 @@ export class Llms {
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
+    }
+
+    private collectEntries(toc: LlmsTocItem, tocDir: string): LlmsEntry[] {
+        const entries: LlmsEntry[] = [];
+
+        const visit = (item: LlmsTocItem) => {
+            if (item.hidden) {
+                return;
+            }
+
+            if (typeof item.href === 'string' && item.href && !isExternalHref(item.href)) {
+                entries.push({
+                    href: item.href,
+                    path: normalizePath(join(tocDir, item.href)),
+                    name: typeof item.name === 'string' ? item.name : '',
+                });
+            }
+
+            item.items?.forEach(visit);
+        };
+
+        visit(toc);
+
+        return entries;
     }
 
     private async renderIndex(run: Run, title: string, entries: LlmsEntry[], tocDir: string) {
