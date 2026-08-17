@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.54.5](https://github.com/diplodoc-platform/cli/compare/v5.54.4...v5.54.5) (2026-08-17)
+
+
+### Bug Fixes
+
+* correct title for openapi companion DOCSTOOLS-6346 ([68c1f21](https://github.com/diplodoc-platform/cli/commit/68c1f21d2305d76ac4ad2a5928ec939c34a36a47))
+* enable build manifest by default ([481c10c](https://github.com/diplodoc-platform/cli/commit/481c10cf0537b5ef9aeb1accd1c37a8e35385324))
+* exclude hidden from llms and llms-full DOCSTOOLS-6195 ([0538e11](https://github.com/diplodoc-platform/cli/commit/0538e1139534df88ef0d1828620fc657acf7a389))
+
 ## [5.54.4](https://github.com/diplodoc-platform/cli/compare/v5.54.3...v5.54.4) (2026-08-14)
 
 
