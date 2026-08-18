@@ -98,21 +98,7 @@ export class Provider {
                 });
 
                 const pairs: JudgePair[] = [];
-                const collect =
-                    config.judge && !dryRun
-                        ? (path: string, units: string[], parts: string[]) => {
-                              units.forEach((unit, index) => {
-                                  if (parts[index] === undefined || parts[index] === unit) {
-                                      return;
-                                  }
-                                  pairs.push({
-                                      path,
-                                      source: unwrapUnit(unit).text,
-                                      translation: unwrapUnit(parts[index]).text,
-                                  });
-                              });
-                          }
-                        : undefined;
+                const collect = config.judge && !dryRun ? makeJudgeCollector(pairs) : undefined;
 
                 const processFile = makeProcessor({
                     input,
@@ -374,6 +360,25 @@ export function extractTitle(data: unknown): string | undefined {
 
 function describeDocument(path: string, context?: DocContext): string {
     return context?.title ? `document "${context.title}" (file ${path})` : `file ${path}`;
+}
+
+/**
+ * Collects source/translation pairs for the judge. Units the model left
+ * untranslated are not scored: identity output is a miss, not a translation.
+ */
+function makeJudgeCollector(pairs: JudgePair[]) {
+    return (path: string, units: string[], parts: string[]) => {
+        units.forEach((unit, index) => {
+            if (parts[index] === undefined || parts[index] === unit) {
+                return;
+            }
+            pairs.push({
+                path,
+                source: unwrapUnit(unit).text,
+                translation: unwrapUnit(parts[index]).text,
+            });
+        });
+    };
 }
 
 function makeProcessor(params: ProcessorParams) {
