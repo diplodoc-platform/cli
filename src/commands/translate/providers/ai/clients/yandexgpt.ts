@@ -29,7 +29,7 @@ type YandexCompletionResponse = {
 };
 
 export type YandexGptClientOptions = {
-    token: string;
+    token?: string;
     model: string;
     folder?: string;
     baseUrl?: string;
@@ -64,7 +64,7 @@ function resolveModelUri(model: string, folder: string): string {
 export class YandexGptClient implements LLMClient {
     readonly name = 'yandexgpt';
 
-    private readonly token: string;
+    private readonly token?: string;
     private readonly folder: string;
     private readonly model: string;
     private readonly endpoint: string;
@@ -101,7 +101,7 @@ export class YandexGptClient implements LLMClient {
                 {
                     timeout: this.timeout,
                     headers: {
-                        Authorization: yandexAuthHeader(this.token),
+                        ...(this.token ? {Authorization: yandexAuthHeader(this.token)} : {}),
                         'Content-Type': 'application/json',
                         'User-Agent': 'github.com/diplodoc-platform/cli',
                         ...this.headers,
