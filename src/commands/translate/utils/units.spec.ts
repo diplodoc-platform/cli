@@ -26,7 +26,7 @@ describe('translate units loader', () => {
                 vars: {},
             });
 
-            expect(units.length).toBe(3);
+            expect(units).toHaveLength(3);
             expect(units[0]).toContain('Заголовок');
             expect(units[1]).toContain('Первое предложение.');
             expect(units[2]).toContain('Второе предложение.');

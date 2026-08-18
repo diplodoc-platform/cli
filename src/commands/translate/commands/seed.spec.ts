@@ -37,12 +37,15 @@ describe('translate seed', () => {
             const input = project({
                 'ru/article.md': '# Заголовок\n\nПервое. Второе.\n',
                 'en/article.md': '# Title\n\nFirst. Second.\n',
+                'ru/empty.md': '',
+                'en/empty.md': '',
             });
             const cacheDir = cache();
 
             const stats = await seedTranslations({
                 input,
-                files: ['ru/article.md'],
+                // The empty file has nothing to seed and is silently passed by.
+                files: ['ru/article.md', 'ru/empty.md'],
                 sourceLanguage: 'ru',
                 targetLanguage: 'en',
                 vars: {},

@@ -18,7 +18,7 @@ import {
 
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
-import {SkipTranslation, TranslateError, languageRepath, loadTranslationUnits} from '../utils';
+import {TranslateError, languageRepath, loadTranslationUnits} from '../utils';
 import {SeedStore, collectSeedPairs, seedFilePath} from '../providers/ai/utils';
 import {options as aiOptions} from '../providers/ai/config';
 import {untranslatedMarker} from '../providers/ai/provider';
@@ -228,37 +228,29 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
         this.logger.skipped(skipped);
 
         for (const target of targets) {
-            try {
-                const stats = await seedTranslations({
-                    input,
-                    files: Array.from(files),
-                    sourceLanguage: source.language,
-                    targetLanguage: target.language,
-                    vars,
-                    cacheDir,
-                });
+            const stats = await seedTranslations({
+                input,
+                files: Array.from(files),
+                sourceLanguage: source.language,
+                targetLanguage: target.language,
+                vars,
+                cacheDir,
+            });
 
-                for (const file of stats.mismatched) {
-                    this.logger.warn(
-                        file,
-                        'Unit counts diverge between source and translation; the file was not seeded.',
-                    );
-                }
-
-                this.logger.stat(
-                    `${source.language}-${target.language} ` +
-                        `seeded-files: ${stats.seededFiles} seeded-units: ${stats.seededUnits} ` +
-                        `skipped-units: ${stats.skippedUnits} ` +
-                        `missing-targets: ${stats.missingTargets.length} ` +
-                        `mismatched: ${stats.mismatched.length}`,
+            for (const file of stats.mismatched) {
+                this.logger.warn(
+                    file,
+                    'Unit counts diverge between source and translation; the file was not seeded.',
                 );
-            } catch (error) {
-                if (error instanceof SkipTranslation) {
-                    this.logger.skipped([[error.reason, '']]);
-                    continue;
-                }
-                throw error;
             }
+
+            this.logger.stat(
+                `${source.language}-${target.language} ` +
+                    `seeded-files: ${stats.seededFiles} seeded-units: ${stats.seededUnits} ` +
+                    `skipped-units: ${stats.skippedUnits} ` +
+                    `missing-targets: ${stats.missingTargets.length} ` +
+                    `mismatched: ${stats.mismatched.length}`,
+            );
         }
     }
 }
