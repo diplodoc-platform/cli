@@ -7,19 +7,11 @@ import type {JudgePair} from './judge';
 import {writeFile} from 'node:fs/promises';
 import {extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
-import liquid from '@diplodoc/transform/lib/liquid';
 
 import {LogLevel} from '~/core/logger';
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
-import {
-    FileLoader,
-    TranslateError,
-    compose,
-    extract,
-    languageRepath,
-    resolveSchemas,
-} from '../../utils';
+import {TranslateError, compose, languageRepath, loadTranslationUnits} from '../../utils';
 import {TranslateLogger} from '../../logger';
 
 import {
@@ -27,11 +19,13 @@ import {
     LLMAuthError,
     LLMResponseError,
     RateGate,
+    SeedStore,
     TranslationStore,
     backoff,
     bytes,
     cacheFingerprint,
     estimateTokens,
+    seedFilePath,
 } from './utils';
 import {DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, buildMessages, splitFragments} from './prompts';
 import {judgeTranslations} from './judge';
@@ -395,34 +389,15 @@ function makeProcessor(params: ProcessorParams) {
         const inputPath = join(inputRoot, path);
         const outputPath = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
 
-        const content = new FileLoader(inputPath);
-        await content.load();
-
-        if (Object.keys(vars).length && content.isString) {
-            content.set(
-                liquid(content.data as string, vars, inputPath, {
-                    conditions: 'strict',
-                    substitutions: false,
-                    cycles: false,
-                }),
-            );
-        }
-
-        if (!content.data) {
-            await content.dump(outputPath);
-            return;
-        }
-
-        const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
-        const {units, skeleton} = extract(content.data, {
-            compact: true,
-            source: {language: sourceLanguage, locale: 'RU'},
-            target: {language: targetLanguage, locale: 'US'},
-            schemas,
-            ajvOptions,
+        const {content, units, skeleton, schemas, ajvOptions} = await loadTranslationUnits({
+            inputPath,
+            path,
+            sourceLanguage,
+            targetLanguage,
+            vars,
         });
 
-        if (!units.length) {
+        if (!content.data || !units.length) {
             await content.dump(outputPath);
             return;
         }
@@ -493,7 +468,12 @@ export function makeStore(
         glossaryPairs: config.glossaryPairs,
     });
 
-    return new TranslationStore(file, fingerprint);
+    // Seeds derived from existing target files (see `yfm translate seed`)
+    // are provider-agnostic and survive fingerprint changes by design.
+    const seeds = new SeedStore(seedFilePath(config.cacheDir, sourceLanguage, targetLanguage));
+    seeds.load();
+
+    return new TranslationStore(file, fingerprint, seeds);
 }
 
 /**
