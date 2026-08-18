@@ -385,6 +385,25 @@ describe('Translate command', () => {
                     },
                 );
 
+                test('should disable fallback model by default', '', {
+                    fallbackModel: undefined,
+                });
+
+                test('should handle fallback model arg', '--fallback-model gpt-4o', {
+                    fallbackModel: 'gpt-4o',
+                });
+
+                test(
+                    'should handle fallback model from config',
+                    '',
+                    {
+                        fallbackModel: 'gpt-4o',
+                    },
+                    {
+                        fallbackModel: 'gpt-4o',
+                    },
+                );
+
                 test('should handle api base arg', '--api-base https://llm.internal/v1', {
                     apiBase: 'https://llm.internal/v1',
                 });
@@ -461,6 +480,16 @@ describe('Translate command', () => {
                         model: 'gpt://b1g/yandexgpt/latest',
                     },
                 );
+
+                it('should require folder when fallback model is a short name', async () => {
+                    const instance = await run(
+                        '-o output --source ru --target en --provider yandexgpt --auth y0_test ' +
+                            '--model gpt://b1g/yandexgpt/latest --fallback-model yandexgpt-lite',
+                    );
+
+                    expect(instance.report.code).toBe(1);
+                    expect(instance.provider?.translate).not.toBeCalled();
+                });
 
                 test('should handle folder with short model name', '--folder b1g', {
                     folder: 'b1g',

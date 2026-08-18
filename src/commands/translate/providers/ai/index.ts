@@ -51,6 +51,7 @@ type Args = {
     auth?: string;
     folder?: string;
     model?: string;
+    fallbackModel?: string;
     apiBase?: string;
     apiHeader?: string[];
     systemPrompt?: string;
@@ -74,6 +75,7 @@ type Config = {
     auth: string;
     folder?: string;
     model: string;
+    fallbackModel?: string;
     apiBase?: string;
     apiHeaders: Record<string, string>;
     systemPrompt?: string;
@@ -201,6 +203,7 @@ export class Extension {
                     command
                         .addOption(options.auth)
                         .addOption(options.model)
+                        .addOption(options.fallbackModel)
                         .addOption(options.apiBase)
                         .addOption(options.apiHeader)
                         .addOption(options.systemPrompt)
@@ -244,6 +247,9 @@ export class Extension {
                         DEFAULT_MODELS[providerName];
                     config.model = model;
 
+                    config.fallbackModel =
+                        (defined('fallbackModel', args, config) as string | undefined) || undefined;
+
                     const apiBase =
                         defined('apiBase', args, config) || readEnv(ENV_BASE_URL[providerName]);
                     if (apiBase) {
@@ -259,10 +265,12 @@ export class Extension {
                     if (providerName === 'yandexgpt') {
                         config.folder = defined('folder', args, config);
 
-                        const qualified = model.startsWith('gpt://') || model.startsWith('ds://');
+                        const qualified = (value: string) =>
+                            value.startsWith('gpt://') || value.startsWith('ds://');
+                        const models = [model, config.fallbackModel].filter(Boolean) as string[];
                         ok(
-                            config.folder || qualified,
-                            'Yandex AI Studio: --folder is required when --model is a short name',
+                            config.folder || models.every(qualified),
+                            'Yandex AI Studio: --folder is required when --model or --fallback-model is a short name',
                         );
                     }
 

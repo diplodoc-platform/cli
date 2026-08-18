@@ -37,6 +37,17 @@ const model = option({
     `,
 });
 
+const fallbackModel = option({
+    flags: '--fallback-model <value>',
+    desc: `
+        Fallback model identifier in the same format as --model.
+
+        When a request keeps failing after all retries, it is retried with
+        this model on the same provider, credentials and API settings.
+        Auth errors are never retried. Disabled by default.
+    `,
+});
+
 const apiBase = option({
     flags: '--api-base <url>',
     desc: `
@@ -204,6 +215,7 @@ export const options = {
     auth,
     folder,
     model,
+    fallbackModel,
     apiBase,
     apiHeader,
     systemPrompt,
