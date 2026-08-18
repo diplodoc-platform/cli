@@ -48,6 +48,7 @@ function makeParams(
     client: LLMClient,
     config: Partial<AITranslationConfig> = {},
     store?: TranslationStore,
+    fallbackClient?: LLMClient,
 ) {
     const warn = vi.fn();
     const request = vi.fn();
@@ -58,6 +59,7 @@ function makeParams(
         bytes: 0,
         cached: 0,
         untranslated: 0,
+        fallbackRequests: 0,
     };
     const cache = new Map<string, Defer>();
 
@@ -65,6 +67,7 @@ function makeParams(
         params: {
             store,
             client,
+            fallbackClient,
             config: {
                 userPrompt: '{{fragments}}',
                 promptMode: 'append',
@@ -227,6 +230,68 @@ describe('translate ai provider', () => {
             expect(logger.warn).toHaveBeenCalledWith(
                 'ru/test.md',
                 expect.stringContaining('retried after the main pass'),
+            );
+        });
+
+        it('should translate through the fallback model when the primary keeps failing', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-fallback-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'test.md'), '# Заголовок\n\nПривет, мир.\n');
+
+            const primary: LLMClient = {
+                name: 'fake',
+                complete: vi.fn(async () => {
+                    throw new LLMRateLimitError('Too Many Requests');
+                }),
+            };
+            const fallback = makeFullClient();
+            const factory = vi.fn((config: AITranslationConfig) =>
+                config.model === 'reserve' ? fallback : primary,
+            );
+
+            const provider = new Provider(factory, {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.translate(['ru/test.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                judge: false,
+                model: 'main',
+                fallbackModel: 'reserve',
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+                rateLimitRetry: 0,
+            } as unknown as AITranslationConfig);
+
+            const result = readFileSync(join(output, 'en', 'test.md'), 'utf8');
+            expect(result).toContain('T:Привет, мир.');
+            expect(logger.error).not.toHaveBeenCalled();
+            expect(logger.warn).toHaveBeenCalledWith(
+                'ru/test.md',
+                expect.stringContaining('fallback model'),
+            );
+            expect(logger.stat).toHaveBeenCalledWith(
+                expect.stringContaining('fallback-requests: 1'),
             );
         });
 
@@ -640,6 +705,52 @@ describe('translate ai provider', () => {
             } finally {
                 vi.useRealTimers();
             }
+        });
+
+        it('should switch to the fallback model after the primary retries are exhausted', async () => {
+            const client = makeClient(() => new LLMRateLimitError('Too Many Requests'));
+            const fallback = makeClient(translated);
+            const {params, warn, stat} = makeParams(
+                client,
+                {retry: 0, rateLimitRetry: 0},
+                undefined,
+                fallback,
+            );
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', ['One']);
+
+            expect(result).toEqual(['T:One']);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.fallbackRequests).toBe(1);
+            expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('fallback model'));
+        });
+
+        it('should not use the fallback model for auth errors', async () => {
+            const client = makeClient(() => new LLMAuthError('denied'));
+            const fallback = makeClient(translated);
+            const {params, stat} = makeParams(client, {}, undefined, fallback);
+            const translate = makeTranslator(params);
+
+            await expect(translate('file.md', ['One'])).rejects.toThrow('denied');
+            expect(fallback.complete).not.toHaveBeenCalled();
+            expect(stat.fallbackRequests).toBe(0);
+        });
+
+        it('should rethrow the fallback model error when both models fail', async () => {
+            const client = makeClient(() => new LLMRateLimitError('primary down'));
+            const fallback = makeClient(() => new LLMRateLimitError('fallback down'));
+            const {params, stat} = makeParams(
+                client,
+                {retry: 0, rateLimitRetry: 0},
+                undefined,
+                fallback,
+            );
+            const translate = makeTranslator(params);
+
+            await expect(translate('file.md', ['One'])).rejects.toThrow('fallback down');
+            expect(stat.fallbackRequests).toBe(0);
         });
 
         it('should retry one-by-one when fragment count mismatches', async () => {

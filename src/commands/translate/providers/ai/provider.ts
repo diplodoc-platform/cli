@@ -1,7 +1,7 @@
 import type {Logger} from '~/core/logger';
 import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
-import type {LLMClient} from './clients/types';
+import type {CompletionResult, LLMClient} from './clients/types';
 import type {JudgePair} from './judge';
 
 import {writeFile} from 'node:fs/promises';
@@ -24,6 +24,7 @@ import {TranslateLogger} from '../../logger';
 
 import {
     Defer,
+    LLMAuthError,
     LLMResponseError,
     RateGate,
     TranslationStore,
@@ -63,6 +64,9 @@ export class Provider {
 
     async translate(files: string[], config: AITranslationConfig) {
         const client = this.clientFactory(config);
+        const fallbackClient = config.fallbackModel
+            ? this.clientFactory({...config, model: config.fallbackModel})
+            : undefined;
         const {input, output, source, target: targets, vars, dryRun, maxConcurrency} = config;
 
         try {
@@ -75,6 +79,7 @@ export class Provider {
                     bytes: 0,
                     cached: 0,
                     untranslated: 0,
+                    fallbackRequests: 0,
                 };
                 const store = makeStore(client, config, source.language, target.language);
 
@@ -82,6 +87,7 @@ export class Provider {
 
                 const translate = makeTranslator({
                     client,
+                    fallbackClient,
                     config,
                     sourceLanguage: source.language,
                     targetLanguage: target.language,
@@ -92,21 +98,7 @@ export class Provider {
                 });
 
                 const pairs: JudgePair[] = [];
-                const collect =
-                    config.judge && !dryRun
-                        ? (path: string, units: string[], parts: string[]) => {
-                              units.forEach((unit, index) => {
-                                  if (parts[index] === undefined || parts[index] === unit) {
-                                      return;
-                                  }
-                                  pairs.push({
-                                      path,
-                                      source: unwrapUnit(unit).text,
-                                      translation: unwrapUnit(parts[index]).text,
-                                  });
-                              });
-                          }
-                        : undefined;
+                const collect = config.judge && !dryRun ? makeJudgeCollector(pairs) : undefined;
 
                 const processFile = makeProcessor({
                     input,
@@ -125,7 +117,8 @@ export class Provider {
                 this.logger.stat(
                     `requests: ${stat.requests} input-tokens: ${stat.inputTokens} ` +
                         `output-tokens: ${stat.outputTokens} bytes: ${stat.bytes} ` +
-                        `cached-units: ${stat.cached} untranslated-units: ${stat.untranslated}`,
+                        `cached-units: ${stat.cached} untranslated-units: ${stat.untranslated}` +
+                        (fallbackClient ? ` fallback-requests: ${stat.fallbackRequests}` : ''),
                 );
 
                 if (pairs.length) {
@@ -369,6 +362,25 @@ function describeDocument(path: string, context?: DocContext): string {
     return context?.title ? `document "${context.title}" (file ${path})` : `file ${path}`;
 }
 
+/**
+ * Collects source/translation pairs for the judge. Units the model left
+ * untranslated are not scored: identity output is a miss, not a translation.
+ */
+function makeJudgeCollector(pairs: JudgePair[]) {
+    return (path: string, units: string[], parts: string[]) => {
+        units.forEach((unit, index) => {
+            if (parts[index] === undefined || parts[index] === unit) {
+                return;
+            }
+            pairs.push({
+                path,
+                source: unwrapUnit(unit).text,
+                translation: unwrapUnit(parts[index]).text,
+            });
+        });
+    };
+}
+
 function makeProcessor(params: ProcessorParams) {
     const {input, output, sourceLanguage, targetLanguage, vars, translate, onTranslated} = params;
     const inputRoot = resolve(input);
@@ -426,6 +438,8 @@ function makeProcessor(params: ProcessorParams) {
 
 type TranslatorParams = {
     client: LLMClient;
+    /** Client for --fallback-model, tried after the primary retries are exhausted. */
+    fallbackClient?: LLMClient;
     config: AITranslationConfig;
     sourceLanguage: string;
     targetLanguage: string;
@@ -438,6 +452,7 @@ type TranslatorParams = {
         bytes: number;
         cached: number;
         untranslated: number;
+        fallbackRequests: number;
     };
     logger: TranslateLogger;
 };
@@ -594,7 +609,17 @@ export function normalizeCached(unit: string, stored: string): string {
 }
 
 export function makeTranslator(params: TranslatorParams): Translate {
-    const {client, config, sourceLanguage, targetLanguage, cache, store, stat, logger} = params;
+    const {
+        client,
+        fallbackClient,
+        config,
+        sourceLanguage,
+        targetLanguage,
+        cache,
+        store,
+        stat,
+        logger,
+    } = params;
     const {
         systemPrompt,
         userPrompt,
@@ -611,11 +636,17 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
     const schedule = scheduler(maxConcurrency);
     // One gate per translator: a 429 from any request pauses all of them
-    // until the rate limit window elapses.
+    // until the rate limit window elapses. The fallback model has its own
+    // quota, so its requests must not hold on the primary rate limit window.
     const gate = new RateGate();
+    const fallbackGate = new RateGate();
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
 
-    async function translateBatch(fragments: string[], context: string): Promise<string[]> {
+    async function translateBatch(
+        path: string,
+        fragments: string[],
+        context: string,
+    ): Promise<string[]> {
         if (!fragments.length) {
             return [];
         }
@@ -643,11 +674,31 @@ export function makeTranslator(params: TranslatorParams): Translate {
             return fragments;
         }
 
-        const result = await backoff(
-            () => client.complete(messages, {temperature, maxTokens: maxOutputTokens}),
-            retry,
-            {rateLimitRetries: rateLimitRetry, gate},
-        );
+        let result: CompletionResult;
+        try {
+            result = await backoff(
+                () => client.complete(messages, {temperature, maxTokens: maxOutputTokens}),
+                retry,
+                {rateLimitRetries: rateLimitRetry, gate},
+            );
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            // Auth errors are fatal and shared with the fallback client:
+            // the same credentials would fail again.
+            if (!fallbackClient || error instanceof LLMAuthError) {
+                throw error;
+            }
+            logger.warn(
+                path,
+                `Primary model failed (${error.message}); retrying with the fallback model.`,
+            );
+            result = await backoff(
+                () => fallbackClient.complete(messages, {temperature, maxTokens: maxOutputTokens}),
+                retry,
+                {rateLimitRetries: rateLimitRetry, gate: fallbackGate},
+            );
+            stat.fallbackRequests++;
+        }
 
         stat.requests++;
         stat.bytes += bytes(fragments);
@@ -683,13 +734,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
         });
     }
 
-    async function translateWithFallback(
+    async function translateWithSplit(
         path: string,
         fragments: string[],
         context: string,
     ): Promise<string[]> {
         try {
-            return await translateBatch(fragments, context);
+            return await translateBatch(path, fragments, context);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof LLMResponseError && fragments.length > 1) {
@@ -699,7 +750,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 );
                 const result: string[] = [];
                 for (const fragment of fragments) {
-                    const single = await translateBatch([fragment], context);
+                    const single = await translateBatch(path, [fragment], context);
                     result.push(single[0]);
                 }
                 return result;
@@ -727,7 +778,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         if (!dryRun) {
                             logger.request(path, `${batch.length} units, ~${batchTokens} tokens`);
                         }
-                        const translated = await translateWithFallback(path, batch, context);
+                        const translated = await translateWithSplit(path, batch, context);
                         translated.forEach((text, i) => {
                             if (!dryRun && text === batch[i] && marker?.test(text)) {
                                 // The model returned source-script text unchanged.
