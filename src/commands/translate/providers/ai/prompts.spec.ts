@@ -194,6 +194,15 @@ describe('translate ai prompts', () => {
             expect(resolveContextValue('info.md', (path) => join(dir, path))).toBe('Project info.');
         });
 
+        it('should not fall back to cwd when the resolve callback is provided', () => {
+            const dir = mkdtempSync(join(tmpdir(), 'translate-context-'));
+
+            // package.json exists in cwd, but config values resolve from the config dir only.
+            expect(() => resolveContextValue('package.json', (path) => join(dir, path))).toThrow(
+                'Context file not found',
+            );
+        });
+
         it('should pass a multi-line value through as a literal', () => {
             expect(resolveContextValue('Use these terms:\n- cloud')).toBe(
                 'Use these terms:\n- cloud',

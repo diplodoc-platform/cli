@@ -84,21 +84,19 @@ export function resolvePromptValue(
  * Resolves a --context-file value: a path to a text file or a literal
  * multi-line text block. Unlike prompts, a single-line value is always
  * a path, so a missing file is a configuration error, not a literal.
+ *
+ * The `resolve` callback is the only base when provided: config values
+ * must not silently pick up a same-named file from the process cwd.
  */
 export function resolveContextValue(value: string, resolve?: (path: string) => string): string {
     const trimmed = value.trim();
 
     // A real file path never contains a line break.
     if (!trimmed.includes('\n')) {
-        if (existsSync(trimmed)) {
-            return readFileSync(trimmed, 'utf8');
-        }
+        const path = resolve ? resolve(trimmed) : trimmed;
 
-        if (resolve) {
-            const resolved = resolve(trimmed);
-            if (existsSync(resolved)) {
-                return readFileSync(resolved, 'utf8');
-            }
+        if (existsSync(path)) {
+            return readFileSync(path, 'utf8');
         }
 
         ok(false, `Context file not found: ${value}`);
