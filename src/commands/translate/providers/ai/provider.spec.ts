@@ -18,7 +18,14 @@ import {
     unwrapUnit,
 } from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
-import {LLMAuthError, LLMRateLimitError, TranslationStore, cacheFingerprint} from './utils';
+import {
+    LLMAuthError,
+    LLMRateLimitError,
+    SeedStore,
+    TranslationStore,
+    cacheFingerprint,
+    seedFilePath,
+} from './utils';
 
 type FakeComplete = (fragments: string[], call: number) => string[] | Error;
 
@@ -409,6 +416,26 @@ describe('translate ai provider', () => {
             store?.flush();
 
             expect(existsSync(join(dir, 'fake.gpt-b1g-yandexgpt-latest.ru-en.json'))).toBe(true);
+        });
+
+        it('should pick up seeds for the language pair from the cache dir', () => {
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+            seeds.set('Привет', 'Hello');
+            seeds.flush();
+
+            const client = makeClient(translated);
+            const config = {
+                cacheDir: dir,
+                model: 'model',
+                promptMode: 'append',
+                glossaryPairs: [],
+            } as unknown as AITranslationConfig;
+
+            const store = makeStore(client, config, 'ru', 'en');
+            store?.load();
+
+            expect(store?.get('Привет')).toBe('Hello');
         });
 
         it('should keep separate caches per model', () => {

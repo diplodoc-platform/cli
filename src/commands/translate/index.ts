@@ -18,6 +18,7 @@ import {getHooks, withHooks} from './hooks';
 import {DESCRIPTION, NAME, options} from './config';
 import {Extract} from './commands/extract';
 import {Compose} from './commands/compose';
+import {Seed} from './commands/seed';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {Extension as AITranslation} from './providers/ai';
 import {copyAssets, resolveSource, resolveTargets, resolveVars} from './utils';
@@ -91,9 +92,12 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
 
     readonly compose = new Compose();
 
+    readonly seed = new Seed();
+
     protected readonly modules: ICallable[] = [
         this.extract,
         this.compose,
+        this.seed,
         new YandexTranslation(),
         new AITranslation(),
         new ExtractOpenapiIncluderFakeExtension(),
