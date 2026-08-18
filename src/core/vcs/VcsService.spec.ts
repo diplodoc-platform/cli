@@ -275,6 +275,60 @@ describe('VcsService', () => {
             expect(result.updatedAt).toBeDefined();
         });
 
+        describe('vcsPath / realpath() behavior', () => {
+            it('should not use meta.vcsPath when computing vcsPath', async () => {
+                mockMetaService.get = vi.fn().mockReturnValue({
+                    vcsPath: 'ru/index.yaml',
+                });
+
+                const mockConnector = new MockVcsConnector();
+                vi.spyOn(mockConnector, 'getBase').mockResolvedValue(
+                    'monium/docs' as RelativePath,
+                );
+                vi.spyOn(mockConnector, 'getContributorsByPath').mockResolvedValue([]);
+                vi.spyOn(mockConnector, 'getModifiedTimeByPath').mockResolvedValue(null);
+                vcsService['connector'] = mockConnector;
+
+                const result = await vcsService.metadata(asRelativePath('ru/index.yaml'));
+
+                expect(result.vcsPath).toBe('monium/docs/ru/index.yaml');
+            });
+
+            it('should use meta.sourcePath when set', async () => {
+                mockMetaService.get = vi.fn().mockReturnValue({
+                    sourcePath: 'monium/docs/original/path.yaml',
+                });
+
+                const mockConnector = new MockVcsConnector();
+                vi.spyOn(mockConnector, 'getBase').mockResolvedValue(
+                    'monium/docs' as RelativePath,
+                );
+                vi.spyOn(mockConnector, 'getContributorsByPath').mockResolvedValue([]);
+                vi.spyOn(mockConnector, 'getModifiedTimeByPath').mockResolvedValue(null);
+                vcsService['connector'] = mockConnector;
+
+                const result = await vcsService.metadata(asRelativePath('ru/index.yaml'));
+
+                expect(result.vcsPath).toBe('monium/docs/original/path.yaml');
+            });
+
+            it('should fall back to join(base, file) when neither vcsPath nor sourcePath in meta', async () => {
+                mockMetaService.get = vi.fn().mockReturnValue({});
+
+                const mockConnector = new MockVcsConnector();
+                vi.spyOn(mockConnector, 'getBase').mockResolvedValue(
+                    'monium/docs' as RelativePath,
+                );
+                vi.spyOn(mockConnector, 'getContributorsByPath').mockResolvedValue([]);
+                vi.spyOn(mockConnector, 'getModifiedTimeByPath').mockResolvedValue(null);
+                vcsService['connector'] = mockConnector;
+
+                const result = await vcsService.metadata(asRelativePath('ru/about.md'));
+
+                expect(result.vcsPath).toBe('monium/docs/ru/about.md');
+            });
+        });
+
         it('should handle disabled config options correctly', async () => {
             // Create run with disabled options
             const disabledRun = {

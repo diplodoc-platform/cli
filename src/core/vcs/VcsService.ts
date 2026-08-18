@@ -167,10 +167,6 @@ export class VcsService implements VcsConnector {
         const base = await this.getBase();
         const meta = this.run.meta.get(file);
 
-        if (meta.vcsPath) {
-            return normalizePath(meta.vcsPath);
-        }
-
         if (meta.sourcePath) {
             return normalizePath(meta.sourcePath);
         }
