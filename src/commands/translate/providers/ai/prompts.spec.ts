@@ -1,6 +1,15 @@
+import {mkdtempSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {describe, expect, it} from 'vitest';
 
-import {DEFAULT_SYSTEM_PROMPT, FRAGMENT_SEPARATOR, buildMessages, splitFragments} from './prompts';
+import {
+    DEFAULT_SYSTEM_PROMPT,
+    FRAGMENT_SEPARATOR,
+    buildMessages,
+    resolveContextValue,
+    splitFragments,
+} from './prompts';
 
 const config = {
     promptMode: 'append' as const,
@@ -116,6 +125,85 @@ describe('translate ai prompts', () => {
             });
 
             expect(system.content).toContain('You are translating Document context');
+        });
+
+        it('should append context files to the system prompt in order', () => {
+            const [system, user] = buildMessages(['Hello'], {
+                ...config,
+                contextFiles: ['# Project info\n\nDeploy platform.', '# Glossary\n\ncloud'],
+            });
+
+            expect(system.content).toContain('reference materials');
+            expect(system.content).toMatch(/Project info[\s\S]*Glossary/);
+            expect(user.content).not.toContain('Project info');
+        });
+
+        it('should not mention reference materials without context files', () => {
+            const [system] = buildMessages(['Hello'], config);
+
+            expect(system.content).not.toContain('reference materials');
+        });
+
+        it('should respect contextFiles placeholder in a custom system prompt', () => {
+            const [system] = buildMessages(['Hello'], {
+                ...config,
+                promptMode: 'replace',
+                systemPrompt: 'Intro.\n\n{{contextFiles}}\n\nRules.',
+                contextFiles: ['# Glossary'],
+            });
+
+            expect(system.content).toMatch(/Intro\.[\s\S]*# Glossary[\s\S]*Rules\./);
+            expect(system.content).not.toContain('{{contextFiles}}');
+        });
+
+        it('should place context files into the user prompt when referenced there', () => {
+            const [system, user] = buildMessages(['Hello'], {
+                ...config,
+                userPrompt: '{{contextFiles}}\n\n{{fragments}}',
+                contextFiles: ['# Glossary'],
+            });
+
+            expect(user.content).toContain('# Glossary');
+            expect(system.content).not.toContain('# Glossary');
+        });
+
+        it('should drop the placeholder when no context files are configured', () => {
+            const [system] = buildMessages(['Hello'], {
+                ...config,
+                promptMode: 'replace',
+                systemPrompt: 'Intro.\n\n{{contextFiles}}',
+            });
+
+            expect(system.content).not.toContain('{{contextFiles}}');
+        });
+    });
+
+    describe('resolveContextValue', () => {
+        it('should read an existing file', () => {
+            const dir = mkdtempSync(join(tmpdir(), 'translate-context-'));
+            const file = join(dir, 'glossary.md');
+            writeFileSync(file, '# Glossary\n\ncloud\n');
+
+            expect(resolveContextValue(file)).toBe('# Glossary\n\ncloud\n');
+        });
+
+        it('should resolve a relative path with the resolve callback', () => {
+            const dir = mkdtempSync(join(tmpdir(), 'translate-context-'));
+            writeFileSync(join(dir, 'info.md'), 'Project info.');
+
+            expect(resolveContextValue('info.md', (path) => join(dir, path))).toBe('Project info.');
+        });
+
+        it('should pass a multi-line value through as a literal', () => {
+            expect(resolveContextValue('Use these terms:\n- cloud')).toBe(
+                'Use these terms:\n- cloud',
+            );
+        });
+
+        it('should fail on a missing file path', () => {
+            expect(() => resolveContextValue('missing-context.md')).toThrow(
+                'Context file not found',
+            );
         });
     });
 });

@@ -136,6 +136,24 @@ const noCache = option({
     desc: 'Disable the persistent translation cache for this run.',
 });
 
+const contextFile = option({
+    flags: '--context-file <value>',
+    desc: `
+        Additional context for the translation prompt: project info, style guides,
+        UI text lists, terminology notes and other reference materials of arbitrary
+        structure. Repeat the option to pass several sections.
+
+        Accepts a path to a text file (md, json, txt - the content is passed
+        to the model as-is) or a literal multi-line text block.
+
+        Sections are appended to the system prompt. Add the {{contextFiles}}
+        placeholder to --system-prompt or --user-prompt to control placement.
+
+        Config alternative: ${cyan('contextFiles')} list in the yfm config.
+    `,
+    parser: toArray,
+});
+
 const glossaryExample = gray(dedent`
     glossaryPairs:
       - sourceText: string
@@ -212,6 +230,7 @@ export const options = {
     systemPrompt,
     userPrompt,
     promptMode,
+    contextFile,
     glossary,
     judge,
     judgeModel,

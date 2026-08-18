@@ -1,4 +1,5 @@
 import type {BaseProgram} from '~/core/program';
+import type {Config as ResolvedConfig} from '~/core/config';
 import type {Translate, TranslateArgs, TranslateConfig} from '~/commands/translate';
 import type {LLMClient} from './clients/types';
 import type {GlossaryPair, PromptMode} from './prompts';
@@ -14,7 +15,7 @@ import {own} from '~/core/utils';
 import {Provider} from './provider';
 import {options} from './config';
 import {resolveToken} from './auth';
-import {resolvePromptValue} from './prompts';
+import {resolveContextValue, resolvePromptValue} from './prompts';
 import {YandexGptClient} from './clients/yandexgpt';
 import {AnthropicClient} from './clients/anthropic';
 import {createOpenAIClient, createOpenRouterClient} from './clients/openai';
@@ -66,6 +67,7 @@ type Args = {
     systemPrompt?: string;
     userPrompt?: string;
     promptMode?: PromptMode;
+    contextFile?: string[];
     glossary?: string;
     judge?: boolean;
     judgeModel?: string;
@@ -89,6 +91,7 @@ type Config = {
     systemPrompt?: string;
     userPrompt?: string;
     promptMode: PromptMode;
+    contextFiles: string[];
     glossary?: string;
     glossaryPairs: GlossaryPair[];
     judge: boolean;
@@ -139,6 +142,26 @@ function parseHeaders(value: unknown): Record<string, string> {
     }
 
     return parseHeaders([value]);
+}
+
+/**
+ * Resolves --context-file values: CLI paths from cwd, config values from the config dir.
+ */
+function resolveContextFiles(
+    args: TranslateArgs & Partial<Args>,
+    config: ResolvedConfig<TranslateConfig & Partial<Config>>,
+): string[] {
+    if (own<string[], 'contextFile'>(args, 'contextFile')) {
+        return args.contextFile.map((value) => resolveContextValue(value));
+    }
+
+    if (own<string[] | string, 'contextFiles'>(config, 'contextFiles')) {
+        return ([] as string[])
+            .concat(config.contextFiles)
+            .map((value) => resolveContextValue(value, config.resolve));
+    }
+
+    return [];
 }
 
 function makeClientFactory(provider: ProviderName) {
@@ -216,6 +239,7 @@ export class Extension {
                         .addOption(options.systemPrompt)
                         .addOption(options.userPrompt)
                         .addOption(options.promptMode)
+                        .addOption(options.contextFile)
                         .addOption(options.glossary)
                         .addOption(options.judge)
                         .addOption(options.judgeModel)
@@ -292,6 +316,8 @@ export class Extension {
 
                     config.systemPrompt = resolvePrompt('systemPrompt');
                     config.userPrompt = resolvePrompt('userPrompt');
+
+                    config.contextFiles = resolveContextFiles(args, config);
 
                     config.promptMode =
                         (defined('promptMode', args, config) as PromptMode) || 'append';
