@@ -449,6 +449,28 @@ describe('Translate command', () => {
                     judgeThreshold: 80,
                 });
 
+                test('should have no context files by default', '', {
+                    contextFiles: [],
+                });
+
+                test(
+                    'should read context file arg',
+                    '--context-file src/commands/translate/__tests__/context.md',
+                    {
+                        // @ts-ignore - asymmetric matcher in expected config
+                        contextFiles: [expect.stringContaining('Test glossary')],
+                    },
+                );
+
+                it('should fail on a missing context file', async () => {
+                    const instance = await run(
+                        '-o output --source ru --target en --provider openai --auth sk-test ' +
+                            '--context-file missing-context.md',
+                    );
+
+                    expect(instance.report.code).toBe(1);
+                });
+
                 test('should resolve cache dir arg', '--cache-dir .translate-cache', {
                     // @ts-ignore - asymmetric matcher in expected config
                     cacheDir: expect.stringContaining('.translate-cache'),

@@ -466,6 +466,8 @@ export function makeStore(
         defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT,
         defaultUserPrompt: DEFAULT_USER_PROMPT,
         glossaryPairs: config.glossaryPairs,
+        // Only when configured, so existing caches survive the CLI update.
+        ...(config.contextFiles?.length ? {contextFiles: config.contextFiles} : {}),
     });
 
     // Seeds derived from existing target files (see `yfm translate seed`)
@@ -605,6 +607,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         userPrompt,
         promptMode,
         glossaryPairs,
+        contextFiles,
         temperature,
         maxOutputTokens,
         maxBatchTokens,
@@ -641,6 +644,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 sourceLanguage,
                 targetLanguage,
                 glossaryPairs,
+                contextFiles,
                 context,
             },
         );

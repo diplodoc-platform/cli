@@ -1,0 +1,3 @@
+# Test glossary
+
+- облако -> cloud
