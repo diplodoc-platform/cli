@@ -1,6 +1,7 @@
 import type {Run} from '~/commands/build';
 import type {ResolvedSource} from './sources';
 
+import {join} from 'node:path';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {permalink, readSourceFile} from './sources';
@@ -77,7 +78,7 @@ describe('http source reads', () => {
         const [[temp, target]] = renamed;
         expect(Object.keys(written)).toEqual([temp]);
         expect(temp).not.toBe(target);
-        expect(target).toBe('/cache/files-abc/b.sql');
+        expect(target).toBe(join(source().root, 'b.sql'));
     });
 
     it('should skip the download when the file is already on disk', async () => {

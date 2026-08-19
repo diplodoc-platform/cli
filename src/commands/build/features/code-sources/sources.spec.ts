@@ -1,6 +1,7 @@
 import type {Run} from '~/commands/build';
 import type {ResolvedSource} from './sources';
 
+import {join, resolve} from 'node:path';
 import {describe, expect, it} from 'vitest';
 
 import {permalink, resolveSources} from './sources';
@@ -74,7 +75,10 @@ describe('resolveSources', () => {
         it('should place the source in the download directory', () => {
             const sources = resolveSources(run({sdk: {type: 'git', repo: 'org/repo'}}));
 
-            expect(sources.sdk.root).toMatch(/^\/downloads\/sdk-[0-9a-f]{12}$/);
+            // `join`, not `resolve`: the harness passes the download dir raw,
+            // the way the config hook would have already resolved it.
+            expect(sources.sdk.root.startsWith(join('/downloads', 'sdk-'))).toBe(true);
+            expect(sources.sdk.root).toMatch(/sdk-[0-9a-f]{12}$/);
         });
 
         it('should key the directory by ref, so two versions do not collide', () => {
@@ -102,13 +106,13 @@ describe('resolveSources', () => {
         it('should resolve dir relative to the project input', () => {
             const sources = resolveSources(run({sdk: {type: 'local', dir: '../sdk'}}));
 
-            expect(sources.sdk).toMatchObject({type: 'local', root: '/project/sdk'});
+            expect(sources.sdk).toMatchObject({type: 'local', root: resolve('/project/sdk')});
         });
 
         it('should keep an absolute dir as is', () => {
             expect(
                 resolveSources(run({sdk: {type: 'local', dir: '/elsewhere/sdk'}})).sdk.root,
-            ).toBe('/elsewhere/sdk');
+            ).toBe(resolve('/elsewhere/sdk'));
         });
 
         it('should apply path as the root inside the source', () => {
@@ -116,7 +120,10 @@ describe('resolveSources', () => {
                 run({sdk: {type: 'local', dir: '../sdk', path: 'examples'}}),
             );
 
-            expect(sources.sdk).toMatchObject({root: '/project/sdk/examples', prefix: 'examples'});
+            expect(sources.sdk).toMatchObject({
+                root: resolve('/project/sdk/examples'),
+                prefix: 'examples',
+            });
         });
 
         it('should keep a slashed path inside dir instead of making it absolute', () => {
@@ -124,7 +131,10 @@ describe('resolveSources', () => {
                 run({sdk: {type: 'local', dir: '../sdk', path: '/examples/'}}),
             );
 
-            expect(sources.sdk).toMatchObject({root: '/project/sdk/examples', prefix: 'examples'});
+            expect(sources.sdk).toMatchObject({
+                root: resolve('/project/sdk/examples'),
+                prefix: 'examples',
+            });
         });
 
         it('should never be downloaded', () => {
@@ -179,7 +189,7 @@ describe('resolveSources', () => {
             const dir = resolveSources(run({b: {type: 'local', dir: '../{{ v }}'}}, {v: 'sdk'}));
 
             expect(repo.a.repo).toBe('org/sdk');
-            expect(dir.b.root).toBe('/project/sdk');
+            expect(dir.b.root).toBe(resolve('/project/sdk'));
         });
 
         it('should fail on an undefined var instead of emitting a broken ref', () => {
