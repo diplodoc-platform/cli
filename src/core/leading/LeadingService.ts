@@ -103,6 +103,11 @@ export class LeadingService {
             //  TODO: Move to SystemVars feature
             this.run.meta.addSystemVars(path, vars.__system);
             this.run.meta.add(file, meta, true);
+
+            const rootSourcePath = (leading as Hash).sourcePath;
+            if (rootSourcePath) {
+                this.run.meta.add(file, {sourcePath: rootSourcePath});
+            }
             // leading.meta is filled by plugins, so we can safely add it to resources
             this.run.meta.addResources(file, leading.meta);
 

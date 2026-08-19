@@ -22,7 +22,7 @@ export class DefaultVcsConnector implements VcsConnector {
     setData() {}
 
     async getBase() {
-        return '.' as RelativePath;
+        return 'BASE' as RelativePath;
     }
 
     async getContributorsByPath() {
