@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.55.0](https://github.com/diplodoc-platform/cli/compare/v5.54.5...v5.55.0) (2026-08-19)
+
+
+### Features
+
+* **translate:** seed the translation cache from existing translations ([#2206](https://github.com/diplodoc-platform/cli/issues/2206)) ([3bf7c1f](https://github.com/diplodoc-platform/cli/commit/3bf7c1fbd36cec077df6a5d58ed3a40ba53bf9c6))
+* **translate:** support --context-file for AI providers DOCSTOOLS-6493 ([#2205](https://github.com/diplodoc-platform/cli/issues/2205)) ([c8c6e96](https://github.com/diplodoc-platform/cli/commit/c8c6e9647ece38c21071d3a58994f5d0141d9df0))
+* **translate:** support --fallback-model for AI providers ([#2204](https://github.com/diplodoc-platform/cli/issues/2204)) ([50834cc](https://github.com/diplodoc-platform/cli/commit/50834cc73d16de1257dab47e77a60633c743076e))
+* **translate:** support --include-vcs-diff for translating only changed files ([#2189](https://github.com/diplodoc-platform/cli/issues/2189)) ([d280fb4](https://github.com/diplodoc-platform/cli/commit/d280fb41d621fca0b7f567e233df71f4366d85d4))
+
+
+### Bug Fixes
+
+* **llms:** exclude noIndex pages from llms.txt and llms-full.txt ([6740058](https://github.com/diplodoc-platform/cli/commit/6740058de2c8843006cdeae591c148caad8f15cf))
+* **translate:** do not require --auth when the auth header comes via api headers ([#2188](https://github.com/diplodoc-platform/cli/issues/2188)) ([e594a92](https://github.com/diplodoc-platform/cli/commit/e594a9292b7c29ae471d6f02ffe1efad2b3799ea))
+
 ## [5.54.5](https://github.com/diplodoc-platform/cli/compare/v5.54.4...v5.54.5) (2026-08-17)
 
 
