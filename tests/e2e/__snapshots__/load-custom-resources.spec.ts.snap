@@ -336,7 +336,6 @@ exports[`Allow load custom resources > md2md with custom resources 4`] = `
 
 ## Documentation
 
-- [Documentation](index.yaml)
 - [Documentation](page.md): Some test description
 - [Config](project/config.md)
 

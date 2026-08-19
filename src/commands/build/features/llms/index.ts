@@ -63,8 +63,9 @@ type LlmsTocItem = {
  * Runs in `AfterAnyRun`, so it works for both `md` and `html` builds. By that
  * point the toc is already resolved and filtered for the current build
  * (vars/conditions and `removeEmptyTocItems`). Hidden items are filtered here
- * independently of `removeHiddenTocItems`, so hidden pages don't leak into
- * either artifact while remaining available to the regular build. Walking
+ * independently of `removeHiddenTocItems`, and pages marked `noIndex` in their
+ * front matter are dropped as well, so neither leaks into either artifact while
+ * both remain available to the regular build. Walking
  * `run.toc.tocs` mirrors `SinglePage`.
  *
  * `llms-full.txt` is assembled with {@link MarkdownCollector} — the same engine
@@ -131,7 +132,7 @@ export class Llms {
 
     private async generate(run: Run, toc: Toc) {
         const tocDir = dirname(toc.path);
-        const entries = this.collectEntries(toc, tocDir);
+        const entries = await this.excludeNoIndex(run, this.collectEntries(toc, tocDir));
 
         if (!entries.length) {
             return;
@@ -144,6 +145,39 @@ export class Llms {
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
+    }
+
+    /**
+     * Drops pages marked `noIndex` in their front matter.
+     *
+     * `noIndex` means "keep this page out of indexes". An LLM corpus is exactly
+     * such an index, so these pages must not reach `llms.txt` or `llms-full.txt`
+     * — the same reasoning as for `hidden` in {@link collectEntries}; only the
+     * source of the flag differs: `hidden` is a toc property, `noIndex` is page
+     * meta.
+     *
+     * This lives here rather than in `collectEntries` because meta is read
+     * asynchronously. Filtering once for both artifacts also guarantees the index
+     * and the corpus stay consistent with each other.
+     *
+     * A page whose meta cannot be read is kept: an unreadable file must not
+     * silently vanish from the corpus, and the renderers already report such
+     * failures.
+     */
+    private async excludeNoIndex(run: Run, entries: LlmsEntry[]): Promise<LlmsEntry[]> {
+        const noIndexFlags = await Promise.all(
+            entries.map(async (entry) => {
+                try {
+                    const meta = await run.meta.dump(entry.path);
+
+                    return meta?.noIndex === true;
+                } catch {
+                    return false;
+                }
+            }),
+        );
+
+        return entries.filter((_entry, index) => !noIndexFlags[index]);
     }
 
     private collectEntries(toc: LlmsTocItem, tocDir: string): LlmsEntry[] {

@@ -102,6 +102,7 @@ type TestableLlms = {
         onlyMd: boolean,
     ): boolean;
     collectEntries(toc: Toc, tocDir: string): unknown[];
+    excludeNoIndex(run: Run, entries: unknown[]): Promise<unknown[]>;
     renderIndex(run: Run, title: string, entries: unknown[], tocDir: string): Promise<string>;
     renderFull(run: Run, title: string, entries: unknown[]): Promise<string>;
 };
@@ -111,6 +112,60 @@ describe('LLMs Plugin Architecture', () => {
 
     beforeEach(() => {
         llmsInstance = new Llms() as unknown as TestableLlms;
+    });
+
+    // `noIndex` is the front-matter twin of the toc-level `hidden` flag: both mean
+    // "keep this page out of indexes", and an LLM corpus is an index. Filtering
+    // belongs to the build, because the flag is static and identical for every
+    // reader — consumers must be able to trust the generated artifacts as-is.
+    describe('excludeNoIndex', () => {
+        const entry = (path: string) => ({
+            href: normalizedPath(path),
+            path: normalizedPath(path),
+            name: path,
+            parentName: '',
+        });
+
+        const runWithMeta = (metaByPath: Record<string, unknown>) =>
+            ({
+                meta: {
+                    dump: vi.fn(async (path: string) => metaByPath[path] ?? {}),
+                },
+            }) as unknown as Run;
+
+        it('drops pages marked noIndex', async () => {
+            const entries = [entry('public.md'), entry('secret.md')];
+            const run = runWithMeta({'secret.md': {noIndex: true}});
+
+            await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual([
+                entry('public.md'),
+            ]);
+        });
+
+        it('keeps pages without the flag and with noIndex: false', async () => {
+            const entries = [entry('a.md'), entry('b.md')];
+            const run = runWithMeta({'b.md': {noIndex: false}});
+
+            await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual(entries);
+        });
+
+        // Only a real `true` hides a page: a truthy string from malformed front
+        // matter must not silently drop content from the corpus.
+        it('treats a non-boolean noIndex value as not set', async () => {
+            const entries = [entry('a.md')];
+            const run = runWithMeta({'a.md': {noIndex: 'yes'}});
+
+            await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual(entries);
+        });
+
+        it('keeps a page whose meta cannot be read', async () => {
+            const entries = [entry('broken.md')];
+            const run = {
+                meta: {dump: vi.fn().mockRejectedValue(new Error('unreadable'))},
+            } as unknown as Run;
+
+            await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual(entries);
+        });
     });
 
     describe('resolveLlmsEnabled logic', () => {
