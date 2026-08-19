@@ -2,7 +2,7 @@ import type {Config} from '~/core/config';
 import type {BaseConfig} from '~/core/program';
 import type {FileSystem} from './fs';
 
-import {dirname, join, relative} from 'node:path';
+import {dirname, join, relative, resolve} from 'node:path';
 import pmap from 'p-map';
 import {ok} from 'node:assert';
 import {constants as fsConstants} from 'node:fs/promises';
@@ -62,6 +62,24 @@ export class Run<TConfig = BaseConfig> {
                 return message;
             },
         ]);
+    }
+
+    /**
+     * Registers an additional read scope.
+     *
+     * Intended for content that legitimately lives outside the project input
+     * (external code sources and the like). Extending the scope list is the only
+     * supported way to reach such content — `run.read` must stay the single
+     * sandboxed entry point, so features should never fall back to `run.fs`.
+     *
+     * @param {string} alias - scope name, also used to mask paths in logs
+     * @param {AbsolutePath} path - unixlike absolute path to scope root
+     */
+    @bounded addScope(alias: string, path: AbsolutePath) {
+        // Resolved before realpath, which falls back to its argument when the
+        // directory does not exist yet: a scope registered ahead of the content
+        // it guards must still be absolute, or it matches nothing.
+        this.scopes.set(alias, this.realpathSync(resolve(path) as AbsolutePath));
     }
 
     /**
