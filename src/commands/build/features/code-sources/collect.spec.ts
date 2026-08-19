@@ -2,15 +2,18 @@ import type {Run} from '~/commands/build';
 import type {LoaderContext} from '~/core/markdown/loader';
 import type {ResolvedSource} from './sources';
 
+import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
 import {collect} from './collect';
+
+const ROOT = '/src/examples';
 
 const SOURCES: Hash<ResolvedSource> = {
     'go-sdk': {
         name: 'go-sdk',
         type: 'local',
-        root: '/src/examples' as AbsolutePath,
+        root: ROOT as AbsolutePath,
         base: '/src' as AbsolutePath,
         prefix: 'examples',
         host: null,
@@ -34,16 +37,24 @@ const CONNECT = [
     '}',
 ].join('\n');
 
-function harness(files: Hash<string> = {'/src/examples/connect.go': CONNECT}) {
+/** Keys the fake filesystem the way `join` would, so it works on Windows too. */
+function fs(files: Hash<string>): Hash<string> {
+    return Object.fromEntries(
+        Object.entries(files).map(([name, body]) => [join(ROOT, name), body]),
+    );
+}
+
+function harness(files: Hash<string> = {'connect.go': CONNECT}) {
     const errors: string[] = [];
     const warns: string[] = [];
+    const tree = fs(files);
 
     const read = vi.fn(async (path: string) => {
-        if (!(path in files)) {
+        if (!(path in tree)) {
             throw new Error(`ENOENT: no such file or directory, open '${path}'`);
         }
 
-        return files[path];
+        return tree[path];
     });
 
     const run = {read} as unknown as Run;
@@ -102,7 +113,7 @@ describe('collect', () => {
     });
 
     it('should honour a language override', async () => {
-        const {render} = harness({'/src/examples/a.txt': 'SELECT 1;'});
+        const {render} = harness({'a.txt': 'SELECT 1;'});
 
         const result = await render('{% include-code [](go-sdk:a.txt) lang=sql %}');
 
@@ -121,7 +132,7 @@ describe('collect', () => {
     });
 
     it('should widen the fence when the snippet contains backticks', async () => {
-        const {render} = harness({'/src/examples/a.md': 'text ``` more'});
+        const {render} = harness({'a.md': 'text ``` more'});
 
         const result = await render('{% include-code [](go-sdk:a.md) link=false %}');
 
@@ -172,7 +183,7 @@ describe('collect', () => {
             const result = await render('{% include-code [](go-sdk:missing.go) %}');
 
             expect(result).toBe('<!-- include-code failed: go-sdk:missing.go -->');
-            expect(result).not.toContain('/src/examples');
+            expect(result).not.toContain(ROOT);
             // The full reason is still reported, just not published.
             expect(errors[0]).toContain('ENOENT');
         });
