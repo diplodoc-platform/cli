@@ -4,6 +4,7 @@ import type {ConfigDefaults} from './utils/config';
 
 import {ok} from 'assert';
 import {pick} from 'lodash';
+import {escape as escapeGlob} from 'minimatch';
 
 import {
     BaseProgram,
@@ -21,7 +22,7 @@ import {Compose} from './commands/compose';
 import {Seed} from './commands/seed';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {Extension as AITranslation} from './providers/ai';
-import {copyAssets, resolveSource, resolveTargets, resolveVars} from './utils';
+import {copyAssets, resolveSource, resolveTargets, resolveVars, resolveVcsDiffFiles} from './utils';
 import {Run} from './run';
 import {configDefaults} from './utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from './extract-openapi';
@@ -40,6 +41,7 @@ export type TranslateArgs = BaseArgs & {
     target?: string | string[];
     include?: string[];
     exclude?: string[];
+    includeVcsDiff?: string | boolean;
     vars?: Hash;
     copyAssets?: boolean;
 };
@@ -51,6 +53,7 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     target: Locale[];
     include: string[];
     exclude: string[];
+    includeVcsDiff?: string | boolean;
     files: string[];
     skipped: [string, string][];
     vars: Hash;
@@ -79,6 +82,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         options.files,
         options.include,
         options.exclude,
+        options.includeVcsDiff,
         options.vars,
         options.dryRun,
         options.copyAssets,
@@ -105,6 +109,8 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
 
     private run!: Run;
 
+    private vcsDiffFiles?: NormalizedPath[];
+
     apply(program?: BaseProgram) {
         super.apply(program);
 
@@ -119,6 +125,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             const target = resolveTargets(config, args);
             const include = defined('include', args, config) || [];
             const exclude = defined('exclude', args, config) || [];
+            const includeVcsDiff = defined('includeVcsDiff', args, config) || false;
             const files = defined('files', args, config);
             const vars = resolveVars(config, args);
 
@@ -132,6 +139,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 target,
                 include,
                 exclude,
+                includeVcsDiff,
                 vars,
                 provider: defined('provider', args, config),
                 dryRun: defined('dryRun', args, config) || false,
@@ -144,6 +152,18 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
     }
 
     async action() {
+        if (this.config.includeVcsDiff) {
+            const changed = this.getVcsDiffFiles();
+            const {include, files} = this.config;
+
+            if (!changed.length && !include.length && !files?.length) {
+                this.logger.info('No VCS changes found, nothing to translate.');
+                return;
+            }
+
+            this.config.include = include.concat(changed.map((file) => escapeGlob(file)));
+        }
+
         this.run = new Run(this.config);
 
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
@@ -177,5 +197,18 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         this.command.helpOption(true).allowUnknownOption(false);
 
         await this.parse(args(this.command));
+    }
+
+    private getVcsDiffFiles(): NormalizedPath[] {
+        if (!this.vcsDiffFiles) {
+            const ref =
+                typeof this.config.includeVcsDiff === 'string'
+                    ? this.config.includeVcsDiff
+                    : undefined;
+
+            this.vcsDiffFiles = resolveVcsDiffFiles(this.config.input, ref);
+        }
+
+        return this.vcsDiffFiles;
     }
 }
