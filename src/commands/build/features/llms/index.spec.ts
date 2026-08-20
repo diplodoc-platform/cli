@@ -142,6 +142,22 @@ describe('LLMs Plugin Architecture', () => {
             ]);
         });
 
+        // The test docs declare noIndex under the `docs-viewer` namespace:
+        //   ---
+        //   docs-viewer:
+        //     noIndex: true
+        //   ---
+        // The meta dump returns it as `meta['docs-viewer'].noIndex`, not
+        // `meta.noIndex`. excludeNoIndex must check both locations.
+        it('drops pages with noIndex in the docs-viewer namespace', async () => {
+            const entries = [entry('public.md'), entry('secret.md')];
+            const run = runWithMeta({'secret.md': {'docs-viewer': {noIndex: true}}});
+
+            await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual([
+                entry('public.md'),
+            ]);
+        });
+
         it('keeps pages without the flag and with noIndex: false', async () => {
             const entries = [entry('a.md'), entry('b.md')];
             const run = runWithMeta({'b.md': {noIndex: false}});
