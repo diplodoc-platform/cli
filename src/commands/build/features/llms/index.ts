@@ -170,7 +170,13 @@ export class Llms {
                 try {
                     const meta = await run.meta.dump(entry.path);
 
-                    return meta?.noIndex === true;
+                    // `noIndex` can live at the meta root (standard YFM frontmatter)
+                    // or under the `docs-viewer` namespace (viewer-specific config).
+                    // Check both: the test docs use `docs-viewer: { noIndex: true }`.
+                    return (
+                        meta?.noIndex === true ||
+                        (meta?.['docs-viewer'] as {noIndex?: boolean})?.noIndex === true
+                    );
                 } catch {
                     return false;
                 }
