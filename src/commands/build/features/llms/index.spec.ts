@@ -126,16 +126,38 @@ describe('LLMs Plugin Architecture', () => {
             parentName: '',
         });
 
-        const runWithMeta = (metaByPath: Record<string, unknown>) =>
-            ({
-                meta: {
-                    dump: vi.fn(async (path: string) => metaByPath[path] ?? {}),
-                },
-            }) as unknown as Run;
+        // excludeNoIndex reads front matter directly from the source file
+        // (bypassing MetaService) to stay correct when --jobs isolates the
+        // worker thread's MetaService from the main thread.
+        const runWithFrontMatter = (frontMatterByPath: Record<string, unknown>) => {
+            const inputDir = '/input' as AbsolutePath;
+            return {
+                input: inputDir,
+                read: vi.fn(async (path: AbsolutePath) => {
+                    // Cross-platform: normalize backslashes and strip the input prefix.
+                    const normalized = String(path).replace(/\\/g, '/');
+                    const rel = normalized.replace(String(inputDir) + '/', '');
+                    const fm = frontMatterByPath[rel];
+                    if (fm === undefined) {
+                        return 'No front matter here';
+                    }
+                    const yaml = Object.entries(fm as Record<string, unknown>)
+                        .map(([k, v]) =>
+                            typeof v === 'object' && v !== null
+                                ? `${k}:\n  ${Object.entries(v as Record<string, unknown>)
+                                      .map(([k2, v2]) => `${k2}: ${v2}`)
+                                      .join('\n  ')}`
+                                : `${k}: ${v}`,
+                        )
+                        .join('\n');
+                    return `---\n${yaml}\n---\nContent`;
+                }),
+            } as unknown as Run;
+        };
 
         it('drops pages marked noIndex', async () => {
             const entries = [entry('public.md'), entry('secret.md')];
-            const run = runWithMeta({'secret.md': {noIndex: true}});
+            const run = runWithFrontMatter({'secret.md': {noIndex: true}});
 
             await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual([
                 entry('public.md'),
@@ -147,11 +169,10 @@ describe('LLMs Plugin Architecture', () => {
         //   docs-viewer:
         //     noIndex: true
         //   ---
-        // The meta dump returns it as `meta['docs-viewer'].noIndex`, not
-        // `meta.noIndex`. excludeNoIndex must check both locations.
+        // excludeNoIndex must check both `meta.noIndex` and `meta['docs-viewer'].noIndex`.
         it('drops pages with noIndex in the docs-viewer namespace', async () => {
             const entries = [entry('public.md'), entry('secret.md')];
-            const run = runWithMeta({'secret.md': {'docs-viewer': {noIndex: true}}});
+            const run = runWithFrontMatter({'secret.md': {'docs-viewer': {noIndex: true}}});
 
             await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual([
                 entry('public.md'),
@@ -160,7 +181,7 @@ describe('LLMs Plugin Architecture', () => {
 
         it('keeps pages without the flag and with noIndex: false', async () => {
             const entries = [entry('a.md'), entry('b.md')];
-            const run = runWithMeta({'b.md': {noIndex: false}});
+            const run = runWithFrontMatter({'b.md': {noIndex: false}});
 
             await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual(entries);
         });
@@ -169,16 +190,53 @@ describe('LLMs Plugin Architecture', () => {
         // matter must not silently drop content from the corpus.
         it('treats a non-boolean noIndex value as not set', async () => {
             const entries = [entry('a.md')];
-            const run = runWithMeta({'a.md': {noIndex: 'yes'}});
+            const run = runWithFrontMatter({'a.md': {noIndex: 'yes'}});
 
             await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual(entries);
         });
 
-        it('keeps a page whose meta cannot be read', async () => {
+        it('keeps a page whose file cannot be read', async () => {
             const entries = [entry('broken.md')];
             const run = {
-                meta: {dump: vi.fn().mockRejectedValue(new Error('unreadable'))},
+                input: '/input' as AbsolutePath,
+                read: vi.fn().mockRejectedValue(new Error('ENOENT')),
             } as unknown as Run;
+
+            await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual(entries);
+        });
+
+        // `.yaml` leading pages don't have `---` front matter; excludeNoIndex
+        // falls back to `run.meta.dump()` for them.
+        it('uses meta.dump fallback for non-md files', async () => {
+            const entries = [entry('page.yaml')];
+            const run = {
+                input: '/input' as AbsolutePath,
+                read: vi.fn(),
+                meta: {
+                    dump: vi.fn(async () => ({noIndex: true})),
+                },
+            } as unknown as Run;
+
+            await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual([]);
+            expect(run.read).not.toHaveBeenCalled();
+        });
+
+        it('keeps a non-md file without noIndex in meta.dump', async () => {
+            const entries = [entry('page.yaml')];
+            const run = {
+                input: '/input' as AbsolutePath,
+                read: vi.fn(),
+                meta: {
+                    dump: vi.fn(async () => ({})),
+                },
+            } as unknown as Run;
+
+            await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual(entries);
+        });
+
+        it('keeps an md file that has no front matter', async () => {
+            const entries = [entry('plain.md')];
+            const run = runWithFrontMatter({});
 
             await expect(llmsInstance.excludeNoIndex(run, entries)).resolves.toEqual(entries);
         });
