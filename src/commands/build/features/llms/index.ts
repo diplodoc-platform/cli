@@ -3,6 +3,7 @@ import type {Command} from '~/core/config';
 import type {Toc} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
+import {extractFrontMatter} from '@diplodoc/liquid';
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -160,6 +161,13 @@ export class Llms {
      * asynchronously. Filtering once for both artifacts also guarantees the index
      * and the corpus stay consistent with each other.
      *
+     * Front matter is read directly from the source file rather than from
+     * `run.meta.dump()`. When `--jobs` is enabled, `process()` runs in a worker
+     * thread with its own `MetaService` instance; the main thread's `MetaService`
+     * (where `AfterAnyRun` hooks execute) never receives the front matter, so
+     * `run.meta.dump()` returns empty meta and `noIndex` is lost. Reading the
+     * raw file bypasses the thread boundary entirely.
+     *
      * A page whose meta cannot be read is kept: an unreadable file must not
      * silently vanish from the corpus, and the renderers already report such
      * failures.
@@ -168,14 +176,29 @@ export class Llms {
         const noIndexFlags = await Promise.all(
             entries.map(async (entry) => {
                 try {
-                    const meta = await run.meta.dump(entry.path);
+                    // Only `.md` files have YAML front matter delimited by `---`.
+                    // Leading pages (`.yaml`) store their metadata differently, so
+                    // fall back to `run.meta.dump()` for them — leading pages are
+                    // never marked `noIndex` in practice, but the fallback keeps
+                    // the behaviour unchanged for any file type we don't read raw.
+                    if (!entry.path.endsWith('.md')) {
+                        const meta = await run.meta.dump(entry.path);
+                        return (
+                            meta?.noIndex === true ||
+                            (meta?.['docs-viewer'] as {noIndex?: boolean})?.noIndex === true
+                        );
+                    }
+
+                    const source = join(run.input, entry.path);
+                    const raw = await run.read(source as AbsolutePath);
+                    const [frontmatter] = extractFrontMatter(raw);
 
                     // `noIndex` can live at the meta root (standard YFM frontmatter)
                     // or under the `docs-viewer` namespace (viewer-specific config).
                     // Check both: the test docs use `docs-viewer: { noIndex: true }`.
                     return (
-                        meta?.noIndex === true ||
-                        (meta?.['docs-viewer'] as {noIndex?: boolean})?.noIndex === true
+                        frontmatter?.noIndex === true ||
+                        (frontmatter?.['docs-viewer'] as {noIndex?: boolean})?.noIndex === true
                     );
                 } catch {
                     return false;
