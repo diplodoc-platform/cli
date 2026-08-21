@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.55.2](https://github.com/diplodoc-platform/cli/compare/v5.55.1...v5.55.2) (2026-08-21)
+
+
+### Bug Fixes
+
+* **llms:** check noIndex in docs-viewer namespace ([9fa1806](https://github.com/diplodoc-platform/cli/commit/9fa1806a43bd40282de6c226af4e76b04ba10fa7))
+
 ## [5.55.1](https://github.com/diplodoc-platform/cli/compare/v5.55.0...v5.55.1) (2026-08-20)
 
 
