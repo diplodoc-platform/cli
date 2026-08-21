@@ -60,4 +60,31 @@ describe('ArcadiaVcsConnector', () => {
 
         expect(warn).not.toHaveBeenCalled();
     });
+
+    describe('setData()', () => {
+        it('should set arcAvailable to true so getBase() works in worker threads', async () => {
+            const run = {
+                config: {
+                    [configPath]: '/testpath/.yfm',
+                    mtimes: {enabled: true},
+                    authors: {enabled: true},
+                    contributors: {enabled: true},
+                },
+                logger: {warn: vi.fn()},
+            } as unknown as Run<Config>;
+
+            const connector = new ArcadiaVcsConnector(run);
+
+            expect(await connector.getBase()).toBe('.');
+
+            // @ts-ignore
+            connector.arc.getBase = vi.fn().mockResolvedValue('monium/docs' as NormalizedPath);
+
+            connector.setData({mtimes: {}, authors: {}, contributors: {}});
+
+            expect(await connector.getBase()).toBe('monium/docs');
+            // @ts-ignore
+            expect(connector.arc.getBase).toHaveBeenCalledTimes(1);
+        });
+    });
 });

@@ -21,10 +21,10 @@ export class ArcClient {
         this.root = root;
     }
 
-    @memoize()
     async getBase() {
         const root = await this.run('root');
-        return normalizePath(relative(root, this.root)) || ('.' as NormalizedPath);
+        console.log("ARC CLIENT:", root);
+        return "TEST";
     }
 
     async getContributors() {

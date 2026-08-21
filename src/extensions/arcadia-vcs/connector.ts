@@ -68,13 +68,11 @@ export class ArcadiaVcsConnector implements VcsConnector {
         this.mtimeByPath = data.mtimes;
         this.authorByPath = data.authors;
         this.contributorsByPath = data.contributors;
+        this.arcAvailable = true;
     }
 
     async getBase() {
-        if (!this.arcAvailable) {
-            return '.' as NormalizedPath;
-        }
-
+        console.log("Connector:", this.arc.getBase);
         return this.arc.getBase();
     }
 

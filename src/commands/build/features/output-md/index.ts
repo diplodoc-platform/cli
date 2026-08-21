@@ -160,7 +160,17 @@ export class OutputMd {
                 );
 
                 getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', async (vfile) => {
-                    vfile.data.meta = getPublicMeta(await run.meta.dump(vfile.path));
+                    const meta = getPublicMeta(await run.meta.dump(vfile.path));
+                    const {vcsPath, sourcePath, ...rest} = meta as Hash;
+
+                    if (vcsPath !== undefined) {
+                        (vfile.data as Hash).vcsPath = vcsPath;
+                    }
+                    if (sourcePath !== undefined) {
+                        (vfile.data as Hash).sourcePath = sourcePath;
+                    }
+
+                    vfile.data.meta = rest as typeof meta;
                 });
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
