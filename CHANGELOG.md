@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.55.3](https://github.com/diplodoc-platform/cli/compare/v5.55.2...v5.55.3) (2026-08-24)
+
+
+### Bug Fixes
+
+* **llms:** read noIndex from source file instead of MetaService ([2819fa2](https://github.com/diplodoc-platform/cli/commit/2819fa276c7eda683ac73eed8fa76e2e3d1886ee))
+
 ## [5.55.2](https://github.com/diplodoc-platform/cli/compare/v5.55.1...v5.55.2) (2026-08-21)
 
 
