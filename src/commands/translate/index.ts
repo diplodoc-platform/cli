@@ -3,6 +3,7 @@ import type {Locale} from './utils';
 import type {ConfigDefaults} from './utils/config';
 
 import {ok} from 'assert';
+import {resolve} from 'node:path';
 import {pick} from 'lodash';
 import {escape as escapeGlob} from 'minimatch';
 
@@ -14,6 +15,7 @@ import {
 } from '~/core/program';
 import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+import {own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {DESCRIPTION, NAME, options} from './config';
@@ -28,6 +30,15 @@ import {configDefaults} from './utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from './extract-openapi';
 
 export {getHooks};
+export {TRANSLATE_REPORT_SCHEMA_VERSION} from './report';
+export type {
+    TranslateRunReport,
+    TranslateReportStatus,
+    TranslateReportCounters,
+    TranslateReportTarget,
+    TranslateReportJudge,
+    TranslateReportError,
+} from './report';
 
 export interface IProvider {
     skip(files: [string, string][], config: TranslateConfig): Promise<void>;
@@ -44,6 +55,7 @@ export type TranslateArgs = BaseArgs & {
     includeVcsDiff?: string | boolean;
     vars?: Hash;
     copyAssets?: boolean;
+    report?: string;
 };
 
 export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
@@ -60,6 +72,8 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     dryRun: boolean;
     copyAssets: boolean;
     timeout: number;
+    /** Absolute path of the JSON run report. Not written when unset. */
+    report?: AbsolutePath;
 } & ConfigDefaults;
 
 @withHooks
@@ -87,6 +101,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         options.dryRun,
         options.copyAssets,
         options.timeout,
+        options.report,
         options.config(YFM_CONFIG_FILENAME),
     ];
 
@@ -129,6 +144,16 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             const files = defined('files', args, config);
             const vars = resolveVars(config, args);
 
+            // CLI report paths are resolved from cwd, config values from the config dir.
+            let report: AbsolutePath | undefined;
+            if (own<string, 'report'>(args, 'report')) {
+                report = resolve(args.report) as AbsolutePath;
+            } else if (own<string, 'report'>(config, 'report')) {
+                report = config.resolve
+                    ? config.resolve(config.report)
+                    : (resolve(config.report) as AbsolutePath);
+            }
+
             return Object.assign(config, {
                 input,
                 output: output || input,
@@ -144,6 +169,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 provider: defined('provider', args, config),
                 dryRun: defined('dryRun', args, config) || false,
                 copyAssets: defined('copyAssets', args, config) || false,
+                report,
                 // No global default here: each provider applies its own
                 // (5s for yandex, 60s for LLM providers).
                 timeout: defined('timeout', args, config) as number,

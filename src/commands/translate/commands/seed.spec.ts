@@ -10,6 +10,7 @@ import {describe, expect, it, vi} from 'vitest';
 
 import {makeStore, makeTranslator} from '../providers/ai/provider';
 import {SeedStore, seedFilePath} from '../providers/ai/utils';
+import {createTargetStat} from '../report';
 import {loadTranslationUnits} from '../utils';
 
 import {seedTranslations} from './seed';
@@ -149,15 +150,7 @@ describe('translate seed', () => {
             const store = makeStore(client, config, 'ru', 'en');
             store?.load();
 
-            const stat = {
-                inputTokens: 0,
-                outputTokens: 0,
-                requests: 0,
-                bytes: 0,
-                cached: 0,
-                untranslated: 0,
-                fallbackRequests: 0,
-            };
+            const stat = createTargetStat();
             const translate = makeTranslator({
                 client,
                 config,

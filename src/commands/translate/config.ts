@@ -143,6 +143,21 @@ const copyAssets = option({
     `,
 });
 
+const report = option({
+    flags: '--report <path>',
+    desc: `
+        Write a machine-readable JSON report of the translation run to the
+        given path: timings, volume (files, units, characters, tokens),
+        cache and fallback usage, judge scores and errors.
+
+        The report schema is versioned (see the schemaVersion field).
+        Disabled by default. A short run summary is always logged.
+
+        Example:
+          {{PROGRAM}} --report ./translate-report.json
+    `,
+});
+
 const useSource = option({
     flags: '--use-source',
     desc: `
@@ -205,6 +220,7 @@ export const options = {
     dryRun,
     copyAssets,
     timeout,
+    report,
     useSource,
     schema,
     filter,

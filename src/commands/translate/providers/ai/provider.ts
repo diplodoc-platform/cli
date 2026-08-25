@@ -3,6 +3,7 @@ import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {CompletionResult, LLMClient} from './clients/types';
 import type {JudgePair} from './judge';
+import type {TargetStat, TranslateReportJudge} from '../../report';
 
 import {writeFile} from 'node:fs/promises';
 import {extname, join, resolve} from 'node:path';
@@ -13,6 +14,7 @@ import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
 import {TranslateError, compose, languageRepath, loadTranslationUnits} from '../../utils';
 import {TranslateLogger} from '../../logger';
+import {RunReport, createTargetStat, scoreDistribution} from '../../report';
 
 import {
     Defer,
@@ -43,6 +45,10 @@ export class Provider {
 
     private readonly clientFactory: ClientFactory;
 
+    private report?: RunReport;
+
+    private skippedFiles = 0;
+
     constructor(clientFactory: ClientFactory, config: TranslateConfig) {
         this.clientFactory = clientFactory;
         this.logger = new TranslateLogger(config);
@@ -53,6 +59,7 @@ export class Provider {
     }
 
     async skip(skipped: [string, string][]) {
+        this.skippedFiles = skipped.length;
         this.logger.skipped(skipped);
     }
 
@@ -63,20 +70,24 @@ export class Provider {
             : undefined;
         const {input, output, source, target: targets, vars, dryRun, maxConcurrency} = config;
 
+        this.report = new RunReport({
+            provider: config.provider,
+            model: config.model,
+            fallbackModel: config.fallbackModel,
+            dryRun,
+            sourceLanguage: source.language,
+            targetLanguages: targets.map((target) => target.language),
+            path: config.report,
+        });
+        this.report.setFiles(files.length, this.skippedFiles);
+
         try {
             for (const target of targets) {
                 const cache = new Map<string, Defer>();
-                const stat = {
-                    inputTokens: 0,
-                    outputTokens: 0,
-                    requests: 0,
-                    bytes: 0,
-                    cached: 0,
-                    untranslated: 0,
-                    fallbackRequests: 0,
-                };
+                const stat = createTargetStat();
                 const store = makeStore(client, config, source.language, target.language);
 
+                stat.cacheEnabled = Boolean(store);
                 store?.load();
 
                 const translate = makeTranslator({
@@ -104,7 +115,15 @@ export class Provider {
                     onTranslated: collect,
                 });
 
-                await this.processFiles({files, maxConcurrency, dryRun, store, processFile});
+                await this.processFiles({
+                    files,
+                    maxConcurrency,
+                    dryRun,
+                    store,
+                    processFile,
+                    stat,
+                    target: target.language,
+                });
 
                 store?.flush();
 
@@ -115,10 +134,14 @@ export class Provider {
                         (fallbackClient ? ` fallback-requests: ${stat.fallbackRequests}` : ''),
                 );
 
-                if (pairs.length) {
-                    await this.judge(pairs, config, source.language, target.language);
-                }
+                const judge = pairs.length
+                    ? await this.judge(pairs, config, source.language, target.language)
+                    : undefined;
+
+                this.report.addTarget(target.language, stat, judge);
             }
+
+            this.finishReport();
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof TranslateError) {
@@ -126,8 +149,33 @@ export class Provider {
             } else {
                 this.logger.error(error);
             }
+            this.report.addError({
+                code: error instanceof TranslateError ? error.code : 'UNKNOWN',
+                message: String(error?.message || error),
+            });
+            this.finishReport('failed');
             process.exit(1);
         }
+    }
+
+    /**
+     * Finalizes the run report, writes it when --report is configured and
+     * always logs the one-line run summary. Report IO failures must not
+     * fail the translation run.
+     */
+    private finishReport(status?: 'failed') {
+        if (!this.report) {
+            return;
+        }
+
+        this.report.finalize(status);
+        try {
+            this.report.write();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            this.logger.warn('report', `Unable to write the run report: ${error.message}`);
+        }
+        this.logger.stat(this.report.summary());
     }
 
     /**
@@ -142,8 +190,10 @@ export class Provider {
         dryRun: boolean;
         store?: TranslationStore;
         processFile: (file: string) => Promise<void>;
+        stat: TargetStat;
+        target: string;
     }) {
-        const {files, maxConcurrency, dryRun, store, processFile} = params;
+        const {files, maxConcurrency, dryRun, store, processFile, stat, target} = params;
         const failed: string[] = [];
 
         const run = async (file: string, finalPass: boolean) => {
@@ -152,6 +202,7 @@ export class Provider {
                 await processFile(file);
                 // Flush after every file to keep progress on crashes.
                 store?.flush();
+                stat.filesTranslated++;
                 if (!dryRun) {
                     this.logger.translated(file);
                 }
@@ -162,13 +213,14 @@ export class Provider {
                 // queue the file for one final sweep.
                 if (!finalPass && error?.retryable === true) {
                     failed.push(file);
+                    stat.filesRetried++;
                     this.logger.warn(
                         file,
                         `${error.message}; the file will be retried after the main pass.`,
                     );
                     return;
                 }
-                this.reportFileError(file, error);
+                this.reportFileError(file, error, stat, target);
             }
         };
 
@@ -191,10 +243,19 @@ export class Provider {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private reportFileError(file: string, error: any) {
+    private reportFileError(file: string, error: any, stat: TargetStat, target: string) {
+        stat.filesFailed++;
+        this.report?.addError({
+            target,
+            path: file,
+            code: error instanceof TranslateError ? error.code : 'UNKNOWN',
+            message: String(error?.message || error),
+        });
+
         if (error instanceof TranslateError) {
             this.logger.error(file, `${error.message}`, error.code);
             if (error.fatal) {
+                this.finishReport('failed');
                 onFatalError();
             }
         } else {
@@ -212,7 +273,7 @@ export class Provider {
         config: AITranslationConfig,
         sourceLanguage: string,
         targetLanguage: string,
-    ) {
+    ): Promise<TranslateReportJudge> {
         const client = this.clientFactory(
             config.judgeModel ? {...config, model: config.judgeModel} : config,
         );
@@ -276,6 +337,16 @@ export class Provider {
                 (skippedPairs ? `, ${skippedPairs} pair(s) unscored` : '') +
                 ` (${report})`,
         );
+
+        return {
+            model: config.judgeModel || config.model,
+            threshold,
+            scored: verdicts.length,
+            averageScore: average,
+            belowThreshold: low.length,
+            unscored: skippedPairs,
+            distribution: scoreDistribution(verdicts.map((verdict) => verdict.score)),
+        };
     }
 }
 
@@ -420,15 +491,7 @@ type TranslatorParams = {
     targetLanguage: string;
     cache: Map<string, Defer>;
     store?: TranslationStore;
-    stat: {
-        inputTokens: number;
-        outputTokens: number;
-        requests: number;
-        bytes: number;
-        cached: number;
-        untranslated: number;
-        fallbackRequests: number;
-    };
+    stat: TargetStat;
     logger: TranslateLogger;
 };
 
@@ -653,15 +716,30 @@ export function makeTranslator(params: TranslatorParams): Translate {
             const inputTokens = messages.reduce((sum, m) => sum + estimateTokens(m.content), 0);
             stat.inputTokens += inputTokens;
             stat.outputTokens += fragments.reduce((sum, f) => sum + estimateTokens(f), 0);
+            // Dry-run tokens are estimates, but they are the point of the
+            // mode (quota planning) - surface them in the report too.
+            stat.usageSeen = true;
             stat.requests++;
             stat.bytes += bytes(fragments);
             return fragments;
         }
 
+        // Every attempt after the first one is a retry, on success and on
+        // final failure alike - count them where the requests happen.
+        const counted = <T>(action: () => Promise<T>) => {
+            let attempts = 0;
+            return () => {
+                if (attempts++) {
+                    stat.retries++;
+                }
+                return action();
+            };
+        };
+
         let result: CompletionResult;
         try {
             result = await backoff(
-                () => client.complete(messages, {temperature, maxTokens: maxOutputTokens}),
+                counted(() => client.complete(messages, {temperature, maxTokens: maxOutputTokens})),
                 retry,
                 {rateLimitRetries: rateLimitRetry, gate},
             );
@@ -677,7 +755,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 `Primary model failed (${error.message}); retrying with the fallback model.`,
             );
             result = await backoff(
-                () => fallbackClient.complete(messages, {temperature, maxTokens: maxOutputTokens}),
+                counted(() =>
+                    fallbackClient.complete(messages, {temperature, maxTokens: maxOutputTokens}),
+                ),
                 retry,
                 {rateLimitRetries: rateLimitRetry, gate: fallbackGate},
             );
@@ -687,6 +767,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         stat.requests++;
         stat.bytes += bytes(fragments);
         if (result.usage) {
+            stat.usageSeen = true;
             stat.inputTokens += result.usage.inputTokens;
             stat.outputTokens += result.usage.outputTokens;
         }
@@ -773,6 +854,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
                                 cache.get(batch[i])?.resolve(text);
                                 return;
                             }
+                            stat.translatedUnits++;
+                            stat.translatedChars += text.length;
                             cache.get(batch[i])?.resolve(text);
                             if (!dryRun) {
                                 store?.set(batch[i], text);
@@ -799,11 +882,15 @@ export function makeTranslator(params: TranslatorParams): Translate {
         for (const text of texts) {
             const tokens = estimateTokens(text);
 
+            stat.unitsTotal++;
+            stat.sourceChars += text.length;
+
             if (tokens > maxBatchTokens) {
                 logger.warn(
                     path,
                     `Skip document part for translation. Part is too big (~${tokens} tokens > ${maxBatchTokens}).`,
                 );
+                stat.oversized++;
                 promises.push(Promise.resolve(text));
                 continue;
             }
@@ -824,6 +911,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     promises.push(Promise.resolve(normalized));
                     continue;
                 }
+            }
+
+            if (store) {
+                stat.cacheMisses++;
             }
 
             const cached = cache.get(text);
