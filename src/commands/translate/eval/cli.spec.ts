@@ -13,6 +13,7 @@ import {
     parseArgs,
     readJudgeSummary,
     realProviderArgs,
+    stripLangPrefix,
 } from './cli';
 
 function write(root: string, path: string, content: string) {
@@ -59,6 +60,13 @@ describe('translate eval cli', () => {
         it('should reject unknown options and missing values', () => {
             expect(() => parseArgs(['--bogus'])).toThrow(/Unknown option/);
             expect(() => parseArgs(['--model'])).toThrow(/requires a value/);
+        });
+    });
+
+    describe('stripLangPrefix', () => {
+        it('should drop the language directory with either separator', () => {
+            expect(stripLangPrefix('ru/syntax/code.md')).toBe('syntax/code.md');
+            expect(stripLangPrefix('ru\\syntax\\code.md')).toBe('syntax/code.md');
         });
     });
 

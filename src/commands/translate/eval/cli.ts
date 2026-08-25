@@ -373,6 +373,14 @@ export function evaluatePages(params: EvaluatePagesParams): PageResult[] {
     });
 }
 
+/**
+ * Drops the language directory from a capture file path. Paths inside
+ * prompts follow the OS convention, so both separators are handled.
+ */
+export function stripLangPrefix(file: string): string {
+    return file.split(/[\\/]/).slice(1).join('/');
+}
+
 type MockSetup = {
     model: string;
     args: string[];
@@ -417,9 +425,7 @@ async function setupMockProvider(params: {
         ),
     );
 
-    const memory = buildTranslationMemory(sourceUnits, referenceUnits, (file) =>
-        file.split('/').slice(1).join('/'),
-    );
+    const memory = buildTranslationMemory(sourceUnits, referenceUnits, stripLangPrefix);
 
     console.log(`Translation memory: ${memory.size} unit pairs`);
     for (const mismatch of memory.mismatched) {
@@ -464,7 +470,9 @@ export function readJudgeSummary(
     const lowByPage = new Map<string, number>();
 
     for (const segment of quality.segments || []) {
-        lowByPage.set(segment.path, (lowByPage.get(segment.path) || 0) + 1);
+        // Judge paths follow the OS convention; normalize for lookups.
+        const path = segment.path.replace(/\\/g, '/');
+        lowByPage.set(path, (lowByPage.get(path) || 0) + 1);
     }
 
     return {
