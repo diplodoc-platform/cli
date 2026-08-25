@@ -14,7 +14,7 @@ vi.mock('../utils', async (importOriginal) => {
     return {
         ...original,
         loadTranslationUnits: vi.fn(async (params: {inputPath: string}) => {
-            if (String(params.inputPath).includes('broken')) {
+            if (params.inputPath.includes('broken')) {
                 throw new Error('Unable to extract valid tokens for text segment.');
             }
             return original.loadTranslationUnits(
