@@ -1,6 +1,12 @@
 import {describe, expect, it} from 'vitest';
 
-import {compareMarkup, extractLinkTargets, markupSignature, normalizeLiquidTag} from './markup';
+import {
+    compareMarkup,
+    extractLinkTargets,
+    markupSignature,
+    normalizeLiquidTag,
+    visibleText,
+} from './markup';
 
 describe('translate eval markup checks', () => {
     describe('normalizeLiquidTag', () => {
@@ -48,7 +54,7 @@ describe('translate eval markup checks', () => {
             expect(signature.links).toEqual(['../a.md']);
             expect(signature.headings).toEqual(['1:#anchor']);
             expect(signature.variables).toEqual(['{{version}}']);
-            expect(signature.tables.pipeRows).toBe(3);
+            expect(signature.tables.pipeRows).toEqual([3, 3, 3]);
         });
 
         it('should not treat not_var constructs as variables', () => {
@@ -101,7 +107,18 @@ describe('translate eval markup checks', () => {
             const source = '| a |\n| - |\n| 1 |';
             const violations = compareMarkup(source, '| a |\n| - |');
 
-            expect(violations).toEqual([{type: 'tables', detail: expect.stringContaining('rows')}]);
+            expect(violations).toEqual([
+                {type: 'tables', detail: expect.stringContaining('table row pipes')},
+            ]);
+        });
+
+        it('should report a changed column count', () => {
+            const source = '| a | b |\n| - | - |\n| 1 | 2 |';
+            const merged = '| a | b |\n| - | - |\n| 1 2 |';
+
+            expect(compareMarkup(source, merged)).toEqual([
+                {type: 'tables', detail: expect.stringContaining('#3')},
+            ]);
         });
 
         it('should report a changed fence count and info', () => {
@@ -113,6 +130,30 @@ describe('translate eval markup checks', () => {
             expect(compareMarkup(source, '```sh\necho 1\n```')).toEqual([
                 {type: 'fence-info', detail: expect.stringContaining('bash')},
             ]);
+        });
+    });
+
+    describe('visibleText', () => {
+        it('should keep link text but drop destinations', () => {
+            expect(visibleText('See the [documentation](./links.md).')).toBe(
+                'See the [documentation].',
+            );
+        });
+
+        it('should drop fences, inline code and liquid directives', () => {
+            const page = [
+                'Читайте про `код` и {% include [метка](../x.md) %} тут.',
+                '```',
+                'fenced',
+                '```',
+            ].join('\n');
+
+            const visible = visibleText(page);
+
+            expect(visible).not.toContain('код');
+            expect(visible).not.toContain('x.md');
+            expect(visible).not.toContain('fenced');
+            expect(visible).toContain('Читайте про');
         });
     });
 

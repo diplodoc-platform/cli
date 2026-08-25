@@ -1,6 +1,6 @@
 import type {GlossaryPair, GlossaryViolation} from './types';
 
-import {scanPage} from './markdown';
+import {visibleText} from './markup';
 
 /**
  * Matching prefix for a term: the explicit `sourceStem` from the
@@ -42,10 +42,11 @@ export function checkGlossary(
 ): GlossaryViolation[] {
     const violations: GlossaryViolation[] = [];
 
-    const sourceText = scanPage(source)
-        .prose.map((line) => line.text)
-        .join('\n');
-    const translatedText = translated.toLowerCase();
+    // Both sides are reduced to reader-visible text: a term hiding in
+    // markup internals (a `./links.md` destination, inline code) must
+    // neither count as usage nor satisfy the required translation.
+    const sourceText = visibleText(source);
+    const translatedText = visibleText(translated).toLowerCase();
 
     for (const pair of pairs) {
         const occurrences = countStemOccurrences(sourceText, termStem(pair));

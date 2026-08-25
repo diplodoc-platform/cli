@@ -78,6 +78,22 @@ describe('translate eval report', () => {
         expect(result.failures).toEqual(['judge average score 42 is below 70']);
     });
 
+    it('should fail on unscored judge pairs', () => {
+        const result = report([page()], {
+            judge: {
+                model: 'eval-mock',
+                threshold: 70,
+                scored: 8,
+                averageScore: 95,
+                low: 0,
+                skippedPairs: 2,
+            },
+        });
+
+        expect(result.passed).toBe(false);
+        expect(result.failures).toEqual(['judge left 2 pair(s) unscored']);
+    });
+
     it('should gate similarity only when the threshold is set', () => {
         const low = page({similarity: 0.4});
 

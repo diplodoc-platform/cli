@@ -19,8 +19,8 @@ export type MarkupSignature = {
     headings: string[];
     /** Liquid variable references, sorted, e.g. `{{user}}`. */
     variables: string[];
-    /** Markdown pipe-table row count and YFM grid-table marker count. */
-    tables: {pipeRows: number; gridMarkers: number};
+    /** Pipe count of every markdown table row and YFM grid-table marker count. */
+    tables: {pipeRows: number[]; gridMarkers: number};
 };
 
 const LIQUID_TAG = /{%(.*?)%}/g;
@@ -156,14 +156,16 @@ function headingSignature(line: string): string | null {
     return `${level}:${anchor ? '#' + anchor[1] : ''}`;
 }
 
-function collectTables(prose: ProseLine[]): {pipeRows: number; gridMarkers: number} {
-    let pipeRows = 0;
+function collectTables(prose: ProseLine[]): {pipeRows: number[]; gridMarkers: number} {
+    const pipeRows: number[] = [];
     let gridMarkers = 0;
 
     for (const {text} of prose) {
         const trimmed = text.trim();
         if (trimmed.startsWith('|') && trimmed.length > 1) {
-            pipeRows++;
+            // The pipe count of a row fixes its column count: a merged
+            // or split cell changes it even when the row count stays.
+            pipeRows.push(countInline(trimmed, '|'));
         }
         if (trimmed.startsWith('#|') || trimmed === '|#' || trimmed.endsWith('|#')) {
             gridMarkers++;
@@ -306,12 +308,13 @@ export function compareMarkup(source: string, translated: string): MarkupViolati
     compareSequences('headings', 'headings', before.headings, after.headings, violations);
     compareSequences('variables', 'variables', before.variables, after.variables, violations);
 
-    if (before.tables.pipeRows !== after.tables.pipeRows) {
-        violations.push({
-            type: 'tables',
-            detail: `table rows: ${before.tables.pipeRows} in source vs ${after.tables.pipeRows} in translation`,
-        });
-    }
+    compareSequences(
+        'tables',
+        'table row pipes',
+        before.tables.pipeRows.map(String),
+        after.tables.pipeRows.map(String),
+        violations,
+    );
     if (before.tables.gridMarkers !== after.tables.gridMarkers) {
         violations.push({
             type: 'tables',
@@ -320,4 +323,32 @@ export function compareMarkup(source: string, translated: string): MarkupViolati
     }
 
     return violations;
+}
+
+/**
+ * Reduces a page to the text a reader actually sees: no code fences,
+ * no inline code, no liquid directives and no link destinations (link
+ * text is kept). Used by checks that must not match markup internals,
+ * e.g. a glossary term hiding inside `./links.md`.
+ */
+export function visibleText(content: string): string {
+    const prose = scanPage(content)
+        .prose.map((line) => line.text)
+        .join('\n');
+
+    const bare = stripInlineCode(prose).replace(LIQUID_TAG, ' ');
+
+    let result = '';
+    let cursor = 0;
+    for (const match of bare.matchAll(/\]\(/g)) {
+        const start = match.index + match[0].length;
+        const end = findDestinationEnd(bare, start);
+        if (end === -1) {
+            continue;
+        }
+        result += bare.slice(cursor, match.index + 1);
+        cursor = end + 1;
+    }
+
+    return result + bare.slice(cursor);
 }

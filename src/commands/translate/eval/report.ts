@@ -63,11 +63,16 @@ export function buildReport(params: BuildReportParams): EvalReport {
         );
     }
 
-    if (judge && thresholds.minJudgeScore > 0 && judge.scored > 0) {
-        if (judge.averageScore < thresholds.minJudgeScore) {
+    if (judge && thresholds.minJudgeScore > 0) {
+        if (judge.scored > 0 && judge.averageScore < thresholds.minJudgeScore) {
             failures.push(
                 `judge average score ${judge.averageScore} is below ${thresholds.minJudgeScore}`,
             );
+        }
+        // Unscored pairs silently weaken the average, so they fail the
+        // gate instead of hiding behind it.
+        if (judge.skippedPairs > 0) {
+            failures.push(`judge left ${judge.skippedPairs} pair(s) unscored`);
         }
     }
 
