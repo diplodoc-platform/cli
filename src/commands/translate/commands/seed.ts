@@ -24,6 +24,7 @@ import {options as aiOptions} from '../providers/ai/config';
 import {untranslatedMarker} from '../providers/ai/provider';
 import {Run} from '../run';
 import {configDefaults, resolveSource, resolveTargets, resolveVars} from '../utils/config';
+import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
 
 import {getHooks, withHooks} from './hooks';
 
@@ -45,6 +46,8 @@ export type SeedStats = {
     skippedUnits: number;
     missingTargets: string[];
     mismatched: string[];
+    /** Files whose source or target failed to load or extract. */
+    failed: [string, string][];
 };
 
 /**
@@ -74,6 +77,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         skippedUnits: 0,
         missingTargets: [],
         mismatched: [],
+        failed: [],
     };
 
     await eachLimit(
@@ -88,46 +92,58 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
                 return;
             }
 
-            const source = await loadTranslationUnits({
-                inputPath,
-                path: file,
-                sourceLanguage,
-                targetLanguage,
-                vars,
-            });
-
-            if (!source.units.length) {
-                return;
+            try {
+                await seedFile(file, inputPath, targetPath);
+            } catch (error) {
+                // One broken file (unparseable target markup, bad
+                // frontmatter, ...) must not kill the whole seeding run:
+                // the file is reported and falls back to a full
+                // retranslation, exactly like a unit-count mismatch.
+                stats.failed.push([file, String(error)]);
             }
-
-            const target = await loadTranslationUnits({
-                inputPath: targetPath,
-                path: relative(inputRoot, targetPath),
-                sourceLanguage: targetLanguage,
-                targetLanguage: sourceLanguage,
-                vars,
-            });
-
-            const result = collectSeedPairs(source.units, target.units, marker);
-
-            if (result.status === 'mismatch') {
-                stats.mismatched.push(file);
-                return;
-            }
-
-            for (const [sourceUnit, targetUnit] of result.pairs) {
-                seeds.set(sourceUnit, targetUnit);
-            }
-
-            stats.seededFiles++;
-            stats.seededUnits += result.pairs.length;
-            stats.skippedUnits += result.skipped;
         }),
     );
 
     seeds.flush();
 
     return stats;
+
+    async function seedFile(file: string, inputPath: AbsolutePath, targetPath: AbsolutePath) {
+        const source = await loadTranslationUnits({
+            inputPath,
+            path: file,
+            sourceLanguage,
+            targetLanguage,
+            vars,
+        });
+
+        if (!source.units.length) {
+            return;
+        }
+
+        const target = await loadTranslationUnits({
+            inputPath: targetPath,
+            path: relative(inputRoot, targetPath),
+            sourceLanguage: targetLanguage,
+            targetLanguage: sourceLanguage,
+            vars,
+        });
+
+        const result = collectSeedPairs(source.units, target.units, marker);
+
+        if (result.status === 'mismatch') {
+            stats.mismatched.push(file);
+            return;
+        }
+
+        for (const [sourceUnit, targetUnit] of result.pairs) {
+            seeds.set(sourceUnit, targetUnit);
+        }
+
+        stats.seededFiles++;
+        stats.seededUnits += result.pairs.length;
+        stats.skippedUnits += result.skipped;
+    }
 }
 
 export type SeedArgs = BaseArgs & {
@@ -173,6 +189,11 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
         options.config(YFM_CONFIG_FILENAME),
         aiOptions.cacheDir,
     ];
+
+    // Toc processing must not choke on openapi includer declarations:
+    // the stub is applied per-subcommand (hooks are not inherited from
+    // the parent Translate program), same as in Extract.
+    readonly modules = [new ExtractOpenapiIncluderFakeExtension()];
 
     readonly logger = new TranslateLogger();
 
@@ -244,12 +265,17 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 );
             }
 
+            for (const [file, error] of stats.failed) {
+                this.logger.warn(file, `Failed to seed the file: ${error}`);
+            }
+
             this.logger.stat(
                 `${source.language}-${target.language} ` +
                     `seeded-files: ${stats.seededFiles} seeded-units: ${stats.seededUnits} ` +
                     `skipped-units: ${stats.skippedUnits} ` +
                     `missing-targets: ${stats.missingTargets.length} ` +
-                    `mismatched: ${stats.mismatched.length}`,
+                    `mismatched: ${stats.mismatched.length} ` +
+                    `failed: ${stats.failed.length}`,
             );
         }
     }
