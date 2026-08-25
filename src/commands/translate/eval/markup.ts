@@ -74,53 +74,66 @@ export function normalizeLiquidTag(tag: string): string | null {
 }
 
 /**
+ * Finds the end of a link destination started at `start`: the first
+ * unbalanced closing parenthesis on the same line, tolerating one
+ * level of nesting. Returns -1 for an unterminated destination.
+ */
+function findDestinationEnd(text: string, start: number): number {
+    let depth = 0;
+
+    for (let index = start; index < text.length; index++) {
+        const char = text[index];
+        if (char === '\n') {
+            return -1;
+        }
+        if (char === '(') {
+            depth++;
+        } else if (char === ')') {
+            if (depth === 0) {
+                return index;
+            }
+            depth--;
+        }
+    }
+
+    return -1;
+}
+
+/**
+ * Normalizes a raw destination: unwraps angle brackets (`](<target>)`
+ * denotes the same target, and the translate round-trip legitimately
+ * normalizes the brackets away) and drops an optional title.
+ */
+function cleanDestination(raw: string): string {
+    let target = raw.trim();
+
+    if (target.startsWith('<') && target.endsWith('>')) {
+        target = target.slice(1, -1);
+    }
+
+    const space = target.search(/\s/);
+    return space === -1 ? target : target.slice(0, space);
+}
+
+/**
  * Extracts link and image destinations, in order.
  *
  * Destinations are scanned by hand: `](target)` with one level of
  * nested parentheses, which regular expressions cannot do in linear
- * time. An angle-bracket destination (`](<target>)`) is unwrapped:
- * both forms denote the same target, and the translate round-trip
- * legitimately normalizes the brackets away.
+ * time.
  */
 export function extractLinkTargets(text: string): string[] {
     const targets: string[] = [];
 
     for (const match of text.matchAll(/\]\(/g)) {
         const start = match.index + match[0].length;
-        let depth = 0;
-        let end = -1;
-
-        for (let index = start; index < text.length; index++) {
-            const char = text[index];
-            if (char === '\n') {
-                break;
-            }
-            if (char === '(') {
-                depth++;
-            } else if (char === ')') {
-                if (depth === 0) {
-                    end = index;
-                    break;
-                }
-                depth--;
-            }
-        }
+        const end = findDestinationEnd(text, start);
 
         if (end === -1) {
             continue;
         }
 
-        let target = text.slice(start, end).trim();
-        if (target.startsWith('<') && target.endsWith('>')) {
-            target = target.slice(1, -1);
-        }
-
-        // Drop an optional title: `url "title"` / `url 'title'`.
-        const space = target.search(/\s/);
-        if (space !== -1) {
-            target = target.slice(0, space);
-        }
-
+        const target = cleanDestination(text.slice(start, end));
         if (target) {
             targets.push(target);
         }

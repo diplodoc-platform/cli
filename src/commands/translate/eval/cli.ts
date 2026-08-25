@@ -158,13 +158,14 @@ function run(
  * capture prompt strips everything but the file context and the
  * fragments, so units are recovered verbatim.
  */
-async function captureUnits(
-    cli: string,
-    corpus: string,
-    workdir: string,
-    source: string,
-    target: string,
-): Promise<Map<string, string[]>> {
+async function captureUnits(params: {
+    cli: string;
+    corpus: string;
+    workdir: string;
+    source: string;
+    target: string;
+}): Promise<Map<string, string[]>> {
+    const {cli, corpus, workdir, source, target} = params;
     const server = await startCaptureServer();
 
     try {
@@ -408,8 +409,16 @@ async function setupMockProvider(params: {
     const failures: string[] = [];
 
     console.log('Capturing corpus translation units...');
-    const sourceUnits = await captureUnits(cli, corpus, workdir, source, target);
-    const referenceUnits = await captureUnits(cli, corpus, workdir, target, source);
+    const sourceUnits = await captureUnits({cli, corpus, workdir, source, target});
+    // The reference side runs in the reverse direction: its pages are
+    // the source of that capture.
+    const referenceUnits = await captureUnits({
+        cli,
+        corpus,
+        workdir,
+        source: target,
+        target: source,
+    });
 
     // Keep the captured units on disk: aligning corpus pages is much
     // easier with both unit lists side by side.
