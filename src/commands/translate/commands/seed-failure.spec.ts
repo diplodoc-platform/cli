@@ -1,3 +1,5 @@
+import type * as translateUtils from '../utils';
+
 import {mkdirSync, mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
@@ -8,7 +10,7 @@ import {SeedStore, seedFilePath} from '../providers/ai/utils';
 import {seedTranslations} from './seed';
 
 vi.mock('../utils', async (importOriginal) => {
-    const original = await importOriginal<typeof import('../utils')>();
+    const original = (await importOriginal()) as typeof translateUtils;
     return {
         ...original,
         loadTranslationUnits: vi.fn(async (params: {inputPath: string}) => {
