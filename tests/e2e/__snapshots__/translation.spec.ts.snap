@@ -2821,7 +2821,7 @@ exports[`Translate command > test no-translate directive 6`] = `
         <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-15"/> operation with no inputs and a complex</source>
+        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-1"/> operation with no inputs and a complex</source>
       </trans-unit>
       <trans-unit id="4">
         <source xml:space="preserve">200!!!!</source>
