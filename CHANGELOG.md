@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.56.0](https://github.com/diplodoc-platform/cli/compare/v5.55.3...v5.56.0) (2026-08-25)
+
+
+### Features
+
+* **translate:** add --report flag with a machine-readable run report ([#2224](https://github.com/diplodoc-platform/cli/issues/2224)) ([584995d](https://github.com/diplodoc-platform/cli/commit/584995de6badf62c138b0a24ecff44a94650fd4c))
+
+
+### Bug Fixes
+
+* **translate/seed:** tolerate per-file load and extraction errors ([#2220](https://github.com/diplodoc-platform/cli/issues/2220)) ([77961e6](https://github.com/diplodoc-platform/cli/commit/77961e6c0fe084dd28aa4569a444cdfcd4515937))
+
 ## [5.55.3](https://github.com/diplodoc-platform/cli/compare/v5.55.2...v5.55.3) (2026-08-24)
 
 
