@@ -2,6 +2,7 @@ import type {TranslateConfig} from '~/commands/translate';
 import type {YandexTranslationConfig} from '.';
 import type {AxiosResponse} from 'axios';
 import type {Logger} from '~/core/logger';
+import type {TargetStat} from '../../report';
 
 import {extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
@@ -19,6 +20,7 @@ import {
     resolveSchemas,
 } from '../../utils';
 import {TranslateLogger} from '../../logger';
+import {RunReport, createTargetStat, reportError} from '../../report';
 
 import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
 
@@ -33,6 +35,10 @@ const onFatalError = () => {
 export class Provider {
     readonly logger: TranslateLogger;
 
+    private report?: RunReport;
+
+    private skippedFiles = 0;
+
     constructor(config: TranslateConfig) {
         this.logger = new TranslateLogger(config);
     }
@@ -42,6 +48,7 @@ export class Provider {
     }
 
     async skip(skipped: [string, string][]) {
+        this.skippedFiles = skipped.length;
         this.logger.skipped(skipped);
     }
 
@@ -57,6 +64,8 @@ export class Provider {
             dryRun,
             timeout,
         } = config;
+
+        this.report = RunReport.start(config, files.length, this.skippedFiles);
 
         try {
             for (const target of targets) {
@@ -74,8 +83,9 @@ export class Provider {
                 };
 
                 const cache = new Map<string, Defer>();
-                const request = requester(translatorParams, cache);
-                const translate = translator(request, cache, this.logger);
+                const stat = createTargetStat();
+                const request = requester(translatorParams, cache, stat);
+                const translate = translator(request, cache, this.logger, stat);
                 const process = processor(translatorParams, translate);
 
                 await eachLimit(
@@ -85,15 +95,22 @@ export class Provider {
                         try {
                             this.logger.translate(file);
                             await process(file);
+                            stat.filesTranslated++;
                             if (!dryRun) {
                                 this.logger.translated(file);
                             }
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         } catch (error: any) {
+                            stat.filesFailed++;
+                            this.report?.addError(
+                                reportError(error, {target: target.language, path: file}),
+                            );
+
                             if (error instanceof TranslateError) {
                                 this.logger.error(file, `${error.message}`, error.code);
 
                                 if (error.fatal) {
+                                    this.report?.close(this.logger, 'failed');
                                     onFatalError();
                                 }
                             } else {
@@ -103,8 +120,12 @@ export class Provider {
                     }),
                 );
 
-                this.logger.stat(`bytes: ${request.stat.bytes} chunks: ${request.stat.chunks}`);
+                this.logger.stat(`bytes: ${stat.bytes} chunks: ${stat.requests}`);
+
+                this.report.addTarget(target.language, stat);
             }
+
+            this.report.close(this.logger);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof TranslateError) {
@@ -113,6 +134,8 @@ export class Provider {
                 this.logger.error(error);
             }
 
+            this.report.addError(reportError(error));
+            this.report.close(this.logger, 'failed');
             process.exit(1);
         }
     }
@@ -136,13 +159,7 @@ type RequesterParams = {
     timeout: number;
 };
 
-type Request = {
-    (texts: string[]): () => Promise<void>;
-    stat: {
-        bytes: number;
-        chunks: number;
-    };
-};
+type Request = (texts: string[]) => () => Promise<void>;
 
 type Translate = (path: string, texts: string[]) => Promise<string[]>;
 
@@ -189,20 +206,30 @@ function scheduler(limit: number, interval: number) {
     };
 }
 
-function requester(params: RequesterParams, cache: Cache) {
+function requester(params: RequesterParams, cache: Cache, stat: TargetStat): Request {
     const {auth, folderId, sourceLanguage, targetLanguage, dryRun, timeout} = params;
     const schedule = scheduler(REQUESTS_LIMIT, 1000);
 
-    const request = function request(texts: string[]) {
+    return function request(texts: string[]) {
+        // The backoff loop may run the request action more than once -
+        // resolve (and count) every unit at most once per chunk.
+        const resolved = new Set<number>();
         const resolve = (text: string, index: number) => {
+            if (resolved.has(index)) {
+                return;
+            }
+            resolved.add(index);
+
             const defer = cache.get(texts[index]);
             if (defer) {
+                stat.translatedUnits++;
+                stat.translatedChars += text.length;
                 defer.resolve(text);
             }
         };
 
-        request.stat.bytes += bytes(texts);
-        request.stat.chunks++;
+        stat.bytes += bytes(texts);
+        stat.requests++;
 
         return async function () {
             if (dryRun) {
@@ -261,13 +288,6 @@ function requester(params: RequesterParams, cache: Cache) {
             }
         };
     };
-
-    request.stat = {
-        bytes: 0,
-        chunks: 0,
-    };
-
-    return request;
 }
 
 function processor(params: TranslatorParams, translate: Translate) {
@@ -331,7 +351,7 @@ function processor(params: TranslatorParams, translate: Translate) {
     };
 }
 
-function translator(request: Request, cache: Cache, logger: Logger): Translate {
+function translator(request: Request, cache: Cache, logger: Logger, stat: TargetStat): Translate {
     return async function (path: string, texts: string[]) {
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
@@ -339,14 +359,18 @@ function translator(request: Request, cache: Cache, logger: Logger): Translate {
         let bufferSize = 0;
 
         const release = () => {
-            requests.push(backoff(request(buffer)));
+            requests.push(backoff(request(buffer), stat));
             buffer = [];
             bufferSize = 0;
         };
 
         for (const text of texts) {
+            stat.unitsTotal++;
+            stat.sourceChars += text.length;
+
             if (text.length >= BYTES_LIMIT) {
                 logger.warn(path, 'Skip document part for translation. Part is too big.');
+                stat.oversized++;
                 promises.push(Promise.resolve(text));
             } else {
                 const defer = cache.get(text) || new Defer();
@@ -381,7 +405,7 @@ function wait(interval: number) {
     return defer.promise;
 }
 
-async function backoff(action: () => Promise<void>): Promise<void> {
+async function backoff(action: () => Promise<void>, stat: TargetStat): Promise<void> {
     let retry = 0;
 
     while (++retry < RETRY_LIMIT) {
@@ -390,6 +414,7 @@ async function backoff(action: () => Promise<void>): Promise<void> {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (RequestError.canRetry(error)) {
+                stat.retries++;
                 await wait(Math.pow(2, retry) * 1000);
             } else {
                 throw error;

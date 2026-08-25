@@ -8,6 +8,8 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
+import {createTargetStat} from '../../report';
+
 import {
     Provider,
     extractTitle,
@@ -59,15 +61,7 @@ function makeParams(
 ) {
     const warn = vi.fn();
     const request = vi.fn();
-    const stat = {
-        inputTokens: 0,
-        outputTokens: 0,
-        requests: 0,
-        bytes: 0,
-        cached: 0,
-        untranslated: 0,
-        fallbackRequests: 0,
-    };
+    const stat = createTargetStat();
     const cache = new Map<string, Defer>();
 
     return {
@@ -176,6 +170,154 @@ describe('translate ai provider', () => {
             expect(report.scored).toBeGreaterThan(0);
             expect(report.low).toBeGreaterThan(0);
             expect(logger.warn).toHaveBeenCalledWith('ru/test.md', expect.stringContaining('/100'));
+        });
+
+        it('should write a machine-readable run report when configured', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-report-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'test.md'), '# Заголовок\n\nПривет, мир.\n');
+
+            const inner = makeFullClient();
+            const client: LLMClient = {
+                name: 'fake',
+                complete: vi.fn(async (messages, options) => {
+                    const result = await inner.complete(messages, options);
+                    return {...result, usage: {inputTokens: 10, outputTokens: 12}};
+                }),
+            };
+
+            const reportPath = join(root, 'stats', 'report.json');
+            const provider = new Provider(() => client, {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+                skipped: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.skip([['not-matched', 'ru/skipped.md']]);
+            await provider.translate(['ru/test.md'], {
+                provider: 'openai',
+                model: 'test-model',
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                judge: true,
+                judgeThreshold: 80,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+                report: reportPath,
+            } as unknown as AITranslationConfig);
+
+            const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+
+            expect(report.schemaVersion).toBe(1);
+            expect(report.status).toBe('success');
+            expect(report.provider).toBe('openai');
+            expect(report.model).toBe('test-model');
+            expect(report.fallbackUsed).toBe(false);
+            expect(report.dryRun).toBe(false);
+            expect(report.sourceLanguage).toBe('ru');
+            expect(report.targetLanguages).toEqual(['en']);
+            expect(report.files).toEqual({selected: 1, skipped: 1});
+            expect(report.durationMs).toBeGreaterThanOrEqual(0);
+            expect(report.errors).toEqual([]);
+
+            const target = report.targets[0];
+            expect(target.language).toBe('en');
+            expect(target.files.translated).toBe(1);
+            expect(target.units.total).toBe(2);
+            expect(target.units.translated).toBe(2);
+            expect(target.chars.source).toBeGreaterThan(0);
+            expect(target.chars.translated).toBeGreaterThan(0);
+            expect(target.tokens.input).toBeGreaterThan(0);
+            expect(target.tokens.output).toBeGreaterThan(0);
+            expect(target.cache).toEqual({enabled: false, hits: 0, misses: 0, hitRate: null});
+            expect(target.judge.scored).toBe(2);
+            expect(target.judge.threshold).toBe(80);
+            expect(target.judge.belowThreshold).toBe(2);
+            expect(Object.keys(target.judge.distribution)).toHaveLength(11);
+
+            expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('run success'));
+        });
+
+        it('should record errors in the run report and mark the run partial', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-report-err-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'test.md'), 'Привет, мир.\n');
+
+            const client: LLMClient = {
+                name: 'fake',
+                complete: vi.fn(async () => {
+                    throw new LLMRateLimitError('Too Many Requests');
+                }),
+            };
+
+            const reportPath = join(root, 'report.json');
+            const provider = new Provider(() => client, {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.translate(['ru/test.md'], {
+                provider: 'openai',
+                model: 'test-model',
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                judge: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+                report: reportPath,
+            } as unknown as AITranslationConfig);
+
+            const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+
+            expect(report.status).toBe('partial');
+            expect(report.errors).toEqual([
+                {
+                    target: 'en',
+                    path: 'ru/test.md',
+                    code: 'LLM_RATE_LIMIT',
+                    message: 'Too Many Requests',
+                },
+            ]);
+            expect(report.targets[0].files.failed).toBe(1);
+            expect(report.targets[0].files.retried).toBe(1);
+            expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('run partial'));
         });
 
         it('should retry files that failed with transient errors after the main pass', async () => {
@@ -591,6 +733,40 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(2);
         });
 
+        it('should count report counters for units, chars and the cache', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-stat-'));
+            const store = new TranslationStore(join(root, 'cache.json'), 'fp');
+            store.set('Cached', 'T:Cached');
+
+            const client = makeClient(translated);
+            const {params, stat} = makeParams(client, {}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', ['Cached', 'Fresh', 'Fresh']);
+
+            expect(result).toEqual(['T:Cached', 'T:Fresh', 'T:Fresh']);
+            expect(stat.unitsTotal).toBe(3);
+            expect(stat.sourceChars).toBe('Cached'.length + 'Fresh'.length * 2);
+            expect(stat.cached).toBe(1);
+            // Both occurrences of the fresh unit miss the store: the second
+            // one is deduped via the in-flight map, not the persistent cache.
+            expect(stat.cacheMisses).toBe(2);
+            expect(stat.translatedUnits).toBe(1);
+            expect(stat.translatedChars).toBe('T:Fresh'.length);
+        });
+
+        it('should not count cache misses when the store is disabled', async () => {
+            const client = makeClient(translated);
+            const {params, stat} = makeParams(client);
+            const translate = makeTranslator(params);
+
+            await translate('file.md', ['One', 'Two']);
+
+            expect(stat.cacheMisses).toBe(0);
+            expect(stat.cached).toBe(0);
+            expect(stat.unitsTotal).toBe(2);
+        });
+
         it('should dedupe repeated units via cache', async () => {
             const client = makeClient(translated);
             const {params} = makeParams(client);
@@ -719,7 +895,7 @@ describe('translate ai provider', () => {
                 const client = makeClient((fragments, call) =>
                     call === 0 ? new LLMRateLimitError('slow down') : translated(fragments),
                 );
-                const {params} = makeParams(client, {retry: 0, rateLimitRetry: 1});
+                const {params, stat} = makeParams(client, {retry: 0, rateLimitRetry: 1});
                 const translate = makeTranslator(params);
 
                 const promise = translate('file.md', ['One']);
@@ -729,6 +905,8 @@ describe('translate ai provider', () => {
                 await success;
 
                 expect(client.complete).toHaveBeenCalledTimes(2);
+                expect(stat.retries).toBe(1);
+                expect(stat.requests).toBe(1);
             } finally {
                 vi.useRealTimers();
             }

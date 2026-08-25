@@ -1,6 +1,7 @@
 import type {YandexTranslationConfig} from './providers/yandex';
 import type {AITranslationConfig} from './providers/ai';
 
+import {resolve} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 import {filter} from 'minimatch';
 
@@ -302,6 +303,30 @@ describe('Translate command', () => {
                 },
                 {
                     copyAssets: true,
+                },
+            );
+        });
+
+        describe('report', () => {
+            const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
+
+            test('should be disabled by default', '', {
+                report: undefined,
+            });
+
+            test('should resolve arg path from cwd', '--report reports/run.json', {
+                report: resolve('reports/run.json'),
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    // @ts-ignore
+                    report: 'run.json',
+                },
+                {
+                    report: expect.stringContaining('run.json'),
                 },
             );
         });
