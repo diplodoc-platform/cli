@@ -14,7 +14,7 @@ import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
 import {TranslateError, compose, languageRepath, loadTranslationUnits} from '../../utils';
 import {TranslateLogger} from '../../logger';
-import {RunReport, createTargetStat, scoreDistribution} from '../../report';
+import {RunReport, createTargetStat, reportError, scoreDistribution} from '../../report';
 
 import {
     Defer,
@@ -70,16 +70,7 @@ export class Provider {
             : undefined;
         const {input, output, source, target: targets, vars, dryRun, maxConcurrency} = config;
 
-        this.report = new RunReport({
-            provider: config.provider,
-            model: config.model,
-            fallbackModel: config.fallbackModel,
-            dryRun,
-            sourceLanguage: source.language,
-            targetLanguages: targets.map((target) => target.language),
-            path: config.report,
-        });
-        this.report.setFiles(files.length, this.skippedFiles);
+        this.report = RunReport.start(config, files.length, this.skippedFiles);
 
         try {
             for (const target of targets) {
@@ -141,7 +132,7 @@ export class Provider {
                 this.report.addTarget(target.language, stat, judge);
             }
 
-            this.finishReport();
+            this.report.close(this.logger);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof TranslateError) {
@@ -149,33 +140,10 @@ export class Provider {
             } else {
                 this.logger.error(error);
             }
-            this.report.addError({
-                code: error instanceof TranslateError ? error.code : 'UNKNOWN',
-                message: String(error?.message || error),
-            });
-            this.finishReport('failed');
+            this.report.addError(reportError(error));
+            this.report.close(this.logger, 'failed');
             process.exit(1);
         }
-    }
-
-    /**
-     * Finalizes the run report, writes it when --report is configured and
-     * always logs the one-line run summary. Report IO failures must not
-     * fail the translation run.
-     */
-    private finishReport(status?: 'failed') {
-        if (!this.report) {
-            return;
-        }
-
-        this.report.finalize(status);
-        try {
-            this.report.write();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            this.logger.warn('report', `Unable to write the run report: ${error.message}`);
-        }
-        this.logger.stat(this.report.summary());
     }
 
     /**
@@ -245,17 +213,12 @@ export class Provider {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private reportFileError(file: string, error: any, stat: TargetStat, target: string) {
         stat.filesFailed++;
-        this.report?.addError({
-            target,
-            path: file,
-            code: error instanceof TranslateError ? error.code : 'UNKNOWN',
-            message: String(error?.message || error),
-        });
+        this.report?.addError(reportError(error, {target, path: file}));
 
         if (error instanceof TranslateError) {
             this.logger.error(file, `${error.message}`, error.code);
             if (error.fatal) {
-                this.finishReport('failed');
+                this.report?.close(this.logger, 'failed');
                 onFatalError();
             }
         } else {

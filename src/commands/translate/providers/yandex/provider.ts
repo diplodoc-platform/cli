@@ -20,7 +20,7 @@ import {
     resolveSchemas,
 } from '../../utils';
 import {TranslateLogger} from '../../logger';
-import {RunReport, createTargetStat} from '../../report';
+import {RunReport, createTargetStat, reportError} from '../../report';
 
 import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
 
@@ -65,14 +65,7 @@ export class Provider {
             timeout,
         } = config;
 
-        this.report = new RunReport({
-            provider: config.provider,
-            dryRun,
-            sourceLanguage: source.language,
-            targetLanguages: targets.map((target) => target.language),
-            path: config.report,
-        });
-        this.report.setFiles(files.length, this.skippedFiles);
+        this.report = RunReport.start(config, files.length, this.skippedFiles);
 
         try {
             for (const target of targets) {
@@ -109,18 +102,15 @@ export class Provider {
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         } catch (error: any) {
                             stat.filesFailed++;
-                            this.report?.addError({
-                                target: target.language,
-                                path: file,
-                                code: error instanceof TranslateError ? error.code : 'UNKNOWN',
-                                message: String(error?.message || error),
-                            });
+                            this.report?.addError(
+                                reportError(error, {target: target.language, path: file}),
+                            );
 
                             if (error instanceof TranslateError) {
                                 this.logger.error(file, `${error.message}`, error.code);
 
                                 if (error.fatal) {
-                                    this.finishReport('failed');
+                                    this.report?.close(this.logger, 'failed');
                                     onFatalError();
                                 }
                             } else {
@@ -135,7 +125,7 @@ export class Provider {
                 this.report.addTarget(target.language, stat);
             }
 
-            this.finishReport();
+            this.report.close(this.logger);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof TranslateError) {
@@ -144,33 +134,10 @@ export class Provider {
                 this.logger.error(error);
             }
 
-            this.report.addError({
-                code: error instanceof TranslateError ? error.code : 'UNKNOWN',
-                message: String(error?.message || error),
-            });
-            this.finishReport('failed');
+            this.report.addError(reportError(error));
+            this.report.close(this.logger, 'failed');
             process.exit(1);
         }
-    }
-
-    /**
-     * Finalizes the run report, writes it when --report is configured and
-     * always logs the one-line run summary. Report IO failures must not
-     * fail the translation run.
-     */
-    private finishReport(status?: 'failed') {
-        if (!this.report) {
-            return;
-        }
-
-        this.report.finalize(status);
-        try {
-            this.report.write();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            this.logger.warn('report', `Unable to write the run report: ${error.message}`);
-        }
-        this.logger.stat(this.report.summary());
     }
 }
 

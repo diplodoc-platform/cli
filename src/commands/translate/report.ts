@@ -1,5 +1,9 @@
+import type {TranslateLogger} from './logger';
+
 import {mkdirSync, writeFileSync} from 'node:fs';
 import {dirname} from 'node:path';
+
+import {TranslateError} from './utils';
 
 /**
  * Version of the run report schema. Bump it on any breaking change of the
@@ -253,12 +257,52 @@ type RunReportInfo = {
     path?: AbsolutePath;
 };
 
+/** The slice of the resolved translate config the report is built from. */
+type RunReportConfig = {
+    provider: string;
+    dryRun: boolean;
+    source: {language: string};
+    target: {language: string}[];
+    report?: AbsolutePath;
+    model?: string;
+    fallbackModel?: string;
+};
+
+/** Builds a report error entry from a caught error. */
+export function reportError(
+    error: unknown,
+    info: {target?: string; path?: string} = {},
+): TranslateReportError {
+    return {
+        ...info,
+        code: error instanceof TranslateError ? error.code : 'UNKNOWN',
+        message: String((error as Error)?.message || error),
+    };
+}
+
 /**
  * Collects per-run translation statistics and produces the machine-readable
  * run report. Providers feed it with per-target counters and errors; the
  * report is finalized once and optionally written to `info.path`.
  */
 export class RunReport {
+    /** Creates the collector for a run: info from the resolved config, file counts from the planner. */
+    static start(config: RunReportConfig, selected: number, skipped: number): RunReport {
+        const report = new RunReport({
+            provider: config.provider,
+            model: config.model,
+            fallbackModel: config.fallbackModel,
+            dryRun: config.dryRun,
+            sourceLanguage: config.source.language,
+            targetLanguages: config.target.map((target) => target.language),
+            path: config.report,
+        });
+
+        report.setFiles(selected, skipped);
+
+        return report;
+    }
+
     private readonly info: RunReportInfo;
 
     private files = {selected: 0, skipped: 0};
@@ -334,6 +378,21 @@ export class RunReport {
 
         mkdirSync(dirname(this.info.path), {recursive: true});
         writeFileSync(this.info.path, JSON.stringify(this.data, null, 2) + '\n');
+    }
+
+    /**
+     * Finalizes the report, writes it when a path is configured and always
+     * logs the one-line run summary. Report IO failures must not fail the
+     * translation run.
+     */
+    close(logger: TranslateLogger, status?: 'failed') {
+        this.finalize(status);
+        try {
+            this.write();
+        } catch (error) {
+            logger.warn('report', `Unable to write the run report: ${(error as Error).message}`);
+        }
+        logger.stat(this.summary());
     }
 
     /** One-line human-readable run summary for the log. */

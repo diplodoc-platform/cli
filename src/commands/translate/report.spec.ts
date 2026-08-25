@@ -7,8 +7,10 @@ import {
     RunReport,
     TRANSLATE_REPORT_SCHEMA_VERSION,
     createTargetStat,
+    reportError,
     scoreDistribution,
 } from './report';
+import {TranslateError} from './utils';
 
 function makeReport(path?: AbsolutePath) {
     return new RunReport({
@@ -33,6 +35,26 @@ describe('translate run report', () => {
             expect(distribution['90-99']).toBe(1);
             expect(distribution['100']).toBe(2);
             expect(distribution['50-59']).toBe(0);
+        });
+    });
+
+    describe('reportError', () => {
+        it('should take the code from a TranslateError', () => {
+            const entry = reportError(new TranslateError('boom', 'MY_CODE'), {
+                target: 'en',
+                path: 'ru/file.md',
+            });
+
+            expect(entry).toEqual({
+                target: 'en',
+                path: 'ru/file.md',
+                code: 'MY_CODE',
+                message: 'boom',
+            });
+        });
+
+        it('should fall back to UNKNOWN for other errors', () => {
+            expect(reportError(new Error('oops'))).toEqual({code: 'UNKNOWN', message: 'oops'});
         });
     });
 
