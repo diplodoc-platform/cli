@@ -24,8 +24,8 @@ import {options as aiOptions} from '../providers/ai/config';
 import {untranslatedMarker} from '../providers/ai/provider';
 import {Run} from '../run';
 import {configDefaults, resolveSource, resolveTargets, resolveVars} from '../utils/config';
-
 import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
+
 import {getHooks, withHooks} from './hooks';
 
 const MAX_CONCURRENCY = 50;
