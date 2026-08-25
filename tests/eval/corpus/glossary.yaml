@@ -1,0 +1,13 @@
+glossaryPairs:
+  - sourceText: заметка
+    translatedText: note
+  - sourceText: переменная
+    translatedText: variable
+  - sourceText: оглавление
+    translatedText: table of contents
+  - sourceText: ссылка
+    translatedText: link
+  - sourceText: вкладка
+    translatedText: tab
+  - sourceText: термин
+    translatedText: term

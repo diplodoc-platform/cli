@@ -1,0 +1,1 @@
+If the text contains double curly braces but does not imply variable substitution, add `not_var` before the construct.
