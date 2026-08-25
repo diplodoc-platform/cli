@@ -25,6 +25,7 @@ import {untranslatedMarker} from '../providers/ai/provider';
 import {Run} from '../run';
 import {configDefaults, resolveSource, resolveTargets, resolveVars} from '../utils/config';
 
+import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
 import {getHooks, withHooks} from './hooks';
 
 const MAX_CONCURRENCY = 50;
@@ -188,6 +189,11 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
         options.config(YFM_CONFIG_FILENAME),
         aiOptions.cacheDir,
     ];
+
+    // Toc processing must not choke on openapi includer declarations:
+    // the stub is applied per-subcommand (hooks are not inherited from
+    // the parent Translate program), same as in Extract.
+    readonly modules = [new ExtractOpenapiIncluderFakeExtension()];
 
     readonly logger = new TranslateLogger();
 
