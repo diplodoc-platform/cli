@@ -11,7 +11,6 @@ Extensions are designed to add new capabilities to Diplodoc's functionality.
 Before using an extension, it must be loaded. This can be done using `npm` via the command `npm install ...` or by saving the extension files locally, which is also suitable for using [custom-developed](../dev/extensions-api.md) extensions.
 
 Example — installing an extension for [connecting Algolia](../project/algolia.md):
-
 ```
 npm install @diplodoc/algolia-extension
 ```
@@ -21,15 +20,15 @@ npm install @diplodoc/algolia-extension
 You can connect an extension to a project in one of two ways:
 
 1. By specifying it in the project's `.yfm` file in the [parameter](../settings.md#extensions) ##extensions##:
-   ```yaml
-   extensions:
-       - @diplodoc/algolia-extension
-       - /local/path/to/extension
-   ```
+    ```yaml
+    extensions:
+        - @diplodoc/algolia-extension
+        - /local/path/to/extension
+    ```
 2. By passing it via the `-e` parameter when calling `yfm`:
-   ```
-   yfm build -e @diplodoc/algolia-extension
-   ```
+    ```
+    yfm build -e @diplodoc/algolia-extension
+    ```
 
 {% note info %}
 

@@ -98,9 +98,9 @@ export function renderReport(report: EvalReport): string {
     lines.push(
         `Translate eval: ${report.mode} mode, model ${report.model}, ` +
             `${report.sourceLanguage} -> ${report.targetLanguage}`,
+        `Corpus: ${report.corpus} (${report.pages.length} pages)`,
+        '',
     );
-    lines.push(`Corpus: ${report.corpus} (${report.pages.length} pages)`);
-    lines.push('');
 
     const header = ['page', 'markup', 'glossary', 'untranslated', 'similarity', 'judge<t'];
     const rows = report.pages.map((page) => [
@@ -118,11 +118,7 @@ export function renderReport(report: EvalReport): string {
     const render = (row: string[]) =>
         row.map((value, column) => value.padEnd(widths[column])).join('  ');
 
-    lines.push(render(header));
-    for (const row of rows) {
-        lines.push(render(row));
-    }
-    lines.push('');
+    lines.push(render(header), ...rows.map(render), '');
 
     for (const page of report.pages) {
         const details = [
@@ -135,11 +131,7 @@ export function renderReport(report: EvalReport): string {
             ...page.untranslated.map((line) => `[untranslated] line ${line.line}: ${line.text}`),
         ];
         if (details.length) {
-            lines.push(`${page.page}:`);
-            for (const detail of details) {
-                lines.push(`  ${detail}`);
-            }
-            lines.push('');
+            lines.push(`${page.page}:`, ...details.map((detail) => `  ${detail}`), '');
         }
     }
 
@@ -155,15 +147,10 @@ export function renderReport(report: EvalReport): string {
     }
 
     if (report.failures.length) {
-        lines.push('');
-        lines.push('Failures:');
-        for (const failure of report.failures) {
-            lines.push(`  - ${failure}`);
-        }
+        lines.push('', 'Failures:', ...report.failures.map((failure) => `  - ${failure}`));
     }
 
-    lines.push('');
-    lines.push(`Verdict: ${report.passed ? 'PASS' : 'FAIL'}`);
+    lines.push('', `Verdict: ${report.passed ? 'PASS' : 'FAIL'}`);
 
     return lines.join('\n');
 }

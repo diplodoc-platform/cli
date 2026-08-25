@@ -30,7 +30,7 @@ export function sourceScriptMarker(sourceLanguage: string, targetLanguage: strin
     }
 
     try {
-        return new RegExp(`\\p{Script=${source}}`, 'u');
+        return new RegExp(String.raw`\p{Script=${source}}`, 'u');
     } catch {
         return null;
     }

@@ -33,9 +33,9 @@
 ````markdown
 ```sql
   price= '2000'
-  size= '24'
+  size= '24'  
   color= 'primary'
-  variant= 'detailed'
+  variant= 'detailed' 
 ```
 ````
 
@@ -89,9 +89,9 @@
 ````markdown
 ```sql showLineNumbers
   price = '2000'
-  size = '24'
+  size = '24'  
   color = 'primary'
-  variant = 'detailed'
+  variant = 'detailed' 
 ```
 ````
 
@@ -111,14 +111,14 @@
 Пример использования:
 
 ````markdown
-```wrap
+``` wrap
 Очень длинная строка в блоке кода, которая точно не поместится в длину, если её искусственно не свернуть
 ```
 ````
 
 **Результат:**
 
-```wrap
+``` wrap
 Очень длинная строка в блоке кода, которая точно не поместится в длину, если её искусственно не свернуть
 ```
 

@@ -48,7 +48,9 @@ Include the popup text by applying `include`. [Learn more about using `include`]
 || Текст | Текст ||
 |#
 
+
 #### {#popup-2}
+
 
 {% cut "Кат со списком внутри" %}
 
@@ -61,6 +63,7 @@ Include the popup text by applying `include`. [Learn more about using `include`]
 
 {% endcut %}
 
+
 {% cut "Example of [reuse](../syntax/includes.md)" %}
 
 ```
@@ -71,16 +74,16 @@ Include the popup text by applying `include`. [Learn more about using `include`]
 
 {% endcut %}
 
+
 **Result**
 
 [First definition](*popup-1) in the text. [Second definition](*popup-2) in the text
 
 [*term]: Definition of a term or abbreviation.
 A _term_ definition can **include** [basic markup](base.md):
-
-- lists;
-- links;
-- images, etc.
+* lists;
+* links;
+* images, etc.
 
 [*popup-1]: {% include notitle [popup-1](../_includes/popups_examples.md#popup-1) %}
 

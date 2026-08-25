@@ -21,7 +21,7 @@ The location of the table of contents depends on the type of device on which the
 - Mobile devices
 
   If the documentation is opened on mobile devices, the table of contents will be hidden to save screen space.
-
+  
   To show the table of contents, click the icon ![](../_images/minitoc_icon.jpg).
 
   ![](../_images/minitoc_mobile.jpg)
@@ -45,9 +45,7 @@ The table of contents will not be displayed on the page if:
 
   ```markdown
   # Заголовок 1
-
   ### Заголовок 2
-
   #### Заголовок 3
   ```
 
@@ -55,8 +53,6 @@ The table of contents will not be displayed on the page if:
 
   ```markdown
   # Заголовок 1
-
   ### Заголовок 2
-
   ## Заголовок 3
   ```

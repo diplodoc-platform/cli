@@ -170,36 +170,14 @@ async function captureUnits(
     try {
         const result = await run(
             'node',
-            [
+            captureRunArgs({
                 cli,
-                'translate',
-                '-i',
                 corpus,
-                '-o',
-                join(workdir, `capture-${language(source)}`),
-                '--source',
+                output: join(workdir, `capture-${language(source)}`),
                 source,
-                '--target',
                 target,
-                '--provider',
-                'openai',
-                '--model',
-                'eval-capture',
-                '--auth',
-                'eval-capture-token',
-                '--api-base',
-                server.apiBase,
-                '--user-prompt',
-                CAPTURE_USER_PROMPT,
-                '--max-concurrency',
-                '1',
-                '--max-batch-tokens',
-                String(MAX_BATCH_TOKENS),
-                '--retry',
-                '1',
-                '--rate-limit-retry',
-                '0',
-            ],
+                apiBase: server.apiBase,
+            }),
             true,
         );
 
@@ -217,7 +195,7 @@ async function captureUnits(
 /**
  * Provider flags passed through to `yfm translate` in real mode.
  */
-function realProviderArgs(args: EvalCliArgs): string[] {
+export function realProviderArgs(args: EvalCliArgs): string[] {
     const result = ['--provider', args.provider];
 
     const passthrough: [string, string | undefined][] = [
@@ -236,6 +214,116 @@ function realProviderArgs(args: EvalCliArgs): string[] {
     return result;
 }
 
+export type TranslateArgsParams = {
+    cli: string;
+    corpus: string;
+    output: string;
+    source: string;
+    target: string;
+    judge: boolean;
+    judgeThreshold: number;
+    judgeModel?: string;
+};
+
+/**
+ * Base `yfm translate` invocation shared by mock and real modes.
+ */
+export function baseTranslateArgs(params: TranslateArgsParams): string[] {
+    const result = [
+        params.cli,
+        'translate',
+        '-i',
+        params.corpus,
+        '-o',
+        params.output,
+        '--source',
+        params.source,
+        '--target',
+        params.target,
+        '--glossary',
+        GLOSSARY_FILENAME,
+        '--temperature',
+        '0',
+        '--max-batch-tokens',
+        String(MAX_BATCH_TOKENS),
+    ];
+
+    if (params.judge) {
+        result.push('--judge', '--judge-threshold', String(params.judgeThreshold));
+        if (params.judgeModel) {
+            result.push('--judge-model', params.judgeModel);
+        }
+    }
+
+    return result;
+}
+
+/**
+ * `yfm translate` invocation of a capture run: a custom user prompt
+ * that keeps only the file context and the fragments, sequential
+ * requests for deterministic order.
+ */
+export function captureRunArgs(params: {
+    cli: string;
+    corpus: string;
+    output: string;
+    source: string;
+    target: string;
+    apiBase: string;
+}): string[] {
+    return [
+        params.cli,
+        'translate',
+        '-i',
+        params.corpus,
+        '-o',
+        params.output,
+        '--source',
+        params.source,
+        '--target',
+        params.target,
+        '--provider',
+        'openai',
+        '--model',
+        'eval-capture',
+        '--auth',
+        'eval-capture-token',
+        '--api-base',
+        params.apiBase,
+        '--user-prompt',
+        CAPTURE_USER_PROMPT,
+        '--max-concurrency',
+        '1',
+        '--max-batch-tokens',
+        String(MAX_BATCH_TOKENS),
+        '--retry',
+        '1',
+        '--rate-limit-retry',
+        '0',
+    ];
+}
+
+/**
+ * Provider flags of the mock mode: the local endpoint with fail-fast
+ * retry settings.
+ */
+export function mockProviderArgs(apiBase: string): string[] {
+    return [
+        '--provider',
+        'openai',
+        '--model',
+        MOCK_MODEL,
+        '--auth',
+        'eval-mock-token',
+        '--api-base',
+        apiBase,
+        '--retry',
+        '1',
+        '--rate-limit-retry',
+        '0',
+    ];
+}
+
 type EvaluatePagesParams = {
     pages: string[];
     corpus: string;
@@ -249,7 +337,7 @@ type EvaluatePagesParams = {
 /**
  * Runs the deterministic checks over every corpus page.
  */
-function evaluatePages(params: EvaluatePagesParams): PageResult[] {
+export function evaluatePages(params: EvaluatePagesParams): PageResult[] {
     const {pages, corpus, output, sourceLang, targetLang, glossaryPairs, lowByPage} = params;
     const marker = sourceScriptMarker(sourceLang, targetLang);
 
@@ -285,6 +373,76 @@ function evaluatePages(params: EvaluatePagesParams): PageResult[] {
     });
 }
 
+type MockSetup = {
+    model: string;
+    args: string[];
+    misses: string[];
+    failures: string[];
+    close: () => Promise<void>;
+};
+
+/**
+ * Mock mode: captures the exact translation units of both corpus sides
+ * through the real pipeline, pairs them positionally per file and
+ * serves the result over a local OpenAI-compatible endpoint. No
+ * network access, no credentials.
+ */
+async function setupMockProvider(params: {
+    cli: string;
+    corpus: string;
+    workdir: string;
+    source: string;
+    target: string;
+    sourceLang: string;
+    targetLang: string;
+}): Promise<MockSetup> {
+    const {cli, corpus, workdir, source, target, sourceLang, targetLang} = params;
+    const failures: string[] = [];
+
+    console.log('Capturing corpus translation units...');
+    const sourceUnits = await captureUnits(cli, corpus, workdir, source, target);
+    const referenceUnits = await captureUnits(cli, corpus, workdir, target, source);
+
+    // Keep the captured units on disk: aligning corpus pages is much
+    // easier with both unit lists side by side.
+    writeFileSync(
+        join(workdir, 'units.json'),
+        JSON.stringify(
+            {
+                [sourceLang]: Object.fromEntries(sourceUnits),
+                [targetLang]: Object.fromEntries(referenceUnits),
+            },
+            null,
+            2,
+        ),
+    );
+
+    const memory = buildTranslationMemory(sourceUnits, referenceUnits, (file) =>
+        file.split('/').slice(1).join('/'),
+    );
+
+    console.log(`Translation memory: ${memory.size} unit pairs`);
+    for (const mismatch of memory.mismatched) {
+        console.warn(`Warning: cannot pair units of ${mismatch}`);
+    }
+    if (memory.mismatched.length) {
+        failures.push(
+            `unit-misaligned corpus pages: ${memory.mismatched.length} ` +
+                '(see warnings above; align the reference with the source)',
+        );
+    }
+
+    const server = await startMockServer(memory.lookup);
+
+    return {
+        model: MOCK_MODEL,
+        args: mockProviderArgs(server.apiBase),
+        misses: server.stats.misses,
+        failures,
+        close: server.close,
+    };
+}
+
 type QualityReport = {
     model: string;
     threshold: number;
@@ -295,7 +453,7 @@ type QualityReport = {
     segments: {path: string; score: number}[];
 };
 
-function readJudgeSummary(
+export function readJudgeSummary(
     file: string,
 ): {judge: JudgeSummary; lowByPage: Map<string, number>} | null {
     if (!existsSync(file)) {
@@ -349,31 +507,16 @@ export async function main(argv: string[]): Promise<number> {
     const extraFailures: string[] = [];
     let mockMisses: string[] = [];
 
-    const translateArgs = [
+    const translateArgs = baseTranslateArgs({
         cli,
-        'translate',
-        '-i',
         corpus,
-        '-o',
         output,
-        '--source',
-        args.source,
-        '--target',
-        args.target,
-        '--glossary',
-        GLOSSARY_FILENAME,
-        '--temperature',
-        '0',
-        '--max-batch-tokens',
-        String(MAX_BATCH_TOKENS),
-    ];
-
-    if (args.judge) {
-        translateArgs.push('--judge', '--judge-threshold', String(args.thresholds.minJudgeScore));
-        if (args.judgeModel) {
-            translateArgs.push('--judge-model', args.judgeModel);
-        }
-    }
+        source: args.source,
+        target: args.target,
+        judge: args.judge,
+        judgeThreshold: args.thresholds.minJudgeScore,
+        judgeModel: args.judgeModel,
+    });
 
     let closeServer: (() => Promise<void>) | undefined;
     let model: string;
@@ -382,63 +525,20 @@ export async function main(argv: string[]): Promise<number> {
         model = args.model || `(${args.provider} default)`;
         translateArgs.push(...realProviderArgs(args));
     } else {
-        // Mock mode: capture the exact translation units of both corpus
-        // sides through the real pipeline, pair them positionally per
-        // file and serve the result over a local OpenAI-compatible
-        // endpoint. No network access, no credentials.
-        console.log('Capturing corpus translation units...');
-        const sourceUnits = await captureUnits(cli, corpus, workdir, args.source, args.target);
-        const referenceUnits = await captureUnits(cli, corpus, workdir, args.target, args.source);
-
-        // Keep the captured units on disk: aligning corpus pages is much
-        // easier with both unit lists side by side.
-        writeFileSync(
-            join(workdir, 'units.json'),
-            JSON.stringify(
-                {
-                    [sourceLang]: Object.fromEntries(sourceUnits),
-                    [targetLang]: Object.fromEntries(referenceUnits),
-                },
-                null,
-                2,
-            ),
-        );
-
-        const memory = buildTranslationMemory(sourceUnits, referenceUnits, (file) =>
-            file.split('/').slice(1).join('/'),
-        );
-
-        console.log(`Translation memory: ${memory.size} unit pairs`);
-        for (const mismatch of memory.mismatched) {
-            console.warn(`Warning: cannot pair units of ${mismatch}`);
-        }
-        if (memory.mismatched.length) {
-            extraFailures.push(
-                `unit-misaligned corpus pages: ${memory.mismatched.length} ` +
-                    '(see warnings above; align the reference with the source)',
-            );
-        }
-
-        const server = await startMockServer(memory.lookup);
-        closeServer = server.close;
-
-        model = MOCK_MODEL;
-        translateArgs.push(
-            '--provider',
-            'openai',
-            '--model',
-            MOCK_MODEL,
-            '--auth',
-            'eval-mock-token',
-            '--api-base',
-            server.apiBase,
-            '--retry',
-            '1',
-            '--rate-limit-retry',
-            '0',
-        );
-
-        mockMisses = server.stats.misses;
+        const mock = await setupMockProvider({
+            cli,
+            corpus,
+            workdir,
+            source: args.source,
+            target: args.target,
+            sourceLang,
+            targetLang,
+        });
+        model = mock.model;
+        closeServer = mock.close;
+        mockMisses = mock.misses;
+        extraFailures.push(...mock.failures);
+        translateArgs.push(...mock.args);
     }
 
     let translateCode: number;

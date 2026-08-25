@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {compareMarkup, markupSignature, normalizeLiquidTag} from './markup';
+import {compareMarkup, extractLinkTargets, markupSignature, normalizeLiquidTag} from './markup';
 
 describe('translate eval markup checks', () => {
     describe('normalizeLiquidTag', () => {
@@ -64,6 +64,55 @@ describe('translate eval markup checks', () => {
             expect(signature.links).toEqual([]);
             expect(signature.liquid).toEqual([]);
             expect(signature.variables).toEqual([]);
+        });
+    });
+
+    describe('extractLinkTargets', () => {
+        it('should unwrap angle-bracket destinations', () => {
+            expect(extractLinkTargets('See [x](<https://a.com/b_(c)>).')).toEqual([
+                'https://a.com/b_(c)',
+            ]);
+        });
+
+        it('should handle one level of nested parentheses', () => {
+            expect(extractLinkTargets('[x](https://a.com/b_(c)) and [y](./d.md)')).toEqual([
+                'https://a.com/b_(c)',
+                './d.md',
+            ]);
+        });
+
+        it('should drop link titles', () => {
+            expect(extractLinkTargets('[x](./a.md "подсказка")')).toEqual(['./a.md']);
+        });
+
+        it('should ignore unterminated destinations', () => {
+            expect(extractLinkTargets('broken [x](./a.md\nnext line)')).toEqual([]);
+        });
+    });
+
+    describe('table and fence signatures', () => {
+        it('should count grid table markers', () => {
+            const page = ['#|', '|| a | b ||', '|| 1 | 2 ||', '|#'].join('\n');
+
+            expect(markupSignature(page).tables.gridMarkers).toBe(6);
+        });
+
+        it('should report table layout changes', () => {
+            const source = '| a |\n| - |\n| 1 |';
+            const violations = compareMarkup(source, '| a |\n| - |');
+
+            expect(violations).toEqual([{type: 'tables', detail: expect.stringContaining('rows')}]);
+        });
+
+        it('should report a changed fence count and info', () => {
+            const source = '```bash\necho 1\n```';
+
+            expect(compareMarkup(source, 'no fences at all')).toEqual([
+                {type: 'fence-count', detail: expect.stringContaining('1 in source')},
+            ]);
+            expect(compareMarkup(source, '```sh\necho 1\n```')).toEqual([
+                {type: 'fence-info', detail: expect.stringContaining('bash')},
+            ]);
         });
     });
 

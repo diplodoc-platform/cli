@@ -24,7 +24,54 @@ export type ScannedPage = {
     fences: Fence[];
 };
 
-const FENCE_OPEN = /^\s*(`{3,}|~{3,})(.*)$/;
+type FenceOpen = {
+    char: string;
+    size: number;
+    info: string;
+};
+
+function matchFenceOpen(line: string): FenceOpen | null {
+    const trimmed = line.trimStart();
+    const char = trimmed[0];
+
+    if (char !== '`' && char !== '~') {
+        return null;
+    }
+
+    let size = 0;
+    while (trimmed[size] === char) {
+        size++;
+    }
+
+    if (size < 3) {
+        return null;
+    }
+
+    const info = trimmed.slice(size).trim();
+
+    // A backtick info string cannot contain backticks (CommonMark).
+    if (char === '`' && info.includes('`')) {
+        return null;
+    }
+
+    return {char, size, info};
+}
+
+function matchFenceClose(line: string, fence: FenceOpen): boolean {
+    const trimmed = line.trim();
+
+    if (trimmed.length < fence.size) {
+        return false;
+    }
+
+    for (const char of trimmed) {
+        if (char !== fence.char) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 /**
  * Splits a page into prose lines and fenced code blocks.
@@ -38,19 +85,13 @@ export function scanPage(content: string): ScannedPage {
     const prose: ProseLine[] = [];
     const fences: Fence[] = [];
 
-    let fence: {char: string; size: number; info: string; body: string[]} | null = null;
+    let fence: (FenceOpen & {body: string[]}) | null = null;
 
     for (let index = 0; index < lines.length; index++) {
         const text = lines[index];
 
         if (fence) {
-            const {char: fenceChar, size: fenceSize} = fence;
-            const trimmed = text.trim();
-            const isClose =
-                trimmed.length >= fenceSize &&
-                trimmed.split('').every((char) => char === fenceChar);
-
-            if (isClose) {
+            if (matchFenceClose(text, fence)) {
                 fences.push({info: fence.info, content: fence.body.join('\n')});
                 fence = null;
             } else {
@@ -59,14 +100,9 @@ export function scanPage(content: string): ScannedPage {
             continue;
         }
 
-        const open = FENCE_OPEN.exec(text);
-        if (open && !open[2].includes(open[1][0])) {
-            fence = {
-                char: open[1][0],
-                size: open[1].length,
-                info: open[2].trim(),
-                body: [],
-            };
+        const open = matchFenceOpen(text);
+        if (open) {
+            fence = {...open, body: []};
             continue;
         }
 

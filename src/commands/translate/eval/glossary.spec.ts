@@ -1,22 +1,22 @@
 import {describe, expect, it} from 'vitest';
 
-import {checkGlossary, stemTerm} from './glossary';
+import {checkGlossary, termStem} from './glossary';
 
 const PAIRS = [
-    {sourceText: 'заметка', translatedText: 'note'},
-    {sourceText: 'оглавление', translatedText: 'table of contents'},
+    {sourceText: 'заметка', translatedText: 'note', sourceStem: 'заметк'},
+    {sourceText: 'оглавление', translatedText: 'table of contents', sourceStem: 'оглавлени'},
 ];
 
 describe('translate eval glossary check', () => {
-    describe('stemTerm', () => {
-        it('should strip a single russian ending', () => {
-            expect(stemTerm('заметка')).toBe('заметк');
-            expect(stemTerm('оглавление')).toBe('оглавлен');
-            expect(stemTerm('переменная')).toBe('переменн');
+    describe('termStem', () => {
+        it('should prefer the explicit stem', () => {
+            expect(termStem(PAIRS[0])).toBe('заметк');
         });
 
-        it('should keep latin terms as is', () => {
-            expect(stemTerm('Diplodoc CLI')).toBe('diplodoc cli');
+        it('should fall back to the term itself', () => {
+            expect(termStem({sourceText: 'Diplodoc CLI', translatedText: 'Diplodoc CLI'})).toBe(
+                'diplodoc cli',
+            );
         });
     });
 

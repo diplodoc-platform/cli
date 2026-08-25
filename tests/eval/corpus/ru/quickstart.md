@@ -14,39 +14,40 @@
 
 - Через консоль
 
-  С помощью команды `yfm init` можно создать проект в нужной папке через консоль.
-
-  На отдельной странице описаны [параметры инициализации проекта](./tools/docs/init.md).
+    С помощью команды `yfm init` можно создать проект в нужной папке через консоль.
+    
+    На отдельной странице описаны [параметры инициализации проекта](./tools/docs/init.md).
 
 - Использование шаблона
 
-  Вы можете использовать [шаблон тестового проекта](https://github.com/diplodoc-platform/static-template) из нашего репозитория.
+    Вы можете использовать [шаблон тестового проекта](https://github.com/diplodoc-platform/static-template) из нашего репозитория.
 
-  {% include [github-warning](./_includes/github-warning.md) %}
+    {% include [github-warning](./_includes/github-warning.md) %}
 
-  Сделайте форк репозитория шаблона, чтобы быстро развернуть свою документацию:
-  1. На [странице шаблона](https://github.com/diplodoc-platform/static-template) рядом с заголовком нажмите кнопку **Fork**. Откроется страница **Create a new fork**.
+    Сделайте форк репозитория шаблона, чтобы быстро развернуть свою документацию:
 
-  1. Нажмите **Create fork**. В вашем профиле GitHub будет создан репозиторий с готовой структурой проекта.
+    1. На [странице шаблона](https://github.com/diplodoc-platform/static-template) рядом с заголовком нажмите кнопку **Fork**. Откроется страница **Create a new fork**.
 
-  1. Склонируйте созданный репозиторий на свой компьютер.
+    1. Нажмите **Create fork**. В вашем профиле GitHub будет создан репозиторий с готовой структурой проекта.
 
-  **Структура проекта**
+    1. Склонируйте созданный репозиторий на свой компьютер.
 
-  ```text
-  doc-folder
-  |-- .yfm # Файл конфигурации
-  |-- toc.yaml # Оглавление
-  |-- index.md # Разводящая страница
-  |-- content-page.md # Страница с контентом
-  ```
+    **Структура проекта**
 
-  - [Конфигурационный файл .yfm](./settings.md).
-  - [Разводящая страница](./project/leading-page.md).
-  - Страницы с контентом.
-  - [Файл оглавления toc.yaml](./project/toc.md).
+    ```text
+    doc-folder
+    |-- .yfm # Файл конфигурации
+    |-- toc.yaml # Оглавление
+    |-- index.md # Разводящая страница
+    |-- content-page.md # Страница с контентом
+    ```
 
-  Подробнее о параметрах и конфигурации читайте в разделе [**Документационный проект**](./project/index.md).
+    - [Конфигурационный файл .yfm](./settings.md).
+    - [Разводящая страница](./project/leading-page.md).
+    - Страницы с контентом.
+    - [Файл оглавления toc.yaml](./project/toc.md).
+
+    Подробнее о параметрах и конфигурации читайте в разделе [**Документационный проект**](./project/index.md).
 
 {% endlist %}
 
@@ -61,7 +62,6 @@ yfm build -i ./doc-folder -o ./output-folder
 ```
 
 Где:
-
 - `-i` — путь до директории проекта (например, папка, которую вы склонировали).
 - `-o` — путь до директории, куда будут сохранены статические HTML-файлы.
 
@@ -72,26 +72,26 @@ yfm build -i ./doc-folder -o ./output-folder
 Чтобы посмотреть результат сборки в браузере, используйте локальный веб-сервер.
 
 1. Соберите проект:
+   
+    ```bash
+    yfm build -i ./doc-folder -o ./output-folder
+    ```
 
-   ```bash
-   yfm build -i ./doc-folder -o ./output-folder
-   ```
+    {% note tip %}
+    
+    Используйте watch-режим. Для этого добавьте флаг `--watch`, чтобы изменения сразу отображались в локальной сборке.
 
-   {% note tip %}
+    ```
+    yfm build -i ./doc-folder -o ./output-folder --watch
+    ```
 
-   Используйте watch-режим. Для этого добавьте флаг `--watch`, чтобы изменения сразу отображались в локальной сборке.
-
-   ```
-   yfm build -i ./doc-folder -o ./output-folder --watch
-   ```
-
-   {% endnote %}
+    {% endnote %}
 
 2. Запустите сервер для папки с результатом сборки с помощью пакета `http-server`:
 
-   ```bash
-   npx http-server ./output-folder -p 5005
-   ```
+    ```bash
+    npx http-server ./output-folder -p 5005
+    ```
 
 Документация будет доступна по адресу [http://localhost:5005](http://localhost:5005).
 
@@ -105,28 +105,29 @@ yfm build -i ./doc-folder -o ./output-folder
 
 1. В файле `workflow` найдите блок `jobs` и после строки `uses: actions/configure-pages@v5` добавьте:
 
-   ```yaml
-   - name: Build docs
-     uses: diplodoc-platform/docs-build-static-action@v1
-     with:
-       src-root: './docs'
-       build-root: './docs-html'
-   ```
+    ```yaml
+    - name: Build docs
+      uses: diplodoc-platform/docs-build-static-action@v1
+      with:
+        src-root: './docs'
+        build-root: './docs-html'
+    ```
 
 1. В том же файле найдите шаг `Upload artifact` и измените путь на каталог с собранной документацией:
 
-   ```yaml
-   - name: Upload artifact
-     uses: actions/upload-pages-artifact@v3
-     with:
-       path: './docs-html'
-   ```
+    ```yaml
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: './docs-html'
+    ```
 
 1. В правом верхнем углу нажмите **Commit changes...**, в поле **Commit message** укажите сообщение коммита и нажмите **Commit changes**.
 
 1. Перейдите на вкладку **Actions**. Вверху списка будет ваш последний коммит.
 
 1. Нажмите на название коммита. После завершения сборки документ будет размещен на GitHub Pages. Посмотреть его можно по ссылке ниже под надписью **deploy**.
+
 
 ## Публикация на diplodoc.com {#diplodoc}
 

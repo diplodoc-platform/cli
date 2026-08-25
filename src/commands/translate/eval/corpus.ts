@@ -32,7 +32,7 @@ export function listCorpusPages(
     };
 
     walk(sourceRoot, '');
-    pages.sort();
+    pages.sort((left, right) => (left < right ? -1 : Number(left > right)));
 
     const missing = pages.filter((page) => !existsSync(join(corpus, targetLanguage, page)));
     ok(

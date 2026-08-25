@@ -54,6 +54,17 @@ sync with the request format, each covered by a drift-guard test in
   preamble to avoid smuggling the separator (quoted in the default
   prompt instruction) back into the response, which would break the
   fragment count.
+- **Angle-bracket link destinations are normalized before comparison**
+  (`[x](<url>)` vs `[x](url)`): both forms denote the same target and
+  the translate round-trip normalizes the brackets away, so the links
+  check unwraps them on both sides.
+- **Glossary matching uses explicit `sourceStem` fields** from
+  `tests/eval/corpus/glossary.yaml` instead of language-specific
+  stemming: the corpus and its glossary are authored together, so the
+  invariant prefix of every term is declared, not guessed.
+- **Corpus pages are prettier-ignored** (`.prettierignore`): they are
+  fixtures taken verbatim from the docs repo, and auto-formatting them
+  at commit time silently changed what the eval measures.
 - **The live `{% file %}` directive is excluded from the corpus**: its
   translate round-trip is lossy upstream (`@diplodoc/translation`
   compose mangles it, reproduced on `syntax/links.md`), and the same

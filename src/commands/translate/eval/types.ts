@@ -68,4 +68,10 @@ export type EvalReport = {
 export type GlossaryPair = {
     sourceText: string;
     translatedText: string;
+    /**
+     * Invariant prefix matching every inflected form of the term in the
+     * source pages. Consumed by the eval checker only; `yfm translate`
+     * ignores it. Defaults to `sourceText`.
+     */
+    sourceStem?: string;
 };

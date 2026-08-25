@@ -1,4 +1,5 @@
 import type {MarkupViolation} from './types';
+import type {ProseLine} from './markdown';
 
 import {scanPage} from './markdown';
 
@@ -22,11 +23,13 @@ export type MarkupSignature = {
     tables: {pipeRows: number; gridMarkers: number};
 };
 
-const LIQUID_TAG = /{%\s*([\s\S]*?)\s*%}/g;
-const LINK = /!?\[[^\]]*\]\(([^()\s]+(?:\([^()]*\)[^()\s]*)?)\)/g;
-const HEADING = /^(#{1,6})\s+(.*)$/;
-const ANCHOR = /{#([^}]+)}\s*$/;
+const LIQUID_TAG = /{%(.*?)%}/g;
+const ANCHOR = /{#([^}]+)}$/;
 const VARIABLE = /(?<!not_var){{\s*([\w.-]+)\s*}}/g;
+
+function compareStrings(left: string, right: string): number {
+    return left < right ? -1 : Number(left > right);
+}
 
 /**
  * Normalizes one liquid directive into a comparable token.
@@ -37,21 +40,21 @@ const VARIABLE = /(?<!not_var){{\s*([\w.-]+)\s*}}/g;
 export function normalizeLiquidTag(tag: string): string | null {
     const compact = tag.replace(/\s+/g, ' ').trim();
 
-    const include = /^include\s+(?:notitle\s+)?\[[^\]]*\]\(([^)]+)\)$/.exec(compact);
+    const include = /^include (?:notitle )?\[[^\]]*\]\(([^)]+)\)$/.exec(compact);
     if (include) {
         return `include:${include[1]}`;
     }
 
-    const note = /^note\s+(\w+)/.exec(compact);
+    const note = /^note (\w+)/.exec(compact);
     if (note) {
         return `note:${note[1]}`;
     }
 
-    if (/^cut(\s|$)/.test(compact)) {
+    if (compact === 'cut' || compact.startsWith('cut ')) {
         return 'cut';
     }
 
-    if (compact === 'list tabs' || /^list\s+tabs(\s|$)/.test(compact)) {
+    if (compact === 'list tabs' || compact.startsWith('list tabs ')) {
         return 'tabs';
     }
 
@@ -60,7 +63,7 @@ export function normalizeLiquidTag(tag: string): string | null {
         return compact;
     }
 
-    const condition = /^(if|elsif)\s+(.*)$/.exec(compact);
+    const condition = /^(if|elsif) (.+)$/.exec(compact);
     if (condition) {
         return `${condition[1]}:${condition[2]}`;
     }
@@ -68,6 +71,94 @@ export function normalizeLiquidTag(tag: string): string | null {
     // Unknown directives are compared verbatim: better a false diff
     // than a silently ignored construct.
     return compact;
+}
+
+/**
+ * Extracts link and image destinations, in order.
+ *
+ * Destinations are scanned by hand: `](target)` with one level of
+ * nested parentheses, which regular expressions cannot do in linear
+ * time. An angle-bracket destination (`](<target>)`) is unwrapped:
+ * both forms denote the same target, and the translate round-trip
+ * legitimately normalizes the brackets away.
+ */
+export function extractLinkTargets(text: string): string[] {
+    const targets: string[] = [];
+
+    for (const match of text.matchAll(/\]\(/g)) {
+        const start = match.index + match[0].length;
+        let depth = 0;
+        let end = -1;
+
+        for (let index = start; index < text.length; index++) {
+            const char = text[index];
+            if (char === '\n') {
+                break;
+            }
+            if (char === '(') {
+                depth++;
+            } else if (char === ')') {
+                if (depth === 0) {
+                    end = index;
+                    break;
+                }
+                depth--;
+            }
+        }
+
+        if (end === -1) {
+            continue;
+        }
+
+        let target = text.slice(start, end).trim();
+        if (target.startsWith('<') && target.endsWith('>')) {
+            target = target.slice(1, -1);
+        }
+
+        // Drop an optional title: `url "title"` / `url 'title'`.
+        const space = target.search(/\s/);
+        if (space !== -1) {
+            target = target.slice(0, space);
+        }
+
+        if (target) {
+            targets.push(target);
+        }
+    }
+
+    return targets;
+}
+
+function headingSignature(line: string): string | null {
+    let level = 0;
+    while (line[level] === '#') {
+        level++;
+    }
+
+    if (!level || level > 6 || (line[level] !== ' ' && line[level] !== '\t')) {
+        return null;
+    }
+
+    const anchor = ANCHOR.exec(line.trim());
+    return `${level}:${anchor ? '#' + anchor[1] : ''}`;
+}
+
+function collectTables(prose: ProseLine[]): {pipeRows: number; gridMarkers: number} {
+    let pipeRows = 0;
+    let gridMarkers = 0;
+
+    for (const {text} of prose) {
+        const trimmed = text.trim();
+        if (trimmed.startsWith('|') && trimmed.length > 1) {
+            pipeRows++;
+        }
+        if (trimmed.startsWith('#|') || trimmed === '|#' || trimmed.endsWith('|#')) {
+            gridMarkers++;
+        }
+        gridMarkers += countInline(trimmed, '||');
+    }
+
+    return {pipeRows, gridMarkers};
 }
 
 /**
@@ -85,17 +176,11 @@ export function markupSignature(content: string): MarkupSignature {
         }
     }
 
-    const links: string[] = [];
-    for (const match of stripInlineCode(text).matchAll(LINK)) {
-        links.push(match[1]);
-    }
-
     const headings: string[] = [];
     for (const {text: line} of page.prose) {
-        const heading = HEADING.exec(line);
+        const heading = headingSignature(line);
         if (heading) {
-            const anchor = ANCHOR.exec(heading[2]);
-            headings.push(`${heading[1].length}:${anchor ? '#' + anchor[1] : ''}`);
+            headings.push(heading);
         }
     }
 
@@ -103,28 +188,15 @@ export function markupSignature(content: string): MarkupSignature {
     for (const match of text.matchAll(VARIABLE)) {
         variables.push(`{{${match[1]}}}`);
     }
-    variables.sort();
-
-    let pipeRows = 0;
-    let gridMarkers = 0;
-    for (const {text: line} of page.prose) {
-        const trimmed = line.trim();
-        if (trimmed.startsWith('|') && trimmed.length > 1) {
-            pipeRows++;
-        }
-        if (trimmed.startsWith('#|') || trimmed === '|#' || trimmed.endsWith('|#')) {
-            gridMarkers++;
-        }
-        gridMarkers += countInline(trimmed, '||');
-    }
+    variables.sort(compareStrings);
 
     return {
         fences: page.fences,
         liquid,
-        links,
+        links: extractLinkTargets(stripInlineCode(text)),
         headings,
         variables,
-        tables: {pipeRows, gridMarkers},
+        tables: collectTables(page.prose),
     };
 }
 
@@ -172,6 +244,37 @@ function compareSequences(
     }
 }
 
+function compareFences(
+    before: MarkupSignature,
+    after: MarkupSignature,
+    violations: MarkupViolation[],
+) {
+    if (before.fences.length !== after.fences.length) {
+        violations.push({
+            type: 'fence-count',
+            detail: `code fences: ${before.fences.length} in source vs ${after.fences.length} in translation`,
+        });
+        return;
+    }
+
+    for (let index = 0; index < before.fences.length; index++) {
+        const sourceFence = before.fences[index];
+        const translatedFence = after.fences[index];
+        if (sourceFence.info !== translatedFence.info) {
+            violations.push({
+                type: 'fence-info',
+                detail: `fence #${index + 1} info: "${sourceFence.info}" became "${translatedFence.info}"`,
+            });
+        }
+        if (sourceFence.content !== translatedFence.content) {
+            violations.push({
+                type: 'fence-content',
+                detail: `fence #${index + 1} body changed: "${preview(sourceFence.content)}"`,
+            });
+        }
+    }
+}
+
 /**
  * Compares the markup structure of the source page and its translation.
  *
@@ -184,30 +287,7 @@ export function compareMarkup(source: string, translated: string): MarkupViolati
     const before = markupSignature(source);
     const after = markupSignature(translated);
 
-    if (before.fences.length === after.fences.length) {
-        for (let index = 0; index < before.fences.length; index++) {
-            const sourceFence = before.fences[index];
-            const translatedFence = after.fences[index];
-            if (sourceFence.info !== translatedFence.info) {
-                violations.push({
-                    type: 'fence-info',
-                    detail: `fence #${index + 1} info: "${sourceFence.info}" became "${translatedFence.info}"`,
-                });
-            }
-            if (sourceFence.content !== translatedFence.content) {
-                violations.push({
-                    type: 'fence-content',
-                    detail: `fence #${index + 1} body changed: "${preview(sourceFence.content)}"`,
-                });
-            }
-        }
-    } else {
-        violations.push({
-            type: 'fence-count',
-            detail: `code fences: ${before.fences.length} in source vs ${after.fences.length} in translation`,
-        });
-    }
-
+    compareFences(before, after, violations);
     compareSequences('liquid', 'liquid directives', before.liquid, after.liquid, violations);
     compareSequences('links', 'link targets', before.links, after.links, violations);
     compareSequences('headings', 'headings', before.headings, after.headings, violations);

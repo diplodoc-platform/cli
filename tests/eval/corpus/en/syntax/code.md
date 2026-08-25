@@ -33,9 +33,9 @@ For syntax highlighting, specify the language in which the code is written in th
 ````markdown
 ```sql
   price= '2000'
-  size= '24'
+  size= '24'  
   color= 'primary'
-  variant= 'detailed'
+  variant= 'detailed' 
 ```
 ````
 
@@ -89,9 +89,9 @@ Usage example:
 ````markdown
 ```sql showLineNumbers
   price = '2000'
-  size = '24'
+  size = '24'  
   color = 'primary'
-  variant = 'detailed'
+  variant = 'detailed' 
 ```
 ````
 
@@ -111,14 +111,14 @@ To enable soft wrap by default in a code block, use the keyword `wrap`.
 Usage example:
 
 ````markdown
-```wrap
+``` wrap
 Очень длинная строка в блоке кода, которая точно не поместится в длину, если её искусственно не свернуть
 ```
 ````
 
 **Result:**
 
-```wrap
+``` wrap
 Очень длинная строка в блоке кода, которая точно не поместится в длину, если её искусственно не свернуть
 ```
 

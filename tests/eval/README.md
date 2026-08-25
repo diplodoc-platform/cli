@@ -46,6 +46,10 @@ the constructs a translation must preserve:
   so repeats must be mirrored in both languages. In particular, `en/toc.yaml`
   names must match the en page titles exactly where the ru names match
   the ru titles.
+- Glossary entries carry an explicit `sourceStem`: the invariant prefix
+  that matches every inflected form of the term on the source pages.
+  The eval checker uses it instead of language-specific stemming;
+  `yfm translate` ignores the field.
 - Do not add a live `{% file %}` directive: its translate round-trip is
   lossy upstream (compose mangles the directive), which would keep the
   markup gate permanently red. A fenced example is fine.

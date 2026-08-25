@@ -3,12 +3,11 @@
 A note is a highlighted block with important information.
 
 Depending on the content, notes with different headings and formatting are used:
-
-- ["Note"](#info) — additional information.
-- ["Tip"](#tip) — a recommendation.
-- ["Important"](#warning) — a caution.
-- ["Alert"](#alert) — a restriction.
-- A note with a custom heading.
+* ["Note"](#info) — additional information.
+* ["Tip"](#tip) — a recommendation.
+* ["Important"](#warning) — a caution.
+* ["Alert"](#alert) — a restriction.
+* A note with a custom heading.
 
 Notes can include any YFM markup, but it is not recommended to overload them with elements. Choose simple formatting and do not use notes too often, as this will distract the user from the main content.
 
@@ -33,7 +32,7 @@ This is a note.
 {% endnote %}
 
 ## Tip {#tip}
-
+  
 ```markdown
 {% note tip %}
 
@@ -67,7 +66,7 @@ This is a tip.
 This is important information.
 
 {% endnote %}
-
+  
 ## Alert {#alert}
 
 ```markdown

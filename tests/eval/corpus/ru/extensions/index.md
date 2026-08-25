@@ -11,7 +11,6 @@ description: Как устанавливать и подключать расш�
 Перед использованием расширения его необходимо загрузить. Это можно сделать с использованием `npm` через команду `npm install ...` или сохранив локально файлы расширения, что подходит – в том числе – для использования расширений [собственной разработки](../dev/extensions-api.md).
 
 Пример — установка расширения для [подключения Algolia](../project/algolia.md):
-
 ```
 npm install @diplodoc/algolia-extension
 ```
@@ -21,15 +20,15 @@ npm install @diplodoc/algolia-extension
 Подключить расширение к проекту можно одним из двух способов:
 
 1. Прописав его в `.yfm` проекта в [параметре](../settings.md#extensions) ##extensions##:
-   ```yaml
-   extensions:
-       - @diplodoc/algolia-extension
-       - /local/path/to/extension
-   ```
+    ```yaml
+    extensions:
+        - @diplodoc/algolia-extension
+        - /local/path/to/extension
+    ```
 2. Передав через параметр `-e` при вызове `yfm`:
-   ```
-   yfm build -e @diplodoc/algolia-extension
-   ```
+    ```
+    yfm build -e @diplodoc/algolia-extension
+    ```
 
 {% note info %}
 

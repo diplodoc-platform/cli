@@ -1,5 +1,6 @@
 import type {AddressInfo} from 'node:net';
 import type {ChatRequestMessage, TmLookup} from './mock';
+import type {Server} from 'node:http';
 
 import {createServer} from 'node:http';
 
@@ -61,12 +62,15 @@ function startChatServer(handler: ChatHandler): Promise<BaseServer> {
             const {port} = server.address() as AddressInfo;
             resolve({
                 apiBase: `http://127.0.0.1:${port}/v1`,
-                close: () =>
-                    new Promise<void>((done, fail) =>
-                        server.close((error) => (error ? fail(error) : done())),
-                    ),
+                close: () => closeServer(server),
             });
         });
+    });
+}
+
+function closeServer(server: Server): Promise<void> {
+    return new Promise((done, fail) => {
+        server.close((error) => (error ? fail(error) : done()));
     });
 }
 

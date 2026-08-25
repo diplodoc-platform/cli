@@ -90,7 +90,7 @@ export function buildTranslationMemory(
         const page = stripLang(file);
         const reference = referenceByPage.get(page);
 
-        if (!reference || reference.length !== units.length) {
+        if (reference?.length !== units.length) {
             mismatched.push(
                 `${page} (${units.length} source units vs ${reference ? reference.length : 'no'} reference units)`,
             );

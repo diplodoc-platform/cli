@@ -3,9 +3,8 @@
 ## Variables
 
 You can declare a variable in one of the following ways:
-
-- pass it in the settings when [building documentation](../tools/docs/index.md#use);
-- describe it in the [variable presets file](../project/presets.md).
+* pass it in the settings when [building documentation](../tools/docs/index.md#use);
+* describe it in the [variable presets file](../project/presets.md).
 
 Below are the options for using variables in a document.
 
@@ -44,7 +43,6 @@ You can use the conditional operators `if`, `else`, and `elsif` to include speci
 
 {% endif %}
 ```
-
 Conditional operators can be applied not only to text blocks but also to text fragments within lines.
 
 ```markdown
@@ -58,12 +56,11 @@ Comparison operators: `== , != , > , < , >= , <=`
 Logical operators: `and , or`
 
 The `contains` operator:
-
-- for string A, checks that it contains substring B
+* for string A, checks that it contains substring B
   ```
   {% if Object.title contains 'API' %}
   ```
-- for array A, checks that it contains element B
+* for array A, checks that it contains element B
   ```
   {% if keywords contains 'Extension' %}
   ```
@@ -79,7 +76,6 @@ Use loops to output repeated content for each element of an array. Inside a loop
 
 {% endfor %}
 ```
-
 {% cut "Examples of using loops" %}
 
 Suppose the [variable presets file](../project/presets.md) defines an array `users`:
@@ -90,13 +86,10 @@ default:
     - Alice
     - Mark
 ```
-
 Then using loops will produce the following results:
-
 ```markdown translate=no
 Prefix {% for user in users %} not_var{{user}} {% endfor %} Postfix
 ```
-
 Prefix Alice Mark Postfix
 
 ```markdown translate=no
@@ -122,15 +115,14 @@ Postfix
 
 To apply a filter, add the operator `|` and the filter name to the variable. The operator is separated by spaces on both sides.
 
-| Filter       | Description                                                         |
-| ------------ | ------------------------------------------------------------------- |
-| `capitalize` | Converts the first letter found in the variable value to uppercase. |
-| `length`     | Calculates the length of the variable value.                        |
+ Filter | Description 
+ --- | --- 
+ `capitalize` | Converts the first letter found in the variable value to uppercase.
+ `length` | Calculates the length of the variable value.
 
 {% cut "Examples of using filters" %}
 
 Suppose the [variable presets file](../project/presets.md) defines:
-
 ```yaml translate=no
 default:
   user:
@@ -153,7 +145,6 @@ not_var{{ users | length }}
 
 not_var{{ user.name | length }} | length
 ```
-
 2
 
 5
@@ -164,17 +155,15 @@ not_var{{ user.name | length }} | length
 
 To call a function, add the character `.` to the variable, specify its name, and pass the required parameters in parentheses `()`.
 
-The function `slice(beginIndex, endIndex)` returns the specified part of the original array as a new array object.
+The function `slice(beginIndex, endIndex)` returns the specified part of the original array as a new array object. 
 Parameters:
-
-- `beginIndex` — the index of the element from which the extraction starts (numbering starts at 0).
-- `endIndex`— the index of the element at which the extraction ends (numbering starts at 0).
-  If the parameter is not specified, all elements from the starting position to the end of the array are selected.
+   * `beginIndex` — the index of the element from which the extraction starts (numbering starts at 0).
+   * `endIndex`— the index of the element at which the extraction ends (numbering starts at 0). 
+If the parameter is not specified, all elements from the starting position to the end of the array are selected.
 
 {% cut "Examples of using functions" %}
 
 Let the following be set in the [variable presets file](../project/presets.md):
-
 ```yaml
 default:
   user:
@@ -182,13 +171,11 @@ default:
 ```
 
 Then using the functions will lead to the following results:
-
 ```markdown
 Hello Pnot_var{{ user.name.slice(1) }}!
 
 Hello Pnot_var{{ user.name.slice(1, 2) }}vel!
 ```
-
 Hello Pasha!
 
 Hello Pavel!

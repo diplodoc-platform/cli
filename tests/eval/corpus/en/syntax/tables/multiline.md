@@ -6,9 +6,9 @@ Multiline tables support [cell merging](#span).
 
 ## Syntax {#syntax}
 
-- the table starts with `#|` and ends with `|#`;
-- rows start and end with `||`;
-- cells are separated by the `|` character.
+* the table starts with `#|` and ends with `|#`;
+* rows start and end with `||`;
+* cells are separated by the `|` character.
 
 {% note tip "Table headers" %}
 
@@ -34,19 +34,18 @@ You can also use the table attribute `header-rows` for semantic markup of header
 
 ## Multiline text {#multirow}
 
-You can place any multiline text in a table cell. For example, lists.
+You can place any multiline text in a table cell. For example, lists. 
 
 ```markdown
 #|
 ||Текст
 на двух строчках
 |
-
 - Текст 1
 - Текст 2
 - Текст 3
 - Текст 4||
-  |#
+|#
 ```
 
 **Result:**
@@ -55,12 +54,11 @@ You can place any multiline text in a table cell. For example, lists.
 ||Text
 on two lines
 |
-
 - Text 1
 - Text 2
 - Text 3
 - Text 4||
-  |#
+|#
 
 Or even another table:
 
@@ -108,11 +106,11 @@ Text below the nested table||
 
 You can set attributes for a table at three levels: for the entire table, for an individual row, and for an individual cell.
 
-| Level | Syntax         | Where it is located                                                                                                |
-| ----- | -------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Table | `\|:{ ... }`   | On a separate line between `#\|` and the first row `\|\|`                                                          |
-| Line  | `\|\|:{ ... }` | On the same line as `\|\|`, immediately after it                                                                   |
-| Cell  | `::{ ... }`    | At the beginning of the cell content, immediately after `\|` (or after `\|\|:{ ... }` for the first cell of a row) |
+| Level  | Syntax       | Where it is located                                                                |
+| -------- | --------------- | -------------------------------------------------------------------------------- |
+| Table  | `\|:{ ... }`    | On a separate line between `#\|` and the first row `\|\|`                          |
+| Line   | `\|\|:{ ... }`  | On the same line as `\|\|`, immediately after it                                  |
+| Cell   | `::{ ... }`     | At the beginning of the cell content, immediately after `\|` (or after `\|\|:{ ... }` for the first cell of a row) |
 
 Attributes for the entire table are set on a separate line between `#|` and the first row `||`:
 
@@ -178,13 +176,13 @@ The value of `N` must be a positive integer.
 
 ## Custom cell sizes {#size}
 
-Cell sizes can be controlled using attributes.
+Cell sizes can be controlled using attributes.    
 
 {% list tabs %}
 
 - Cell width
 
-  To set a custom cell width, use the syntax `{style="width: 400px"}` inside the cell.
+  To set a custom cell width, use the syntax `{style="width: 400px"}` inside the cell. 
 
   ```markdown
   #|
@@ -220,81 +218,83 @@ Cell sizes can be controlled using attributes.
 
 {% endlist %}
 
+
 ## Merging cells {#span}
 
 Cells can be merged vertically using a cell with the "^" character:
 
 ```markdown
 #|
-|| Заголовок1 | Заголовок2 ||
-|| Текст на два ряда | Другой текст ||
-|| ^ | Еще текст ||
+|| Заголовок1         | Заголовок2   ||
+|| Текст на два ряда  | Другой текст ||
+|| ^                  | Еще текст    ||
 |#
 ```
 
 **Result**
 
 #|
-|| Header1 | Header2 ||
-|| Text spanning two rows | Another text ||
-|| ^ | More text ||
+|| Header1         | Header2   ||
+|| Text spanning two rows  | Another text ||
+|| ^                  | More text    ||
 |#
+
 
 Horizontal merging is supported via the ">" character:
 
 ```markdown
 #|
-|| Заголовок1 | Заголовок2 ||
-|| Текст на две колонки | > ||
-|| Другой текст | Еще текст ||
+|| Заголовок1            | Заголовок2   ||
+|| Текст на две колонки  | >            ||
+|| Другой текст          | Еще текст    ||
 |#
 ```
 
 **Result**
 
 #|
-|| Header1 | Header2 ||
-|| Text spanning two columns | > ||
-|| Another text | More text ||
+|| Header1            | Header2   ||
+|| Text spanning two columns  | >            ||
+|| Another text          | More text    ||
 |#
 
 Cell merge characters can be used together:
 
 ```markdown
 #|
-|| Заголовок1 | Заголовок2 | Заголовок3 ||
-|| Текст на две колонки и два ряда | > | Текст ||
-|| ^ | > | Еще текст ||
+|| Заголовок1                       | Заголовок2   | Заголовок3 || 
+|| Текст на две колонки и два ряда  | >            | Текст      ||
+|| ^                                | >            | Еще текст  ||
 |#
 ```
 
 **Result**
 
 #|
-|| Header1 | Header2 | Header3 ||
-|| Text spanning two columns and two rows | > | Text ||
-|| ^ | > | More text ||
+|| Header1                       | Header2   | Header3 ||
+|| Text spanning two columns and two rows  | >            | Text      ||
+|| ^                                | >            | More text  ||
 |#
 
 ### Escaping cell merge characters
 
 To get a cell with one of the merge characters, you can use escaping with "\",
-i.e. "\^" and "\>".
+i.e. "\^" and "\>". 
 
 ```markdown
 #|
-|| Заголовок1 | Заголовок2 | Заголовок3 ||
-|| Текст на одну ячейку | \> | Текст ||
-|| \^ | \> | Еще текст ||
+|| Заголовок1                       | Заголовок2 | Заголовок3 || 
+|| Текст на одну ячейку             | \>         | Текст      ||
+|| \^                               | \>         | Еще текст  ||
 |#
 ```
 
 **Result**
 
 #|
-|| Header1 | Header2 | Header3 ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | More text ||
+|| Header1                       | Header2 | Header3 ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | More text  ||
 |#
 
 ## Text alignment in cells {#cell-align}
@@ -303,18 +303,18 @@ To control the alignment of cell content, use the cell attribute `align`:
 
 ```markdown
 #|
-|| Заголовок1 | Заголовок2 | Заголовок3 ||
-||::{align="center"} Текст на две колонки и два ряда | > | Текст ||
-|| ^ | > | Еще текст ||
+|| Заголовок1                              | Заголовок2 | Заголовок3 ||
+||::{align="center"} Текст на две колонки и два ряда | >          | Текст      ||
+|| ^                                       | >          | Еще текст  ||
 |#
 ```
 
 **Result**
 
 #|
-|| Header1 | Header2 | Header3 ||
-||::{align="center"} Text spanning two columns and two rows | > | Text ||
-|| ^ | > | More text ||
+|| Header1                              | Header2 | Header3 ||
+||::{align="center"} Text spanning two columns and two rows | >          | Text      ||
+|| ^                                       | >          | More text  ||
 |#
 
 The following values are available:
@@ -337,9 +337,9 @@ Previously, the class syntax `{.cell-align-*}` was used for alignment inside the
 
 ```markdown
 #|
-|| Заголовок1 | Заголовок2 | Заголовок3 ||
-|| Текст на две колонки и два ряда {.cell-align-center} | > | Текст ||
-|| ^ | > | Еще текст ||
+|| Заголовок1                                           | Заголовок2 | Заголовок3 ||
+|| Текст на две колонки и два ряда {.cell-align-center} | >          | Текст      ||
+|| ^                                                    | >          | Еще текст  ||
 |#
 ```
 
@@ -365,7 +365,6 @@ Wide tables are convenient to open in a modal window. In multiline tables, this 
 || Текст | Текст ||
 |# {wide-content}
 ```
-
 **Result**
 
 #|
@@ -381,45 +380,45 @@ For simple and multiline tables, you can limit the height by adding the attribut
 
 ```markdown
 #|
-|| Заголовок1 | Заголовок2 | Заголовок3 ||
-|| Текст на одну ячейку | \> | Текст ||
-|| \^ | \> | Еще текст ||
-|| Текст на одну ячейку | \> | Текст ||
+|| Заголовок1                       | Заголовок2 | Заголовок3 ||
+|| Текст на одну ячейку             | \>         | Текст      ||
+|| \^                               | \>         | Еще текст  ||
+|| Текст на одну ячейку             | \>         | Текст      ||
 ...
-|| \^ | \> | Еще текст ||
-|| Текст на одну ячейку | \> | Текст ||
-|| \^ | \> | **Еще текст** ||
+|| \^                               | \>         | Еще текст  ||
+|| Текст на одну ячейку             | \>         | Текст      ||
+|| \^                               | \>         | **Еще текст**  ||
 |#
 
 {sticky-header}
 ```
 
 #|
-|| Header1 | Header2 | Header3 ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | More text ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | **More text** ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | More text ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | **More text** ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | More text ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | **More text** ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | More text ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | **More text** ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | More text ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | **More text** ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | More text ||
-|| Text in one cell | \> | Text ||
-|| \^ | \> | **More text** ||
+|| Header1                       | Header2 | Header3 ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | More text  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | **More text**  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | More text  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | **More text**  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | More text  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | **More text**  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | More text  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | **More text**  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | More text  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | **More text**  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | More text  ||
+|| Text in one cell             | \>         | Text      ||
+|| \^                               | \>         | **More text**  ||
 |#
 
 {sticky-header}
