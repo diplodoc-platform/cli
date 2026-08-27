@@ -1,0 +1,34 @@
+title: Diplodoc
+items:
+  - name: Overview
+    href: about.md
+  - name: Quick start
+    href: quickstart.md
+  - name: Syntax
+    items:
+      - name: Notes
+        href: syntax/notes.md
+      - name: Code blocks
+        href: syntax/code.md
+      - name: Terms
+        href: syntax/term.md
+      - name: Variables
+        href: syntax/vars.md
+      - name: Links
+        href: syntax/links.md
+      - name: Lists
+        href: syntax/lists.md
+      - name: Tables
+        items:
+          - name: Basic tables
+            href: syntax/tables/gfm.md
+          - name: Multiline tables
+            href: syntax/tables/multiline.md
+  - name: Project
+    items:
+      - name: Table of contents on the page
+        href: project/minitoc.md
+  - name: Extensions
+    items:
+      - name: Extensions overview
+        href: extensions/index.md

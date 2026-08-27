@@ -59,6 +59,7 @@
     "start": "node build/index.js",
     "test": "vitest run -c vitest.units.config.ts",
     "test:coverage": "vitest run -c vitest.units.config.ts --coverage",
+    "translate:eval": "node scripts/translate-eval.mjs",
     "test:watch": "vitest -c vitest.units.config.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tests/tsconfig.json",
     "lint": "lint",

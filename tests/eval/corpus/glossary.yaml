@@ -1,0 +1,26 @@
+# Required term translations for the eval corpus.
+#
+# sourceText/translatedText are the fields `yfm translate --glossary`
+# understands and injects into the prompt. sourceStem is consumed only
+# by the eval checker: it is the invariant prefix that matches every
+# inflected form of the term in the source pages, so the checker needs
+# no language-specific stemming.
+glossaryPairs:
+  - sourceText: заметка
+    translatedText: note
+    sourceStem: заметк
+  - sourceText: переменная
+    translatedText: variable
+    sourceStem: переменн
+  - sourceText: оглавление
+    translatedText: table of contents
+    sourceStem: оглавлени
+  - sourceText: ссылка
+    translatedText: link
+    sourceStem: ссылк
+  - sourceText: вкладка
+    translatedText: tab
+    sourceStem: вкладк
+  - sourceText: термин
+    translatedText: term
+    sourceStem: термин

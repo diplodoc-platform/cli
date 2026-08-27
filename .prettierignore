@@ -14,3 +14,4 @@ node_modules
 /coverage
 /external
 /tests/mocks
+/tests/eval/corpus
