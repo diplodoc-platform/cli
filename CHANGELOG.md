@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.57.0](https://github.com/diplodoc-platform/cli/compare/v5.56.0...v5.57.0) (2026-08-27)
+
+
+### Features
+
+* **translate:** add translation quality eval harness ([#2225](https://github.com/diplodoc-platform/cli/issues/2225)) ([d99f3f2](https://github.com/diplodoc-platform/cli/commit/d99f3f289ea2d843851aca7e6f6d257e1fbe153e))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/transform@4.77.13 ([8c39735](https://github.com/diplodoc-platform/cli/commit/8c3973512d51392a4750da658c76d8477cbde4c3))
+* **deps:** Update @diplodoc/transform@4.77.14 ([34086cc](https://github.com/diplodoc-platform/cli/commit/34086cc2e8931e5a57e46af04022c4b2615576de))
+* **deps:** Update dev:@diplodoc/page-constructor-extension@0.13.13 ([094c84b](https://github.com/diplodoc-platform/cli/commit/094c84b99826227769350f731a04fc6d7793fa98))
+* **deps:** update e2e snapshot ([59d375f](https://github.com/diplodoc-platform/cli/commit/59d375fc39bf4bc0a09ad1b5d62c864286e558c9))
+
 ## [5.56.0](https://github.com/diplodoc-platform/cli/compare/v5.55.3...v5.56.0) (2026-08-25)
 
 
