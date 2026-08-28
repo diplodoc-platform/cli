@@ -6,7 +6,7 @@ import dedent from 'ts-dedent';
 
 import {bounded, normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
-import {BUNDLE_FOLDER} from '~/constants';
+import {BUNDLE_FOLDER, THEME_ASSETS_PATH} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
 import {DefaultSearchProvider} from './provider';
@@ -121,6 +121,10 @@ export class SearchService implements SearchProvider<RelativePath> {
             .filter((file: string) => template.isRTL === file.includes('.rtl.css'))
             .map(rebase)
             .map(template.addStyle);
+
+        if (this.run.exists(join(this.run.output, THEME_ASSETS_PATH))) {
+            template.addStyle(THEME_ASSETS_PATH);
+        }
 
         this.run.manifest.search.js.map(rebase).map(template.addScript);
 
