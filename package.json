@@ -133,7 +133,7 @@
     "@diplodoc/openapi-extension": "^5.2.4",
     "@diplodoc/page-constructor-extension": "^0.13.14",
     "@diplodoc/search-extension": "^3.1.1",
-    "@diplodoc/yfmlint": "^1.9.3",
+    "@diplodoc/yfmlint": "^1.9.4",
     "@octokit/core": "4.2.4",
     "@types/async": "3.2.15",
     "@types/chalk": "2.2.0",
