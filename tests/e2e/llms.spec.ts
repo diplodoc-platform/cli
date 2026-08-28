@@ -9,7 +9,8 @@ describe('llms.txt', () => {
     //   - md  output -> `${outputPath}`      (llms-full.txt has includes merged)
     //   - html output -> `${outputPath}-html` (llms-full.txt keeps include directives)
     // The fixture also has per-page frontmatter descriptions (surfaced in
-    // llms.txt) and a `when: showBeta` page that the default version filters
+    // llms.txt), a toc-level `noIndex` page that is built but excluded from both
+    // LLM artifacts, and a `when: showBeta` page that the default version filters
     // out — proving the artifacts stay consistent with the built "version".
     test('generates llms.txt and llms-full.txt for md and html', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/llms');
@@ -34,6 +35,27 @@ describe('llms.txt', () => {
         expect(staticContent).toContain('Instructions for a human reader.');
         expect(staticContent).not.toContain('Instructions for an autonomous agent.');
         await expect(access(join(`${outputPath}-html`, 'llms-full-agent.txt'))).rejects.toThrow();
+    });
+
+    test('toc noIndex remains excluded with worker processing', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/llms');
+        const jobsOutputPath = `${outputPath}-jobs`;
+
+        await TestAdapter.testBuildPass(inputPath, jobsOutputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--llms --jobs 2',
+        });
+
+        const [index, full, api] = await Promise.all([
+            readFile(join(jobsOutputPath, 'llms.txt'), 'utf8'),
+            readFile(join(jobsOutputPath, 'llms-full.txt'), 'utf8'),
+            readFile(join(jobsOutputPath, 'api.md'), 'utf8'),
+        ]);
+
+        expect(index).not.toContain('API Reference');
+        expect(full).not.toContain('GET /things');
+        expect(api).toContain('noIndex: true');
     });
 
     test('llms-full.txt respects --llms-full-max-size limit', async () => {
