@@ -1,9 +1,11 @@
-import {describe, expect, it} from 'vitest';
 import {existsSync} from 'node:fs';
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
+import {describe, expect, it} from 'vitest';
 
 import {TestAdapter, getTestPaths} from '../fixtures';
+
+const THEME_STYLE_PATTERN = /_assets[\\/]style[\\/]theme\.css/;
 
 describe('Build themer feature', () => {
     it.each([
@@ -97,12 +99,28 @@ describe('Build themer feature', () => {
         expect(customIndex).toBeGreaterThan(themeIndex);
     });
 
+    it('adds theme styles to the search page', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/themer/test1');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: false,
+            md2html: true,
+            args: '--search',
+        });
+
+        const htmlPath = join(outputPath, '_search', 'ru', 'index.html');
+        const html = await readFile(htmlPath, 'utf8');
+
+        expect(html).toMatch(THEME_STYLE_PATTERN);
+    });
+
     it('does not generates theme.css if not theme.yaml and flag', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/themer/test3');
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: false,
             md2html: true,
+            args: '--search',
         });
 
         const htmlPath = join(outputPath, 'index.html');
@@ -110,6 +128,9 @@ describe('Build themer feature', () => {
 
         const themeIndex = html.indexOf('_assets/style/theme.css');
         expect(themeIndex).toBe(-1);
+
+        const searchHtml = await readFile(join(outputPath, '_search', 'ru', 'index.html'), 'utf8');
+        expect(searchHtml).not.toMatch(THEME_STYLE_PATTERN);
 
         const themePath = join(outputPath, '_assets', 'style', 'theme.css');
         expect(existsSync(themePath)).toBe(false);
