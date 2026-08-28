@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.57.2](https://github.com/diplodoc-platform/cli/compare/v5.57.1...v5.57.2) (2026-08-28)
+
+
+### Bug Fixes
+
+* added theme.css on search page ([#2232](https://github.com/diplodoc-platform/cli/issues/2232)) ([662be50](https://github.com/diplodoc-platform/cli/commit/662be509a60f44c21b8592d2780117fe5ab82fbc))
+
 ## [5.57.1](https://github.com/diplodoc-platform/cli/compare/v5.57.0...v5.57.1) (2026-08-27)
 
 
