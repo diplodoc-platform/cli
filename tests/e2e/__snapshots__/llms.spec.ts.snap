@@ -36,6 +36,7 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 2`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+noIndex: true
 description: Full reference of the public HTTP endpoints.
 vcsPath: api.md
 alternate:
@@ -93,12 +94,6 @@ Run the installer and create your first project.
 
 - Node.js 18+
 - 2 GB RAM
-
-# API Reference
-
-## GET /things
-
-Returns the list of things.
 "
 `;
 
@@ -111,7 +106,6 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 5`] = `
 
 - [Overview](index.md): What this product is and how to get started.
 - [Getting Started](start.md): Install the product and build your first project.
-- [API Reference](api.md): Full reference of the public HTTP endpoints.
 
 ---
 
@@ -156,6 +150,7 @@ items:
     href: start.md
   - name: API Reference
     href: api.md
+    noIndex: true
 path: toc.yaml
 "
 `;
@@ -183,7 +178,7 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 9`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h2 id=\\"get-/things\\"&gt;&lt;a href=\\"api.html#get-/things\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;GET /things&lt;/span&gt;&lt;/a&gt;GET /things&lt;/h2&gt;/n&lt;p&gt;Returns the list of things.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Full reference of the public HTTP endpoints."}],"description":"Full reference of the public HTTP endpoints.","vcsPath":"api.md","alternate":[{"href":"llms.txt","type":"text/markdown","title":"llms.txt"}]},"headings":[{"title":"GET /things","href":"api.html#get-/things","level":2}],"title":"API Reference"},"router":{"pathname":"api","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
+            {"data":{"leading":false,"html":"&lt;h2 id=\\"get-/things\\"&gt;&lt;a href=\\"api.html#get-/things\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;GET /things&lt;/span&gt;&lt;/a&gt;GET /things&lt;/h2&gt;/n&lt;p&gt;Returns the list of things.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Full reference of the public HTTP endpoints."}],"noIndex":true,"description":"Full reference of the public HTTP endpoints.","vcsPath":"api.md","alternate":[{"href":"llms.txt","type":"text/markdown","title":"llms.txt"}]},"headings":[{"title":"GET /things","href":"api.html#get-/things","level":2}],"title":"API Reference"},"router":{"pathname":"api","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -242,12 +237,6 @@ Run the installer and create your first project.
 
 - Node.js 18+
 - 2 GB RAM
-
-# API Reference
-
-## GET /things
-
-Returns the list of things.
 "
 `;
 
@@ -260,7 +249,6 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 12`] = 
 
 - [Overview](index.html): What this product is and how to get started.
 - [Getting Started](start.html): Install the product and build your first project.
-- [API Reference](api.html): Full reference of the public HTTP endpoints.
 
 ---
 
@@ -298,4 +286,4 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 13`] = 
 </html>"
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 14`] = `"window.__DATA__.data.toc = {"title":"My Product","href":"index.html","items":[{"name":"Getting Started","href":"start.html","id":"UUID"},{"name":"API Reference","href":"api.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 14`] = `"window.__DATA__.data.toc = {"title":"My Product","href":"index.html","items":[{"name":"Getting Started","href":"start.html","id":"UUID"},{"name":"API Reference","href":"api.html","noIndex":true,"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

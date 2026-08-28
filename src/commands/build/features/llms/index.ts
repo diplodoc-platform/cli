@@ -52,6 +52,7 @@ type LlmsEntry = {
 
 type LlmsTocItem = {
     hidden?: boolean;
+    noIndex?: boolean;
     href?: NormalizedPath;
     name?: string;
     items?: LlmsTocItem[];
@@ -63,10 +64,10 @@ type LlmsTocItem = {
  *
  * Runs in `AfterAnyRun`, so it works for both `md` and `html` builds. By that
  * point the toc is already resolved and filtered for the current build
- * (vars/conditions and `removeEmptyTocItems`). Hidden items are filtered here
- * independently of `removeHiddenTocItems`, and pages marked `noIndex` in their
- * front matter are dropped as well, so neither leaks into either artifact while
- * both remain available to the regular build. Walking
+ * (vars/conditions and `removeEmptyTocItems`). Hidden and `noIndex` TOC branches
+ * are filtered here independently of `removeHiddenTocItems`, and pages marked
+ * `noIndex` in their front matter are dropped as well, so none leak into either
+ * artifact while they remain available to the regular build. Walking
  * `run.toc.tocs` mirrors `SinglePage`.
  *
  * `llms-full.txt` is assembled with {@link MarkdownCollector} — the same engine
@@ -154,8 +155,8 @@ export class Llms {
      * `noIndex` means "keep this page out of indexes". An LLM corpus is exactly
      * such an index, so these pages must not reach `llms.txt` or `llms-full.txt`
      * — the same reasoning as for `hidden` in {@link collectEntries}; only the
-     * source of the flag differs: `hidden` is a toc property, `noIndex` is page
-     * meta.
+     * source of the flag differs: TOC flags are handled synchronously in
+     * {@link collectEntries}, while page metadata must be read here.
      *
      * This lives here rather than in `collectEntries` because meta is read
      * asynchronously. Filtering once for both artifacts also guarantees the index
@@ -212,8 +213,10 @@ export class Llms {
     private collectEntries(toc: LlmsTocItem, tocDir: string): LlmsEntry[] {
         const entries: LlmsEntry[] = [];
 
-        const visit = (item: LlmsTocItem, parentName = '') => {
-            if (item.hidden) {
+        const visit = (item: LlmsTocItem, parentName = '', inheritedNoIndex = false) => {
+            const noIndex = inheritedNoIndex || item.noIndex === true;
+
+            if (item.hidden || noIndex) {
                 return;
             }
 
@@ -227,7 +230,7 @@ export class Llms {
             }
 
             const childParentName = typeof item.name === 'string' ? item.name : parentName;
-            item.items?.forEach((child) => visit(child, childParentName));
+            item.items?.forEach((child) => visit(child, childParentName, noIndex));
         };
 
         visit(toc);

@@ -114,10 +114,10 @@ describe('LLMs Plugin Architecture', () => {
         llmsInstance = new Llms() as unknown as TestableLlms;
     });
 
-    // `noIndex` is the front-matter twin of the toc-level `hidden` flag: both mean
-    // "keep this page out of indexes", and an LLM corpus is an index. Filtering
-    // belongs to the build, because the flag is static and identical for every
-    // reader — consumers must be able to trust the generated artifacts as-is.
+    // `noIndex` means "keep this page out of indexes", and an LLM corpus is an
+    // index. Filtering belongs to the build, because the flag is static and
+    // identical for every reader — consumers must be able to trust the generated
+    // artifacts as-is.
     describe('excludeNoIndex', () => {
         const entry = (path: string) => ({
             href: normalizedPath(path),
@@ -404,6 +404,61 @@ describe('LLMs Plugin Architecture', () => {
                     parentName: 'Visible section',
                 },
             ]);
+        });
+
+        it('excludes noIndex pages and descendant pages', () => {
+            const toc = {
+                path: normalizedPath('docs/toc.yaml'),
+                id: 'docs',
+                items: [
+                    {
+                        id: 'visible-page',
+                        name: 'Visible page',
+                        href: normalizedPath('visible.md'),
+                    },
+                    {
+                        id: 'private-section',
+                        name: 'Private section',
+                        href: normalizedPath('private.md'),
+                        noIndex: true,
+                        items: [
+                            {
+                                id: 'private-child',
+                                name: 'Private child',
+                                href: normalizedPath('private-child.md'),
+                                noIndex: false,
+                            },
+                        ],
+                    },
+                ],
+            } satisfies Toc;
+
+            expect(llmsInstance.collectEntries(toc, 'docs')).toEqual([
+                {
+                    href: 'visible.md',
+                    path: 'docs/visible.md',
+                    name: 'Visible page',
+                    parentName: '',
+                },
+            ]);
+        });
+
+        it('excludes all pages when the toc root has noIndex', () => {
+            const toc = {
+                path: normalizedPath('docs/toc.yaml'),
+                id: 'docs',
+                noIndex: true,
+                href: normalizedPath('index.md'),
+                items: [
+                    {
+                        id: 'child',
+                        name: 'Child',
+                        href: normalizedPath('child.md'),
+                    },
+                ],
+            } satisfies Toc;
+
+            expect(llmsInstance.collectEntries(toc, 'docs')).toEqual([]);
         });
     });
 

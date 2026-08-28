@@ -407,13 +407,26 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
             return null;
         }
 
+        const noIndex = item.noIndex === true || toc.noIndex === true;
+
         // named mode
         if (item.name) {
+            if (noIndex) {
+                item.noIndex = true;
+            }
             item.items = (item.items || []).concat((toc.items as RawTocItem[]) || []);
 
             return item;
         } else {
-            return toc.items as RawTocItem[];
+            const items = toc.items as RawTocItem[];
+
+            if (noIndex) {
+                items?.forEach((includedItem) => {
+                    includedItem.noIndex = true;
+                });
+            }
+
+            return items;
         }
     });
 

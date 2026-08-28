@@ -153,6 +153,19 @@ describe('MetaService', () => {
             expect(meta.description).toBe('Description');
             expect(meta.__system).toEqual({var1: 'value1', var2: 'value2'});
         });
+
+        it('keeps noIndex enabled regardless of metadata order', () => {
+            const firstFile = 'test/first.md' as NormalizedPath;
+            const secondFile = 'test/second.md' as NormalizedPath;
+
+            metaService.add(firstFile, {noIndex: true});
+            metaService.add(firstFile, {noIndex: false});
+            metaService.add(secondFile, {noIndex: false});
+            metaService.add(secondFile, {noIndex: true});
+
+            expect(metaService.get(firstFile).noIndex).toBe(true);
+            expect(metaService.get(secondFile).noIndex).toBe(true);
+        });
     });
 
     describe('addSystemVars()', () => {
@@ -248,6 +261,26 @@ describe('MetaService', () => {
             expect(unchangedMeta.title).toBe('Initial Title');
             expect(unchangedMeta.description).toBeUndefined(); // Should not be added
             expect(unchangedMeta.__system).toEqual({var1: 'value1'});
+        });
+
+        it('should preserve a toc noIndex when raw metadata disables it', () => {
+            const file = 'test/file.md' as NormalizedPath;
+            const metaService = new MetaService(createMockRun({rawAddMeta: true}));
+
+            metaService.add(file, {noIndex: true});
+            metaService.add(file, {title: 'Raw Title', noIndex: false}, true);
+
+            expect(metaService.get(file)).toMatchObject({title: 'Raw Title', noIndex: true});
+        });
+
+        it('should preserve a raw noIndex when toc metadata disables it', () => {
+            const file = 'test/file.md' as NormalizedPath;
+            const metaService = new MetaService(createMockRun({rawAddMeta: true}));
+
+            metaService.add(file, {title: 'Raw Title', noIndex: true}, true);
+            metaService.add(file, {noIndex: false});
+
+            expect(metaService.get(file)).toMatchObject({title: 'Raw Title', noIndex: true});
         });
 
         it('should merge metadata when rawAddMeta is false regardless of isRaw', () => {
