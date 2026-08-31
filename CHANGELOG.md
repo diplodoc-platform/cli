@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.57.3](https://github.com/diplodoc-platform/cli/compare/v5.57.2...v5.57.3) (2026-08-31)
+
+
+### Bug Fixes
+
+* **tests:** do not ship the translate eval e2e and corpus in the npm package ([#2234](https://github.com/diplodoc-platform/cli/issues/2234)) ([a43b6c7](https://github.com/diplodoc-platform/cli/commit/a43b6c7ad83fb48ab56f27250e6f9c3a8e5bcbe5))
+
 ## [5.57.2](https://github.com/diplodoc-platform/cli/compare/v5.57.1...v5.57.2) (2026-08-28)
 
 
