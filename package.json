@@ -47,6 +47,8 @@
     "build",
     "assets",
     "tests",
+    "!tests/e2e/translate-eval.spec.ts",
+    "!tests/eval",
     "vitest.integration.config.ts"
   ],
   "scripts": {

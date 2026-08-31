@@ -27,6 +27,8 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
   - `fixtures/` — test fixtures
   - `mocks/` — test mocks
 
+**Packaged tests contract:** `tests/` and `vitest.integration.config.ts` are shipped in the npm package (see `files` in `package.json`). Downstream consumers run the integration suite from the packaged layout against their own binary via the `DIPLODOC_BINARY_PATH` env variable. Therefore specs under `tests/` must not depend on anything outside `tests/` and the built CLI - in particular not on `scripts/` or `src/`, which are not shipped. A spec that needs them must be excluded from the package with a `!`-pattern in `files` (see `tests/e2e/translate-eval.spec.ts`).
+
 ### CLI Commands
 
 1. **build** — main command for building documentation
