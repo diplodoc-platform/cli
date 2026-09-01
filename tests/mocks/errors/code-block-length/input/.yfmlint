@@ -1,0 +1,5 @@
+YFM001:
+    maximum: 10
+
+log-levels:
+    YFM001: 'error'
