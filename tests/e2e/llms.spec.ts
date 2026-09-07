@@ -46,6 +46,32 @@ describe('llms.txt', () => {
         expect(api).toContain('noIndex: true');
     });
 
+    test('included toc noIndex propagates while hidden stays independent', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/llms-no-index');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--llms --jobs 2',
+        });
+
+        const [index, full, privatePage, hiddenPage] = await Promise.all([
+            readFile(join(outputPath, 'llms.txt'), 'utf8'),
+            readFile(join(outputPath, 'llms-full.txt'), 'utf8'),
+            readFile(join(outputPath, '_includes/private/private.md'), 'utf8'),
+            readFile(join(outputPath, 'hidden.md'), 'utf8'),
+        ]);
+
+        expect(index).toContain('Public page');
+        expect(index).not.toContain('Included private page');
+        expect(index).not.toContain('Hidden page');
+        expect(full).toContain('Public content');
+        expect(full).not.toContain('Private content');
+        expect(full).not.toContain('Hidden content');
+        expect(privatePage).toContain('noIndex: true');
+        expect(hiddenPage).not.toContain('noIndex: true');
+    });
+
     test('llms-full.txt respects --llms-full-max-size limit', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/llms');
 
