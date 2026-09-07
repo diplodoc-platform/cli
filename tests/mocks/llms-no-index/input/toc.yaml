@@ -1,0 +1,11 @@
+title: noIndex integration
+
+items:
+  - name: Public page
+    href: public.md
+  - include:
+      path: _includes/private/toc.yaml
+      mode: link
+  - name: Hidden page
+    href: hidden.md
+    hidden: true
