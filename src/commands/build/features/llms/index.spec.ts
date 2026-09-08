@@ -1,6 +1,7 @@
 import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type {Toc} from '~/core/toc';
 import type {LlmsConfig} from './index';
+import type {MarkdownCollector} from '../output-md/collect';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -105,6 +106,7 @@ type TestableLlms = {
     excludeNoIndex(run: Run, entries: unknown[]): Promise<unknown[]>;
     renderIndex(run: Run, title: string, entries: unknown[], tocDir: string): Promise<string>;
     renderFull(run: Run, title: string, entries: unknown[]): Promise<string>;
+    collectBody(run: Run, collector: MarkdownCollector, entryPath: NormalizedPath): Promise<string>;
 };
 
 describe('LLMs Plugin Architecture', () => {
@@ -715,6 +717,38 @@ describe('LLMs Plugin Architecture', () => {
 
             expect(result).toContain('# Full Book');
             expect(result).toContain('Collected Markdown Content');
+        });
+
+        it('should keep agent content and omit human content', async () => {
+            const run = createMockRun();
+            const collector = {
+                collect: vi
+                    .fn()
+                    .mockResolvedValue(
+                        [
+                            'Common content',
+                            '',
+                            ':::visibility humans',
+                            'Human instructions',
+                            ':::',
+                            '',
+                            ':::visibility agents',
+                            'Agent instructions',
+                            ':::',
+                        ].join('\n'),
+                    ),
+            } as unknown as MarkdownCollector;
+
+            const result = await llmsInstance.collectBody(
+                run,
+                collector,
+                normalizedPath('docs/page.md'),
+            );
+
+            expect(result).toContain('Common content');
+            expect(result).toContain('Agent instructions');
+            expect(result).not.toContain('Human instructions');
+            expect(result).not.toContain(':::visibility');
         });
 
         it('should totally ignore non-markdown documents like yaml files', async () => {
