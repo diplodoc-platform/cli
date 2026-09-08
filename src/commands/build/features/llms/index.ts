@@ -4,6 +4,7 @@ import type {Toc} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 import {extractFrontMatter} from '@diplodoc/liquid';
+import {filterAudienceContent} from '@diplodoc/transform/lib/plugins/visibility';
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -391,7 +392,14 @@ export class Llms {
             // Strip <style> and <script> blocks — they are useless for LLM
             // consumption (LLMs don't execute JS or apply CSS) and only add
             // noise to the corpus. Code blocks are protected (see stripHtmlTags).
-            return stripHtmlTags(body, ['style', 'script']);
+            const strippedBody = stripHtmlTags(body, ['style', 'script']);
+            const filteredBody = filterAudienceContent(strippedBody, 'agent');
+
+            for (const error of filteredBody.errors) {
+                run.logger.error(`llms-full.txt: ${entryPath}: ${error.message}`);
+            }
+
+            return filteredBody.content;
         } catch (error) {
             run.logger.warn(`llms-full.txt: unable to assemble ${entryPath}: ${error}`);
 
