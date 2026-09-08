@@ -24,8 +24,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 ## Index header
 
@@ -299,8 +298,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 # No-translate directive
 
@@ -369,8 +367,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 <!-- markdownlint-disable-file -->
 
@@ -474,8 +471,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 <div class="openapi">
 
@@ -561,8 +557,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 # test-controller
 
@@ -618,8 +613,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 ## Index header
 
@@ -893,8 +887,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 # No-translate directive
 
@@ -963,8 +956,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 <!-- markdownlint-disable-file -->
 
@@ -1068,8 +1060,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 <div class="openapi">
 
@@ -1155,8 +1146,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 # test-controller
 
