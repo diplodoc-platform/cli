@@ -199,6 +199,16 @@ describe('Template', () => {
                 '<link rel="alternate" href="/en/page.yaml" type="application/yaml" title="Yaml version" />',
             );
         });
+
+        it('should render describedby without alternate-only attributes', () => {
+            const template = new Template('index.html' as RelativePath, 'en');
+            template.addAlternates([{href: '/llms.txt', rel: 'describedby'}]);
+
+            const html = template.dump();
+
+            expect(html).toContain('<link rel="describedby" href="/llms.txt" />');
+            expect(html).not.toContain('title="llms.txt"');
+        });
     });
 
     describe('setTags', () => {

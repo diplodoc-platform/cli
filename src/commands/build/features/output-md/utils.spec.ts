@@ -118,9 +118,10 @@ describe('buildLlmsAlternate', () => {
         );
 
         expect(result).not.toBeNull();
-        expect(result!.href).toBe('https://example.com/llms.txt');
-        expect(result!.type).toBe('text/markdown');
-        expect(result!.title).toBe('llms.txt');
+        expect(result).toEqual({
+            href: 'https://example.com/llms.txt',
+            rel: 'describedby',
+        });
     });
 
     it('should use llms.url even when enabled is false', () => {
@@ -131,16 +132,17 @@ describe('buildLlmsAlternate', () => {
         );
 
         expect(result).not.toBeNull();
-        expect(result!.href).toBe('https://example.com/llms.txt');
+        expect(result).toEqual({
+            href: 'https://example.com/llms.txt',
+            rel: 'describedby',
+        });
     });
 
     it('should use relative llms.txt when enabled is true and no url', () => {
         const result = buildLlmsAlternate({enabled: true}, file, tocDir);
 
         expect(result).not.toBeNull();
-        expect(result!.href).toBe('llms.txt');
-        expect(result!.type).toBe('text/markdown');
-        expect(result!.title).toBe('llms.txt');
+        expect(result).toEqual({href: 'llms.txt', rel: 'describedby'});
     });
 
     it('should compute relative path for pages in subdirectories', () => {
@@ -148,7 +150,7 @@ describe('buildLlmsAlternate', () => {
         const result = buildLlmsAlternate({enabled: true}, deepFile, tocDir);
 
         expect(result).not.toBeNull();
-        expect(result!.href).toBe('../llms.txt');
+        expect(result).toEqual({href: '../llms.txt', rel: 'describedby'});
     });
 
     it('should return null when enabled is false and no url', () => {
@@ -174,8 +176,7 @@ describe('buildAlternateEntries', () => {
         expect(entries).toHaveLength(2);
         expect(entries[0].type).toBe('text/markdown');
         expect(entries[0].title).toBe('Markdown version');
-        expect(entries[1].type).toBe('text/markdown');
-        expect(entries[1].title).toBe('llms.txt');
+        expect(entries[1]).toEqual({href: 'llms.txt', rel: 'describedby'});
     });
 
     it('should return only companion entry when llms is disabled', () => {

@@ -59,9 +59,9 @@ export type Resources = {
 };
 
 /**
- * Alternate language link for a page.
+ * Related document link for a page.
  *
- * Used for hreflang tags in HTML head for SEO and language selection.
+ * Used for language and format alternates, as well as describedby metadata.
  *
  * @example
  * ```typescript
@@ -74,6 +74,8 @@ export type Resources = {
 export type Alternate = {
     /** URL of the alternate language version */
     href: string;
+    /** Link relation (defaults to `alternate`) */
+    rel?: string;
     /** Language code (e.g., 'en', 'ru', 'fr') */
     hreflang?: string;
     /** MIME type for format alternates (e.g., 'text/markdown', 'application/yaml') */

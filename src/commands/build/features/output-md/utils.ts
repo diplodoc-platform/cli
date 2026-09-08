@@ -53,7 +53,7 @@ export function buildCompanionAlternate(file: NormalizedPath): Alternate {
 }
 
 /**
- * Builds an llms.txt alternate link entry for the frontmatter / HTML `<head>`.
+ * Builds an llms.txt describedby link entry for the frontmatter / HTML `<head>`.
  *
  * - If `llms.url` is set — uses it as the absolute href (takes priority).
  * - If `llms.enabled` is true — uses a relative href to `llms.txt` in the toc directory,
@@ -78,8 +78,7 @@ export function buildLlmsAlternate(
     if (llmsConfig?.url) {
         return {
             href: llmsConfig.url,
-            type: 'text/markdown',
-            title: 'llms.txt',
+            rel: 'describedby',
         };
     }
 
@@ -89,8 +88,7 @@ export function buildLlmsAlternate(
         const href = rel ? `${rel}/llms.txt` : 'llms.txt';
         return {
             href,
-            type: 'text/markdown',
-            title: 'llms.txt',
+            rel: 'describedby',
         };
     }
 
