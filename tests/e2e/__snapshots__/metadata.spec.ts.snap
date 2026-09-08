@@ -150,8 +150,7 @@ meta:
       type: application/yaml
       title: Yaml version
     - href: llms.txt
-      type: text/markdown
-      title: llms.txt
+      rel: describedby
 links:
   - title: Getting started with Documentation
     description: This guide will show you the basics of working with Documentation
@@ -204,8 +203,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 tags:
   - info
   - syntax
@@ -231,8 +229,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 
 Lorem"

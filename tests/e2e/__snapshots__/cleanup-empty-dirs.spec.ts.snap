@@ -40,8 +40,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 # Active Page
 
@@ -76,8 +75,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 # Main Page
 

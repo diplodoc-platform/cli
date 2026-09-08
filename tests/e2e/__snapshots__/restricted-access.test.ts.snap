@@ -45,8 +45,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 "
 `;
@@ -65,8 +64,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 "
 `;
@@ -117,8 +115,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 This is the /a1.md file content.
 "
@@ -140,8 +137,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 This is the /folder1/a1.md file content.
 "
@@ -163,8 +159,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 This is the /folder1/folder1/a1.md file content.
 "
@@ -243,8 +238,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 "
 `;
@@ -284,8 +278,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 "
 `;
@@ -305,8 +298,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 "
 `;
@@ -324,8 +316,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 "
 `;
@@ -344,8 +335,7 @@ alternate:
     type: text/markdown
     title: Markdown version
   - href: ../llms.txt
-    type: text/markdown
-    title: llms.txt
+    rel: describedby
 ---
 "
 `;
