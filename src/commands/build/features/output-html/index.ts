@@ -63,7 +63,7 @@ export class OutputHtml {
                 });
 
                 getMetaHooks(run.meta).Dump.tap('Html', (meta, file) => {
-                    // Add llms.txt alternate link when llms is enabled or llms.url is set.
+                    // Add llms.txt describedby link when llms is enabled or llms.url is set.
                     // The relative href is computed from the article's location to the toc dir.
                     // Include files (_includes/) are not part of any toc, so skip them.
                     if (!file.includes('/_includes/') && !file.startsWith('_includes/')) {

@@ -418,8 +418,8 @@ function meta(record: Hash<string>) {
     return `<meta ${attributes(record)}>`;
 }
 
-function alternate({href, hreflang, type, title}: Alternate) {
-    return `<link ${attributes({rel: 'alternate', href, hreflang, type, title})} />`;
+function alternate({href, rel = 'alternate', hreflang, type, title}: Alternate) {
+    return `<link ${attributes({rel, href, hreflang, type, title})} />`;
 }
 
 function csp(directives: Hash<string[]> | undefined) {
