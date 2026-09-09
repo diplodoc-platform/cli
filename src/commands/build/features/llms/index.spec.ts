@@ -728,11 +728,11 @@ describe('LLMs Plugin Architecture', () => {
                         [
                             'Common content',
                             '',
-                            ':::visibility humans',
+                            ':::visibility human',
                             'Human instructions',
                             ':::',
                             '',
-                            ':::visibility agents',
+                            ':::visibility agent',
                             'Agent instructions',
                             ':::',
                         ].join('\n'),
