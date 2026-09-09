@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.57.4](https://github.com/diplodoc-platform/cli/compare/v5.57.3...v5.57.4) (2026-09-09)
+
+
+### Bug Fixes
+
+* **cli:** use describedby for llms.txt metadata ([9754c78](https://github.com/diplodoc-platform/cli/commit/9754c7876e663a9940efc55c368230eebf740290))
+* **e2e:** update llms metadata snapshots ([90df29f](https://github.com/diplodoc-platform/cli/commit/90df29fe8acf4e6c3c4582c22087bba74ab4a5ec))
+
 ## [5.57.3](https://github.com/diplodoc-platform/cli/compare/v5.57.2...v5.57.3) (2026-08-31)
 
 
