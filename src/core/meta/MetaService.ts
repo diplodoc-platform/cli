@@ -207,9 +207,7 @@ export class MetaService {
             if (isRaw) {
                 this.meta.set(file, noIndex ? {...record, noIndex: true} : record);
             } else if (noIndex) {
-                const meta = current || this.initialMeta();
-                meta.noIndex = true;
-                this.meta.set(file, meta);
+                this.meta.set(file, {...(current ?? this.initialMeta()), noIndex: true});
             }
             return;
         }

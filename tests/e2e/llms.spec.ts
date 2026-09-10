@@ -58,31 +58,44 @@ describe('llms.txt', () => {
         expect(api).toContain('noIndex: true');
     });
 
-    test('included toc noIndex propagates while hidden stays independent', async () => {
-        const {inputPath, outputPath} = getTestPaths('mocks/llms-no-index');
+    test.each([
+        {mode: 'plain', args: ''},
+        {mode: 'workers', args: ' --jobs 2'},
+    ])(
+        'included toc noIndex excludes shared pages while hidden stays independent ($mode)',
+        async ({mode, args}) => {
+            const {inputPath, outputPath} = getTestPaths('mocks/llms-no-index');
+            const modeOutputPath = `${outputPath}-${mode}`;
 
-        await TestAdapter.testBuildPass(inputPath, outputPath, {
-            md2md: true,
-            md2html: false,
-            args: '--llms --jobs 2',
-        });
+            await TestAdapter.testBuildPass(inputPath, modeOutputPath, {
+                md2md: true,
+                md2html: true,
+                args: `--llms${args}`,
+            });
 
-        const [index, full, privatePage, hiddenPage] = await Promise.all([
-            readFile(join(outputPath, 'llms.txt'), 'utf8'),
-            readFile(join(outputPath, 'llms-full.txt'), 'utf8'),
-            readFile(join(outputPath, '_includes/private/private.md'), 'utf8'),
-            readFile(join(outputPath, 'hidden.md'), 'utf8'),
-        ]);
+            for (const {directory, extension, noIndex} of [
+                {directory: modeOutputPath, extension: 'md', noIndex: 'noIndex: true'},
+                {directory: `${modeOutputPath}-html`, extension: 'html', noIndex: '"noIndex":true'},
+            ]) {
+                const [index, full, privatePage, hiddenPage] = await Promise.all([
+                    readFile(join(directory, 'llms.txt'), 'utf8'),
+                    readFile(join(directory, 'llms-full.txt'), 'utf8'),
+                    readFile(join(directory, `_includes/private/private.${extension}`), 'utf8'),
+                    readFile(join(directory, `hidden.${extension}`), 'utf8'),
+                ]);
 
-        expect(index).toContain('Public page');
-        expect(index).not.toContain('Included private page');
-        expect(index).not.toContain('Hidden page');
-        expect(full).toContain('Public content');
-        expect(full).not.toContain('Private content');
-        expect(full).not.toContain('Hidden content');
-        expect(privatePage).toContain('noIndex: true');
-        expect(hiddenPage).not.toContain('noIndex: true');
-    });
+                expect(index).toContain('Public page');
+                expect(index).not.toContain('Shared private page');
+                expect(index).not.toContain('Included private page');
+                expect(index).not.toContain('Hidden page');
+                expect(full).toContain('Public content');
+                expect(full).not.toContain('Private content');
+                expect(full).not.toContain('Hidden content');
+                expect(privatePage).toContain(noIndex);
+                expect(hiddenPage).not.toContain(noIndex);
+            }
+        },
+    );
 
     test('llms-full.txt respects --llms-full-max-size limit', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/llms');

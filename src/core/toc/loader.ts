@@ -20,7 +20,7 @@ import {liquidSnippet} from '@diplodoc/liquid';
 import {evaluateWhen, normalizePath, own} from '~/core/utils';
 
 import {getHooks} from './hooks';
-import {getFirstValuable, isRelative, resolveLabel} from './utils';
+import {getFirstValuable, isRelative, resolveLabel, resolveNoIndex} from './utils';
 
 export type LoaderContext = LiquidContext & {
     /** Relative to run.input path to current processing toc */
@@ -407,30 +407,38 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
             return null;
         }
 
-        const noIndex = item.noIndex === true || toc.noIndex === true;
-
-        // named mode
-        if (item.name) {
-            if (noIndex) {
-                item.noIndex = true;
-            }
-            item.items = (item.items || []).concat((toc.items as RawTocItem[]) || []);
-
-            return item;
-        } else {
-            const items = toc.items as RawTocItem[];
-
-            if (noIndex) {
-                items?.forEach((includedItem) => {
-                    includedItem.noIndex = true;
-                });
-            }
-
-            return items;
-        }
+        return mergeIncludedItems.call(this, item, toc, normalizePath(include.path));
     });
 
     return toc;
+}
+
+/** Merges an included TOC into a named item or expands its children inline. */
+function mergeIncludedItems(
+    this: LoaderContext,
+    item: RawTocItem,
+    toc: RawToc,
+    includedPath: NormalizedPath,
+) {
+    const includedNoIndex = resolveNoIndex(toc, item.noIndex === true, includedPath, this.logger);
+    const noIndex = resolveNoIndex(item, includedNoIndex, this.path, this.logger);
+
+    if (item.name) {
+        if (noIndex) {
+            item.noIndex = true;
+        }
+        item.items = (item.items || []).concat(toc.items || []);
+
+        return item;
+    }
+
+    if (noIndex) {
+        toc.items?.forEach((includedItem) => {
+            includedItem.noIndex = resolveNoIndex(includedItem, true, includedPath, this.logger);
+        });
+    }
+
+    return toc.items;
 }
 
 /**

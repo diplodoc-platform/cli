@@ -31,7 +31,7 @@ import {
 } from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
-import {isEntryItem} from './utils';
+import {isEntryItem, resolveNoIndex} from './utils';
 import {isMergeMode, loader} from './loader';
 
 export type TocServiceConfig = {
@@ -532,7 +532,7 @@ export class TocService {
 
     private async applyNoIndex(path: NormalizedPath, toc: Toc) {
         await this.walkItems([toc as unknown as RawTocItem], (item, context: NoIndexContext) => {
-            context.noIndex = context.noIndex === true || item.noIndex === true;
+            context.noIndex = resolveNoIndex(item, context.noIndex === true, path, this.logger);
 
             if (context.noIndex && isEntryItem(item)) {
                 const href = normalizePath(join(dirname(path), item.href));

@@ -181,13 +181,14 @@ export class Llms {
     }
 
     /**
-     * Drops pages marked `noIndex` in their front matter.
+     * Drops pages marked `noIndex` by any TOC reference or their front matter.
      *
      * `noIndex` means "keep this page out of indexes". An LLM corpus is exactly
      * such an index, so these pages must not reach `llms.txt` or `llms-full.txt`
      * — the same reasoning as for `hidden` in {@link collectEntries}; only the
-     * source of the flag differs: TOC flags are handled synchronously in
-     * {@link collectEntries}, while page metadata must be read here.
+     * source of the flag differs: {@link collectEntries} prunes TOC subtrees,
+     * while MetaService keeps the combined TOC restriction for each page. Check
+     * it here too: a page may also be linked from a public TOC branch.
      *
      * This lives here rather than in `collectEntries` because meta is read
      * asynchronously. Filtering once for both artifacts also guarantees the index
@@ -196,17 +197,21 @@ export class Llms {
      * Front matter is read directly from the source file rather than from
      * `run.meta.dump()`. When `--jobs` is enabled, `process()` runs in a worker
      * thread with its own `MetaService` instance; the main thread's `MetaService`
-     * (where `AfterAnyRun` hooks execute) never receives the front matter, so
-     * `run.meta.dump()` returns empty meta and `noIndex` is lost. Reading the
-     * raw file bypasses the thread boundary entirely.
+     * (where `AfterAnyRun` hooks execute) never receives the front matter.
+     * It already has TOC metadata from `toc.init()`, so check that first, then
+     * read the raw file to include worker-only frontmatter restrictions.
      *
-     * A page whose meta cannot be read is kept: an unreadable file must not
+     * A page without a TOC restriction whose meta cannot be read is kept: it must not
      * silently vanish from the corpus, and the renderers already report such
      * failures.
      */
     private async excludeNoIndex(run: Run, entries: LlmsEntry[]): Promise<LlmsEntry[]> {
         const noIndexFlags = await Promise.all(
             entries.map(async (entry) => {
+                if (run.meta.get(entry.path)?.noIndex === true) {
+                    return true;
+                }
+
                 try {
                     // Only `.md` files have YAML front matter delimited by `---`.
                     // Leading pages (`.yaml`) store their metadata differently, so
@@ -244,10 +249,8 @@ export class Llms {
     private collectEntries(toc: LlmsTocItem, tocDir: string): LlmsEntry[] {
         const entries: LlmsEntry[] = [];
 
-        const visit = (item: LlmsTocItem, parentName = '', inheritedNoIndex = false) => {
-            const noIndex = inheritedNoIndex || item.noIndex === true;
-
-            if (item.hidden || noIndex) {
+        const visit = (item: LlmsTocItem, parentName = '') => {
+            if (item.hidden || item.noIndex === true) {
                 return;
             }
 
@@ -261,7 +264,7 @@ export class Llms {
             }
 
             const childParentName = typeof item.name === 'string' ? item.name : parentName;
-            item.items?.forEach((child) => visit(child, childParentName, noIndex));
+            item.items?.forEach((child) => visit(child, childParentName));
         };
 
         visit(toc);
