@@ -69,6 +69,7 @@ describe('translate run report', () => {
             stat.cacheMisses = 7;
             stat.cacheEnabled = true;
             stat.untranslated = 1;
+            stat.emphasisStripped = 4;
             stat.oversized = 0;
             stat.sourceChars = 1000;
             stat.translatedChars = 1100;
@@ -113,9 +114,11 @@ describe('translate run report', () => {
             expect(target.tokens).toEqual({input: 500, output: 550});
             expect(target.requests).toEqual({total: 4, fallback: 1, retries: 2});
             expect(target.cache).toEqual({enabled: true, hits: 3, misses: 7, hitRate: 0.3});
+            expect(target.fixes).toEqual({emphasisStripped: 4});
 
             expect(data.totals.units.total).toBe(10);
             expect(data.totals.cache.hitRate).toBe(0.3);
+            expect(data.totals.fixes).toEqual({emphasisStripped: 4});
         });
 
         it('should sum totals across targets and keep tokens null when never reported', () => {
@@ -225,6 +228,18 @@ describe('translate run report', () => {
             expect(summary).toContain('units: 10 (5 cached, 50% hit rate)');
             expect(summary).toContain('requests: 3');
             expect(summary).toContain('errors: 0');
+            expect(summary).not.toContain('added emphasis stripped');
+        });
+
+        it('should mention repaired markup in the summary only when it happened', () => {
+            const report = makeReport();
+            const stat = createTargetStat();
+
+            stat.emphasisStripped = 7;
+
+            report.addTarget('en', stat);
+
+            expect(report.summary()).toContain('added emphasis stripped: 7');
         });
     });
 });

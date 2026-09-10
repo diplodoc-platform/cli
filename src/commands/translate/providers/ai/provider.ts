@@ -2,6 +2,7 @@ import type {Logger} from '~/core/logger';
 import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {CompletionResult, LLMClient} from './clients/types';
+import type {EmphasisRepair} from './utils';
 import type {JudgePair} from './judge';
 import type {TargetStat, TranslateReportJudge} from '../../report';
 
@@ -28,6 +29,7 @@ import {
     cacheFingerprint,
     estimateTokens,
     seedFilePath,
+    stripAddedEmphasis,
 } from './utils';
 import {DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, buildMessages, splitFragments} from './prompts';
 import {judgeTranslations} from './judge';
@@ -122,7 +124,10 @@ export class Provider {
                     `requests: ${stat.requests} input-tokens: ${stat.inputTokens} ` +
                         `output-tokens: ${stat.outputTokens} bytes: ${stat.bytes} ` +
                         `cached-units: ${stat.cached} untranslated-units: ${stat.untranslated}` +
-                        (fallbackClient ? ` fallback-requests: ${stat.fallbackRequests}` : ''),
+                        (fallbackClient ? ` fallback-requests: ${stat.fallbackRequests}` : '') +
+                        (stat.emphasisStripped
+                            ? ` added-emphasis-stripped: ${stat.emphasisStripped}`
+                            : ''),
                 );
 
                 const judge = pairs.length
@@ -616,6 +621,20 @@ export function normalizeCached(unit: string, stored: string): string {
     return result;
 }
 
+/**
+ * Prepares a cached translation for reuse: normalizes the wrapper and cuts
+ * emphasis added around the fragment. Cache entries are also seeded from
+ * files already in the repository, so a defect merged once would otherwise
+ * be replayed by every next run.
+ */
+export function healCached(unit: string, stored: string): EmphasisRepair {
+    const normalized = normalizeCached(unit, stored);
+    const {open, text, close} = unwrapUnit(normalized);
+    const repair = stripAddedEmphasis(unwrapUnit(unit).text, text);
+
+    return {text: open + repair.text + close, stripped: repair.stripped};
+}
+
 export function makeTranslator(params: TranslatorParams): Translate {
     const {
         client,
@@ -758,7 +777,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // the source text instead (matches the built-in prompt rules).
         return parts.map((part, index) => {
             const {open, text, close} = wrappers[index];
-            return open + (unwrapUnit(stripFence(part)).text || text) + close;
+            const translation = unwrapUnit(stripFence(part)).text || text;
+            const repair = stripAddedEmphasis(text, translation);
+
+            stat.emphasisStripped += repair.stripped;
+
+            return open + repair.text + close;
         });
     }
 
@@ -860,17 +884,18 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
             const stored = store?.get(text);
             if (stored !== undefined) {
-                const normalized = normalizeCached(text, stored);
+                const {text: normalized, stripped} = healCached(text, stored);
                 // Identity entries for units that still contain source-script
                 // characters were cached by older runs that stored untranslated
                 // responses. Treat them as misses so the unit gets another chance.
                 const refused = normalized === text && marker !== null && marker.test(text);
                 if (!refused) {
                     if (normalized !== stored) {
-                        // Heal wrapper noise cached by older runs.
+                        // Heal wrapper noise and added markup cached by older runs.
                         store?.set(text, normalized);
                     }
                     stat.cached++;
+                    stat.emphasisStripped += stripped;
                     promises.push(Promise.resolve(normalized));
                     continue;
                 }

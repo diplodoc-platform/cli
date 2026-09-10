@@ -13,6 +13,7 @@ import {createTargetStat} from '../../report';
 import {
     Provider,
     extractTitle,
+    healCached,
     makeStore,
     makeTranslator,
     normalizeCached,
@@ -95,6 +96,12 @@ function makeParams(
 }
 
 const translated = (fragments: string[]) => fragments.map((text) => `T:${text}`);
+
+// A bold opening the line leaves its markers in the skeleton, so the unit
+// only carries the closing tag - see `stripAddedEmphasis`.
+const BOLD_CLOSE = '<x ctype="bold_close" equiv-text="**" id="x-1"/>';
+
+const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
 
 function makeFullClient() {
     return {
@@ -254,6 +261,65 @@ describe('translate ai provider', () => {
             expect(Object.keys(target.judge.distribution)).toHaveLength(11);
 
             expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('run success'));
+        });
+
+        it('should not double the markup a model puts back around a bold label', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-emphasis-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'test.md'), '**Дата релиза:** 2026-08-25\n');
+
+            // The bold opens the line, so its markers live in the skeleton
+            // and the fragment is `Дата релиза:<x bold_close/> 2026-08-25`.
+            // The model translates the text and writes the markers back.
+            const client: LLMClient = {
+                name: 'fake',
+                complete: vi.fn(async () => ({text: '**Release date:** 2026-08-25'})),
+            };
+
+            const reportPath = join(root, 'report.json');
+            const provider = new Provider(() => client, {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+                skipped: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.translate(['ru/test.md'], {
+                provider: 'openai',
+                model: 'test-model',
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+                report: reportPath,
+            } as unknown as AITranslationConfig);
+
+            expect(readFileSync(join(output, 'en', 'test.md'), 'utf8')).toBe(
+                '**Release date:** 2026-08-25\n',
+            );
+
+            const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+            expect(report.totals.fixes).toEqual({emphasisStripped: 1});
+            expect(logger.stat).toHaveBeenCalledWith(
+                expect.stringContaining('added-emphasis-stripped: 1'),
+            );
         });
 
         it('should record errors in the run report and mark the run partial', async () => {
@@ -709,6 +775,30 @@ describe('translate ai provider', () => {
         });
     });
 
+    describe('healCached', () => {
+        const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
+
+        it('should cut emphasis added around a cached fragment', () => {
+            expect(healCached(unit, wrap('**Release date:** 2026-08-25'))).toEqual({
+                text: wrap('Release date:** 2026-08-25'),
+                stripped: 1,
+            });
+        });
+
+        it('should heal a seeded value stored without the wrapper', () => {
+            expect(healCached(unit, '**Release date:** 2026-08-25')).toEqual({
+                text: wrap('Release date:** 2026-08-25'),
+                stripped: 1,
+            });
+        });
+
+        it('should keep a sound cached value as is', () => {
+            const stored = wrap(`Release date:${BOLD_CLOSE} 2026-08-25`);
+
+            expect(healCached(unit, stored)).toEqual({text: stored, stripped: 0});
+        });
+    });
+
     describe('makeTranslator', () => {
         it('should translate texts through the client', async () => {
             const client = makeClient(translated);
@@ -753,6 +843,39 @@ describe('translate ai provider', () => {
             expect(stat.cacheMisses).toBe(2);
             expect(stat.translatedUnits).toBe(1);
             expect(stat.translatedChars).toBe('T:Fresh'.length);
+        });
+
+        it('should cut emphasis the model added around a fragment and count it', async () => {
+            const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
+            const client = makeClient(() => ['**Release date:** 2026-08-25']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap('Release date:** 2026-08-25')]);
+            expect(stat.emphasisStripped).toBe(1);
+        });
+
+        it('should heal added emphasis cached by an earlier run', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-heal-'));
+            const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
+            const store = new TranslationStore(join(root, 'cache.json'), 'fp');
+            store.set(unit, wrap('**Release date:** 2026-08-25'));
+
+            const client = makeClient(translated);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+            const healed = wrap('Release date:** 2026-08-25');
+
+            expect(result).toEqual([healed]);
+            expect(stat.emphasisStripped).toBe(1);
+            // The healed value replaces the defective one, so the next run
+            // does not have to repair it again.
+            expect(store.get(unit)).toBe(healed);
+            expect(client.complete).not.toHaveBeenCalled();
         });
 
         it('should not count cache misses when the store is disabled', async () => {

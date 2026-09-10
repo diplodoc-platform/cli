@@ -9,6 +9,8 @@ export {
 } from './errors';
 export {SeedStore, TranslationStore, cacheFingerprint, seedFilePath} from './cache';
 export {collectSeedPairs} from './seed';
+export {stripAddedEmphasis} from './markup';
+export type {EmphasisRepair} from './markup';
 
 export class Defer<T = string> {
     resolve!: (text: T) => void;

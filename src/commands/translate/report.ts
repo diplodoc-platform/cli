@@ -52,6 +52,8 @@ export type TranslateReportCounters = {
     tokens: {input: number; output: number} | null;
     requests: {total: number; fallback: number; retries: number};
     cache: {enabled: boolean; hits: number; misses: number; hitRate: number | null};
+    /** Markup defects repaired in model output before composing. */
+    fixes: {emphasisStripped: number};
 };
 
 export type TranslateReportTarget = TranslateReportCounters & {
@@ -100,6 +102,8 @@ export type TargetStat = {
     cacheEnabled: boolean;
     /** Units returned by the model untranslated. */
     untranslated: number;
+    /** Emphasis delimiter runs the model added around fragments and the CLI removed. */
+    emphasisStripped: number;
     fallbackRequests: number;
     /** Extra request attempts after retryable errors. */
     retries: number;
@@ -126,6 +130,7 @@ export function createTargetStat(): TargetStat {
         cacheMisses: 0,
         cacheEnabled: false,
         untranslated: 0,
+        emphasisStripped: 0,
         fallbackRequests: 0,
         retries: 0,
         unitsTotal: 0,
@@ -197,6 +202,7 @@ function targetCounters(stat: TargetStat): TranslateReportCounters {
             misses: stat.cacheMisses,
             hitRate: stat.cacheEnabled && lookups > 0 ? round(stat.cached / lookups, 4) : null,
         },
+        fixes: {emphasisStripped: stat.emphasisStripped},
     };
 }
 
@@ -223,6 +229,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         totals.requests.total += target.requests.total;
         totals.requests.fallback += target.requests.fallback;
         totals.requests.retries += target.requests.retries;
+        totals.fixes.emphasisStripped += target.fixes.emphasisStripped;
 
         if (target.tokens) {
             usageSeen = true;
@@ -407,6 +414,11 @@ export class RunReport {
         const tokens = totals.tokens
             ? `; tokens: ${totals.tokens.input} in / ${totals.tokens.output} out`
             : '';
+        // Only when it happened: a defect that stays at zero does not
+        // deserve a place in every run summary.
+        const fixes = totals.fixes.emphasisStripped
+            ? `; added emphasis stripped: ${totals.fixes.emphasisStripped}`
+            : '';
 
         return (
             `run ${data.status} in ${seconds}s; ` +
@@ -416,6 +428,7 @@ export class RunReport {
             tokens +
             `; requests: ${totals.requests.total}` +
             ` (${totals.requests.fallback} fallback, ${totals.requests.retries} retries)` +
+            fixes +
             `; errors: ${this.errors.length}`
         );
     }
