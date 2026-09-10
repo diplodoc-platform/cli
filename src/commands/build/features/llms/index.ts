@@ -396,7 +396,8 @@ export class Llms {
             const filteredBody = filterAudienceContent(strippedBody, 'agent');
 
             for (const error of filteredBody.errors) {
-                run.logger.error(`llms-full.txt: ${entryPath}: ${error.message}`);
+                const message = error.message.replace(` at line ${error.line}`, '');
+                run.logger.error(`llms-full.txt: ${entryPath}: ${message}`);
             }
 
             return filteredBody.content;

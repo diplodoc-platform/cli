@@ -751,6 +751,22 @@ describe('LLMs Plugin Architecture', () => {
             expect(result).not.toContain(':::visibility');
         });
 
+        it('should report an invalid audience without a misleading collected line number', async () => {
+            const run = createMockRun();
+            const collector = {
+                collect: vi
+                    .fn()
+                    .mockResolvedValue('Included content.\n\n:::visibility robots\nHidden.\n:::'),
+            } as unknown as MarkdownCollector;
+
+            await llmsInstance.collectBody(run, collector, normalizedPath('docs/page.md'));
+
+            expect(run.logger.error).toHaveBeenCalledWith(
+                'llms-full.txt: docs/page.md: Invalid visibility audience "robots"; expected "human" or "agent"',
+            );
+            expect(run.logger.error).not.toHaveBeenCalledWith(expect.stringContaining('at line'));
+        });
+
         it('should totally ignore non-markdown documents like yaml files', async () => {
             const run = createMockRun();
             const entries = [
