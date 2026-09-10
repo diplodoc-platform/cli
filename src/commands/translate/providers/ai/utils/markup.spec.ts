@@ -33,6 +33,35 @@ describe('stripAddedEmphasis', () => {
         });
     });
 
+    it('should strip both markers when the model wraps a fragment of a bold label', () => {
+        const source = `Release date:${BOLD_CLOSE} 2026-08-25`;
+
+        // The opening marker duplicates the skeleton one and the closing
+        // marker is left without a partner once it is cut.
+        expect(stripAddedEmphasis(source, `**Дата релиза:${BOLD_CLOSE} 2026-08-25**`)).toEqual({
+            text: `Дата релиза:${BOLD_CLOSE} 2026-08-25`,
+            stripped: 2,
+        });
+    });
+
+    it('should keep emphasis the model added next to a repaired edge', () => {
+        const source = `Release date:${BOLD_CLOSE} 2026-08-25`;
+
+        // The marker after the label replaces the tag the model dropped,
+        // and the pair around the last word is sound markup of its own.
+        expect(stripAddedEmphasis(source, '**Дата релиза:** 2026-08-25 **важно**')).toEqual({
+            text: 'Дата релиза:** 2026-08-25 **важно**',
+            stripped: 1,
+        });
+    });
+
+    it('should strip a lone marker left at a free edge', () => {
+        expect(stripAddedEmphasis('Plain sentence.', 'Обычное предложение.**')).toEqual({
+            text: 'Обычное предложение.',
+            stripped: 1,
+        });
+    });
+
     it('should strip a closer added to a fragment whose bold ends in the skeleton', () => {
         const source = `Text ending with ${BOLD_OPEN}bold`;
 
@@ -156,32 +185,51 @@ function addMarkers(text: string): string {
     return text.replace(/^([^<]+:)(<x[^>]*\/>)?/, (_, label, tag) => `**${label}**${tag || ''}`);
 }
 
-function extractDoc() {
-    return extract(DOC, {
+/** A model that wraps the whole fragment it was given into markers. */
+function wrapMarkers(text: string): string {
+    return `**${text}**`;
+}
+
+function extractDoc(doc: string) {
+    return extract(doc, {
         compact: true,
         source: {language: 'en', locale: 'US'},
         target: {language: 'ru', locale: 'RU'},
     });
 }
 
+function repair(doc: string, model: (text: string) => string) {
+    const {units, skeleton} = extractDoc(doc);
+    const dirty = units.map((unit: string) => wrap(model(unwrap(unit))));
+    const repaired = units.map((unit: string, index: number) =>
+        wrap(stripAddedEmphasis(unwrap(unit), unwrap(dirty[index])).text),
+    );
+
+    return {
+        dirty: String(compose(skeleton, dirty, {useSource: true})),
+        repaired: String(compose(skeleton, repaired, {useSource: true})),
+    };
+}
+
 describe('stripAddedEmphasis over real extract and compose', () => {
     it('should compose exactly like the source when the model adds markers', () => {
-        const {units, skeleton} = extractDoc();
-        const dirty = units.map((unit: string) => wrap(addMarkers(unwrap(unit))));
-        const repaired = units.map((unit: string, index: number) =>
-            wrap(stripAddedEmphasis(unwrap(unit), unwrap(dirty[index])).text),
-        );
+        const {dirty, repaired} = repair(DOC, addMarkers);
 
-        expect(String(compose(skeleton, dirty, {useSource: true}))).toContain('****');
-        expect(String(compose(skeleton, repaired, {useSource: true}))).toBe(DOC);
+        expect(dirty).toContain('****');
+        expect(repaired).toBe(DOC);
+    });
+
+    it('should compose exactly like the source when the model wraps a label', () => {
+        const doc = '**Release date:** 2026-08-25\n';
+        const {dirty, repaired} = repair(doc, wrapMarkers);
+
+        expect(dirty).toContain('****');
+        expect(repaired).toBe(doc);
     });
 
     it('should keep a faithful translation untouched', () => {
-        const {units, skeleton} = extractDoc();
-        const repaired = units.map((unit: string) =>
-            wrap(stripAddedEmphasis(unwrap(unit), unwrap(unit)).text),
-        );
+        const {repaired} = repair(DOC, (text) => text);
 
-        expect(String(compose(skeleton, repaired, {useSource: true}))).toBe(DOC);
+        expect(repaired).toBe(DOC);
     });
 });

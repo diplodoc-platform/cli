@@ -17,13 +17,15 @@
  * skeleton marker to the invented one and the line renders as
  * `****Release date:** 2026-08-25`.
  *
- * The invented markers are cut back off in the two cases where the source
- * fragment proves them redundant and nothing is left orphaned:
+ * The invented markers are cut back off in the three cases where the
+ * source fragment proves them redundant:
  *
  * - the skeleton restores that very marker at that edge (a hoisted
  *   `<x .../>` tag), so the marker the model paired with it inside the
  *   fragment takes over as the delimiter;
- * - the fragment carries no emphasis at all and the model wrapped it whole.
+ * - the fragment carries no emphasis at all and the model wrapped it whole;
+ * - the marker sits at an edge the source fragment leaves free and has no
+ *   partner left, e.g. because its opening one was cut as a duplicate.
  *
  * A marker a model wrote instead of a `<g>` tag it lost is the only
  * emphasis left in the fragment and has to survive.
@@ -44,7 +46,8 @@ const ANY_RUN = new RegExp(RUN, 'g');
 /** Whole string is a delimiter run, used to tell emphasis tags from the rest. */
 const ONLY_RUN = new RegExp(String.raw`^(?:${RUN})$`);
 
-/** Inline tag right at a text edge. */
+/** Any inline tag, and an inline tag right at a text edge. */
+const TAG = /<[^>]+>/g;
 const LEADING_TAG = /^<[^>]+>/;
 const TRAILING_TAG = /<[^>]+>$/;
 
@@ -104,16 +107,57 @@ function containedMarkers(source: string): Set<string> {
 }
 
 /**
+ * Tells whether the source fragment has no emphasis of its own at that
+ * edge, neither a marker nor a tag, so a marker the model put there was
+ * not in the fragment it was given.
+ */
+function isFreeEdge(source: string, edge: 'open' | 'close'): boolean {
+    return edge === 'close'
+        ? !OPEN_RUN.test(source) && !LEADING_TAG.test(source)
+        : !CLOSE_RUN.test(source) && !TRAILING_TAG.test(source);
+}
+
+/**
  * Tells whether the skeleton restores this marker at that edge of the
  * fragment, which makes a marker the model put there a duplicate.
  */
 function isRestored(source: string, run: string, edge: 'open' | 'close'): boolean {
-    const [ownRun, ownTag] =
-        edge === 'close'
-            ? [OPEN_RUN.test(source), LEADING_TAG.test(source)]
-            : [CLOSE_RUN.test(source), TRAILING_TAG.test(source)];
+    return isFreeEdge(source, edge) && hoistedMarkers(source, edge).has(run);
+}
 
-    return !ownRun && !ownTag && hoistedMarkers(source, edge).has(run);
+/** Delimiter runs of one flavour in the text, tags excluded. */
+function countRuns(text: string, run: string): number {
+    const runs = text.replace(TAG, '').match(ANY_RUN) || [];
+
+    return runs.filter((found) => found === run).length;
+}
+
+/** Markers of one flavour the inline tags of the text stand for. */
+function countTagMarkers(text: string, run: string): number {
+    let count = 0;
+
+    for (const [tag] of text.matchAll(HOISTED_TAG)) {
+        count += Number(attr(tag, 'equiv-text') === run);
+    }
+
+    for (const [tag] of text.matchAll(CONTAINED_TAG)) {
+        count += Number(attr(tag, 'x-begin') === run) + Number(attr(tag, 'x-end') === run);
+    }
+
+    return count;
+}
+
+/**
+ * Tells whether the markers of one flavour still pair up. Every marker of
+ * the source fragment is accounted for either by a tag the translation
+ * kept or by the marker a model that lost that tag wrote in its place, so
+ * an odd remainder means one marker has no partner.
+ */
+function isBalanced(source: string, text: string, run: string): boolean {
+    const dropped = Math.max(0, countTagMarkers(source, run) - countTagMarkers(text, run));
+    const expected = countRuns(source, run) + dropped;
+
+    return Math.abs(countRuns(text, run) - expected) % 2 === 0;
 }
 
 /**
@@ -121,7 +165,7 @@ function isRestored(source: string, run: string, edge: 'open' | 'close'): boolea
  * own into a pair of markers: both are invented, and removing them leaves
  * no orphaned marker behind.
  */
-function isWrapping(source: string, text: string, run: string): boolean {
+function isWrapping(source: string, run: string, text: string): boolean {
     if (OPEN_RUN.test(source) || CLOSE_RUN.test(source)) {
         return false;
     }
@@ -178,6 +222,34 @@ function stripHoistedDuplicates(text: string): EmphasisRepair {
 }
 
 /**
+ * Cuts a marker left without a partner at a free edge, e.g. the closing
+ * one of a pair the model wrapped a fragment in while its opening one was
+ * removed as a duplicate of the skeleton marker.
+ */
+function stripOrphans(source: string, translation: string): EmphasisRepair {
+    let text = translation;
+    let stripped = 0;
+
+    for (const edge of ['close', 'open'] as const) {
+        const run = (edge === 'close' ? OPEN_RUN : CLOSE_RUN).exec(text)?.[1];
+
+        if (
+            !run ||
+            !isFreeEdge(source, edge) ||
+            containedMarkers(source).has(run) ||
+            isBalanced(source, text, run)
+        ) {
+            continue;
+        }
+
+        text = edge === 'close' ? text.slice(run.length) : text.slice(0, -run.length);
+        stripped++;
+    }
+
+    return {text, stripped};
+}
+
+/**
  * Cuts emphasis the model grew around the fragment, comparing it with the
  * source unit. Both texts are unit bodies, without the `<source>` wrapper.
  */
@@ -205,7 +277,7 @@ export function stripAddedEmphasis(source: string, translation: string): Emphasi
         !restoredTrailing &&
         leading &&
         leading === trailing &&
-        isWrapping(source, text, leading)
+        isWrapping(source, leading, text)
     ) {
         text = text.slice(leading.length, -leading.length);
         stripped += 2;
@@ -218,6 +290,7 @@ export function stripAddedEmphasis(source: string, translation: string): Emphasi
     }
 
     const duplicates = stripHoistedDuplicates(text);
+    const orphans = stripOrphans(source, duplicates.text);
 
-    return {text: duplicates.text, stripped: stripped + duplicates.stripped};
+    return {text: orphans.text, stripped: stripped + duplicates.stripped + orphans.stripped};
 }
