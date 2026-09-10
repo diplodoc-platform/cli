@@ -133,6 +133,7 @@ describe('LLMs Plugin Architecture', () => {
             const inputDir = '/input' as AbsolutePath;
             return {
                 input: inputDir,
+                meta: {get: vi.fn().mockReturnValue({})},
                 read: vi.fn(async (path: AbsolutePath) => {
                     // Cross-platform: normalize backslashes and strip the input prefix.
                     const normalized = String(path).replace(/\\/g, '/');
@@ -179,6 +180,19 @@ describe('LLMs Plugin Architecture', () => {
             ]);
         });
 
+        it.each([{}, {noIndex: false}])(
+            'excludes a page restricted by another toc reference regardless of frontmatter: %j',
+            async (frontmatter) => {
+                const run = runWithFrontMatter({'shared.md': frontmatter});
+                vi.mocked(run.meta.get).mockReturnValue({noIndex: true});
+
+                await expect(
+                    llmsInstance.excludeNoIndex(run, [entry('shared.md')]),
+                ).resolves.toEqual([]);
+                expect(run.read).not.toHaveBeenCalled();
+            },
+        );
+
         it('keeps pages without the flag and with noIndex: false', async () => {
             const entries = [entry('a.md'), entry('b.md')];
             const run = runWithFrontMatter({'b.md': {noIndex: false}});
@@ -199,6 +213,7 @@ describe('LLMs Plugin Architecture', () => {
             const entries = [entry('broken.md')];
             const run = {
                 input: '/input' as AbsolutePath,
+                meta: {get: vi.fn().mockReturnValue({})},
                 read: vi.fn().mockRejectedValue(new Error('ENOENT')),
             } as unknown as Run;
 
@@ -213,6 +228,7 @@ describe('LLMs Plugin Architecture', () => {
                 input: '/input' as AbsolutePath,
                 read: vi.fn(),
                 meta: {
+                    get: vi.fn().mockReturnValue({}),
                     dump: vi.fn(async () => ({noIndex: true})),
                 },
             } as unknown as Run;
@@ -227,6 +243,7 @@ describe('LLMs Plugin Architecture', () => {
                 input: '/input' as AbsolutePath,
                 read: vi.fn(),
                 meta: {
+                    get: vi.fn().mockReturnValue({}),
                     dump: vi.fn(async () => ({})),
                 },
             } as unknown as Run;

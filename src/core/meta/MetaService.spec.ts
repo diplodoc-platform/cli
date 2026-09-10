@@ -316,6 +316,22 @@ describe('MetaService', () => {
             expect(metaService.get(file)).toMatchObject({title: 'Raw Title', noIndex: true});
         });
 
+        it.each([{}, {title: 'Raw Title', noIndex: false}])(
+            'does not mutate cached raw frontmatter when toc enables noIndex: %j',
+            (frontmatter) => {
+                const file = 'test.md' as NormalizedPath;
+                const metaService = new MetaService(createMockRun({rawAddMeta: true}));
+                const original = {...frontmatter};
+
+                metaService.add(file, frontmatter, true);
+                metaService.add(file, {noIndex: true});
+
+                expect(frontmatter).toEqual(original);
+                expect(metaService.get(file)).not.toBe(frontmatter);
+                expect(metaService.get(file)).toMatchObject({...original, noIndex: true});
+            },
+        );
+
         it('should preserve a raw noIndex when toc metadata disables it', () => {
             const file = 'test/file.md' as NormalizedPath;
             const metaService = new MetaService(createMockRun({rawAddMeta: true}));
