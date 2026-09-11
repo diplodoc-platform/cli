@@ -18,6 +18,7 @@ import {options, resolveLlmsFullMaxSize} from './config';
 
 export const LLMS_INDEX_FILENAME = 'llms.txt';
 export const LLMS_FULL_FILENAME = 'llms-full.txt';
+export const LLMS_FULL_AGENT_FILENAME = 'llms-full-agent.txt';
 
 const LLMS_SEPARATOR = '\n\n';
 const LLMS_SEPARATOR_SIZE = Buffer.byteLength(LLMS_SEPARATOR, 'utf8');
@@ -143,10 +144,26 @@ export class Llms {
         const title = toc.title || '';
 
         const index = await this.renderIndex(run, title, entries, tocDir);
-        const full = await this.renderFull(run, title, entries);
+        const full = await this.renderFull(run, title, entries, 'human', LLMS_FULL_FILENAME);
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
+
+        // Viewer builds use the md output as their storage artifact. Keep a separate agent
+        // corpus there so the runtime endpoint can select an audience without buffering and
+        // reparsing the whole llms-full file on every request. Static html builds only expose the
+        // canonical human corpus above.
+        if (run.config.outputFormat === OutputFormat.md) {
+            const agentFull = await this.renderFull(
+                run,
+                title,
+                entries,
+                'agent',
+                LLMS_FULL_AGENT_FILENAME,
+                false,
+            );
+            await run.write(join(run.output, tocDir, LLMS_FULL_AGENT_FILENAME), agentFull, true);
+        }
     }
 
     /**
@@ -329,7 +346,14 @@ export class Llms {
         }
     }
 
-    private async renderFull(run: Run, title: string, entries: LlmsEntry[]) {
+    private async renderFull(
+        run: Run,
+        title: string,
+        entries: LlmsEntry[],
+        audience: 'human' | 'agent',
+        fileName: string,
+        reportErrors = true,
+    ) {
         const parts: string[] = [];
 
         if (title) {
@@ -353,7 +377,14 @@ export class Llms {
                 continue;
             }
 
-            const body = await this.collectBody(run, collector, entry.path);
+            const body = await this.collectBody(
+                run,
+                collector,
+                entry.path,
+                audience,
+                fileName,
+                reportErrors,
+            );
 
             if (!body) {
                 continue;
@@ -368,7 +399,7 @@ export class Llms {
             if (candidateSize > maxSize) {
                 run.logger.info(
                     'YFM022',
-                    `llms-full.txt: size limit reached at ${currentSize} bytes ` +
+                    `${fileName}: size limit reached at ${currentSize} bytes ` +
                         `(limit ${maxSize}), stopped before adding ${entry.path}`,
                 );
                 break;
@@ -385,6 +416,9 @@ export class Llms {
         run: Run,
         collector: MarkdownCollector,
         entryPath: NormalizedPath,
+        audience: 'human' | 'agent',
+        fileName: string,
+        reportErrors: boolean,
     ): Promise<string> {
         try {
             const body = await collector.collect(entryPath);
@@ -393,16 +427,18 @@ export class Llms {
             // consumption (LLMs don't execute JS or apply CSS) and only add
             // noise to the corpus. Code blocks are protected (see stripHtmlTags).
             const strippedBody = stripHtmlTags(body, ['style', 'script']);
-            const filteredBody = filterAudienceContent(strippedBody, 'agent');
+            const filteredBody = filterAudienceContent(strippedBody, audience);
 
-            for (const error of filteredBody.errors) {
-                const message = error.message.replace(` at line ${error.line}`, '');
-                run.logger.error(`llms-full.txt: ${entryPath}: ${message}`);
+            if (reportErrors) {
+                for (const error of filteredBody.errors) {
+                    const message = error.message.replace(` at line ${error.line}`, '');
+                    run.logger.error(`${fileName}: ${entryPath}: ${message}`);
+                }
             }
 
             return filteredBody.content;
         } catch (error) {
-            run.logger.warn(`llms-full.txt: unable to assemble ${entryPath}: ${error}`);
+            run.logger.warn(`${fileName}: unable to assemble ${entryPath}: ${error}`);
 
             return '';
         }

@@ -5,6 +5,7 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html > filel
   ".yfm",
   "api.md",
   "index.md",
+  "llms-full-agent.txt",
   "llms-full.txt",
   "llms.txt",
   "start.md",
@@ -73,6 +74,14 @@ alternate:
 # Overview
 
 Welcome to **My Product** — the documentation home page.
+
+:::visibility human
+Instructions for a human reader.
+:::
+
+:::visibility agent
+Instructions for an autonomous agent.
+:::
 "
 `;
 
@@ -82,6 +91,10 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 4`] = `
 # Overview
 
 Welcome to **My Product** — the documentation home page.
+
+
+Instructions for an autonomous agent.
+
 
 # Getting Started
 
@@ -103,6 +116,34 @@ Returns the list of things.
 exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 5`] = `
 "# My Product
 
+# Overview
+
+Welcome to **My Product** — the documentation home page.
+
+Instructions for a human reader.
+
+
+
+# Getting Started
+
+Run the installer and create your first project.
+
+## Requirements
+
+- Node.js 18+
+- 2 GB RAM
+
+# API Reference
+
+## GET /things
+
+Returns the list of things.
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 6`] = `
+"# My Product
+
 > Documentation description fot test llms.txt generation.
 
 ## Documentation
@@ -117,7 +158,7 @@ For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
 "
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 6`] = `
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 7`] = `
 "---
 metadata:
   - name: generator
@@ -145,7 +186,7 @@ Run the installer and create your first project.
 "
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 7`] = `
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 8`] = `
 "title: My Product
 href: index.md
 items:
@@ -157,14 +198,14 @@ path: toc.yaml
 "
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 8`] = `
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 9`] = `
 "allowHtml: true
 llms: 
   enabled: true
   description: 'Documentation description fot test llms.txt generation.'"
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 9`] = `
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 10`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -194,7 +235,7 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 9`] = `
 </html>"
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 10`] = `
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 11`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -210,7 +251,7 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 10`] = 
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Welcome to &lt;strong&gt;My Product&lt;/strong&gt; — the documentation home page.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"What this product is and how to get started."}],"title":"Overview","description":"What this product is and how to get started.","vcsPath":"index.md","alternate":[{"href":"llms.txt","rel":"describedby"}]},"headings":[],"title":"Overview"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Welcome to &lt;strong&gt;My Product&lt;/strong&gt; — the documentation home page.&lt;/p&gt;/n&lt;p&gt;Instructions for a human reader.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"What this product is and how to get started."}],"title":"Overview","description":"What this product is and how to get started.","vcsPath":"index.md","alternate":[{"href":"llms.txt","rel":"describedby"}]},"headings":[],"title":"Overview"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true,"gallery":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -224,12 +265,16 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 10`] = 
 </html>"
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 11`] = `
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 12`] = `
 "# My Product
 
 # Overview
 
 Welcome to **My Product** — the documentation home page.
+
+Instructions for a human reader.
+
+
 
 # Getting Started
 
@@ -248,7 +293,7 @@ Returns the list of things.
 "
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 12`] = `
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 13`] = `
 "# My Product
 
 > Documentation description fot test llms.txt generation.
@@ -265,7 +310,7 @@ For more comprehensive documentation, see [llms-full.txt](/llms-full.txt)
 "
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 13`] = `
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 14`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -295,4 +340,4 @@ exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 13`] = 
 </html>"
 `;
 
-exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 14`] = `"window.__DATA__.data.toc = {"title":"My Product","href":"index.html","items":[{"name":"Getting Started","href":"start.html","id":"UUID"},{"name":"API Reference","href":"api.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 15`] = `"window.__DATA__.data.toc = {"title":"My Product","href":"index.html","items":[{"name":"Getting Started","href":"start.html","id":"UUID"},{"name":"API Reference","href":"api.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
