@@ -12,6 +12,7 @@ const CODE_OPEN = '<x ctype="code_open" equiv-text="`" id="x-1"/>';
 const CODE_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-2"/>';
 const STRIKE_CLOSE = '<x ctype="strikethrough_close" equiv-text="~~" id="x-1"/>';
 const BOLD_TAG = '<g ctype="bold" equiv-text="**{{text}}**" id="g-1" x-begin="**" x-end="**">';
+const ITALIC_TAG = '<g ctype="italic" equiv-text="*{{text}}*" id="g-2" x-begin="*" x-end="*">';
 const LINK_TAG =
     '<g ctype="link" equiv-text="[{{text}}](http://x)" id="g-1" x-begin="[" x-end="](http://x)">';
 
@@ -142,6 +143,36 @@ describe('stripAddedMarkup', () => {
         });
     });
 
+    it('should keep the backticks of a code span contained in the fragment', () => {
+        // Both placeholders live in the unit, so the skeleton restores
+        // nothing around it and the backticks the model wrote are the only
+        // markup left - even though they sit at the very edge.
+        const source = `Run ${CODE_OPEN}yfm build${CODE_CLOSE} in the project root`;
+        const translation = 'В корне проекта выполните `yfm build`';
+
+        expect(stripAddedMarkup(source, translation)).toEqual({text: translation, stripped: 0});
+    });
+
+    it('should strip a backtick restored around a fragment of two code spans', () => {
+        // `abc` text `def`: both placeholders are unpaired, so both edges
+        // of the fragment really are inside a code span.
+        const source = `abc${CODE_CLOSE} text ${CODE_OPEN}def`;
+
+        expect(stripAddedMarkup(source, '`абв` текст `гдё`')).toEqual({
+            text: 'абв` текст `гдё',
+            stripped: 2,
+        });
+    });
+
+    it('should keep a repair that would leave markup which cannot be composed', () => {
+        // Nothing to pair the stripped marker with: keep the model text and
+        // let the caller retry the fragment.
+        const source = `Run ${CODE_OPEN}yfm build${CODE_CLOSE} now`;
+        const translation = '`yfm build` сейчас';
+
+        expect(stripAddedMarkup(source, translation)).toEqual({text: translation, stripped: 0});
+    });
+
     it('should keep markers the model wrote instead of a lost inline tag', () => {
         const source = `The ${BOLD_TAG}quick</g> fox`;
 
@@ -235,6 +266,20 @@ describe('keepsMarkup', () => {
         expect(keepsMarkup(source, translation)).toBe(false);
     });
 
+    it('should accept nested emphasis written as one delimiter run', () => {
+        // ***text*** travels as an italic tag around a bold one, and comes
+        // back as a single three-marker run: the same three characters.
+        const nested = `This is ${ITALIC_TAG}${BOLD_TAG}very important</g></g> text.`;
+
+        expect(keepsMarkup(nested, 'Это ***очень важный*** текст.')).toBe(true);
+    });
+
+    it('should accept a code span the model wrote with its own backticks', () => {
+        const code = `Run ${CODE_OPEN}yfm build${CODE_CLOSE} in the project root`;
+
+        expect(keepsMarkup(code, 'В корне проекта выполните `yfm build`')).toBe(true);
+    });
+
     it('should accept a link written in plain markdown instead of its tags', () => {
         const link = `${LINK_TAG}link</g> and more`;
 
@@ -273,6 +318,14 @@ function addMarkers(text: string): string {
 /** A model that wraps the whole fragment it was given into markers. */
 function wrapMarkers(text: string): string {
     return `**${text}**`;
+}
+
+/**
+ * A model that drops the placeholders and writes their markers itself.
+ * The line composes exactly the same way, so nothing may be stripped.
+ */
+function inlineMarkers(text: string): string {
+    return text.replace(/<x [^>]*equiv-text="([^"]*)"[^>]*\/>/g, '$1');
 }
 
 /**
@@ -348,6 +401,12 @@ describe('stripAddedMarkup over real extract and compose', () => {
         const {dirty, repaired} = repair(CODE_DOC, addCodeMarkers);
 
         expect(dirty).toContain('``');
+        expect(repaired).toBe(CODE_DOC);
+    });
+
+    it('should keep the markers a model writes instead of the placeholders', () => {
+        const {repaired} = repair(CODE_DOC, inlineMarkers);
+
         expect(repaired).toBe(CODE_DOC);
     });
 

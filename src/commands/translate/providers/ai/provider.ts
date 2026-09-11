@@ -796,6 +796,47 @@ export function makeTranslator(params: TranslatorParams): Translate {
     }
 
     /**
+     * Asks the model again for the fragments the repair could not save.
+     * Never throws: the main response is already in hand, so a failed
+     * repair attempt must not fail the file, and a batch the model answers
+     * with the wrong number of fragments is split, exactly like the main
+     * request - otherwise one malformed answer sends the whole set back to
+     * its source text.
+     */
+    async function retryFragments(
+        path: string,
+        fragments: string[],
+        context: string,
+    ): Promise<(string | undefined)[]> {
+        try {
+            return await translateBatch(path, fragments, context);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            logger.warn(path, `Markup retry failed (${error.message}).`);
+
+            // Only a malformed answer is worth splitting; a rate limit or a
+            // server error would meet every fragment the same way.
+            if (!(error instanceof LLMResponseError) || fragments.length < 2) {
+                return [];
+            }
+        }
+
+        const result: (string | undefined)[] = [];
+
+        for (const fragment of fragments) {
+            try {
+                result.push((await translateBatch(path, [fragment], context))[0]);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (error: any) {
+                logger.warn(path, `Markup retry failed (${error.message}).`);
+                result.push(undefined);
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Retranslates the fragments whose markup the repair could not save:
      * a placeholder the model dropped without writing its marker in place
      * loses the formatting or leaves an unpaired delimiter in the line.
@@ -830,19 +871,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
             `${indexes.length} fragment(s) came back with damaged markup; retrying them.`,
         );
 
-        let retried: string[] = [];
-        try {
-            retried = await translateBatch(
-                path,
-                indexes.map((index) => fragments[index]),
-                context,
-            );
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            // The main response is already in hand; a failed repair attempt
-            // must not fail the file.
-            logger.warn(path, `Markup retry failed (${error.message}).`);
-        }
+        const retried = await retryFragments(
+            path,
+            indexes.map((index) => fragments[index]),
+            context,
+        );
 
         const result = [...parts];
         let unfixed = 0;

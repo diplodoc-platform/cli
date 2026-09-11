@@ -101,6 +101,7 @@ const translated = (fragments: string[]) => fragments.map((text) => `T:${text}`)
 // only carries the closing tag - see `stripAddedMarkup`.
 const BOLD_CLOSE = '<x ctype="bold_close" equiv-text="**" id="x-1"/>';
 const CODE_OPEN = '<x ctype="code_open" equiv-text="`" id="x-1"/>';
+const CODE_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-2"/>';
 
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
 
@@ -881,6 +882,23 @@ describe('translate ai provider', () => {
             // does not have to repair it again.
             expect(store.get(unit)).toBe(healed);
             expect(client.complete).not.toHaveBeenCalled();
+        });
+
+        it('should accept a code span the model wrote with its own backticks', async () => {
+            // Both placeholders are inside the unit, so the skeleton
+            // restores nothing: the backticks are the only markup left and
+            // the fragment composes exactly like the source.
+            const unit = wrap(`Run ${CODE_OPEN}yfm build${CODE_CLOSE} in the project root`);
+            const client = makeClient(() => ['В корне проекта выполните `yfm build`']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap('В корне проекта выполните `yfm build`')]);
+            expect(stat.markupStripped).toBe(0);
+            expect(stat.markupRetried).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(1);
         });
 
         it('should retry a fragment whose markup the model damaged', async () => {
