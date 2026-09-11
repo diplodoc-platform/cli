@@ -100,6 +100,7 @@ const translated = (fragments: string[]) => fragments.map((text) => `T:${text}`)
 // A bold opening the line leaves its markers in the skeleton, so the unit
 // only carries the closing tag - see `stripAddedMarkup`.
 const BOLD_CLOSE = '<x ctype="bold_close" equiv-text="**" id="x-1"/>';
+const CODE_OPEN = '<x ctype="code_open" equiv-text="`" id="x-1"/>';
 
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
 
@@ -316,7 +317,11 @@ describe('translate ai provider', () => {
             );
 
             const report = JSON.parse(readFileSync(reportPath, 'utf8'));
-            expect(report.totals.fixes).toEqual({markupStripped: 1});
+            expect(report.totals.fixes).toEqual({
+                markupStripped: 1,
+                markupRetried: 0,
+                markupDamaged: 0,
+            });
             expect(logger.stat).toHaveBeenCalledWith(
                 expect.stringContaining('added-markup-stripped: 1'),
             );
@@ -876,6 +881,46 @@ describe('translate ai provider', () => {
             // does not have to repair it again.
             expect(store.get(unit)).toBe(healed);
             expect(client.complete).not.toHaveBeenCalled();
+        });
+
+        it('should retry a fragment whose markup the model damaged', async () => {
+            const unit = wrap(`Enable it with ${CODE_OPEN}a.b.c`);
+            // The first answer drops the placeholder without writing its
+            // backtick, which would compose into an unpaired line.
+            const client = makeClient((_, call) =>
+                call === 0
+                    ? ['Включите с помощью a.b.c']
+                    : [`Включите с помощью ${CODE_OPEN}a.b.c`],
+            );
+            const {params, stat, warn} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap(`Включите с помощью ${CODE_OPEN}a.b.c`)]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('damaged markup'));
+        });
+
+        it('should keep the source text of a fragment the retry does not fix', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-damaged-'));
+            const unit = wrap(`Enable it with ${CODE_OPEN}a.b.c`);
+            const store = new TranslationStore(join(root, 'cache.json'), 'fp');
+            const client = makeClient(() => ['Включите с помощью a.b.c']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([unit]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.translatedUnits).toBe(0);
+            // Never stored: the next run has to get another chance at it.
+            expect(store.get(unit)).toBeUndefined();
         });
 
         it('should not count cache misses when the store is disabled', async () => {

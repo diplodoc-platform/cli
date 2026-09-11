@@ -70,6 +70,8 @@ describe('translate run report', () => {
             stat.cacheEnabled = true;
             stat.untranslated = 1;
             stat.markupStripped = 4;
+            stat.markupRetried = 2;
+            stat.markupDamaged = 1;
             stat.oversized = 0;
             stat.sourceChars = 1000;
             stat.translatedChars = 1100;
@@ -114,11 +116,15 @@ describe('translate run report', () => {
             expect(target.tokens).toEqual({input: 500, output: 550});
             expect(target.requests).toEqual({total: 4, fallback: 1, retries: 2});
             expect(target.cache).toEqual({enabled: true, hits: 3, misses: 7, hitRate: 0.3});
-            expect(target.fixes).toEqual({markupStripped: 4});
+            expect(target.fixes).toEqual({markupStripped: 4, markupRetried: 2, markupDamaged: 1});
 
             expect(data.totals.units.total).toBe(10);
             expect(data.totals.cache.hitRate).toBe(0.3);
-            expect(data.totals.fixes).toEqual({markupStripped: 4});
+            expect(data.totals.fixes).toEqual({
+                markupStripped: 4,
+                markupRetried: 2,
+                markupDamaged: 1,
+            });
         });
 
         it('should sum totals across targets and keep tokens null when never reported', () => {
@@ -236,10 +242,13 @@ describe('translate run report', () => {
             const stat = createTargetStat();
 
             stat.markupStripped = 7;
+            stat.markupRetried = 3;
+            stat.markupDamaged = 1;
 
             report.addTarget('en', stat);
 
             expect(report.summary()).toContain('added markup stripped: 7');
+            expect(report.summary()).toContain('damaged markup: 3 retried, 1 kept as source');
         });
     });
 });

@@ -82,6 +82,8 @@ Counters (`totals` and each entry of `targets`):
 | `cache.hits` / `cache.misses` | number         | Cache lookups by outcome.                                                                                                            |
 | `cache.hitRate`               | number or null | `hits / (hits + misses)`, `null` when the cache is disabled or was not consulted.                                                    |
 | `fixes.markupStripped`        | number         | Delimiter runs of inline markup the model added around fragments and removed before composing (fresh and cached translations alike). |
+| `fixes.markupRetried`         | number         | Fragments re-requested because the model returned them with markup that cannot be composed (a dropped placeholder).                  |
+| `fixes.markupDamaged`         | number         | Fragments that kept their source text because the retry did not fix the markup; also counted in `units.untranslated`.                |
 
 Judge stats (`targets[].judge`, present when `--judge` is enabled):
 
@@ -98,7 +100,7 @@ Judge stats (`targets[].judge`, present when `--judge` is enabled):
 Provider coverage: LLM providers (`openai`, `anthropic`, `yandexgpt`,
 `openrouter`) fill all counters. The `yandex` (Yandex Translate) provider has
 no token usage, persistent cache, judge or markup repair, so `tokens` is
-`null`, `cache.enabled` is `false`, `fixes.markupStripped` stays `0` and
+`null`, `cache.enabled` is `false`, `fixes` counters stay `0` and
 `judge` is absent.
 
 ## Example
@@ -125,7 +127,7 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
     "tokens": {"input": 5200, "output": 4800},
     "requests": {"total": 18, "fallback": 2, "retries": 3},
     "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529},
-    "fixes": {"markupStripped": 2}
+    "fixes": {"markupStripped": 2, "markupRetried": 1, "markupDamaged": 0}
   },
   "targets": [
     {
@@ -142,7 +144,7 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
       "tokens": {"input": 5200, "output": 4800},
       "requests": {"total": 18, "fallback": 2, "retries": 3},
       "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529},
-      "fixes": {"markupStripped": 2},
+      "fixes": {"markupStripped": 2, "markupRetried": 1, "markupDamaged": 0},
       "judge": {
         "model": "gpt-4o",
         "threshold": 70,

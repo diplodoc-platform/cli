@@ -28,6 +28,7 @@ import {
     bytes,
     cacheFingerprint,
     estimateTokens,
+    keepsMarkup,
     seedFilePath,
     stripAddedMarkup,
 } from './utils';
@@ -127,6 +128,10 @@ export class Provider {
                         (fallbackClient ? ` fallback-requests: ${stat.fallbackRequests}` : '') +
                         (stat.markupStripped
                             ? ` added-markup-stripped: ${stat.markupStripped}`
+                            : '') +
+                        (stat.markupRetried
+                            ? ` damaged-markup-retried: ${stat.markupRetried}` +
+                              ` damaged-markup-kept: ${stat.markupDamaged}`
                             : ''),
                 );
 
@@ -669,6 +674,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
     const gate = new RateGate();
     const fallbackGate = new RateGate();
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
+    // Units the model kept returning with damaged markup: they fall back to
+    // their source text and must stay out of the store, so the next run
+    // gets another chance at them.
+    const damaged = new Set<string>();
 
     async function translateBatch(
         path: string,
@@ -786,13 +795,91 @@ export function makeTranslator(params: TranslatorParams): Translate {
         });
     }
 
+    /**
+     * Retranslates the fragments whose markup the repair could not save:
+     * a placeholder the model dropped without writing its marker in place
+     * loses the formatting or leaves an unpaired delimiter in the line.
+     *
+     * One more request is cheaper than a broken line, and a fragment the
+     * retry does not fix keeps its source text: untranslated composes
+     * cleanly, damaged markup does not.
+     */
+    async function repairDamaged(
+        path: string,
+        fragments: string[],
+        parts: string[],
+        context: string,
+    ): Promise<string[]> {
+        if (dryRun) {
+            return parts;
+        }
+
+        const kept = (fragment: string, part: string) =>
+            keepsMarkup(unwrapUnit(fragment).text, unwrapUnit(part).text);
+        const indexes = fragments
+            .map((_, index) => index)
+            .filter((index) => !kept(fragments[index], parts[index]));
+
+        if (!indexes.length) {
+            return parts;
+        }
+
+        stat.markupRetried += indexes.length;
+        logger.warn(
+            path,
+            `${indexes.length} fragment(s) came back with damaged markup; retrying them.`,
+        );
+
+        let retried: string[] = [];
+        try {
+            retried = await translateBatch(
+                path,
+                indexes.map((index) => fragments[index]),
+                context,
+            );
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            // The main response is already in hand; a failed repair attempt
+            // must not fail the file.
+            logger.warn(path, `Markup retry failed (${error.message}).`);
+        }
+
+        const result = [...parts];
+        let unfixed = 0;
+
+        indexes.forEach((index, position) => {
+            const candidate = retried[position];
+
+            if (candidate !== undefined && kept(fragments[index], candidate)) {
+                result[index] = candidate;
+                return;
+            }
+
+            unfixed++;
+            stat.markupDamaged++;
+            damaged.add(fragments[index]);
+            result[index] = fragments[index];
+        });
+
+        if (unfixed) {
+            logger.warn(
+                path,
+                `${unfixed} fragment(s) stayed damaged after the retry; keeping their source text.`,
+            );
+        }
+
+        return result;
+    }
+
     async function translateWithSplit(
         path: string,
         fragments: string[],
         context: string,
     ): Promise<string[]> {
         try {
-            return await translateBatch(path, fragments, context);
+            const parts = await translateBatch(path, fragments, context);
+
+            return await repairDamaged(path, fragments, parts, context);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof LLMResponseError && fragments.length > 1) {
@@ -803,7 +890,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 const result: string[] = [];
                 for (const fragment of fragments) {
                     const single = await translateBatch(path, [fragment], context);
-                    result.push(single[0]);
+                    const repaired = await repairDamaged(path, [fragment], single, context);
+                    result.push(repaired[0]);
                 }
                 return result;
             }
@@ -832,6 +920,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         }
                         const translated = await translateWithSplit(path, batch, context);
                         translated.forEach((text, i) => {
+                            if (damaged.has(batch[i])) {
+                                // Fell back to the source text: counted as
+                                // untranslated and kept out of the store.
+                                stat.untranslated++;
+                                cache.get(batch[i])?.resolve(text);
+                                return;
+                            }
                             if (!dryRun && text === batch[i] && marker?.test(text)) {
                                 // The model returned source-script text unchanged.
                                 // Keep it out of the store so the next run retries,

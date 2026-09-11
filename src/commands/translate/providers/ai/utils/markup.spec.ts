@@ -1,7 +1,7 @@
 import {compose, extract} from '@diplodoc/translation';
 import {describe, expect, it} from 'vitest';
 
-import {stripAddedMarkup} from './markup';
+import {keepsMarkup, stripAddedMarkup} from './markup';
 
 // Units below are real `extract` output: the markers of markup that
 // starts (or ends) outside the fragment live in the skeleton, and only a
@@ -115,6 +115,26 @@ describe('stripAddedMarkup', () => {
         });
     });
 
+    it('should strip a backtick glued outside a code placeholder', () => {
+        const source = `Enable it with ${CODE_OPEN}a.b.c`;
+
+        expect(stripAddedMarkup(source, `Включите с помощью \`${CODE_OPEN}a.b.c`)).toEqual({
+            text: `Включите с помощью ${CODE_OPEN}a.b.c`,
+            stripped: 1,
+        });
+    });
+
+    it('should strip a backtick written after a closing placeholder', () => {
+        const source = `Use ${CODE_OPEN}z.w${CODE_CLOSE} as alias`;
+
+        expect(stripAddedMarkup(source, `Берите ${CODE_OPEN}z.w${CODE_CLOSE}\` как алиас`)).toEqual(
+            {
+                text: `Берите ${CODE_OPEN}z.w${CODE_CLOSE} как алиас`,
+                stripped: 1,
+            },
+        );
+    });
+
     it('should strip backticks wrapped around a fragment with no markup at all', () => {
         expect(stripAddedMarkup('yfm build', '`yfm build`')).toEqual({
             text: 'yfm build',
@@ -183,6 +203,45 @@ describe('stripAddedMarkup', () => {
     });
 });
 
+describe('keepsMarkup', () => {
+    const source = `x.y${CODE_CLOSE} is the prefix, ${CODE_OPEN}z.w${CODE_CLOSE} kept as alias`;
+
+    it('should accept a translation that keeps every placeholder', () => {
+        const translation = `x.y${CODE_CLOSE} это префикс, ${CODE_OPEN}z.w${CODE_CLOSE} как алиас`;
+
+        expect(keepsMarkup(source, translation)).toBe(true);
+    });
+
+    it('should accept a marker written in place of a dropped placeholder', () => {
+        // Both compose into the same line, so the fragment is sound.
+        expect(keepsMarkup(source, 'x.y` это префикс, `z.w` как алиас')).toBe(true);
+    });
+
+    it('should accept markup the model added of its own', () => {
+        const translation = `x.y${CODE_CLOSE} это **префикс**, ${CODE_OPEN}z.w${CODE_CLOSE} как алиас`;
+
+        expect(keepsMarkup(source, translation)).toBe(true);
+    });
+
+    it('should reject a placeholder dropped without its marker', () => {
+        const translation = `x.y${CODE_CLOSE} это префикс, z.w${CODE_CLOSE} как алиас`;
+
+        expect(keepsMarkup(source, translation)).toBe(false);
+    });
+
+    it('should reject an odd marker the repair could not place', () => {
+        const translation = `x.y${CODE_CLOSE} это \`префикс, ${CODE_OPEN}z.w${CODE_CLOSE} как алиас`;
+
+        expect(keepsMarkup(source, translation)).toBe(false);
+    });
+
+    it('should accept a link written in plain markdown instead of its tags', () => {
+        const link = `${LINK_TAG}link</g> and more`;
+
+        expect(keepsMarkup(link, '[ссылка](http://x) и ещё')).toBe(true);
+    });
+});
+
 const DOC = [
     '# Release notes',
     '',
@@ -215,6 +274,30 @@ function addMarkers(text: string): string {
 function wrapMarkers(text: string): string {
     return `**${text}**`;
 }
+
+/**
+ * A model that keeps the code placeholders and writes the backticks it
+ * sees in the rendered line as well, outside of the pair.
+ */
+function addCodeMarkers(text: string): string {
+    return text
+        .replace(/<x ctype="code_open"[^>]*\/>/g, '`$&')
+        .replace(/<x ctype="code_close"[^>]*\/>/g, '$&`');
+}
+
+// Every markup shape the repair has to survive: inline code opening a line
+// next to a second code span in the same sentence, a code span closing a
+// line, code inside bold, and bold inside a paragraph.
+const CODE_DOC = [
+    '`x.y` is the prefix, `z.w` kept as alias',
+    '',
+    'Enable it with `a.b.c`',
+    '',
+    '**bold `code` mix** start',
+    '',
+    'A sentence with a **bold word** inside.',
+    '',
+].join('\n');
 
 function extractDoc(doc: string) {
     return extract(doc, {
@@ -261,9 +344,15 @@ describe('stripAddedMarkup over real extract and compose', () => {
         expect(repaired).toBe(doc);
     });
 
-    it('should keep a faithful translation untouched', () => {
-        const {repaired} = repair(DOC, (text) => text);
+    it('should compose exactly like the source when the model doubles the backticks', () => {
+        const {dirty, repaired} = repair(CODE_DOC, addCodeMarkers);
 
-        expect(repaired).toBe(DOC);
+        expect(dirty).toContain('``');
+        expect(repaired).toBe(CODE_DOC);
+    });
+
+    it('should keep a faithful translation untouched', () => {
+        expect(repair(DOC, (text) => text).repaired).toBe(DOC);
+        expect(repair(CODE_DOC, (text) => text).repaired).toBe(CODE_DOC);
     });
 });

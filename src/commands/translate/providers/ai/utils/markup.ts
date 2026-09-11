@@ -70,8 +70,8 @@ const HOISTED_TAG = /<x\b[^>]*\/>/g;
 /** Opening tag of markup contained in the fragment, with its markers. */
 const CONTAINED_TAG = /<g\b[^>]*>/g;
 
-/** Marker run glued to a hoisted tag, on either side of it. */
-const HOISTED_EDGE = new RegExp(String.raw`(${RUN})?(<x\b[^>]*\/>)(${RUN})?`, 'g');
+/** Marker run glued to a placeholder, on either side of it. */
+const PLACEHOLDER_EDGE = new RegExp(String.raw`(${RUN})?(<x\b[^>]*\/>)(${RUN})?`, 'g');
 
 export type MarkupRepair = {
     text: string;
@@ -145,6 +145,28 @@ function countRuns(text: string, run: string): number {
     return runs.filter((found) => found === run).length;
 }
 
+/** Every delimiter flavour the texts mention, as a tag marker or literally. */
+function markerFlavours(...texts: string[]): Set<string> {
+    const flavours = new Set<string>();
+
+    for (const text of texts) {
+        for (const marker of hoistedMarkers(text, 'open')) {
+            flavours.add(marker);
+        }
+        for (const marker of hoistedMarkers(text, 'close')) {
+            flavours.add(marker);
+        }
+        for (const marker of containedMarkers(text)) {
+            flavours.add(marker);
+        }
+        for (const run of text.replace(TAG, '').match(ANY_RUN) || []) {
+            flavours.add(run);
+        }
+    }
+
+    return flavours;
+}
+
 /** Markers of one flavour the inline tags of the text stand for. */
 function countTagMarkers(text: string, run: string): number {
     let count = 0;
@@ -197,18 +219,23 @@ function isWrapping(source: string, run: string, text: string): boolean {
 }
 
 /**
- * Removes a marker run repeating the marker a hoisted tag restores, e.g.
- * `Release date:**<x ctype="bold_close" equiv-text="**"/>`, which composes
- * into a four-marker run.
+ * Removes a marker run repeating the marker a placeholder restores, on
+ * either side of it: `compose` emits the marker at the placeholder, so a
+ * literal one glued to it doubles the run wherever it stands.
+ *
+ * Inline code makes both sides real. A code span contained in a fragment
+ * travels as a pair of placeholders around its text, so a model writing
+ * the backticks it sees in the rendered line puts them outside the pair:
+ * `` `<x ctype="code_open" equiv-text="`"/>a.b.c `` composes into
+ * `` ``a.b.c` ``.
  */
-function stripHoistedDuplicates(text: string): MarkupRepair {
+function stripGluedDuplicates(text: string): MarkupRepair {
     let stripped = 0;
 
     const result = text.replace(
-        HOISTED_EDGE,
+        PLACEHOLDER_EDGE,
         (match: string, before: string, tag: string, after: string) => {
             const equiv = attr(tag, 'equiv-text');
-            const ctype = attr(tag, 'ctype') || '';
 
             if (!equiv) {
                 return match;
@@ -217,12 +244,12 @@ function stripHoistedDuplicates(text: string): MarkupRepair {
             let head = before || '';
             let tail = after || '';
 
-            if (head === equiv && ctype.endsWith('_close')) {
+            if (head === equiv) {
                 head = '';
                 stripped++;
             }
 
-            if (tail === equiv && ctype.endsWith('_open')) {
+            if (tail === equiv) {
                 tail = '';
                 stripped++;
             }
@@ -298,12 +325,42 @@ export function stripAddedMarkup(source: string, translation: string): MarkupRep
 
     // A source fragment with the same marker glued to a hoisted tag is
     // broken on its own; leave such a pair alone instead of guessing.
-    if (stripHoistedDuplicates(source).stripped) {
+    if (stripGluedDuplicates(source).stripped) {
         return {text, stripped};
     }
 
-    const duplicates = stripHoistedDuplicates(text);
+    const duplicates = stripGluedDuplicates(text);
     const orphans = stripOrphans(source, duplicates.text);
 
     return {text: orphans.text, stripped: stripped + duplicates.stripped + orphans.stripped};
+}
+
+/**
+ * Tells whether the repaired translation still carries the markup of the
+ * source fragment, so `compose` can put the line back together.
+ *
+ * Every marker of the source has to be accounted for, either by the
+ * placeholder it came in or by the literal marker a model that dropped
+ * that placeholder wrote in its place - both compose into the same line.
+ * A marker fewer means lost formatting or an unpaired delimiter, and an
+ * odd remainder means a delimiter without its partner. Extra markers in
+ * pairs are markup the model added of its own and compose cleanly, so
+ * they are not worth another request.
+ *
+ * Asymmetric markup is not checked here for the same reason it is not
+ * repaired: the parts of a link differ on the two sides, and a model that
+ * writes a link in plain markdown instead of the placeholders composes
+ * just fine.
+ */
+export function keepsMarkup(source: string, translation: string): boolean {
+    for (const run of markerFlavours(source, translation)) {
+        const expected = countRuns(source, run) + countTagMarkers(source, run);
+        const actual = countRuns(translation, run) + countTagMarkers(translation, run);
+
+        if (actual < expected || (actual - expected) % 2 !== 0) {
+            return false;
+        }
+    }
+
+    return true;
 }
