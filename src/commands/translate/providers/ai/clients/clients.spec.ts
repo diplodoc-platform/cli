@@ -32,13 +32,13 @@ const completionOptions = {temperature: 0, maxTokens: 100};
 
 function temperatureRejection(message: string, param: string | null) {
     const error = new AxiosError('Request failed');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    error.response = {
+    const response = {
         status: 400,
         statusText: 'Bad Request',
         data: {error: {message, param}},
         headers: {},
-    } as any;
+    };
+    error.response = response as typeof error.response;
     return error;
 }
 
@@ -123,6 +123,16 @@ describe('translate ai clients', () => {
             await expect(client.complete(messages, completionOptions)).rejects.toThrow(
                 'empty response',
             );
+        });
+
+        it('should leave temperature out when it is disabled', async () => {
+            post.mockResolvedValueOnce({data: response});
+
+            const client = createOpenAIClient({token: 't', model: 'gpt-4o-mini'});
+            await client.complete(messages, {maxTokens: 100});
+
+            expect(post).toHaveBeenCalledTimes(1);
+            expect(post.mock.calls[0][1]).not.toHaveProperty('temperature');
         });
 
         it('should repeat the request without temperature when the model rejects it', async () => {

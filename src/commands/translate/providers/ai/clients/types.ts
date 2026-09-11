@@ -6,7 +6,8 @@ export type ChatMessage = {
 };
 
 export type CompletionOptions = {
-    temperature: number;
+    /** Left out of the request when undefined. */
+    temperature?: number;
     maxTokens: number;
 };
 

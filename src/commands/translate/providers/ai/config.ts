@@ -181,10 +181,20 @@ const glossary = option({
     `,
 });
 
+export const NO_TEMPERATURE = 'none';
+
 const temperature = option({
     flags: '--temperature <num>',
-    desc: 'Sampling temperature. Defaults to 0 for deterministic translation.',
-    parser: Number,
+    desc: `
+        Sampling temperature. Defaults to 0 for deterministic translation:
+        the same source produces the same translation on every run.
+
+        Pass ${cyan('none')} to leave the parameter out of the request and let
+        the model use its own default. Newer models accept nothing but their
+        default and are recovered automatically, so this is only needed to opt
+        out deliberately.
+    `,
+    parser: (value: string) => (value === NO_TEMPERATURE ? NO_TEMPERATURE : Number(value)),
     defaultInfo: 0,
 });
 

@@ -69,8 +69,23 @@ WARN ru/index.md The model rejected temperature; requests continue without it.
 
 An optional field keeps every existing client valid without changes.
 
+### Opting out
+
+`--temperature none` (and `temperature: none` in the yfm config) leaves the
+parameter out of the request from the start, for callers who already know the
+model refuses it or who deliberately want the model's own default. The
+deterministic `0` stays the default: measured against `deepseek-v4-flash`
+through the Eliza gateway, four requests at `temperature: 0` returned the same
+text, while three requests without the parameter returned three different
+translations of the same source ("cube" vs "bot", "changed" vs "modified").
+Re-running a translation would rewrite wording that nobody edited, which is
+noise in the resulting pull request.
+
 ## Testing
 
+- Resolution: `--temperature none` and the config key leave `temperature`
+  undefined; anything else keeps the numeric default.
+- Clients leave the field out when `temperature` is undefined.
 - `isTemperatureRejected`: true for the OpenAI shape (`param: 'temperature'`)
   and for the Anthropic shape (message mentions temperature, `param: null`);
   false for other 400s, for 429/500, and for non-Axios errors.

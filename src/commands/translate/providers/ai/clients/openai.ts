@@ -91,7 +91,9 @@ export class OpenAICompatibleClient implements LLMClient {
             {
                 model: this.model,
                 messages: messages.map((m) => ({role: m.role, content: m.content})),
-                ...(withTemperature ? {temperature: options.temperature} : {}),
+                ...(withTemperature && options.temperature !== undefined
+                    ? {temperature: options.temperature}
+                    : {}),
                 [this.tokenParam]: options.maxTokens,
             },
             {

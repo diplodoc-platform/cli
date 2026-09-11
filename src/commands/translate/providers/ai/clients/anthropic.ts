@@ -90,7 +90,9 @@ export class AnthropicClient implements LLMClient {
                 model: this.model,
                 system: system || undefined,
                 messages: conversation,
-                ...(withTemperature ? {temperature: options.temperature} : {}),
+                ...(withTemperature && options.temperature !== undefined
+                    ? {temperature: options.temperature}
+                    : {}),
                 max_tokens: options.maxTokens,
             },
             {

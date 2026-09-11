@@ -448,6 +448,22 @@ describe('Translate command', () => {
                     },
                 );
 
+                test('should disable temperature explicitly', '--temperature none', {
+                    temperature: undefined,
+                });
+
+                test(
+                    'should disable temperature from config',
+                    '',
+                    {
+                        // @ts-ignore
+                        temperature: 'none',
+                    },
+                    {
+                        temperature: undefined,
+                    },
+                );
+
                 test('should parse api headers arg', '--api-header X-Org:team', {
                     apiHeaders: {'X-Org': 'team'},
                 });
