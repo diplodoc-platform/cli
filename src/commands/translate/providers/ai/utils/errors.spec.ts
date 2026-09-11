@@ -6,6 +6,7 @@ import {
     LLMRateLimitError,
     LLMRequestError,
     LLMResponseError,
+    isTemperatureRejected,
     throwLLMError,
 } from './errors';
 
@@ -86,6 +87,53 @@ describe('translate ai errors', () => {
         it('should rethrow non-axios errors as is', () => {
             const original = new LLMResponseError('broken');
             expect(() => throwLLMError(original, 'test')).toThrow(original);
+        });
+    });
+    describe('isTemperatureRejected', () => {
+        it('should detect the openai shape naming the parameter', () => {
+            const error = axiosError(400, {
+                error: {
+                    message:
+                        "Unsupported value: 'temperature' does not support 0 with this model. " +
+                        'Only the default (1) value is supported.',
+                    param: 'temperature',
+                    code: 'unsupported_value',
+                },
+            });
+
+            expect(isTemperatureRejected(error)).toBe(true);
+        });
+
+        it('should detect the anthropic shape which leaves param empty', () => {
+            const error = axiosError(400, {
+                error: {
+                    message: '`temperature` is deprecated for this model.',
+                    param: null,
+                    type: 'invalid_request_error',
+                },
+            });
+
+            expect(isTemperatureRejected(error)).toBe(true);
+        });
+
+        it('should ignore unrelated bad requests', () => {
+            const error = axiosError(400, {error: {message: 'model "gpt-42" not found'}});
+
+            expect(isTemperatureRejected(error)).toBe(false);
+        });
+
+        it('should ignore statuses which are not bad requests', () => {
+            expect(isTemperatureRejected(axiosError(429, {error: {param: 'temperature'}}))).toBe(
+                false,
+            );
+            expect(isTemperatureRejected(axiosError(500, {error: {param: 'temperature'}}))).toBe(
+                false,
+            );
+        });
+
+        it('should ignore errors which are not http failures', () => {
+            expect(isTemperatureRejected(new Error('temperature'))).toBe(false);
+            expect(isTemperatureRejected(new AxiosError('socket hang up'))).toBe(false);
         });
     });
 });

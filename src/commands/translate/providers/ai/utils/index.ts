@@ -5,6 +5,7 @@ export {
     LLMAuthError,
     LLMRateLimitError,
     LLMResponseError,
+    isTemperatureRejected,
     throwLLMError,
 } from './errors';
 export {SeedStore, TranslationStore, cacheFingerprint, seedFilePath} from './cache';

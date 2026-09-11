@@ -516,6 +516,52 @@ describe('translate ai provider', () => {
             );
         });
 
+        it('should warn once when the model refused temperature', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-temp-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'one.md'), 'Привет, мир.\n');
+            writeFileSync(join(input, 'ru', 'two.md'), 'Ещё текст.\n');
+
+            const client = {...makeFullClient(), temperatureDropped: true};
+            const provider = new Provider(() => client, {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.translate(['ru/one.md', 'ru/two.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                judge: false,
+                model: 'main',
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 1,
+                retry: 0,
+                rateLimitRetry: 0,
+            } as unknown as AITranslationConfig);
+
+            const temperatureWarnings = logger.warn.mock.calls.filter(([, message]) =>
+                String(message).includes('temperature'),
+            );
+            expect(temperatureWarnings).toHaveLength(1);
+        });
+
         it('should report files that keep failing on the final retry as errors', async () => {
             const root = mkdtempSync(join(tmpdir(), 'yfm-ai-sweep-'));
             const input = join(root, 'docs');

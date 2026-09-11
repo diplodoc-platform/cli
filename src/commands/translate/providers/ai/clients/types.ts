@@ -6,7 +6,8 @@ export type ChatMessage = {
 };
 
 export type CompletionOptions = {
-    temperature: number;
+    /** Left out of the request when undefined. */
+    temperature?: number;
     maxTokens: number;
 };
 
@@ -22,5 +23,7 @@ export type CompletionResult = {
 
 export interface LLMClient {
     readonly name: string;
+    /** True after the API refused `temperature` and the client stopped sending it. */
+    readonly temperatureDropped?: boolean;
     complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult>;
 }

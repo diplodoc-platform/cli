@@ -13,7 +13,7 @@ import {defined, resolveConfig} from '~/core/config';
 import {own} from '~/core/utils';
 
 import {Provider} from './provider';
-import {options} from './config';
+import {NO_TEMPERATURE, options} from './config';
 import {resolveToken} from './auth';
 import {resolveContextValue, resolvePromptValue} from './prompts';
 import {YandexGptClient} from './clients/yandexgpt';
@@ -100,7 +100,7 @@ type Config = {
     judgeModel?: string;
     judgeThreshold: number;
     cacheDir?: AbsolutePath;
-    temperature: number;
+    temperature?: number;
     maxOutputTokens: number;
     maxBatchTokens: number;
     maxConcurrency: number;
@@ -187,6 +187,14 @@ function makeClientFactory(provider: ProviderName) {
                 return new AnthropicClient(common);
         }
     };
+}
+
+/**
+ * `none` keeps the parameter out of the request and leaves the choice to the
+ * model; anything else falls back to the deterministic default.
+ */
+function resolveTemperature(value: unknown): number | undefined {
+    return value === NO_TEMPERATURE ? undefined : numberOr(value, 0);
 }
 
 function numberOr(value: unknown, fallback: number): number {
@@ -335,7 +343,7 @@ export class Extension {
                         (defined('judgeModel', args, config) as string | undefined) || undefined;
                     config.judgeThreshold = intOr(defined('judgeThreshold', args, config), 70);
 
-                    config.temperature = numberOr(defined('temperature', args, config), 0);
+                    config.temperature = resolveTemperature(defined('temperature', args, config));
                     config.maxOutputTokens = intOr(defined('maxOutputTokens', args, config), 4000);
                     config.maxBatchTokens = intOr(defined('maxBatchTokens', args, config), 2000);
                     config.maxConcurrency = Math.max(

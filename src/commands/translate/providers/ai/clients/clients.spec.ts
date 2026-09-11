@@ -1,7 +1,7 @@
 import type {Mock} from 'vitest';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 
 import {LLMResponseError} from '../utils';
 
@@ -29,6 +29,18 @@ const messages = [
 ];
 
 const completionOptions = {temperature: 0, maxTokens: 100};
+
+function temperatureRejection(message: string, param: string | null) {
+    const error = new AxiosError('Request failed');
+    const response = {
+        status: 400,
+        statusText: 'Bad Request',
+        data: {error: {message, param}},
+        headers: {},
+    };
+    error.response = response as typeof error.response;
+    return error;
+}
 
 describe('translate ai clients', () => {
     beforeEach(() => {
@@ -112,6 +124,79 @@ describe('translate ai clients', () => {
                 'empty response',
             );
         });
+
+        it('should leave temperature out when it is disabled', async () => {
+            post.mockResolvedValueOnce({data: response});
+
+            const client = createOpenAIClient({token: 't', model: 'gpt-4o-mini'});
+            await client.complete(messages, {maxTokens: 100});
+
+            expect(post).toHaveBeenCalledTimes(1);
+            expect(post.mock.calls[0][1]).not.toHaveProperty('temperature');
+        });
+
+        it('should repeat the request without temperature when the model rejects it', async () => {
+            post.mockRejectedValueOnce(
+                temperatureRejection(
+                    "Unsupported value: 'temperature' does not support 0 with this model.",
+                    'temperature',
+                ),
+            );
+            post.mockResolvedValueOnce({data: response});
+
+            const client = createOpenAIClient({token: 't', model: 'gpt-5.6-sol'});
+            const result = await client.complete(messages, completionOptions);
+
+            expect(result.text).toBe('result');
+            expect(post).toHaveBeenCalledTimes(2);
+            expect(post.mock.calls[0][1].temperature).toBe(0);
+            expect(post.mock.calls[1][1]).not.toHaveProperty('temperature');
+            expect(client.temperatureDropped).toBe(true);
+        });
+
+        it('should omit temperature on later requests without probing again', async () => {
+            post.mockRejectedValueOnce(
+                temperatureRejection('`temperature` is deprecated for this model.', null),
+            );
+            post.mockResolvedValueOnce({data: response});
+            post.mockResolvedValueOnce({data: response});
+
+            const client = createOpenAIClient({token: 't', model: 'gpt-5.6-sol'});
+            await client.complete(messages, completionOptions);
+            await client.complete(messages, completionOptions);
+
+            expect(post).toHaveBeenCalledTimes(3);
+            expect(post.mock.calls[2][1]).not.toHaveProperty('temperature');
+        });
+
+        it('should recover both requests when they race into the rejection', async () => {
+            const rejection = () =>
+                temperatureRejection('`temperature` is deprecated for this model.', null);
+            post.mockRejectedValueOnce(rejection());
+            post.mockRejectedValueOnce(rejection());
+            post.mockResolvedValueOnce({data: response});
+            post.mockResolvedValueOnce({data: response});
+
+            const client = createOpenAIClient({token: 't', model: 'claude-sonnet-5'});
+            const results = await Promise.all([
+                client.complete(messages, completionOptions),
+                client.complete(messages, completionOptions),
+            ]);
+
+            expect(results.map((result) => result.text)).toEqual(['result', 'result']);
+            expect(post).toHaveBeenCalledTimes(4);
+            expect(post.mock.calls[2][1]).not.toHaveProperty('temperature');
+            expect(post.mock.calls[3][1]).not.toHaveProperty('temperature');
+        });
+
+        it('should not repeat bad requests unrelated to temperature', async () => {
+            post.mockRejectedValueOnce(temperatureRejection('model "gpt-42" not found', null));
+
+            const client = createOpenAIClient({token: 't', model: 'gpt-42'});
+
+            await expect(client.complete(messages, completionOptions)).rejects.toThrow('not found');
+            expect(post).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe('openrouter', () => {
@@ -136,6 +221,24 @@ describe('translate ai clients', () => {
     });
 
     describe('anthropic', () => {
+        it('should repeat the request without temperature when the model rejects it', async () => {
+            post.mockRejectedValueOnce(
+                temperatureRejection('`temperature` is deprecated for this model.', null),
+            );
+            post.mockResolvedValueOnce({
+                data: {content: [{type: 'text', text: 'result'}], stop_reason: 'end_turn'},
+            });
+
+            const client = new AnthropicClient({token: 't', model: 'claude-sonnet-5'});
+            const result = await client.complete(messages, completionOptions);
+
+            expect(result.text).toBe('result');
+            expect(post).toHaveBeenCalledTimes(2);
+            expect(post.mock.calls[0][1].temperature).toBe(0);
+            expect(post.mock.calls[1][1]).not.toHaveProperty('temperature');
+            expect(client.temperatureDropped).toBe(true);
+        });
+
         it('should join text blocks and pass system prompt separately', async () => {
             post.mockResolvedValueOnce({
                 data: {
