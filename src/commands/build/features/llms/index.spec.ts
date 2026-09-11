@@ -105,8 +105,22 @@ type TestableLlms = {
     collectEntries(toc: Toc, tocDir: string): unknown[];
     excludeNoIndex(run: Run, entries: unknown[]): Promise<unknown[]>;
     renderIndex(run: Run, title: string, entries: unknown[], tocDir: string): Promise<string>;
-    renderFull(run: Run, title: string, entries: unknown[]): Promise<string>;
-    collectBody(run: Run, collector: MarkdownCollector, entryPath: NormalizedPath): Promise<string>;
+    renderFull(
+        run: Run,
+        title: string,
+        entries: unknown[],
+        audience: 'human' | 'agent',
+        fileName: string,
+        reportErrors?: boolean,
+    ): Promise<string>;
+    collectBody(
+        run: Run,
+        collector: MarkdownCollector,
+        entryPath: NormalizedPath,
+        audience: 'human' | 'agent',
+        fileName: string,
+        reportErrors: boolean,
+    ): Promise<string>;
 };
 
 describe('LLMs Plugin Architecture', () => {
@@ -713,7 +727,13 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             expect(result).toContain('# Full Book');
             expect(result).toContain('Collected Markdown Content');
@@ -743,6 +763,9 @@ describe('LLMs Plugin Architecture', () => {
                 run,
                 collector,
                 normalizedPath('docs/page.md'),
+                'agent',
+                LLMS_FULL_FILENAME,
+                true,
             );
 
             expect(result).toContain('Common content');
@@ -759,7 +782,14 @@ describe('LLMs Plugin Architecture', () => {
                     .mockResolvedValue('Included content.\n\n:::visibility robots\nHidden.\n:::'),
             } as unknown as MarkdownCollector;
 
-            await llmsInstance.collectBody(run, collector, normalizedPath('docs/page.md'));
+            await llmsInstance.collectBody(
+                run,
+                collector,
+                normalizedPath('docs/page.md'),
+                'human',
+                LLMS_FULL_FILENAME,
+                true,
+            );
 
             expect(run.logger.error).toHaveBeenCalledWith(
                 'llms-full.txt: docs/page.md: Invalid visibility audience "robots"; expected "human" or "agent"',
@@ -777,7 +807,13 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             expect(result.trim()).toBe('# Full Book');
         });
@@ -797,7 +833,13 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             expect(result).toContain('# Full Book');
             expect(result).toContain('Collected Markdown Content');
@@ -820,7 +862,13 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             // Title is always present
             expect(result).toContain('# Full Book');
@@ -843,7 +891,13 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             expect(result).toContain('# Full Book');
             expect(result).toContain('Collected Markdown Content');

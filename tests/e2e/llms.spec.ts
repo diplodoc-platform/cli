@@ -1,4 +1,4 @@
-import {readFile} from 'node:fs/promises';
+import {access, readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {describe, expect, test} from 'vitest';
 
@@ -22,6 +22,18 @@ describe('llms.txt', () => {
 
         await compareDirectories(outputPath);
         await compareDirectories(`${outputPath}-html`);
+
+        const humanContent = await readFile(join(outputPath, 'llms-full.txt'), 'utf8');
+        const agentContent = await readFile(join(outputPath, 'llms-full-agent.txt'), 'utf8');
+        const staticContent = await readFile(join(`${outputPath}-html`, 'llms-full.txt'), 'utf8');
+
+        expect(humanContent).toContain('Instructions for a human reader.');
+        expect(humanContent).not.toContain('Instructions for an autonomous agent.');
+        expect(agentContent).toContain('Instructions for an autonomous agent.');
+        expect(agentContent).not.toContain('Instructions for a human reader.');
+        expect(staticContent).toContain('Instructions for a human reader.');
+        expect(staticContent).not.toContain('Instructions for an autonomous agent.');
+        await expect(access(join(`${outputPath}-html`, 'llms-full-agent.txt'))).rejects.toThrow();
     });
 
     test('llms-full.txt respects --llms-full-max-size limit', async () => {
