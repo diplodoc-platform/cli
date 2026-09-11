@@ -4,17 +4,16 @@ import {join} from 'node:path';
 import {describe, expect, it} from 'vitest';
 
 import {DEFAULT_THRESHOLDS} from './report';
+import {main, parseArgs} from './cli';
 import {
     baseTranslateArgs,
     captureRunArgs,
     evaluatePages,
-    main,
     mockProviderArgs,
-    parseArgs,
     readJudgeSummary,
     realProviderArgs,
     stripLangPrefix,
-} from './cli';
+} from './run';
 
 function write(root: string, path: string, content: string) {
     const target = join(root, path);

@@ -38,9 +38,13 @@ export function buildReport(params: BuildReportParams): EvalReport {
     for (const page of pages) {
         totals.markup += page.markupViolations.length;
         totals.glossary += page.glossaryViolations.length;
-        totals.untranslated += page.untranslated.length;
+        totals.untranslated += page.untranslated?.length || 0;
 
-        if (thresholds.minSimilarity > 0 && page.similarity < thresholds.minSimilarity) {
+        if (
+            thresholds.minSimilarity > 0 &&
+            page.similarity !== null &&
+            page.similarity < thresholds.minSimilarity
+        ) {
             failures.push(
                 `${page.page}: similarity ${page.similarity} is below ${thresholds.minSimilarity}`,
             );
@@ -112,8 +116,8 @@ export function renderReport(report: EvalReport): string {
         page.page,
         cell(page.markupViolations.length),
         cell(page.glossaryViolations.length),
-        cell(page.untranslated.length),
-        page.similarity.toFixed(3),
+        page.untranslated === null ? '-' : cell(page.untranslated.length),
+        page.similarity === null ? '-' : page.similarity.toFixed(3),
         cell(page.judgeLow),
     ]);
 
@@ -133,7 +137,9 @@ export function renderReport(report: EvalReport): string {
                     `[glossary] "${violation.sourceText}" must be translated as ` +
                     `"${violation.translatedText}" (${violation.sourceOccurrences} occurrence(s))`,
             ),
-            ...page.untranslated.map((line) => `[untranslated] line ${line.line}: ${line.text}`),
+            ...(page.untranslated || []).map(
+                (line) => `[untranslated] line ${line.line}: ${line.text}`,
+            ),
         ];
         if (details.length) {
             lines.push(`${page.page}:`, ...details.map((detail) => `  ${detail}`), '');
