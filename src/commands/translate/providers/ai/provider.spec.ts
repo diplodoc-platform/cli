@@ -13,6 +13,7 @@ import {createTargetStat} from '../../report';
 import {
     Provider,
     extractTitle,
+    healCached,
     makeStore,
     makeTranslator,
     normalizeCached,
@@ -95,6 +96,14 @@ function makeParams(
 }
 
 const translated = (fragments: string[]) => fragments.map((text) => `T:${text}`);
+
+// A bold opening the line leaves its markers in the skeleton, so the unit
+// only carries the closing tag - see `stripAddedMarkup`.
+const BOLD_CLOSE = '<x ctype="bold_close" equiv-text="**" id="x-1"/>';
+const CODE_OPEN = '<x ctype="code_open" equiv-text="`" id="x-1"/>';
+const CODE_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-2"/>';
+
+const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
 
 function makeFullClient() {
     return {
@@ -254,6 +263,69 @@ describe('translate ai provider', () => {
             expect(Object.keys(target.judge.distribution)).toHaveLength(11);
 
             expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('run success'));
+        });
+
+        it('should not double the markup a model puts back around a bold label', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-markup-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'test.md'), '**Дата релиза:** 2026-08-25\n');
+
+            // The bold opens the line, so its markers live in the skeleton
+            // and the fragment is `Дата релиза:<x bold_close/> 2026-08-25`.
+            // The model translates the text and writes the markers back.
+            const client: LLMClient = {
+                name: 'fake',
+                complete: vi.fn(async () => ({text: '**Release date:** 2026-08-25'})),
+            };
+
+            const reportPath = join(root, 'report.json');
+            const provider = new Provider(() => client, {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+                skipped: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.translate(['ru/test.md'], {
+                provider: 'openai',
+                model: 'test-model',
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+                report: reportPath,
+            } as unknown as AITranslationConfig);
+
+            expect(readFileSync(join(output, 'en', 'test.md'), 'utf8')).toBe(
+                '**Release date:** 2026-08-25\n',
+            );
+
+            const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+            expect(report.totals.fixes).toEqual({
+                markupStripped: 1,
+                markupRetried: 0,
+                markupDamaged: 0,
+            });
+            expect(logger.stat).toHaveBeenCalledWith(
+                expect.stringContaining('added-markup-stripped: 1'),
+            );
         });
 
         it('should record errors in the run report and mark the run partial', async () => {
@@ -709,6 +781,50 @@ describe('translate ai provider', () => {
         });
     });
 
+    describe('healCached', () => {
+        const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
+
+        it('should cut markup added around a cached fragment', () => {
+            const stored = wrap('**Release date:** 2026-08-25');
+
+            expect(healCached(unit, stored)).toEqual({
+                text: wrap('Release date:** 2026-08-25'),
+                normalized: stored,
+                stripped: 1,
+            });
+        });
+
+        it('should heal a seeded value stored without the wrapper', () => {
+            expect(healCached(unit, '**Release date:** 2026-08-25')).toEqual({
+                text: wrap('Release date:** 2026-08-25'),
+                normalized: wrap('**Release date:** 2026-08-25'),
+                stripped: 1,
+            });
+        });
+
+        it('should keep a cached value the repair cannot make composable', () => {
+            // Nowhere to retry from here, so a repair that would leave the
+            // fragment without markup it needs must not be applied.
+            const stored = wrap('**Дата релиза: 2026-08-25');
+
+            expect(healCached(unit, stored)).toEqual({
+                text: stored,
+                normalized: stored,
+                stripped: 0,
+            });
+        });
+
+        it('should keep a sound cached value as is', () => {
+            const stored = wrap(`Release date:${BOLD_CLOSE} 2026-08-25`);
+
+            expect(healCached(unit, stored)).toEqual({
+                text: stored,
+                normalized: stored,
+                stripped: 0,
+            });
+        });
+    });
+
     describe('makeTranslator', () => {
         it('should translate texts through the client', async () => {
             const client = makeClient(translated);
@@ -753,6 +869,117 @@ describe('translate ai provider', () => {
             expect(stat.cacheMisses).toBe(2);
             expect(stat.translatedUnits).toBe(1);
             expect(stat.translatedChars).toBe('T:Fresh'.length);
+        });
+
+        it('should cut markup the model added around a fragment and count it', async () => {
+            const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
+            const client = makeClient(() => ['**Release date:** 2026-08-25']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap('Release date:** 2026-08-25')]);
+            expect(stat.markupStripped).toBe(1);
+        });
+
+        it('should heal added markup cached by an earlier run', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-heal-'));
+            const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
+            const store = new TranslationStore(join(root, 'cache.json'), 'fp');
+            store.set(unit, wrap('**Release date:** 2026-08-25'));
+
+            const client = makeClient(translated);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            const translate = makeTranslator(params);
+
+            const stored = wrap('**Release date:** 2026-08-25');
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap('Release date:** 2026-08-25')]);
+            expect(stat.markupStripped).toBe(1);
+            // The repair stays out of the store: written back, it would be
+            // repaired again next run from a different starting point, and
+            // the output file would drift between runs of the same input.
+            expect(store.get(unit)).toBe(stored);
+            expect(client.complete).not.toHaveBeenCalled();
+        });
+
+        it('should accept a code span the model wrote with its own backticks', async () => {
+            // Both placeholders are inside the unit, so the skeleton
+            // restores nothing: the backticks are the only markup left and
+            // the fragment composes exactly like the source.
+            const unit = wrap(`Run ${CODE_OPEN}yfm build${CODE_CLOSE} in the project root`);
+            const client = makeClient(() => ['В корне проекта выполните `yfm build`']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap('В корне проекта выполните `yfm build`')]);
+            expect(stat.markupStripped).toBe(0);
+            expect(stat.markupRetried).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it('should retry a fragment whose markup the model damaged', async () => {
+            const unit = wrap(`Enable it with ${CODE_OPEN}a.b.c`);
+            // The first answer drops the placeholder without writing its
+            // backtick, which would compose into an unpaired line.
+            const client = makeClient((_, call) =>
+                call === 0
+                    ? ['Включите с помощью a.b.c']
+                    : [`Включите с помощью ${CODE_OPEN}a.b.c`],
+            );
+            const {params, stat, warn} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap(`Включите с помощью ${CODE_OPEN}a.b.c`)]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('damaged markup'));
+        });
+
+        it('should retry a fragment the repair could not make composable', async () => {
+            // The model dropped the closing tag and opened a bold the
+            // skeleton already opens: stripping its marker is right, but
+            // what is left has nothing to close, so it goes back.
+            const unit = wrap(`Release date:${BOLD_CLOSE} 2026-08-25`);
+            const client = makeClient((_, call) =>
+                call === 0
+                    ? ['**Дата релиза: 2026-08-25']
+                    : [`Дата релиза:${BOLD_CLOSE} 2026-08-25`],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`)]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('should keep the source text of a fragment the retry does not fix', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-damaged-'));
+            const unit = wrap(`Enable it with ${CODE_OPEN}a.b.c`);
+            const store = new TranslationStore(join(root, 'cache.json'), 'fp');
+            const client = makeClient(() => ['Включите с помощью a.b.c']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([unit]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.translatedUnits).toBe(0);
+            // Never stored: the next run has to get another chance at it.
+            expect(store.get(unit)).toBeUndefined();
         });
 
         it('should not count cache misses when the store is disabled', async () => {

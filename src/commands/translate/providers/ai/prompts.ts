@@ -29,6 +29,8 @@ export const DEFAULT_SYSTEM_PROMPT = dedent`
 
     Strict rules:
     - Preserve all Markdown syntax, HTML tags, code blocks, inline code, links, images and Liquid/YFM directives exactly as they appear.
+    - Never add Markdown that the fragment does not already contain. In particular, do not wrap a fragment or its edges in emphasis, backticks or any other delimiters: a fragment is a slice of a line, and the markup around it is restored automatically. Extra markers make the line render as ****Release date:** value.
+    - Keep every <x .../> placeholder of the fragment exactly where it is and do not write its marker yourself: the placeholder already stands for that marker, and dropping one breaks the line.
     - Do not translate code, identifiers, file paths, URLs, or text inside <code> or fenced code blocks.
     - Do not add explanations, prefaces, or trailing notes — return translations only.
     - Keep the same number of fragments and their original order.

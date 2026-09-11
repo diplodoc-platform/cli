@@ -2,6 +2,7 @@ import type {Logger} from '~/core/logger';
 import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {CompletionResult, LLMClient} from './clients/types';
+import type {MarkupRepair} from './utils';
 import type {JudgePair} from './judge';
 import type {TargetStat, TranslateReportJudge} from '../../report';
 
@@ -27,7 +28,9 @@ import {
     bytes,
     cacheFingerprint,
     estimateTokens,
+    keepsMarkup,
     seedFilePath,
+    stripAddedMarkup,
 } from './utils';
 import {DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, buildMessages, splitFragments} from './prompts';
 import {judgeTranslations} from './judge';
@@ -122,7 +125,14 @@ export class Provider {
                     `requests: ${stat.requests} input-tokens: ${stat.inputTokens} ` +
                         `output-tokens: ${stat.outputTokens} bytes: ${stat.bytes} ` +
                         `cached-units: ${stat.cached} untranslated-units: ${stat.untranslated}` +
-                        (fallbackClient ? ` fallback-requests: ${stat.fallbackRequests}` : ''),
+                        (fallbackClient ? ` fallback-requests: ${stat.fallbackRequests}` : '') +
+                        (stat.markupStripped
+                            ? ` added-markup-stripped: ${stat.markupStripped}`
+                            : '') +
+                        (stat.markupRetried
+                            ? ` damaged-markup-retried: ${stat.markupRetried}` +
+                              ` damaged-markup-kept: ${stat.markupDamaged}`
+                            : ''),
                 );
 
                 const judge = pairs.length
@@ -616,6 +626,37 @@ export function normalizeCached(unit: string, stored: string): string {
     return result;
 }
 
+export type CachedRepair = MarkupRepair & {
+    /** The stored value with its wrapper normalized, markup untouched. */
+    normalized: string;
+};
+
+/**
+ * Prepares a cached translation for reuse: normalizes the wrapper and cuts
+ * markup added around the fragment. Cache entries are also seeded from
+ * files already in the repository, so a defect merged once would otherwise
+ * be replayed by every next run.
+ *
+ * The markup repair stays out of the store on purpose. Only the wrapper
+ * normalization is worth writing back; a repaired value written back would
+ * be repaired again next run, from a different starting point, and the
+ * output file would drift between runs of the same input.
+ */
+export function healCached(unit: string, stored: string): CachedRepair {
+    const normalized = normalizeCached(unit, stored);
+    const {open, text, close} = unwrapUnit(normalized);
+    const source = unwrapUnit(unit).text;
+    const repair = stripAddedMarkup(source, text);
+
+    // There is no retry on this path, so a repair that would leave markup
+    // which cannot be composed has nowhere to go: keep the cached value.
+    if (repair.stripped && keepsMarkup(source, text) && !keepsMarkup(source, repair.text)) {
+        return {text: normalized, normalized, stripped: 0};
+    }
+
+    return {text: open + repair.text + close, normalized, stripped: repair.stripped};
+}
+
 export function makeTranslator(params: TranslatorParams): Translate {
     const {
         client,
@@ -650,6 +691,14 @@ export function makeTranslator(params: TranslatorParams): Translate {
     const gate = new RateGate();
     const fallbackGate = new RateGate();
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
+    // Units the model kept returning with damaged markup: they fall back to
+    // their source text and must stay out of the store, so the next run
+    // gets another chance at them.
+    const damaged = new Set<string>();
+    // Markers cut from the answer currently held for a unit. A retry
+    // overwrites the entry, so a repair on an answer that was thrown away
+    // never reaches the report.
+    const repairs = new Map<string, number>();
 
     async function translateBatch(
         path: string,
@@ -758,8 +807,125 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // the source text instead (matches the built-in prompt rules).
         return parts.map((part, index) => {
             const {open, text, close} = wrappers[index];
-            return open + (unwrapUnit(stripFence(part)).text || text) + close;
+            const translation = unwrapUnit(stripFence(part)).text || text;
+            const repair = stripAddedMarkup(text, translation);
+
+            // Counted only once the answer is kept: a retry replaces both
+            // the text and its repair.
+            repairs.set(fragments[index], repair.stripped);
+
+            return open + repair.text + close;
         });
+    }
+
+    /**
+     * Asks the model again for the fragments the repair could not save.
+     * Never throws: the main response is already in hand, so a failed
+     * repair attempt must not fail the file, and a batch the model answers
+     * with the wrong number of fragments is split, exactly like the main
+     * request - otherwise one malformed answer sends the whole set back to
+     * its source text.
+     */
+    async function retryFragments(
+        path: string,
+        fragments: string[],
+        context: string,
+    ): Promise<(string | undefined)[]> {
+        try {
+            return await translateBatch(path, fragments, context);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            logger.warn(path, `Markup retry failed (${error.message}).`);
+
+            // Only a malformed answer is worth splitting; a rate limit or a
+            // server error would meet every fragment the same way.
+            if (!(error instanceof LLMResponseError) || fragments.length < 2) {
+                return [];
+            }
+        }
+
+        const result: (string | undefined)[] = [];
+
+        for (const fragment of fragments) {
+            try {
+                result.push((await translateBatch(path, [fragment], context))[0]);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (error: any) {
+                logger.warn(path, `Markup retry failed (${error.message}).`);
+                result.push(undefined);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Retranslates the fragments whose markup the repair could not save:
+     * a placeholder the model dropped without writing its marker in place
+     * loses the formatting or leaves an unpaired delimiter in the line.
+     *
+     * One more request is cheaper than a broken line, and a fragment the
+     * retry does not fix keeps its source text: untranslated composes
+     * cleanly, damaged markup does not.
+     */
+    async function repairDamaged(
+        path: string,
+        fragments: string[],
+        parts: string[],
+        context: string,
+    ): Promise<string[]> {
+        if (dryRun) {
+            return parts;
+        }
+
+        const kept = (fragment: string, part: string) =>
+            keepsMarkup(unwrapUnit(fragment).text, unwrapUnit(part).text);
+        const indexes = fragments
+            .map((_, index) => index)
+            .filter((index) => !kept(fragments[index], parts[index]));
+
+        if (!indexes.length) {
+            return parts;
+        }
+
+        stat.markupRetried += indexes.length;
+        logger.warn(
+            path,
+            `${indexes.length} fragment(s) came back with damaged markup; retrying them.`,
+        );
+
+        const retried = await retryFragments(
+            path,
+            indexes.map((index) => fragments[index]),
+            context,
+        );
+
+        const result = [...parts];
+        let unfixed = 0;
+
+        indexes.forEach((index, position) => {
+            const candidate = retried[position];
+
+            if (candidate !== undefined && kept(fragments[index], candidate)) {
+                result[index] = candidate;
+                return;
+            }
+
+            unfixed++;
+            stat.markupDamaged++;
+            damaged.add(fragments[index]);
+            repairs.set(fragments[index], 0);
+            result[index] = fragments[index];
+        });
+
+        if (unfixed) {
+            logger.warn(
+                path,
+                `${unfixed} fragment(s) stayed damaged after the retry; keeping their source text.`,
+            );
+        }
+
+        return result;
     }
 
     async function translateWithSplit(
@@ -768,7 +934,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
         context: string,
     ): Promise<string[]> {
         try {
-            return await translateBatch(path, fragments, context);
+            const parts = await translateBatch(path, fragments, context);
+
+            return await repairDamaged(path, fragments, parts, context);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof LLMResponseError && fragments.length > 1) {
@@ -779,7 +947,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 const result: string[] = [];
                 for (const fragment of fragments) {
                     const single = await translateBatch(path, [fragment], context);
-                    result.push(single[0]);
+                    const repaired = await repairDamaged(path, [fragment], single, context);
+                    result.push(repaired[0]);
                 }
                 return result;
             }
@@ -808,6 +977,15 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         }
                         const translated = await translateWithSplit(path, batch, context);
                         translated.forEach((text, i) => {
+                            stat.markupStripped += repairs.get(batch[i]) || 0;
+
+                            if (damaged.has(batch[i])) {
+                                // Fell back to the source text: counted as
+                                // untranslated and kept out of the store.
+                                stat.untranslated++;
+                                cache.get(batch[i])?.resolve(text);
+                                return;
+                            }
                             if (!dryRun && text === batch[i] && marker?.test(text)) {
                                 // The model returned source-script text unchanged.
                                 // Keep it out of the store so the next run retries,
@@ -860,18 +1038,20 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
             const stored = store?.get(text);
             if (stored !== undefined) {
-                const normalized = normalizeCached(text, stored);
+                const {text: healed, normalized, stripped} = healCached(text, stored);
                 // Identity entries for units that still contain source-script
                 // characters were cached by older runs that stored untranslated
                 // responses. Treat them as misses so the unit gets another chance.
                 const refused = normalized === text && marker !== null && marker.test(text);
                 if (!refused) {
-                    if (normalized !== stored) {
-                        // Heal wrapper noise cached by older runs.
+                    if (normalized !== stored && !dryRun) {
+                        // Heal wrapper noise cached by older runs. A dry run
+                        // estimates, it does not rewrite.
                         store?.set(text, normalized);
                     }
                     stat.cached++;
-                    promises.push(Promise.resolve(normalized));
+                    stat.markupStripped += stripped;
+                    promises.push(Promise.resolve(healed));
                     continue;
                 }
             }
