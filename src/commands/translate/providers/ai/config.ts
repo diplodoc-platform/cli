@@ -51,6 +51,20 @@ const fallbackModel = option({
     `,
 });
 
+const fallbackApiBase = option({
+    flags: '--fallback-api-base <url>',
+    desc: `
+        Override the API base URL for the fallback model only.
+
+        Useful with gateways which route by URL path: there a reserve model of
+        another vendor is unreachable through the primary base URL.
+
+        Requires ${cyan('--fallback-model')}. The fallback keeps the provider,
+        credentials and headers of the primary model. Empty by default: the
+        fallback reuses ${cyan('--api-base')}.
+    `,
+});
+
 const apiBase = option({
     flags: '--api-base <url>',
     desc: `
@@ -248,6 +262,7 @@ export const options = {
     model,
     fallbackModel,
     apiBase,
+    fallbackApiBase,
     apiHeader,
     systemPrompt,
     userPrompt,

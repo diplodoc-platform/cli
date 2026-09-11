@@ -562,6 +562,64 @@ describe('translate ai provider', () => {
             expect(temperatureWarnings).toHaveLength(1);
         });
 
+        it('should build the fallback client on its own endpoint when configured', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-fallback-base-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'test.md'), 'Привет, мир.\n');
+
+            const factory = vi.fn(() => makeFullClient());
+
+            const provider = new Provider(factory, {} as never);
+            Object.assign(provider, {
+                logger: {
+                    translate: vi.fn(),
+                    translated: vi.fn(),
+                    request: vi.fn(),
+                    stat: vi.fn(),
+                    warn: vi.fn(),
+                    error: vi.fn(),
+                },
+            });
+
+            await provider.translate(['ru/test.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                judge: false,
+                model: 'main',
+                apiBase: 'https://gateway/anthropic/v1',
+                fallbackModel: 'reserve',
+                fallbackApiBase: 'https://gateway/openai/v1',
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+                rateLimitRetry: 0,
+            } as unknown as AITranslationConfig);
+
+            expect(factory).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    model: 'main',
+                    apiBase: 'https://gateway/anthropic/v1',
+                }),
+            );
+            expect(factory).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    model: 'reserve',
+                    apiBase: 'https://gateway/openai/v1',
+                }),
+            );
+        });
+
         it('should report files that keep failing on the final retry as errors', async () => {
             const root = mkdtempSync(join(tmpdir(), 'yfm-ai-sweep-'));
             const input = join(root, 'docs');

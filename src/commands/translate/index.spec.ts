@@ -5,7 +5,12 @@ import {resolve} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 import {filter} from 'minimatch';
 
-import {runTranslate as run, runTranslateExtract as runExtract, testConfig} from './__tests__';
+import {
+    mockConfig,
+    runTranslate as run,
+    runTranslateExtract as runExtract,
+    testConfig,
+} from './__tests__';
 import {resolveVcsDiffFiles} from './utils/vcs';
 
 vi.mock('./utils/vcs');
@@ -463,6 +468,47 @@ describe('Translate command', () => {
                         temperature: undefined,
                     },
                 );
+
+                test('should disable fallback api base by default', '', {
+                    fallbackApiBase: undefined,
+                });
+
+                test(
+                    'should handle fallback api base arg',
+                    '--fallback-model gpt-4o --fallback-api-base https://reserve.internal/v1',
+                    {
+                        fallbackApiBase: 'https://reserve.internal/v1',
+                    },
+                );
+
+                test(
+                    'should handle fallback api base from config',
+                    '',
+                    {
+                        fallbackModel: 'gpt-4o',
+                        fallbackApiBase: 'https://reserve.internal/v1',
+                    },
+                    {
+                        fallbackApiBase: 'https://reserve.internal/v1',
+                    },
+                );
+
+                it('should fail on fallback api base without fallback model', async () => {
+                    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+                    mockConfig();
+
+                    const instance = await run(
+                        '--source ru --target en --provider openai --auth sk-test ' +
+                            '--fallback-api-base https://reserve.internal/v1',
+                    );
+
+                    expect(error).toHaveBeenCalledWith(
+                        expect.stringContaining('--fallback-api-base requires --fallback-model'),
+                    );
+                    expect(instance.report.code).toBe(1);
+
+                    error.mockRestore();
+                });
 
                 test('should parse api headers arg', '--api-header X-Org:team', {
                     apiHeaders: {'X-Org': 'team'},

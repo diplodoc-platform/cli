@@ -1,3 +1,5 @@
+import type {AITranslationConfig} from '../index';
+
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {
@@ -7,6 +9,7 @@ import {
     RateGate,
     backoff,
     estimateTokens,
+    fallbackClientConfig,
 } from './index';
 
 vi.mock('node:crypto', async (importOriginal) => {
@@ -251,6 +254,45 @@ describe('translate ai utils', () => {
 
             await vi.advanceTimersByTimeAsync(1);
             expect(done).toHaveBeenCalled();
+        });
+    });
+
+    describe('fallbackClientConfig', () => {
+        const config = {
+            model: 'claude-sonnet-4-5',
+            fallbackModel: 'gpt-5',
+            apiBase: 'https://api.eliza.yandex.net/raw/anthropic/v1',
+            auth: 'token',
+            apiHeaders: {'ya-pool': 'docstools_pool'},
+        } as unknown as AITranslationConfig;
+
+        it('should swap the model and keep the primary endpoint by default', () => {
+            expect(fallbackClientConfig(config)).toMatchObject({
+                model: 'gpt-5',
+                apiBase: 'https://api.eliza.yandex.net/raw/anthropic/v1',
+            });
+        });
+
+        it('should send the reserve to its own endpoint when configured', () => {
+            const withEndpoint = {
+                ...config,
+                fallbackApiBase: 'https://api.eliza.yandex.net/raw/openai/v1',
+            } as unknown as AITranslationConfig;
+
+            expect(fallbackClientConfig(withEndpoint)).toMatchObject({
+                model: 'gpt-5',
+                apiBase: 'https://api.eliza.yandex.net/raw/openai/v1',
+            });
+        });
+
+        it('should inherit credentials and headers from the primary model', () => {
+            const result = fallbackClientConfig({
+                ...config,
+                fallbackApiBase: 'https://api.eliza.yandex.net/raw/openai/v1',
+            } as unknown as AITranslationConfig);
+
+            expect(result.auth).toBe('token');
+            expect(result.apiHeaders).toEqual({'ya-pool': 'docstools_pool'});
         });
     });
 });

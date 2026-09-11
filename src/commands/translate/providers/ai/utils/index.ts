@@ -1,3 +1,5 @@
+import type {AITranslationConfig} from '../index';
+
 import {randomInt} from 'node:crypto';
 
 export {
@@ -26,6 +28,19 @@ export class Defer<T = string> {
             this.reject = reject;
         });
     }
+}
+
+/**
+ * Config for the reserve client: the primary one with the fallback model and,
+ * when configured, the fallback endpoint. Provider, credentials and headers are
+ * inherited from the primary model.
+ */
+export function fallbackClientConfig(config: AITranslationConfig): AITranslationConfig {
+    return {
+        ...config,
+        model: config.fallbackModel as string,
+        apiBase: config.fallbackApiBase || config.apiBase,
+    };
 }
 
 export function bytes(texts: string[]) {
