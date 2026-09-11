@@ -25,6 +25,18 @@ vi.mock('~/core/config', async (importOriginal) => {
     };
 });
 
+/**
+ * Sets the config file contents seen by the next run.
+ *
+ * `testConfig` does this per test, so a test which calls `runTranslate`
+ * directly would otherwise inherit the config of whichever test ran before it.
+ */
+export function mockConfig(config: Hash = {}) {
+    resolveConfig.mockImplementation((_path: string, {defaults}: {defaults: Hash}) => {
+        return {...defaults, ...config};
+    });
+}
+
 export async function runTranslate(argv: string) {
     const translate = new Translate();
     vi.spyOn(Run.prototype, 'prepareRun').mockImplementation(async () => undefined);

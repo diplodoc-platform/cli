@@ -64,6 +64,7 @@ type Args = {
     model?: string;
     fallbackModel?: string;
     apiBase?: string;
+    fallbackApiBase?: string;
     apiHeader?: string[];
     systemPrompt?: string;
     userPrompt?: string;
@@ -89,6 +90,7 @@ type Config = {
     model: string;
     fallbackModel?: string;
     apiBase?: string;
+    fallbackApiBase?: string;
     apiHeaders: Record<string, string>;
     systemPrompt?: string;
     userPrompt?: string;
@@ -164,6 +166,18 @@ function resolveContextFiles(
     }
 
     return [];
+}
+
+/**
+ * A fallback endpoint without a fallback model configures nothing, so it is
+ * rejected instead of being silently ignored.
+ */
+function resolveFallbackApiBase(value: unknown, fallbackModel: string | undefined) {
+    const fallbackApiBase = (value as string | undefined) || undefined;
+
+    ok(!fallbackApiBase || fallbackModel, '--fallback-api-base requires --fallback-model');
+
+    return fallbackApiBase;
 }
 
 function makeClientFactory(provider: ProviderName) {
@@ -246,6 +260,7 @@ export class Extension {
                         .addOption(options.model)
                         .addOption(options.fallbackModel)
                         .addOption(options.apiBase)
+                        .addOption(options.fallbackApiBase)
                         .addOption(options.apiHeader)
                         .addOption(options.systemPrompt)
                         .addOption(options.userPrompt)
@@ -306,6 +321,11 @@ export class Extension {
                     if (apiBase) {
                         config.apiBase = apiBase;
                     }
+
+                    config.fallbackApiBase = resolveFallbackApiBase(
+                        defined('fallbackApiBase', args, config),
+                        config.fallbackModel,
+                    );
 
                     if (providerName === 'yandexgpt') {
                         config.folder = defined('folder', args, config);

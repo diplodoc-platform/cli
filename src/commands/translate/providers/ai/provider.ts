@@ -28,6 +28,7 @@ import {
     bytes,
     cacheFingerprint,
     estimateTokens,
+    fallbackClientConfig,
     keepsMarkup,
     seedFilePath,
     stripAddedMarkup,
@@ -69,7 +70,7 @@ export class Provider {
     async translate(files: string[], config: AITranslationConfig) {
         const client = this.clientFactory(config);
         const fallbackClient = config.fallbackModel
-            ? this.clientFactory({...config, model: config.fallbackModel})
+            ? this.clientFactory(fallbackClientConfig(config))
             : undefined;
         const {input, output, source, target: targets, vars, dryRun, maxConcurrency} = config;
 
