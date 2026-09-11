@@ -49,7 +49,7 @@ export function spread(values: number[]): Spread | null {
  */
 function logGamma(x: number): number {
     const coefficients = [
-        76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+        76.18009172947146, -86.50532032941678, 24.01409824083091, -1.231739572450155,
         0.1208650973866179e-2, -0.5395239384953e-5,
     ];
 
@@ -61,7 +61,7 @@ function logGamma(x: number): number {
         series += coefficient / ++y;
     }
 
-    return -tmp + Math.log((2.5066282746310005 * series) / x);
+    return -tmp + Math.log((Math.sqrt(2 * Math.PI) * series) / x);
 }
 
 function logChoose(n: number, k: number): number {

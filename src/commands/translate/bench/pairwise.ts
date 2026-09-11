@@ -2,6 +2,7 @@ import type {UnitTriple} from './align';
 import type {VerdictCategory} from './types';
 
 import {normalizeUnitIds} from '../eval/mock';
+
 import {VERDICT_CATEGORIES} from './types';
 
 export type JudgeTask = {
@@ -46,6 +47,7 @@ export type Verdict = {
  * FNV-1a over the seed and the unit text. Any stable hash would do;
  * this one needs no dependency and yields a reproducible bit per unit.
  */
+/* eslint-disable no-bitwise -- FNV-1a is defined in terms of xor and shifts */
 function hash(value: string): number {
     let result = 0x811c9dc5;
 
@@ -56,6 +58,7 @@ function hash(value: string): number {
 
     return result;
 }
+/* eslint-enable no-bitwise */
 
 /**
  * Picks the triples worth judging and decides which translation goes
@@ -187,6 +190,14 @@ export function parseJudgeVerdicts(content: string, count: number): (RawVerdict 
     return result;
 }
 
+function decideWinner(winner: RawVerdict['winner'], candidateFirst: boolean): Verdict['winner'] {
+    if (winner === 'tie') {
+        return 'tie';
+    }
+
+    return winner === (candidateFirst ? 'A' : 'B') ? 'candidate' : 'baseline';
+}
+
 /**
  * Turns A/B verdicts back into baseline/candidate verdicts.
  */
@@ -205,18 +216,10 @@ export function resolveVerdicts(
             return;
         }
 
-        const candidateSide = task.candidateFirst ? 'A' : 'B';
-        const winner =
-            item.winner === 'tie'
-                ? 'tie'
-                : item.winner === candidateSide
-                  ? 'candidate'
-                  : 'baseline';
-
         verdicts.push({
             page: task.page,
             index: task.index,
-            winner,
+            winner: decideWinner(item.winner, task.candidateFirst),
             category: item.category,
             reason: item.reason,
             source: task.source,

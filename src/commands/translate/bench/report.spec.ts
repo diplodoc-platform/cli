@@ -1,4 +1,4 @@
-import type {CandidateMetrics, BenchReport} from './report';
+import type {BenchReport, CandidateMetrics} from './report';
 
 import {describe, expect, it} from 'vitest';
 
