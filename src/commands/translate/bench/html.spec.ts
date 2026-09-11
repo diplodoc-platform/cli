@@ -134,6 +134,16 @@ describe('renderBenchHtml', () => {
         expect(html.indexOf('wrong term')).toBeLessThan(html.indexOf('equal'));
     });
 
+    it('should group the digits of token counts', () => {
+        const data = report();
+        data.candidates[0].metrics.tokensIn = {mean: 120400, min: 119800, max: 121000};
+
+        const html = renderBenchHtml(data);
+
+        expect(html).toContain('120,400');
+        expect(html).toContain('119,800..121,000');
+    });
+
     it('should render a candidate without pairwise data', () => {
         const data = report();
         data.candidates[1].pairwise = null;

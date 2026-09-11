@@ -54,6 +54,19 @@ function summaryCell(value: Spread | null, digits = 2): string {
         : `${mean} <span class="tag tie">${value.min.toFixed(digits)}..${value.max.toFixed(digits)}</span>`;
 }
 
+/** Token counts run into six digits; ungrouped they are unreadable. */
+function tokensCell(value: Spread | null): string {
+    if (!value) {
+        return '-';
+    }
+
+    const group = (amount: number) => Math.round(amount).toLocaleString('en-US');
+
+    return value.min === value.max
+        ? group(value.mean)
+        : `${group(value.mean)} <span class="tag tie">${group(value.min)}..${group(value.max)}</span>`;
+}
+
 function winRateCell(candidate: CandidateReport, baseline: string): string {
     if (candidate.name === baseline || !candidate.pairwise) {
         return '-';
@@ -136,8 +149,8 @@ function renderRow(candidate: CandidateReport, report: BenchReport): string {
         summaryCell(candidate.metrics.judgeScore, 1),
         summaryCell(candidate.metrics.structuralMismatches, 1),
         winRateCell(candidate, report.baseline),
-        summaryCell(candidate.metrics.tokensIn, 0),
-        summaryCell(candidate.metrics.tokensOut, 0),
+        tokensCell(candidate.metrics.tokensIn),
+        tokensCell(candidate.metrics.tokensOut),
         candidate.metrics.durationMs
             ? `${(candidate.metrics.durationMs.mean / 1000).toFixed(1)}s`
             : '-',
