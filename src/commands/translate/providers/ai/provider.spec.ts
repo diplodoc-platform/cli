@@ -98,7 +98,7 @@ function makeParams(
 const translated = (fragments: string[]) => fragments.map((text) => `T:${text}`);
 
 // A bold opening the line leaves its markers in the skeleton, so the unit
-// only carries the closing tag - see `stripAddedEmphasis`.
+// only carries the closing tag - see `stripAddedMarkup`.
 const BOLD_CLOSE = '<x ctype="bold_close" equiv-text="**" id="x-1"/>';
 
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
@@ -264,7 +264,7 @@ describe('translate ai provider', () => {
         });
 
         it('should not double the markup a model puts back around a bold label', async () => {
-            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-emphasis-'));
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-markup-'));
             const input = join(root, 'docs');
             const output = join(root, 'out');
             mkdirSync(join(input, 'ru'), {recursive: true});
@@ -316,9 +316,9 @@ describe('translate ai provider', () => {
             );
 
             const report = JSON.parse(readFileSync(reportPath, 'utf8'));
-            expect(report.totals.fixes).toEqual({emphasisStripped: 1});
+            expect(report.totals.fixes).toEqual({markupStripped: 1});
             expect(logger.stat).toHaveBeenCalledWith(
-                expect.stringContaining('added-emphasis-stripped: 1'),
+                expect.stringContaining('added-markup-stripped: 1'),
             );
         });
 
@@ -778,7 +778,7 @@ describe('translate ai provider', () => {
     describe('healCached', () => {
         const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
 
-        it('should cut emphasis added around a cached fragment', () => {
+        it('should cut markup added around a cached fragment', () => {
             expect(healCached(unit, wrap('**Release date:** 2026-08-25'))).toEqual({
                 text: wrap('Release date:** 2026-08-25'),
                 stripped: 1,
@@ -845,7 +845,7 @@ describe('translate ai provider', () => {
             expect(stat.translatedChars).toBe('T:Fresh'.length);
         });
 
-        it('should cut emphasis the model added around a fragment and count it', async () => {
+        it('should cut markup the model added around a fragment and count it', async () => {
             const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
             const client = makeClient(() => ['**Release date:** 2026-08-25']);
             const {params, stat} = makeParams(client, {maxBatchTokens: 500});
@@ -854,10 +854,10 @@ describe('translate ai provider', () => {
             const result = await translate('file.md', [unit]);
 
             expect(result).toEqual([wrap('Release date:** 2026-08-25')]);
-            expect(stat.emphasisStripped).toBe(1);
+            expect(stat.markupStripped).toBe(1);
         });
 
-        it('should heal added emphasis cached by an earlier run', async () => {
+        it('should heal added markup cached by an earlier run', async () => {
             const root = mkdtempSync(join(tmpdir(), 'yfm-ai-heal-'));
             const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
             const store = new TranslationStore(join(root, 'cache.json'), 'fp');
@@ -871,7 +871,7 @@ describe('translate ai provider', () => {
             const healed = wrap('Release date:** 2026-08-25');
 
             expect(result).toEqual([healed]);
-            expect(stat.emphasisStripped).toBe(1);
+            expect(stat.markupStripped).toBe(1);
             // The healed value replaces the defective one, so the next run
             // does not have to repair it again.
             expect(store.get(unit)).toBe(healed);

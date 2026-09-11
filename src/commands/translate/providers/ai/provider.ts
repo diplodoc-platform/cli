@@ -2,7 +2,7 @@ import type {Logger} from '~/core/logger';
 import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {CompletionResult, LLMClient} from './clients/types';
-import type {EmphasisRepair} from './utils';
+import type {MarkupRepair} from './utils';
 import type {JudgePair} from './judge';
 import type {TargetStat, TranslateReportJudge} from '../../report';
 
@@ -29,7 +29,7 @@ import {
     cacheFingerprint,
     estimateTokens,
     seedFilePath,
-    stripAddedEmphasis,
+    stripAddedMarkup,
 } from './utils';
 import {DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, buildMessages, splitFragments} from './prompts';
 import {judgeTranslations} from './judge';
@@ -125,8 +125,8 @@ export class Provider {
                         `output-tokens: ${stat.outputTokens} bytes: ${stat.bytes} ` +
                         `cached-units: ${stat.cached} untranslated-units: ${stat.untranslated}` +
                         (fallbackClient ? ` fallback-requests: ${stat.fallbackRequests}` : '') +
-                        (stat.emphasisStripped
-                            ? ` added-emphasis-stripped: ${stat.emphasisStripped}`
+                        (stat.markupStripped
+                            ? ` added-markup-stripped: ${stat.markupStripped}`
                             : ''),
                 );
 
@@ -623,14 +623,14 @@ export function normalizeCached(unit: string, stored: string): string {
 
 /**
  * Prepares a cached translation for reuse: normalizes the wrapper and cuts
- * emphasis added around the fragment. Cache entries are also seeded from
+ * markup added around the fragment. Cache entries are also seeded from
  * files already in the repository, so a defect merged once would otherwise
  * be replayed by every next run.
  */
-export function healCached(unit: string, stored: string): EmphasisRepair {
+export function healCached(unit: string, stored: string): MarkupRepair {
     const normalized = normalizeCached(unit, stored);
     const {open, text, close} = unwrapUnit(normalized);
-    const repair = stripAddedEmphasis(unwrapUnit(unit).text, text);
+    const repair = stripAddedMarkup(unwrapUnit(unit).text, text);
 
     return {text: open + repair.text + close, stripped: repair.stripped};
 }
@@ -778,9 +778,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
         return parts.map((part, index) => {
             const {open, text, close} = wrappers[index];
             const translation = unwrapUnit(stripFence(part)).text || text;
-            const repair = stripAddedEmphasis(text, translation);
+            const repair = stripAddedMarkup(text, translation);
 
-            stat.emphasisStripped += repair.stripped;
+            stat.markupStripped += repair.stripped;
 
             return open + repair.text + close;
         });
@@ -895,7 +895,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         store?.set(text, normalized);
                     }
                     stat.cached++;
-                    stat.emphasisStripped += stripped;
+                    stat.markupStripped += stripped;
                     promises.push(Promise.resolve(normalized));
                     continue;
                 }

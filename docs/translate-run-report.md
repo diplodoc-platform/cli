@@ -81,7 +81,7 @@ Counters (`totals` and each entry of `targets`):
 | `cache.enabled`               | boolean        | Whether the persistent cache (`--cache-dir`) was active.                                                                             |
 | `cache.hits` / `cache.misses` | number         | Cache lookups by outcome.                                                                                                            |
 | `cache.hitRate`               | number or null | `hits / (hits + misses)`, `null` when the cache is disabled or was not consulted.                                                    |
-| `fixes.emphasisStripped`      | number         | Emphasis delimiter runs the model added around fragments and the CLI removed before composing (fresh and cached translations alike). |
+| `fixes.markupStripped`        | number         | Delimiter runs of inline markup the model added around fragments and removed before composing (fresh and cached translations alike). |
 
 Judge stats (`targets[].judge`, present when `--judge` is enabled):
 
@@ -98,7 +98,7 @@ Judge stats (`targets[].judge`, present when `--judge` is enabled):
 Provider coverage: LLM providers (`openai`, `anthropic`, `yandexgpt`,
 `openrouter`) fill all counters. The `yandex` (Yandex Translate) provider has
 no token usage, persistent cache, judge or markup repair, so `tokens` is
-`null`, `cache.enabled` is `false`, `fixes.emphasisStripped` stays `0` and
+`null`, `cache.enabled` is `false`, `fixes.markupStripped` stays `0` and
 `judge` is absent.
 
 ## Example
@@ -125,7 +125,7 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
     "tokens": {"input": 5200, "output": 4800},
     "requests": {"total": 18, "fallback": 2, "retries": 3},
     "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529},
-    "fixes": {"emphasisStripped": 2}
+    "fixes": {"markupStripped": 2}
   },
   "targets": [
     {
@@ -142,7 +142,7 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
       "tokens": {"input": 5200, "output": 4800},
       "requests": {"total": 18, "fallback": 2, "retries": 3},
       "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529},
-      "fixes": {"emphasisStripped": 2},
+      "fixes": {"markupStripped": 2},
       "judge": {
         "model": "gpt-4o",
         "threshold": 70,

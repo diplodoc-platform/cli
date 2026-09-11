@@ -1,10 +1,10 @@
 /**
- * Repairs markdown emphasis that a model adds to a fragment on its own.
+ * Repairs inline markdown markup that a model adds to a fragment on its own.
  *
- * `extract` never leaves emphasis markers inside a translation unit. An
- * emphasis contained in the fragment travels as a `<g>` tag, and one that
- * starts (or ends) outside of it leaves an `<x ctype="bold_close"/>` tag
- * with the marker itself in the skeleton:
+ * `extract` never leaves markup markers inside a translation unit. Markup
+ * contained in the fragment travels as a `<g>` tag, and markup that starts
+ * (or ends) outside of it leaves an `<x ctype="bold_close"/>` tag with the
+ * marker itself in the skeleton:
  *
  * ```
  * **Release date:** 2026-08-25
@@ -17,33 +17,46 @@
  * skeleton marker to the invented one and the line renders as
  * `****Release date:** 2026-08-25`.
  *
+ * The same hoisting happens to every symmetric inline delimiter, so a
+ * fragment of `` `code span` at the start `` breaks into
+ * `` ``code span` at the start `` in exactly the same way.
+ *
  * The invented markers are cut back off in the three cases where the
  * source fragment proves them redundant:
  *
  * - the skeleton restores that very marker at that edge (a hoisted
  *   `<x .../>` tag), so the marker the model paired with it inside the
  *   fragment takes over as the delimiter;
- * - the fragment carries no emphasis at all and the model wrapped it whole;
+ * - the fragment carries no markup at all and the model wrapped it whole;
  * - the marker sits at an edge the source fragment leaves free and has no
  *   partner left, e.g. because its opening one was cut as a duplicate.
  *
- * A marker a model wrote instead of a `<g>` tag it lost is the only
- * emphasis left in the fragment and has to survive.
+ * A marker a model wrote instead of a `<g>` tag it lost is the only markup
+ * left in the fragment and has to survive.
+ *
+ * Asymmetric markup (links, liquid) is out of scope: its parts differ on
+ * the two sides, so a lone marker cannot be recognized by pairing.
  */
 
-/** Markdown emphasis delimiter run: `*`, `**`, `***` or the `_` flavour. */
-const RUN = String.raw`\*{1,3}|_{1,3}`;
+/**
+ * Symmetric inline delimiter run: emphasis (`*`, `**`, `***` and the `_`
+ * flavour), inline code (a run of backticks), strikethrough and sup.
+ */
+const RUN = String.raw`\*{1,3}|_{1,3}|~~|\x60+|\^`;
 
-/** Delimiter run opening emphasis at the very start of the text. */
-const OPEN_RUN = new RegExp(String.raw`^(${RUN})(?=[^\s*_])`);
+/** Character of a delimiter run, to tell a whole run from a part of one. */
+const MARKER = String.raw`\s*_~\x60^`;
 
-/** Delimiter run closing emphasis at the very end of the text. */
-const CLOSE_RUN = new RegExp(String.raw`(?<=[^\s*_])(${RUN})$`);
+/** Delimiter run opening markup at the very start of the text. */
+const OPEN_RUN = new RegExp(String.raw`^(${RUN})(?=[^${MARKER}])`);
+
+/** Delimiter run closing markup at the very end of the text. */
+const CLOSE_RUN = new RegExp(String.raw`(?<=[^${MARKER}])(${RUN})$`);
 
 /** Every delimiter run of the text, used to recognize a plain wrapping. */
 const ANY_RUN = new RegExp(RUN, 'g');
 
-/** Whole string is a delimiter run, used to tell emphasis tags from the rest. */
+/** Whole string is a delimiter run, used to tell markup tags from the rest. */
 const ONLY_RUN = new RegExp(String.raw`^(?:${RUN})$`);
 
 /** Any inline tag, and an inline tag right at a text edge. */
@@ -60,7 +73,7 @@ const CONTAINED_TAG = /<g\b[^>]*>/g;
 /** Marker run glued to a hoisted tag, on either side of it. */
 const HOISTED_EDGE = new RegExp(String.raw`(${RUN})?(<x\b[^>]*\/>)(${RUN})?`, 'g');
 
-export type EmphasisRepair = {
+export type MarkupRepair = {
     text: string;
     /** Number of delimiter runs removed from the translation. */
     stripped: number;
@@ -72,7 +85,7 @@ function attr(tag: string, name: string): string | undefined {
 
 /**
  * Markers the skeleton restores around the fragment: `close` tags mean the
- * emphasis opened before the fragment, `open` tags mean it closes after it.
+ * markup opened before the fragment, `open` tags mean it closes after it.
  */
 function hoistedMarkers(source: string, edge: 'open' | 'close'): Set<string> {
     const markers = new Set<string>();
@@ -89,7 +102,7 @@ function hoistedMarkers(source: string, edge: 'open' | 'close'): Set<string> {
     return markers;
 }
 
-/** Emphasis markers of the fragment's own `<g>` tags. */
+/** Markers of the fragment's own `<g>` tags. */
 function containedMarkers(source: string): Set<string> {
     const markers = new Set<string>();
 
@@ -107,7 +120,7 @@ function containedMarkers(source: string): Set<string> {
 }
 
 /**
- * Tells whether the source fragment has no emphasis of its own at that
+ * Tells whether the source fragment has no markup of its own at that
  * edge, neither a marker nor a tag, so a marker the model put there was
  * not in the fragment it was given.
  */
@@ -161,9 +174,9 @@ function isBalanced(source: string, text: string, run: string): boolean {
 }
 
 /**
- * Tells whether the model wrapped a fragment that has no emphasis of its
- * own into a pair of markers: both are invented, and removing them leaves
- * no orphaned marker behind.
+ * Tells whether the model wrapped a fragment that has no markup of its own
+ * into a pair of markers: both are invented, and removing them leaves no
+ * orphaned marker behind.
  */
 function isWrapping(source: string, run: string, text: string): boolean {
     if (OPEN_RUN.test(source) || CLOSE_RUN.test(source)) {
@@ -178,7 +191,7 @@ function isWrapping(source: string, run: string, text: string): boolean {
         return false;
     }
 
-    const runs = text.match(ANY_RUN) || [];
+    const runs = text.replace(TAG, '').match(ANY_RUN) || [];
 
     return runs.length === 2 && runs.every((found) => found === run);
 }
@@ -188,7 +201,7 @@ function isWrapping(source: string, run: string, text: string): boolean {
  * `Release date:**<x ctype="bold_close" equiv-text="**"/>`, which composes
  * into a four-marker run.
  */
-function stripHoistedDuplicates(text: string): EmphasisRepair {
+function stripHoistedDuplicates(text: string): MarkupRepair {
     let stripped = 0;
 
     const result = text.replace(
@@ -226,7 +239,7 @@ function stripHoistedDuplicates(text: string): EmphasisRepair {
  * one of a pair the model wrapped a fragment in while its opening one was
  * removed as a duplicate of the skeleton marker.
  */
-function stripOrphans(source: string, translation: string): EmphasisRepair {
+function stripOrphans(source: string, translation: string): MarkupRepair {
     let text = translation;
     let stripped = 0;
 
@@ -250,10 +263,10 @@ function stripOrphans(source: string, translation: string): EmphasisRepair {
 }
 
 /**
- * Cuts emphasis the model grew around the fragment, comparing it with the
+ * Cuts markup the model grew around the fragment, comparing it with the
  * source unit. Both texts are unit bodies, without the `<source>` wrapper.
  */
-export function stripAddedEmphasis(source: string, translation: string): EmphasisRepair {
+export function stripAddedMarkup(source: string, translation: string): MarkupRepair {
     let text = translation;
     let stripped = 0;
 

@@ -53,7 +53,7 @@ export type TranslateReportCounters = {
     requests: {total: number; fallback: number; retries: number};
     cache: {enabled: boolean; hits: number; misses: number; hitRate: number | null};
     /** Markup defects repaired in model output before composing. */
-    fixes: {emphasisStripped: number};
+    fixes: {markupStripped: number};
 };
 
 export type TranslateReportTarget = TranslateReportCounters & {
@@ -102,8 +102,8 @@ export type TargetStat = {
     cacheEnabled: boolean;
     /** Units returned by the model untranslated. */
     untranslated: number;
-    /** Emphasis delimiter runs the model added around fragments and the CLI removed. */
-    emphasisStripped: number;
+    /** Delimiter runs of inline markup the model added around fragments and the CLI removed. */
+    markupStripped: number;
     fallbackRequests: number;
     /** Extra request attempts after retryable errors. */
     retries: number;
@@ -130,7 +130,7 @@ export function createTargetStat(): TargetStat {
         cacheMisses: 0,
         cacheEnabled: false,
         untranslated: 0,
-        emphasisStripped: 0,
+        markupStripped: 0,
         fallbackRequests: 0,
         retries: 0,
         unitsTotal: 0,
@@ -202,7 +202,7 @@ function targetCounters(stat: TargetStat): TranslateReportCounters {
             misses: stat.cacheMisses,
             hitRate: stat.cacheEnabled && lookups > 0 ? round(stat.cached / lookups, 4) : null,
         },
-        fixes: {emphasisStripped: stat.emphasisStripped},
+        fixes: {markupStripped: stat.markupStripped},
     };
 }
 
@@ -229,7 +229,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         totals.requests.total += target.requests.total;
         totals.requests.fallback += target.requests.fallback;
         totals.requests.retries += target.requests.retries;
-        totals.fixes.emphasisStripped += target.fixes.emphasisStripped;
+        totals.fixes.markupStripped += target.fixes.markupStripped;
 
         if (target.tokens) {
             usageSeen = true;
@@ -416,8 +416,8 @@ export class RunReport {
             : '';
         // Only when it happened: a defect that stays at zero does not
         // deserve a place in every run summary.
-        const fixes = totals.fixes.emphasisStripped
-            ? `; added emphasis stripped: ${totals.fixes.emphasisStripped}`
+        const fixes = totals.fixes.markupStripped
+            ? `; added markup stripped: ${totals.fixes.markupStripped}`
             : '';
 
         return (
