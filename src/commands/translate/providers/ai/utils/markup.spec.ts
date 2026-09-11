@@ -164,13 +164,39 @@ describe('stripAddedMarkup', () => {
         });
     });
 
-    it('should keep a repair that would leave markup which cannot be composed', () => {
-        // Nothing to pair the stripped marker with: keep the model text and
-        // let the caller retry the fragment.
-        const source = `Run ${CODE_OPEN}yfm build${CODE_CLOSE} now`;
-        const translation = '`yfm build` сейчас';
+    it('should strip a pair the model wrapped around a fragment of its own code', () => {
+        // The code span the fragment came with is still there, so the pair
+        // around the whole of it is the model's own.
+        const source = `Run ${CODE_OPEN}yfm build${CODE_CLOSE} in the project root`;
 
-        expect(stripAddedMarkup(source, translation)).toEqual({text: translation, stripped: 0});
+        expect(
+            stripAddedMarkup(source, `\`Запустите ${CODE_OPEN}yfm build${CODE_CLOSE} в корне\``),
+        ).toEqual({
+            text: `Запустите ${CODE_OPEN}yfm build${CODE_CLOSE} в корне`,
+            stripped: 2,
+        });
+    });
+
+    it('should keep a pair the model wrote in place of a tag it lost', () => {
+        // Removing it would leave the fragment without the bold it came
+        // with, so the pair stays even though it wraps the whole text.
+        const source = `The ${BOLD_TAG}quick brown fox</g>`;
+
+        expect(stripAddedMarkup(source, '**Быстрая бурая лиса**')).toEqual({
+            text: '**Быстрая бурая лиса**',
+            stripped: 0,
+        });
+    });
+
+    it('should leave a marker the repair cannot place for the check to catch', () => {
+        // The model lost the closing tag and left an opener the skeleton
+        // already provides: stripping it is right, and what stays is for
+        // `keepsMarkup` to reject so the fragment is retried.
+        const source = `Release date:${BOLD_CLOSE} 2026-08-25`;
+        const repair = stripAddedMarkup(source, '**Дата релиза: 2026-08-25');
+
+        expect(repair).toEqual({text: 'Дата релиза: 2026-08-25', stripped: 1});
+        expect(keepsMarkup(source, repair.text)).toBe(false);
     });
 
     it('should keep markers the model wrote instead of a lost inline tag', () => {
@@ -278,6 +304,17 @@ describe('keepsMarkup', () => {
         const code = `Run ${CODE_OPEN}yfm build${CODE_CLOSE} in the project root`;
 
         expect(keepsMarkup(code, 'В корне проекта выполните `yfm build`')).toBe(true);
+    });
+
+    it('should reject a two-character delimiter left without a partner', () => {
+        // Two characters but one delimiter: counting characters alone would
+        // take it for a pair the model added of its own.
+        expect(
+            keepsMarkup('Plain sentence without any markup', 'Обычное предложение без **разметки'),
+        ).toBe(false);
+        expect(keepsMarkup('Plain sentence', 'Обычное ~~предложение')).toBe(false);
+        expect(keepsMarkup('Plain sentence', 'Обычное __предложение')).toBe(false);
+        expect(keepsMarkup('Plain sentence', 'Обычное ``предложение')).toBe(false);
     });
 
     it('should accept a link written in plain markdown instead of its tags', () => {

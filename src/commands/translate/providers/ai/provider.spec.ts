@@ -798,6 +798,14 @@ describe('translate ai provider', () => {
             });
         });
 
+        it('should keep a cached value the repair cannot make composable', () => {
+            // Nowhere to retry from here, so a repair that would leave the
+            // fragment without markup it needs must not be applied.
+            const stored = wrap('**Дата релиза: 2026-08-25');
+
+            expect(healCached(unit, stored)).toEqual({text: stored, stripped: 0});
+        });
+
         it('should keep a sound cached value as is', () => {
             const stored = wrap(`Release date:${BOLD_CLOSE} 2026-08-25`);
 
@@ -920,6 +928,26 @@ describe('translate ai provider', () => {
             expect(stat.markupDamaged).toBe(0);
             expect(client.complete).toHaveBeenCalledTimes(2);
             expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('damaged markup'));
+        });
+
+        it('should retry a fragment the repair could not make composable', async () => {
+            // The model dropped the closing tag and opened a bold the
+            // skeleton already opens: stripping its marker is right, but
+            // what is left has nothing to close, so it goes back.
+            const unit = wrap(`Release date:${BOLD_CLOSE} 2026-08-25`);
+            const client = makeClient((_, call) =>
+                call === 0
+                    ? ['**Дата релиза: 2026-08-25']
+                    : [`Дата релиза:${BOLD_CLOSE} 2026-08-25`],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`)]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
         });
 
         it('should keep the source text of a fragment the retry does not fix', async () => {

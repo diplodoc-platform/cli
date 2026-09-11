@@ -33,9 +33,9 @@
  *   partner left, e.g. because its opening one was cut as a duplicate.
  *
  * A marker a model wrote instead of a tag it lost is the only markup left
- * in the fragment and has to survive, so a repair that would leave markup
- * which cannot be composed is dropped and the fragment goes back to the
- * model (see `keepsMarkup`).
+ * in the fragment and has to survive. What the repair cannot save is left
+ * for `keepsMarkup` to reject, so the fragment goes back to the model
+ * instead of reaching `compose` broken.
  *
  * Asymmetric markup (links, liquid) is out of scope: its parts differ on
  * the two sides, so a lone marker cannot be recognized by pairing.
@@ -84,21 +84,6 @@ export type MarkupRepair = {
 
 function attr(tag: string, name: string): string | undefined {
     return new RegExp(`${name}="([^"]*)"`).exec(tag)?.[1];
-}
-
-/** Delimiter markers of every placeholder of the fragment, paired or not. */
-function placeholderMarkers(source: string): Set<string> {
-    const markers = new Set<string>();
-
-    for (const [tag] of source.matchAll(PLACEHOLDER_TAG)) {
-        const equiv = attr(tag, 'equiv-text');
-
-        if (equiv && ONLY_RUN.test(equiv)) {
-            markers.add(equiv);
-        }
-    }
-
-    return markers;
 }
 
 /**
@@ -206,11 +191,23 @@ function countTagMarkers(text: string, run: string): number {
     return count;
 }
 
+type MarkerTotal = {
+    /** Delimiter characters, so that `***` equals a `*` plus a `**`. */
+    chars: number;
+    /** Delimiter occurrences, one per tag marker or literal run. */
+    count: number;
+};
+
 /** Markers of the text by delimiter character, tags and literal runs alike. */
-function markerChars(text: string): Map<string, number> {
-    const chars = new Map<string, number>();
-    const add = (marker: string) =>
-        chars.set(marker[0], (chars.get(marker[0]) || 0) + marker.length);
+function markerTotals(text: string): Map<string, MarkerTotal> {
+    const totals = new Map<string, MarkerTotal>();
+    const add = (marker: string) => {
+        const total = totals.get(marker[0]) || {chars: 0, count: 0};
+
+        total.chars += marker.length;
+        total.count += 1;
+        totals.set(marker[0], total);
+    };
 
     for (const [tag] of text.matchAll(PLACEHOLDER_TAG)) {
         const equiv = attr(tag, 'equiv-text');
@@ -234,7 +231,7 @@ function markerChars(text: string): Map<string, number> {
         add(run);
     }
 
-    return chars;
+    return totals;
 }
 
 /**
@@ -251,16 +248,15 @@ function isBalanced(source: string, text: string, run: string): boolean {
 }
 
 /**
- * Tells whether the model wrapped a fragment that has no markup of its own
- * into a pair of markers: both are invented, and removing them leaves no
- * orphaned marker behind.
+ * Tells whether the model wrapped the whole fragment into a pair of
+ * markers of its own: the fragment has no markers of its own at the edges
+ * and the pair is all there is, so removing both leaves nothing orphaned.
+ *
+ * Whether the pair is really invented is decided by the caller: markers
+ * the fragment cannot do without are what `keepsMarkup` guards.
  */
 function isWrapping(source: string, run: string, text: string): boolean {
     if (OPEN_RUN.test(source) || CLOSE_RUN.test(source)) {
-        return false;
-    }
-
-    if (placeholderMarkers(source).size || containedMarkers(source).size) {
         return false;
     }
 
@@ -370,8 +366,15 @@ export function stripAddedMarkup(source: string, translation: string): MarkupRep
         leading === trailing &&
         isWrapping(source, leading, text)
     ) {
-        text = text.slice(leading.length, -leading.length);
-        stripped += 2;
+        const unwrapped = text.slice(leading.length, -leading.length);
+
+        // Only when the fragment keeps everything it came with: a pair the
+        // model wrote in place of a tag it lost is not a wrapping, it is
+        // the last copy of that markup.
+        if (keepsMarkup(source, unwrapped)) {
+            text = unwrapped;
+            stripped += 2;
+        }
     }
 
     // A source fragment with the same marker glued to a hoisted tag is
@@ -382,19 +385,11 @@ export function stripAddedMarkup(source: string, translation: string): MarkupRep
 
     const duplicates = stripGluedDuplicates(text);
     const orphans = stripOrphans(source, duplicates.text);
-    const repair = {
+
+    return {
         text: orphans.text,
         stripped: stripped + duplicates.stripped + orphans.stripped,
     };
-
-    // Last line of defence: a repair that leaves markup which cannot be
-    // composed is worse than the answer it started from. Hand the model
-    // text back untouched and let the caller retry the fragment.
-    if (repair.stripped && !keepsMarkup(source, repair.text)) {
-        return {text: translation, stripped: 0};
-    }
-
-    return repair;
 }
 
 /**
@@ -415,14 +410,24 @@ export function stripAddedMarkup(source: string, translation: string): MarkupRep
  * just fine.
  */
 export function keepsMarkup(source: string, translation: string): boolean {
-    const expected = markerChars(source);
-    const actual = markerChars(translation);
+    const expected = markerTotals(source);
+    const actual = markerTotals(translation);
+    const empty = {chars: 0, count: 0};
 
     for (const marker of new Set([...expected.keys(), ...actual.keys()])) {
-        const before = expected.get(marker) || 0;
-        const after = actual.get(marker) || 0;
+        const before = expected.get(marker) || empty;
+        const after = actual.get(marker) || empty;
 
-        if (after < before || (after - before) % 2 !== 0) {
+        // Nothing lost, counted in characters: a `***` run written for an
+        // italic around a bold is the same three markers the tags carried.
+        if (after.chars < before.chars) {
+            return false;
+        }
+
+        // Nothing left without a partner, counted in delimiters: a single
+        // added `**` is two characters but one delimiter, and an odd
+        // remainder is a delimiter that nothing closes.
+        if ((after.count - before.count) % 2 !== 0) {
             return false;
         }
     }

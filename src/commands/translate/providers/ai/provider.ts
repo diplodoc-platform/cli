@@ -635,7 +635,14 @@ export function normalizeCached(unit: string, stored: string): string {
 export function healCached(unit: string, stored: string): MarkupRepair {
     const normalized = normalizeCached(unit, stored);
     const {open, text, close} = unwrapUnit(normalized);
-    const repair = stripAddedMarkup(unwrapUnit(unit).text, text);
+    const source = unwrapUnit(unit).text;
+    const repair = stripAddedMarkup(source, text);
+
+    // There is no retry on this path, so a repair that would leave markup
+    // which cannot be composed has nowhere to go: keep the cached value.
+    if (repair.stripped && keepsMarkup(source, text) && !keepsMarkup(source, repair.text)) {
+        return {text: normalized, stripped: 0};
+    }
 
     return {text: open + repair.text + close, stripped: repair.stripped};
 }
@@ -1018,8 +1025,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 // responses. Treat them as misses so the unit gets another chance.
                 const refused = normalized === text && marker !== null && marker.test(text);
                 if (!refused) {
-                    if (normalized !== stored) {
-                        // Heal wrapper noise and added markup cached by older runs.
+                    if (normalized !== stored && !dryRun) {
+                        // Heal wrapper noise and added markup cached by older
+                        // runs. A dry run estimates, it does not rewrite.
                         store?.set(text, normalized);
                     }
                     stat.cached++;
