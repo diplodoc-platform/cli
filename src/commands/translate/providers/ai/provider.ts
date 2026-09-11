@@ -649,6 +649,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
     // quota, so its requests must not hold on the primary rate limit window.
     const gate = new RateGate();
     const fallbackGate = new RateGate();
+    // The clients drop `temperature` when the model refuses it. Running at a
+    // different temperature than configured must not go unnoticed, but it is
+    // worth saying once per target, not once per request.
+    let temperatureWarned = false;
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
 
     async function translateBatch(
@@ -725,6 +729,17 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 {rateLimitRetries: rateLimitRetry, gate: fallbackGate},
             );
             stat.fallbackRequests++;
+        }
+
+        if (
+            !temperatureWarned &&
+            (client.temperatureDropped || fallbackClient?.temperatureDropped)
+        ) {
+            temperatureWarned = true;
+            logger.warn(
+                path,
+                'The model refused the configured temperature; requests continue without it.',
+            );
         }
 
         stat.requests++;

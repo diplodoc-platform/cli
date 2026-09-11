@@ -46,6 +46,24 @@ export class LLMResponseError extends TranslateError {
 }
 
 /**
+ * Tells whether the API refused the request because of `temperature`.
+ *
+ * The newest models accept only their default temperature and answer with a
+ * plain bad request: OpenAI names the parameter in `param`, Anthropic leaves
+ * `param` empty and says it in the message.
+ */
+export function isTemperatureRejected(error: unknown): boolean {
+    if (!(error instanceof AxiosError) || error.response?.status !== 400) {
+        return false;
+    }
+
+    const {data} = error.response;
+    const message = String(data?.error?.message || data?.message || '');
+
+    return data?.error?.param === 'temperature' || /temperature/i.test(message);
+}
+
+/**
  * Maps an axios error to the corresponding LLM error.
  * Rethrows unknown errors as is.
  */
