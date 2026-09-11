@@ -317,6 +317,28 @@ describe('keepsMarkup', () => {
         expect(keepsMarkup('Plain sentence', 'Обычное ``предложение')).toBe(false);
     });
 
+    it('should reject a delimiter run of the wrong length', () => {
+        // Same number of delimiters and one more character: the run no
+        // longer matches the marker the skeleton restores.
+        expect(
+            keepsMarkup(`Release date:${BOLD_CLOSE} 2026-08-25`, 'Дата релиза:*** 2026-08-25'),
+        ).toBe(false);
+        expect(
+            keepsMarkup(
+                `Run ${CODE_OPEN}yfm build${CODE_CLOSE} in the project root`,
+                'Запустите `yfm build`` в корне проекта',
+            ),
+        ).toBe(false);
+    });
+
+    it('should accept markers regrouped into one run of the same length', () => {
+        // **Bold *italic*** tail: the italic closer and the bold closer
+        // come back merged, and the line composes byte for byte.
+        const source = `Bold ${ITALIC_TAG}italic</g>${BOLD_CLOSE} tail`;
+
+        expect(keepsMarkup(source, 'Жирный *курсив*** хвост')).toBe(true);
+    });
+
     it('should accept a link written in plain markdown instead of its tags', () => {
         const link = `${LINK_TAG}link</g> and more`;
 

@@ -785,8 +785,11 @@ describe('translate ai provider', () => {
         const unit = wrap(`Дата релиза:${BOLD_CLOSE} 2026-08-25`);
 
         it('should cut markup added around a cached fragment', () => {
-            expect(healCached(unit, wrap('**Release date:** 2026-08-25'))).toEqual({
+            const stored = wrap('**Release date:** 2026-08-25');
+
+            expect(healCached(unit, stored)).toEqual({
                 text: wrap('Release date:** 2026-08-25'),
+                normalized: stored,
                 stripped: 1,
             });
         });
@@ -794,6 +797,7 @@ describe('translate ai provider', () => {
         it('should heal a seeded value stored without the wrapper', () => {
             expect(healCached(unit, '**Release date:** 2026-08-25')).toEqual({
                 text: wrap('Release date:** 2026-08-25'),
+                normalized: wrap('**Release date:** 2026-08-25'),
                 stripped: 1,
             });
         });
@@ -803,13 +807,21 @@ describe('translate ai provider', () => {
             // fragment without markup it needs must not be applied.
             const stored = wrap('**Дата релиза: 2026-08-25');
 
-            expect(healCached(unit, stored)).toEqual({text: stored, stripped: 0});
+            expect(healCached(unit, stored)).toEqual({
+                text: stored,
+                normalized: stored,
+                stripped: 0,
+            });
         });
 
         it('should keep a sound cached value as is', () => {
             const stored = wrap(`Release date:${BOLD_CLOSE} 2026-08-25`);
 
-            expect(healCached(unit, stored)).toEqual({text: stored, stripped: 0});
+            expect(healCached(unit, stored)).toEqual({
+                text: stored,
+                normalized: stored,
+                stripped: 0,
+            });
         });
     });
 
@@ -881,14 +893,15 @@ describe('translate ai provider', () => {
             const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
             const translate = makeTranslator(params);
 
+            const stored = wrap('**Release date:** 2026-08-25');
             const result = await translate('file.md', [unit]);
-            const healed = wrap('Release date:** 2026-08-25');
 
-            expect(result).toEqual([healed]);
+            expect(result).toEqual([wrap('Release date:** 2026-08-25')]);
             expect(stat.markupStripped).toBe(1);
-            // The healed value replaces the defective one, so the next run
-            // does not have to repair it again.
-            expect(store.get(unit)).toBe(healed);
+            // The repair stays out of the store: written back, it would be
+            // repaired again next run from a different starting point, and
+            // the output file would drift between runs of the same input.
+            expect(store.get(unit)).toBe(stored);
             expect(client.complete).not.toHaveBeenCalled();
         });
 

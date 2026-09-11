@@ -626,13 +626,23 @@ export function normalizeCached(unit: string, stored: string): string {
     return result;
 }
 
+export type CachedRepair = MarkupRepair & {
+    /** The stored value with its wrapper normalized, markup untouched. */
+    normalized: string;
+};
+
 /**
  * Prepares a cached translation for reuse: normalizes the wrapper and cuts
  * markup added around the fragment. Cache entries are also seeded from
  * files already in the repository, so a defect merged once would otherwise
  * be replayed by every next run.
+ *
+ * The markup repair stays out of the store on purpose. Only the wrapper
+ * normalization is worth writing back; a repaired value written back would
+ * be repaired again next run, from a different starting point, and the
+ * output file would drift between runs of the same input.
  */
-export function healCached(unit: string, stored: string): MarkupRepair {
+export function healCached(unit: string, stored: string): CachedRepair {
     const normalized = normalizeCached(unit, stored);
     const {open, text, close} = unwrapUnit(normalized);
     const source = unwrapUnit(unit).text;
@@ -641,10 +651,10 @@ export function healCached(unit: string, stored: string): MarkupRepair {
     // There is no retry on this path, so a repair that would leave markup
     // which cannot be composed has nowhere to go: keep the cached value.
     if (repair.stripped && keepsMarkup(source, text) && !keepsMarkup(source, repair.text)) {
-        return {text: normalized, stripped: 0};
+        return {text: normalized, normalized, stripped: 0};
     }
 
-    return {text: open + repair.text + close, stripped: repair.stripped};
+    return {text: open + repair.text + close, normalized, stripped: repair.stripped};
 }
 
 export function makeTranslator(params: TranslatorParams): Translate {
@@ -685,6 +695,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
     // their source text and must stay out of the store, so the next run
     // gets another chance at them.
     const damaged = new Set<string>();
+    // Markers cut from the answer currently held for a unit. A retry
+    // overwrites the entry, so a repair on an answer that was thrown away
+    // never reaches the report.
+    const repairs = new Map<string, number>();
 
     async function translateBatch(
         path: string,
@@ -796,7 +810,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
             const translation = unwrapUnit(stripFence(part)).text || text;
             const repair = stripAddedMarkup(text, translation);
 
-            stat.markupStripped += repair.stripped;
+            // Counted only once the answer is kept: a retry replaces both
+            // the text and its repair.
+            repairs.set(fragments[index], repair.stripped);
 
             return open + repair.text + close;
         });
@@ -898,6 +914,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             unfixed++;
             stat.markupDamaged++;
             damaged.add(fragments[index]);
+            repairs.set(fragments[index], 0);
             result[index] = fragments[index];
         });
 
@@ -960,6 +977,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         }
                         const translated = await translateWithSplit(path, batch, context);
                         translated.forEach((text, i) => {
+                            stat.markupStripped += repairs.get(batch[i]) || 0;
+
                             if (damaged.has(batch[i])) {
                                 // Fell back to the source text: counted as
                                 // untranslated and kept out of the store.
@@ -1019,20 +1038,20 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
             const stored = store?.get(text);
             if (stored !== undefined) {
-                const {text: normalized, stripped} = healCached(text, stored);
+                const {text: healed, normalized, stripped} = healCached(text, stored);
                 // Identity entries for units that still contain source-script
                 // characters were cached by older runs that stored untranslated
                 // responses. Treat them as misses so the unit gets another chance.
                 const refused = normalized === text && marker !== null && marker.test(text);
                 if (!refused) {
                     if (normalized !== stored && !dryRun) {
-                        // Heal wrapper noise and added markup cached by older
-                        // runs. A dry run estimates, it does not rewrite.
+                        // Heal wrapper noise cached by older runs. A dry run
+                        // estimates, it does not rewrite.
                         store?.set(text, normalized);
                     }
                     stat.cached++;
                     stat.markupStripped += stripped;
-                    promises.push(Promise.resolve(normalized));
+                    promises.push(Promise.resolve(healed));
                     continue;
                 }
             }
