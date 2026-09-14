@@ -2,6 +2,7 @@ import type {BuildConfig, Langs} from '.';
 import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
 import type {Lang} from '@diplodoc/transform/lib/typings';
+import type Token from 'markdown-it/lib/token';
 
 import {dirname, join, resolve} from 'node:path';
 import {uniq} from 'lodash';
@@ -24,12 +25,15 @@ import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} fr
 import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
+import {AnchorsService} from './services/anchors';
 import {extractIncludedBlocks} from './extract-included';
 import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
 
 type TransformOptions = {
     deps: IncludeInfo[];
     assets: AssetInfo[];
+    anchorIds?: Set<string>;
+    reportErrors?: boolean;
 };
 
 type Manifest = Hash<{
@@ -73,6 +77,8 @@ export class Run extends BaseRun<BuildConfig> {
 
     readonly redirects: RedirectsService;
 
+    private readonly anchors: AnchorsService;
+
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
     }
@@ -114,20 +120,23 @@ export class Run extends BaseRun<BuildConfig> {
         this.vcs = new VcsService(this);
         this.leading = new LeadingService(this);
         this.markdown = new MarkdownService(this);
+        this.anchors = new AnchorsService(this);
         this.search = new SearchService(this);
         this.redirects = new RedirectsService(this);
     }
 
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
-        const {deps, assets} = options;
+        const {deps, assets, anchorIds, reportErrors = true} = options;
 
         const {
             content: cleanMarkdown,
             files: includedFiles,
             errors,
         } = extractIncludedBlocks(markdown, file);
-        for (const error of errors) {
-            this.logger.error(error);
+        if (reportErrors) {
+            for (const error of errors) {
+                this.logger.error(error);
+            }
         }
 
         const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
@@ -155,6 +164,9 @@ export class Run extends BaseRun<BuildConfig> {
         });
 
         const tokens = parse(cleanMarkdown);
+        if (anchorIds) {
+            collectAnchorIds(tokens, anchorIds);
+        }
         const result = compile(tokens);
 
         return [result, env] as const;
@@ -193,6 +205,7 @@ export class Run extends BaseRun<BuildConfig> {
             ...this.transformConfig(file, assetsRemap),
             files: {...depFiles, ...includedFiles},
             titles: await remap(titles, this.titles),
+            anchorIndex: await this.anchors.index(file, assets),
             assets: assetsRemap,
         };
 
@@ -233,6 +246,7 @@ export class Run extends BaseRun<BuildConfig> {
             log: this.logger,
             entries: this.getEntries(),
             existsInProject: this.existsInProject,
+            resolveAnchorPage: this.anchors.resolve,
             svgInline: {
                 enabled: this.config.content.maxInlineSvgSize !== 0,
                 maxFileSize: this.config.content.maxInlineSvgSize,
@@ -307,6 +321,23 @@ export class Run extends BaseRun<BuildConfig> {
         }
 
         return this.markdown.titles(path);
+    }
+}
+
+function collectAnchorIds(tokens: Token[], anchorIds: Set<string>) {
+    for (const token of tokens) {
+        const id = token.attrGet('id');
+        if (id) {
+            anchorIds.add(id);
+        }
+
+        if (token.type === 'anchor' && token.content) {
+            anchorIds.add(token.content);
+        }
+
+        if (token.children) {
+            collectAnchorIds(token.children, anchorIds);
+        }
     }
 }
 

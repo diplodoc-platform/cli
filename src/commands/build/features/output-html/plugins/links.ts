@@ -1,6 +1,8 @@
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
+import type Token from 'markdown-it/lib/token';
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
 import type {Logger} from '~/core/logger';
+import type {AnchorIndex, ResolveAnchorPage} from '~/commands/build/services/anchors';
 
 import {formatHref, parseHref} from '@diplodoc/utils';
 import {bold} from 'chalk';
@@ -16,9 +18,10 @@ const DOC_ASSETS_FOLDER = '_assets';
 type Options = {
     path: NormalizedPath;
     log: Logger;
-    titles: Record<NormalizedPath, Hash<string>>;
     entries: NormalizedPath[];
     existsInProject: (path: NormalizedPath) => boolean;
+    anchorIndex?: AnchorIndex;
+    resolveAnchorPage: ResolveAnchorPage;
 };
 
 export default ((md, opts) => {
@@ -32,7 +35,7 @@ export default ((md, opts) => {
                 return;
             }
 
-            const {path, log, entries, existsInProject} = opts;
+            const {path, log, entries, existsInProject, anchorIndex, resolveAnchorPage} = opts;
 
             if (!href) {
                 log.error(`Empty link in ${bold(path)}`);
@@ -79,6 +82,12 @@ export default ((md, opts) => {
                     }
                 }
 
+                validateAnchor(link, file, parsed.hash, {
+                    entries,
+                    anchorIndex,
+                    resolveAnchorPage,
+                });
+
                 link.attrSet(
                     'href',
                     formatHref({
@@ -99,3 +108,20 @@ export default ((md, opts) => {
         md.core.ruler.push('links', plugin);
     }
 }) as MarkdownItPluginCb<Options>;
+
+function validateAnchor(
+    link: Token,
+    file: NormalizedPath,
+    hash: string | null,
+    options: Pick<Options, 'entries' | 'anchorIndex' | 'resolveAnchorPage'>,
+) {
+    const {entries, anchorIndex, resolveAnchorPage} = options;
+    const target = resolveAnchorPage(file);
+    const anchor = hash?.slice(1);
+    const targetAnchors = target ? anchorIndex?.get(target) : undefined;
+    const targetIsReachable = target && entries.includes(target) && link.attrGet('YFM003') === null;
+
+    if (anchor && targetIsReachable && targetAnchors && !targetAnchors.has(anchor)) {
+        link.attrSet('YFM002', 'anchor-not-found');
+    }
+}
