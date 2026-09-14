@@ -46,6 +46,11 @@ export type Verdict = {
 /**
  * FNV-1a over the seed and the unit text. Any stable hash would do;
  * this one needs no dependency and yields a reproducible bit per unit.
+ *
+ * `charCodeAt` is deliberate: the loop walks code units, which is what
+ * FNV-1a is defined over. `codePointAt` would return a full code point
+ * at a high surrogate and a lone low surrogate on the next step, which
+ * is no more correct and would change every existing seed layout.
  */
 /* eslint-disable no-bitwise -- FNV-1a is defined in terms of xor and shifts */
 function hash(value: string): number {
