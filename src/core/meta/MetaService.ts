@@ -21,6 +21,7 @@ type MetaItem = {
 };
 
 const MAX_TAG_LENGTH = 32;
+const MAX_SUMMARY_LENGTH = 100;
 
 /**
  * Service for managing page metadata in the CLI build process.
@@ -132,6 +133,22 @@ export class MetaService {
                     }),
                 ),
             ].filter(Boolean);
+        }
+
+        if (meta.summary !== undefined && typeof meta.summary !== 'string') {
+            this.logger.warn(file, 'Summary must be a string and will be ignored.');
+            delete meta.summary;
+        } else if (meta.summary) {
+            const summary = Array.from(meta.summary);
+
+            if (summary.length > MAX_SUMMARY_LENGTH) {
+                this.logger.warn(
+                    file,
+                    `The length of the summary "${meta.summary}" exceeds ${MAX_SUMMARY_LENGTH} characters, and it will be truncated.`,
+                );
+            }
+
+            meta.summary = summary.slice(0, MAX_SUMMARY_LENGTH).join('');
         }
 
         if (meta.alternate?.length) {

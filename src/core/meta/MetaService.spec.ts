@@ -114,6 +114,49 @@ describe('MetaService', () => {
                 `Tag "${tag}" exceeds 32 characters and will be truncated.`,
             );
         });
+
+        it('preserves a summary with exactly 100 Unicode characters', async () => {
+            const file = 'test/file.md' as NormalizedPath;
+            const summary = '😀'.repeat(100);
+            const run = createMockRun();
+            const metaService = new MetaService(run);
+
+            metaService.add(file, {summary});
+
+            await expect(metaService.dump(file)).resolves.toMatchObject({summary});
+            expect(run.logger.warn).not.toHaveBeenCalled();
+        });
+
+        it('warns and truncates a summary longer than 100 Unicode characters', async () => {
+            const file = 'test/file.md' as NormalizedPath;
+            const summary = '😀'.repeat(101);
+            const run = createMockRun();
+            const metaService = new MetaService(run);
+
+            metaService.add(file, {summary});
+
+            await expect(metaService.dump(file)).resolves.toMatchObject({
+                summary: '😀'.repeat(100),
+            });
+            expect(run.logger.warn).toHaveBeenCalledWith(
+                file,
+                `The length of the summary "${summary}" exceeds 100 characters, and it will be truncated.`,
+            );
+        });
+
+        it('warns and removes a summary that is not a string', async () => {
+            const file = 'test/file.md' as NormalizedPath;
+            const run = createMockRun();
+            const metaService = new MetaService(run);
+
+            metaService.add(file, {summary: {text: 'Summary'}});
+
+            await expect(metaService.dump(file)).resolves.not.toHaveProperty('summary');
+            expect(run.logger.warn).toHaveBeenCalledWith(
+                file,
+                'Summary must be a string and will be ignored.',
+            );
+        });
     });
 
     describe('set() vs add()', () => {
