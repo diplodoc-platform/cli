@@ -110,6 +110,20 @@ describe('Errors', () => {
         ]);
     });
 
+    test('mocks/errors/anchor-validation', ({html}: TestResult) => {
+        expectErrors(html, [
+            'ERR index.md: 1: YFM002 / no-header-found-for-link No header found in the file for the link text [Context: "[invalid explicit](architecture.md#over-plutonium09128129387192837)"]',
+            'ERR index.md: 4: YFM002 / no-header-found-for-link No header found in the file for the link text [Context: "[invalid automatic](architecture.md#missing-automatic)"]',
+            'ERR index.md: 7: YFM002 / no-header-found-for-link No header found in the file for the link text [Context: "[invalid same-page](#missing-local)"]',
+            'ERR index.md: 10: YFM002 / no-header-found-for-link No header found in the file for the link text [Context: "[{#T}](architecture.md#missing-autotitle)"]',
+            'ERR index.md: 12: YFM002 / no-header-found-for-link No header found in the file for the link text [Context: "index.md:12 → _includes/source-links.md:1 ↛ architecture.html#missing-from-include"]',
+        ]);
+
+        expect(html.errors.filter((error) => error.includes('YFM002'))).toHaveLength(5);
+        expect(html.warns.filter((warning) => warning.includes('YFM010'))).toEqual([]);
+        expect(html.errors.filter((error) => error.includes('YFM003'))).toEqual([]);
+    });
+
     it('translate extract with filtered links', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
 
@@ -154,8 +168,9 @@ describe('Include chain errors', () => {
 describe('Warnings', () => {
     test('mocks/warning/unreachable-autotitle', ({html}: TestResult) => {
         expectWarnings(html, [
-            'WARN index.md: 1: YFM010 / unreachable-autotitle-anchor Auto title anchor is unreachable [Context: "Unreachable autotitle anchor: "link.html#unknown_yfm010"; Line: 1"]',
+            'WARN index.md: 1: YFM002 / no-header-found-for-link No header found in the file for the link text [Context: "[{#T}](./link.md#unknown_yfm010)"]',
         ]);
+        expect(html.warns.filter((warning) => warning.includes('YFM010'))).toEqual([]);
     });
 });
 
