@@ -105,7 +105,7 @@ export function parseBenchConfig(raw: unknown): BenchConfig {
         fail('candidates must be a list');
     }
 
-    const candidates = data.candidates.map(parseCandidate);
+    const candidates = data.candidates.map((raw, index) => parseCandidate(raw, index));
 
     if (candidates.length < 2) {
         fail('at least two candidates are required to compare anything');

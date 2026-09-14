@@ -195,7 +195,9 @@ function decideWinner(winner: RawVerdict['winner'], candidateFirst: boolean): Ve
         return 'tie';
     }
 
-    return winner === (candidateFirst ? 'A' : 'B') ? 'candidate' : 'baseline';
+    const candidateSide = candidateFirst ? 'A' : 'B';
+
+    return winner === candidateSide ? 'candidate' : 'baseline';
 }
 
 /**

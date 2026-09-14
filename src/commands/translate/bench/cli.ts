@@ -3,7 +3,7 @@ import type {EvalReport} from '../eval/types';
 import type {UnitTriple} from './align';
 import type {Verdict} from './pairwise';
 import type {BenchReport, CandidateMetrics, CandidateReport, RunArtifacts} from './report';
-import type {CandidateConfig, JudgeConfig, ResolvedBenchConfig} from './types';
+import type {CandidateConfig, JudgeConfig, ResolvedBenchConfig, ResolvedCandidate} from './types';
 
 import {ok} from 'node:assert';
 import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
@@ -273,6 +273,127 @@ async function judgePairs(params: {
     return {verdicts, identical: selection.identical, unparsed};
 }
 
+type CandidateRuns = {
+    runs: RunOutcome[];
+    artifacts: RunArtifacts[];
+    /** Captured units of every repeat, in repeat order. */
+    units: Map<string, string[]>[];
+};
+
+/**
+ * Translates the corpus with one candidate, `repeats` times, and
+ * captures the units of every output. Runs are sequential: candidates
+ * usually share a gateway, and parallel runs would distort the latency
+ * numbers and trip rate limits.
+ */
+async function runCandidate(params: {
+    candidate: ResolvedCandidate;
+    args: BenchArgs;
+    corpus: string;
+    cli: string;
+    workdir: string;
+}): Promise<CandidateRuns> {
+    const {candidate, args, corpus, cli} = params;
+    const result: CandidateRuns = {runs: [], artifacts: [], units: []};
+
+    for (let repeat = 1; repeat <= args.repeats; repeat++) {
+        const workdir = join(params.workdir, candidate.name, String(repeat));
+        mkdirSync(workdir, {recursive: true});
+
+        const evalReportFile = join(workdir, 'eval-report.json');
+        const runReportFile = join(workdir, 'translate-report.json');
+
+        console.log(`\n=== ${candidate.name}, repeat ${repeat}/${args.repeats} ===`);
+
+        const run = await runEval({
+            corpus,
+            cli,
+            workdir,
+            reportFile: evalReportFile,
+            source: args.source,
+            target: args.target,
+            real: true,
+            judge: args.judge,
+            provider: candidate.provider,
+            model: candidate.model,
+            auth: candidate.auth,
+            apiBase: candidate.apiBase,
+            apiHeaders: candidate.apiHeaders,
+            folder: candidate.folder,
+            systemPrompt: candidate.systemPrompt,
+            userPrompt: candidate.userPrompt,
+            noCache: true,
+            runReport: runReportFile,
+            requireReference: false,
+            thresholds: {...DEFAULT_THRESHOLDS},
+            log: (message) => console.log(`  ${message}`),
+        });
+
+        result.units.push(
+            await captureUnits({
+                cli,
+                corpus: run.output,
+                workdir,
+                source: args.target,
+                target: args.source,
+            }),
+        );
+
+        result.runs.push({
+            report: run.report,
+            runReport: readRunReport(runReportFile),
+            structuralMismatches: 0,
+        });
+
+        result.artifacts.push({
+            repeat,
+            workdir,
+            evalReport: evalReportFile,
+            runReport: existsSync(runReportFile) ? runReportFile : null,
+            failures: run.report.failures,
+        });
+    }
+
+    return result;
+}
+
+/**
+ * Aligns every repeat of a candidate against the matching repeat of the
+ * baseline and records how many pages the candidate made incomparable.
+ */
+function alignAgainstBaseline(params: {
+    name: string;
+    sourceUnits: Map<string, string[]>;
+    baselineUnits: Map<string, string[]>[];
+    candidate: CandidateRuns;
+}): UnitTriple[] {
+    const triples: UnitTriple[] = [];
+
+    params.candidate.units.forEach((units, position) => {
+        const aligned = alignUnits({
+            source: params.sourceUnits,
+            baseline: params.baselineUnits[position],
+            candidate: units,
+            stripLang: stripLangPrefix,
+        });
+
+        params.candidate.runs[position].structuralMismatches = aligned.mismatched.filter(
+            (mismatch) => mismatch.side === 'candidate',
+        ).length;
+
+        for (const mismatch of aligned.mismatched) {
+            console.warn(
+                `Warning: ${params.name} repeat ${position + 1}: ` +
+                    `${mismatch.page} not comparable (${mismatch.detail})`,
+            );
+        }
+
+        triples.push(...aligned.triples);
+    });
+
+    return triples;
+}
+
 export async function main(argv: string[]): Promise<number> {
     const args = parseArgs(argv);
     const corpus = resolve(args.corpus);
@@ -320,114 +441,30 @@ export async function main(argv: string[]): Promise<number> {
         target: args.target,
     });
 
-    const outcomes = new Map<string, RunOutcome[]>();
-    const artifacts = new Map<string, RunArtifacts[]>();
-    const capturedUnits = new Map<string, Map<string, string[]>[]>();
+    const executed = new Map<string, CandidateRuns>();
 
     for (const candidate of resolved.candidates) {
-        const runs: RunOutcome[] = [];
-        const runArtifacts: RunArtifacts[] = [];
-        const units: Map<string, string[]>[] = [];
-
-        for (let repeat = 1; repeat <= args.repeats; repeat++) {
-            const runWorkdir = join(workdir, candidate.name, String(repeat));
-            mkdirSync(runWorkdir, {recursive: true});
-
-            const evalReportFile = join(runWorkdir, 'eval-report.json');
-            const runReportFile = join(runWorkdir, 'translate-report.json');
-
-            console.log(`\n=== ${candidate.name}, repeat ${repeat}/${args.repeats} ===`);
-
-            const result = await runEval({
-                corpus,
-                cli,
-                workdir: runWorkdir,
-                reportFile: evalReportFile,
-                source: args.source,
-                target: args.target,
-                real: true,
-                judge: args.judge,
-                provider: candidate.provider,
-                model: candidate.model,
-                auth: candidate.auth,
-                apiBase: candidate.apiBase,
-                apiHeaders: candidate.apiHeaders,
-                folder: candidate.folder,
-                systemPrompt: candidate.systemPrompt,
-                userPrompt: candidate.userPrompt,
-                noCache: true,
-                runReport: runReportFile,
-                requireReference: false,
-                thresholds: {...DEFAULT_THRESHOLDS},
-                log: (message) => console.log(`  ${message}`),
-            });
-
-            units.push(
-                await captureUnits({
-                    cli,
-                    corpus: result.output,
-                    workdir: runWorkdir,
-                    source: args.target,
-                    target: args.source,
-                }),
-            );
-
-            runs.push({
-                report: result.report,
-                runReport: readRunReport(runReportFile),
-                structuralMismatches: 0,
-            });
-
-            runArtifacts.push({
-                repeat,
-                workdir: runWorkdir,
-                evalReport: evalReportFile,
-                runReport: existsSync(runReportFile) ? runReportFile : null,
-                failures: result.report.failures,
-            });
-        }
-
-        outcomes.set(candidate.name, runs);
-        artifacts.set(candidate.name, runArtifacts);
-        capturedUnits.set(candidate.name, units);
+        executed.set(candidate.name, await runCandidate({candidate, args, corpus, cli, workdir}));
     }
 
-    const baselineUnits = capturedUnits.get(resolved.baseline) as Map<string, string[]>[];
+    const baselineUnits = (executed.get(resolved.baseline) as CandidateRuns).units;
     const candidates: CandidateReport[] = [];
 
     for (const candidate of resolved.candidates) {
-        const runs = outcomes.get(candidate.name) as RunOutcome[];
-        const units = capturedUnits.get(candidate.name) as Map<string, string[]>[];
+        const runs = executed.get(candidate.name) as CandidateRuns;
         const isBaseline = candidate.name === resolved.baseline;
-        const triples: UnitTriple[] = [];
-
-        if (!isBaseline) {
-            units.forEach((candidateRun, position) => {
-                const aligned = alignUnits({
-                    source: sourceUnits,
-                    baseline: baselineUnits[position],
-                    candidate: candidateRun,
-                    stripLang: stripLangPrefix,
-                });
-
-                runs[position].structuralMismatches = aligned.mismatched.filter(
-                    (mismatch) => mismatch.side === 'candidate',
-                ).length;
-
-                for (const mismatch of aligned.mismatched) {
-                    console.warn(
-                        `Warning: ${candidate.name} repeat ${position + 1}: ` +
-                            `${mismatch.page} not comparable (${mismatch.detail})`,
-                    );
-                }
-
-                triples.push(...aligned.triples);
-            });
-        }
+        const triples = isBaseline
+            ? []
+            : alignAgainstBaseline({
+                  name: candidate.name,
+                  sourceUnits,
+                  baselineUnits,
+                  candidate: runs,
+              });
 
         let pairwise: CandidateReport['pairwise'] = null;
 
-        if (!isBaseline && args.pairwise && resolved.judge && triples.length) {
+        if (args.pairwise && resolved.judge && triples.length) {
             const judged = await judgePairs({
                 triples,
                 seed: args.seed,
@@ -449,8 +486,8 @@ export async function main(argv: string[]): Promise<number> {
             name: candidate.name,
             provider: candidate.provider,
             model: candidate.model || `(${candidate.provider} default)`,
-            runs: artifacts.get(candidate.name) as RunArtifacts[],
-            metrics: collectMetrics(runs),
+            runs: runs.artifacts,
+            metrics: collectMetrics(runs.runs),
             pairwise,
         });
     }

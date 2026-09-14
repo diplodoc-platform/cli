@@ -157,8 +157,9 @@ function renderRow(candidate: CandidateReport, report: BenchReport): string {
     ];
 
     const className = candidate.name === report.baseline ? ' class="baseline"' : '';
+    const body = cells.map((cell) => `<td>${cell}</td>`).join('');
 
-    return `<tr${className}>${cells.map((cell) => `<td>${cell}</td>`).join('')}</tr>`;
+    return `<tr${className}>${body}</tr>`;
 }
 
 function renderComparison(candidate: CandidateReport, report: BenchReport): string {
@@ -193,6 +194,8 @@ export function renderBenchHtml(report: BenchReport): string {
         .filter((candidate) => candidate.name !== report.baseline && candidate.pairwise)
         .map((candidate) => renderComparison(candidate, report));
 
+    const headerRow = HEADER.map((title) => `<th>${title}</th>`).join('');
+
     return [
         '<!doctype html>',
         '<html lang="en"><head><meta charset="utf-8">',
@@ -205,7 +208,7 @@ export function renderBenchHtml(report: BenchReport): string {
             `seed ${escapeHtml(report.seed)}<br>corpus ${escapeHtml(report.corpus)}<br>` +
             `${escapeHtml(report.startedAt)} &ndash; ${escapeHtml(report.finishedAt)}</p>`,
         '<table class="summary">',
-        `<tr>${HEADER.map((title) => `<th>${title}</th>`).join('')}</tr>`,
+        `<tr>${headerRow}</tr>`,
         ...report.candidates.map((candidate) => renderRow(candidate, report)),
         '</table>',
         ...comparisons,
