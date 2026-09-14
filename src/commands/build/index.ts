@@ -50,6 +50,7 @@ import {NeuroExpert} from './features/neuro-expert';
 import {Themer} from './features/themer';
 import {Analytics} from './features/analytics';
 import {Llms} from './features/llms';
+import {CodeSources} from './features/code-sources';
 
 export type * from './types';
 
@@ -115,6 +116,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly llms = new Llms();
 
+    readonly codeSources = new CodeSources();
+
     readonly options = [
         options.input('./'),
         options.output({required: true}),
@@ -177,6 +180,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.neuroExpert,
         this.analytics,
         this.llms,
+        this.codeSources,
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),

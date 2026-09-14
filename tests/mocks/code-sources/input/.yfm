@@ -1,0 +1,7 @@
+code-sources:
+  go-sdk:
+    type: local
+    dir: ../sdk
+    path: examples
+    # {path} is source-relative, so it already carries the `path` prefix.
+    link: https://github.com/example/sdk/blob/v1.2.3/{path}#{lines}
