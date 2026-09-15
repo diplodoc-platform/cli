@@ -153,7 +153,7 @@
     "async": "^3.2.4",
     "axios": "^1.7.8",
     "chokidar": "^4.0.1",
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.28.1",
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",
     "markdown-it-attrs": "^4.1.0",
