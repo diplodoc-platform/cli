@@ -64,7 +64,7 @@ export class SeedStore {
 
     private files: Record<string, [string, string][]> = {};
 
-    private counts = new Map<string, Map<string, number>>();
+    private readonly counts = new Map<string, Map<string, number>>();
 
     constructor(file: string) {
         this.file = file;

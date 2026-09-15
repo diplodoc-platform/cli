@@ -45,7 +45,7 @@ export function untranslatedMarker(sourceLanguage: string, targetLanguage: strin
     }
 
     try {
-        return new RegExp(source.map((script) => `\\p{Script=${script}}`).join('|'), 'u');
+        return new RegExp(source.map((script) => String.raw`\p{Script=${script}}`).join('|'), 'u');
     } catch {
         // Script codes unknown to the regexp engine disable the check.
         return null;
@@ -69,9 +69,9 @@ export function foreignWordPattern(language: string, other: string): RegExp | nu
     }
 
     try {
-        const letters = foreign.map((script) => `\\p{Script=${script}}`).join('|');
+        const letters = foreign.map((script) => String.raw`\p{Script=${script}}`).join('|');
 
-        return new RegExp(`(?:${letters})(?:${letters}|\\p{Nd}|_)*`, 'gu');
+        return new RegExp(String.raw`(?:${letters})(?:${letters}|\p{Nd}|_)*`, 'gu');
     } catch {
         // Script codes unknown to the regexp engine disable the check.
         return null;

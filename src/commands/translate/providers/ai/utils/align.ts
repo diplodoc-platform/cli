@@ -30,12 +30,21 @@ const ORDERED = /^\d+[.)] /;
 const PLACEHOLDER_RUN = /%%%(?: %%%)+/g;
 
 const SOURCE_WRAPPER = /^\s*<source(?:\s[^>]*)?>([\s\S]*)<\/source>\s*$/;
-const TAG = /<[^>]+>/g;
+// `[^<>]` keeps a run of unclosed `<` from being rescanned quadratically.
+const TAG = /<[^<>]+>/g;
 const ENTITY = /&#?\w+;/g;
 const LINK_DESTINATION = /\]\(([^)\s"]+)\)/g;
 const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
+
+/** Locale-independent string order: anchors and keys must compare the same on every machine. */
+function byCodePoint(a: string, b: string): number {
+    if (a === b) {
+        return 0;
+    }
+    return a < b ? -1 : 1;
+}
 
 /**
  * Language-independent tokens of a unit: link destinations, inline code and
@@ -75,7 +84,7 @@ export function unitAnchors(unit: string): string[] {
         anchors.push('num:' + number);
     }
 
-    return anchors.sort();
+    return anchors.sort(byCodePoint);
 }
 
 /** The unit text without its XLIFF `<source>` wrapper. */
@@ -142,7 +151,9 @@ function makeBlock(
     context: string[],
     units: string[],
 ): Block {
-    const anchors = [...context, ...ids.flatMap((id) => unitAnchors(units[id] ?? ''))].sort();
+    const anchors = [...context, ...ids.flatMap((id) => unitAnchors(units[id] ?? ''))].sort(
+        byCodePoint,
+    );
 
     return {units: ids, signature, structure, anchors, key: JSON.stringify([signature, anchors])};
 }
@@ -339,103 +350,134 @@ function runs(blocks: Block[]): Run[] {
  * with the target, which the seed dictionary does not need.
  */
 export function alignBlocks(source: Block[], target: Block[]): BlockPair[] {
-    const sourceRuns = runs(source);
-    const targetRuns = runs(target);
-    const matchedSource = new Int32Array(source.length).fill(-1);
-    const matchedTarget = new Int32Array(target.length).fill(-1);
-
-    const pair = (i: number, j: number) => {
-        matchedSource[i] = j;
-        matchedTarget[j] = i;
+    const matching: Matching = {
+        source,
+        target,
+        matchedSource: new Int32Array(source.length).fill(-1),
+        matchedTarget: new Int32Array(target.length).fill(-1),
     };
-    const free = (i: number, j: number) => matchedSource[i] < 0 && matchedTarget[j] < 0;
 
-    for (const [i, j] of lcs(
-        source.map((block) => block.key),
-        target.map((block) => block.key),
-    )) {
-        if (
-            !source[i].anchors.length &&
-            (sourceRuns[i].length !== targetRuns[j].length ||
-                sourceRuns[i].offset !== targetRuns[j].offset)
-        ) {
-            continue;
-        }
-        pair(i, j);
-    }
-
-    fillGaps();
-    recoverMoves();
+    matchByKeys(matching);
+    fillGaps(matching);
+    recoverMoves(matching);
 
     const pairs: BlockPair[] = [];
     for (let i = 0; i < source.length; i++) {
-        if (matchedSource[i] >= 0) {
-            pairs.push([i, matchedSource[i]]);
+        if (matching.matchedSource[i] >= 0) {
+            pairs.push([i, matching.matchedSource[i]]);
         }
     }
 
     return pairs;
+}
 
-    function fillGaps() {
-        let previousSource = -1;
-        let previousTarget = -1;
+type Matching = {
+    source: Block[];
+    target: Block[];
+    /** Target index per source block, -1 while unmatched. */
+    matchedSource: Int32Array;
+    /** Source index per target block, -1 while unmatched. */
+    matchedTarget: Int32Array;
+};
 
-        const gap = (nextSource: number, nextTarget: number) => {
-            const sources = range(previousSource + 1, nextSource);
-            const targets = range(previousTarget + 1, nextTarget);
-            if (
-                sources.length &&
-                sources.length === targets.length &&
-                sources.every((i, k) => source[i].structure === target[targets[k]].structure)
-            ) {
-                sources.forEach((i, k) => pair(i, targets[k]));
-            }
-        };
+function pair(matching: Matching, i: number, j: number) {
+    matching.matchedSource[i] = j;
+    matching.matchedTarget[j] = i;
+}
 
-        for (let i = 0; i < source.length; i++) {
-            if (matchedSource[i] < 0) {
-                continue;
-            }
-            gap(i, matchedSource[i]);
-            previousSource = i;
-            previousTarget = matchedSource[i];
+function isFree(matching: Matching, i: number, j: number): boolean {
+    return matching.matchedSource[i] < 0 && matching.matchedTarget[j] < 0;
+}
+
+/** Steps 1 and 2: LCS over keys, plain pairs filtered by the run rule. */
+function matchByKeys(matching: Matching) {
+    const {source, target} = matching;
+    const sourceRuns = runs(source);
+    const targetRuns = runs(target);
+    const keys = (blocks: Block[]) => blocks.map((block) => block.key);
+
+    for (const [i, j] of lcs(keys(source), keys(target))) {
+        if (!source[i].anchors.length && !sameRun(sourceRuns[i], targetRuns[j])) {
+            continue;
         }
-        gap(source.length, target.length);
+        pair(matching, i, j);
+    }
+}
+
+function sameRun(a: Run, b: Run): boolean {
+    return a.length === b.length && a.offset === b.offset;
+}
+
+/** Step 3: positional substitutions inside every gap between kept pairs. */
+function fillGaps(matching: Matching) {
+    let previousSource = -1;
+    let previousTarget = -1;
+
+    for (let i = 0; i < matching.source.length; i++) {
+        const j = matching.matchedSource[i];
+        if (j < 0) {
+            continue;
+        }
+        fillGap(matching, [previousSource, previousTarget], [i, j]);
+        previousSource = i;
+        previousTarget = j;
+    }
+    fillGap(
+        matching,
+        [previousSource, previousTarget],
+        [matching.source.length, matching.target.length],
+    );
+}
+
+function fillGap(matching: Matching, previous: BlockPair, next: BlockPair) {
+    const {source, target} = matching;
+    const sources = range(previous[0] + 1, next[0]);
+    const targets = range(previous[1] + 1, next[1]);
+
+    if (!sources.length || sources.length !== targets.length) {
+        return;
+    }
+    if (!sources.every((i, k) => source[i].structure === target[targets[k]].structure)) {
+        return;
     }
 
-    function recoverMoves() {
-        const bySourceKey = unmatchedByKey(source, matchedSource);
-        const byTargetKey = unmatchedByKey(target, matchedTarget);
-        const recovered: BlockPair[] = [];
+    sources.forEach((i, k) => pair(matching, i, targets[k]));
+}
 
-        for (const [key, sources] of bySourceKey) {
-            const targets = byTargetKey.get(key);
-            if (sources.length === 1 && targets?.length === 1) {
-                pair(sources[0], targets[0]);
-                recovered.push([sources[0], targets[0]]);
-            }
-        }
+/** Step 4: moved sections, found by unique anchored keys and extended run by run. */
+function recoverMoves(matching: Matching) {
+    const bySourceKey = unmatchedByKey(matching.source, matching.matchedSource);
+    const byTargetKey = unmatchedByKey(matching.target, matching.matchedTarget);
+    const recovered: BlockPair[] = [];
 
-        for (const [i, j] of recovered) {
-            extend(i, j, 1);
-            extend(i, j, -1);
+    for (const [key, sources] of bySourceKey) {
+        const targets = byTargetKey.get(key);
+        if (sources.length === 1 && targets?.length === 1) {
+            pair(matching, sources[0], targets[0]);
+            recovered.push([sources[0], targets[0]]);
         }
     }
 
-    function extend(from: number, to: number, direction: 1 | -1) {
-        let i = from + direction;
-        let j = to + direction;
+    for (const [i, j] of recovered) {
+        extend(matching, i, j, 1);
+        extend(matching, i, j, -1);
+    }
+}
 
-        while (i >= 0 && j >= 0 && i < source.length && j < target.length && free(i, j)) {
-            const sources = unmatchedRun(source, matchedSource, i, direction);
-            const targets = unmatchedRun(target, matchedTarget, j, direction);
-            if (source[i].structure !== target[j].structure || sources.length !== targets.length) {
-                return;
-            }
-            sources.forEach((s, k) => pair(s, targets[k]));
-            i = sources[sources.length - 1] + direction;
-            j = targets[targets.length - 1] + direction;
+function extend(matching: Matching, from: number, to: number, direction: 1 | -1) {
+    const {source, target, matchedSource, matchedTarget} = matching;
+    let i = from + direction;
+    let j = to + direction;
+
+    while (i >= 0 && j >= 0 && i < source.length && j < target.length && isFree(matching, i, j)) {
+        const sources = unmatchedRun(source, matchedSource, i, direction);
+        const targets = unmatchedRun(target, matchedTarget, j, direction);
+        if (source[i].structure !== target[j].structure || sources.length !== targets.length) {
+            return;
         }
+        sources.forEach((s, k) => pair(matching, s, targets[k]));
+        i = sources[sources.length - 1] + direction;
+        j = targets[targets.length - 1] + direction;
     }
 }
 

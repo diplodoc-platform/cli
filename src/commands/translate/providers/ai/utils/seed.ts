@@ -173,7 +173,7 @@ const DOUBTFUL_RATIO = 3;
 const DOUBTFUL_MIN_LENGTH = 40;
 const MIN_FOREIGN_WORD = 2;
 
-const TAGS = /<[^>]+>/g;
+const TAGS = /<[^<>]+>/g;
 const ENTITIES = /&#?\w+;/g;
 
 /**
