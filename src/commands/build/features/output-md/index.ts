@@ -11,7 +11,7 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getMetaHooks, getPublicMeta} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {all, get, isMediaLink, shortLink} from '~/core/utils';
+import {all, get, isMediaLink, resolveAbsoluteHref, shortLink} from '~/core/utils';
 
 import {addMetaFrontmatter, buildAlternateEntries, getCustomCollectPlugins} from './utils';
 import {MarkdownCollector} from './collect';
@@ -121,14 +121,23 @@ export class OutputMd {
                     if (meta.alternate) {
                         // Expected type missing, to be compatible with old formats
                         // @ts-ignore
-                        meta.alternate = meta.alternate.map(flow(get('href'), shortLink));
+                        meta.alternate = meta.alternate.map(
+                            flow(get('href'), shortLink, (href: string) =>
+                                resolveAbsoluteHref(href, run.config.baseHref),
+                            ),
+                        );
                     }
 
                     // Add companion and llms.txt alternate links to the frontmatter.
                     // buildAlternateEntries skips include files and handles toc resolution.
                     try {
                         const tocDir = dirname(run.toc.for(file).path) as NormalizedPath;
-                        const entries = buildAlternateEntries(file, tocDir, run.config.llms);
+                        const entries = buildAlternateEntries(
+                            file,
+                            tocDir,
+                            run.config.llms,
+                            run.config.baseHref,
+                        );
                         if (entries.length) {
                             meta.alternate = [...(meta.alternate || []), ...entries];
                         }
