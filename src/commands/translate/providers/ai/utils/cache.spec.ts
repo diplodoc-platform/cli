@@ -115,6 +115,131 @@ describe('translate ai cache', () => {
         });
     });
 
+    describe('SeedStore dictionary and memory', () => {
+        it('should keep the most common wording of a repeated text', () => {
+            const store = new SeedStore(join(tmpDir(), 'seed.ru-en.json'));
+
+            store.set('Привет', 'Hi');
+            store.set('Привет', 'Hello');
+            store.set('Привет', 'Hello');
+
+            expect(store.get('Привет')).toBe('Hello');
+        });
+
+        it('should keep the first wording on a tie', () => {
+            const store = new SeedStore(join(tmpDir(), 'seed.ru-en.json'));
+
+            store.set('Привет', 'Hi');
+            store.set('Привет', 'Hello');
+
+            expect(store.get('Привет')).toBe('Hi');
+        });
+
+        it('should persist the per-file sequence of pairs', () => {
+            const file = join(tmpDir(), 'seed.ru-en.json');
+
+            const first = new SeedStore(file);
+            first.record('ru/a.md', [
+                ['Привет', 'Hi'],
+                ['Пока', 'Bye'],
+                ['Привет', 'Hello'],
+            ]);
+            first.flush();
+
+            const second = new SeedStore(file);
+            second.load();
+
+            expect(second.memory('ru/a.md')?.map(([, translation]) => translation)).toEqual([
+                'Hi',
+                'Bye',
+                'Hello',
+            ]);
+            expect(second.memory('ru/other.md')).toBeUndefined();
+        });
+    });
+
+    describe('SeedStore doubtful pairs', () => {
+        it('should keep doubtful pairs in the file memory only', () => {
+            const store = new SeedStore(join(tmpDir(), 'seed.ru-en.json'));
+
+            store.record('ru/a.md', [
+                ['Привет', 'Hi'],
+                ['Пока', 'Bye', true],
+            ]);
+
+            expect(store.get('Привет')).toBe('Hi');
+            expect(store.get('Пока')).toBeUndefined();
+            expect(store.memory('ru/a.md')?.map(([, translation]) => translation)).toEqual([
+                'Hi',
+                'Bye',
+            ]);
+        });
+    });
+
+    describe('TranslationStore.resolve', () => {
+        function withMemory(file: string, pairs: [string, string][]) {
+            const dir = tmpDir();
+            const seeds = new SeedStore(join(dir, 'seed.ru-en.json'));
+            seeds.record(file, pairs);
+            const store = new TranslationStore(
+                join(dir, 'store.json'),
+                cacheFingerprint({}),
+                seeds,
+            );
+            return store;
+        }
+
+        it('should keep each wording of a repeated sentence in its place', () => {
+            const store = withMemory('ru/a.md', [
+                ['Привет', 'Hi'],
+                ['Пока', 'Bye'],
+                ['Привет', 'Hello'],
+            ]);
+
+            expect(store.resolve('ru/a.md', ['Привет', 'Пока', 'Привет'])).toEqual([
+                'Hi',
+                'Bye',
+                'Hello',
+            ]);
+        });
+
+        it('should skip inserted units and serve the rest from the sequence', () => {
+            const store = withMemory('ru/a.md', [
+                ['Привет', 'Hi'],
+                ['Пока', 'Bye'],
+                ['Привет', 'Hello'],
+            ]);
+
+            expect(store.resolve('ru/a.md', ['Новое', 'Привет', 'Пока', 'Ещё', 'Привет'])).toEqual([
+                undefined,
+                'Hi',
+                'Bye',
+                undefined,
+                'Hello',
+            ]);
+        });
+
+        it('should serve a moved unit from the unused entry of the same text', () => {
+            const store = withMemory('ru/a.md', [
+                ['Один', 'One'],
+                ['Два', 'Two'],
+                ['Три', 'Three'],
+            ]);
+
+            expect(store.resolve('ru/a.md', ['Три', 'Один', 'Два'])).toEqual([
+                'Three',
+                'One',
+                'Two',
+            ]);
+        });
+
+        it('should fall back to the dictionary for files without a memory', () => {
+            const store = withMemory('ru/a.md', [['Привет', 'Hi']]);
+
+            expect(store.resolve('ru/b.md', ['Привет', 'Пока'])).toEqual(['Hi', undefined]);
+        });
+    });
+
     describe('TranslationStore with seeds', () => {
         it('should fall back to seeds for units missing in translations', () => {
             const dir = tmpDir();

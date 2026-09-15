@@ -1,4 +1,4 @@
-import type {ExtractOptions} from '@diplodoc/translation';
+import type {ExtractOptions, JSONObject} from '@diplodoc/translation';
 
 import liquid from '@diplodoc/transform/lib/liquid';
 
@@ -18,7 +18,7 @@ export type LoadTranslationUnitsParams = {
 export type LoadedTranslationUnits = {
     content: FileLoader<string | object>;
     units: string[];
-    skeleton?: string;
+    skeleton?: string | JSONObject;
     schemas?: ExtractOptions['schemas'];
     ajvOptions?: ExtractOptions['ajvOptions'];
 };

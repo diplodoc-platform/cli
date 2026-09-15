@@ -1,6 +1,7 @@
 import type {BaseArgs} from '~/core/program';
 import type {Locale} from '../utils';
 import type {ConfigDefaults} from '../utils/config';
+import type {AlignedUnits} from '../providers/ai/utils';
 
 import {existsSync} from 'node:fs';
 import {join, relative, resolve} from 'node:path';
@@ -19,9 +20,8 @@ import {
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
 import {TranslateError, languageRepath, loadTranslationUnits} from '../utils';
-import {SeedStore, collectSeedPairs, seedFilePath} from '../providers/ai/utils';
+import {SeedStore, alignTranslationUnits, seedFilePath} from '../providers/ai/utils';
 import {options as aiOptions} from '../providers/ai/config';
-import {untranslatedMarker} from '../providers/ai/provider';
 import {Run} from '../run';
 import {configDefaults, resolveSource, resolveTargets, resolveVars} from '../utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
@@ -40,11 +40,26 @@ export type SeedParams = {
     cacheDir: AbsolutePath;
 };
 
+export type SeedPartial = {
+    file: string;
+    /** Source units without a counterpart in the translation. */
+    unseeded: number;
+    /** Source units in total. */
+    units: number;
+};
+
 export type SeedStats = {
+    /** Files that contributed at least one pair, partially seeded ones included. */
     seededFiles: number;
     seededUnits: number;
     skippedUnits: number;
     missingTargets: string[];
+    /** Files whose translation aligned with the source only in part. */
+    partial: SeedPartial[];
+    unseededUnits: number;
+    /** Pairs kept for their file only, out of the shared dictionary. */
+    doubtfulUnits: number;
+    /** Files whose translation did not align with the source at all. */
     mismatched: string[];
     /** Files whose source or target failed to load or extract. */
     failed: [string, string][];
@@ -54,9 +69,11 @@ export type SeedStats = {
  * Derives translation cache seeds from existing target files.
  *
  * For every source file whose translation exists, both sides are split
- * into units the same way the translate run does; positionally aligned
- * pairs become cache entries, so a following translate run reuses the
- * existing translations and only sends changed units to the LLM.
+ * into units the same way the translate run does and aligned block by
+ * block (see `alignTranslationUnits`); the aligned pairs become cache
+ * entries, so a following translate run reuses the existing translations
+ * and only sends changed units to the LLM. A block whose translation
+ * diverged is left out on its own; the rest of the file is still seeded.
  */
 export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
     const {input, files, sourceLanguage, targetLanguage, vars, cacheDir} = params;
@@ -68,7 +85,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         sourceLanguage,
         targetLanguage,
     });
-    const marker = untranslatedMarker(sourceLanguage, targetLanguage);
+    const languages = {source: sourceLanguage, target: targetLanguage};
     const seeds = new SeedStore(seedFilePath(cacheDir, sourceLanguage, targetLanguage));
 
     const stats: SeedStats = {
@@ -76,9 +93,14 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         seededUnits: 0,
         skippedUnits: 0,
         missingTargets: [],
+        partial: [],
+        unseededUnits: 0,
+        doubtfulUnits: 0,
         mismatched: [],
         failed: [],
     };
+
+    const aligned = new Map<string, AlignedUnits & {units: number}>();
 
     await eachLimit(
         files,
@@ -93,22 +115,57 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             }
 
             try {
-                await seedFile(file, inputPath, targetPath);
+                const result = await alignFile(file, inputPath, targetPath);
+                if (result) {
+                    aligned.set(file, result);
+                }
             } catch (error) {
                 // One broken file (unparseable target markup, bad
                 // frontmatter, ...) must not kill the whole seeding run:
                 // the file is reported and falls back to a full
-                // retranslation, exactly like a unit-count mismatch.
+                // retranslation, exactly like a translation that does not
+                // align.
                 stats.failed.push([file, String(error)]);
             }
         }),
     );
 
+    // Files are recorded in their given order, not in completion order:
+    // the dictionary breaks ties between wordings by the first recorded
+    // one, and a seed must not change between two runs on the same input.
+    for (const file of files) {
+        const result = aligned.get(file);
+        if (!result) {
+            continue;
+        }
+
+        if (!result.pairs.length && result.unseeded) {
+            stats.mismatched.push(file);
+            continue;
+        }
+
+        seeds.record(file, result.pairs);
+
+        stats.seededFiles++;
+        stats.seededUnits += result.pairs.length;
+        stats.skippedUnits += result.skipped;
+        stats.doubtfulUnits += result.doubtful;
+
+        if (result.unseeded) {
+            stats.partial.push({file, unseeded: result.unseeded, units: result.units});
+            stats.unseededUnits += result.unseeded;
+        }
+    }
+
     seeds.flush();
 
     return stats;
 
-    async function seedFile(file: string, inputPath: AbsolutePath, targetPath: AbsolutePath) {
+    async function alignFile(
+        file: string,
+        inputPath: AbsolutePath,
+        targetPath: AbsolutePath,
+    ): Promise<(AlignedUnits & {units: number}) | undefined> {
         const source = await loadTranslationUnits({
             inputPath,
             path: file,
@@ -118,7 +175,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         });
 
         if (!source.units.length) {
-            return;
+            return undefined;
         }
 
         const target = await loadTranslationUnits({
@@ -129,20 +186,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             vars,
         });
 
-        const result = collectSeedPairs(source.units, target.units, marker);
-
-        if (result.status === 'mismatch') {
-            stats.mismatched.push(file);
-            return;
-        }
-
-        for (const [sourceUnit, targetUnit] of result.pairs) {
-            seeds.set(sourceUnit, targetUnit);
-        }
-
-        stats.seededFiles++;
-        stats.seededUnits += result.pairs.length;
-        stats.skippedUnits += result.skipped;
+        return {...alignTranslationUnits(source, target, languages), units: source.units.length};
     }
 }
 
@@ -258,10 +302,17 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 cacheDir,
             });
 
+            for (const {file, unseeded, units} of stats.partial) {
+                this.logger.warn(
+                    file,
+                    `Existing translation diverges in ${unseeded} of ${units} units; they were not seeded.`,
+                );
+            }
+
             for (const file of stats.mismatched) {
                 this.logger.warn(
                     file,
-                    'Unit counts diverge between source and translation; the file was not seeded.',
+                    'Existing translation does not align with the source; the file was not seeded.',
                 );
             }
 
@@ -275,7 +326,10 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                     `skipped-units: ${stats.skippedUnits} ` +
                     `missing-targets: ${stats.missingTargets.length} ` +
                     `mismatched: ${stats.mismatched.length} ` +
-                    `failed: ${stats.failed.length}`,
+                    `failed: ${stats.failed.length} ` +
+                    `partial-files: ${stats.partial.length} ` +
+                    `unseeded-units: ${stats.unseededUnits} ` +
+                    `doubtful-units: ${stats.doubtfulUnits}`,
             );
         }
     }

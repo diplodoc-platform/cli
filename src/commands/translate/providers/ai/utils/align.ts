@@ -1,0 +1,481 @@
+import type {JSONObject} from '@diplodoc/translation';
+
+/**
+ * A structural element of a document that carries translation units: one
+ * line of a markdown skeleton (a paragraph, a list item, a table row, a
+ * heading) or one string property of a yaml skeleton.
+ */
+export type Block = {
+    /** Indexes of the units carried by the block, in document order. */
+    units: number[];
+    /** The line with placeholders and inline markup normalized. */
+    signature: string;
+    /** The signature with runs of placeholders collapsed: the block role regardless of unit count. */
+    structure: string;
+    /** Language-independent tokens of the block units and their surroundings. */
+    anchors: string[];
+    /** Signature plus anchors: equal keys mean the same element with the same content. */
+    key: string;
+};
+
+/** Source block index paired with a target block index. */
+export type BlockPair = [number, number];
+
+const PLACEHOLDER = /%%%(\d+)%%%/g;
+const HAS_PLACEHOLDER = /%%%\d+%%%/;
+const INLINE_MARKUP = /[*_`~^]/g;
+const LEADING_INDENT = /^[ \t]*/;
+const BULLET = /^[*+] /;
+const ORDERED = /^\d+[.)] /;
+const PLACEHOLDER_RUN = /%%%(?: %%%)+/g;
+
+const SOURCE_WRAPPER = /^\s*<source(?:\s[^>]*)?>([\s\S]*)<\/source>\s*$/;
+const TAG = /<[^>]+>/g;
+const ENTITY = /&#?\w+;/g;
+const LINK_DESTINATION = /\]\(([^)\s"]+)\)/g;
+const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
+const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
+const NUMBER = /\d+(?:\.\d+)*/g;
+
+/**
+ * Language-independent tokens of a unit: link destinations, inline code and
+ * numbers. Two translations of one sentence carry the same tokens, two
+ * different sentences rarely do, so the tokens both pin blocks during
+ * alignment and reject wrong pairs.
+ *
+ * Numbers are read from the tag-stripped text only: placeholder ids and
+ * entities inside tags are transport noise. Dotted numbers stay whole
+ * (versions), other separators split, so a range or a date compares the
+ * same whatever dash or slash the translation uses. Inline code is read
+ * between the `code_open`/`code_close` placeholders; a marker hoisted into
+ * the skeleton leaves an unpaired placeholder, and the span then runs to
+ * the unit edge.
+ */
+export function unitAnchors(unit: string): string[] {
+    const text = unwrap(unit);
+    const plain = text.replace(TAG, ' ').replace(ENTITY, ' ');
+    const anchors: string[] = [];
+
+    const urls = new Set<string>();
+    for (const [, url] of text.matchAll(LINK_DESTINATION)) {
+        urls.add(url);
+    }
+    for (const [url] of plain.matchAll(BARE_URL)) {
+        urls.add(url);
+    }
+    for (const url of urls) {
+        anchors.push('url:' + url);
+    }
+
+    for (const code of codeSpans(text)) {
+        anchors.push('code:' + code);
+    }
+
+    for (const [number] of plain.matchAll(NUMBER)) {
+        anchors.push('num:' + number);
+    }
+
+    return anchors.sort();
+}
+
+/** The unit text without its XLIFF `<source>` wrapper. */
+export function unwrap(unit: string): string {
+    return unit.replace(SOURCE_WRAPPER, '$1');
+}
+
+function codeSpans(text: string): string[] {
+    const spans: string[] = [];
+    let open: number | null = null;
+
+    for (const match of text.matchAll(CODE_MARKER)) {
+        const index = match.index as number;
+        if (match[1] === 'open') {
+            open = index + match[0].length;
+        } else {
+            // A close without an open: the span started before the unit.
+            spans.push(text.slice(open ?? 0, index));
+            open = null;
+        }
+    }
+
+    if (open !== null) {
+        // An open without a close: the span runs to the end of the unit.
+        spans.push(text.slice(open));
+    }
+
+    return spans.map((span) => span.replace(TAG, '').trim()).filter(Boolean);
+}
+
+/**
+ * Splits an extract skeleton into blocks.
+ *
+ * Markdown: every line carrying a placeholder is a block. Lines without
+ * placeholders (blank lines, fences, `{% endcut %}`) are the structure between
+ * blocks. Yaml: every string property carrying a placeholder is a block,
+ * identified by its property path with array indexes dropped.
+ *
+ * Units that no skeleton line carries (there should be none) are appended as
+ * blocks of their own, so that every unit belongs to exactly one block.
+ */
+export function parseBlocks(skeleton: string | JSONObject | undefined, units: string[]): Block[] {
+    let blocks: Block[] = [];
+    if (typeof skeleton === 'string') {
+        blocks = markdownBlocks(skeleton, units);
+    } else if (skeleton) {
+        blocks = objectBlocks(skeleton, units);
+    }
+
+    const seen = new Set(blocks.flatMap((block) => block.units));
+    for (let index = 0; index < units.length; index++) {
+        if (!seen.has(index)) {
+            blocks.push(makeBlock([index], '', '', [], units));
+        }
+    }
+
+    return blocks;
+}
+
+function makeBlock(
+    ids: number[],
+    signature: string,
+    structure: string,
+    context: string[],
+    units: string[],
+): Block {
+    const anchors = [...context, ...ids.flatMap((id) => unitAnchors(units[id] ?? ''))].sort();
+
+    return {units: ids, signature, structure, anchors, key: JSON.stringify([signature, anchors])};
+}
+
+/**
+ * The signature keeps what tells blocks apart structurally: indentation,
+ * list markers, container syntax, link destinations. Inline markup is
+ * dropped because the translation may hoist emphasis and code markers into
+ * the skeleton differently, and list marker flavours are unified.
+ */
+function markdownBlocks(skeleton: string, units: string[]): Block[] {
+    const blocks: Block[] = [];
+
+    for (const line of skeleton.split('\n')) {
+        const ids = Array.from(line.matchAll(PLACEHOLDER), (match) => Number(match[1]));
+        if (!ids.length) {
+            continue;
+        }
+
+        const raw = (LEADING_INDENT.exec(line) as RegExpExecArray)[0];
+        const indent = raw.replace(/\t/g, '    ');
+        const body = line
+            .slice(raw.length)
+            .replace(BULLET, '- ')
+            .replace(ORDERED, '1. ')
+            .replace(PLACEHOLDER, '%%%')
+            .replace(INLINE_MARKUP, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        const signature = indent + body;
+        const structure = indent + body.replace(PLACEHOLDER_RUN, '%%%');
+
+        blocks.push(makeBlock(ids, signature, structure, [], units));
+    }
+
+    return blocks;
+}
+
+/**
+ * Scalar siblings of a translated property (`href`, `id`, flags) identify
+ * the object it belongs to: in a toc the `href` tells entries apart, the
+ * `name` is what gets translated.
+ */
+function objectBlocks(skeleton: JSONObject, units: string[]): Block[] {
+    const blocks: Block[] = [];
+
+    visit(skeleton, '', []);
+
+    return blocks.sort((a, b) => a.units[0] - b.units[0]);
+
+    function visit(node: unknown, path: string, context: string[]) {
+        if (typeof node === 'string') {
+            const ids = Array.from(node.matchAll(PLACEHOLDER), (match) => Number(match[1]));
+            if (ids.length) {
+                blocks.push(makeBlock(ids, path, path, context, units));
+            }
+            return;
+        }
+
+        if (Array.isArray(node)) {
+            for (const item of node) {
+                visit(item, path + '[]', context);
+            }
+            return;
+        }
+
+        if (!node || typeof node !== 'object') {
+            return;
+        }
+
+        const entries = Object.entries(node as Record<string, unknown>);
+        const scalars = entries
+            .filter(([, value]) => isPlainScalar(value))
+            .map(([name, value]) => `ctx:${name}=${String(value)}`);
+
+        for (const [name, value] of entries) {
+            visit(value, path ? `${path}.${name}` : name, scalars);
+        }
+    }
+}
+
+function isPlainScalar(value: unknown): boolean {
+    return (
+        (typeof value === 'string' && !HAS_PLACEHOLDER.test(value)) ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+    );
+}
+
+// Beyond this many DP cells the quadratic table is not worth its memory;
+// the alignment then relies on the common prefix and suffix plus recovery.
+const LCS_CELL_LIMIT = 16_000_000;
+
+/**
+ * Longest common subsequence of two item lists as index pairs, in order.
+ * The common prefix and suffix are paired outright, the middle goes through
+ * the quadratic table. Ties are resolved by skipping source items first.
+ */
+export function lcs(source: string[], target: string[]): [number, number][] {
+    const pairs: [number, number][] = [];
+
+    let start = 0;
+    while (start < source.length && start < target.length && source[start] === target[start]) {
+        pairs.push([start, start]);
+        start++;
+    }
+
+    let endSource = source.length;
+    let endTarget = target.length;
+    while (
+        endSource > start &&
+        endTarget > start &&
+        source[endSource - 1] === target[endTarget - 1]
+    ) {
+        endSource--;
+        endTarget--;
+    }
+
+    const n = endSource - start;
+    const m = endTarget - start;
+
+    if (n && m && n * m <= LCS_CELL_LIMIT) {
+        const width = m + 1;
+        const table = new Uint32Array((n + 1) * width);
+
+        for (let i = n - 1; i >= 0; i--) {
+            for (let j = m - 1; j >= 0; j--) {
+                table[i * width + j] =
+                    source[start + i] === target[start + j]
+                        ? table[(i + 1) * width + j + 1] + 1
+                        : Math.max(table[(i + 1) * width + j], table[i * width + j + 1]);
+            }
+        }
+
+        let i = 0;
+        let j = 0;
+        while (i < n && j < m) {
+            if (source[start + i] === target[start + j]) {
+                pairs.push([start + i, start + j]);
+                i++;
+                j++;
+            } else if (table[(i + 1) * width + j] >= table[i * width + j + 1]) {
+                i++;
+            } else {
+                j++;
+            }
+        }
+    }
+
+    for (let k = 0; k < source.length - endSource; k++) {
+        pairs.push([endSource + k, endTarget + k]);
+    }
+
+    return pairs;
+}
+
+type Run = {length: number; offset: number};
+
+/** Maximal groups of consecutive blocks sharing a structure: a list, a group of paragraphs. */
+function runs(blocks: Block[]): Run[] {
+    const result: Run[] = [];
+    let begin = 0;
+
+    for (let index = 0; index <= blocks.length; index++) {
+        if (index < blocks.length && blocks[index].structure === blocks[begin].structure) {
+            continue;
+        }
+        for (let k = begin; k < index; k++) {
+            result.push({length: index - begin, offset: k - begin});
+        }
+        begin = index;
+    }
+
+    return result;
+}
+
+/**
+ * Pairs the blocks of a source document with the blocks of its translation.
+ *
+ * 1. Longest common subsequence over block keys: anchored blocks pin the
+ *    alignment, plain blocks are matched in order between the pins.
+ * 2. A pair of plain blocks is kept only when the runs containing them have
+ *    the same length and the blocks sit at the same offset. Otherwise the
+ *    LCS had a free choice inside the run (an item was inserted or removed)
+ *    and the pair is a guess.
+ * 3. In every gap between kept pairs, unmatched blocks with equal structure
+ *    sequences are paired positionally: their keys differ in unit count or
+ *    anchors, which the unit pairing checks on its own.
+ * 4. Anchored blocks with a key unique on both sides are paired wherever
+ *    they are (a moved section), and the pairing is extended through the
+ *    unmatched neighbours run by run while the structure agrees.
+ *
+ * Pairs are returned in source order; pairs from step 4 break monotonicity
+ * with the target, which the seed dictionary does not need.
+ */
+export function alignBlocks(source: Block[], target: Block[]): BlockPair[] {
+    const sourceRuns = runs(source);
+    const targetRuns = runs(target);
+    const matchedSource = new Int32Array(source.length).fill(-1);
+    const matchedTarget = new Int32Array(target.length).fill(-1);
+
+    const pair = (i: number, j: number) => {
+        matchedSource[i] = j;
+        matchedTarget[j] = i;
+    };
+    const free = (i: number, j: number) => matchedSource[i] < 0 && matchedTarget[j] < 0;
+
+    for (const [i, j] of lcs(
+        source.map((block) => block.key),
+        target.map((block) => block.key),
+    )) {
+        if (
+            !source[i].anchors.length &&
+            (sourceRuns[i].length !== targetRuns[j].length ||
+                sourceRuns[i].offset !== targetRuns[j].offset)
+        ) {
+            continue;
+        }
+        pair(i, j);
+    }
+
+    fillGaps();
+    recoverMoves();
+
+    const pairs: BlockPair[] = [];
+    for (let i = 0; i < source.length; i++) {
+        if (matchedSource[i] >= 0) {
+            pairs.push([i, matchedSource[i]]);
+        }
+    }
+
+    return pairs;
+
+    function fillGaps() {
+        let previousSource = -1;
+        let previousTarget = -1;
+
+        const gap = (nextSource: number, nextTarget: number) => {
+            const sources = range(previousSource + 1, nextSource);
+            const targets = range(previousTarget + 1, nextTarget);
+            if (
+                sources.length &&
+                sources.length === targets.length &&
+                sources.every((i, k) => source[i].structure === target[targets[k]].structure)
+            ) {
+                sources.forEach((i, k) => pair(i, targets[k]));
+            }
+        };
+
+        for (let i = 0; i < source.length; i++) {
+            if (matchedSource[i] < 0) {
+                continue;
+            }
+            gap(i, matchedSource[i]);
+            previousSource = i;
+            previousTarget = matchedSource[i];
+        }
+        gap(source.length, target.length);
+    }
+
+    function recoverMoves() {
+        const bySourceKey = unmatchedByKey(source, matchedSource);
+        const byTargetKey = unmatchedByKey(target, matchedTarget);
+        const recovered: BlockPair[] = [];
+
+        for (const [key, sources] of bySourceKey) {
+            const targets = byTargetKey.get(key);
+            if (sources.length === 1 && targets?.length === 1) {
+                pair(sources[0], targets[0]);
+                recovered.push([sources[0], targets[0]]);
+            }
+        }
+
+        for (const [i, j] of recovered) {
+            extend(i, j, 1);
+            extend(i, j, -1);
+        }
+    }
+
+    function extend(from: number, to: number, direction: 1 | -1) {
+        let i = from + direction;
+        let j = to + direction;
+
+        while (i >= 0 && j >= 0 && i < source.length && j < target.length && free(i, j)) {
+            const sources = unmatchedRun(source, matchedSource, i, direction);
+            const targets = unmatchedRun(target, matchedTarget, j, direction);
+            if (source[i].structure !== target[j].structure || sources.length !== targets.length) {
+                return;
+            }
+            sources.forEach((s, k) => pair(s, targets[k]));
+            i = sources[sources.length - 1] + direction;
+            j = targets[targets.length - 1] + direction;
+        }
+    }
+}
+
+function range(from: number, to: number): number[] {
+    const result: number[] = [];
+    for (let index = from; index < to; index++) {
+        result.push(index);
+    }
+    return result;
+}
+
+function unmatchedByKey(blocks: Block[], matched: Int32Array): Map<string, number[]> {
+    const result = new Map<string, number[]>();
+    blocks.forEach((block, index) => {
+        if (matched[index] < 0 && block.anchors.length) {
+            const list = result.get(block.key) || [];
+            list.push(index);
+            result.set(block.key, list);
+        }
+    });
+    return result;
+}
+
+/** Unmatched blocks from `start` in `direction` sharing the structure of the first one. */
+function unmatchedRun(
+    blocks: Block[],
+    matched: Int32Array,
+    start: number,
+    direction: 1 | -1,
+): number[] {
+    const result: number[] = [];
+    for (
+        let index = start;
+        index >= 0 && index < blocks.length && matched[index] < 0;
+        index += direction
+    ) {
+        if (blocks[index].structure !== blocks[start].structure) {
+            break;
+        }
+        result.push(index);
+    }
+    return result;
+}
