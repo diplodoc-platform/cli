@@ -136,7 +136,8 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
 
         await this.run.prepareRun();
 
-        const [files, skipped] = await this.run.getFiles();
+        // Extract loads tocs through `getFileContent`, which inlines includes.
+        const [files, skipped] = await this.run.getFiles({inlinedTocs: true});
         const exit = process.exit;
 
         for (const target of targets) {

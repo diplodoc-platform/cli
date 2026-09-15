@@ -3,6 +3,7 @@ import type {TranslateRunArgs} from '../fixtures';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {glob} from 'glob';
+import strip from 'strip-ansi';
 import {describe, expect, test} from 'vitest';
 
 import {TestAdapter, cleanupDirectory, compareDirectories, getTestPaths} from '../fixtures';
@@ -259,6 +260,57 @@ describe('Translate command', () => {
         const rootXliff = readFileSync(join(outputPath, 'toc.yaml.xliff'), 'utf8');
         expect(rootXliff).toContain('API v6');
         expect(rootXliff).toContain('Общее');
+    });
+
+    test('translate keeps link-included tocs as standalone files', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/translation/toc-include-link');
+
+        await cleanupDirectory(outputPath);
+
+        // Unlike `extract`, `translate` reads every file as it is on disk: the
+        // parent toc keeps its `include` entry, so the included toc needs a
+        // translation of its own. A dry run lists the files without calling
+        // the provider.
+        const report = await TestAdapter.runner.runRaw([
+            'translate',
+            '--input',
+            inputPath,
+            '--output',
+            outputPath,
+            '--source',
+            'ru-RU',
+            '--target',
+            'es-ES',
+            '--provider',
+            'openai',
+            '--model',
+            'test',
+            '--api-base',
+            'http://127.0.0.1:9/v1',
+            '--auth',
+            'dummy',
+            '--dry-run',
+        ]);
+
+        expect(report.errors).toEqual([]);
+        expect(report.code).toBe(0);
+
+        const log = report.stdout + '\n' + report.stderr;
+        const translated = log
+            .split('\n')
+            .map((line) => strip(line).trim())
+            .filter((line) => line.startsWith('TRANSLATE '))
+            .map((line) => line.slice('TRANSLATE '.length).trim().replace(/\\/g, '/'))
+            .sort();
+
+        expect(translated).toEqual([
+            'api/common/thing.md',
+            'api/common/toc.yaml',
+            'api/index.md',
+            'api/toc.yaml',
+            'index.md',
+            'toc.yaml',
+        ]);
     });
 
     test('do not extract included tocs from sections without root articles', async () => {
