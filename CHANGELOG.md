@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.58.0](https://github.com/diplodoc-platform/cli/compare/v5.57.4...v5.58.0) (2026-09-15)
+
+
+### Features
+
+* added summary field in meta ([#2261](https://github.com/diplodoc-platform/cli/issues/2261)) ([1c4d1c4](https://github.com/diplodoc-platform/cli/commit/1c4d1c4288192d24a6cee748abb709e8693d89f7))
+* **translate:** allow the fallback model on its own endpoint ([#2255](https://github.com/diplodoc-platform/cli/issues/2255)) ([6e1a8a6](https://github.com/diplodoc-platform/cli/commit/6e1a8a6e553ab1f4d8079bea1e7090b68c02dc06))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/ajv@0.5.0 ([#2262](https://github.com/diplodoc-platform/cli/issues/2262)) ([7b1e454](https://github.com/diplodoc-platform/cli/commit/7b1e4540ea7873f122502ca430d0211215bd53b1))
+* **deps:** Update @diplodoc/client@5.12.2 ([#2253](https://github.com/diplodoc-platform/cli/issues/2253)) ([570a3eb](https://github.com/diplodoc-platform/cli/commit/570a3ebb19563dde93cf183c67d2ebe9eef0f60e))
+* **deps:** Update @diplodoc/client@5.13.0, dev:@diplodoc/page-constructor-extension@0.13.16 ([452bfb5](https://github.com/diplodoc-platform/cli/commit/452bfb53261db285a908a5e78540ed1d2cd5e8a5))
+* **deps:** Update dev:@diplodoc/search-extension@3.1.2 ([#2251](https://github.com/diplodoc-platform/cli/issues/2251)) ([d5b86df](https://github.com/diplodoc-platform/cli/commit/d5b86dff70d1db9ad61adb5433eb1acce4194fe6))
+* **translate:** recover from models which reject temperature ([#2257](https://github.com/diplodoc-platform/cli/issues/2257)) ([2e81018](https://github.com/diplodoc-platform/cli/commit/2e81018f35dfb5ca4feb056622d0607c788826b8))
+* **translate:** strip emphasis the model adds around fragments ([#2254](https://github.com/diplodoc-platform/cli/issues/2254)) ([56ff3ee](https://github.com/diplodoc-platform/cli/commit/56ff3ee2dd24345c03a20d0b5dc64181f8c2c792))
+
 ## [5.57.4](https://github.com/diplodoc-platform/cli/compare/v5.57.3...v5.57.4) (2026-09-09)
 
 
