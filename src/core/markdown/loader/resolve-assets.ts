@@ -92,7 +92,10 @@ export function resolveAssets(this: LoaderContext, content: string) {
             }
 
             let size = 0;
-            if (['def', 'image'].includes(info.type) && info.subtype === 'image') {
+            if (
+                ['def', 'image'].includes(info.type) &&
+                (info.subtype === 'image' || info.subtype === 'gallery')
+            ) {
                 size = getSize(info.path, this, assetSizes);
             }
 

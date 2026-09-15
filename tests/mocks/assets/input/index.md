@@ -2,6 +2,8 @@
 
 ![](_images/versions.png)
 
+![](_images/versions.png){gallery-src=_images/camera.svg}
+
 ::: page-constructor
 blocks:
   - type: 'basic-card'

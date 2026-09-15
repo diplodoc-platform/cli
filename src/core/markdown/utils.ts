@@ -9,6 +9,10 @@ type AssetModifier = '!' | '@' | '';
 
 const modifiers = {'!': 'image', '@': 'video', '': 'link'} as const;
 
+const ATTR_TO_OPTION: Record<string, keyof ImageOptions> = {
+    'gallery-src': 'gallerySrc',
+};
+
 export function findLink(content: string): string | undefined {
     const rx = /]\(\s*/g;
     const match = rx.exec(content);
@@ -257,7 +261,44 @@ export function findLinksInfo(content: string): AssetInfo[] {
         };
     });
 
-    return [...links, ...referenceLinks];
+    const images = [...links, ...referenceLinks];
+
+    return [...images, ...findGalleryImages(images)];
+}
+
+/**
+ * An image may point to a heavier version of itself with the `gallery-src` option
+ * (`![](small.png){gallery-src=big.png}`). That version is never rendered inline,
+ * so it has to be registered as an asset on its own - otherwise md output copies
+ * only `small.png` and the gallery opens a missing file.
+ */
+function findGalleryImages(images: AssetInfo[]): AssetInfo[] {
+    const gallery: AssetInfo[] = [];
+
+    for (const image of images) {
+        const gallerySrc = image.options?.gallerySrc;
+
+        if (image.type !== 'image' || !gallerySrc) {
+            continue;
+        }
+
+        const parsed = parseLocalUrl(gallerySrc);
+
+        if (!parsed) {
+            continue;
+        }
+
+        gallery.push({
+            ...parsed,
+            type: 'image',
+            subtype: 'gallery',
+            title: image.title,
+            autotitle: false,
+            location: image.location,
+        });
+    }
+
+    return gallery;
 }
 
 export function findDefs(content: string): AssetInfo[] {
@@ -455,12 +496,12 @@ function parseLinkOptions(str: string, start: number): ImageOptions {
         return options;
     }
 
-    const attrRegex = /(\w+)=(?:'([^']*)'|"([^"]*)"|(\S+))/g;
+    const attrRegex = /([\w-]+)=(?:'([^']*)'|"([^"]*)"|(\S+))/g;
     const optionsString = str.slice(startOption, pos);
     let match;
 
     while ((match = attrRegex.exec(optionsString)) !== null) {
-        const key = match[1] as keyof ImageOptions;
+        const key = (ATTR_TO_OPTION[match[1]] || match[1]) as keyof ImageOptions;
         const value = match[2] || match[3] || match[4];
 
         if (key === 'inline') {

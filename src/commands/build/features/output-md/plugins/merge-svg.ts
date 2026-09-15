@@ -44,6 +44,12 @@ function isDef(asset: AssetInfo) {
     return asset.type === 'def' && asset.path?.endsWith('.svg');
 }
 function isImage(asset: AssetInfo) {
+    // A `gallery-src` asset shares its location with the image it belongs to,
+    // so inlining it would replace the rendered image with the gallery version.
+    if (asset.subtype === 'gallery') {
+        return false;
+    }
+
     return asset.type === 'image' && (asset.path.endsWith('.svg') || asset.subtype === 'reference');
 }
 
