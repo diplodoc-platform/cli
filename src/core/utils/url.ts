@@ -7,6 +7,22 @@ export function isExternalHref(href: string) {
     return /^(\w{1,10}:)?\/\//.test(href) || /^([+\w]{1,10}:)/.test(href);
 }
 
+function normalizeBasePath(basePath: string): string {
+    const normalized = basePath.replace(/\\/g, '/');
+    let start = 0;
+    let end = normalized.length;
+
+    while (start < end && normalized[start] === '/') {
+        start++;
+    }
+
+    while (end > start && normalized[end - 1] === '/') {
+        end--;
+    }
+
+    return normalized.slice(start, end);
+}
+
 /**
  * Resolves a documentation-local href against the configured publication root.
  *
@@ -31,7 +47,7 @@ export function resolveAbsoluteHref(href: string, baseHref?: string, basePath = 
     }
 
     try {
-        const normalizedBasePath = basePath.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+        const normalizedBasePath = normalizeBasePath(basePath);
         const pathBase =
             href.startsWith('/') || !normalizedBasePath
                 ? baseHref

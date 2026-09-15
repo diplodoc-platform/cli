@@ -16,6 +16,9 @@ describe('url utils', () => {
             expect(resolveAbsoluteHref('../assets/icon.svg', baseHref, 'en/guides')).toBe(
                 'https://example.com/docs/en/assets/icon.svg',
             );
+            expect(resolveAbsoluteHref('page.html', baseHref, '///en\\guides///')).toBe(
+                'https://example.com/docs/en/guides/page.html',
+            );
         });
 
         it('preserves external, anchor-only, and unresolved hrefs', () => {
