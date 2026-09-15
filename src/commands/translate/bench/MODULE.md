@@ -47,8 +47,13 @@ whole orchestrator with `runEval`, `captureUnits` and `fetch` stubbed.
 - **A page is comparable only when all three unit lists have the same
   length.** Divergence means the model merged or dropped something, so
   segment pairing would silently compare unrelated texts. Such pages are
-  excluded and counted as structural mismatches, which is itself a
-  quality signal.
+  dropped from the comparison.
+- **Structural mismatches are counted per run, against the source, not
+  as a by-product of the comparison.** They are recorded where a run is
+  created, so every model gets the number - including the baseline,
+  which is never compared against anything. A metric that is computed
+  only on some rows renders as 0 on the others and reads as a perfect
+  score.
 - **Identical pairs never reach the judge.** On close models most units
   come out the same; judging them would burn the budget on foregone
   conclusions.

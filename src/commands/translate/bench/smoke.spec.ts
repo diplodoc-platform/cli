@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
-const state = vi.hoisted(() => ({outputCaptures: 0}));
+const state = vi.hoisted(() => ({outputCaptures: 0, mergeBaseline: false}));
 
 /**
  * The translate runs and the unit capture are the only parts that need
@@ -60,9 +60,14 @@ vi.mock('../eval/run', async () => {
 
             state.outputCaptures++;
 
-            return state.outputCaptures === 1
-                ? new Map([['en/about.md', ['Build the docs', 'Run it']]])
-                : new Map([['en/about.md', ['Assemble the documentation', 'Run it']]]);
+            if (state.outputCaptures === 1) {
+                // The baseline is captured first.
+                return state.mergeBaseline
+                    ? new Map([['en/about.md', ['Build the docs and run it']]])
+                    : new Map([['en/about.md', ['Build the docs', 'Run it']]]);
+            }
+
+            return new Map([['en/about.md', ['Assemble the documentation', 'Run it']]]);
         }),
     };
 });
@@ -102,6 +107,7 @@ function setup(): string {
 
 afterEach(() => {
     state.outputCaptures = 0;
+    state.mergeBaseline = false;
     vi.unstubAllEnvs();
     vi.restoreAllMocks();
 });
@@ -159,6 +165,43 @@ describe('bench main', () => {
 
         expect(html).toContain('better term');
         expect(html).toContain('Assemble the documentation');
+    });
+
+    it('should measure structural mismatches of the baseline too', async () => {
+        const {main} = await import('./cli');
+        const root = setup();
+
+        // The baseline merges the two source units into one: its own
+        // struct column must show that, not a default zero.
+        state.mergeBaseline = true;
+
+        vi.spyOn(console, 'log').mockImplementation(() => undefined);
+        vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+        const fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock);
+
+        const code = await main([
+            '--candidates',
+            join(root, 'candidates.yaml'),
+            '--corpus',
+            join(root, 'corpus'),
+            '--cli',
+            join(root, 'index.js'),
+            '--workdir',
+            root,
+            '--no-judge',
+        ]);
+
+        expect(code).toBe(0);
+
+        const report = JSON.parse(readFileSync(join(root, 'bench-report.json'), 'utf8'));
+        const byName = (name: string) =>
+            report.candidates.find((candidate: {name: string}) => candidate.name === name);
+
+        expect(byName('current').metrics.structuralMismatches.mean).toBe(1);
+        expect(byName('glm').metrics.structuralMismatches.mean).toBe(0);
+        // The only page is not comparable, so nothing reaches the judge.
+        expect(fetchMock).not.toHaveBeenCalled();
     });
 
     it('should print the plan and spend nothing in dry-run mode', async () => {

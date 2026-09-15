@@ -1,8 +1,37 @@
 import {describe, expect, it} from 'vitest';
 
-import {alignUnits} from './align';
+import {alignUnits, countUnitMismatches} from './align';
 
 const stripLang = (file: string) => file.split(/[\\/]/).slice(1).join('/');
+
+describe('countUnitMismatches', () => {
+    const source = new Map([
+        ['ru/about.md', ['Привет', 'Мир']],
+        ['ru/index.md', ['Заголовок']],
+    ]);
+
+    it('should count no mismatches when every page keeps its unit count', () => {
+        const units = new Map([
+            ['en/about.md', ['Hello', 'World']],
+            ['en/index.md', ['Title']],
+        ]);
+
+        expect(countUnitMismatches(source, units, stripLang)).toBe(0);
+    });
+
+    it('should count a page whose units were merged', () => {
+        const units = new Map([
+            ['en/about.md', ['Hello World']],
+            ['en/index.md', ['Title']],
+        ]);
+
+        expect(countUnitMismatches(source, units, stripLang)).toBe(1);
+    });
+
+    it('should count a page the output does not have at all', () => {
+        expect(countUnitMismatches(source, new Map(), stripLang)).toBe(2);
+    });
+});
 
 describe('alignUnits', () => {
     it('should pair units positionally per page', () => {

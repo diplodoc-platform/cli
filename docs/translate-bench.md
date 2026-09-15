@@ -99,11 +99,14 @@ unset, naming all the missing ones at once.
    and of every candidate output are recovered through the harness
    capture mechanism - one sequential translate run against a local echo
    endpoint. No provider traffic is proxied.
-3. **Align.** Units are paired positionally per page. A page counts only
-   when the source and both outputs produced the same number of units;
-   a model that merged or dropped a paragraph cannot be compared segment
-   by segment, so the page is excluded and counted in the `struct`
-   column.
+3. **Align.** Units are paired positionally per page. A page is compared
+   only when the source and both outputs produced the same number of
+   units: a model that merged or dropped a paragraph cannot be scored
+   segment by segment, so the page is dropped from the comparison.
+   Separately, every model - the baseline included - gets its own
+   `struct` count: pages where its output diverged from the source in
+   unit count. That is a quality signal in its own right, so it is
+   measured per model rather than as a by-product of one comparison.
 4. **Judge.** Pairs whose two translations coincide are never sent to
    the judge - on close models that is most of the corpus and the main
    cost saving. The rest go to the judge in batches, with the source and

@@ -39,6 +39,31 @@ function byPage(units: Map<string, string[]>, stripLang: (file: string) => strin
 }
 
 /**
+ * Counts the pages where a translated output has a different number of
+ * units than the source.
+ *
+ * Measured per output rather than as a by-product of the pairwise
+ * alignment: the baseline is a model too, and a column that is never
+ * measured would render as 0 and read as a perfect score.
+ */
+export function countUnitMismatches(
+    source: Map<string, string[]>,
+    units: Map<string, string[]>,
+    stripLang: (file: string) => string,
+): number {
+    const pages = byPage(units, stripLang);
+    let mismatches = 0;
+
+    for (const [file, list] of source) {
+        if (pages.get(stripLang(file))?.length !== list.length) {
+            mismatches++;
+        }
+    }
+
+    return mismatches;
+}
+
+/**
  * Aligns the source units with the units of two translated outputs,
  * positionally per page - the same pairing the mock translation memory
  * uses.

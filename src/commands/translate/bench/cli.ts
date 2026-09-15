@@ -14,7 +14,7 @@ import {listCorpusPages} from '../eval/corpus';
 import {DEFAULT_THRESHOLDS} from '../eval/report';
 import {captureUnits, language, runEval, stripLangPrefix} from '../eval/run';
 
-import {alignUnits} from './align';
+import {alignUnits, countUnitMismatches} from './align';
 import {spread, summarizePairwise} from './aggregate';
 import {loadBenchConfig, resolveSecrets} from './candidates';
 import {createChatClient} from './chat';
@@ -292,6 +292,8 @@ async function runCandidate(params: {
     corpus: string;
     cli: string;
     workdir: string;
+    /** Units of the source corpus, to measure structural mismatches. */
+    sourceUnits: Map<string, string[]>;
 }): Promise<CandidateRuns> {
     const {candidate, args, corpus, cli} = params;
     const result: CandidateRuns = {runs: [], artifacts: [], units: []};
@@ -329,20 +331,20 @@ async function runCandidate(params: {
             log: (message) => console.log(`  ${message}`),
         });
 
-        result.units.push(
-            await captureUnits({
-                cli,
-                corpus: run.output,
-                workdir,
-                source: args.target,
-                target: args.source,
-            }),
-        );
+        const units = await captureUnits({
+            cli,
+            corpus: run.output,
+            workdir,
+            source: args.target,
+            target: args.source,
+        });
+
+        result.units.push(units);
 
         result.runs.push({
             report: run.report,
             runReport: readRunReport(runReportFile),
-            structuralMismatches: 0,
+            structuralMismatches: countUnitMismatches(params.sourceUnits, units, stripLangPrefix),
         });
 
         result.artifacts.push({
@@ -358,18 +360,21 @@ async function runCandidate(params: {
 }
 
 /**
- * Aligns every repeat of a candidate against the matching repeat of the
- * baseline and records how many pages the candidate made incomparable.
+ * Collects the segment triples of every repeat: source, baseline
+ * translation, candidate translation. Pages that no longer line up are
+ * dropped here and warned about; how often a model does that is counted
+ * separately, per run, by `countUnitMismatches`.
  */
 function alignAgainstBaseline(params: {
     name: string;
+    baseline: string;
     sourceUnits: Map<string, string[]>;
     baselineUnits: Map<string, string[]>[];
-    candidate: CandidateRuns;
+    units: Map<string, string[]>[];
 }): UnitTriple[] {
     const triples: UnitTriple[] = [];
 
-    params.candidate.units.forEach((units, position) => {
+    params.units.forEach((units, position) => {
         const aligned = alignUnits({
             source: params.sourceUnits,
             baseline: params.baselineUnits[position],
@@ -377,14 +382,10 @@ function alignAgainstBaseline(params: {
             stripLang: stripLangPrefix,
         });
 
-        params.candidate.runs[position].structuralMismatches = aligned.mismatched.filter(
-            (mismatch) => mismatch.side === 'candidate',
-        ).length;
-
         for (const mismatch of aligned.mismatched) {
             console.warn(
-                `Warning: ${params.name} repeat ${position + 1}: ` +
-                    `${mismatch.page} not comparable (${mismatch.detail})`,
+                `Warning: ${params.name} vs ${params.baseline}, repeat ${position + 1}: ` +
+                    `${mismatch.page} dropped (${mismatch.detail})`,
             );
         }
 
@@ -444,7 +445,10 @@ export async function main(argv: string[]): Promise<number> {
     const executed = new Map<string, CandidateRuns>();
 
     for (const candidate of resolved.candidates) {
-        executed.set(candidate.name, await runCandidate({candidate, args, corpus, cli, workdir}));
+        executed.set(
+            candidate.name,
+            await runCandidate({candidate, args, corpus, cli, workdir, sourceUnits}),
+        );
     }
 
     const baselineUnits = (executed.get(resolved.baseline) as CandidateRuns).units;
@@ -457,9 +461,10 @@ export async function main(argv: string[]): Promise<number> {
             ? []
             : alignAgainstBaseline({
                   name: candidate.name,
+                  baseline: resolved.baseline,
                   sourceUnits,
                   baselineUnits,
-                  candidate: runs,
+                  units: runs.units,
               });
 
         let pairwise: CandidateReport['pairwise'] = null;
