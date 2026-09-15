@@ -274,33 +274,10 @@ export function lcs(source: string[], target: string[]): [number, number][] {
 
     const n = endSource - start;
     const m = endTarget - start;
-
     if (n && m && n * m <= LCS_CELL_LIMIT) {
-        const width = m + 1;
-        const table = new Uint32Array((n + 1) * width);
-
-        for (let i = n - 1; i >= 0; i--) {
-            for (let j = m - 1; j >= 0; j--) {
-                table[i * width + j] =
-                    source[start + i] === target[start + j]
-                        ? table[(i + 1) * width + j + 1] + 1
-                        : Math.max(table[(i + 1) * width + j], table[i * width + j + 1]);
-            }
-        }
-
-        let i = 0;
-        let j = 0;
-        while (i < n && j < m) {
-            if (source[start + i] === target[start + j]) {
-                pairs.push([start + i, start + j]);
-                i++;
-                j++;
-            } else if (table[(i + 1) * width + j] >= table[i * width + j + 1]) {
-                i++;
-            } else {
-                j++;
-            }
-        }
+        pairs.push(
+            ...middlePairs(source.slice(start, endSource), target.slice(start, endTarget), start),
+        );
     }
 
     for (let k = 0; k < source.length - endSource; k++) {
@@ -308,6 +285,50 @@ export function lcs(source: string[], target: string[]): [number, number][] {
     }
 
     return pairs;
+}
+
+/** LCS pairs of two lists without a common prefix or suffix, offset by `start`. */
+function middlePairs(source: string[], target: string[], start: number): [number, number][] {
+    const n = source.length;
+    const m = target.length;
+    const width = m + 1;
+    const table = lcsTable(source, target);
+    const pairs: [number, number][] = [];
+
+    let i = 0;
+    let j = 0;
+    while (i < n && j < m) {
+        if (source[i] === target[j]) {
+            pairs.push([start + i, start + j]);
+            i++;
+            j++;
+        } else if (table[(i + 1) * width + j] >= table[i * width + j + 1]) {
+            i++;
+        } else {
+            j++;
+        }
+    }
+
+    return pairs;
+}
+
+/** Suffix LCS lengths: cell (i, j) holds the LCS length of source[i..] and target[j..]. */
+function lcsTable(source: string[], target: string[]): Uint32Array {
+    const n = source.length;
+    const m = target.length;
+    const width = m + 1;
+    const table = new Uint32Array((n + 1) * width);
+
+    for (let i = n - 1; i >= 0; i--) {
+        for (let j = m - 1; j >= 0; j--) {
+            table[i * width + j] =
+                source[i] === target[j]
+                    ? table[(i + 1) * width + j + 1] + 1
+                    : Math.max(table[(i + 1) * width + j], table[i * width + j + 1]);
+        }
+    }
+
+    return table;
 }
 
 type Run = {length: number; offset: number};
