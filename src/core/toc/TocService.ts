@@ -31,7 +31,7 @@ import {
 } from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
-import {isEntryItem} from './utils';
+import {isEntryItem, resolveNoIndex} from './utils';
 import {isMergeMode, loader} from './loader';
 
 export type TocServiceConfig = {
@@ -60,6 +60,10 @@ export type WalkStepContext<T extends object = {}> = Hash<unknown> & T;
 
 type RestrictedAccessContext = WalkStepContext<{
     'restricted-access'?: string[][];
+}>;
+
+type NoIndexContext = WalkStepContext<{
+    noIndex?: boolean;
 }>;
 
 type WalkOptions<T> = {
@@ -336,6 +340,7 @@ export class TocService {
         if (toc.href || toc.items?.length) {
             await this.addEntries(file, toc);
             await this.restrictAccess(file, toc);
+            await this.applyNoIndex(file, toc);
         }
 
         const pdfStartPages = toc?.pdf?.startPages;
@@ -521,6 +526,21 @@ export class TocService {
                 return item;
             },
         );
+
+        return toc;
+    }
+
+    private async applyNoIndex(path: NormalizedPath, toc: Toc) {
+        await this.walkItems([toc as unknown as RawTocItem], (item, context: NoIndexContext) => {
+            context.noIndex = resolveNoIndex(item, context.noIndex === true, path, this.logger);
+
+            if (context.noIndex && isEntryItem(item)) {
+                const href = normalizePath(join(dirname(path), item.href));
+                this.meta.add(href, {noIndex: true});
+            }
+
+            return item;
+        });
 
         return toc;
     }

@@ -52,6 +52,7 @@ type LlmsEntry = {
 
 type LlmsTocItem = {
     hidden?: boolean;
+    noIndex?: boolean;
     href?: NormalizedPath;
     name?: string;
     items?: LlmsTocItem[];
@@ -63,10 +64,10 @@ type LlmsTocItem = {
  *
  * Runs in `AfterAnyRun`, so it works for both `md` and `html` builds. By that
  * point the toc is already resolved and filtered for the current build
- * (vars/conditions and `removeEmptyTocItems`). Hidden items are filtered here
- * independently of `removeHiddenTocItems`, and pages marked `noIndex` in their
- * front matter are dropped as well, so neither leaks into either artifact while
- * both remain available to the regular build. Walking
+ * (vars/conditions and `removeEmptyTocItems`). Hidden and `noIndex` TOC branches
+ * are filtered here independently of `removeHiddenTocItems`, and pages marked
+ * `noIndex` in their front matter are dropped as well, so none leak into either
+ * artifact while they remain available to the regular build. Walking
  * `run.toc.tocs` mirrors `SinglePage`.
  *
  * `llms-full.txt` is assembled with {@link MarkdownCollector} — the same engine
@@ -149,13 +150,14 @@ export class Llms {
     }
 
     /**
-     * Drops pages marked `noIndex` in their front matter.
+     * Drops pages marked `noIndex` by any TOC reference or their front matter.
      *
      * `noIndex` means "keep this page out of indexes". An LLM corpus is exactly
      * such an index, so these pages must not reach `llms.txt` or `llms-full.txt`
      * — the same reasoning as for `hidden` in {@link collectEntries}; only the
-     * source of the flag differs: `hidden` is a toc property, `noIndex` is page
-     * meta.
+     * source of the flag differs: {@link collectEntries} prunes TOC subtrees,
+     * while MetaService keeps the combined TOC restriction for each page. Check
+     * it here too: a page may also be linked from a public TOC branch.
      *
      * This lives here rather than in `collectEntries` because meta is read
      * asynchronously. Filtering once for both artifacts also guarantees the index
@@ -164,17 +166,21 @@ export class Llms {
      * Front matter is read directly from the source file rather than from
      * `run.meta.dump()`. When `--jobs` is enabled, `process()` runs in a worker
      * thread with its own `MetaService` instance; the main thread's `MetaService`
-     * (where `AfterAnyRun` hooks execute) never receives the front matter, so
-     * `run.meta.dump()` returns empty meta and `noIndex` is lost. Reading the
-     * raw file bypasses the thread boundary entirely.
+     * (where `AfterAnyRun` hooks execute) never receives the front matter.
+     * It already has TOC metadata from `toc.init()`, so check that first, then
+     * read the raw file to include worker-only frontmatter restrictions.
      *
-     * A page whose meta cannot be read is kept: an unreadable file must not
+     * A page without a TOC restriction whose meta cannot be read is kept: it must not
      * silently vanish from the corpus, and the renderers already report such
      * failures.
      */
     private async excludeNoIndex(run: Run, entries: LlmsEntry[]): Promise<LlmsEntry[]> {
         const noIndexFlags = await Promise.all(
             entries.map(async (entry) => {
+                if (run.meta.get(entry.path)?.noIndex === true) {
+                    return true;
+                }
+
                 try {
                     // Only `.md` files have YAML front matter delimited by `---`.
                     // Leading pages (`.yaml`) store their metadata differently, so
@@ -213,7 +219,7 @@ export class Llms {
         const entries: LlmsEntry[] = [];
 
         const visit = (item: LlmsTocItem, parentName = '') => {
-            if (item.hidden) {
+            if (item.hidden || item.noIndex === true) {
                 return;
             }
 

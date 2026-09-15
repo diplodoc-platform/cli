@@ -25,6 +25,7 @@ export type WithItems<Item> = {
 
 export type RawToc = {
     path: NormalizedPath;
+    noIndex?: boolean;
     pdf?: {
         startPages?: string[];
         endPages?: string[];
@@ -71,6 +72,7 @@ export type Navigation = {
 
 export type RawTocItem = Filter & {
     hidden?: boolean;
+    noIndex?: boolean;
     items?: RawTocItem[];
 } & (RawEntryTocItem | RawNamedTocItem | RawIncludeTocItem);
 
@@ -115,6 +117,7 @@ export type IncludeInfo = {
 
 export type Toc = {
     path: NormalizedPath;
+    noIndex?: boolean;
     pdf?: {
         startPages?: string[];
         endPages?: string[];
@@ -132,7 +135,7 @@ export type Toc = {
     items?: TocItem[];
 };
 
-export type TocItem = (NamedTocItem | EntryTocItem) & {hidden?: boolean} & {
+export type TocItem = (NamedTocItem | EntryTocItem) & {hidden?: boolean; noIndex?: boolean} & {
     id: string;
     items?: TocItem[];
 };
