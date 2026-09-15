@@ -104,6 +104,7 @@ type TestableLlms = {
     ): boolean;
     collectEntries(toc: Toc, tocDir: string): unknown[];
     excludeNoIndex(run: Run, entries: unknown[]): Promise<unknown[]>;
+    generate(run: Run, toc: Toc): Promise<void>;
     renderIndex(run: Run, title: string, entries: unknown[], tocDir: string): Promise<string>;
     renderFull(
         run: Run,
@@ -112,6 +113,7 @@ type TestableLlms = {
         audience: 'human' | 'agent',
         fileName: string,
         reportErrors?: boolean,
+        audienceSpecificContent?: Set<'human' | 'agent'>,
     ): Promise<string>;
     collectBody(
         run: Run,
@@ -120,6 +122,7 @@ type TestableLlms = {
         audience: 'human' | 'agent',
         fileName: string,
         reportErrors: boolean,
+        audienceSpecificContent?: Set<'human' | 'agent'>,
     ): Promise<string>;
 };
 
@@ -717,6 +720,30 @@ describe('LLMs Plugin Architecture', () => {
     });
 
     describe('renderFull content aggregator', () => {
+        it('does not write an agent corpus when no article has audience-specific content', async () => {
+            const run = {
+                ...createMockRun({outputFormat: OutputFormat.md}),
+                input: '/input' as AbsolutePath,
+                output: '/output' as AbsolutePath,
+                read: vi.fn().mockResolvedValue('Common content only.'),
+                write: vi.fn().mockResolvedValue(undefined),
+            } as unknown as Run;
+            const toc = {
+                path: normalizedPath('toc.yaml'),
+                title: 'Docs',
+                items: [{name: 'Page', href: normalizedPath('page.md')}],
+            } as unknown as Toc;
+
+            await llmsInstance.generate(run, toc);
+
+            expect(run.write).toHaveBeenCalledTimes(2);
+            expect(run.write).not.toHaveBeenCalledWith(
+                expect.stringContaining('llms-full-agent.txt'),
+                expect.anything(),
+                expect.anything(),
+            );
+        });
+
         it('should join titles and markdown text together', async () => {
             const run = createMockRun();
             const entries = [

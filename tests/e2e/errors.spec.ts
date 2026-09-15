@@ -92,6 +92,15 @@ describe('Errors', () => {
         ]);
     });
 
+    test('mocks/errors/invalid-visibility', ({md, html}: TestResult) => {
+        expectErrors(md, [
+            'ERR index.md: 3: YFM023 / invalid-visibility-audience Visibility audience is missing or invalid [Expected: :::visibility human or :::visibility agent] [Context: ":::visibility robots"]',
+        ]);
+        expectErrors(html, [
+            'ERR index.md: 3: YFM023 / invalid-visibility-audience Visibility audience is missing or invalid [Expected: :::visibility human or :::visibility agent] [Context: ":::visibility robots"]',
+        ]);
+    });
+
     test('mocks/errors/lint-loglevel', ({html}: TestResult) => {
         expectErrors(html, [
             'ERR index.md: 5: MD010 / no-hard-tabs Hard tabs [Column: 1]',
