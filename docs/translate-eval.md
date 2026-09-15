@@ -41,8 +41,10 @@ OPENAI_API_KEY=... npm run translate:eval -- --real --provider openai --model gp
 ```
 
 `--provider`, `--model`, `--judge-model`, `--auth`, `--api-base` and
-`--folder` are passed through to `yfm translate`. To compare prompts or
-models, run the eval once per candidate and compare the JSON reports.
+`--folder` are passed through to `yfm translate`. To compare models
+systematically, use the benchmark: [docs/translate-bench.md](translate-bench.md).
+It runs this eval per candidate and adds a pairwise comparison against a
+baseline model.
 
 ## What is checked
 

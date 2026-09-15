@@ -24,9 +24,13 @@ export type PageResult = {
     page: string;
     markupViolations: MarkupViolation[];
     glossaryViolations: GlossaryViolation[];
-    untranslated: UntranslatedLine[];
-    /** Token-level F1 similarity against the reference translation, 0..1. */
-    similarity: number;
+    /** `null` when the corpus has no reference translation of this page. */
+    untranslated: UntranslatedLine[] | null;
+    /**
+     * Token-level F1 similarity against the reference translation, 0..1.
+     * `null` when the corpus has no reference translation of this page.
+     */
+    similarity: number | null;
     /** Judge segments below the threshold that belong to this page. */
     judgeLow: number;
 };
