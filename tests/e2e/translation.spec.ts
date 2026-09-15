@@ -300,7 +300,7 @@ describe('Translate command', () => {
             .split('\n')
             .map((line) => strip(line).trim())
             .filter((line) => line.startsWith('TRANSLATE '))
-            .map((line) => line.slice('TRANSLATE '.length).trim())
+            .map((line) => line.slice('TRANSLATE '.length).trim().replace(/\\/g, '/'))
             .sort();
 
         expect(translated).toEqual([
