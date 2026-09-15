@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.59.0](https://github.com/diplodoc-platform/cli/compare/v5.58.1...v5.59.0) (2026-09-15)
+
+
+### Features
+
+* build audience-specific documentation DOCSTOOLS-6553 ([0e9ddd8](https://github.com/diplodoc-platform/cli/commit/0e9ddd86cc46e58a23a073e301cedbc61ca4ecf0))
+* **llms:** add viewer audience variants ([a55e657](https://github.com/diplodoc-platform/cli/commit/a55e657fa59f1ce9083aa68b3f5ee9d464073557))
+* **translate:** model benchmark with a pairwise judge ([#2256](https://github.com/diplodoc-platform/cli/issues/2256)) ([fb7aac0](https://github.com/diplodoc-platform/cli/commit/fb7aac0a798f3d24c5a63a821849266d3a449fd8))
+
+
+### Bug Fixes
+
+* address audience build review DOCSTOOLS-6553 ([fa5ccc6](https://github.com/diplodoc-platform/cli/commit/fa5ccc6d70cb55c3bf7ef3aeb75c754948da8add))
+* **cli:** omit merged line number from visibility errors DOCSTOOLS-6553 ([4cd4686](https://github.com/diplodoc-platform/cli/commit/4cd4686001ca50c151b62cfefb64877f5b6eb406))
+* **e2e:** update transform regression snapshots ([59708ab](https://github.com/diplodoc-platform/cli/commit/59708abef8717da4a8beb0756c3634867e84fdca))
+* **translate:** keep link-included tocs in translate and seed file lists ([#2270](https://github.com/diplodoc-platform/cli/issues/2270)) ([16da1c3](https://github.com/diplodoc-platform/cli/commit/16da1c38b1e54e7953d530829804762e7f5ab878))
+
 ## [5.58.1](https://github.com/diplodoc-platform/cli/compare/v5.58.0...v5.58.1) (2026-09-15)
 
 
