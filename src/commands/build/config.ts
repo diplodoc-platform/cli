@@ -61,6 +61,18 @@ const outputFormat = option({
     `,
 });
 
+const baseHref = option({
+    flags: '--base-href <url>',
+    desc: `
+        Override the publication root used by static HTML metadata and llms artifacts.
+
+        A trailing slash is added automatically when missing.
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --base-href https://example.com/docs
+    `,
+});
+
 const langs = option({
     flags: '--lang, --langs <value...>',
     desc: 'Configure langs supported by build',
@@ -462,6 +474,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     const lang = defined('lang', config);
     const viewerInterface = getInterfaceProps(config, args);
     const feedbackUrl = defined('feedbackUrl', args, config);
+    const baseHref = defined('baseHref', args, config);
 
     if (valuable(lang)) {
         if (!langs.length) {
@@ -492,6 +505,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     });
     config.langs = langs;
     config.lang = lang || langs[0];
+    config.baseHref = normalizeBaseHref(baseHref);
     config.vcs = toggleable('vcs', args, config);
     config.vcs.token = defined('vcsToken', args);
     config.interface = {
@@ -529,6 +543,14 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     return config;
 }
 
+export function normalizeBaseHref(baseHref: string | null | undefined): string | undefined {
+    if (!baseHref) {
+        return undefined;
+    }
+
+    return baseHref.endsWith('/') ? baseHref : `${baseHref}/`;
+}
+
 export function validate<C extends DeepFrozen<BuildConfig>>(config: C) {
     ok(!config.vcs?.token, 'Do not store secret VCS token in config. Use args or env.');
 }
@@ -543,6 +565,7 @@ export const options = {
     workerMaxOldSpace: globalOptions.workerMaxOldSpace,
     langs,
     outputFormat,
+    baseHref,
     varsPreset,
     vars,
     allowHtml,

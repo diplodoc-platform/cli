@@ -11,10 +11,11 @@ import {
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
-import {isExternalHref, normalizePath, setExt} from '~/core/utils';
+import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
 
 import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
+import {resolveAbsolutePaths} from '../output-md/plugins/merge-includes';
 
 import {stripHtmlTags} from './utils';
 import {options, resolveLlmsFullMaxSize} from './config';
@@ -294,16 +295,21 @@ export class Llms {
             const suffix = description ? `: ${description}` : '';
             // Link to the real output file: rendered .html for html builds,
             // the original href (.md/.yaml) for md builds.
-            const href = html ? setExt(entry.href, 'html') : entry.href;
+            const relativeHref = html ? setExt(entry.href, 'html') : entry.href;
+            const href = resolveAbsoluteHref(relativeHref, run.config.baseHref, tocDir);
 
             lines.push(`- [${name}](${href})${suffix}`);
         }
+
+        const fullHref = run.config.baseHref
+            ? resolveAbsoluteHref(LLMS_FULL_FILENAME, run.config.baseHref, tocDir)
+            : `/${LLMS_FULL_FILENAME}`;
 
         lines.push(
             '',
             '---',
             '',
-            `For more comprehensive documentation, see [${LLMS_FULL_FILENAME}](/${LLMS_FULL_FILENAME})`,
+            `For more comprehensive documentation, see [${LLMS_FULL_FILENAME}](${fullHref})`,
         );
 
         return lines.join('\n') + '\n';
@@ -352,7 +358,8 @@ export class Llms {
             const name = entry.parentName || entry.name || 'API Reference';
             // Normalize to forward slashes — llms.txt is a web-oriented format
             // and `relative()` returns backslashes on Windows.
-            const companionHref = relative(tocDir, companion.companionPath).replace(/\\/g, '/');
+            const relativeHref = relative(tocDir, companion.companionPath).replace(/\\/g, '/');
+            const companionHref = resolveAbsoluteHref(relativeHref, run.config.baseHref, tocDir);
 
             lines.push(`- [${name}](${companionHref}): OpenAPI specification`);
         }
@@ -455,7 +462,9 @@ export class Llms {
                 }
             }
 
-            return filteredBody.content;
+            return run.config.baseHref
+                ? resolveAbsolutePaths(filteredBody.content, entryPath, run.config.baseHref)
+                : filteredBody.content;
         } catch (error) {
             run.logger.warn(`${fileName}: unable to assemble ${entryPath}: ${error}`);
 

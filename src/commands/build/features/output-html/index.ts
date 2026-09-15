@@ -28,6 +28,7 @@ import {ASSETS_FOLDER} from '~/constants';
 
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {getHooks as getEntryHooks} from '../../services/entry';
+import {getHooks as getSearchHooks} from '../../services/search';
 import {buildLlmsAlternate} from '../output-md/utils';
 
 import {filterBundledExtensionAssets, getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
@@ -41,6 +42,14 @@ export class OutputHtml {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('Html', async (run) => {
+                const setBaseHref = (template: Template) => {
+                    template.setBaseHref(run.config.baseHref);
+                };
+
+                getEntryHooks(run.entry).Page.tap('Html.BaseHref', setBaseHref);
+                getRedirectsHooks(run.redirects).Page.tap('Html.BaseHref', setBaseHref);
+                getSearchHooks(run.search).Page.tap('Html.BaseHref', setBaseHref);
+
                 getTocHooks(run.toc).Dump.tapPromise('Html', async (vfile) => {
                     await run.toc.walkItems([vfile.data as Toc], (item: Toc | TocItem) => {
                         if (own(item, 'hidden') && item.hidden) {
@@ -69,7 +78,12 @@ export class OutputHtml {
                     if (!file.includes('/_includes/') && !file.startsWith('_includes/')) {
                         try {
                             const tocDir = dirname(run.toc.for(file).path) as NormalizedPath;
-                            const llmsAlternate = buildLlmsAlternate(run.config.llms, file, tocDir);
+                            const llmsAlternate = buildLlmsAlternate(
+                                run.config.llms,
+                                file,
+                                tocDir,
+                                run.config.baseHref,
+                            );
                             if (llmsAlternate) {
                                 meta.alternate = [...(meta.alternate || []), llmsAlternate];
                             }
