@@ -20,6 +20,20 @@ type CommonRunConfig = Omit<TranslateConfig, 'provider' | 'timeout' | 'copyAsset
     ExtractConfig &
     ConfigDefaults;
 
+export type GetFilesOptions = {
+    /**
+     * Whether the caller loads tocs through `getFileContent`, which inlines
+     * `include`d tocs (link and merge modes) into their parent. Then the
+     * included tocs must not be listed on their own: their strings are
+     * already part of the parent, and `TocService.for()` throws for them.
+     *
+     * Callers that read files as they are on disk (`translate`, `seed`)
+     * leave this off: the parent toc keeps its `include` entry, so the
+     * included toc needs a translation of its own.
+     */
+    inlinedTocs?: boolean;
+};
+
 export class Run extends BaseRun<CommonRunConfig> {
     readonly vars: VarsService;
     readonly meta: MetaService;
@@ -61,7 +75,9 @@ export class Run extends BaseRun<CommonRunConfig> {
         }
     }
 
-    async getFiles(): Promise<[string[], [string, string][]]> {
+    async getFiles({inlinedTocs = false}: GetFilesOptions = {}): Promise<
+        [string[], [string, string][]]
+    > {
         const allFiles = new Set<NormalizedPath>();
         const copiedFromPaths = new Set<NormalizedPath>();
         const mergedDirectories = new Set<NormalizedPath>();
@@ -121,11 +137,11 @@ export class Run extends BaseRun<CommonRunConfig> {
                 return false;
             }
 
-            // Tocs consumed by an include (link or merge mode) are inlined into their
-            // parent toc during translate and are not registered as standalone toc
-            // nodes, so their strings are already extracted with the parent. See the
-            // same guard below in `finalFiles`.
-            if (!this.toc.isToc(toc)) {
+            // Tocs consumed by an include (link or merge mode) are not registered as
+            // standalone toc nodes. When the caller inlines includes, their strings
+            // are already extracted with the parent. See the same guard below in
+            // `finalFiles`.
+            if (inlinedTocs && !this.toc.isToc(toc)) {
                 return false;
             }
 
@@ -151,13 +167,17 @@ export class Run extends BaseRun<CommonRunConfig> {
                 return false;
             }
 
-            // Tocs consumed by an include are inlined into their parent toc during
-            // translate and are not registered as standalone toc nodes (they remain
-            // `source` graph nodes). Their strings are already extracted with the
-            // parent toc, so extracting them on their own both duplicates content and
-            // throws `Error while finding toc dir.` in TocService.for(). This is the
-            // primary guard: it runs for both the default and `--filter` file lists.
-            if (this.tocYamlList.has(normalizedFile) && !this.toc.isToc(normalizedFile)) {
+            // Tocs consumed by an include are not registered as standalone toc nodes
+            // (they remain `source` graph nodes). When the caller inlines includes
+            // (`extract`), their strings are already extracted with the parent toc, so
+            // extracting them on their own both duplicates content and throws
+            // `Error while finding toc dir.` in TocService.for(). This is the primary
+            // guard: it runs for both the default and `--filter` file lists.
+            if (
+                inlinedTocs &&
+                this.tocYamlList.has(normalizedFile) &&
+                !this.toc.isToc(normalizedFile)
+            ) {
                 return false;
             }
 
