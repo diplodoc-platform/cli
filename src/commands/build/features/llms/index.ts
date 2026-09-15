@@ -4,7 +4,10 @@ import type {Toc} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 import {extractFrontMatter} from '@diplodoc/liquid';
-import {filterAudienceContent} from '@diplodoc/transform/lib/plugins/visibility';
+import {
+    type ContentAudience,
+    filterAudienceContent,
+} from '@diplodoc/transform/lib/plugins/visibility';
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -144,7 +147,16 @@ export class Llms {
         const title = toc.title || '';
 
         const index = await this.renderIndex(run, title, entries, tocDir);
-        const full = await this.renderFull(run, title, entries, 'human', LLMS_FULL_FILENAME);
+        const audienceSpecificContent = new Set<ContentAudience>();
+        const full = await this.renderFull(
+            run,
+            title,
+            entries,
+            'human',
+            LLMS_FULL_FILENAME,
+            true,
+            audienceSpecificContent,
+        );
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
@@ -153,7 +165,7 @@ export class Llms {
         // corpus there so the runtime endpoint can select an audience without buffering and
         // reparsing the whole llms-full file on every request. Static html builds only expose the
         // canonical human corpus above.
-        if (run.config.outputFormat === OutputFormat.md) {
+        if (run.config.outputFormat === OutputFormat.md && audienceSpecificContent.size > 0) {
             const agentFull = await this.renderFull(
                 run,
                 title,
@@ -353,6 +365,7 @@ export class Llms {
         audience: 'human' | 'agent',
         fileName: string,
         reportErrors = true,
+        audienceSpecificContent?: Set<ContentAudience>,
     ) {
         const parts: string[] = [];
 
@@ -384,6 +397,7 @@ export class Llms {
                 audience,
                 fileName,
                 reportErrors,
+                audienceSpecificContent,
             );
 
             if (!body) {
@@ -419,6 +433,7 @@ export class Llms {
         audience: 'human' | 'agent',
         fileName: string,
         reportErrors: boolean,
+        audienceSpecificContent?: Set<ContentAudience>,
     ): Promise<string> {
         try {
             const body = await collector.collect(entryPath);
@@ -428,6 +443,10 @@ export class Llms {
             // noise to the corpus. Code blocks are protected (see stripHtmlTags).
             const strippedBody = stripHtmlTags(body, ['style', 'script']);
             const filteredBody = filterAudienceContent(strippedBody, audience);
+
+            for (const detectedAudience of filteredBody.audienceSpecificContent) {
+                audienceSpecificContent?.add(detectedAudience);
+            }
 
             if (reportErrors) {
                 for (const error of filteredBody.errors) {
