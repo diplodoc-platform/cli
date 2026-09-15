@@ -33,13 +33,14 @@ export type ImageOptions = {
     height: string | undefined | null;
     inline: boolean | undefined | null;
     title: string | undefined | null;
+    gallerySrc?: string | null;
 };
 
 export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     code?: string | null;
     path: NormalizedPath;
     type: 'link' | 'image' | 'video' | 'def';
-    subtype?: 'image' | 'reference' | null;
+    subtype?: 'image' | 'reference' | 'gallery' | null;
     title: string;
     autotitle: boolean;
     location: Location;
