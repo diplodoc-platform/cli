@@ -169,6 +169,20 @@ describe('PDF Page Utils', () => {
             expect(html.querySelector('hr')?.getAttribute('id')).toBe('page_block-anchor');
         });
 
+        it('should preserve term definition ids referenced by aria-controls', () => {
+            const html = parse(`
+                <i class="yfm-term_title" aria-controls=":board_element">Board</i>
+                <dfn class="yfm-term_dfn" id=":board_element">Board definition</dfn>
+            `);
+
+            addPagePrefixToAnchors(html, options);
+
+            expect(html.querySelector('.yfm-term_title')?.getAttribute('aria-controls')).toBe(
+                ':board_element',
+            );
+            expect(html.querySelector('.yfm-term_dfn')?.getAttribute('id')).toBe(':board_element');
+        });
+
         it('should add page prefix to same-page fragment links', () => {
             const html = parse(`
                 <div>
