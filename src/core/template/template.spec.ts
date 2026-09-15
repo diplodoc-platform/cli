@@ -3,6 +3,39 @@ import {describe, expect, it} from 'vitest';
 import {Template} from './template';
 
 describe('Template', () => {
+    describe('setBaseHref', () => {
+        it('uses the path-relative base by default', () => {
+            const template = new Template('en/guides/index.html' as RelativePath, 'en');
+
+            expect(template.dump()).toContain('<base href="../../" />');
+        });
+
+        it('overrides the path-relative base', () => {
+            const template = new Template('en/guides/index.html' as RelativePath, 'en');
+            template.setBaseHref('https://example.com/docs/');
+
+            expect(template.dump()).toContain('<base href="https://example.com/docs/" />');
+        });
+
+        it('resolves alternate metadata against the configured base', () => {
+            const template = new Template('en/guides/index.html' as RelativePath, 'en');
+            template.setBaseHref('https://example.com/docs/');
+            template.addAlternates([
+                {href: 'ru/guides/index.html', hreflang: 'ru'},
+                {href: '/llms.txt', rel: 'describedby'},
+            ]);
+
+            const html = template.dump();
+
+            expect(html).toContain(
+                '<link rel="alternate" href="https://example.com/docs/ru/guides/index.html" hreflang="ru" />',
+            );
+            expect(html).toContain(
+                '<link rel="describedby" href="https://example.com/docs/llms.txt" />',
+            );
+        });
+    });
+
     describe('setCspDisabled', () => {
         it('should not include CSP meta tag when disabled', () => {
             const template = new Template('index.html' as RelativePath, 'en');

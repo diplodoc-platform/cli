@@ -7,6 +7,58 @@ export function isExternalHref(href: string) {
     return /^(\w{1,10}:)?\/\//.test(href) || /^([+\w]{1,10}:)/.test(href);
 }
 
+function normalizeBasePath(basePath: string): string {
+    const normalized = basePath.replace(/\\/g, '/');
+    let start = 0;
+    let end = normalized.length;
+
+    while (start < end && normalized[start] === '/') {
+        start++;
+    }
+
+    while (end > start && normalized[end - 1] === '/') {
+        end--;
+    }
+
+    return normalized.slice(start, end);
+}
+
+/**
+ * Resolves a documentation-local href against the configured publication root.
+ *
+ * Root-relative hrefs are treated as relative to `baseHref`, not to the origin:
+ * `baseHref` represents the root of the published static documentation.
+ *
+ * @param href - Link to resolve
+ * @param baseHref - Absolute publication root, including a trailing slash
+ * @param basePath - Optional output directory that `href` is relative to
+ * @returns Absolute URL, or the original href when it should not or cannot be resolved
+ */
+export function resolveAbsoluteHref(href: string, baseHref?: string, basePath = ''): string {
+    if (
+        !baseHref ||
+        !href ||
+        isExternalHref(href) ||
+        href.startsWith('#') ||
+        href.startsWith('*') ||
+        href.startsWith('{')
+    ) {
+        return href;
+    }
+
+    try {
+        const normalizedBasePath = normalizeBasePath(basePath);
+        const pathBase =
+            href.startsWith('/') || !normalizedBasePath
+                ? baseHref
+                : new URL(`${normalizedBasePath}/`, baseHref).href;
+
+        return new URL(href.replace(/^\/+/, ''), pathBase).href;
+    } catch {
+        return href;
+    }
+}
+
 export function longLink(href: string) {
     if (isExternalHref(href)) {
         return href;

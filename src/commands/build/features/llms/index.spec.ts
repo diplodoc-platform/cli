@@ -1,4 +1,5 @@
 import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
+import type * as CoreUtils from '~/core/utils';
 import type {Toc} from '~/core/toc';
 import type {LlmsConfig} from './index';
 
@@ -8,7 +9,8 @@ import {OutputFormat} from '~/commands/build/config';
 
 import {LLMS_FULL_FILENAME, Llms} from './index';
 
-vi.mock('~/core/utils', async () => ({
+vi.mock('~/core/utils', async (importOriginal) => ({
+    ...(await importOriginal<typeof CoreUtils>()),
     isExternalHref: (path: string) =>
         /^(\w{1,10}:)?\/\//.test(path) || /^([+\w]{1,10}:)/.test(path),
     normalizePath: (path: string) => path.replace(/\\/g, '/') as NormalizedPath,
@@ -16,9 +18,6 @@ vi.mock('~/core/utils', async () => ({
         const stripped = path.replace(/\.[^/.]+$/, '');
         return ext ? `${stripped}.${ext}` : stripped;
     },
-    // `stripHtmlTags` protects code blocks with these; the real ones keep
-    // the aggregator under test working on real markdown.
-    ...(await import('~/core/utils/fence')),
 }));
 
 vi.mock('~/core/program', () => ({
@@ -63,6 +62,7 @@ function createMockRun(
         description?: string;
         llmsFullMaxSize?: number;
         openapiCompanions?: OpenapiCompanionEntry[];
+        baseHref?: string;
     } = {},
 ): Run {
     return {
@@ -73,6 +73,7 @@ function createMockRun(
                 description: options.description ?? 'AI Assistant Context Description',
                 llmsFullMaxSize: options.llmsFullMaxSize ?? 4 * 1024 ** 2,
             },
+            baseHref: options.baseHref,
         } as unknown as LlmsConfig & {outputFormat: OutputFormat},
         meta: {
             dump: vi.fn().mockResolvedValue({
@@ -499,6 +500,25 @@ describe('LLMs Plugin Architecture', () => {
             const result = await llmsInstance.renderIndex(run, 'MD Project', entries, 'docs');
 
             expect(result).toContain('- [Setup Guide](setup.md): Detailed meta description text');
+        });
+
+        it('should make generated links absolute when baseHref is configured', async () => {
+            const run = createMockRun({
+                outputFormat: OutputFormat.html,
+                baseHref: 'https://example.com/docs/',
+            });
+            const entries = [
+                {
+                    href: normalizedPath('intro.md'),
+                    path: normalizedPath('en/intro.md'),
+                    name: 'Introduction',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'en');
+
+            expect(result).toContain('- [Introduction](https://example.com/docs/en/intro.html)');
+            expect(result).toContain('[llms-full.txt](https://example.com/docs/en/llms-full.txt)');
         });
 
         it('should fallback to meta title if entry name is missing', async () => {

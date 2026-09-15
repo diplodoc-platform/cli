@@ -3,14 +3,55 @@ import type {FullTap} from 'tapable';
 
 import {describe, expect, it, vi} from 'vitest';
 
+import {Template} from '~/core/template';
+
 import {Build} from '../..';
 import {setupRun} from '../../__tests__';
 import {getHooks} from '../../hooks';
 import {getHooks as getEntryHooks} from '../../services/entry';
+import {getHooks as getRedirectsHooks} from '../../services/redirects';
+import {getHooks as getSearchHooks} from '../../services/search';
 
 import {OutputHtml} from './index';
 
 describe('OutputHtml feature', () => {
+    describe('baseHref', () => {
+        it('applies the configured base URL to every HTML template service', async () => {
+            const build = new Build();
+            const feature = new OutputHtml();
+            feature.apply(build);
+
+            const run = setupRun({
+                baseHref: 'https://example.com/docs/',
+            } as unknown as BuildConfig);
+
+            const beforeRunHook = getHooks(build)
+                .BeforeRun.for('html')
+                .taps.find((tap: FullTap) => tap.name === 'Html')?.fn;
+            await beforeRunHook?.(run);
+
+            const templates = [
+                {
+                    template: new Template('en/page.html' as RelativePath, 'en'),
+                    page: getEntryHooks(run.entry).Page,
+                },
+                {
+                    template: new Template('index.html' as RelativePath, 'en'),
+                    page: getRedirectsHooks(run.redirects).Page,
+                },
+                {
+                    template: new Template('_search/en/index.html' as RelativePath, 'en'),
+                    page: getSearchHooks(run.search).Page,
+                },
+            ];
+
+            for (const {template, page} of templates) {
+                await page.promise(template);
+                expect(template.dump()).toContain('<base href="https://example.com/docs/" />');
+            }
+        });
+    });
+
     describe('YFM012 filesize limit exceeded', () => {
         it('should log error when html file size exceeds limit', async () => {
             const build = new Build();

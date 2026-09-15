@@ -118,6 +118,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     readonly options = [
         options.input('./'),
         options.output({required: true}),
+        options.baseHref,
         options.langs,
         options.outputFormat,
         options.varsPreset,

@@ -1,8 +1,39 @@
 import {describe, expect, it} from 'vitest';
 
-import {isExternalHref, shortLink, walkLinks} from './url';
+import {isExternalHref, resolveAbsoluteHref, shortLink, walkLinks} from './url';
 
 describe('url utils', () => {
+    describe('resolveAbsoluteHref', () => {
+        const baseHref = 'https://example.com/docs/';
+
+        it('resolves documentation-root and nested paths against baseHref', () => {
+            expect(resolveAbsoluteHref('en/page.html', baseHref)).toBe(
+                'https://example.com/docs/en/page.html',
+            );
+            expect(resolveAbsoluteHref('/llms.txt', baseHref)).toBe(
+                'https://example.com/docs/llms.txt',
+            );
+            expect(resolveAbsoluteHref('../assets/icon.svg', baseHref, 'en/guides')).toBe(
+                'https://example.com/docs/en/assets/icon.svg',
+            );
+            expect(resolveAbsoluteHref('page.html', baseHref, '///en\\guides///')).toBe(
+                'https://example.com/docs/en/guides/page.html',
+            );
+        });
+
+        it('preserves external, anchor-only, and unresolved hrefs', () => {
+            expect(resolveAbsoluteHref('https://other.example/page', baseHref)).toBe(
+                'https://other.example/page',
+            );
+            expect(resolveAbsoluteHref('#section', baseHref, 'en')).toBe('#section');
+            expect(resolveAbsoluteHref('en/page.html', 'not a url')).toBe('en/page.html');
+        });
+
+        it('does nothing without baseHref', () => {
+            expect(resolveAbsoluteHref('en/page.html')).toBe('en/page.html');
+        });
+    });
+
     describe('isExternalHref', () => {
         it('should return true for http and https links', () => {
             expect(isExternalHref('http://example.com')).toBe(true);
