@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.58.1](https://github.com/diplodoc-platform/cli/compare/v5.58.0...v5.58.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.13.2 ([#2268](https://github.com/diplodoc-platform/cli/issues/2268)) ([ec0b779](https://github.com/diplodoc-platform/cli/commit/ec0b7798928bce5e328b0df4512fb6f821830867))
+* preserve PDF footnote links ([#2267](https://github.com/diplodoc-platform/cli/issues/2267)) ([3b06f69](https://github.com/diplodoc-platform/cli/commit/3b06f69b8caeee67924b7d0cc17cfc3200044333))
+
 ## [5.58.0](https://github.com/diplodoc-platform/cli/compare/v5.57.4...v5.58.0) (2026-09-15)
 
 
