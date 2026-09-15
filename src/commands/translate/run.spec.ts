@@ -1,6 +1,6 @@
 import type {Run} from './run';
 
-import {cpSync, mkdtempSync} from 'node:fs';
+import {cpSync, mkdtempSync, realpathSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
 import {afterEach, describe, expect, it} from 'vitest';
@@ -17,7 +17,12 @@ const FIXTURE = resolve(__dirname, '../../../tests/mocks/translation/toc-include
  * the run for direct `getFiles` calls.
  */
 async function prepare() {
-    const input = mkdtempSync(join(tmpdir(), 'yfm-translate-run-')) as AbsolutePath;
+    // Resolve symlinks and 8.3 short names (/var -> /private/var on macOS,
+    // RUNNER~1 on Windows) up front: the run checks file scopes against
+    // real paths, and only the native realpath expands short names.
+    const input = realpathSync.native(
+        mkdtempSync(join(tmpdir(), 'yfm-translate-run-')),
+    ) as AbsolutePath;
     const cacheDir = mkdtempSync(join(tmpdir(), 'yfm-translate-run-cache-'));
     cpSync(FIXTURE, join(input, 'ru'), {recursive: true});
 
