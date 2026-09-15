@@ -61,7 +61,7 @@ The Template class follows consistent naming conventions for methods:
   - Each call adds to existing collection/state
 
 - **`set*` prefix** — methods that overwrite/set a single value:
-  - `setTitle()`, `setFaviconSrc()`, `setCanonical()`
+  - `setTitle()`, `setFaviconSrc()`, `setCanonical()`, `setBaseHref()`
   - Each call replaces the previous value
 
 ## API Reference
@@ -71,6 +71,7 @@ The Template class follows consistent naming conventions for methods:
 - `setTitle(title: string)` — sets page title
 - `addMeta(props: Hash)` — adds meta tag
 - `setCanonical(canonical: string)` — sets canonical link
+- `setBaseHref(baseHref?: string)` — overrides the base URL used by relative links
 - `addAlternates(alternates: Alternate[])` — adds alternate language links
 - `setFaviconSrc(faviconSrc: string)` — sets favicon source
 
@@ -209,10 +210,15 @@ This approach provides:
 
 ### Base Href Calculation
 
-The template automatically calculates `<base href>` based on the page path depth:
+By default, the template calculates `<base href>` based on the page path depth:
 
 - Uses `getDepthPath()` utility to generate relative base path
 - Ensures relative resource paths resolve correctly
+
+Static builds can override this value with `setBaseHref()`. The build command normalizes a
+configured `.yfm` `baseHref` or `--base-href` value before passing it to every HTML template.
+When set, alternate and described-by metadata is serialized with absolute URLs rooted at that
+publication URL. The same root is used for links generated in `llms.txt` and `llms-full.txt`.
 
 ### CSP Nonce Generation
 

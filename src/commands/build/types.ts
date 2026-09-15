@@ -33,7 +33,10 @@ export type {EntryData, PageData} from './services/entry';
 
 export {OutputFormat, TransformConfig};
 
-type BaseArgs = {output: AbsolutePath};
+type BaseArgs = {
+    output: AbsolutePath;
+    baseHref?: string;
+};
 
 type ExtendedLang = {
     lang: string;
@@ -89,6 +92,7 @@ type BaseConfig = {
     // TODO(patch): exetend langs list by newly supported langs or change type to string
     langs: Langs;
     outputFormat: `${OutputFormat}`;
+    baseHref?: string;
     varsPreset: string;
     vars: Hash;
     allowHtml: boolean;

@@ -1,14 +1,14 @@
 import type {Collect, IncludeInfo, Location} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
 
-import {dirname, extname, relative} from 'node:path';
+import {dirname, extname, join, relative} from 'node:path';
 import {createHash} from 'node:crypto';
 import {dump as yamlDump} from 'js-yaml';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as pageConstructor from '@diplodoc/page-constructor-extension';
 
-import {setExt, shortLink} from '~/core/utils';
+import {normalizePath, resolveAbsoluteHref, setExt, shortLink} from '~/core/utils';
 
 /**
  * Adds YAML frontmatter to markdown content.
@@ -42,11 +42,11 @@ export function addMetaFrontmatter(
  * @param file - Normalized document path (e.g. `ru/about.md`, `ru/index.yaml`)
  * @returns Alternate link object for the companion
  */
-export function buildCompanionAlternate(file: NormalizedPath): Alternate {
+export function buildCompanionAlternate(file: NormalizedPath, baseHref?: string): Alternate {
     const companionExt = file.endsWith('.yaml') || file.endsWith('.yml') ? 'yaml' : 'md';
     const companionHref = shortLink(setExt(file, companionExt));
     return {
-        href: companionHref,
+        href: resolveAbsoluteHref(companionHref, baseHref),
         type: companionExt === 'yaml' ? 'application/yaml' : 'text/markdown',
         title: companionExt === 'yaml' ? 'Yaml version' : 'Markdown version',
     };
@@ -74,6 +74,7 @@ export function buildLlmsAlternate(
         | undefined,
     file: NormalizedPath,
     tocDir: NormalizedPath,
+    baseHref?: string,
 ): Alternate | null {
     if (llmsConfig?.url) {
         return {
@@ -83,6 +84,13 @@ export function buildLlmsAlternate(
     }
 
     if (llmsConfig?.enabled) {
+        if (baseHref) {
+            return {
+                href: resolveAbsoluteHref(normalizePath(join(tocDir, 'llms.txt')), baseHref),
+                rel: 'describedby',
+            };
+        }
+
         // llms.txt sits in the toc directory; compute a relative path from the article.
         const rel = relative(dirname(file), tocDir);
         const href = rel ? `${rel}/llms.txt` : 'llms.txt';
@@ -110,15 +118,16 @@ export function buildAlternateEntries(
     file: NormalizedPath,
     tocDir: NormalizedPath,
     llmsConfig: {enabled?: boolean; url?: string} | undefined,
+    baseHref?: string,
 ): Alternate[] {
     // Include files are not part of any toc — skip companion and llms links.
     if (file.includes('/_includes/') || file.startsWith('_includes/')) {
         return [];
     }
 
-    const entries: Alternate[] = [buildCompanionAlternate(file)];
+    const entries: Alternate[] = [buildCompanionAlternate(file, baseHref)];
 
-    const llmsAlternate = buildLlmsAlternate(llmsConfig, file, tocDir);
+    const llmsAlternate = buildLlmsAlternate(llmsConfig, file, tocDir, baseHref);
     if (llmsAlternate) {
         entries.push(llmsAlternate);
     }

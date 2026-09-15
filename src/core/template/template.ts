@@ -5,7 +5,14 @@ import MarkdownIt from 'markdown-it';
 import {dedent} from 'ts-dedent';
 import {getCSP} from 'csp-header';
 
-import {bounded, get, getDepth, getDepthPath, normalizePath} from '~/core/utils';
+import {
+    bounded,
+    get,
+    getDepth,
+    getDepthPath,
+    normalizePath,
+    resolveAbsoluteHref,
+} from '~/core/utils';
 
 import {compareAlternates, getFaviconType} from './utils';
 
@@ -103,6 +110,8 @@ export class Template {
     private faviconSrc = '';
 
     private canonical = '';
+
+    private baseHref?: string;
 
     private alternates: Alternate[] = [];
 
@@ -318,6 +327,18 @@ export class Template {
     }
 
     /**
+     * Overrides the base URL used by relative links in the generated page.
+     *
+     * @param baseHref - Absolute base URL, including its trailing slash
+     * @returns Template instance for method chaining
+     */
+    @bounded setBaseHref(baseHref: string | undefined) {
+        this.baseHref = baseHref;
+
+        return this;
+    }
+
+    /**
      * Adds alternate language links (can be called multiple times, duplicates are removed).
      *
      * @param alternates - Array of alternate link objects with href and hreflang
@@ -362,7 +383,11 @@ export class Template {
             alternates,
             tags,
         } = this;
-        const base = getDepthPath(getDepth(this.path) - 1);
+        const base = this.baseHref || getDepthPath(getDepth(this.path) - 1);
+        const resolvedAlternates = alternates.map((item) => ({
+            ...item,
+            href: resolveAbsoluteHref(item.href, this.baseHref),
+        }));
         const faviconType = getFaviconType(faviconSrc);
         const metadata = [
             ...tags.map((tag) => ({property: 'article:tag', content: tag})),
@@ -383,7 +408,7 @@ export class Template {
                     <base href="${base}" />
                     <title>${title}</title>
                     ${canonical ? `<link rel="canonical" href="${canonical}">` : ''}
-                    ${Object.values(alternates).sort(compareAlternates).map(alternate).join('\n')}
+                    ${Object.values(resolvedAlternates).sort(compareAlternates).map(alternate).join('\n')}
                     ${metadata.map(meta).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>

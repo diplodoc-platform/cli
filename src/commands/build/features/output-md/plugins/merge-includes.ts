@@ -4,7 +4,13 @@ import type {HashedGraphNode, Scheduler, StepFunction} from '../utils';
 import {basename, dirname, join, relative} from 'node:path';
 import slugify from 'slugify';
 
-import {fenceCloseTail, isExternalHref, matchFenceOpen, normalizePath} from '~/core/utils';
+import {
+    fenceCloseTail,
+    isExternalHref,
+    matchFenceOpen,
+    normalizePath,
+    resolveAbsoluteHref,
+} from '~/core/utils';
 
 import {contentWithoutFrontmatter} from '../../output-html/plugins/includes';
 
@@ -145,9 +151,39 @@ export function rebaseRelativePaths(
     return result.join('\n');
 }
 
+/**
+ * Resolves Markdown links and images against the static publication root.
+ *
+ * The collected body has already had included-file links rebased to `fromPath`,
+ * so that page path is sufficient to resolve every remaining local URL.
+ */
+export function resolveAbsolutePaths(
+    content: string,
+    fromPath: NormalizedPath,
+    baseHref: string,
+): string {
+    const fromDir = dirname(fromPath) || '.';
+    const lines = content.split('\n');
+    const fence = newFenceState();
+
+    return lines
+        .map((line) => {
+            if (processCodeFence(line.trimStart(), fence)) {
+                return line;
+            }
+
+            return rewriteLinksInLine(line, (url) => resolveAbsoluteHref(url, baseHref, fromDir));
+        })
+        .join('\n');
+}
+
 const CODE_SPAN_PLACEHOLDER_RE = /\uFFFDCS(\d+)\uFFFD/g;
 
 function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string {
+    return rewriteLinksInLine(line, (url) => rebaseUrl(url, fromDir, toDir));
+}
+
+function rewriteLinksInLine(line: string, resolver: (url: string) => string | null): string {
     const codeSpans: string[] = [];
     let processed = line.replace(/(`+).*?\1/g, (match) => {
         codeSpans.push(match);
@@ -155,7 +191,7 @@ function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string
     });
 
     processed = processed.replace(LINK_URL_RE, (_match, prefix, url) => {
-        const rebased = rebaseUrl(url, fromDir, toDir);
+        const rebased = resolver(url);
         if (rebased === null) {
             return _match;
         }
@@ -163,7 +199,7 @@ function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string
     });
 
     processed = processed.replace(LINK_DEF_RE, (_match, prefix, url, suffix) => {
-        const rebased = rebaseUrl(url, fromDir, toDir);
+        const rebased = resolver(url);
         if (rebased === null) {
             return _match;
         }
