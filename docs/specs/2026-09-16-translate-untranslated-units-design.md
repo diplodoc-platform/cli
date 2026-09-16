@@ -62,7 +62,8 @@ The CLI already has this shape for a neighbouring defect: `repairDamaged()` in `
 - One retry attempt. A fragment the retry translates is stored and counted as translated; a fragment that comes back identical again keeps the current behaviour - warn, keep the source text, count it in `stat.untranslated`.
 - Counters mirror the markup ones: `stat.untranslatedRetried` for the re-requested fragments, surfaced in the run report next to its neighbours as `fixes.untranslatedRetried`. `units.untranslated` keeps its present meaning and becomes the residual after the retry. The report gains one additive field; `schemaVersion` stays 1.
 - The warning text of `retryFragments()` is currently hardcoded as "Markup retry failed"; it takes a label so both callers report themselves correctly.
-- Skipped in `dryRun`, and not applied to fragments the markup repair already marked as damaged: those keep their source text for a different reason and are counted separately.
+- The retry sits between the model answer and `repairDamaged()`, so the markup repair sees the retried text and a fragment damaged by the retry keeps its source text through the existing path, counted in `fixes.markupDamaged` as before.
+- Skipped in `dryRun`: a dry run returns the fragments themselves as the "translation" and would otherwise retry every unit and double the estimate.
 
 ### 3. Ordering and verification
 
