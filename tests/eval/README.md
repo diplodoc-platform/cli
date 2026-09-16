@@ -53,9 +53,20 @@ the constructs a translation must preserve:
 - Do not add a live `{% file %}` directive: its translate round-trip is
   lossy upstream (compose mangles the directive), which would keep the
   markup gate permanently red. A fenced example is fine.
+- Inline code keeps its source text in the reference, even when the
+  upstream english page translates it (`` `текст_ссылки` ``,
+  `` `{wide-content title="название таблицы"}` ``). The system prompt of
+  `yfm translate` tells the model not to translate text inside inline
+  code, so a reference that expects a translation there fails the run
+  whenever the model follows its own instructions. The untranslated
+  check tolerates a line the reference keeps in the source language, so
+  the corpus stays green either way. Change this only together with the
+  prompt rule it mirrors.
 
 Deviations of the corpus from the upstream docs pages: the en toc name
 for `quickstart.md` follows the page H1 (`Quick start`), the mangled
-`{% file %}` line in `en/syntax/links.md` was repaired, and the live
+`{% file %}` line in `en/syntax/links.md` was repaired, the live
 `{% file %}` directive was removed from `syntax/links.md` in both
-languages (see above).
+languages, and ten inline code spans in `en/syntax/links.md`,
+`en/syntax/code.md` and `en/syntax/tables/gfm.md` keep their russian
+text (see above).
