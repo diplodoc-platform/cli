@@ -81,19 +81,34 @@ export type CaptureServer = BaseServer & {
 
 /**
  * Starts an echo endpoint for a capture run: fragments are returned
- * unchanged and recorded per file. Requires the translate run to use
- * `CAPTURE_USER_PROMPT` and `--max-concurrency 1` so that the request
- * order matches the document order.
+ * unchanged and recorded per file, once each. Requires the translate
+ * run to use `CAPTURE_USER_PROMPT` and `--max-concurrency 1` so that
+ * the request order matches the document order.
+ *
+ * Deduplication matters because an echoed fragment is indistinguishable
+ * from a refused translation (byte-identical output still carrying
+ * source-script text), so `retryUntranslated` re-requests every
+ * fragment of a capture run exactly once. Without dedup that repeat
+ * would be recorded as a second, distinct unit and double the file's
+ * unit count.
  */
 export async function startCaptureServer(): Promise<CaptureServer> {
     const units = new Map<string, string[]>();
+    const seen = new Map<string, Set<string>>();
 
     const server = await startChatServer((messages) => {
         const user = messages[messages.length - 1].content;
         const request = parseCaptureRequest(user);
 
+        const recorded = seen.get(request.file) || new Set<string>();
+        const fresh = request.fragments.filter((fragment) => !recorded.has(fragment));
+        for (const fragment of fresh) {
+            recorded.add(fragment);
+        }
+        seen.set(request.file, recorded);
+
         const known = units.get(request.file) || [];
-        units.set(request.file, known.concat(request.fragments));
+        units.set(request.file, known.concat(fresh));
 
         return request.fragments.join(`\n${FRAGMENT_SEPARATOR}\n`);
     });
