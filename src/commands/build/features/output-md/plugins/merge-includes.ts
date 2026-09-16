@@ -14,8 +14,8 @@ import {
 
 import {contentWithoutFrontmatter} from '../../output-html/plugins/includes';
 
-const LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g;
-const LINK_DEF_RE = /^(\s*\[(?!\*)[^\]]+\]:\s+)(\S+)(\s.*|)$/;
+const LINK_URL_RE = /(\]\(\s*)(<[^>\n]*>|[^)\s]+)/g;
+const LINK_DEF_RE = /^(\s*\[(?!\*)[^\]]+\]:\s+)(<[^>\n]*>|\S+)(\s.*|)$/;
 const NOTITLE_RE = /\bnotitle\b/;
 // Leading whitespace allowed — term definitions are often indented inside lists
 // (markdown-it termDefinitions uses tShift; merge-includes must match the same).
@@ -96,6 +96,16 @@ function newFenceState(): FenceState {
     return {active: false, markup: ''};
 }
 
+function stripBlockquoteMarkers(line: string): string {
+    let content = line.trimStart();
+
+    while (content.startsWith('>')) {
+        content = content.slice(1).trimStart();
+    }
+
+    return content;
+}
+
 /**
  * Tracks fenced code blocks across sequential line processing.
  * Returns true if the current line is inside a code block (should be skipped).
@@ -142,7 +152,7 @@ export function rebaseRelativePaths(
     const fence = newFenceState();
 
     const result = lines.map((line) => {
-        if (processCodeFence(line.trimStart(), fence)) {
+        if (processCodeFence(stripBlockquoteMarkers(line), fence)) {
             return line;
         }
         return rebaseLinksInLine(line, fromDir, toDir);
@@ -168,7 +178,7 @@ export function resolveAbsolutePaths(
 
     return lines
         .map((line) => {
-            if (processCodeFence(line.trimStart(), fence)) {
+            if (processCodeFence(stripBlockquoteMarkers(line), fence)) {
                 return line;
             }
 
@@ -191,7 +201,7 @@ function rewriteLinksInLine(line: string, resolver: (url: string) => string | nu
     });
 
     processed = processed.replace(LINK_URL_RE, (_match, prefix, url) => {
-        const rebased = resolver(url);
+        const rebased = rewriteDestination(url, resolver);
         if (rebased === null) {
             return _match;
         }
@@ -199,7 +209,7 @@ function rewriteLinksInLine(line: string, resolver: (url: string) => string | nu
     });
 
     processed = processed.replace(LINK_DEF_RE, (_match, prefix, url, suffix) => {
-        const rebased = resolver(url);
+        const rebased = rewriteDestination(url, resolver);
         if (rebased === null) {
             return _match;
         }
@@ -214,6 +224,21 @@ function rewriteLinksInLine(line: string, resolver: (url: string) => string | nu
     }
 
     return processed;
+}
+
+function rewriteDestination(
+    destination: string,
+    resolver: (url: string) => string | null,
+): string | null {
+    const enclosed = destination.startsWith('<') && destination.endsWith('>');
+    const url = enclosed ? destination.slice(1, -1) : destination;
+    const resolved = resolver(url);
+
+    if (resolved === null) {
+        return null;
+    }
+
+    return enclosed ? `<${resolved}>` : resolved;
 }
 
 export function stripHash(link: string): string {
