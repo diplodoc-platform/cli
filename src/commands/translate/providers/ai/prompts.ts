@@ -192,11 +192,8 @@ export function buildMessages(fragments: string[], config: PromptConfig): ChatMe
         systemTemplate += '\n\n{{contextFiles}}';
     }
 
-    // The glossary is identical for every batch, so it belongs to the
-    // static system prompt. In the user message it sat right before the
-    // fragments, and a short fragment that follows a list of
-    // "source → target" pairs comes back echoed instead of translated:
-    // measured 20 identity answers out of 20 on a heading, 0 out of 15
+    // Measured on deepseek-v4-flash: a heading came back untranslated in
+    // 20 runs out of 20 with the glossary in the user message, 0 out of 15
     // with the same pairs in the system prompt.
     if (glossary && !placed('{{glossary}}')) {
         systemTemplate += '\n\n{{glossary}}';

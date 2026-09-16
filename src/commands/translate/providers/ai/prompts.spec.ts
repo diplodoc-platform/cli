@@ -100,6 +100,18 @@ describe('translate ai prompts', () => {
             expect(system.content).not.toContain('облако');
         });
 
+        it('should respect glossary placeholder in a custom system prompt', () => {
+            const [system] = buildMessages(['Hello'], {
+                ...config,
+                promptMode: 'replace',
+                systemPrompt: 'Intro.\n\n{{glossary}}\n\nRules.',
+                glossaryPairs: [{sourceText: 'облако', translatedText: 'cloud'}],
+            });
+
+            expect(system.content).toMatch(/Intro\.[\s\S]*cloud[\s\S]*Rules\./);
+            expect(system.content).not.toContain('{{glossary}}');
+        });
+
         it('should not mention required term translations without glossary pairs', () => {
             const [system] = buildMessages(['Hello'], config);
 
