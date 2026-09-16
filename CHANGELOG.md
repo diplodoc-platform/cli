@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.60.0](https://github.com/diplodoc-platform/cli/compare/v5.59.0...v5.60.0) (2026-09-16)
+
+
+### Features
+
+* **translate:** align existing translations block by block when seeding ([#2272](https://github.com/diplodoc-platform/cli/issues/2272)) ([c3eae2d](https://github.com/diplodoc-platform/cli/commit/c3eae2d9ef2209e9569bc6a8f8d12fb71b922372))
+
 ## [5.59.0](https://github.com/diplodoc-platform/cli/compare/v5.58.1...v5.59.0) (2026-09-15)
 
 
