@@ -1,4 +1,4 @@
-import type {AiConfig, BuildArgs, BuildConfig, ContentConfig} from './types';
+import type {AiConfig, BuildArgs, BuildConfig, ContentConfig, ViewerInterfaceConfig} from './types';
 import type {ExtendedOption} from '~/core/config';
 
 import {ok} from 'node:assert';
@@ -406,7 +406,10 @@ export function resolveAiConfig<C extends BuildConfig>(config: C, args: BuildArg
     return {...ai, openapiCompanions};
 }
 
-function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
+function getInterfaceProps<C extends BuildConfig>(
+    config: C,
+    args: BuildArgs,
+): ViewerInterfaceConfig {
     const interfaceProps = ['toc', 'search', 'feedback', 'gallery'] as const;
     type InterfaceProp = (typeof interfaceProps)[number];
 
@@ -432,6 +435,10 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
         },
         {} as Record<InterfaceProp, boolean>,
     );
+
+    if (configInterface.markdownActions !== undefined) {
+        return {...result, markdownActions: configInterface.markdownActions};
+    }
 
     return result;
 }

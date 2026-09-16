@@ -73,6 +73,15 @@ export type AiConfig = {
     openapiCompanions?: boolean | 'md';
 };
 
+export type MarkdownActionsMode = 'visible' | 'dropdown' | 'none';
+
+export type ViewerInterfaceConfig = Partial<
+    Record<'toc' | 'search' | 'feedback' | 'gallery', boolean>
+> & {
+    markdownActions?: MarkdownActionsMode;
+    [key: string]: boolean | MarkdownActionsMode | undefined;
+};
+
 /** Maps a generated OpenAPI leading page to its standalone spec companion file. */
 export type OpenapiCompanionEntry = {
     /** Lang-relative path of the leading page (without extension), e.g. `ru/api/index`. */
@@ -115,7 +124,7 @@ type BaseConfig = {
     // TODO: explicitly handle
     analytics: DocAnalytics;
     supportGithubAnchors?: boolean;
-    interface?: Record<string, boolean>;
+    interface?: ViewerInterfaceConfig;
     feedback?: {
         url?: string;
     };

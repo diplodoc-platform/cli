@@ -707,6 +707,13 @@ describe('Build command', () => {
             'feedback',
         ]);
 
+        test(
+            'should preserve interface.markdownActions from config',
+            '',
+            {interface: {markdownActions: 'visible'}},
+            {interface: {markdownActions: 'visible'}},
+        );
+
         testBooleanFlag('originAsInput', '--origin-as-input', false);
 
         testBooleanFlag('buildStats', '--build-stats', false);
