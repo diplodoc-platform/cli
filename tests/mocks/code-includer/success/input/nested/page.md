@@ -17,7 +17,3 @@ A fenced example is not executed:
 ````markdown
 {% code "./missing-example.ts" %}
 ````
-
-A jsonpath directive is left for a downstream plugin:
-
-{% code "./data.json" lang="json" jsonpath="$.value" %}

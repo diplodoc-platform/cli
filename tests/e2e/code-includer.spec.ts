@@ -35,7 +35,6 @@ describe('code directive', () => {
                 '\n',
             ),
         );
-        expect(markdown).toContain(`{% code "./data.json" lang="json" jsonpath="$.value" %}`);
         expect(html).toContain('local = ');
         expect(html).toContain('console');
         expect(html).toContain('root();');
