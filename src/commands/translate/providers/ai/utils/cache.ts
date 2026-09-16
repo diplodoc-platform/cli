@@ -1,6 +1,10 @@
+import type {SeedPair} from './seed';
+
 import {createHash} from 'node:crypto';
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
+
+import {lcs} from './align';
 
 const VERSION = 1;
 
@@ -33,7 +37,10 @@ export function seedFilePath(cacheDir: string, source: string, target: string): 
 type SeedFile = {
     version: number;
     translations: Record<string, string>;
+    files: Record<string, [string, string][]>;
 };
+
+const SEED_VERSION = 2;
 
 /**
  * Fingerprint-free translation memory derived from existing target files.
@@ -42,11 +49,22 @@ type SeedFile = {
  * repository, not an LLM output, so they survive prompt, glossary and
  * model changes. Each seeding run derives the state anew, so flush()
  * fully replaces the file.
+ *
+ * Two views of the same pairs are kept. The dictionary (`get`) maps a unit
+ * text to its most common translation across the corpus: a sentence new
+ * to a file gets the wording the corpus already uses. The per-file memory
+ * (`memory`) keeps the pairs of every file in document order, so that a
+ * sentence repeated in one file with different wordings keeps each of
+ * them in place when the file is translated again.
  */
 export class SeedStore {
     private readonly file: string;
 
     private translations: Record<string, string> = {};
+
+    private files: Record<string, [string, string][]> = {};
+
+    private readonly counts = new Map<string, Map<string, number>>();
 
     constructor(file: string) {
         this.file = file;
@@ -59,8 +77,9 @@ export class SeedStore {
 
         try {
             const data = JSON.parse(readFileSync(this.file, 'utf8')) as SeedFile;
-            if (data.version === VERSION && data.translations) {
+            if (data.version === SEED_VERSION && data.translations) {
                 this.translations = data.translations;
+                this.files = data.files || {};
             }
         } catch {
             // A corrupted seed file is not fatal - start from scratch.
@@ -71,8 +90,41 @@ export class SeedStore {
         return this.translations[hash(text)];
     }
 
+    /**
+     * Records one pair into the dictionary. The most frequent translation
+     * of a text wins; on a tie the first recorded one stays, so callers
+     * recording in a fixed order get a deterministic dictionary.
+     */
     set(text: string, translation: string) {
-        this.translations[hash(text)] = translation;
+        const key = hash(text);
+        const variants = this.counts.get(key) || new Map<string, number>();
+        const count = (variants.get(translation) || 0) + 1;
+
+        variants.set(translation, count);
+        this.counts.set(key, variants);
+
+        const current = this.translations[key];
+        if (current === undefined || count > (variants.get(current) || 0)) {
+            this.translations[key] = translation;
+        }
+    }
+
+    /**
+     * Records the pairs of a file, in document order. Every pair enters the
+     * per-file memory; doubtful pairs stay out of the dictionary.
+     */
+    record(file: string, pairs: SeedPair[]) {
+        this.files[file] = pairs.map(([text, translation]) => [hash(text), translation]);
+        for (const [text, translation, doubtful] of pairs) {
+            if (!doubtful) {
+                this.set(text, translation);
+            }
+        }
+    }
+
+    /** Hash/translation pairs recorded for a file, in document order. */
+    memory(file: string): [string, string][] | undefined {
+        return this.files[file];
     }
 
     flush() {
@@ -80,8 +132,9 @@ export class SeedStore {
         writeFileSync(
             this.file,
             JSON.stringify({
-                version: VERSION,
+                version: SEED_VERSION,
                 translations: this.translations,
+                files: this.files,
             }),
         );
     }
@@ -135,6 +188,57 @@ export class TranslationStore {
 
     get(text: string): string | undefined {
         return this.seeds?.get(text) ?? this.translations[hash(text)];
+    }
+
+    /**
+     * Stored translations for the units of one file, in order.
+     *
+     * The per-file seed memory comes first: units are matched to the
+     * recorded sequence of the file by longest common subsequence, so an
+     * unchanged sentence gets the translation it had at the same place
+     * even when the same sentence is worded differently elsewhere. Units
+     * the sequence does not cover (a moved section, a new sentence) fall
+     * back to the seed dictionary and then to this run's own translations.
+     */
+    resolve(file: string, texts: string[]): (string | undefined)[] {
+        const result = texts.map((text) => this.get(text));
+        const memory = this.seeds?.memory(file);
+
+        if (!memory?.length) {
+            return result;
+        }
+
+        const hashes = texts.map(hash);
+        const used = new Uint8Array(memory.length);
+        const matched = new Uint8Array(texts.length);
+
+        for (const [i, j] of lcs(
+            hashes,
+            memory.map(([key]) => key),
+        )) {
+            result[i] = memory[j][1];
+            used[j] = 1;
+            matched[i] = 1;
+        }
+
+        // Units outside the common subsequence (a section moved as a whole)
+        // still take the unused entries of the same text, in order.
+        let cursor = 0;
+        for (let i = 0; i < texts.length; i++) {
+            if (matched[i]) {
+                continue;
+            }
+            for (let j = cursor; j < memory.length; j++) {
+                if (!used[j] && memory[j][0] === hashes[i]) {
+                    result[i] = memory[j][1];
+                    used[j] = 1;
+                    cursor = j + 1;
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 
     set(text: string, translation: string) {
