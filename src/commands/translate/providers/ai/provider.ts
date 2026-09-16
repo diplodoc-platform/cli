@@ -954,7 +954,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
      * Re-requests the fragments the model returned unchanged, in the
      * source language. The same prompt in a request of its own is enough
      * to fix most of them, and a request that mentions the failed attempt
-     * is not: describing the echo to the model reproduces it (measured).
+     * is not: describing the echo to the model reproduces it - see
+     * docs/specs/2026-09-16-translate-untranslated-units-design.md for the
+     * numbers.
      *
      * A fragment that comes back untranslated again keeps its source text
      * and is counted by the caller.
@@ -970,11 +972,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
         }
 
         // Bound after the guard, so the closures below need no narrowing
-        // of the captured `marker`.
-        const script: RegExp = marker;
+        // of the captured `marker`. Named `sourceScript` (not `script`) to
+        // read clearly next to `scriptsOf()`.
+        const sourceScript: RegExp = marker;
 
         const refused = (fragment: string, part: string | undefined) =>
-            part !== undefined && part === fragment && script.test(part);
+            part !== undefined && part === fragment && sourceScript.test(part);
 
         const indexes = fragments
             .map((_, index) => index)
@@ -984,6 +987,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
             return parts;
         }
 
+        // A retried fragment can still end up under the markup counters:
+        // if the retry answer arrives with damaged markup that the repair
+        // cannot save, the fragment falls back to its source text there.
         stat.untranslatedRetried += indexes.length;
         logger.warn(path, `${indexes.length} fragment(s) came back untranslated; retrying them.`);
 
@@ -996,6 +1002,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         const result = [...parts];
 
+        // Acceptance mirrors the rule that triggered the retry: anything
+        // but the same echo counts as a translation. A stricter rule -
+        // rejecting any answer that still carries source-script text -
+        // would throw away legitimate translations of pages that quote the
+        // source language on purpose, and ship their source text instead.
         indexes.forEach((index, position) => {
             const candidate = retried[position];
 

@@ -1171,6 +1171,66 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(2);
         });
 
+        it('should retry only the echoed fragment in a mixed batch', async () => {
+            const unit1 = wrap('Первый текст');
+            const unit2 = wrap('Второй текст');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? [`T:${fragments[0]}`, fragments[1]] : [`T:${fragments[0]}`],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit1, unit2]);
+
+            expect(result).toEqual([wrap('T:Первый текст'), wrap('T:Второй текст')]);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+
+            // Only the echoed second fragment goes into the retry request;
+            // the already-translated first fragment must not be re-sent.
+            const [retryMessages] = vi.mocked(client.complete).mock.calls[1];
+            const retryFragments = splitFragments(retryMessages[retryMessages.length - 1].content);
+            expect(retryFragments).toEqual(['Второй текст']);
+        });
+
+        it('should keep the source text when the retry request throws', async () => {
+            const unit = wrap('Исходный текст');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? fragments : new Error('network blip'),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100});
+            const translate = makeTranslator(params);
+
+            await expect(translate('file.md', [unit])).resolves.toEqual([unit]);
+
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(stat.untranslatedRetried).toBe(1);
+        });
+
+        it('should accept a changed retry answer even when it keeps source-script text', async () => {
+            const unit = wrap('Исходный текст');
+            const retryAnswer = 'Source text. Пример на исходном языке.';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const client = makeClient((fragments, call) =>
+                call === 0 ? fragments : [retryAnswer],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            // Deliberate: see the acceptance-rule rationale comment in
+            // provider.ts (`retryUntranslated`) - a changed answer is a
+            // translation even if it still carries source-script text.
+            expect(result).toEqual([wrap(retryAnswer)]);
+            expect(store.get(unit)).toBe(wrap(retryAnswer));
+            expect(stat.untranslated).toBe(0);
+            expect(stat.untranslatedKept).toBe(0);
+        });
+
         it('should not retry an identity response without source-script text', async () => {
             const unit = '<source xml:space="preserve">GitHub API</source>';
             const client = makeClient((fragments) => fragments);
