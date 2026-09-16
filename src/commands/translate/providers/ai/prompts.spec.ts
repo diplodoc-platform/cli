@@ -110,6 +110,7 @@ describe('translate ai prompts', () => {
 
             expect(system.content).toMatch(/Intro\.[\s\S]*cloud[\s\S]*Rules\./);
             expect(system.content).not.toContain('{{glossary}}');
+            expect(system.content.match(/cloud/g)).toHaveLength(1);
         });
 
         it('should not mention required term translations without glossary pairs', () => {
