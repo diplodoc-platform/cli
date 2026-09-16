@@ -85,6 +85,7 @@ Counters (`totals` and each entry of `targets`):
 | `fixes.markupRetried`         | number         | Fragments re-requested because the model returned them with markup that cannot be composed (a dropped placeholder).                                          |
 | `fixes.markupDamaged`         | number         | Fragments that kept their source text because the retry did not fix the markup; also counted in `units.untranslated`.                                        |
 | `fixes.untranslatedRetried`   | number         | Fragments re-requested because the model returned them unchanged in the source language; the ones the retry did not fix are counted in `units.untranslated`. |
+| `fixes.untranslatedKept`      | number         | Fragments that kept their source text because the retry returned them untranslated again; also counted in `units.untranslated`.                              |
 
 Judge stats (`targets[].judge`, present when `--judge` is enabled):
 
@@ -128,7 +129,13 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
     "tokens": {"input": 5200, "output": 4800},
     "requests": {"total": 18, "fallback": 2, "retries": 3},
     "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529},
-    "fixes": {"markupStripped": 2, "markupRetried": 1, "markupDamaged": 0, "untranslatedRetried": 1}
+    "fixes": {
+      "markupStripped": 2,
+      "markupRetried": 1,
+      "markupDamaged": 0,
+      "untranslatedRetried": 1,
+      "untranslatedKept": 0
+    }
   },
   "targets": [
     {
@@ -149,7 +156,8 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
         "markupStripped": 2,
         "markupRetried": 1,
         "markupDamaged": 0,
-        "untranslatedRetried": 1
+        "untranslatedRetried": 1,
+        "untranslatedKept": 0
       },
       "judge": {
         "model": "gpt-4o",

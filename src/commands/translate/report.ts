@@ -58,6 +58,7 @@ export type TranslateReportCounters = {
         markupRetried: number;
         markupDamaged: number;
         untranslatedRetried: number;
+        untranslatedKept: number;
     };
 };
 
@@ -115,6 +116,8 @@ export type TargetStat = {
     markupDamaged: number;
     /** Fragments re-requested because the model returned them untranslated. */
     untranslatedRetried: number;
+    /** Fragments that kept their source text because the retry returned them untranslated again; also counted in `untranslated`. */
+    untranslatedKept: number;
     fallbackRequests: number;
     /** Extra request attempts after retryable errors. */
     retries: number;
@@ -145,6 +148,7 @@ export function createTargetStat(): TargetStat {
         markupRetried: 0,
         markupDamaged: 0,
         untranslatedRetried: 0,
+        untranslatedKept: 0,
         fallbackRequests: 0,
         retries: 0,
         unitsTotal: 0,
@@ -221,6 +225,7 @@ function targetCounters(stat: TargetStat): TranslateReportCounters {
             markupRetried: stat.markupRetried,
             markupDamaged: stat.markupDamaged,
             untranslatedRetried: stat.untranslatedRetried,
+            untranslatedKept: stat.untranslatedKept,
         },
     };
 }
@@ -252,6 +257,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         totals.fixes.markupRetried += target.fixes.markupRetried;
         totals.fixes.markupDamaged += target.fixes.markupDamaged;
         totals.fixes.untranslatedRetried += target.fixes.untranslatedRetried;
+        totals.fixes.untranslatedKept += target.fixes.untranslatedKept;
 
         if (target.tokens) {
             usageSeen = true;
@@ -448,7 +454,7 @@ export class RunReport {
                 : '') +
             (totals.fixes.untranslatedRetried
                 ? `; untranslated: ${totals.fixes.untranslatedRetried} retried, ` +
-                  `${totals.units.untranslated} kept as source`
+                  `${totals.fixes.untranslatedKept} kept as source`
                 : '');
 
         return (

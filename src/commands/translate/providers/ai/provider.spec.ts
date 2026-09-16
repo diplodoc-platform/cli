@@ -323,6 +323,7 @@ describe('translate ai provider', () => {
                 markupRetried: 0,
                 markupDamaged: 0,
                 untranslatedRetried: 0,
+                untranslatedKept: 0,
             });
             expect(logger.stat).toHaveBeenCalledWith(
                 expect.stringContaining('added-markup-stripped: 1'),

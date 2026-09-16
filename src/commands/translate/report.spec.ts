@@ -73,6 +73,7 @@ describe('translate run report', () => {
             stat.markupRetried = 2;
             stat.markupDamaged = 1;
             stat.untranslatedRetried = 5;
+            stat.untranslatedKept = 2;
             stat.oversized = 0;
             stat.sourceChars = 1000;
             stat.translatedChars = 1100;
@@ -122,6 +123,7 @@ describe('translate run report', () => {
                 markupRetried: 2,
                 markupDamaged: 1,
                 untranslatedRetried: 5,
+                untranslatedKept: 2,
             });
 
             expect(data.totals.units.total).toBe(10);
@@ -131,6 +133,7 @@ describe('translate run report', () => {
                 markupRetried: 2,
                 markupDamaged: 1,
                 untranslatedRetried: 5,
+                untranslatedKept: 2,
             });
         });
 
@@ -263,7 +266,7 @@ describe('translate run report', () => {
             const stat = createTargetStat();
 
             stat.untranslatedRetried = 4;
-            stat.untranslated = 1;
+            stat.untranslatedKept = 1;
 
             report.addTarget('en', stat);
 
