@@ -1142,10 +1142,58 @@ describe('translate ai provider', () => {
             expect(result).toEqual([unit]);
             expect(store.get(unit)).toBeUndefined();
             expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(client.complete).toHaveBeenCalledTimes(2);
             expect(warn).toHaveBeenCalledWith(
                 'file.md',
                 'Unit returned untranslated by the model.',
             );
+        });
+
+        it('should retry a unit the model returned untranslated', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const translated = '<source xml:space="preserve">Source text</source>';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const client = makeClient((fragments, call) => (call === 0 ? fragments : [translated]));
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([translated]);
+            expect(store.get(unit)).toBe(translated);
+            expect(stat.untranslated).toBe(0);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslatedKept).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+        });
+
+        it('should not retry an identity response without source-script text', async () => {
+            const unit = '<source xml:space="preserve">GitHub API</source>';
+            const client = makeClient((fragments) => fragments);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100});
+            const translate = makeTranslator(params);
+
+            await translate('file.md', [unit]);
+
+            expect(stat.untranslatedRetried).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not retry untranslated units in a dry run', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const client = makeClient((fragments) => fragments);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100, dryRun: true});
+            const translate = makeTranslator(params);
+
+            await translate('file.md', [unit]);
+
+            expect(stat.untranslatedRetried).toBe(0);
+            expect(stat.requests).toBe(1);
+            expect(client.complete).not.toHaveBeenCalled();
         });
 
         it('should cache identity responses for units without source-script text', async () => {

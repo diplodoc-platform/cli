@@ -133,6 +133,10 @@ export class Provider {
                         (stat.markupRetried
                             ? ` damaged-markup-retried: ${stat.markupRetried}` +
                               ` damaged-markup-kept: ${stat.markupDamaged}`
+                            : '') +
+                        (stat.untranslatedRetried
+                            ? ` untranslated-retried: ${stat.untranslatedRetried}` +
+                              ` untranslated-kept: ${stat.untranslatedKept}`
                             : ''),
                 );
 
@@ -846,12 +850,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
         path: string,
         fragments: string[],
         context: string,
+        what: string,
     ): Promise<(string | undefined)[]> {
         try {
             return await translateBatch(path, fragments, context);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-            logger.warn(path, `Markup retry failed (${error.message}).`);
+            logger.warn(path, `${what} failed (${error.message}).`);
 
             // Only a malformed answer is worth splitting; a rate limit or a
             // server error would meet every fragment the same way.
@@ -867,7 +872,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 result.push((await translateBatch(path, [fragment], context))[0]);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
-                logger.warn(path, `Markup retry failed (${error.message}).`);
+                logger.warn(path, `${what} failed (${error.message}).`);
                 result.push(undefined);
             }
         }
@@ -914,6 +919,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             path,
             indexes.map((index) => fragments[index]),
             context,
+            'Markup retry',
         );
 
         const result = [...parts];
@@ -944,6 +950,63 @@ export function makeTranslator(params: TranslatorParams): Translate {
         return result;
     }
 
+    /**
+     * Re-requests the fragments the model returned unchanged, in the
+     * source language. The same prompt in a request of its own is enough
+     * to fix most of them, and a request that mentions the failed attempt
+     * is not: describing the echo to the model reproduces it (measured).
+     *
+     * A fragment that comes back untranslated again keeps its source text
+     * and is counted by the caller.
+     */
+    async function retryUntranslated(
+        path: string,
+        fragments: string[],
+        parts: string[],
+        context: string,
+    ): Promise<string[]> {
+        if (dryRun || marker === null) {
+            return parts;
+        }
+
+        // Bound after the guard, so the closures below need no narrowing
+        // of the captured `marker`.
+        const script: RegExp = marker;
+
+        const refused = (fragment: string, part: string | undefined) =>
+            part !== undefined && part === fragment && script.test(part);
+
+        const indexes = fragments
+            .map((_, index) => index)
+            .filter((index) => refused(fragments[index], parts[index]));
+
+        if (!indexes.length) {
+            return parts;
+        }
+
+        stat.untranslatedRetried += indexes.length;
+        logger.warn(path, `${indexes.length} fragment(s) came back untranslated; retrying them.`);
+
+        const retried = await retryFragments(
+            path,
+            indexes.map((index) => fragments[index]),
+            context,
+            'Untranslated retry',
+        );
+
+        const result = [...parts];
+
+        indexes.forEach((index, position) => {
+            const candidate = retried[position];
+
+            if (candidate !== undefined && !refused(fragments[index], candidate)) {
+                result[index] = candidate;
+            }
+        });
+
+        return result;
+    }
+
     async function translateWithSplit(
         path: string,
         fragments: string[],
@@ -951,8 +1014,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
     ): Promise<string[]> {
         try {
             const parts = await translateBatch(path, fragments, context);
+            const retried = await retryUntranslated(path, fragments, parts, context);
 
-            return await repairDamaged(path, fragments, parts, context);
+            return await repairDamaged(path, fragments, retried, context);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof LLMResponseError && fragments.length > 1) {
@@ -963,7 +1027,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 const result: string[] = [];
                 for (const fragment of fragments) {
                     const single = await translateBatch(path, [fragment], context);
-                    const repaired = await repairDamaged(path, [fragment], single, context);
+                    const retried = await retryUntranslated(path, [fragment], single, context);
+                    const repaired = await repairDamaged(path, [fragment], retried, context);
                     result.push(repaired[0]);
                 }
                 return result;
@@ -1003,10 +1068,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
                                 return;
                             }
                             if (!dryRun && text === batch[i] && marker?.test(text)) {
-                                // The model returned source-script text unchanged.
-                                // Keep it out of the store so the next run retries,
-                                // and surface the miss in the stats.
+                                // The model returned source-script text unchanged
+                                // and the retry did not fix it. Keep it out of the
+                                // store so the next run tries again, and surface
+                                // the miss in the stats.
                                 stat.untranslated++;
+                                stat.untranslatedKept++;
                                 logger.warn(path, 'Unit returned untranslated by the model.');
                                 cache.get(batch[i])?.resolve(text);
                                 return;
