@@ -44,8 +44,6 @@ export const DEFAULT_USER_PROMPT = dedent`
 
     {{context}}
 
-    {{glossary}}
-
     {{fragments}}
 `;
 
@@ -151,10 +149,12 @@ export function splitFragments(text: string): string[] {
  *  - `append` (default): combines the default system prompt with the user-provided system prompt.
  *  - `replace`: the user-provided system prompt fully replaces the default.
  *
- * Context files land in the system prompt: they are identical for every
- * batch, and a static system prompt plays well with provider-side prompt
- * caching. A `{{contextFiles}}` placeholder in either prompt overrides
- * the default placement.
+ * Context files and the glossary land in the system prompt: they are
+ * identical for every batch, a static system prompt plays well with
+ * provider-side prompt caching, and a fragment that directly follows a
+ * list of glossary pairs tends to come back untranslated. A
+ * `{{contextFiles}}` or `{{glossary}}` placeholder in either prompt
+ * overrides the default placement.
  */
 export function buildMessages(fragments: string[], config: PromptConfig): ChatMessage[] {
     const {systemPrompt, userPrompt, promptMode, sourceLanguage, targetLanguage, glossaryPairs} =
@@ -162,10 +162,11 @@ export function buildMessages(fragments: string[], config: PromptConfig): ChatMe
 
     const joined = joinFragments(fragments);
     const contextFiles = renderContextFiles(config.contextFiles || []);
+    const glossary = renderGlossary(glossaryPairs);
     const vars = {
         source: sourceLanguage,
         target: targetLanguage,
-        glossary: renderGlossary(glossaryPairs),
+        glossary,
         context: config.context ? `Document context: ${config.context}.` : '',
         contextFiles,
         separator: FRAGMENT_SEPARATOR,
@@ -184,11 +185,21 @@ export function buildMessages(fragments: string[], config: PromptConfig): ChatMe
 
     const userTemplate = userPrompt || DEFAULT_USER_PROMPT;
 
-    const placed = [systemTemplate, userTemplate].some((template) =>
-        template.includes('{{contextFiles}}'),
-    );
-    if (contextFiles && !placed) {
+    const placed = (placeholder: string) =>
+        [systemTemplate, userTemplate].some((template) => template.includes(placeholder));
+
+    if (contextFiles && !placed('{{contextFiles}}')) {
         systemTemplate += '\n\n{{contextFiles}}';
+    }
+
+    // The glossary is identical for every batch, so it belongs to the
+    // static system prompt. In the user message it sat right before the
+    // fragments, and a short fragment that follows a list of
+    // "source → target" pairs comes back echoed instead of translated:
+    // measured 20 identity answers out of 20 on a heading, 0 out of 15
+    // with the same pairs in the system prompt.
+    if (glossary && !placed('{{glossary}}')) {
+        systemTemplate += '\n\n{{glossary}}';
     }
 
     return [
