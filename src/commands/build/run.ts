@@ -2,7 +2,6 @@ import type {BuildConfig, Langs} from '.';
 import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
 import type {Lang} from '@diplodoc/transform/lib/typings';
-import type Token from 'markdown-it/lib/token';
 
 import {dirname, join, resolve} from 'node:path';
 import {uniq} from 'lodash';
@@ -25,7 +24,7 @@ import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} fr
 import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
-import {AnchorsService} from './services/anchors';
+import {AnchorsService, collectAnchorIds} from './services/anchors';
 import {extractIncludedBlocks} from './extract-included';
 import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
 
@@ -321,23 +320,6 @@ export class Run extends BaseRun<BuildConfig> {
         }
 
         return this.markdown.titles(path);
-    }
-}
-
-function collectAnchorIds(tokens: Token[], anchorIds: Set<string>) {
-    for (const token of tokens) {
-        const id = token.attrGet('id');
-        if (id) {
-            anchorIds.add(id);
-        }
-
-        if (token.type === 'anchor' && token.content) {
-            anchorIds.add(token.content);
-        }
-
-        if (token.children) {
-            collectAnchorIds(token.children, anchorIds);
-        }
     }
 }
 

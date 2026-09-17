@@ -9,7 +9,7 @@ import {dirname, join} from 'node:path';
 
 import {isExternalHref, normalizePath} from '~/core/utils';
 
-import {walkLinks} from '../utils';
+import {decodeAnchor, walkLinks} from '../utils';
 
 const PAGE_LINK_REGEXP = /\.(md|ya?ml)$/i;
 
@@ -38,15 +38,15 @@ export default ((md, opts) => {
             const file = pathname ? join(dirname(state.env.path || path), pathname) : path;
             const normalizedFile = normalizePath(file);
             const isPageFile = PAGE_LINK_REGEXP.test(normalizedFile);
-            const anchor = hash?.slice(1);
+            const anchor = decodeAnchor(hash);
             const anchorPage = resolveAnchorPage(normalizedFile);
             const anchorIsUnreachable = Boolean(
                 anchor &&
-                    anchorIndex &&
-                    normalizedFile.toLowerCase().endsWith('.md') &&
-                    (!anchorPage ||
-                        !entries.includes(anchorPage) ||
-                        !anchorIndex.get(anchorPage)?.has(anchor)),
+                anchorIndex &&
+                normalizedFile.toLowerCase().endsWith('.md') &&
+                (!anchorPage ||
+                    !entries.includes(anchorPage) ||
+                    !anchorIndex.get(anchorPage)?.has(anchor)),
             );
 
             if ((!isEmptyLink && !isTitleRefLink) || !isPageFile) {

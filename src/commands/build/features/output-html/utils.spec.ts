@@ -2,9 +2,32 @@ import {describe, expect, it} from 'vitest';
 import MarkdownIt from 'markdown-it';
 import file from '@diplodoc/transform/lib/plugins/file';
 
-import {filterBundledExtensionAssets, getBaseMdItPlugins} from './utils';
+import {decodeAnchor, filterBundledExtensionAssets, getBaseMdItPlugins} from './utils';
 
 describe('output-html utils ', () => {
+    describe('decodeAnchor', () => {
+        it('returns null for empty, nullish or hash-only input', () => {
+            expect(decodeAnchor(null)).toBeNull();
+            expect(decodeAnchor(undefined)).toBeNull();
+            expect(decodeAnchor('')).toBeNull();
+            expect(decodeAnchor('#')).toBeNull();
+        });
+
+        it('strips the leading hash', () => {
+            expect(decodeAnchor('#anchor')).toBe('anchor');
+            expect(decodeAnchor('anchor')).toBe('anchor');
+        });
+
+        it('percent-decodes non-ASCII anchors', () => {
+            expect(decodeAnchor('#%D1%80%D0%B0%D0%B7%D0%B4%D0%B5%D0%BB')).toBe('раздел');
+            expect(decodeAnchor('#раздел')).toBe('раздел');
+        });
+
+        it('falls back to the raw value on malformed encoding', () => {
+            expect(decodeAnchor('#%E0%A4%A')).toBe('%E0%A4%A');
+        });
+    });
+
     describe('getBaseMdItPlugins', () => {
         it('should include file plugin in the list', () => {
             const plugins = getBaseMdItPlugins();
