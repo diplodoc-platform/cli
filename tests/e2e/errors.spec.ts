@@ -101,7 +101,9 @@ describe('Errors', () => {
         ]);
     });
 
-    test('mocks/errors/lint-loglevel', ({html}: TestResult) => {
+    test('mocks/errors/lint-loglevel', ({md, html}: TestResult) => {
+        expect(md.errors).toEqual([]);
+        expect(md.warns).toEqual([]);
         expectErrors(html, [
             'ERR index.md: 5: MD010 / no-hard-tabs Hard tabs [Column: 1]',
             'ERR index.md: 1: MD018 / no-missing-space-atx No space after hash on atx style heading [Context: "#Heading without a space after..."]',

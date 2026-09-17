@@ -160,7 +160,12 @@ export class Run extends BaseRun<BuildConfig> {
         return [result, env] as const;
     }
 
-    async lint(file: NormalizedPath, markdown: string, options: TransformOptions) {
+    async lint(
+        file: NormalizedPath,
+        markdown: string,
+        options: TransformOptions,
+        plugins = this.markdown.plugins,
+    ) {
         const {deps, assets} = options;
 
         const {
@@ -191,6 +196,7 @@ export class Run extends BaseRun<BuildConfig> {
 
         const pluginOptions = {
             ...this.transformConfig(file, assetsRemap),
+            plugins,
             files: {...depFiles, ...includedFiles},
             titles: await remap(titles, this.titles),
             assets: assetsRemap,
@@ -199,7 +205,7 @@ export class Run extends BaseRun<BuildConfig> {
         return yfmlint(cleanMarkdown, file, {
             lintConfig: this.config.lint.config,
             pluginOptions,
-            plugins: pluginOptions.plugins,
+            plugins,
         });
     }
 
