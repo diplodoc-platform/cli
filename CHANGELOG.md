@@ -1,5 +1,26 @@
 # Changelog
 
+## [5.61.0](https://github.com/diplodoc-platform/cli/compare/v5.60.0...v5.61.0) (2026-09-17)
+
+
+### Features
+
+* **translate:** eval series as the gate before a model change ([#2282](https://github.com/diplodoc-platform/cli/issues/2282)) ([c92ab94](https://github.com/diplodoc-platform/cli/commit/c92ab946da1d9440eb0d0d490cc810bd984d31fa))
+
+
+### Bug Fixes
+
+* **build:** copy images referenced only by gallery-src ([#2273](https://github.com/diplodoc-platform/cli/issues/2273)) ([6b40188](https://github.com/diplodoc-platform/cli/commit/6b4018833b426173bc0759a1009500dbde22161a))
+* **cli:** avoid markdown lint plugin side effects ([b52daf9](https://github.com/diplodoc-platform/cli/commit/b52daf9c71d11dca0c57a31dca011e2683402965))
+* **cli:** limit markdown lint to audience validation ([6405640](https://github.com/diplodoc-platform/cli/commit/64056408c61b50d4f4980e05d7e4f595be717ab7))
+* **deps:** Update @diplodoc/ajv@0.6.1 ([#2280](https://github.com/diplodoc-platform/cli/issues/2280)) ([b397a4d](https://github.com/diplodoc-platform/cli/commit/b397a4d0ac6c4c03e0fafc52eed13652cf47e827))
+* **translate:** stop shipping units the model returns untranslated ([#2277](https://github.com/diplodoc-platform/cli/issues/2277)) ([b4a58e7](https://github.com/diplodoc-platform/cli/commit/b4a58e7bbf90b1a96897865fd0005e4755cc8fb2))
+
+
+### Miscellaneous Chores
+
+* **master:** release 5.61.0 ([afe8760](https://github.com/diplodoc-platform/cli/commit/afe8760262311bec1118cd29714d091552002c42))
+
 ## [5.60.0](https://github.com/diplodoc-platform/cli/compare/v5.59.0...v5.60.0) (2026-09-16)
 
 
