@@ -88,33 +88,49 @@ export class TocService {
     }
 
     get entries() {
-        const allEntries = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isEntry);
+        const paths = this.relations.overallOrder() as NormalizedPath[];
 
-        // Find all TOC files and determine the minimum nesting level
-        const allTocPaths = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isToc);
+        const allEntries: NormalizedPath[] = [];
+        const allTocPaths: NormalizedPath[] = [];
+
+        let minNestingLevel = Infinity;
+
+        for (const path of paths) {
+            if (this.isEntry(path)) {
+                allEntries.push(path);
+            }
+
+            // Find all TOC files and determine the minimum nesting level
+            if (this.isToc(path)) {
+                allTocPaths.push(path);
+
+                const level = path.split('/').length;
+
+                minNestingLevel = Math.min(minNestingLevel, level);
+            }
+        }
+
         if (allTocPaths.length === 0) {
             return allEntries;
         }
 
-        // Calculate nesting levels for all TOC files
-        const nestingLevels = allTocPaths.map((tocPath) => tocPath.split('/').length);
-        const minNestingLevel = Math.min(...nestingLevels);
+        // Resolve eligibility once per TOC instead of traversing its dependencies for every page.
+        // Keep this lookup local so subsequent reads reflect changes to the relations graph.
+        const eligibleTocs = new Set<NormalizedPath>();
 
-        // Filter entries to include only those from TOC files that are either:
-        // 1. At the minimum nesting level (root TOC files)
-        // 2. Or TOC files that are referenced by includes from other TOC files
+        for (const tocPath of allTocPaths) {
+            const isRootToc = tocPath.split('/').length === minNestingLevel;
+
+            if (isRootToc || this.relations.dependenciesOf(tocPath).length > 0) {
+                eligibleTocs.add(tocPath);
+            }
+        }
+
         const filteredEntries = allEntries.filter((entry) => {
-            // Find all TOC files that reference this entry
-            const tocPaths = (this.relations.dependantsOf(entry) as NormalizedPath[]).filter(
-                this.isToc,
-            );
+            const dependents = this.relations.dependantsOf(entry) as NormalizedPath[];
 
-            // Check if any of the referencing TOC files is a root TOC or is referenced itself
-            return tocPaths.some((tocPath) => {
-                const nestingLevel = tocPath.split('/').length;
-                const isRootToc = nestingLevel === minNestingLevel;
-                const isReferenced = this.relations.dependenciesOf(tocPath).length > 0;
-                return isRootToc || isReferenced;
+            return dependents.some((tocPath) => {
+                return eligibleTocs.has(tocPath);
             });
         });
 
