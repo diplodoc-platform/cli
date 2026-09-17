@@ -5,10 +5,10 @@ import type {Command} from '~/core/config';
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 import {LogLevels, getLogLevel, log, normalizeConfig} from '@diplodoc/yfmlint';
-import visibility from '@diplodoc/transform/lib/plugins/visibility';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
+import {getBaseMdItPlugins} from '~/commands/build/features/output-html/utils';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, resolveConfig, valuable} from '~/core/config';
@@ -110,14 +110,7 @@ export class Lint {
             getBuildHooks(program)
                 .BeforeRun.for(format)
                 .tap('Lint', (run) => {
-                    // Md builds do not register the HTML renderer's base plugins. Register the
-                    // source-only visibility plugin explicitly so malformed audience directives
-                    // still emit YFM023 before the viewer consumes the generated Markdown.
-                    if (format === 'md') {
-                        getMarkdownHooks(run.markdown).Plugins.tap('Lint', (plugins) => {
-                            return plugins.concat(visibility);
-                        });
-                    }
+                    const baseMdItPlugins = format === 'md' ? getBaseMdItPlugins() : undefined;
 
                     getMarkdownHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
                         if (!run.config.lint.enabled) {
@@ -127,17 +120,27 @@ export class Lint {
                         const deps = await run.markdown.deps(vfile.path);
                         const assets = await run.markdown.assets(vfile.path);
 
-                        const errors = await run.lint(vfile.path, vfile.data, {
-                            deps,
-                            assets,
-                        });
+                        const errors = await run.lint(
+                            vfile.path,
+                            vfile.data,
+                            {deps, assets},
+                            baseMdItPlugins
+                                ? run.markdown.plugins.concat(baseMdItPlugins)
+                                : undefined,
+                        );
+                        // Markdown output only needs the audience directive validation added for
+                        // viewer companions. Other lint rules remain an HTML-build contract.
+                        const relevantErrors =
+                            format === 'md'
+                                ? errors?.filter((error) => error.ruleNames.includes('YFM023'))
+                                : errors;
 
-                        if (errors) {
-                            for (const error of errors) {
+                        if (relevantErrors) {
+                            for (const error of relevantErrors) {
                                 error.lineNumber = run.markdown.remap(vfile.path, error.lineNumber);
                             }
 
-                            log(errors, run.logger);
+                            log(relevantErrors, run.logger);
                         }
                     });
 
