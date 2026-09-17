@@ -49,6 +49,73 @@ describe('translate eval mock servers', () => {
         expect(text).toContain('Второй юнит.');
     });
 
+    it('should not double-count a fragment repeated by the untranslated retry', async () => {
+        const server = await startCaptureServer();
+        cleanups.push(server.close);
+
+        const context = 'document "Тест" (file ru/a.md)';
+        const fragments = ['Первый юнит.', 'Второй юнит.'];
+
+        const firstMessages = buildMessages(fragments, {
+            promptMode: 'append',
+            sourceLanguage: 'ru-RU',
+            targetLanguage: 'en-US',
+            glossaryPairs: [],
+            context,
+            userPrompt: CAPTURE_USER_PROMPT,
+        });
+        const firstText = await complete(server.apiBase, firstMessages);
+
+        // The retry re-requests the fragments the model appears to have
+        // refused, using the same file context, so it repeats a fragment
+        // already captured for ru/a.md.
+        const retryMessages = buildMessages(['Первый юнит.'], {
+            promptMode: 'append',
+            sourceLanguage: 'ru-RU',
+            targetLanguage: 'en-US',
+            glossaryPairs: [],
+            context,
+            userPrompt: CAPTURE_USER_PROMPT,
+        });
+        const retryText = await complete(server.apiBase, retryMessages);
+
+        expect(server.units.get('ru/a.md')).toEqual(fragments);
+        expect(firstText).toContain('Первый юнит.');
+        expect(firstText).toContain('Второй юнит.');
+        expect(retryText).toContain('Первый юнит.');
+    });
+
+    it('should record a fragment repeated from an earlier batch, not just the previous one', async () => {
+        const server = await startCaptureServer();
+        cleanups.push(server.close);
+
+        const context = 'document "Тест" (file ru/a.md)';
+        const messagesFor = (fragments: string[]) =>
+            buildMessages(fragments, {
+                promptMode: 'append',
+                sourceLanguage: 'ru-RU',
+                targetLanguage: 'en-US',
+                glossaryPairs: [],
+                context,
+                userPrompt: CAPTURE_USER_PROMPT,
+            });
+
+        // First batch.
+        await complete(server.apiBase, messagesFor(['Первый юнит.']));
+        // Second batch: unrelated fragment, becomes the "previous request".
+        await complete(server.apiBase, messagesFor(['Второй юнит.']));
+        // Third batch: a legitimate recurrence of the first batch's
+        // fragment, not an echo of the immediately preceding one, so it
+        // must still be recorded.
+        await complete(server.apiBase, messagesFor(['Первый юнит.']));
+
+        expect(server.units.get('ru/a.md')).toEqual([
+            'Первый юнит.',
+            'Второй юнит.',
+            'Первый юнит.',
+        ]);
+    });
+
     it('should translate through the memory and count misses', async () => {
         const lookup = makeTmLookup(new Map([['Первый юнит.', 'First unit.']]));
         const server = await startMockServer(lookup);

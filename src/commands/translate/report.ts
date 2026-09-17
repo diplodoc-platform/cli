@@ -52,8 +52,14 @@ export type TranslateReportCounters = {
     tokens: {input: number; output: number} | null;
     requests: {total: number; fallback: number; retries: number};
     cache: {enabled: boolean; hits: number; misses: number; hitRate: number | null};
-    /** Markup defects handled in model output before composing. */
-    fixes: {markupStripped: number; markupRetried: number; markupDamaged: number};
+    /** Markup and translation defects handled in model output before composing. */
+    fixes: {
+        markupStripped: number;
+        markupRetried: number;
+        markupDamaged: number;
+        untranslatedRetried: number;
+        untranslatedKept: number;
+    };
 };
 
 export type TranslateReportTarget = TranslateReportCounters & {
@@ -108,6 +114,10 @@ export type TargetStat = {
     markupRetried: number;
     /** Fragments that kept their source text because the retry did not fix the markup. */
     markupDamaged: number;
+    /** Fragments re-requested because the model returned them untranslated. */
+    untranslatedRetried: number;
+    /** Fragments that kept their source text because the retry returned them untranslated again; also counted in `untranslated`. */
+    untranslatedKept: number;
     fallbackRequests: number;
     /** Extra request attempts after retryable errors. */
     retries: number;
@@ -137,6 +147,8 @@ export function createTargetStat(): TargetStat {
         markupStripped: 0,
         markupRetried: 0,
         markupDamaged: 0,
+        untranslatedRetried: 0,
+        untranslatedKept: 0,
         fallbackRequests: 0,
         retries: 0,
         unitsTotal: 0,
@@ -212,6 +224,8 @@ function targetCounters(stat: TargetStat): TranslateReportCounters {
             markupStripped: stat.markupStripped,
             markupRetried: stat.markupRetried,
             markupDamaged: stat.markupDamaged,
+            untranslatedRetried: stat.untranslatedRetried,
+            untranslatedKept: stat.untranslatedKept,
         },
     };
 }
@@ -242,6 +256,8 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         totals.fixes.markupStripped += target.fixes.markupStripped;
         totals.fixes.markupRetried += target.fixes.markupRetried;
         totals.fixes.markupDamaged += target.fixes.markupDamaged;
+        totals.fixes.untranslatedRetried += target.fixes.untranslatedRetried;
+        totals.fixes.untranslatedKept += target.fixes.untranslatedKept;
 
         if (target.tokens) {
             usageSeen = true;
@@ -435,6 +451,10 @@ export class RunReport {
             (totals.fixes.markupRetried
                 ? `; damaged markup: ${totals.fixes.markupRetried} retried, ` +
                   `${totals.fixes.markupDamaged} kept as source`
+                : '') +
+            (totals.fixes.untranslatedRetried
+                ? `; untranslated: ${totals.fixes.untranslatedRetried} retried, ` +
+                  `${totals.fixes.untranslatedKept} kept as source`
                 : '');
 
         return (

@@ -78,14 +78,55 @@ describe('translate ai prompts', () => {
             expect(system.content).toContain(DEFAULT_SYSTEM_PROMPT.split('\n')[0]);
         });
 
-        it('should render glossary pairs into the user message', () => {
-            const [, user] = buildMessages(['Hello'], {
+        it('should render glossary pairs into the system message', () => {
+            const [system, user] = buildMessages(['Hello'], {
                 ...config,
                 glossaryPairs: [{sourceText: 'облако', translatedText: 'cloud'}],
             });
 
+            expect(system.content).toContain('облако');
+            expect(system.content).toContain('cloud');
+            expect(user.content).not.toContain('облако');
+        });
+
+        it('should respect glossary placeholder in a custom user prompt', () => {
+            const [system, user] = buildMessages(['Hello'], {
+                ...config,
+                userPrompt: '{{glossary}}\n\n{{fragments}}',
+                glossaryPairs: [{sourceText: 'облако', translatedText: 'cloud'}],
+            });
+
             expect(user.content).toContain('облако');
-            expect(user.content).toContain('cloud');
+            expect(system.content).not.toContain('облако');
+        });
+
+        it('should respect glossary placeholder in a custom system prompt', () => {
+            const [system] = buildMessages(['Hello'], {
+                ...config,
+                promptMode: 'replace',
+                systemPrompt: 'Intro.\n\n{{glossary}}\n\nRules.',
+                glossaryPairs: [{sourceText: 'облако', translatedText: 'cloud'}],
+            });
+
+            expect(system.content).toMatch(/Intro\.[\s\S]*cloud[\s\S]*Rules\./);
+            expect(system.content).not.toContain('{{glossary}}');
+            expect(system.content.match(/cloud/g)).toHaveLength(1);
+        });
+
+        it('should not mention required term translations without glossary pairs', () => {
+            const [system] = buildMessages(['Hello'], config);
+
+            expect(system.content).not.toContain('required term translations');
+        });
+
+        it('should drop the glossary placeholder when no pairs are configured', () => {
+            const [system] = buildMessages(['Hello'], {
+                ...config,
+                promptMode: 'replace',
+                systemPrompt: 'Intro.\n\n{{glossary}}',
+            });
+
+            expect(system.content).not.toContain('{{glossary}}');
         });
 
         it('should join fragments with the delimiter', () => {

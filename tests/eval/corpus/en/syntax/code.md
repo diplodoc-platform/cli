@@ -12,7 +12,7 @@ To add a code fragment to the text, use the ` character.
 
 **Result:**
 
-`Code fragment` in text.
+`Фрагмент кода` in text.
 
 {% include [not_var](../_includes/not_var-info.md) %}
 
@@ -124,7 +124,7 @@ Usage example:
 
 ### Command line prefix {#prompt}
 
-Use the parameter `prompt="<value>"` to exclude the command line prefix (`$`, `#`, `>>>`, `mysql>`, etc.) from selection and copying via the widget.
+Use the parameter `prompt="<значение>"` to exclude the command line prefix (`$`, `#`, `>>>`, `mysql>`, etc.) from selection and copying via the widget.
 
 **Usage example:**
 

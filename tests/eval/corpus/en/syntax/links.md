@@ -6,9 +6,9 @@ The standard markup for a link looks like this:
 [текст_ссылки](ссылка "текст_подсказки")
 ```
 
-  * `link_text` — explicit specification of the link text.
-  * `link` — URL or file path.
-  * `"tooltip_text"` — a tooltip that will be displayed when hovering over the link text. Optional parameter.
+  * `текст_ссылки` — explicit specification of the link text.
+  * `ссылка` — URL or file path.
+  * `"текст_подсказки"` — a tooltip that will be displayed when hovering over the link text. Optional parameter.
 
 Depending on the type of link, simplifications and other formatting options are allowed.
 
@@ -18,8 +18,8 @@ By default, all relative links open in the current browser tab, and all absolute
 
 Examples:
 
-* `[text](link){target=_blank}` — will open in a new tab,
-* `[text](link){target=_self}` — will open in the current tab.
+* `[текст](ссылка){target=_blank}` — will open in a new tab,
+* `[текст](ссылка){target=_self}` — will open in the current tab.
 
 ## Link to an md file {#autotitle}
 
@@ -84,11 +84,11 @@ To convert a URL or email address into a link, add angle brackets `<>` on both s
 Use reference-style links to make the source text of the document easier to read. Links of this type consist of two parts connected by labels:
 * a brief description of the link in the text.
   
-  `[link_text][link_label]`
+  `[текст_ссылки][метка_ссылки]`
 
 * a long URL placed in a special location at the end of a paragraph or document. 
   
-  `[link_label]: URL`
+  `[метка_ссылки]: URL`
 
 ```markdown
 My favorite search engine is [Yandex][1].
