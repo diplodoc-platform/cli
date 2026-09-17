@@ -1360,6 +1360,92 @@ describe('toc-loader', () => {
 });
 
 describe('entries filtering logic', () => {
+    it('should bound dependency traversal work by TOC size rather than page count', () => {
+        const {toc} = setupService();
+        const root = normalizePath('toc.yaml');
+        const nested = normalizePath('nested/toc.yaml');
+
+        toc.relations.addNode(root, {type: 'toc', data: {path: root, id: 'root'}});
+        toc.relations.addNode(nested, {type: 'toc', data: {path: nested, id: 'nested'}});
+        toc.relations.addDependency(root, nested);
+
+        const pages = Array.from({length: 30}, (_, index) => {
+            return normalizePath(`nested/page${index}.md`);
+        });
+
+        for (const page of pages) {
+            toc.relations.addNode(page, {type: 'entry', data: undefined});
+            toc.relations.addDependency(nested, page);
+        }
+
+        const dependencies = vi.spyOn(toc.relations, 'dependenciesOf');
+
+        try {
+            expect(toc.entries).toEqual(pages);
+
+            const traversedNodes = dependencies.mock.results.reduce((total, result) => {
+                return total + (result.value as string[]).length;
+            }, 0);
+
+            expect(traversedNodes).toBeLessThanOrEqual(pages.length + 1);
+        } finally {
+            dependencies.mockRestore();
+        }
+    });
+
+    it('should reflect graph changes between entries reads', () => {
+        const {toc} = setupService();
+        const root = normalizePath('toc.yaml');
+        const first = normalizePath('first.md');
+        const second = normalizePath('second.md');
+
+        toc.relations.addNode(root, {type: 'toc', data: {path: root, id: 'root'}});
+        toc.relations.addNode(first, {type: 'entry', data: undefined});
+        toc.relations.addDependency(root, first);
+
+        expect(toc.entries).toEqual([first]);
+
+        toc.relations.addNode(second, {type: 'entry', data: undefined});
+        toc.relations.addDependency(root, second);
+
+        expect(toc.entries).toEqual([first, second]);
+
+        toc.relations.removeDependency(root, first);
+
+        expect(toc.entries).toEqual([second]);
+
+        toc.relations.removeNode(root);
+
+        expect(toc.entries).toEqual([first, second]);
+    });
+
+    it('should preserve shared entry order through cyclic TOC references', () => {
+        const {toc} = setupService();
+        const root = normalizePath('toc.yaml');
+        const nested = normalizePath('nested/toc.yaml');
+        const deeper = normalizePath('nested/deeper/toc.yaml');
+        const shared = normalizePath('shared.md');
+        const last = normalizePath('last.md');
+        const orphan = normalizePath('orphan.md');
+
+        for (const path of [root, nested, deeper]) {
+            toc.relations.addNode(path, {type: 'toc', data: {path, id: path}});
+        }
+
+        for (const path of [shared, last, orphan]) {
+            toc.relations.addNode(path, {type: 'entry', data: undefined});
+        }
+
+        toc.relations.addDependency(root, nested);
+        toc.relations.addDependency(nested, deeper);
+        toc.relations.addDependency(deeper, nested);
+        toc.relations.addDependency(nested, shared);
+        toc.relations.addDependency(deeper, shared);
+        toc.relations.addDependency(deeper, last);
+
+        expect(toc.entries).toEqual([shared, last]);
+    });
+
     it('should include entries from root TOC files', async () => {
         const {run, toc} = setupService({});
 
