@@ -1356,10 +1356,126 @@ describe('toc-loader', () => {
             // isToc should return falsy for skipped files with undefined data
             expect(toc.isToc('skipped-toc.yaml' as NormalizedPath)).toBeFalsy();
         });
+
+        it('should return a boolean while a TOC is loading', () => {
+            const {toc} = setupService();
+            const path = 'toc.yaml' as NormalizedPath;
+
+            toc.relations.addNode(path, {type: 'toc', data: Promise.resolve(undefined)});
+
+            expect(toc.isToc(path)).toBe(true);
+        });
     });
 });
 
 describe('entries filtering logic', () => {
+    it('should collect entries without traversing TOC dependencies', () => {
+        const {toc} = setupService();
+        const root = normalizePath('toc.yaml');
+        const nested = normalizePath('nested/toc.yaml');
+
+        toc.relations.addNode(root, {type: 'toc', data: {path: root, id: 'root'}});
+        toc.relations.addNode(nested, {type: 'toc', data: {path: nested, id: 'nested'}});
+        toc.relations.addDependency(root, nested);
+
+        const pages = Array.from({length: 30}, (_, index) => {
+            return normalizePath(`nested/page${index}.md`);
+        });
+
+        for (const page of pages) {
+            toc.relations.addNode(page, {type: 'entry', data: undefined});
+            toc.relations.addDependency(nested, page);
+        }
+
+        const dependencies = vi.spyOn(toc.relations, 'dependenciesOf');
+
+        try {
+            expect(toc.entries).toEqual(pages);
+
+            const traversedNodes = dependencies.mock.results.reduce((total, result) => {
+                return total + (result.value as string[]).length;
+            }, 0);
+
+            expect(traversedNodes).toBe(0);
+        } finally {
+            dependencies.mockRestore();
+        }
+    });
+
+    it('should exclude entries owned only by sources when TOCs are present', () => {
+        const {toc} = setupService();
+        const root = normalizePath('toc.yaml');
+        const source = normalizePath('included/toc.yaml');
+        const page = normalizePath('page.md');
+        const sourcePage = normalizePath('source-page.md');
+        const orphan = normalizePath('orphan.md');
+
+        toc.relations.addNode(root, {type: 'toc', data: {path: root, id: 'root'}});
+        toc.relations.addNode(source, {type: 'source', data: undefined});
+
+        for (const entry of [page, sourcePage, orphan]) {
+            toc.relations.addNode(entry, {type: 'entry', data: undefined});
+        }
+
+        toc.relations.addDependency(root, page);
+        toc.relations.addDependency(source, sourcePage);
+
+        expect(toc.entries).toEqual([page]);
+    });
+
+    it('should reflect graph changes between entries reads', () => {
+        const {toc} = setupService();
+        const root = normalizePath('toc.yaml');
+        const first = normalizePath('first.md');
+        const second = normalizePath('second.md');
+
+        toc.relations.addNode(root, {type: 'toc', data: {path: root, id: 'root'}});
+        toc.relations.addNode(first, {type: 'entry', data: undefined});
+        toc.relations.addDependency(root, first);
+
+        expect(toc.entries).toEqual([first]);
+
+        toc.relations.addNode(second, {type: 'entry', data: undefined});
+        toc.relations.addDependency(root, second);
+
+        expect(toc.entries).toEqual([first, second]);
+
+        toc.relations.removeDependency(root, first);
+
+        expect(toc.entries).toEqual([second]);
+
+        toc.relations.removeNode(root);
+
+        expect(toc.entries).toEqual([first, second]);
+    });
+
+    it('should preserve shared entry order through cyclic TOC references', () => {
+        const {toc} = setupService();
+        const root = normalizePath('toc.yaml');
+        const nested = normalizePath('nested/toc.yaml');
+        const deeper = normalizePath('nested/deeper/toc.yaml');
+        const shared = normalizePath('shared.md');
+        const last = normalizePath('last.md');
+        const orphan = normalizePath('orphan.md');
+
+        for (const path of [root, nested, deeper]) {
+            toc.relations.addNode(path, {type: 'toc', data: {path, id: path}});
+        }
+
+        for (const path of [shared, last, orphan]) {
+            toc.relations.addNode(path, {type: 'entry', data: undefined});
+        }
+
+        toc.relations.addDependency(root, nested);
+        toc.relations.addDependency(nested, deeper);
+        toc.relations.addDependency(deeper, nested);
+        toc.relations.addDependency(nested, shared);
+        toc.relations.addDependency(deeper, shared);
+        toc.relations.addDependency(deeper, last);
+
+        expect(toc.entries).toEqual([shared, last]);
+    });
+
     it('should include entries from root TOC files', async () => {
         const {run, toc} = setupService({});
 
@@ -1430,7 +1546,7 @@ describe('entries filtering logic', () => {
         expect(entries).toContain('sub/sub-page2.md' as NormalizedPath);
     });
 
-    it('should exclude entries from unreferenced nested TOC files', async () => {
+    it('should include entries from independently initialized nested TOC files', async () => {
         const {run, toc} = setupService({});
 
         // Mock multiple TOC files at different nesting levels
@@ -1465,13 +1581,7 @@ describe('entries filtering logic', () => {
 
         const entries = toc.entries;
 
-        // The unreferenced TOC file should not be considered a "root" TOC since it's nested
-        // and not referenced by any other TOC. However, if both TOC files are initialized,
-        // they might both be considered as separate root TOCs.
-        // Let's check the actual behavior and adjust the test accordingly.
-
-        // Both TOC files are at the same nesting level relative to the root,
-        // so they're both considered "root" TOCs and their entries are included
+        // Both initialized TOCs own their pages, even without an include between them.
         expect(entries).toHaveLength(2);
         expect(entries).toContain('root-page.md' as NormalizedPath);
         expect(entries).toContain('sub/unreferenced/unreferenced-page.md' as NormalizedPath);

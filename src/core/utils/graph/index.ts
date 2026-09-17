@@ -25,8 +25,63 @@ export class Graph<Data = {type: string}> extends DepGraph<Data> {
         return new Graph().consume(message);
     }
 
+    // dependency-graph exposes this map at runtime but omits it from its TypeScript declarations.
+    declare private readonly nodes: Map<string, Data>;
+
     constructor() {
         super({circular: true});
+    }
+
+    /**
+     * Orders dependencies before their dependants, preserving dependency-graph's traversal order.
+     * Iterative traversal supports cycles and deep graphs without quadratic result membership checks.
+     */
+    override overallOrder(leavesOnly = false): string[] {
+        const result: string[] = [];
+        const visited = new Set<string>();
+
+        const visit = (start: string) => {
+            if (visited.has(start)) {
+                return;
+            }
+
+            visited.add(start);
+
+            const stack = [{node: start, dependencies: this.directDependenciesOf(start), index: 0}];
+
+            while (stack.length > 0) {
+                const current = stack[stack.length - 1];
+
+                if (current.index < current.dependencies.length) {
+                    const dependency = current.dependencies[current.index++];
+
+                    if (!visited.has(dependency)) {
+                        visited.add(dependency);
+                        stack.push({
+                            node: dependency,
+                            dependencies: this.directDependenciesOf(dependency),
+                            index: 0,
+                        });
+                    }
+                } else {
+                    stack.pop();
+
+                    if (!leavesOnly || current.dependencies.length === 0) {
+                        result.push(current.node);
+                    }
+                }
+            }
+        };
+
+        // Roots are visited first, as in dependency-graph; remaining components may contain cycles.
+        for (const node of this.entryNodes()) {
+            visit(node);
+        }
+        for (const node of this.nodes.keys()) {
+            visit(node);
+        }
+
+        return result;
     }
 
     /**
