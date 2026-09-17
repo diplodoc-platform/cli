@@ -10,7 +10,7 @@ import {dirname, isAbsolute, join} from 'node:path';
 
 import {isExternalHref, normalizePath} from '~/core/utils';
 
-import {walkLinks} from '../utils';
+import {decodeAnchor, walkLinks} from '../utils';
 
 const PAGE_LINK_REGEXP = /\.(md|ya?ml)$/i;
 const DOC_ASSETS_FOLDER = '_assets';
@@ -117,7 +117,7 @@ function validateAnchor(
 ) {
     const {entries, anchorIndex, resolveAnchorPage} = options;
     const target = resolveAnchorPage(file);
-    const anchor = hash?.slice(1);
+    const anchor = decodeAnchor(hash);
     const targetAnchors = target ? anchorIndex?.get(target) : undefined;
     const targetIsReachable = target && entries.includes(target) && link.attrGet('YFM003') === null;
 

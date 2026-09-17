@@ -239,6 +239,48 @@ describe('Links plugin', () => {
             expect(linkToken?.attrGet('YFM003')).toBe('missing-in-toc');
             expect(linkToken?.attrGet('YFM002')).toBeNull();
         });
+
+        it('should not set YFM002 for a percent-encoded non-ASCII anchor', () => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([['page.md' as NormalizedPath, new Set(['раздел'])]]),
+            );
+
+            const tokens = md.parse('[Link](page.md#%D1%80%D0%B0%D0%B7%D0%B4%D0%B5%D0%BB)', {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM002')).toBeNull();
+        });
+
+        it('should not set YFM002 for a raw non-ASCII anchor', () => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([['page.md' as NormalizedPath, new Set(['раздел'])]]),
+            );
+
+            const tokens = md.parse('[Link](page.md#раздел)', {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM002')).toBeNull();
+        });
+
+        it('should set YFM002 for a missing non-ASCII anchor', () => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([['page.md' as NormalizedPath, new Set(['раздел'])]]),
+            );
+
+            const tokens = md.parse('[Link](page.md#глава)', {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM002')).toBe('anchor-not-found');
+        });
     });
 
     describe('opaque scheme links (mailto:, tel:)', () => {
