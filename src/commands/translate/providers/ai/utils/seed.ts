@@ -1,7 +1,7 @@
 import type {JSONObject} from '@diplodoc/translation';
 
 import {alignBlocks, parseBlocks, unitAnchors, unwrap} from './align';
-import {keepsMarkup} from './markup';
+import {keepsMarkup, restoreHoistedMarkers} from './markup';
 import {foreignWordPattern, untranslatedMarker} from './script';
 
 export type TranslationSide = {
@@ -76,14 +76,13 @@ export function alignTranslationUnits(
     for (const [i, j] of alignBlocks(sourceBlocks, targetBlocks)) {
         result.blocks.paired++;
 
-        for (const [s, t] of pairBlockUnits(
+        for (const [s, targetUnit] of pairBlockUnits(
             sourceBlocks[i].units,
             targetBlocks[j].units,
             source.units,
             target.units,
         )) {
             const sourceUnit = source.units[s];
-            const targetUnit = target.units[t];
 
             seeded.add(s);
 
@@ -106,31 +105,57 @@ export function alignTranslationUnits(
     return result;
 }
 
+/**
+ * Pairs of a source unit index with the translation to seed for it: the
+ * target unit made reusable under the source skeleton, see
+ * `reusableTarget`.
+ */
 function pairBlockUnits(
     sourceIds: number[],
     targetIds: number[],
     sourceUnits: string[],
     targetUnits: string[],
-): [number, number][] {
-    const compatible = ([s, t]: [number, number]) =>
-        compatibleUnits(sourceUnits[s], targetUnits[t]);
+): [number, string][] {
+    const candidates: [number, number][] = [];
 
     if (sourceIds.length === targetIds.length) {
-        return sourceIds.map((id, k): [number, number] => [id, targetIds[k]]).filter(compatible);
-    }
+        sourceIds.forEach((id, k) => candidates.push([id, targetIds[k]]));
+    } else {
+        const bySource = uniqueAnchors(sourceIds, sourceUnits);
+        const byTarget = uniqueAnchors(targetIds, targetUnits);
 
-    const bySource = uniqueAnchors(sourceIds, sourceUnits);
-    const byTarget = uniqueAnchors(targetIds, targetUnits);
-    const pairs: [number, number][] = [];
-
-    for (const [anchors, s] of bySource) {
-        const t = byTarget.get(anchors);
-        if (t !== undefined) {
-            pairs.push([s, t]);
+        for (const [anchors, s] of bySource) {
+            const t = byTarget.get(anchors);
+            if (t !== undefined) {
+                candidates.push([s, t]);
+            }
         }
     }
 
-    return pairs.filter(compatible);
+    return candidates
+        .map(([s, t]): [number, string] => [s, reusableTarget(sourceUnits[s], targetUnits[t])])
+        .filter(([s, target]) => compatibleUnits(sourceUnits[s], target));
+}
+
+const WRAPPED_UNIT = /^(\s*<source(?:\s[^>]*)?>)([\s\S]*)(<\/source>\s*)$/;
+
+/**
+ * The target unit as it has to be seeded: with the markers its own
+ * skeleton took put back, unless the source skeleton restores them. A
+ * translator's code span at the edge of a sentence is reused this way
+ * instead of sending the sentence back to the model.
+ */
+function reusableTarget(source: string, target: string): string {
+    const match = WRAPPED_UNIT.exec(target);
+
+    if (!match) {
+        return restoreHoistedMarkers(unwrap(source), target);
+    }
+
+    const [, open, text, close] = match;
+    const restored = restoreHoistedMarkers(unwrap(source), text);
+
+    return restored === text ? target : open + restored + close;
 }
 
 /**

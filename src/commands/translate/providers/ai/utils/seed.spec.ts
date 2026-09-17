@@ -226,3 +226,40 @@ describe('translate seed pairs', () => {
         });
     });
 });
+
+describe('translate seed pairs with hoisted markers', () => {
+    const code = (text: string) =>
+        `<x ctype="code_open" equiv-text="\`" id="x-1"/>${text}<x ctype="code_close" equiv-text="\`" id="x-2"/>`;
+    const CODE_OPEN = '<x ctype="code_open" equiv-text="`" id="x-3"/>';
+    const RESTORED_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-r1"/>';
+    const EN_RU = {source: 'en', target: 'ru'};
+
+    it('should seed a translation whose trailing code marker was hoisted into its own skeleton', () => {
+        // The translator put the last name into code; `extract` moved its
+        // closing backtick into the skeleton of the translation. The seed
+        // puts the marker back so the pair composes under the source skeleton.
+        const translation = `Метод ${code('wait_for')} перенесён в ${CODE_OPEN}spyt.connect`;
+        const result = alignTranslationUnits(
+            side(['- [[Move wait_for method to spyt.connect]]']),
+            side([`- [[${translation}]]\``]),
+            EN_RU,
+        );
+
+        expect(result.pairs).toEqual([
+            [unit('Move wait_for method to spyt.connect'), unit(translation + RESTORED_CLOSE)],
+        ]);
+        expect(result.unseeded).toBe(0);
+    });
+
+    it('should keep a translation whose hoisted marker the source hoists too', () => {
+        const source = `Move wait_for method to ${CODE_OPEN}spyt.connect`;
+        const translation = `Метод wait_for перенесён в ${CODE_OPEN}spyt.connect`;
+        const result = alignTranslationUnits(
+            side([`- [[${source}]]\``]),
+            side([`- [[${translation}]]\``]),
+            EN_RU,
+        );
+
+        expect(result.pairs).toEqual([[unit(source), unit(translation)]]);
+    });
+});
