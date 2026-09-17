@@ -19,7 +19,7 @@ type Token = {type: 'argument'; value: string} | {type: 'attribute'; name: strin
 const ATTRIBUTE_NAMES = new Set(['lang', 'lines', 'keep-indents', 'jsonpath']);
 
 export function parseCodeDirective(source: string): ParseResult {
-    const match = /^\{%\s*code(?:\s+([\s\S]*?))?\s*%\}$/.exec(source);
+    const match = /^\{%\s*code(?:\s+([\s\S]*))?%\}$/.exec(source);
 
     if (!match) {
         return {passthrough: false, error: 'invalid code directive syntax', warnings: []};
