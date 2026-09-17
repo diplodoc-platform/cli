@@ -59,17 +59,30 @@ function selectNumericRange(source: string, range: string): SelectedFragment {
 }
 
 function selectMarkerRange(source: string, markers: string): SelectedFragment {
-    const [startMarker, endMarker = ''] = markers.split('-');
+    const separator = markers.indexOf('-');
+    const hasEndMarker = separator >= 0;
+    const startMarker = hasEndMarker ? markers.slice(0, separator) : markers;
+    const endMarker = hasEndMarker ? markers.slice(separator + 1) : '';
     const sourceLines = source.split('\n');
     const warnings: FragmentWarning[] = [];
     const startLine = sourceLines.findIndex((line) => line.includes(startMarker));
-    const endLine = sourceLines.findIndex((line) => line.includes(endMarker));
 
     if (startLine < 0) {
         warnings.push({
             message: `start marker "${startMarker}" was not found; using the beginning of the file`,
         });
     }
+
+    // A single marker (no "-" separator) selects from the start marker to the
+    // end of the file. Without this guard `line.includes("")` would match the
+    // very first line and silently produce an empty fragment.
+    if (!hasEndMarker) {
+        const start = startLine < 0 ? 0 : startLine + 1;
+        return {content: sourceLines.slice(start).join('\n'), warnings};
+    }
+
+    const endLine = sourceLines.findIndex((line) => line.includes(endMarker));
+
     if (endLine < 0) {
         warnings.push({
             message: `end marker "${endMarker}" was not found; using the end of the file`,

@@ -70,6 +70,15 @@ describe('code includer collect', () => {
         expect(testContext.logger.error).not.toHaveBeenCalled();
     });
 
+    it('does not execute directives inside an HTML comment', async () => {
+        const testContext = context({'guide/example.ts': 'kept();\n'});
+        const source = `<!-- {% code './example.ts' %} -->`;
+
+        expect(await run(source, testContext)).toBe(source);
+        expect(testContext.readFile).not.toHaveBeenCalled();
+        expect(testContext.logger.error).not.toHaveBeenCalled();
+    });
+
     it('replaces missing and out-of-input sources with a safe placeholder', async () => {
         const testContext = context();
 

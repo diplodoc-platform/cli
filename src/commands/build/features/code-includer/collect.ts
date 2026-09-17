@@ -10,10 +10,15 @@ import {parseCodeDirective} from './parse';
 import {renderCodeFence} from './render';
 
 const CODE_DIRECTIVE = /{%\s*code(?=\s|%})[\s\S]*?%}/g;
+const HTML_COMMENT = /<!-{2,}[\s\S]*?-{2,}>/g;
 const ERROR_PLACEHOLDER = '<!-- code directive failed -->';
 
 export const collect: Collect = async function (content) {
     const fencedRanges = findFencedCodeBlockRanges(content);
+    // This collect runs before `resolveComments` registers comment ranges,
+    // so detect HTML comments here to keep a commented-out `{% code %}`
+    // inert — mirroring how `{% include %}` is skipped inside comments.
+    const commentRanges = findCommentRanges(content);
     const matches = [...content.matchAll(CODE_DIRECTIVE)];
     const output: string[] = [];
     let cursor = 0;
@@ -24,7 +29,11 @@ export const collect: Collect = async function (content) {
         output.push(content.slice(cursor, start));
         cursor = end;
 
-        if (content[start - 1] === '`' || isInsideRange(start, end, fencedRanges)) {
+        if (
+            content[start - 1] === '`' ||
+            isInsideRange(start, end, fencedRanges) ||
+            isInsideRange(start, end, commentRanges)
+        ) {
             output.push(match[0]);
             continue;
         }
@@ -115,6 +124,19 @@ function indentReplacement(content: string, start: number, replacement: string) 
 
 function isInsideRange(start: number, end: number, ranges: Location[]) {
     return ranges.some(([rangeStart, rangeEnd]) => start >= rangeStart && end <= rangeEnd);
+}
+
+function findCommentRanges(content: string): Location[] {
+    const ranges: Location[] = [];
+    const regexp = new RegExp(HTML_COMMENT.source, HTML_COMMENT.flags);
+
+    let match;
+    // eslint-disable-next-line no-cond-assign
+    while ((match = regexp.exec(content))) {
+        ranges.push([match.index, regexp.lastIndex]);
+    }
+
+    return ranges;
 }
 
 function formatMessage(path: NormalizedPath, message: string) {

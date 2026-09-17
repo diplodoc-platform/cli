@@ -163,9 +163,7 @@ function tokenize(source: string): {tokens: Token[]; error?: string} {
         }
 
         offset = afterWord;
-        if (word === 'keep-indents' || word === 'jsonpath') {
-            tokens.push({type: 'attribute', name: word});
-        } else if (ATTRIBUTE_NAMES.has(word)) {
+        if (ATTRIBUTE_NAMES.has(word)) {
             tokens.push({type: 'attribute', name: word});
         } else {
             tokens.push({type: 'argument', value: word});

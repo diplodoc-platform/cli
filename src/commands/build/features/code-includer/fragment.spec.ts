@@ -40,6 +40,20 @@ describe('selectCodeFragment', () => {
         expect(result.warnings[0].message).toContain('the fragment is empty');
     });
 
+    it('selects from a single marker to the end of the file', () => {
+        const result = selectCodeFragment('before\n// BEGIN\nfirst\nsecond', 'BEGIN');
+
+        expect(result.content).toBe('first\nsecond');
+        expect(result.warnings).toEqual([]);
+    });
+
+    it('falls back to the whole file when a single marker is missing', () => {
+        const result = selectCodeFragment('one\ntwo', 'MISSING');
+
+        expect(result.content).toBe('one\ntwo');
+        expect(result.warnings[0].message).toContain('using the beginning');
+    });
+
     it('normalizes CRLF line endings', () => {
         expect(selectCodeFragment('one\r\ntwo\r\n', '1-2').content).toBe('one\ntwo');
     });
