@@ -5,10 +5,11 @@ import type {Command} from '~/core/config';
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 import {LogLevels, getLogLevel, log, normalizeConfig} from '@diplodoc/yfmlint';
+import deflist from '@diplodoc/transform/lib/plugins/deflist';
+import visibility from '@diplodoc/transform/lib/plugins/visibility';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {getBaseMdItPlugins} from '~/commands/build/features/output-html/utils';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, resolveConfig, valuable} from '~/core/config';
@@ -110,7 +111,10 @@ export class Lint {
             getBuildHooks(program)
                 .BeforeRun.for(format)
                 .tap('Lint', (run) => {
-                    const baseMdItPlugins = format === 'md' ? getBaseMdItPlugins() : undefined;
+                    const lintPlugins =
+                        format === 'md'
+                            ? run.markdown.plugins.concat(deflist, visibility)
+                            : undefined;
 
                     getMarkdownHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
                         if (!run.config.lint.enabled) {
@@ -124,9 +128,7 @@ export class Lint {
                             vfile.path,
                             vfile.data,
                             {deps, assets},
-                            baseMdItPlugins
-                                ? run.markdown.plugins.concat(baseMdItPlugins)
-                                : undefined,
+                            lintPlugins,
                         );
                         // Markdown output only needs the audience directive validation added for
                         // viewer companions. Other lint rules remain an HTML-build contract.
