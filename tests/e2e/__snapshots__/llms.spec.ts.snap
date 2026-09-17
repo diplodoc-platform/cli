@@ -127,12 +127,6 @@ Run the installer and create your first project.
 
 - Node.js 18+
 - 2 GB RAM
-
-# API Reference
-
-## GET /things
-
-Returns the list of things.
 "
 `;
 

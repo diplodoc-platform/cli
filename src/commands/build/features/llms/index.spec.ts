@@ -77,6 +77,7 @@ function createMockRun(
             baseHref: options.baseHref,
         } as unknown as LlmsConfig & {outputFormat: OutputFormat},
         meta: {
+            get: vi.fn().mockReturnValue({}),
             dump: vi.fn().mockResolvedValue({
                 title: 'Meta Title Target',
                 description: 'Detailed meta description text',
