@@ -448,6 +448,12 @@ export type EvalRunResult = {
     /** Directory with the translated output, `<workdir>/out`. */
     output: string;
     reportFile: string;
+    /**
+     * Failures of the harness rather than of the translation: a
+     * misaligned corpus, a missing judge report. A series repeats the
+     * same corpus, so these must not be counted once per run.
+     */
+    harnessFailures: string[];
 };
 
 /**
@@ -582,5 +588,5 @@ export async function runEval(options: EvalRunOptions): Promise<EvalRunResult> {
 
     writeFileSync(reportFile, JSON.stringify(report, null, 2) + '\n');
 
-    return {report, workdir, output, reportFile};
+    return {report, workdir, output, reportFile, harnessFailures: extraFailures};
 }

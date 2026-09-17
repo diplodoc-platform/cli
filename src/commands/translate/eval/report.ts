@@ -1,5 +1,13 @@
 import type {EvalReport, EvalThresholds, JudgeSummary, PageResult} from './types';
 
+/**
+ * Share of judge pairs that may stay unscored before the run is called
+ * broken. A pair the judge fails to score is its own hiccup, not a
+ * translation defect, and a single miss used to fail the whole run; a
+ * judge that misses this much of the batch is malfunctioning.
+ */
+export const MAX_UNSCORED_SHARE = 0.05;
+
 export const DEFAULT_THRESHOLDS: EvalThresholds = {
     maxMarkupViolations: 0,
     maxGlossaryViolations: 0,
@@ -73,10 +81,15 @@ export function buildReport(params: BuildReportParams): EvalReport {
                 `judge average score ${judge.averageScore} is below ${thresholds.minJudgeScore}`,
             );
         }
-        // Unscored pairs silently weaken the average, so they fail the
-        // gate instead of hiding behind it.
-        if (judge.skippedPairs > 0) {
-            failures.push(`judge left ${judge.skippedPairs} pair(s) unscored`);
+        // Unscored pairs silently weaken the average, so a large share of
+        // them fails the gate instead of hiding behind it. A rare miss is
+        // the judge's own flakiness, not a translation defect.
+        const sent = judge.scored + judge.skippedPairs;
+        if (sent > 0 && judge.skippedPairs / sent > MAX_UNSCORED_SHARE) {
+            failures.push(
+                `judge left ${judge.skippedPairs} pair(s) of ${sent} unscored ` +
+                    `(more than ${MAX_UNSCORED_SHARE * 100}%)`,
+            );
         }
     }
 

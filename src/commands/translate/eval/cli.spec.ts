@@ -60,6 +60,19 @@ describe('translate eval cli', () => {
             expect(() => parseArgs(['--bogus'])).toThrow(/Unknown option/);
             expect(() => parseArgs(['--model'])).toThrow(/requires a value/);
         });
+
+        it('should default to a single run', () => {
+            expect(parseArgs([]).repeats).toBe(1);
+        });
+
+        it('should parse repeats', () => {
+            expect(parseArgs(['--repeats', '3']).repeats).toBe(3);
+        });
+
+        it('should reject a non-positive repeats value', () => {
+            expect(() => parseArgs(['--repeats', '0'])).toThrow();
+            expect(() => parseArgs(['--repeats', 'many'])).toThrow();
+        });
     });
 
     describe('stripLangPrefix', () => {
