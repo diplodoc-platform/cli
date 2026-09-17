@@ -1,5 +1,5 @@
 import type {Mock} from 'vitest';
-import type {Collect} from './types';
+import type {AssetInfo, Collect} from './types';
 import type {LoaderContext} from './loader';
 import type * as CoreUtils from '~/core/utils';
 
@@ -1191,6 +1191,40 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect gallery image asset', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some.png){gallery-src=./some-big.png}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const [assets] = (context.api.assets.set as Mock).mock.calls[0];
+
+            expect(assets.map((asset: AssetInfo) => asset.path)).toEqual([
+                'some.png',
+                'some-big.png',
+            ]);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip gallery image asset in fenced code block', async () => {
+            const content = dedent`
+                Simple text
+                \`\`\`
+                ![img](./some.png){gallery-src=./some-big.png}
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const [assets] = (context.api.assets.set as Mock).mock.calls[0];
+
+            expect(assets).toEqual([]);
             expect(result).toEqual(content);
         });
 
