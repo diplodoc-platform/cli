@@ -46,6 +46,44 @@ systematically, use the benchmark: [docs/translate-bench.md](translate-bench.md)
 It runs this eval per candidate and adds a pairwise comparison against a
 baseline model.
 
+## Before changing the model or the prompt
+
+One run is not a measurement: the same configuration produces a
+different result every time, because the batches a run composes depend
+on timing. Run a series and read the totals:
+
+```bash
+npm run translate:eval -- --real --repeats 3 --max-untranslated 1 \
+  --provider openai --api-base <gateway> --model <candidate> --auth <token file>
+```
+
+The pass rule, over the three runs: markup violations 0, glossary
+violations 0, untranslated lines at most 1, judge average at least 70.
+Thresholds apply to the totals of the series, not to each run.
+
+Why the budget is one line: it is the measured noise floor of a
+healthy configuration (one untranslated line in eight runs), two
+orders of magnitude below any regression this corpus has produced - a
+broken configuration returns whole pages in the source language.
+
+Three things are deliberately not gates:
+
+- **similarity** measures the distance from the reference phrasing,
+  not quality: a different model translates correctly and phrases
+  differently (0.936 against 0.98 with zero defects in both cases), so
+  it compares a model against its own history and never accepts or
+  rejects a candidate;
+- **the judge average** never sees the defect that matters most,
+  because a unit returned untranslated is not scored at all, by
+  design;
+- **unscored judge pairs** are the judge's own flakiness: a run
+  tolerates them and fails only when the judge misses more than 5% of
+  the pairs.
+
+The eval answers "is this configuration broken". For "is this model
+better than that one" there is the benchmark,
+[docs/translate-bench.md](translate-bench.md).
+
 ## What is checked
 
 - **Markup preservation** (deterministic, source vs translation): code
@@ -76,6 +114,11 @@ scorecard: `pages[]` with per-page violations (`markupViolations`,
 verdict. The process exits non-zero when the verdict is FAIL, so the
 eval can gate CI or a release pipeline.
 
+With `--repeats` above 1 the report is a series, a different shape:
+`{repeats, runs: [<per-run report>...], totals, thresholds, failures,
+passed}`. `runs` holds one full per-run report as above; `totals` is
+what the thresholds are actually applied to.
+
 Thresholds are strict by default (zero violations, judge average at
 least 70) and can be tuned:
 
@@ -98,17 +141,18 @@ units of both corpus sides (`units.json`) and the raw judge report
 
 ## Options
 
-| Option                                                                       | Default                      | Meaning                                            |
-| ---------------------------------------------------------------------------- | ---------------------------- | -------------------------------------------------- |
-| `--corpus <dir>`                                                             | `tests/eval/corpus`          | corpus location                                    |
-| `--source` / `--target`                                                      | `ru-RU` / `en-US`            | language pair                                      |
-| `--real`                                                                     | off                          | translate with a real provider instead of the mock |
-| `--no-judge`                                                                 | judge on                     | skip LLM judge scoring                             |
-| `--provider`, `--model`, `--judge-model`, `--auth`, `--api-base`, `--folder` | -                            | passed to `yfm translate` in real mode             |
-| `--workdir <dir>`                                                            | temp dir                     | working directory                                  |
-| `--report <path>`                                                            | `<workdir>/eval-report.json` | JSON report path                                   |
-| `--max-markup-violations <n>`                                                | 0                            | allowed markup violations                          |
-| `--max-glossary-violations <n>`                                              | 0                            | allowed glossary violations                        |
-| `--max-untranslated <n>`                                                     | 0                            | allowed untranslated lines                         |
-| `--min-judge-score <n>`                                                      | 70                           | minimal judge average, also the judge threshold    |
-| `--min-similarity <x>`                                                       | 0 (off)                      | minimal per-page similarity                        |
+| Option                                                                       | Default                      | Meaning                                                       |
+| ---------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------- |
+| `--corpus <dir>`                                                             | `tests/eval/corpus`          | corpus location                                               |
+| `--source` / `--target`                                                      | `ru-RU` / `en-US`            | language pair                                                 |
+| `--real`                                                                     | off                          | translate with a real provider instead of the mock            |
+| `--no-judge`                                                                 | judge on                     | skip LLM judge scoring                                        |
+| `--repeats <n>`                                                              | 1                            | run the series n times and apply the thresholds to the totals |
+| `--provider`, `--model`, `--judge-model`, `--auth`, `--api-base`, `--folder` | -                            | passed to `yfm translate` in real mode                        |
+| `--workdir <dir>`                                                            | temp dir                     | working directory                                             |
+| `--report <path>`                                                            | `<workdir>/eval-report.json` | JSON report path                                              |
+| `--max-markup-violations <n>`                                                | 0                            | allowed markup violations                                     |
+| `--max-glossary-violations <n>`                                              | 0                            | allowed glossary violations                                   |
+| `--max-untranslated <n>`                                                     | 0                            | allowed untranslated lines                                    |
+| `--min-judge-score <n>`                                                      | 70                           | minimal judge average, also the judge threshold               |
+| `--min-similarity <x>`                                                       | 0 (off)                      | minimal per-page similarity                                   |

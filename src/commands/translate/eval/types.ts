@@ -69,6 +69,34 @@ export type EvalReport = {
     passed: boolean;
 };
 
+export type EvalSeriesTotals = {
+    markup: number;
+    glossary: number;
+    untranslated: number;
+    /** Pages with at least one defect, with the 1-based run numbers. */
+    pages: {page: string; runs: number[]}[];
+};
+
+export type EvalSeriesJudge = {
+    model: string;
+    threshold: number;
+    scored: number;
+    /** Average weighted by the number of scored units of each run. */
+    averageScore: number;
+    low: number;
+    skippedPairs: number;
+};
+
+export type EvalSeriesReport = {
+    repeats: number;
+    runs: EvalReport[];
+    totals: EvalSeriesTotals;
+    judge: EvalSeriesJudge | null;
+    thresholds: EvalThresholds;
+    failures: string[];
+    passed: boolean;
+};
+
 export type GlossaryPair = {
     sourceText: string;
     translatedText: string;
