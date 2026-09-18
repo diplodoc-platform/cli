@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.61.1](https://github.com/diplodoc-platform/cli/compare/v5.61.0...v5.61.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* **translate:** seed translations whose edge markers were hoisted into their skeleton ([#2284](https://github.com/diplodoc-platform/cli/issues/2284)) ([348de81](https://github.com/diplodoc-platform/cli/commit/348de816af5822c48e6aef3b25db17b82ea6d4e5))
+
 ## [5.61.0](https://github.com/diplodoc-platform/cli/compare/v5.60.0...v5.61.0) (2026-09-17)
 
 
