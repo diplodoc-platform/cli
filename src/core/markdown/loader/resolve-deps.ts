@@ -30,7 +30,10 @@ import {INCLUDE_REGEX, filterRanges, findIncludedBlockRanges, findLink} from '..
  * truly is unclosed — which in real docs almost always means malformed
  * markup, not "the rest of the file is a code block".
  */
-function findFencedCodeBlockRanges(content: string, excludeRanges: Location[] = []): Location[] {
+export function findFencedCodeBlockRanges(
+    content: string,
+    excludeRanges: Location[] = [],
+): Location[] {
     const ranges: Location[] = [];
     const lines = content.split('\n');
 
