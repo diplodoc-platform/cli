@@ -88,6 +88,9 @@ WARN ru/broken.md Failed to seed the file: ...
 
 The output of a translate run follows the skeleton of the source file:
 blank lines, trailing whitespace and the placement of inline markup markers
-come from the source, not from the existing translation. A translation that
-carries markup differently at a unit boundary (a code marker hoisted into
-its own skeleton) is not reused for that unit.
+come from the source, not from the existing translation. A marker the
+translation lost to its own skeleton (a code span or emphasis ending right
+at a unit boundary) is put back into the seeded unit, so a translator's
+code span at the edge of a sentence survives. The reverse does not compose:
+when the source hoists a marker the translation keeps inside the unit, the
+unit is not reused and goes to the model.

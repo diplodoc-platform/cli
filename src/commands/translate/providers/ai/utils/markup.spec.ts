@@ -1,7 +1,7 @@
 import {compose, extract} from '@diplodoc/translation';
 import {describe, expect, it} from 'vitest';
 
-import {keepsMarkup, stripAddedMarkup} from './markup';
+import {keepsMarkup, restoreHoistedMarkers, stripAddedMarkup} from './markup';
 
 // Units below are real `extract` output: the markers of markup that
 // starts (or ends) outside the fragment live in the skeleton, and only a
@@ -472,5 +472,52 @@ describe('stripAddedMarkup over real extract and compose', () => {
     it('should keep a faithful translation untouched', () => {
         expect(repair(DOC, (text) => text).repaired).toBe(DOC);
         expect(repair(CODE_DOC, (text) => text).repaired).toBe(CODE_DOC);
+    });
+});
+
+describe('restoreHoistedMarkers', () => {
+    // A code span ending a translation loses its closing marker to the
+    // translation's own skeleton; composed with the source skeleton it
+    // would stay open.
+    const RESTORED_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-r1"/>';
+    const RESTORED_OPEN = '<x ctype="code_open" equiv-text="`" id="x-r1"/>';
+
+    it('should append the closing marker of a code span hoisted after the translation', () => {
+        const translation = `Метод ${CODE_OPEN}wait_for${CODE_CLOSE} перенесён в ${CODE_OPEN}spyt.connect`;
+
+        expect(restoreHoistedMarkers('Move wait_for method to spyt.connect', translation)).toBe(
+            translation + RESTORED_CLOSE,
+        );
+    });
+
+    it('should prepend the opening marker of a code span hoisted before the translation', () => {
+        const translation = `spyt.connect${CODE_CLOSE} теперь содержит метод`;
+
+        expect(restoreHoistedMarkers('The method now lives in spyt.connect', translation)).toBe(
+            RESTORED_OPEN + translation,
+        );
+    });
+
+    it('should leave a marker the source skeleton restores as well', () => {
+        // Both fragments end inside a code span: the source skeleton puts
+        // the closing marker back after the translation.
+        const source = `Move wait_for method to ${CODE_OPEN}spyt.connect`;
+        const translation = `Метод wait_for перенесён в ${CODE_OPEN}spyt.connect`;
+
+        expect(restoreHoistedMarkers(source, translation)).toBe(translation);
+    });
+
+    it('should leave a translation whose markup is contained in it', () => {
+        const translation = `Метод ${CODE_OPEN}wait_for${CODE_CLOSE} перенесён`;
+
+        expect(restoreHoistedMarkers('Move wait_for method', translation)).toBe(translation);
+    });
+
+    it('should restore emphasis the same way', () => {
+        const translation = `Дата релиза:${BOLD_CLOSE} 2026-08-25`;
+
+        expect(restoreHoistedMarkers('Release date: 2026-08-25', translation)).toBe(
+            '<x ctype="bold_open" equiv-text="**" id="x-r1"/>' + translation,
+        );
     });
 });
