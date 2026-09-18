@@ -131,6 +131,37 @@ export function getHrefTokenAttr(token: Token) {
     return href;
 }
 
+/**
+ * Normalizes an anchor to a canonical form for comparison.
+ *
+ * A link hash comes from the source (`#foo`, possibly percent-encoded, e.g.
+ * `#%D1%80` for `#р`), while anchor ids in the index are collected from
+ * rendered tokens (already decoded slugs). To compare them reliably we strip
+ * the leading `#` and fully percent-decode both sides through the same helper.
+ *
+ * `decodeURIComponent` is used (not `decodeURI`) so that reserved characters
+ * are decoded too; malformed sequences fall back to the raw value.
+ *
+ * @param value - Raw hash (`#anchor`) or a bare anchor/id.
+ * @returns The decoded anchor, or `null` for empty/hash-only input.
+ */
+export function decodeAnchor(value: string | null | undefined): string | null {
+    if (!value) {
+        return null;
+    }
+
+    const anchor = value.startsWith('#') ? value.slice(1) : value;
+    if (!anchor) {
+        return null;
+    }
+
+    try {
+        return decodeURIComponent(anchor);
+    } catch {
+        return anchor;
+    }
+}
+
 type LinkWalker = (link: Token, href: string, tokens: Token[], index: number) => void;
 
 export function walkLinks(state: StateCore, handler: LinkWalker) {
