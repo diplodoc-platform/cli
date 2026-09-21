@@ -39,6 +39,7 @@ type CollectorOptions = {
     copiedIncludes?: Set<string>;
     resolveMeta?: (path: NormalizedPath) => Promise<Meta>;
     audience?: ContentAudience;
+    transformContent?: (content: string) => string;
 };
 
 type CollectedDependency = HashedGraphNode & {
@@ -63,18 +64,24 @@ const LOCATION_MARKER_END = '\uE001';
 export function filterGraphAudience<T extends EntryGraph>(
     graph: T,
     audience: ContentAudience,
+    transformContent?: (content: string) => string,
 ): {graph: T; result: AudienceFilterResult} {
-    const probe = filterAudienceContent(graph.content, audience);
-    if (
-        probe.content === graph.content &&
-        probe.audienceSpecificContent.length === 0 &&
-        probe.errors.length === 0
-    ) {
-        return {graph, result: probe};
-    }
+    if (!transformContent) {
+        const probe = filterAudienceContent(graph.content, audience);
+        if (
+            probe.content === graph.content &&
+            probe.audienceSpecificContent.length === 0 &&
+            probe.errors.length === 0
+        ) {
+            return {graph, result: probe};
+        }
 
-    if (graph.deps.length === 0 && graph.assets.length === 0) {
-        return {graph: {...graph, content: probe.content}, result: probe};
+        if (graph.deps.length === 0 && graph.assets.length === 0) {
+            return {graph: {...graph, content: probe.content}, result: probe};
+        }
+    } else if (graph.deps.length === 0 && graph.assets.length === 0) {
+        const result = filterAudienceContent(transformContent(graph.content), audience);
+        return {graph: {...graph, content: result.content}, result};
     }
 
     let salt = 0;
@@ -98,7 +105,7 @@ export function filterGraphAudience<T extends EntryGraph>(
             marked.slice(item.location[1]);
     }
 
-    const result = filterAudienceContent(marked, audience);
+    const result = filterAudienceContent(transformContent?.(marked) ?? marked, audience);
     const markerRe = new RegExp(
         String.raw`${LOCATION_MARKER_START}${salt}_(asset|dep)_(\d+)${LOCATION_MARKER_END}`,
         'g',
@@ -187,6 +194,8 @@ export class MarkdownCollector {
 
     private readonly audience?: ContentAudience;
 
+    private readonly transformContent?: (content: string) => string;
+
     constructor(
         run: Run,
         config: Partial<CollectConfig>,
@@ -194,6 +203,7 @@ export class MarkdownCollector {
             copiedIncludes = new Set(),
             resolveMeta = (path) => run.meta.dump(path),
             audience,
+            transformContent,
         }: CollectorOptions = {},
     ) {
         this.run = run;
@@ -201,6 +211,7 @@ export class MarkdownCollector {
         this.copiedIncludes = copiedIncludes;
         this.resolveMeta = resolveMeta;
         this.audience = audience;
+        this.transformContent = transformContent;
     }
 
     /**
@@ -247,7 +258,9 @@ export class MarkdownCollector {
             return cached;
         }
 
-        const filtered = this.audience ? filterGraphAudience(graph, this.audience) : null;
+        const filtered = this.audience
+            ? filterGraphAudience(graph, this.audience, this.transformContent)
+            : null;
         const source = filtered?.graph || graph;
         const deps = await all(source.deps.map(this.dumpDep));
         const scheduler = new Scheduler([

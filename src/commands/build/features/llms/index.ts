@@ -386,7 +386,10 @@ export class Llms {
 
         // Assemble fully self-contained markdown (all includes merged),
         // independent of the build's output format — see MarkdownCollector.
-        const collector = new MarkdownCollector(run, SELF_CONTAINED, {audience});
+        const collector = new MarkdownCollector(run, SELF_CONTAINED, {
+            audience,
+            transformContent: (content) => stripHtmlTags(content, ['style', 'script']),
+        });
 
         for (const entry of entries) {
             // Leading (yaml) pages have no markdown body to inline; they still
@@ -441,11 +444,6 @@ export class Llms {
         try {
             const collected = await collector.collectWithInfo(entryPath);
 
-            // Strip <style> and <script> blocks — they are useless for LLM
-            // consumption (LLMs don't execute JS or apply CSS) and only add
-            // noise to the corpus. Code blocks are protected (see stripHtmlTags).
-            const strippedBody = stripHtmlTags(collected.content, ['style', 'script']);
-
             for (const detectedAudience of collected.audienceSpecificContent) {
                 audienceSpecificContent?.add(detectedAudience);
             }
@@ -458,8 +456,8 @@ export class Llms {
             }
 
             return run.config.baseHref
-                ? resolveAbsolutePaths(strippedBody, entryPath, run.config.baseHref)
-                : strippedBody;
+                ? resolveAbsolutePaths(collected.content, entryPath, run.config.baseHref)
+                : collected.content;
         } catch (error) {
             run.logger.warn(`${fileName}: unable to assemble ${entryPath}: ${error}`);
 
