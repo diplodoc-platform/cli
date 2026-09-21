@@ -100,7 +100,7 @@ export function filterGraphAudience<T extends EntryGraph>(
 
     const result = filterAudienceContent(marked, audience);
     const markerRe = new RegExp(
-        `${LOCATION_MARKER_START}${salt}_(asset|dep)_(\\d+)${LOCATION_MARKER_END}`,
+        String.raw`${LOCATION_MARKER_START}${salt}_(asset|dep)_(\d+)${LOCATION_MARKER_END}`,
         'g',
     );
     const deps: EntryGraphNode[] = [];
