@@ -4,7 +4,10 @@ import type {Toc} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 import {extractFrontMatter} from '@diplodoc/liquid';
-import {type ContentAudience} from '@diplodoc/transform/lib/plugins/visibility';
+import {
+    type ContentAudience,
+    filterAudienceContent,
+} from '@diplodoc/transform/lib/plugins/visibility';
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -386,10 +389,7 @@ export class Llms {
 
         // Assemble fully self-contained markdown (all includes merged),
         // independent of the build's output format — see MarkdownCollector.
-        const collector = new MarkdownCollector(run, SELF_CONTAINED, {
-            audience,
-            transformContent: (content) => stripHtmlTags(content, ['style', 'script']),
-        });
+        const collector = new MarkdownCollector(run, SELF_CONTAINED, {audience});
 
         for (const entry of entries) {
             // Leading (yaml) pages have no markdown body to inline; they still
@@ -402,6 +402,7 @@ export class Llms {
                 run,
                 collector,
                 entry.path,
+                audience,
                 fileName,
                 reportErrors,
                 audienceSpecificContent,
@@ -437,12 +438,23 @@ export class Llms {
         run: Run,
         collector: MarkdownCollector,
         entryPath: NormalizedPath,
+        audience: 'human' | 'agent',
         fileName: string,
         reportErrors: boolean,
         audienceSpecificContent?: Set<ContentAudience>,
     ): Promise<string> {
         try {
             const collected = await collector.collectWithInfo(entryPath);
+
+            // Keep the established order: strip non-LLM HTML before audience
+            // filtering. Collection must filter first for dependency safety, so
+            // recover only the root's trailing whitespace from the old order.
+            const strippedBody = stripHtmlTags(collected.content, ['style', 'script']);
+            const source = await run.markdown.graph(entryPath);
+            const strippedSource = stripHtmlTags(source.content, ['style', 'script']);
+            const filteredSource = filterAudienceContent(strippedSource, audience).content;
+            const trailingWhitespace = filteredSource.match(/\s*$/)?.[0] || '';
+            const body = strippedBody + trailingWhitespace;
 
             for (const detectedAudience of collected.audienceSpecificContent) {
                 audienceSpecificContent?.add(detectedAudience);
@@ -456,8 +468,8 @@ export class Llms {
             }
 
             return run.config.baseHref
-                ? resolveAbsolutePaths(collected.content, entryPath, run.config.baseHref)
-                : collected.content;
+                ? resolveAbsolutePaths(body, entryPath, run.config.baseHref)
+                : body;
         } catch (error) {
             run.logger.warn(`${fileName}: unable to assemble ${entryPath}: ${error}`);
 

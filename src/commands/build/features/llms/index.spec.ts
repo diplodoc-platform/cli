@@ -91,6 +91,14 @@ function createMockRun(
                 description: 'Detailed meta description text',
             }),
         },
+        markdown: {
+            graph: vi.fn().mockResolvedValue({
+                path: normalizedPath('docs/page.md'),
+                content: 'Collected Markdown Content',
+                deps: [],
+                assets: [],
+            }),
+        },
         logger: {
             warn: vi.fn(),
             error: vi.fn(),
@@ -129,6 +137,7 @@ type TestableLlms = {
         run: Run,
         collector: MarkdownCollector,
         entryPath: NormalizedPath,
+        audience: 'human' | 'agent',
         fileName: string,
         reportErrors: boolean,
         audienceSpecificContent?: Set<'human' | 'agent'>,
@@ -858,6 +867,7 @@ describe('LLMs Plugin Architecture', () => {
                 run,
                 collector,
                 normalizedPath('docs/page.md'),
+                'agent',
                 LLMS_FULL_FILENAME,
                 true,
             );
@@ -890,6 +900,7 @@ describe('LLMs Plugin Architecture', () => {
                 run,
                 collector,
                 normalizedPath('docs/page.md'),
+                'human',
                 LLMS_FULL_FILENAME,
                 true,
             );
