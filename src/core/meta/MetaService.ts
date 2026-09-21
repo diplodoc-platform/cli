@@ -119,8 +119,7 @@ export class MetaService {
      * applies only its own output metadata rules, preventing HTML hooks from
      * leaking into Markdown companions and vice versa.
      */
-    snapshot(path: RelativePath) {
-        const file = normalizePath(path);
+    snapshot(file: NormalizedPath) {
         const meta = copyJson(this.meta.get(file)) || this.initialMeta();
 
         this.normalizeArrayFields(meta);
