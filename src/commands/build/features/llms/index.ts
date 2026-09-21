@@ -453,7 +453,7 @@ export class Llms {
             const source = await run.markdown.graph(entryPath);
             const strippedSource = stripHtmlTags(source.content, ['style', 'script']);
             const filteredSource = filterAudienceContent(strippedSource, audience).content;
-            const trailingWhitespace = filteredSource.match(/\s*$/)?.[0] || '';
+            const trailingWhitespace = filteredSource.slice(filteredSource.trimEnd().length);
             const body = strippedBody + trailingWhitespace;
 
             for (const detectedAudience of collected.audienceSpecificContent) {
