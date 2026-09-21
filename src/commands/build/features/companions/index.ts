@@ -31,11 +31,15 @@ export class Companions {
         });
 
         getBaseHooks(program).Config.tap(NAME, (config, args) => {
+            const ai = config.ai || {};
             const value = defined('aiMdCompanions', args);
-            config.ai.mdCompanions =
-                value === null || value === undefined
-                    ? Boolean(config.ai.mdCompanions)
-                    : Boolean(value);
+            config.ai = {
+                ...ai,
+                mdCompanions:
+                    value === null || value === undefined
+                        ? Boolean(ai.mdCompanions)
+                        : Boolean(value),
+            };
 
             return config;
         });
