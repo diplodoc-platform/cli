@@ -718,6 +718,14 @@ describe('Build command', () => {
 
         testBooleanFlag('buildStats', '--build-stats', false);
 
+        testBooleanFlag('companions', '--companions', false);
+        test(
+            'should prioritize CLI no-companions over config',
+            '--no-companions',
+            {companions: true},
+            {companions: false},
+        );
+
         testBooleanFlag('copyOnWrite', '--copy-on-write', true);
 
         test(

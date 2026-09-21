@@ -11,7 +11,7 @@ import {
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
-import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt} from '~/core/utils';
+import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
 
 import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
@@ -293,9 +293,10 @@ export class Llms {
             const pageTitle = typeof meta.title === 'string' ? meta.title : '';
             const name = entry.name || pageTitle || description || entry.href;
             const suffix = description ? `: ${description}` : '';
-            // Link to the real output file: rendered .html for html builds,
-            // the original href (.md/.yaml) for md builds.
-            const relativeHref = html ? setExt(entry.href, 'html') : entry.href;
+            // Link to the artifact that readers can fetch directly. Static HTML
+            // builds use source-format companions when enabled; otherwise they
+            // keep the HTML route and honor extensionless publishing.
+            const relativeHref = resolveEntryHref(run, entry.href, html);
             const href = resolveAbsoluteHref(relativeHref, run.config.baseHref, tocDir);
 
             lines.push(`- [${name}](${href})${suffix}`);
@@ -471,4 +472,13 @@ export class Llms {
             return '';
         }
     }
+}
+
+function resolveEntryHref(run: Run, entryHref: NormalizedPath, html: boolean) {
+    if (!html || run.config.companions) {
+        return entryHref;
+    }
+
+    const htmlHref = setExt(entryHref, 'html');
+    return run.config.skipHtmlExtension ? shortLink(htmlHref) : htmlHref;
 }

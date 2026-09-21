@@ -64,6 +64,8 @@ function createMockRun(
         llmsFullMaxSize?: number;
         openapiCompanions?: OpenapiCompanionEntry[];
         baseHref?: string;
+        companions?: boolean;
+        skipHtmlExtension?: boolean;
     } = {},
 ): Run {
     return {
@@ -75,6 +77,8 @@ function createMockRun(
                 llmsFullMaxSize: options.llmsFullMaxSize ?? 4 * 1024 ** 2,
             },
             baseHref: options.baseHref,
+            companions: options.companions ?? false,
+            skipHtmlExtension: options.skipHtmlExtension ?? false,
         } as unknown as LlmsConfig & {outputFormat: OutputFormat},
         meta: {
             dump: vi.fn().mockResolvedValue({
@@ -519,6 +523,51 @@ describe('LLMs Plugin Architecture', () => {
             const result = await llmsInstance.renderIndex(run, 'MD Project', entries, 'docs');
 
             expect(result).toContain('- [Setup Guide](setup.md): Detailed meta description text');
+        });
+
+        it('should link static HTML builds to source companions when enabled', async () => {
+            const run = createMockRun({
+                outputFormat: OutputFormat.html,
+                companions: true,
+                baseHref: 'https://example.com/docs/',
+            });
+            const entries = [
+                {
+                    href: normalizedPath('setup.md'),
+                    path: normalizedPath('en/setup.md'),
+                    name: 'Setup Guide',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'en');
+
+            expect(result).toContain(
+                '- [Setup Guide](https://example.com/docs/en/setup.md): Detailed meta description text',
+            );
+        });
+
+        it('should honor extensionless HTML publishing when companions are disabled', async () => {
+            const run = createMockRun({
+                outputFormat: OutputFormat.html,
+                skipHtmlExtension: true,
+            });
+            const entries = [
+                {
+                    href: normalizedPath('guide.md'),
+                    path: normalizedPath('docs/guide.md'),
+                    name: 'Guide',
+                },
+                {
+                    href: normalizedPath('section/index.md'),
+                    path: normalizedPath('docs/section/index.md'),
+                    name: 'Section',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).toContain('- [Guide](guide): Detailed meta description text');
+            expect(result).toContain('- [Section](section/): Detailed meta description text');
         });
 
         it('should make generated links absolute when baseHref is configured', async () => {
