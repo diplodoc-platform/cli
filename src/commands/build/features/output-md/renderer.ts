@@ -1,4 +1,5 @@
 import type {ContentAudience} from '@diplodoc/transform/lib/plugins/visibility';
+import type {CollectConfig} from './collect';
 import type {Run} from '~/commands/build';
 import type {LeadingPage} from '~/core/leading';
 import type {Meta} from '~/core/meta';
@@ -6,7 +7,6 @@ import type {VFile} from '~/core/utils';
 
 import {dirname, join} from 'node:path';
 import {flow} from 'lodash';
-import {filterAudienceContent} from '@diplodoc/transform/lib/plugins/visibility';
 
 import {THEME_ASSETS_PATH} from '~/constants';
 import {getPublicMeta} from '~/core/meta';
@@ -15,12 +15,14 @@ import {all, get, isMediaLink, resolveAbsoluteHref, shortLink} from '~/core/util
 import {MarkdownCollector} from './collect';
 import {resolvePropagatedFrontmatter} from './frontmatter-propagation';
 import {addMetaFrontmatter, buildAlternateEntries} from './utils';
+import {filterCollectedAudienceContent} from './visibility';
 
 type MetaSource = 'hooks' | 'snapshot';
 
 type RendererOptions = {
     metaSource?: MetaSource;
     audience?: ContentAudience;
+    collectConfig?: Partial<CollectConfig>;
 };
 
 /** Applies the metadata contract used by standalone md2md output. */
@@ -78,9 +80,10 @@ export class MarkdownOutputRenderer {
     }
 
     async collectMarkdown(vfile: VFile<string>) {
+        const config = this.options.collectConfig || this.run.config.preprocess;
         const collector = new MarkdownCollector(
             this.run,
-            this.run.config.preprocess,
+            config,
             this.copiedIncludes,
             this.resolveMeta,
         );
@@ -90,7 +93,7 @@ export class MarkdownOutputRenderer {
 
     async finalizeMarkdown(vfile: VFile<string>) {
         if (this.options.audience) {
-            const filtered = filterAudienceContent(vfile.data, this.options.audience);
+            const filtered = filterCollectedAudienceContent(vfile.data, this.options.audience);
             vfile.data = filtered.content;
 
             for (const error of filtered.errors) {
@@ -99,7 +102,7 @@ export class MarkdownOutputRenderer {
             }
         }
 
-        const config = this.run.config.preprocess;
+        const config = this.options.collectConfig || this.run.config.preprocess;
         if (config.mergeIncludes) {
             const propagated = await resolvePropagatedFrontmatter(this.run, vfile.path);
             if (propagated) {
