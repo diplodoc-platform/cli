@@ -12,7 +12,6 @@ import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} f
 import {OutputFormat} from '~/commands/build/config';
 
 import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
-import {filterCollectedAudienceContent} from '../output-md/visibility';
 import {resolveAbsolutePaths} from '../output-md/plugins/merge-includes';
 
 import {stripHtmlTags} from './utils';
@@ -387,7 +386,7 @@ export class Llms {
 
         // Assemble fully self-contained markdown (all includes merged),
         // independent of the build's output format — see MarkdownCollector.
-        const collector = new MarkdownCollector(run, SELF_CONTAINED);
+        const collector = new MarkdownCollector(run, SELF_CONTAINED, {audience});
 
         for (const entry of entries) {
             // Leading (yaml) pages have no markdown body to inline; they still
@@ -400,7 +399,6 @@ export class Llms {
                 run,
                 collector,
                 entry.path,
-                audience,
                 fileName,
                 reportErrors,
                 audienceSpecificContent,
@@ -436,34 +434,32 @@ export class Llms {
         run: Run,
         collector: MarkdownCollector,
         entryPath: NormalizedPath,
-        audience: 'human' | 'agent',
         fileName: string,
         reportErrors: boolean,
         audienceSpecificContent?: Set<ContentAudience>,
     ): Promise<string> {
         try {
-            const body = await collector.collect(entryPath);
+            const collected = await collector.collectWithInfo(entryPath);
 
             // Strip <style> and <script> blocks — they are useless for LLM
             // consumption (LLMs don't execute JS or apply CSS) and only add
             // noise to the corpus. Code blocks are protected (see stripHtmlTags).
-            const strippedBody = stripHtmlTags(body, ['style', 'script']);
-            const filteredBody = filterCollectedAudienceContent(strippedBody, audience);
+            const strippedBody = stripHtmlTags(collected.content, ['style', 'script']);
 
-            for (const detectedAudience of filteredBody.audienceSpecificContent) {
+            for (const detectedAudience of collected.audienceSpecificContent) {
                 audienceSpecificContent?.add(detectedAudience);
             }
 
             if (reportErrors) {
-                for (const error of filteredBody.errors) {
+                for (const error of collected.errors) {
                     const message = error.message.replace(` at line ${error.line}`, '');
                     run.logger.error(`${fileName}: ${entryPath}: ${message}`);
                 }
             }
 
             return run.config.baseHref
-                ? resolveAbsolutePaths(filteredBody.content, entryPath, run.config.baseHref)
-                : filteredBody.content;
+                ? resolveAbsolutePaths(strippedBody, entryPath, run.config.baseHref)
+                : strippedBody;
         } catch (error) {
             run.logger.warn(`${fileName}: unable to assemble ${entryPath}: ${error}`);
 

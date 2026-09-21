@@ -1,1 +1,3 @@
 companions: true
+content:
+  multilineTermDefinitions: true

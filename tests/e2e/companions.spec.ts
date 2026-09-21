@@ -41,11 +41,22 @@ describe('static Markdown companions', () => {
 
         const fallback = await readFile(join(`${outputPath}-html`, 'fallback.md'), 'utf8');
         expect(fallback).toContain('Public page content.');
+        expect(fallback).toContain('{% include [Agent secret](_includes/agent-secret.md) %}');
         expect(fallback).not.toContain('Agent-only fallback secret');
         expect(fallback).not.toContain('{% included (_includes/agent-secret.md) %}');
 
+        const terms = await readFile(join(`${outputPath}-html`, 'terms.md'), 'utf8');
+        expect(terms).toContain('Public term page content.');
+        expect(terms).not.toContain('Agent-only multiline term definition.');
+        expect(terms).not.toContain('[*agent-only]:');
+
+        const recollected = await readFile(join(`${outputPath}-html`, 'recollected.md'), 'utf8');
+        expect(recollected).toContain('Valid cached content without a live include directive.');
+
         const llmsFull = await readFile(join(`${outputPath}-html`, 'llms-full.txt'), 'utf8');
         expect(llmsFull).not.toContain('Agent-only fallback secret');
+        expect(llmsFull).not.toContain('Agent-only multiline term definition.');
+        expect(llmsFull).toContain('Valid cached content without a live include directive.');
     });
 
     test('keeps includes internal when mergeIncludes is disabled for the HTML build', async () => {

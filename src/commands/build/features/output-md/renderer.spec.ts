@@ -62,15 +62,11 @@ describe('MarkdownOutputRenderer', () => {
             asset('large.jpg', 101),
             asset('guide.md', 1, 'link'),
         ]);
-        vi.spyOn(MarkdownCollector.prototype, 'collect').mockResolvedValue(`
-:::visibility human
-Human content.
-:::
-
-:::visibility agent
-Agent content.
-:::
-`);
+        vi.spyOn(MarkdownCollector.prototype, 'collectWithInfo').mockResolvedValue({
+            content: '\nHuman content.\n',
+            audienceSpecificContent: ['human', 'agent'],
+            errors: [],
+        });
 
         const renderer = new MarkdownOutputRenderer(run, {
             metaSource: 'snapshot',
