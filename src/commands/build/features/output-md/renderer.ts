@@ -119,7 +119,7 @@ export class MarkdownOutputRenderer {
         await this.copyAssets(this.run.leading, vfile.path);
     }
 
-    private resolveMeta = async (path: NormalizedPath): Promise<Meta> => {
+    private readonly resolveMeta = async (path: NormalizedPath): Promise<Meta> => {
         if (this.options.metaSource === 'snapshot') {
             return prepareMarkdownMeta(this.run, this.run.meta.snapshot(path), path);
         }

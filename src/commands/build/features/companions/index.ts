@@ -63,12 +63,7 @@ export class Companions {
         // Capture a leading page after common YAML/template processing but before
         // the HTML-only Page Constructor plugin replaces embedded Markdown with HTML.
         getLeadingHooks(run.leading).Plugins.tap(NAME, (plugins) => {
-            const capture: LeadingPlugin = function (leading) {
-                leadingSources.set(this.path, copyJson(leading));
-                return leading;
-            };
-
-            return [capture, ...plugins];
+            return [createLeadingSourceCapture(leadingSources), ...plugins];
         });
 
         getMetaHooks(run.meta).Dump.tap(NAME, (meta, file) => {
@@ -114,4 +109,11 @@ export class Companions {
             await run.write(join(run.output, companion.path), companion.toString(), true);
         });
     }
+}
+
+function createLeadingSourceCapture(sources: Map<NormalizedPath, LeadingPage>): LeadingPlugin {
+    return function captureLeadingSource(leading) {
+        sources.set(this.path, copyJson(leading));
+        return leading;
+    };
 }
