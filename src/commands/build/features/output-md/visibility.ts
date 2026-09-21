@@ -9,6 +9,7 @@ import {INCLUDE_REGEX, findLink} from '~/core/markdown';
 
 const INCLUDED_OPEN_RE = /^\s*{%\s*included\s*\((.+?)\)\s*%}\s*$/;
 const INCLUDED_CLOSE_RE = /^\s*{%\s*endincluded\s*%}\s*$/;
+const INCLUDED_MARKER_RE = /{%\s*included\s*\(/;
 
 type IncludedBlock = {
     key: string;
@@ -29,6 +30,10 @@ export function filterCollectedAudienceContent(
     markdown: string,
     audience: ContentAudience,
 ): AudienceFilterResult {
+    if (!INCLUDED_MARKER_RE.test(markdown)) {
+        return filterAudienceContent(markdown, audience);
+    }
+
     const {content, blocks} = extractIncludedBlocks(markdown);
     const filteredRoot = filterAudienceContent(content, audience);
 
