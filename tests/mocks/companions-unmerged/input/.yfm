@@ -1,3 +1,4 @@
-companions: true
+ai:
+  mdCompanions: true
 preprocess:
   mergeIncludes: false

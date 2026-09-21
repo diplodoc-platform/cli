@@ -479,7 +479,7 @@ export class Llms {
 }
 
 function resolveEntryHref(run: Run, entryHref: NormalizedPath, html: boolean) {
-    if (!html || run.config.companions) {
+    if (!html || run.config.ai.mdCompanions) {
         return entryHref;
     }
 

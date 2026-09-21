@@ -718,12 +718,15 @@ describe('Build command', () => {
 
         testBooleanFlag('buildStats', '--build-stats', false);
 
-        testBooleanFlag('companions', '--companions', false);
+        testNestedBooleanFlag('aiMdCompanions', '--ai-md-companions', false, [
+            'ai',
+            'mdCompanions',
+        ]);
         test(
-            'should prioritize CLI no-companions over config',
-            '--no-companions',
-            {companions: true},
-            {companions: false},
+            'should prioritize CLI no-ai-md-companions over config',
+            '--no-ai-md-companions',
+            {ai: {mdCompanions: true}},
+            {ai: {mdCompanions: false}},
         );
 
         testBooleanFlag('copyOnWrite', '--copy-on-write', true);
