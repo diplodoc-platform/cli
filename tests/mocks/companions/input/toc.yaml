@@ -1,0 +1,9 @@
+title: Companion Test
+href: index.md
+items:
+  - name: Article
+    href: nested/article.md
+  - name: Landing
+    href: landing.yaml
+  - name: Audience
+    href: audience.md

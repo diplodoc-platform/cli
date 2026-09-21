@@ -106,6 +106,21 @@ export class MetaService {
      */
     async dump(path: RelativePath) {
         const file = normalizePath(path);
+        const meta = this.snapshot(file);
+
+        return getHooks(this).Dump.promise(meta, file);
+    }
+
+    /**
+     * Returns normalized metadata without applying output-format Dump hooks.
+     *
+     * A combined build can render more than one output representation for the
+     * same source page. Each representation starts from this snapshot and then
+     * applies only its own output metadata rules, preventing HTML hooks from
+     * leaking into Markdown companions and vice versa.
+     */
+    snapshot(path: RelativePath) {
+        const file = normalizePath(path);
         const meta = copyJson(this.meta.get(file)) || this.initialMeta();
 
         for (const field of ['script', 'style', 'keywords'] as const) {
@@ -178,7 +193,7 @@ export class MetaService {
             }
         }
 
-        return getHooks(this).Dump.promise(meta, file);
+        return meta;
     }
 
     /**

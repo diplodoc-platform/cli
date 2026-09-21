@@ -1,5 +1,6 @@
 import type {Run} from '~/commands/build';
 import type {EntryGraph, EntryGraphNode} from '~/core/markdown';
+import type {Meta} from '~/core/meta';
 import type {HashedGraphNode} from './utils';
 
 import {join} from 'node:path';
@@ -69,10 +70,18 @@ export class MarkdownCollector {
     private readonly config: Partial<CollectConfig>;
     private readonly copiedIncludes: Set<string>;
 
-    constructor(run: Run, config: Partial<CollectConfig>, copiedIncludes: Set<string> = new Set()) {
+    private readonly resolveMeta: (path: NormalizedPath) => Promise<Meta>;
+
+    constructor(
+        run: Run,
+        config: Partial<CollectConfig>,
+        copiedIncludes: Set<string> = new Set(),
+        resolveMeta: (path: NormalizedPath) => Promise<Meta> = (path) => run.meta.dump(path),
+    ) {
         this.run = run;
         this.config = config;
         this.copiedIncludes = copiedIncludes;
+        this.resolveMeta = resolveMeta;
     }
 
     /**
@@ -164,7 +173,7 @@ export class MarkdownCollector {
                 run.meta.addResources(graph.path, vcsMeta);
             }
 
-            const includeMeta = getPublicMeta(await run.meta.dump(graph.path));
+            const includeMeta = getPublicMeta(await this.resolveMeta(graph.path));
             const lineWidth = config.disableMetaMaxLineWidth ? Infinity : undefined;
             const contentWithMeta = addMetaFrontmatter(hashed.content, includeMeta, lineWidth);
 

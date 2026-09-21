@@ -50,6 +50,7 @@ import {NeuroExpert} from './features/neuro-expert';
 import {Themer} from './features/themer';
 import {Analytics} from './features/analytics';
 import {Llms} from './features/llms';
+import {Companions} from './features/companions';
 
 export type * from './types';
 
@@ -90,6 +91,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     readonly changelogs = new Changelogs();
 
     readonly md = new OutputMd();
+
+    readonly companions = new Companions();
 
     readonly html = new OutputHtml();
 
@@ -170,6 +173,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.watch,
         this.yaMake,
         this.md,
+        this.companions,
         this.html,
         this.themer,
         this.legacy,
