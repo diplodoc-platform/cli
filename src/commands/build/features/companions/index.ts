@@ -13,6 +13,7 @@ import {copyJson} from '~/core/utils';
 import {defined} from '~/core/config';
 
 import {MarkdownOutputRenderer} from '../output-md/renderer';
+import {SELF_CONTAINED} from '../output-md/collect';
 import {buildCompanionAlternate, getCustomCollectPlugins} from '../output-md/utils';
 
 import {options} from './config';
@@ -53,6 +54,12 @@ export class Companions {
         const renderer = new MarkdownOutputRenderer(run, {
             metaSource: 'snapshot',
             audience: 'human',
+            collectConfig: {
+                ...SELF_CONTAINED,
+                ...run.config.preprocess,
+                hashIncludes: false,
+                mergeIncludes: true,
+            },
         });
         const leadingSources = new Map<NormalizedPath, LeadingPage>();
 

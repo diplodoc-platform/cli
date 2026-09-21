@@ -4,10 +4,7 @@ import type {Toc} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 import {extractFrontMatter} from '@diplodoc/liquid';
-import {
-    type ContentAudience,
-    filterAudienceContent,
-} from '@diplodoc/transform/lib/plugins/visibility';
+import {type ContentAudience} from '@diplodoc/transform/lib/plugins/visibility';
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -15,6 +12,7 @@ import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} f
 import {OutputFormat} from '~/commands/build/config';
 
 import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
+import {filterCollectedAudienceContent} from '../output-md/visibility';
 import {resolveAbsolutePaths} from '../output-md/plugins/merge-includes';
 
 import {stripHtmlTags} from './utils';
@@ -450,7 +448,7 @@ export class Llms {
             // consumption (LLMs don't execute JS or apply CSS) and only add
             // noise to the corpus. Code blocks are protected (see stripHtmlTags).
             const strippedBody = stripHtmlTags(body, ['style', 'script']);
-            const filteredBody = filterAudienceContent(strippedBody, audience);
+            const filteredBody = filterCollectedAudienceContent(strippedBody, audience);
 
             for (const detectedAudience of filteredBody.audienceSpecificContent) {
                 audienceSpecificContent?.add(detectedAudience);

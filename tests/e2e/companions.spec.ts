@@ -38,6 +38,26 @@ describe('static Markdown companions', () => {
         const audience = await readFile(join(`${outputPath}-html`, 'audience.md'), 'utf8');
         expect(audience).toContain('Visible to a human reader.');
         expect(audience).not.toContain('Visible to an autonomous agent.');
+
+        const fallback = await readFile(join(`${outputPath}-html`, 'fallback.md'), 'utf8');
+        expect(fallback).toContain('Public page content.');
+        expect(fallback).not.toContain('Agent-only fallback secret');
+        expect(fallback).not.toContain('{% included (_includes/agent-secret.md) %}');
+
+        const llmsFull = await readFile(join(`${outputPath}-html`, 'llms-full.txt'), 'utf8');
+        expect(llmsFull).not.toContain('Agent-only fallback secret');
+    });
+
+    test('keeps includes internal when mergeIncludes is disabled for the HTML build', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/companions-unmerged');
+        await cleanupDirectory(outputPath);
+
+        const report = await TestAdapter.build.run(inputPath, outputPath, ['-f', 'html']);
+        expect(report.code).toBe(0);
+
+        const companion = await readFile(join(outputPath, 'index.md'), 'utf8');
+        expect(companion).toContain('Include stays internal to the companion.');
+        await expect(access(join(outputPath, '_includes/shared.md'))).rejects.toThrow();
     });
 
     test('does not emit companions unless explicitly enabled', async () => {

@@ -1,0 +1,3 @@
+companions: true
+preprocess:
+  mergeIncludes: false
