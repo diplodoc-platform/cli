@@ -1,5 +1,29 @@
 # Changelog
 
+## [5.62.0](https://github.com/diplodoc-platform/cli/compare/v5.61.0...v5.62.0) (2026-09-21)
+
+
+### Features
+
+* **build:** emit static Markdown companions ([4a2b898](https://github.com/diplodoc-platform/cli/commit/4a2b89857cee6bdf5053d9e565bdfe05a5ecebfd))
+
+
+### Bug Fixes
+
+* **build:** address companion sonar findings ([6855efb](https://github.com/diplodoc-platform/cli/commit/6855efb00ac731e2f25f8447c573210b9b4eaa76))
+* **build:** filter companion graphs before collection ([c2aae71](https://github.com/diplodoc-platform/cli/commit/c2aae71085618c2a57a2df490a7a6d1d43b22bf3))
+* **build:** initialize AI config for companions ([d3dc216](https://github.com/diplodoc-platform/cli/commit/d3dc2160477455c5ce7ab55ce2c6cd3742f1225c))
+* **build:** preserve visibility in companion includes ([24e3f30](https://github.com/diplodoc-platform/cli/commit/24e3f301076dbace897287a65995f28e33bae490))
+* **llms:** preserve audience separators ([890d5ac](https://github.com/diplodoc-platform/cli/commit/890d5acfaffcf94b65d4e6b92df4b21ff3f6b994))
+* **llms:** preserve merge behavior while restoring separators ([b516ab0](https://github.com/diplodoc-platform/cli/commit/b516ab0e6987dfa2492aadec5a52c9f47d53b190))
+
+
+
+### Performance Improvements
+
+* **build:** skip fallback parsing for regular pages ([722509d](https://github.com/diplodoc-platform/cli/commit/722509d8a3a028dddedb3e1fe14191b2674dd565))
+* **meta:** avoid duplicate path normalization ([39fb290](https://github.com/diplodoc-platform/cli/commit/39fb290884ddb0737c67d1e71dce41750952aef9))
+
 ## [5.61.1](https://github.com/diplodoc-platform/cli/compare/v5.61.0...v5.61.1) (2026-09-18)
 
 
