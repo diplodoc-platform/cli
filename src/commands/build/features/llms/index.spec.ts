@@ -50,6 +50,11 @@ vi.mock('../output-md/collect', () => {
         SELF_CONTAINED: 'self-contained',
         MarkdownCollector: vi.fn().mockImplementation(() => ({
             collect: vi.fn().mockResolvedValue('Collected Markdown Content'),
+            collectWithInfo: vi.fn().mockResolvedValue({
+                content: 'Collected Markdown Content',
+                audienceSpecificContent: [],
+                errors: [],
+            }),
         })),
     };
 });
@@ -124,7 +129,6 @@ type TestableLlms = {
         run: Run,
         collector: MarkdownCollector,
         entryPath: NormalizedPath,
-        audience: 'human' | 'agent',
         fileName: string,
         reportErrors: boolean,
         audienceSpecificContent?: Set<'human' | 'agent'>,
@@ -838,29 +842,22 @@ describe('LLMs Plugin Architecture', () => {
         it('should keep agent content, omit human content, and resolve its links', async () => {
             const run = createMockRun({baseHref: 'https://example.com/docs/'});
             const collector = {
-                collect: vi
-                    .fn()
-                    .mockResolvedValue(
-                        [
-                            'Common content',
-                            '[Related page](related.md)',
-                            '',
-                            ':::visibility human',
-                            'Human instructions',
-                            ':::',
-                            '',
-                            ':::visibility agent',
-                            'Agent instructions',
-                            ':::',
-                        ].join('\n'),
-                    ),
+                collectWithInfo: vi.fn().mockResolvedValue({
+                    content: [
+                        'Common content',
+                        '[Related page](related.md)',
+                        '',
+                        'Agent instructions',
+                    ].join('\n'),
+                    audienceSpecificContent: ['human', 'agent'],
+                    errors: [],
+                }),
             } as unknown as MarkdownCollector;
 
             const result = await llmsInstance.collectBody(
                 run,
                 collector,
                 normalizedPath('docs/page.md'),
-                'agent',
                 LLMS_FULL_FILENAME,
                 true,
             );
@@ -875,16 +872,24 @@ describe('LLMs Plugin Architecture', () => {
         it('should report an invalid audience without a misleading collected line number', async () => {
             const run = createMockRun();
             const collector = {
-                collect: vi
-                    .fn()
-                    .mockResolvedValue('Included content.\n\n:::visibility robots\nHidden.\n:::'),
+                collectWithInfo: vi.fn().mockResolvedValue({
+                    content: 'Included content.',
+                    audienceSpecificContent: [],
+                    errors: [
+                        {
+                            line: 3,
+                            value: 'robots',
+                            message:
+                                'Invalid visibility audience "robots" at line 3; expected "human" or "agent"',
+                        },
+                    ],
+                }),
             } as unknown as MarkdownCollector;
 
             await llmsInstance.collectBody(
                 run,
                 collector,
                 normalizedPath('docs/page.md'),
-                'human',
                 LLMS_FULL_FILENAME,
                 true,
             );

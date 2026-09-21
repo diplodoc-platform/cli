@@ -15,7 +15,6 @@ import {all, get, isMediaLink, resolveAbsoluteHref, shortLink} from '~/core/util
 import {MarkdownCollector} from './collect';
 import {resolvePropagatedFrontmatter} from './frontmatter-propagation';
 import {addMetaFrontmatter, buildAlternateEntries} from './utils';
-import {filterCollectedAudienceContent} from './visibility';
 
 type MetaSource = 'hooks' | 'snapshot';
 
@@ -81,27 +80,22 @@ export class MarkdownOutputRenderer {
 
     async collectMarkdown(vfile: VFile<string>) {
         const config = this.options.collectConfig || this.run.config.preprocess;
-        const collector = new MarkdownCollector(
-            this.run,
-            config,
-            this.copiedIncludes,
-            this.resolveMeta,
-        );
+        const collector = new MarkdownCollector(this.run, config, {
+            copiedIncludes: this.copiedIncludes,
+            resolveMeta: this.resolveMeta,
+            audience: this.options.audience,
+        });
 
-        vfile.data = await collector.collect(vfile.path);
+        const collected = await collector.collectWithInfo(vfile.path);
+        vfile.data = collected.content;
+
+        for (const error of collected.errors) {
+            const message = error.message.replace(` at line ${error.line}`, '');
+            this.run.logger.error(`${vfile.path}: ${message}`);
+        }
     }
 
     async finalizeMarkdown(vfile: VFile<string>) {
-        if (this.options.audience) {
-            const filtered = filterCollectedAudienceContent(vfile.data, this.options.audience);
-            vfile.data = filtered.content;
-
-            for (const error of filtered.errors) {
-                const message = error.message.replace(` at line ${error.line}`, '');
-                this.run.logger.error(`${vfile.path}: ${message}`);
-            }
-        }
-
         const config = this.options.collectConfig || this.run.config.preprocess;
         if (config.mergeIncludes) {
             const propagated = await resolvePropagatedFrontmatter(this.run, vfile.path);
