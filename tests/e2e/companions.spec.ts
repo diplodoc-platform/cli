@@ -79,7 +79,7 @@ describe('static Markdown companions', () => {
         const report = await TestAdapter.build.run(sourcePath, outputPath, [
             '-f',
             'html',
-            '--no-companions',
+            '--no-ai-md-companions',
         ]);
         expect(report.code).toBe(0);
 

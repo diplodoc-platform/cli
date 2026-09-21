@@ -24,7 +24,7 @@ import type {CodeHighlightConfig, ThemerArgs, ThemerConfig} from './features/the
 import type {WatchArgs, WatchConfig} from './features/watch';
 import type {YaMakeArgs, YaMakeConfig, YaMakeRawConfig} from './features/ya-make';
 import type {LlmsArgs, LlmsConfig} from './features/llms';
-import type {CompanionsArgs, CompanionsConfig} from './features/companions';
+import type {CompanionsArgs} from './features/companions';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
 import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
@@ -61,16 +61,18 @@ export type ContentConfig = {
     multilineTermDefinitions: boolean;
 };
 
-/**
- * Controls emission of the standalone OpenAPI spec companion (`*.openapi.json`):
- *  - `true` — emit in both md2md and md2html;
- *  - `'md'` — emit only in md2md (default);
- *  - `false` — disabled.
- *
- * `undefined` means "not configured": the default (`'md'`) is owned and applied by the
- * openapi extension (`DEFAULT_OPENAPI_COMPANIONS_MODE`), the single consumer of this value.
- */
 export type AiConfig = {
+    /** Emit prepared Markdown or YAML companions next to static HTML pages. */
+    mdCompanions?: boolean;
+    /**
+     * Controls emission of the standalone OpenAPI spec companion (`*.openapi.json`):
+     *  - `true` — emit in both md2md and md2html;
+     *  - `'md'` — emit only in md2md (default);
+     *  - `false` — disabled.
+     *
+     * `undefined` means "not configured": the default (`'md'`) is owned and applied by the
+     * openapi extension (`DEFAULT_OPENAPI_COMPANIONS_MODE`), the single consumer of this value.
+     */
     openapiCompanions?: boolean | 'md';
 };
 
@@ -201,8 +203,7 @@ export type BuildRawConfig = BaseArgs &
     YaMakeRawConfig &
     ThemerConfig &
     NeuroExpertConfig &
-    LlmsConfig &
-    CompanionsConfig;
+    LlmsConfig;
 
 export type BuildConfig = Config<
     BaseArgs &
@@ -229,7 +230,6 @@ export type BuildConfig = Config<
         ThemerConfig &
         NeuroExpertConfig &
         LlmsConfig &
-        CompanionsConfig &
         ContentConfig
 >;
 

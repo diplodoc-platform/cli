@@ -19,11 +19,7 @@ import {buildCompanionAlternate, getCustomCollectPlugins} from '../output-md/uti
 import {options} from './config';
 
 export type CompanionsArgs = {
-    companions: boolean;
-};
-
-export type CompanionsConfig = {
-    companions: boolean;
+    aiMdCompanions: boolean;
 };
 
 const NAME = 'Companions';
@@ -31,12 +27,15 @@ const NAME = 'Companions';
 export class Companions {
     apply(program: Build) {
         getBaseHooks(program).Command.tap(NAME, (command: Command) => {
-            command.addOption(options.companions);
+            command.addOption(options.aiMdCompanions);
         });
 
         getBaseHooks(program).Config.tap(NAME, (config, args) => {
-            const value = defined('companions', args, config);
-            config.companions = value === null ? false : Boolean(value);
+            const value = defined('aiMdCompanions', args);
+            config.ai.mdCompanions =
+                value === null || value === undefined
+                    ? Boolean(config.ai.mdCompanions)
+                    : Boolean(value);
 
             return config;
         });
@@ -47,7 +46,7 @@ export class Companions {
     }
 
     private configure(run: Run) {
-        if (!run.config.companions) {
+        if (!run.config.ai.mdCompanions) {
             return;
         }
 

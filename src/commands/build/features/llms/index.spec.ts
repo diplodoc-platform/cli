@@ -69,7 +69,7 @@ function createMockRun(
         llmsFullMaxSize?: number;
         openapiCompanions?: OpenapiCompanionEntry[];
         baseHref?: string;
-        companions?: boolean;
+        mdCompanions?: boolean;
         skipHtmlExtension?: boolean;
     } = {},
 ): Run {
@@ -82,7 +82,7 @@ function createMockRun(
                 llmsFullMaxSize: options.llmsFullMaxSize ?? 4 * 1024 ** 2,
             },
             baseHref: options.baseHref,
-            companions: options.companions ?? false,
+            ai: {mdCompanions: options.mdCompanions ?? false},
             skipHtmlExtension: options.skipHtmlExtension ?? false,
         } as unknown as LlmsConfig & {outputFormat: OutputFormat},
         meta: {
@@ -541,7 +541,7 @@ describe('LLMs Plugin Architecture', () => {
         it('should link static HTML builds to source companions when enabled', async () => {
             const run = createMockRun({
                 outputFormat: OutputFormat.html,
-                companions: true,
+                mdCompanions: true,
                 baseHref: 'https://example.com/docs/',
             });
             const entries = [

@@ -21,7 +21,7 @@ describe('Companions feature', () => {
         const build = new Build();
         const feature = new Companions();
         feature.apply(build);
-        const run = setupRun({companions: false} as BuildConfig);
+        const run = setupRun({ai: {mdCompanions: false}} as BuildConfig);
 
         await beforeRun(build, run);
 
@@ -35,7 +35,7 @@ describe('Companions feature', () => {
         const feature = new Companions();
         feature.apply(build);
         const run = setupRun({
-            companions: true,
+            ai: {mdCompanions: true},
             baseHref: 'https://example.com/docs/',
         } as BuildConfig);
 
@@ -97,7 +97,7 @@ describe('Companions feature', () => {
         const build = new Build();
         const feature = new Companions();
         feature.apply(build);
-        const run = setupRun({companions: true} as BuildConfig);
+        const run = setupRun({ai: {mdCompanions: true}} as BuildConfig);
         vi.spyOn(run.toc, 'isEntry').mockReturnValue(false);
 
         await beforeRun(build, run);
@@ -111,7 +111,7 @@ describe('Companions feature', () => {
         const build = new Build();
         const feature = new Companions();
         feature.apply(build);
-        const run = setupRun({companions: true} as BuildConfig);
+        const run = setupRun({ai: {mdCompanions: true}} as BuildConfig);
 
         await beforeRun(build, run);
 
