@@ -9,6 +9,7 @@ import {VFile, normalizePath} from '~/core/utils';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getMetaHooks} from '~/core/meta';
+import {getHooks as getBaseHooks} from '~/core/program';
 
 import {getHooks as getBuildHooks} from '../../hooks';
 import {setupRun} from '../../__tests__';
@@ -17,6 +18,19 @@ import {MarkdownOutputRenderer} from '../output-md/renderer';
 import {Companions} from './index';
 
 describe('Companions feature', () => {
+    it('initializes the ai config group when it is absent', async () => {
+        const build = new Build();
+        const feature = new Companions();
+        feature.apply(build);
+        const configTap = tapByName(getBaseHooks(build).Config.taps, 'Companions');
+        const config = {} as BuildConfig;
+        const result = await configTap(config, {aiMdCompanions: true});
+
+        expect(result).toMatchObject({
+            ai: {mdCompanions: true},
+        });
+    });
+
     it('does not register processing hooks when disabled', async () => {
         const build = new Build();
         const feature = new Companions();
@@ -125,6 +139,15 @@ describe('Companions feature', () => {
         ).rejects.toThrow('Unable to capture leading source for companion: landing.yaml');
     });
 });
+
+function tapByName(taps: FullTap[], name: string) {
+    const tap = taps.find((item) => item.name === name);
+    if (!tap) {
+        throw new Error(`tap ${name} not registered`);
+    }
+
+    return tap.fn;
+}
 
 async function beforeRun(build: Build, run: ReturnType<typeof setupRun>) {
     const hook = getBuildHooks(build)
