@@ -123,75 +123,15 @@ export class MetaService {
         const file = normalizePath(path);
         const meta = copyJson(this.meta.get(file)) || this.initialMeta();
 
-        for (const field of ['script', 'style', 'keywords'] as const) {
-            if (!Array.isArray(meta[field])) {
-                continue;
-            }
-
-            meta[field] = [...new Set(meta[field])].filter(Boolean);
-        }
-
-        if (meta.tags) {
-            meta.tags = [
-                ...new Set(
-                    meta.tags.map((tag) => {
-                        const normalizedTag = Array.from(tag.trim().toLowerCase());
-
-                        if (normalizedTag.length > MAX_TAG_LENGTH) {
-                            this.logger.warn(
-                                file,
-                                `Tag "${tag}" exceeds ${MAX_TAG_LENGTH} characters and will be truncated.`,
-                            );
-                        }
-
-                        return normalizedTag.slice(0, MAX_TAG_LENGTH).join('');
-                    }),
-                ),
-            ].filter(Boolean);
-        }
-
-        if (meta.summary !== undefined && typeof meta.summary !== 'string') {
-            this.logger.warn(file, 'Summary must be a string and will be ignored.');
-            delete meta.summary;
-        } else if (meta.summary) {
-            const summary = Array.from(meta.summary);
-
-            if (summary.length > MAX_SUMMARY_LENGTH) {
-                this.logger.warn(
-                    file,
-                    `The length of the summary "${meta.summary}" exceeds ${MAX_SUMMARY_LENGTH} characters, and it will be truncated.`,
-                );
-            }
-
-            meta.summary = summary.slice(0, MAX_SUMMARY_LENGTH).join('');
-        }
+        this.normalizeArrayFields(meta);
+        this.normalizeTags(meta, file);
+        this.normalizeSummary(meta, file);
 
         if (meta.alternate?.length) {
             meta.alternate.sort((a, b) => (a.href > b.href ? 1 : -1));
         }
 
-        for (const field of [
-            'script',
-            'style',
-            'keywords',
-            'contributors',
-            'csp',
-            'alternate',
-        ] as const) {
-            if (!meta[field]?.length) {
-                delete meta[field];
-            }
-        }
-
-        for (const field of ['metadata', '__system']) {
-            if (!meta[field]) {
-                continue;
-            }
-
-            if (!Object.keys(meta[field] as Hash).length) {
-                delete meta[field];
-            }
-        }
+        this.removeEmptyFields(meta);
 
         return meta;
     }
@@ -396,6 +336,80 @@ export class MetaService {
         meta.__system = Object.assign({}, meta.__system, vars);
 
         this.meta.set(file, meta);
+    }
+
+    private normalizeArrayFields(meta: Meta) {
+        for (const field of ['script', 'style', 'keywords'] as const) {
+            if (!Array.isArray(meta[field])) {
+                continue;
+            }
+
+            meta[field] = [...new Set(meta[field])].filter(Boolean);
+        }
+    }
+
+    private normalizeTags(meta: Meta, file: NormalizedPath) {
+        if (meta.tags) {
+            meta.tags = [
+                ...new Set(
+                    meta.tags.map((tag) => {
+                        const normalizedTag = Array.from(tag.trim().toLowerCase());
+
+                        if (normalizedTag.length > MAX_TAG_LENGTH) {
+                            this.logger.warn(
+                                file,
+                                `Tag "${tag}" exceeds ${MAX_TAG_LENGTH} characters and will be truncated.`,
+                            );
+                        }
+
+                        return normalizedTag.slice(0, MAX_TAG_LENGTH).join('');
+                    }),
+                ),
+            ].filter(Boolean);
+        }
+    }
+
+    private normalizeSummary(meta: Meta, file: NormalizedPath) {
+        if (meta.summary !== undefined && typeof meta.summary !== 'string') {
+            this.logger.warn(file, 'Summary must be a string and will be ignored.');
+            delete meta.summary;
+        } else if (meta.summary) {
+            const summary = Array.from(meta.summary);
+
+            if (summary.length > MAX_SUMMARY_LENGTH) {
+                this.logger.warn(
+                    file,
+                    `The length of the summary "${meta.summary}" exceeds ${MAX_SUMMARY_LENGTH} characters, and it will be truncated.`,
+                );
+            }
+
+            meta.summary = summary.slice(0, MAX_SUMMARY_LENGTH).join('');
+        }
+    }
+
+    private removeEmptyFields(meta: Meta) {
+        for (const field of [
+            'script',
+            'style',
+            'keywords',
+            'contributors',
+            'csp',
+            'alternate',
+        ] as const) {
+            if (!meta[field]?.length) {
+                delete meta[field];
+            }
+        }
+
+        for (const field of ['metadata', '__system']) {
+            if (!meta[field]) {
+                continue;
+            }
+
+            if (!Object.keys(meta[field] as Hash).length) {
+                delete meta[field];
+            }
+        }
     }
 
     private initialMeta(): Meta {
