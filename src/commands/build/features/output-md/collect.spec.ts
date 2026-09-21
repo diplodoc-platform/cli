@@ -81,6 +81,23 @@ describe('filterGraphAudience', () => {
         expect(filtered.graph.assets).toHaveLength(1);
         expect(filtered.graph.content.slice(...filtered.graph.assets[0].location)).toBe(image);
     });
+
+    it('applies caller transforms before visibility filtering', () => {
+        const content = [
+            ':::visibility agent',
+            'Agent instructions.',
+            ':::',
+            '<style>unused</style>',
+        ].join('\n');
+        const transformContent = (value: string) =>
+            value.replace('<style>unused</style>', '').trim();
+
+        const filtered = filterGraphAudience(makeGraph(content), 'agent', transformContent);
+
+        // Filtering the trimmed directive still preserves the body newline. This
+        // is the established llms-full separator contract.
+        expect(filtered.graph.content).toBe('Agent instructions.\n');
+    });
 });
 
 function makeGraph(content: string, deps: EntryGraphNode[] = []): EntryGraph {
