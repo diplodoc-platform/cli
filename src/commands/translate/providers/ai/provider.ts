@@ -1,5 +1,5 @@
 import type {Logger} from '~/core/logger';
-import type {CodeMode} from '../../utils';
+import type {CodeMode, VarsResolver} from '../../utils';
 import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {CompletionResult, LLMClient} from './clients/types';
@@ -84,6 +84,9 @@ export class Provider {
             ? this.clientFactory(fallbackClientConfig(config))
             : undefined;
         const {input, output, source, target: targets, vars, dryRun, maxConcurrency} = config;
+        // The run resolves presets per file; a config without a run (tests,
+        // direct calls) falls back to the flat vars.
+        const varsFor = config.varsFor ?? (() => vars);
 
         this.report = RunReport.start(config, files.length, this.skippedFiles);
 
@@ -116,7 +119,7 @@ export class Provider {
                     output,
                     sourceLanguage: source.language,
                     targetLanguage: target.language,
-                    vars,
+                    varsFor,
                     code: config.code,
                     translate,
                     onTranslated: collect,
@@ -346,7 +349,7 @@ type ProcessorParams = {
     output: string;
     sourceLanguage: string;
     targetLanguage: string;
-    vars: Hash;
+    varsFor: VarsResolver;
     code: CodeMode;
     translate: Translate;
     onTranslated?: (path: string, units: string[], parts: string[]) => void;
@@ -439,7 +442,7 @@ function makeJudgeCollector(pairs: JudgePair[]) {
 }
 
 function makeProcessor(params: ProcessorParams) {
-    const {input, output, sourceLanguage, targetLanguage, vars, code, translate, onTranslated} =
+    const {input, output, sourceLanguage, targetLanguage, varsFor, code, translate, onTranslated} =
         params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
@@ -458,7 +461,7 @@ function makeProcessor(params: ProcessorParams) {
             path,
             sourceLanguage,
             targetLanguage,
-            vars,
+            vars: varsFor(path),
             code,
         });
 

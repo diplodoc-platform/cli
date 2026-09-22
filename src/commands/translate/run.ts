@@ -49,7 +49,11 @@ export class Run extends BaseRun<CommonRunConfig> {
         const sourcePath = join(config.input, config.source.language) as AbsolutePath;
         this.scopes.set('source', this.realpathSync(sourcePath));
 
-        this.vars = new VarsService(this, {usePresets: false});
+        // Presets apply as for build: the `varsPreset` section of every
+        // presets.yaml on the path of a file, under `--vars`. Conditions are
+        // then evaluated as in the build of the source language, so the
+        // content that the build drops does not go to translation either.
+        this.vars = new VarsService(this, {usePresets: true});
         this.meta = new MetaService(this);
         this.toc = new TocService(this, {skipMissingVars: true, mode: 'translate'});
         this.markdown = new MarkdownService(this, {skipMissingVars: true, mode: 'translate'});

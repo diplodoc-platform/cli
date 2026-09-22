@@ -1,3 +1,5 @@
+import type {Config} from '~/core/config';
+
 import {ok} from 'node:assert';
 import {dirname, isAbsolute, relative, resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
@@ -5,9 +7,12 @@ import {globSync} from 'glob';
 import {merge} from 'lodash';
 import {filter} from 'minimatch';
 
-import {defined} from '~/core/config';
+import {configPath, defined, resolveConfig, scope} from '~/core/config';
 
 import {TranslateError} from './errors';
+
+/** Vars of one file: its presets under `--vars`. Paths are relative to the input. */
+export type VarsResolver = (path: string) => Hash;
 
 type PartialLocale = {
     language: string;
@@ -159,6 +164,64 @@ export function resolveFiles(
 
 export function resolveVars(config: {vars?: Hash}, args: {vars?: Hash}) {
     return merge(config.vars || {}, args.vars);
+}
+
+/**
+ * Vars preset of a run: the argument, then the command's own config
+ * section, then the enclosing sections of the same .yfm (`parents`, the
+ * empty name being the file root, where build keeps `varsPreset`), then
+ * `default`.
+ */
+export async function resolveVarsPreset(
+    config: Config<Hash>,
+    args: Hash,
+    parents: string[] = [''],
+): Promise<string> {
+    const argument = defined('varsPreset', args);
+    if (argument) {
+        return argument;
+    }
+
+    // The config defaults already put `default` here, so only another value
+    // counts as set: `varsPreset: default` in a section reads as "unset".
+    if (config.varsPreset && config.varsPreset !== 'default') {
+        return config.varsPreset;
+    }
+
+    // A .yfm without the command's section resolves to the defaults and
+    // loses its path; the file is still there with the root keys, so it is
+    // located again the way the program does.
+    const path = config[configPath] || configFile(args);
+    if (path) {
+        const root: Hash = await resolveConfig(path, {fallback: {}});
+
+        for (const name of parents) {
+            // A missing section resolves to the root, which is the last fallback anyway.
+            const section: Hash = name ? scope(name)(root) : root;
+            const value = defined('varsPreset', section);
+
+            if (value) {
+                return value;
+            }
+        }
+    }
+
+    return 'default';
+}
+
+function configFile(args: {input?: string; config?: string}): AbsolutePath | undefined {
+    const {input, config} = args;
+
+    if (!config) {
+        return undefined;
+    }
+
+    // `./x` and `../x` are relative to the cwd, a bare name (`.yfm`) to the input.
+    if (isAbsolute(config) || /^\.\.?[\\/]/.test(config)) {
+        return resolve(config) as AbsolutePath;
+    }
+
+    return resolve(input || '.', config) as AbsolutePath;
 }
 
 function skip(

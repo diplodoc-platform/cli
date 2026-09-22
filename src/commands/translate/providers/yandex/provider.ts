@@ -1,5 +1,5 @@
 import type {TranslateConfig} from '~/commands/translate';
-import type {CodeMode} from '~/commands/translate/utils';
+import type {CodeMode, VarsResolver} from '~/commands/translate/utils';
 import type {YandexTranslationConfig} from '.';
 import type {AxiosResponse} from 'axios';
 import type {Logger} from '~/core/logger';
@@ -79,7 +79,9 @@ export class Provider {
                     targetLanguage: target.language,
                     // yandexCloudTranslateGlossaryPairs,
                     folderId: folder,
-                    vars,
+                    // The run resolves presets per file; a config without a
+                    // run (tests, direct calls) falls back to the flat vars.
+                    varsFor: config.varsFor ?? (() => vars),
                     code,
                     dryRun,
                     timeout,
@@ -149,7 +151,7 @@ type TranslatorParams = {
     output: string;
     sourceLanguage: string;
     targetLanguage: string;
-    vars: Hash;
+    varsFor: VarsResolver;
     code: CodeMode;
     // yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 };
@@ -295,7 +297,7 @@ function requester(params: RequesterParams, cache: Cache, stat: TargetStat): Req
 }
 
 function processor(params: TranslatorParams, translate: Translate) {
-    const {input, output, sourceLanguage, targetLanguage, vars, code} = params;
+    const {input, output, sourceLanguage, targetLanguage, varsFor, code} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -307,6 +309,7 @@ function processor(params: TranslatorParams, translate: Translate) {
 
         const inputPath = join(inputRoot, path);
         const output = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
+        const vars = varsFor(path);
 
         const content = new FileLoader(inputPath);
 

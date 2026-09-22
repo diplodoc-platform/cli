@@ -564,4 +564,62 @@ describe('Translate command', () => {
             await compareDirectories(outputPath);
         },
     );
+
+    const presetsDictionary = {
+        Обзор: 'Overview',
+        'Публичный абзац.': 'Public paragraph.',
+        'Внутренний абзац.': 'Internal paragraph.',
+        'Поддержка отвечает по будням.': 'Support answers on weekdays.',
+        Пресеты: 'Presets',
+        'Внутренний раздел': 'Internal section',
+        'Только для сотрудников.': 'For employees only.',
+    };
+
+    test('apply the vars preset of the .yfm root to conditions, as build does', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        // `audience` comes from the `public` section of presets.yaml, selected by
+        // `varsPreset` of the .yfm root: the internal block is dropped and its
+        // condition does not reach the model. `support` is defined only in the
+        // `public` section of ru/presets.yaml, so its block stays.
+        expect(page).toContain('Public paragraph.');
+        expect(page).not.toContain('Внутренний абзац');
+        expect(page).not.toContain('audience');
+        expect(page).toContain('Support answers on weekdays.');
+    });
+
+    test('select another vars preset from the command line', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml', '--vars-preset', 'default'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        // The `default` sections only: the audience is internal. `support` is
+        // unset, and a condition on an unknown variable keeps its block, as
+        // before presets: translation never drops content it cannot judge.
+        expect(page).toContain('Internal paragraph.');
+        expect(page).toContain('Support answers on weekdays.');
+    });
+
+    test('let --vars override the presets', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml', '--vars', '{"audience":"internal"}'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        expect(page).toContain('Internal paragraph.');
+        expect(page).toContain('Support answers on weekdays.');
+    });
 });

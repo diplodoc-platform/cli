@@ -64,6 +64,56 @@ describe('Translate.Seed command', () => {
         expect(argument.config.code).toBe('precise');
     });
 
+    it('should take the vars preset of the .yfm root, as build does', async () => {
+        const input = project({
+            '.yfm': 'varsPreset: public\ntranslate:\n  seed:\n    cacheDir: cache\n',
+            'ru/article.md': 'Раз.\n',
+        });
+
+        const seed = await runSeed(`-i ${input} --source ru --target en`, []);
+
+        expect(seed.config.varsPreset).toBe('public');
+    });
+
+    it('should take the vars preset of the .yfm root without a translate section', async () => {
+        const input = project({
+            '.yfm': 'varsPreset: public\n',
+            'ru/article.md': 'Раз.\n',
+        });
+        const cacheDir = mkdtempSync(join(tmpdir(), 'yfm-seed-command-cache-')) as AbsolutePath;
+
+        const seed = await runSeed(
+            `-i ${input} --source ru --target en --cache-dir ${cacheDir}`,
+            [],
+        );
+
+        expect(seed.config.varsPreset).toBe('public');
+    });
+
+    it('should prefer the translate section, the seed section and the argument for the vars preset', async () => {
+        const input = project({
+            '.yfm': 'varsPreset: public\ntranslate:\n  varsPreset: internal\n  seed:\n    cacheDir: cache\n',
+            'ru/article.md': 'Раз.\n',
+        });
+
+        const translate = await runSeed(`-i ${input} --source ru --target en`, []);
+        expect(translate.config.varsPreset).toBe('internal');
+
+        const section = project({
+            '.yfm': 'varsPreset: public\ntranslate:\n  varsPreset: internal\n  seed:\n    varsPreset: staging\n    cacheDir: cache\n',
+            'ru/article.md': 'Раз.\n',
+        });
+
+        const seed = await runSeed(`-i ${section} --source ru --target en`, []);
+        expect(seed.config.varsPreset).toBe('staging');
+
+        const argument = await runSeed(
+            `-i ${section} --source ru --target en --vars-preset default`,
+            [],
+        );
+        expect(argument.config.varsPreset).toBe('default');
+    });
+
     it('should default the code mode to adaptive', async () => {
         const input = project({'ru/article.md': 'Раз.\n'});
         const cacheDir = mkdtempSync(join(tmpdir(), 'yfm-seed-command-cache-')) as AbsolutePath;
