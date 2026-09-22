@@ -163,7 +163,7 @@ If the parameter is not specified, all elements from the starting position to th
 
 {% cut "Examples of using functions" %}
 
-Let the following be set in the [variable presets file](../project/presets.md):
+Suppose the [variable presets file](../project/presets.md) defines:
 ```yaml
 default:
   user:
