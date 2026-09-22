@@ -1,5 +1,5 @@
 import type {BaseArgs, ICallable} from '~/core/program';
-import type {Locale} from './utils';
+import type {CodeMode, Locale} from './utils';
 import type {ConfigDefaults} from './utils/config';
 
 import {ok} from 'assert';
@@ -24,7 +24,14 @@ import {Compose} from './commands/compose';
 import {Seed} from './commands/seed';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {Extension as AITranslation} from './providers/ai';
-import {copyAssets, resolveSource, resolveTargets, resolveVars, resolveVcsDiffFiles} from './utils';
+import {
+    copyAssets,
+    resolveCodeMode,
+    resolveSource,
+    resolveTargets,
+    resolveVars,
+    resolveVcsDiffFiles,
+} from './utils';
 import {Run} from './run';
 import {configDefaults} from './utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from './extract-openapi';
@@ -54,6 +61,7 @@ export type TranslateArgs = BaseArgs & {
     exclude?: string[];
     includeVcsDiff?: string | boolean;
     vars?: Hash;
+    code?: CodeMode;
     copyAssets?: boolean;
     report?: string;
 };
@@ -69,6 +77,8 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     files: string[];
     skipped: [string, string][];
     vars: Hash;
+    /** Code processing mode. Unset until the provider applies its default. */
+    code?: CodeMode;
     dryRun: boolean;
     copyAssets: boolean;
     timeout: number;
@@ -98,6 +108,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         options.exclude,
         options.includeVcsDiff,
         options.vars,
+        options.code,
         options.dryRun,
         options.copyAssets,
         options.timeout,
@@ -166,6 +177,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 exclude,
                 includeVcsDiff,
                 vars,
+                code: resolveCodeMode(args, config),
                 provider: defined('provider', args, config),
                 dryRun: defined('dryRun', args, config) || false,
                 copyAssets: defined('copyAssets', args, config) || false,

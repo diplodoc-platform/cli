@@ -2860,3 +2860,135 @@ exports[`Translate command > test no-translate directive 8`] = `
   </file>
 </xliff>"
 `;
+
+exports[`Translate command > translate comments in fenced code and keep the code as is > filelist 1`] = `
+"[
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Translate command > translate comments in fenced code and keep the code as is 1`] = `
+"# Comments in code blocks
+
+Comments are translated, code and indentation stay as is.
+
+\`\`\`yaml
+# Client side
+bus_client:
+  encryption_mode: required # encryption is required
+  # verification_mode: full
+  color: "#fff3e0"
+
+# Server side
+bus_server:
+  ca:
+    file_name: /etc/yt/certs/ca.pem
+\`\`\`
+
+\`\`\`python
+# Load the config
+config = load()  # from a file
+# print(config)
+\`\`\`
+
+\`\`\`ts
+// Client settings
+const url = 'https://example.com'; // server address
+// const retries = 3;
+\`\`\`
+
+\`\`\`sql
+-- Select all users
+SELECT * FROM users; -- without a filter
+-- SELECT * FROM admins;
+\`\`\`
+
+\`\`\`bash
+# Client side
+export TOKEN=<your token> # hint
+# export TOKEN=<old token>
+\`\`\`
+
+- List item
+
+  \`\`\`yaml
+  # Comment inside a list
+  key: value
+  \`\`\`
+
+\`\`\`text
+# Не комментарий: язык без известного синтаксиса
+value: <value>
+\`\`\`
+"
+`;
+
+exports[`Translate command > translate comments in fenced code and keep the code as is 2`] = `
+"title: Comments in code
+items:
+  - name: Comments
+    href: index.md
+"
+`;
+
+exports[`Translate command > translate labels of mermaid diagrams and keep their structure > filelist 1`] = `
+"[
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Translate command > translate labels of mermaid diagrams and keep their structure 1`] = `
+"# Labels in mermaid diagrams
+
+\`\`\`mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'fontSize': '11px' }, 'sequence': { 'autonumber': false } }}%%
+sequenceDiagram
+    participant RPC as RPC
+    participant C as Client<br/>(bus_client)
+    participant Bus
+
+    Note over RPC: Creates a protobuf message
+    rect rgb(255, 243, 224)
+    RPC->>Bus: Passes the message as a set of bytes
+    end
+    Bus-->>+RPC: Response
+    Note over C,Bus: Handshake exchange
+    loop Every second
+        Bus->>Bus: Waits for the whole message<br/>by its known size
+    end
+\`\`\`
+
+\`\`\`mermaid
+---
+title: Data flow
+---
+flowchart LR
+    %% комментарий схемы
+    A[Client] -->|Request| B(Server)
+    B --> C{Cached?}
+    C -- Yes --> D[[Cache]]
+    C -. No .-> E[("Database")]
+    E ==> F((Response))
+    subgraph net [Network]
+        A
+    end
+    classDef default fill:#fff
+\`\`\`
+
+\`\`\`mermaid
+pie
+    title Shares
+    "Собаки" : 386
+\`\`\`
+"
+`;
+
+exports[`Translate command > translate labels of mermaid diagrams and keep their structure 2`] = `
+"title: Mermaid diagrams
+items:
+  - name: Diagrams
+    href: index.md
+"
+`;

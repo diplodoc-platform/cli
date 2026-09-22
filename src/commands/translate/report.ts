@@ -1,4 +1,5 @@
 import type {TranslateLogger} from './logger';
+import type {CodeMode} from './utils/config';
 
 import {mkdirSync, writeFileSync} from 'node:fs';
 import {dirname} from 'node:path';
@@ -77,6 +78,8 @@ export type TranslateRunReport = {
     provider: string;
     model?: string;
     fallbackModel?: string;
+    /** Code processing mode of the run, see `--code`. */
+    code?: CodeMode;
     /** True when at least one request was served by the fallback model. */
     fallbackUsed: boolean;
     dryRun: boolean;
@@ -285,6 +288,7 @@ type RunReportInfo = {
     provider: string;
     model?: string;
     fallbackModel?: string;
+    code?: CodeMode;
     dryRun: boolean;
     sourceLanguage: string;
     targetLanguages: string[];
@@ -301,6 +305,7 @@ type RunReportConfig = {
     report?: AbsolutePath;
     model?: string;
     fallbackModel?: string;
+    code?: CodeMode;
 };
 
 /** Builds a report error entry from a caught error. */
@@ -327,6 +332,7 @@ export class RunReport {
             provider: config.provider,
             model: config.model,
             fallbackModel: config.fallbackModel,
+            code: config.code,
             dryRun: config.dryRun,
             sourceLanguage: config.source.language,
             targetLanguages: config.target.map((target) => target.language),
@@ -392,6 +398,7 @@ export class RunReport {
             provider: this.info.provider,
             ...(this.info.model ? {model: this.info.model} : {}),
             ...(this.info.fallbackModel ? {fallbackModel: this.info.fallbackModel} : {}),
+            ...(this.info.code ? {code: this.info.code} : {}),
             fallbackUsed: totals.requests.fallback > 0,
             dryRun: this.info.dryRun,
             sourceLanguage: this.info.sourceLanguage,

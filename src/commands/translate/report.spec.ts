@@ -17,6 +17,7 @@ function makeReport(path?: AbsolutePath) {
         provider: 'openai',
         model: 'gpt-4o-mini',
         fallbackModel: 'gpt-4o',
+        code: 'adaptive',
         dryRun: false,
         sourceLanguage: 'ru',
         targetLanguages: ['en'],
@@ -97,6 +98,7 @@ describe('translate run report', () => {
             expect(data.provider).toBe('openai');
             expect(data.model).toBe('gpt-4o-mini');
             expect(data.fallbackModel).toBe('gpt-4o');
+            expect(data.code).toBe('adaptive');
             expect(data.fallbackUsed).toBe(true);
             expect(data.sourceLanguage).toBe('ru');
             expect(data.targetLanguages).toEqual(['en']);

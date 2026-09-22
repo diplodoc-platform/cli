@@ -1,5 +1,6 @@
 import type {BaseArgs} from '~/core/program';
-import type {Locale} from '../utils';
+import type {Config} from '~/core/config';
+import type {CodeMode, Locale} from '../utils';
 import type {ConfigDefaults} from '../utils/config';
 import type {AlignedUnits} from '../providers/ai/utils';
 
@@ -9,7 +10,7 @@ import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, defined} from '~/core/config';
+import {Command, configPath, defined, resolveConfig, scope} from '~/core/config';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
@@ -19,7 +20,7 @@ import {
 
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
-import {TranslateError, languageRepath, loadTranslationUnits} from '../utils';
+import {TranslateError, languageRepath, loadTranslationUnits, resolveCodeMode} from '../utils';
 import {SeedStore, alignTranslationUnits, seedFilePath} from '../providers/ai/utils';
 import {options as aiOptions} from '../providers/ai/config';
 import {Run} from '../run';
@@ -37,6 +38,8 @@ export type SeedParams = {
     sourceLanguage: string;
     targetLanguage: string;
     vars: Hash;
+    /** Must match the code mode of the translate run, or the cache keys diverge. LLM default when unset. */
+    code?: CodeMode;
     cacheDir: AbsolutePath;
 };
 
@@ -76,7 +79,15 @@ export type SeedStats = {
  * diverged is left out on its own; the rest of the file is still seeded.
  */
 export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
-    const {input, files, sourceLanguage, targetLanguage, vars, cacheDir} = params;
+    const {
+        input,
+        files,
+        sourceLanguage,
+        targetLanguage,
+        vars,
+        code = 'adaptive',
+        cacheDir,
+    } = params;
 
     const inputRoot = resolve(input);
     const repath = languageRepath({
@@ -172,6 +183,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             sourceLanguage,
             targetLanguage,
             vars,
+            code,
         });
 
         if (!source.units.length) {
@@ -184,10 +196,27 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             sourceLanguage: targetLanguage,
             targetLanguage: sourceLanguage,
             vars,
+            code,
         });
 
         return {...alignTranslationUnits(source, target, languages), units: source.units.length};
     }
+}
+
+/**
+ * The seed section is nested in `translate`, so a code mode set for the
+ * translate run one level up applies to seeding as well.
+ */
+async function inheritCodeMode(config: Config<Hash>): Promise<CodeMode | undefined> {
+    const path = config[configPath];
+
+    if (!path) {
+        return undefined;
+    }
+
+    const parent = await resolveConfig(path, {filter: scope('translate')});
+
+    return resolveCodeMode({}, parent);
 }
 
 export type SeedArgs = BaseArgs & {
@@ -196,6 +225,7 @@ export type SeedArgs = BaseArgs & {
     include?: string[];
     exclude?: string[];
     vars?: Hash;
+    code?: CodeMode;
     cacheDir: string;
 };
 
@@ -209,6 +239,7 @@ export type SeedConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     files: string[];
     skipped: [string, string][];
     vars: Hash;
+    code: CodeMode;
     cacheDir: AbsolutePath;
 } & ConfigDefaults;
 
@@ -230,6 +261,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
         options.include,
         options.exclude,
         options.vars,
+        options.code,
         options.config(YFM_CONFIG_FILENAME),
         aiOptions.cacheDir,
     ];
@@ -246,7 +278,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
     apply(program?: BaseProgram) {
         super.apply(program);
 
-        getBaseHooks(this).Config.tap('Translate.Seed', (config, args) => {
+        getBaseHooks(this).Config.tapPromise('Translate.Seed', async (config, args) => {
             const {input, quiet, strict} = pick(args, ['input', 'quiet', 'strict']) as SeedArgs;
             const source = resolveSource(config, args);
             const target = resolveTargets(config, args);
@@ -254,6 +286,10 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
             const exclude = defined('exclude', args, config) || [];
             const files = defined('files', args, config) || [];
             const vars = resolveVars(config, args);
+            // Seeds feed the LLM cache, so they follow the translate section
+            // of the config and then the LLM default.
+            const code =
+                resolveCodeMode(args, config) ?? (await inheritCodeMode(config)) ?? 'adaptive';
             const cacheDir = defined('cacheDir', args, config);
 
             if (!cacheDir) {
@@ -271,13 +307,14 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 include,
                 exclude,
                 vars,
+                code,
                 cacheDir: resolve(cacheDir),
             });
         });
     }
 
     async action() {
-        const {input, source, target: targets, vars, cacheDir} = this.config;
+        const {input, source, target: targets, vars, code, cacheDir} = this.config;
 
         this.logger.setup(this.config);
 
@@ -299,6 +336,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 sourceLanguage: source.language,
                 targetLanguage: target.language,
                 vars,
+                code,
                 cacheDir,
             });
 

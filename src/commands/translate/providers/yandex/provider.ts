@@ -1,4 +1,5 @@
 import type {TranslateConfig} from '~/commands/translate';
+import type {CodeMode} from '~/commands/translate/utils';
 import type {YandexTranslationConfig} from '.';
 import type {AxiosResponse} from 'axios';
 import type {Logger} from '~/core/logger';
@@ -61,6 +62,7 @@ export class Provider {
             source,
             target: targets,
             vars,
+            code,
             dryRun,
             timeout,
         } = config;
@@ -78,6 +80,7 @@ export class Provider {
                     // yandexCloudTranslateGlossaryPairs,
                     folderId: folder,
                     vars,
+                    code,
                     dryRun,
                     timeout,
                 };
@@ -147,6 +150,7 @@ type TranslatorParams = {
     sourceLanguage: string;
     targetLanguage: string;
     vars: Hash;
+    code: CodeMode;
     // yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 };
 
@@ -291,7 +295,7 @@ function requester(params: RequesterParams, cache: Cache, stat: TargetStat): Req
 }
 
 function processor(params: TranslatorParams, translate: Translate) {
-    const {input, output, sourceLanguage, targetLanguage, vars} = params;
+    const {input, output, sourceLanguage, targetLanguage, vars, code} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -326,6 +330,7 @@ function processor(params: TranslatorParams, translate: Translate) {
         const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
         const {units, skeleton} = extract(content.data, {
             compact: true,
+            code,
             source: {
                 language: sourceLanguage,
                 locale: 'RU',
