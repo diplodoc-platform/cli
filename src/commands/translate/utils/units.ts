@@ -60,6 +60,10 @@ export async function loadTranslationUnits(
     const {units, skeleton} = extract(content.data, {
         compact: true,
         code,
+        // Unit texts are cache and seed keys: with document-wide placeholder
+        // ids a unit's text depends on the markup above it, so a section
+        // added at the top of a file invalidates every unit below.
+        unitLocalIds: true,
         source: {language: sourceLanguage, locale: 'RU'},
         target: {language: targetLanguage, locale: 'US'},
         schemas,
