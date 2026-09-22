@@ -7,6 +7,8 @@ import {filter} from 'minimatch';
 
 import {defined} from '~/core/config';
 
+import {TranslateError} from './errors';
+
 type PartialLocale = {
     language: string;
     locale?: string;
@@ -185,6 +187,35 @@ function skip(
         },
         [[], skipped] as [string[], [string, string][]],
     );
+}
+
+/**
+ * How much of fenced code blocks goes to translation, see `--code`.
+ * Mirrors the `code` option of @diplodoc/translation.
+ */
+export type CodeMode = 'no' | 'all' | 'precise' | 'adaptive';
+
+export const CODE_MODES: CodeMode[] = ['no', 'all', 'precise', 'adaptive'];
+
+/**
+ * Reads the code mode from args or config and validates it.
+ * Returns undefined when unset, so that each provider applies its own default.
+ */
+export function resolveCodeMode(args: Hash, config: Hash): CodeMode | undefined {
+    const value = defined('code', args, config) as CodeMode | undefined;
+
+    if (value === undefined || value === null) {
+        return undefined;
+    }
+
+    if (!CODE_MODES.includes(value)) {
+        throw new TranslateError(
+            `Unknown code mode "${value}", expected one of: ${CODE_MODES.join(', ')}`,
+            'CONFIG',
+        );
+    }
+
+    return value;
 }
 
 export function configDefaults() {

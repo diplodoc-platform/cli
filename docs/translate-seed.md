@@ -16,6 +16,14 @@ model or prompt fingerprint: it reflects the state of the files, not a model
 output, and survives model, prompt and glossary changes. Every seeding run
 rebuilds the file from scratch.
 
+The seed is keyed by unit texts, so the options that shape the units must
+match between the two commands: `--source`, `--target`, `--vars` and `--code`.
+The seed takes `code` from the `translate` section of the config (or from its
+own `translate.seed` section) and otherwise defaults to `adaptive`, the mode
+of the LLM providers. A project that translates with the yandex provider,
+where the default is `precise`, or passes `--code` on the command line has to
+pass the same value to the seed.
+
 ## How files are aligned
 
 For every source file with an existing translation both files are split

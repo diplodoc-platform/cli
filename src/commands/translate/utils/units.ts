@@ -1,4 +1,5 @@
 import type {ExtractOptions, JSONObject} from '@diplodoc/translation';
+import type {CodeMode} from './config';
 
 import liquid from '@diplodoc/transform/lib/liquid';
 
@@ -13,6 +14,8 @@ export type LoadTranslationUnitsParams = {
     sourceLanguage: string;
     targetLanguage: string;
     vars: Record<string, unknown>;
+    /** Code processing mode of the run, see `--code`. Engine default when unset. */
+    code?: CodeMode;
 };
 
 export type LoadedTranslationUnits = {
@@ -34,7 +37,7 @@ export type LoadedTranslationUnits = {
 export async function loadTranslationUnits(
     params: LoadTranslationUnitsParams,
 ): Promise<LoadedTranslationUnits> {
-    const {inputPath, path, sourceLanguage, targetLanguage, vars} = params;
+    const {inputPath, path, sourceLanguage, targetLanguage, vars, code} = params;
 
     const content = new FileLoader(inputPath);
     await content.load();
@@ -56,6 +59,7 @@ export async function loadTranslationUnits(
     const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
     const {units, skeleton} = extract(content.data, {
         compact: true,
+        code,
         source: {language: sourceLanguage, locale: 'RU'},
         target: {language: targetLanguage, locale: 'US'},
         schemas,

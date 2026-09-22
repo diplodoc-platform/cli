@@ -1,6 +1,7 @@
 import type {BaseProgram} from '~/core/program';
 import type {Config as ResolvedConfig} from '~/core/config';
 import type {Translate, TranslateArgs, TranslateConfig} from '~/commands/translate';
+import type {CodeMode} from '~/commands/translate/utils';
 import type {LLMClient} from './clients/types';
 import type {GlossaryPair, PromptMode} from './prompts';
 
@@ -88,6 +89,7 @@ type Config = {
     auth?: string;
     folder?: string;
     model: string;
+    code: CodeMode;
     fallbackModel?: string;
     apiBase?: string;
     fallbackApiBase?: string;
@@ -282,6 +284,14 @@ export class Extension {
                     if (providerName === 'yandexgpt') {
                         command.addOption(options.folder);
                     }
+                });
+
+                // LLMs handle comments and diagram labels well, so the adaptive
+                // code mode is the default for every LLM provider.
+                getBaseHooks(program).Config.tap(`${ExtensionName}.${providerName}`, (config) => {
+                    config.code = config.code ?? 'adaptive';
+
+                    return config;
                 });
 
                 getBaseHooks(

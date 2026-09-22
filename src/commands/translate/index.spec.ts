@@ -31,6 +31,50 @@ describe('Translate command', () => {
             });
         });
 
+        describe('code', () => {
+            const yandex = testConfig('--source ru --target en --folder 1 --auth t1.a');
+            const openai = testConfig('--source ru --target en --provider openai --auth sk-test');
+
+            yandex('should default to precise for yandex', '', {
+                code: 'precise',
+            });
+
+            openai('should default to adaptive for LLM providers', '', {
+                code: 'adaptive',
+            });
+
+            yandex('should handle arg', '--code adaptive', {
+                code: 'adaptive',
+            });
+
+            yandex('should accept the engine-only modes', '--code no', {
+                code: 'no',
+            });
+
+            openai(
+                'should handle config',
+                '',
+                {code: 'precise'},
+                {
+                    code: 'precise',
+                },
+            );
+
+            yandex(
+                'should fail on unknown mode',
+                '--code weird',
+                `error: option '--code <mode>' argument 'weird' is invalid. Allowed choices are no, all, precise, adaptive.`,
+            );
+
+            yandex(
+                'should fail on unknown mode in config',
+                '',
+                // @ts-ignore
+                {code: 'weird'},
+                'Unknown code mode "weird", expected one of: no, all, precise, adaptive',
+            );
+        });
+
         describe('source', () => {
             const test = testConfig('--target ru --folder 1 --auth t1.a');
 

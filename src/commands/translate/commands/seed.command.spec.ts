@@ -40,6 +40,42 @@ describe('Translate.Seed command', () => {
         vi.restoreAllMocks();
     });
 
+    it('should take the code mode of the translate section', async () => {
+        const input = project({
+            '.yfm': 'translate:\n  code: precise\n  seed:\n    cacheDir: cache\n',
+            'ru/article.md': 'Раз.\n',
+        });
+
+        const seed = await runSeed(`-i ${input} --source ru --target en`, []);
+
+        expect(seed.config.code).toBe('precise');
+    });
+
+    it('should prefer the seed section and the argument over the translate section', async () => {
+        const input = project({
+            '.yfm': 'translate:\n  code: precise\n  seed:\n    code: adaptive\n    cacheDir: cache\n',
+            'ru/article.md': 'Раз.\n',
+        });
+
+        const seed = await runSeed(`-i ${input} --source ru --target en`, []);
+        expect(seed.config.code).toBe('adaptive');
+
+        const argument = await runSeed(`-i ${input} --source ru --target en --code precise`, []);
+        expect(argument.config.code).toBe('precise');
+    });
+
+    it('should default the code mode to adaptive', async () => {
+        const input = project({'ru/article.md': 'Раз.\n'});
+        const cacheDir = mkdtempSync(join(tmpdir(), 'yfm-seed-command-cache-')) as AbsolutePath;
+
+        const seed = await runSeed(
+            `-i ${input} --source ru --target en --cache-dir ${cacheDir}`,
+            [],
+        );
+
+        expect(seed.config.code).toBe('adaptive');
+    });
+
     it('should seed the cache from CLI arguments', async () => {
         const input = project({
             'ru/article.md': 'Первое. Второе.\n',
