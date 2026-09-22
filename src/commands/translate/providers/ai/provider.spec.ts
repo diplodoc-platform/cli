@@ -256,7 +256,13 @@ describe('translate ai provider', () => {
             expect(target.chars.translated).toBeGreaterThan(0);
             expect(target.tokens.input).toBeGreaterThan(0);
             expect(target.tokens.output).toBeGreaterThan(0);
-            expect(target.cache).toEqual({enabled: false, hits: 0, misses: 0, hitRate: null});
+            expect(target.cache).toEqual({
+                enabled: false,
+                hits: 0,
+                misses: 0,
+                hitRate: null,
+                hints: 0,
+            });
             expect(target.judge.scored).toBe(2);
             expect(target.judge.threshold).toBe(80);
             expect(target.judge.belowThreshold).toBe(2);
@@ -932,6 +938,99 @@ describe('translate ai provider', () => {
     });
 
     describe('makeTranslator', () => {
+        describe('memory hints', () => {
+            const previous = 'Чтобы настроить колонкам по статусам:';
+            const edited = 'Чтобы настроить колонки по статусам:';
+
+            function seededStore() {
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-hints-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                seeds.record('ru/a.md', [
+                    ['Привет', 'Hi'],
+                    [previous, 'To set up columns by status:'],
+                ]);
+                const store = new TranslationStore(
+                    join(dir, 'store.json'),
+                    cacheFingerprint({}),
+                    seeds,
+                );
+                store.load();
+                return store;
+            }
+
+            // Answers by call, whatever the request says: the memory block
+            // precedes the fragments in the user message, so the fragments
+            // cannot be parsed back the way `makeClient` does it.
+            function answering(answers: string[][]) {
+                let call = 0;
+                const client: LLMClient = {
+                    name: 'fake',
+                    complete: vi.fn(async () => ({
+                        text: answers[call++].join(`\n${FRAGMENT_SEPARATOR}\n`),
+                    })),
+                };
+                return client;
+            }
+
+            function userMessage(client: LLMClient, call: number): string {
+                const messages = vi.mocked(client.complete).mock.calls[call][0];
+                return messages[messages.length - 1].content;
+            }
+
+            it('should send a changed unit with its previous version from the seed', async () => {
+                const client = answering([['To set up the columns by status:']]);
+                const {params, stat} = makeParams(client, {}, seededStore());
+                const translate = makeTranslator(params);
+
+                const result = await translate('ru/a.md', ['Привет', edited]);
+
+                expect(result).toEqual(['Hi', 'To set up the columns by status:']);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+                const user = userMessage(client, 0);
+                expect(user).toContain('Translation memory.');
+                expect(user).toContain(`Previous source:\n${previous}`);
+                expect(user).toContain('Existing translation:\nTo set up columns by status:');
+                expect(user).toContain('Changes in the source: replaced "колонкам" with "колонки"');
+                expect(user.indexOf('Translation memory.')).toBeLessThan(user.indexOf(edited));
+                expect(stat.memoryHints).toBe(1);
+            });
+
+            it('should resend the memory when retrying an untranslated fragment', async () => {
+                const client = answering([[edited], ['To set up the columns by status:']]);
+                const {params} = makeParams(client, {}, seededStore());
+                const translate = makeTranslator(params);
+
+                const result = await translate('ru/a.md', [edited]);
+
+                expect(result).toEqual(['To set up the columns by status:']);
+                expect(client.complete).toHaveBeenCalledTimes(2);
+                expect(userMessage(client, 0)).toContain('Translation memory.');
+                expect(userMessage(client, 1)).toContain('Translation memory.');
+            });
+
+            it('should send no memory when disabled', async () => {
+                const client = answering([['To set up the columns by status:']]);
+                const {params, stat} = makeParams(client, {memoryHints: false}, seededStore());
+                const translate = makeTranslator(params);
+
+                await translate('ru/a.md', [edited]);
+
+                expect(userMessage(client, 0)).not.toContain('Translation memory');
+                expect(stat.memoryHints).toBe(0);
+            });
+
+            it('should send a new sentence without memory', async () => {
+                const client = answering([['Something else entirely.']]);
+                const {params, stat} = makeParams(client, {}, seededStore());
+                const translate = makeTranslator(params);
+
+                await translate('ru/a.md', ['Совсем другое предложение.']);
+
+                expect(userMessage(client, 0)).not.toContain('Translation memory');
+                expect(stat.memoryHints).toBe(0);
+            });
+        });
+
         it('should translate texts through the client', async () => {
             const client = makeClient(translated);
             const {params} = makeParams(client);

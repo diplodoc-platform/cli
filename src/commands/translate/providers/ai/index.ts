@@ -77,6 +77,7 @@ type Args = {
     judgeThreshold?: number;
     cacheDir?: string;
     cache?: boolean;
+    memoryHints?: boolean;
     temperature?: number;
     maxOutputTokens?: number;
     maxBatchTokens?: number;
@@ -104,6 +105,8 @@ type Config = {
     judgeModel?: string;
     judgeThreshold: number;
     cacheDir?: AbsolutePath;
+    /** Send changed units with their previous version from the seed memory. */
+    memoryHints: boolean;
     temperature?: number;
     maxOutputTokens: number;
     maxBatchTokens: number;
@@ -274,6 +277,7 @@ export class Extension {
                         .addOption(options.judgeThreshold)
                         .addOption(options.cacheDir)
                         .addOption(options.noCache)
+                        .addOption(options.noMemoryHints)
                         .addOption(options.temperature)
                         .addOption(options.maxOutputTokens)
                         .addOption(options.maxBatchTokens)
@@ -372,6 +376,7 @@ export class Extension {
                     config.judgeModel =
                         (defined('judgeModel', args, config) as string | undefined) || undefined;
                     config.judgeThreshold = intOr(defined('judgeThreshold', args, config), 70);
+                    config.memoryHints = defined('memoryHints', args, config) !== false;
 
                     config.temperature = resolveTemperature(defined('temperature', args, config));
                     config.maxOutputTokens = intOr(defined('maxOutputTokens', args, config), 4000);

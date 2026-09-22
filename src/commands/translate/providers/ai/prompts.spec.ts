@@ -37,6 +37,62 @@ describe('translate ai prompts', () => {
         });
     });
 
+    describe('buildMessages memory', () => {
+        const hint = {
+            source: 'Чтобы настроить колонкам по статусам:',
+            translation: 'To set up columns by status:',
+        };
+
+        it('should list hinted fragments with their number, previous version and changes', () => {
+            const [, user] = buildMessages(['Привет', 'Чтобы настроить колонки по статусам:'], {
+                ...config,
+                hints: [undefined, hint],
+            });
+
+            expect(user.content).toContain('Translation memory.');
+            expect(user.content).toContain(
+                'Fragment 2:\nPrevious source:\nЧтобы настроить колонкам по статусам:\n' +
+                    'Existing translation:\nTo set up columns by status:\n' +
+                    'Changes in the source: replaced "колонкам" with "колонки"',
+            );
+            expect(user.content).not.toContain('Fragment 1:');
+            // The memory precedes the fragments.
+            expect(user.content.indexOf('Translation memory.')).toBeLessThan(
+                user.content.indexOf('Привет'),
+            );
+        });
+
+        it('should leave the user message unchanged without hints', () => {
+            const [, plain] = buildMessages(['Привет'], config);
+            const [, empty] = buildMessages(['Привет'], {...config, hints: [undefined]});
+
+            expect(empty.content).toBe(plain.content);
+            expect(plain.content).not.toContain('Translation memory');
+        });
+
+        it('should put the memory before the fragments of a custom prompt', () => {
+            const [, user] = buildMessages(['Колонки'], {
+                ...config,
+                userPrompt: 'Go:\n{{fragments}}',
+                hints: [{source: 'Колонкам', translation: 'Columns'}],
+            });
+
+            expect(user.content).toMatch(/^Go:\nTranslation memory\.[\s\S]*Колонки$/);
+        });
+
+        it('should honour a {{memory}} placeholder of a custom prompt', () => {
+            const [system, user] = buildMessages(['Колонки'], {
+                ...config,
+                systemPrompt: 'Memory:\n{{memory}}',
+                userPrompt: '{{fragments}}',
+                hints: [{source: 'Колонкам', translation: 'Columns'}],
+            });
+
+            expect(system.content).toContain('Memory:\nTranslation memory.');
+            expect(user.content).toBe('Колонки');
+        });
+    });
+
     describe('buildMessages', () => {
         it('should build system and user messages with substituted placeholders', () => {
             const [system, user] = buildMessages(['Hello'], config);

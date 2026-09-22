@@ -135,6 +135,35 @@ describe('translate ai cache', () => {
             expect(store.get('Привет')).toBe('Hi');
         });
 
+        it('should ignore a seed file of a previous version', () => {
+            const file = join(tmpDir(), 'seed.ru-en.json');
+            writeFileSync(
+                file,
+                JSON.stringify({
+                    version: 2,
+                    translations: {abc: 'Hi'},
+                    files: {'ru/a.md': [['abc', 'Hi']]},
+                }),
+            );
+
+            const store = new SeedStore(file);
+            store.load();
+
+            expect(store.memory('ru/a.md')).toBeUndefined();
+        });
+
+        it('should keep the source text in the per-file memory', () => {
+            const file = join(tmpDir(), 'seed.ru-en.json');
+            const store = new SeedStore(file);
+            store.record('ru/a.md', [['Привет', 'Hi']]);
+            store.flush();
+
+            const data = JSON.parse(readFileSync(file, 'utf8'));
+
+            expect(data.version).toBe(3);
+            expect(data.files['ru/a.md']).toEqual([['Привет', 'Hi']]);
+        });
+
         it('should persist the per-file sequence of pairs', () => {
             const file = join(tmpDir(), 'seed.ru-en.json');
 
@@ -237,6 +266,81 @@ describe('translate ai cache', () => {
             const store = withMemory('ru/a.md', [['Привет', 'Hi']]);
 
             expect(store.resolve('ru/b.md', ['Привет', 'Пока'])).toEqual(['Hi', undefined]);
+        });
+    });
+
+    describe('TranslationStore.hints', () => {
+        function withMemory(file: string, pairs: [string, string][]) {
+            const dir = tmpDir();
+            const seeds = new SeedStore(join(dir, 'seed.ru-en.json'));
+            seeds.record(file, pairs);
+            return new TranslationStore(join(dir, 'store.json'), cacheFingerprint({}), seeds);
+        }
+
+        it('should trace a changed unit to its previous version', () => {
+            const store = withMemory('ru/a.md', [
+                ['Привет', 'Hi'],
+                ['Чтобы настроить колонкам по статусам:', 'To set up columns by status:'],
+                ['Пока', 'Bye'],
+            ]);
+
+            expect(
+                store.hints('ru/a.md', ['Привет', 'Чтобы настроить колонки по статусам:', 'Пока']),
+            ).toEqual([
+                undefined,
+                {
+                    source: 'Чтобы настроить колонкам по статусам:',
+                    translation: 'To set up columns by status:',
+                },
+                undefined,
+            ]);
+        });
+
+        it('should not offer an entry a unit still uses', () => {
+            const store = withMemory('ru/a.md', [['Один два три четыре', 'One two three four']]);
+
+            // The first unit takes the entry verbatim; the second is close
+            // to it but the entry is no longer free.
+            expect(
+                store.hints('ru/a.md', ['Один два три четыре', 'Один два три четыре пять']),
+            ).toEqual([undefined, undefined]);
+        });
+
+        it('should leave a unit far from every unused entry without a hint', () => {
+            const store = withMemory('ru/a.md', [['Один два три', 'One two three']]);
+
+            expect(store.hints('ru/a.md', ['Совсем другое предложение'])).toEqual([undefined]);
+        });
+
+        it('should use every previous version once, closest first in document order', () => {
+            const store = withMemory('ru/a.md', [
+                ['Первое предложение про очередь', 'First sentence about the queue'],
+                ['Второе предложение про доску', 'Second sentence about the board'],
+            ]);
+
+            expect(
+                store.hints('ru/a.md', [
+                    'Второе предложение про доску задач',
+                    'Первое предложение про очередь задач',
+                    'Ещё одно предложение про очередь',
+                ]),
+            ).toEqual([
+                {
+                    source: 'Второе предложение про доску',
+                    translation: 'Second sentence about the board',
+                },
+                {
+                    source: 'Первое предложение про очередь',
+                    translation: 'First sentence about the queue',
+                },
+                undefined,
+            ]);
+        });
+
+        it('should return nothing for files without a memory', () => {
+            const store = withMemory('ru/a.md', [['Привет', 'Hi']]);
+
+            expect(store.hints('ru/b.md', ['Привет мир'])).toEqual([undefined]);
         });
     });
 

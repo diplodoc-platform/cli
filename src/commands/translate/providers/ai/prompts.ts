@@ -1,8 +1,11 @@
 import type {ChatMessage} from './clients/types';
+import type {SeedHint} from './utils/cache';
 
 import {ok} from 'node:assert';
 import {existsSync, readFileSync} from 'node:fs';
 import {dedent} from 'ts-dedent';
+
+import {wordChanges} from './utils/diff';
 
 export type PromptMode = 'append' | 'replace';
 
@@ -19,6 +22,8 @@ export type PromptConfig = {
     context?: string;
     /** Resolved contents of --context-file values, injected as reference material. */
     contextFiles?: string[];
+    /** Previous version of every fragment that has one, parallel to the fragments. */
+    hints?: (SeedHint | undefined)[];
 };
 
 const FRAGMENT_SEPARATOR = '<<<§§§>>>';
@@ -43,6 +48,8 @@ export const DEFAULT_USER_PROMPT = dedent`
     Return the translated fragments in the same order, separated by the exact delimiter line "{{separator}}".
 
     {{context}}
+
+    {{memory}}
 
     {{fragments}}
 `;
@@ -115,6 +122,50 @@ function renderContextFiles(sections: string[]): string {
     return [CONTEXT_FILES_PREAMBLE, ...items].join('\n\n');
 }
 
+const MEMORY_PREAMBLE = dedent`
+    Translation memory. Some of the fragments below are edited versions of sentences that already have a translation.
+    For each of them the previous source, its existing translation and the changes made in the source are listed.
+    Fragments are numbered in the order they appear below.
+    Apply exactly the listed changes to the existing translation: keep the wording of everything unchanged verbatim and translate only the changed parts.
+    Do not keep anything that was removed from the source.
+`;
+
+/**
+ * The memory block of a batch: one entry per hinted fragment, numbered by
+ * its position among the fragments. Measured on ru->en point edits (see
+ * docs/specs/2026-09-22-translate-memory-hints-design.md): the previous
+ * translation alone makes the model keep it even where the source
+ * changed; the listed changes are what makes it apply the edit.
+ */
+function renderMemory(fragments: string[], hints: (SeedHint | undefined)[]): string {
+    const entries: string[] = [];
+
+    hints.forEach((hint, index) => {
+        if (!hint || index >= fragments.length) {
+            return;
+        }
+
+        const changes = wordChanges(hint.source, fragments[index]);
+        const lines = [
+            `Fragment ${index + 1}:`,
+            'Previous source:',
+            hint.source,
+            'Existing translation:',
+            hint.translation,
+        ];
+        if (changes.length) {
+            lines.push(`Changes in the source: ${changes.join('; ')}`);
+        }
+        entries.push(lines.join('\n'));
+    });
+
+    if (!entries.length) {
+        return '';
+    }
+
+    return [MEMORY_PREAMBLE, ...entries].join('\n\n');
+}
+
 function applyVars(template: string, vars: Record<string, string>): string {
     return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
         return key in vars ? vars[key] : match;
@@ -163,12 +214,14 @@ export function buildMessages(fragments: string[], config: PromptConfig): ChatMe
     const joined = joinFragments(fragments);
     const contextFiles = renderContextFiles(config.contextFiles || []);
     const glossary = renderGlossary(glossaryPairs);
+    const memory = renderMemory(fragments, config.hints || []);
     const vars = {
         source: sourceLanguage,
         target: targetLanguage,
         glossary,
         context: config.context ? `Document context: ${config.context}.` : '',
         contextFiles,
+        memory,
         separator: FRAGMENT_SEPARATOR,
         fragments: joined,
         text: joined,
@@ -183,10 +236,14 @@ export function buildMessages(fragments: string[], config: PromptConfig): ChatMe
         systemTemplate = DEFAULT_SYSTEM_PROMPT;
     }
 
-    const userTemplate = userPrompt || DEFAULT_USER_PROMPT;
+    let userTemplate = userPrompt || DEFAULT_USER_PROMPT;
 
     const placed = (placeholder: string) =>
         [systemTemplate, userTemplate].some((template) => template.includes(placeholder));
+
+    if (memory && !placed('{{memory}}')) {
+        userTemplate = userTemplate.replace(/\{\{(fragments|text)\}\}/, '{{memory}}\n\n{{$1}}');
+    }
 
     if (contextFiles && !placed('{{contextFiles}}')) {
         systemTemplate += '\n\n{{contextFiles}}';

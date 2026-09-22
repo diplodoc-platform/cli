@@ -82,6 +82,7 @@ Counters (`totals` and each entry of `targets`):
 | `cache.enabled`               | boolean        | Whether the persistent cache (`--cache-dir`) was active.                                                                                                     |
 | `cache.hits` / `cache.misses` | number         | Cache lookups by outcome.                                                                                                                                    |
 | `cache.hitRate`               | number or null | `hits / (hits + misses)`, `null` when the cache is disabled or was not consulted.                                                                            |
+| `cache.hints`                 | number         | Units sent to the model together with their previous version from the seed memory (see `docs/translate-seed.md`, "Changed sentences").                       |
 | `fixes.markupStripped`        | number         | Delimiter runs of inline markup the model added around fragments and removed before composing (fresh and cached translations alike).                         |
 | `fixes.markupRetried`         | number         | Fragments re-requested because the model returned them with markup that cannot be composed (a dropped placeholder).                                          |
 | `fixes.markupDamaged`         | number         | Fragments that kept their source text because the retry did not fix the markup; also counted in `units.untranslated`.                                        |
@@ -129,7 +130,7 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
     "chars": {"source": 15200, "translated": 16900, "request": 8300},
     "tokens": {"input": 5200, "output": 4800},
     "requests": {"total": 18, "fallback": 2, "retries": 3},
-    "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529},
+    "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529, "hints": 12},
     "fixes": {
       "markupStripped": 2,
       "markupRetried": 1,
@@ -152,7 +153,7 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
       "chars": {"source": 15200, "translated": 16900, "request": 8300},
       "tokens": {"input": 5200, "output": 4800},
       "requests": {"total": 18, "fallback": 2, "retries": 3},
-      "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529},
+      "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529, "hints": 12},
       "fixes": {
         "markupStripped": 2,
         "markupRetried": 1,

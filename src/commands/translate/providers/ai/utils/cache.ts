@@ -5,6 +5,7 @@ import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 
 import {lcs} from './align';
+import {similarity} from './diff';
 
 const VERSION = 1;
 
@@ -40,7 +41,17 @@ type SeedFile = {
     files: Record<string, [string, string][]>;
 };
 
-const SEED_VERSION = 2;
+/** The previous version of a changed unit: a source the file no longer contains and its translation. */
+export type SeedHint = {source: string; translation: string};
+
+// Version 3 keeps the source text in the per-file memory instead of its
+// hash, so that a changed unit can be compared with the previous sources.
+const SEED_VERSION = 3;
+
+// A unit this close to an unused entry of the file memory is an edit of it;
+// below the threshold it is a new sentence. Measured on ru->en point edits:
+// a one-word edit of a five-word heading scores 0.8.
+const HINT_MIN_SIMILARITY = 0.6;
 
 /**
  * Fingerprint-free translation memory derived from existing target files.
@@ -55,7 +66,8 @@ const SEED_VERSION = 2;
  * to a file gets the wording the corpus already uses. The per-file memory
  * (`memory`) keeps the pairs of every file in document order, so that a
  * sentence repeated in one file with different wordings keeps each of
- * them in place when the file is translated again.
+ * them in place when the file is translated again, and so that a changed
+ * sentence can be traced back to its previous version.
  */
 export class SeedStore {
     private readonly file: string;
@@ -114,7 +126,7 @@ export class SeedStore {
      * per-file memory; doubtful pairs stay out of the dictionary.
      */
     record(file: string, pairs: SeedPair[]) {
-        this.files[file] = pairs.map(([text, translation]) => [hash(text), translation]);
+        this.files[file] = pairs.map(([text, translation]) => [text, translation]);
         for (const [text, translation, doubtful] of pairs) {
             if (!doubtful) {
                 this.set(text, translation);
@@ -122,7 +134,7 @@ export class SeedStore {
         }
     }
 
-    /** Hash/translation pairs recorded for a file, in document order. */
+    /** Source/translation pairs recorded for a file, in document order. */
     memory(file: string): [string, string][] | undefined {
         return this.files[file];
     }
@@ -201,40 +213,42 @@ export class TranslationStore {
      * back to the seed dictionary and then to this run's own translations.
      */
     resolve(file: string, texts: string[]): (string | undefined)[] {
-        const result = texts.map((text) => this.get(text));
-        const memory = this.seeds?.memory(file);
+        return this.match(file, texts).translations;
+    }
 
-        if (!memory?.length) {
-            return result;
-        }
+    /**
+     * The previous version of every unit `resolve()` leaves without a
+     * translation: the entries of the file memory the sequence match did
+     * not use are the units the file no longer contains, and the closest
+     * of them by word overlap is what the unit was before the edit. Units
+     * are served in document order and an entry is used once, so two
+     * edited sentences never share a previous version. Nothing for files
+     * without a memory and for units too far from every unused entry.
+     */
+    hints(file: string, texts: string[]): (SeedHint | undefined)[] {
+        const {translations, unused} = this.match(file, texts);
+        const result: (SeedHint | undefined)[] = texts.map(() => undefined);
+        const memory = this.seeds?.memory(file) || [];
+        const free = new Set(unused);
 
-        const hashes = texts.map(hash);
-        const used = new Uint8Array(memory.length);
-        const matched = new Uint8Array(texts.length);
-
-        for (const [i, j] of lcs(
-            hashes,
-            memory.map(([key]) => key),
-        )) {
-            result[i] = memory[j][1];
-            used[j] = 1;
-            matched[i] = 1;
-        }
-
-        // Units outside the common subsequence (a section moved as a whole)
-        // still take the unused entries of the same text, in order.
-        let cursor = 0;
         for (let i = 0; i < texts.length; i++) {
-            if (matched[i]) {
+            if (translations[i] !== undefined || !free.size) {
                 continue;
             }
-            for (let j = cursor; j < memory.length; j++) {
-                if (!used[j] && memory[j][0] === hashes[i]) {
-                    result[i] = memory[j][1];
-                    used[j] = 1;
-                    cursor = j + 1;
-                    break;
+
+            let best = -1;
+            let score = HINT_MIN_SIMILARITY;
+            for (const j of free) {
+                const value = similarity(texts[i], memory[j][0]);
+                if (value > score || (value === score && best < 0)) {
+                    best = j;
+                    score = value;
                 }
+            }
+
+            if (best >= 0) {
+                free.delete(best);
+                result[i] = {source: memory[best][0], translation: memory[best][1]};
             }
         }
 
@@ -261,5 +275,60 @@ export class TranslationStore {
             }),
         );
         this.dirty = false;
+    }
+
+    /**
+     * Matches the units of a file to its seed memory, see `resolve()`.
+     * Returns the translation of every unit and the indexes of the memory
+     * entries no unit took.
+     */
+    private match(
+        file: string,
+        texts: string[],
+    ): {translations: (string | undefined)[]; unused: number[]} {
+        const translations = texts.map((text) => this.get(text));
+        const memory = this.seeds?.memory(file);
+
+        if (!memory?.length) {
+            return {translations, unused: []};
+        }
+
+        const used = new Uint8Array(memory.length);
+        const matched = new Uint8Array(texts.length);
+
+        for (const [i, j] of lcs(
+            texts,
+            memory.map(([source]) => source),
+        )) {
+            translations[i] = memory[j][1];
+            used[j] = 1;
+            matched[i] = 1;
+        }
+
+        // Units outside the common subsequence (a section moved as a whole)
+        // still take the unused entries of the same text, in order.
+        let cursor = 0;
+        for (let i = 0; i < texts.length; i++) {
+            if (matched[i]) {
+                continue;
+            }
+            for (let j = cursor; j < memory.length; j++) {
+                if (!used[j] && memory[j][0] === texts[i]) {
+                    translations[i] = memory[j][1];
+                    used[j] = 1;
+                    cursor = j + 1;
+                    break;
+                }
+            }
+        }
+
+        const unused: number[] = [];
+        used.forEach((flag, j) => {
+            if (!flag) {
+                unused.push(j);
+            }
+        });
+
+        return {translations, unused};
     }
 }

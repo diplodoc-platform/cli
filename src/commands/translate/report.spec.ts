@@ -119,7 +119,13 @@ describe('translate run report', () => {
             expect(target.chars).toEqual({source: 1000, translated: 1100, request: 700});
             expect(target.tokens).toEqual({input: 500, output: 550});
             expect(target.requests).toEqual({total: 4, fallback: 1, retries: 2});
-            expect(target.cache).toEqual({enabled: true, hits: 3, misses: 7, hitRate: 0.3});
+            expect(target.cache).toEqual({
+                enabled: true,
+                hits: 3,
+                misses: 7,
+                hitRate: 0.3,
+                hints: 0,
+            });
             expect(target.fixes).toEqual({
                 markupStripped: 4,
                 markupRetried: 2,
@@ -164,6 +170,7 @@ describe('translate run report', () => {
                 hits: 0,
                 misses: 0,
                 hitRate: null,
+                hints: 0,
             });
             expect(data.fallbackUsed).toBe(false);
         });
