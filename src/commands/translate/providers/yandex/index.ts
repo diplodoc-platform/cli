@@ -1,5 +1,6 @@
 import type {BaseProgram} from '~/core/program';
 import type {Translate, TranslateArgs, TranslateConfig} from '~/commands/translate';
+import type {CodeMode} from '~/commands/translate/utils';
 
 import {ok} from 'assert';
 import {join} from 'node:path';
@@ -24,6 +25,7 @@ type Args = {
 type Config = {
     folder: string;
     auth: string;
+    code: CodeMode;
     glossary: string;
     glossaryPairs: {
         sourceText: string;
@@ -82,6 +84,9 @@ export class Extension {
                     ok(config.folder, 'Required param folder is not configured');
 
                     config.timeout = (defined('timeout', args, config) as number) ?? 5000;
+                    // Machine translation keeps the historical precise mode
+                    // unless the project opts in.
+                    config.code = config.code ?? 'precise';
 
                     let glossary: AbsolutePath | undefined;
                     if (own<string, 'glossary'>(args, 'glossary')) {

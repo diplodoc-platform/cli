@@ -119,6 +119,24 @@ const vars = option({
     parser: (value) => JSON.parse(value),
 });
 
+const code = option({
+    flags: '--code <mode>',
+    desc: `
+        How much of fenced code blocks goes to translation.
+
+        ${cyan('no')} - nothing, code blocks are copied as they are.
+        ${cyan('all')} - the whole block, keys and values included.
+        ${cyan('precise')} - only <placeholders> and comments of bash/shell fences.
+        ${cyan('adaptive')} - also line comments of other languages (yaml, python, go, sql, ...)
+        and labels of mermaid diagrams. Commented-out code stays as is.
+
+        Defaults to ${cyan('adaptive')} for LLM providers and ${cyan('precise')} for yandex.
+        The seed command takes the value of the translate section and defaults to ${cyan('adaptive')}.
+        A single block is overridden with its info string: \`\`\`yaml translate=no
+    `,
+    choices: ['no', 'all', 'precise', 'adaptive'],
+});
+
 const dryRun = option({
     flags: '--dry-run',
     desc: 'Do not execute target translation provider, but only calculate required quota.',
@@ -217,6 +235,7 @@ export const options = {
     exclude,
     includeVcsDiff,
     vars,
+    code,
     dryRun,
     copyAssets,
     timeout,

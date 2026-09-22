@@ -1,4 +1,5 @@
 import type {Logger} from '~/core/logger';
+import type {CodeMode} from '../../utils';
 import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {CompletionResult, LLMClient} from './clients/types';
@@ -109,6 +110,7 @@ export class Provider {
                     sourceLanguage: source.language,
                     targetLanguage: target.language,
                     vars,
+                    code: config.code,
                     translate,
                     onTranslated: collect,
                 });
@@ -337,6 +339,7 @@ type ProcessorParams = {
     sourceLanguage: string;
     targetLanguage: string;
     vars: Hash;
+    code: CodeMode;
     translate: Translate;
     onTranslated?: (path: string, units: string[], parts: string[]) => void;
 };
@@ -428,7 +431,8 @@ function makeJudgeCollector(pairs: JudgePair[]) {
 }
 
 function makeProcessor(params: ProcessorParams) {
-    const {input, output, sourceLanguage, targetLanguage, vars, translate, onTranslated} = params;
+    const {input, output, sourceLanguage, targetLanguage, vars, code, translate, onTranslated} =
+        params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -447,6 +451,7 @@ function makeProcessor(params: ProcessorParams) {
             sourceLanguage,
             targetLanguage,
             vars,
+            code,
         });
 
         if (!content.data || !units.length) {

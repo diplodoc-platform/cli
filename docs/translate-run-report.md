@@ -50,6 +50,7 @@ Top-level fields:
 | `provider`        | string   | Translation provider name (`openai`, `anthropic`, `yandexgpt`, `openrouter`, `yandex`).       |
 | `model`           | string?  | Model identifier (LLM providers only).                                                        |
 | `fallbackModel`   | string?  | The `--fallback-model` value when configured.                                                 |
+| `code`            | string?  | Code processing mode of the run: `no`, `all`, `precise` or `adaptive` (see `--code`).         |
 | `fallbackUsed`    | boolean  | True when at least one request was served by the fallback model.                              |
 | `dryRun`          | boolean  | True for `--dry-run`; volume and token numbers are estimates then.                            |
 | `sourceLanguage`  | string   | Source language.                                                                              |
