@@ -111,8 +111,7 @@ const vars = option({
     desc: `
         Pass list of variables directly to translation.
         Variables should be passed in JSON format.
-        Passed variables override the same in presets.yaml.
-        The translate and seed commands apply presets, extract ignores them.
+        Passed variables override the same in presets.yaml when --presets is on.
 
         Example:
           {{PROGRAM}} -i ./ -o ./build -v '{"name":"test"}'
@@ -120,12 +119,21 @@ const vars = option({
     parser: (value) => JSON.parse(value),
 });
 
+const presets = option({
+    flags: '--presets',
+    desc: `
+        Apply presets.yaml to conditions, as build does: the vars preset section
+        of every presets.yaml on the path of a file is merged with its default
+        section, under --vars. Off by default, so a run without it evaluates
+        conditions exactly as before; the presets of the source file apply.
+    `,
+    defaultInfo: false,
+});
+
 const varsPreset = option({
     flags: '--vars-preset <value>',
     desc: `
-        Select vars preset of documentation, as for build.
-        The preset section of every presets.yaml on the path of a file is merged
-        with its default section; the presets of the source file apply.
+        Select vars preset of documentation for --presets, as for build.
         Defaults to varsPreset of the .yfm root, then to default.
     `,
 });
@@ -246,6 +254,7 @@ export const options = {
     exclude,
     includeVcsDiff,
     vars,
+    presets,
     varsPreset,
     code,
     dryRun,

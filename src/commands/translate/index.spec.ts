@@ -31,6 +31,27 @@ describe('Translate command', () => {
             });
         });
 
+        describe('presets', () => {
+            const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
+
+            test('should be off by default', '', {
+                presets: false,
+            });
+
+            test('should handle arg', '--presets', {
+                presets: true,
+            });
+
+            test(
+                'should handle config',
+                '',
+                {presets: true},
+                {
+                    presets: true,
+                },
+            );
+        });
+
         describe('varsPreset', () => {
             const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
 

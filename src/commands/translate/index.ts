@@ -62,6 +62,7 @@ export type TranslateArgs = BaseArgs & {
     exclude?: string[];
     includeVcsDiff?: string | boolean;
     vars?: Hash;
+    presets?: boolean;
     varsPreset?: string;
     code?: CodeMode;
     copyAssets?: boolean;
@@ -84,6 +85,8 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
      * once presets are loaded; providers fall back to `vars` without it.
      */
     varsFor?: VarsResolver;
+    /** Apply presets.yaml to conditions, see `--presets`. Off when unset (extract). */
+    presets?: boolean;
     /** Code processing mode. Unset until the provider applies its default. */
     code?: CodeMode;
     dryRun: boolean;
@@ -115,6 +118,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         options.exclude,
         options.includeVcsDiff,
         options.vars,
+        options.presets,
         options.varsPreset,
         options.code,
         options.dryRun,
@@ -162,6 +166,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             const includeVcsDiff = defined('includeVcsDiff', args, config) || false;
             const files = defined('files', args, config);
             const vars = resolveVars(config, args);
+            const presets = defined('presets', args, config) || false;
             // The translate section, then the .yfm root where build keeps it.
             const varsPreset = await resolveVarsPreset(config, args, ['translate', '']);
 
@@ -187,6 +192,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 exclude,
                 includeVcsDiff,
                 vars,
+                presets,
                 varsPreset,
                 code: resolveCodeMode(args, config),
                 provider: defined('provider', args, config),
@@ -213,7 +219,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             this.config.include = include.concat(changed.map((file) => escapeGlob(file)));
         }
 
-        this.run = new Run(this.config);
+        this.run = new Run(this.config, {usePresets: this.config.presets});
 
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
 

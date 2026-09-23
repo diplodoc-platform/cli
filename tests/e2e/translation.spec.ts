@@ -577,11 +577,27 @@ describe('Translate command', () => {
         'Только для сотрудников.': 'For employees only.',
     };
 
-    test('apply the vars preset of the .yfm root to conditions, as build does', async () => {
+    test('leave conditions alone without --presets, whatever presets.yaml says', async () => {
         const {outputPath} = await translateWithMockModel(
             'mocks/translation/presets',
             presetsDictionary,
             ['--exclude', 'ru/presets.yaml'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        // Regular runs are unchanged: no variable is known, so every
+        // condition keeps its block and goes to the model as text.
+        expect(page).toContain('Internal paragraph.');
+        expect(page).toContain('A paragraph for external readers only.');
+        expect(page).toContain('audience == "internal"');
+    });
+
+    test('apply the vars preset of the .yfm root to conditions with --presets, as build does', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml', '--presets'],
         );
 
         const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
@@ -601,7 +617,7 @@ describe('Translate command', () => {
         const {outputPath} = await translateWithMockModel(
             'mocks/translation/presets',
             presetsDictionary,
-            ['--exclude', 'ru/presets.yaml', '--vars-preset', 'default'],
+            ['--exclude', 'ru/presets.yaml', '--presets', '--vars-preset', 'default'],
         );
 
         const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
@@ -618,7 +634,7 @@ describe('Translate command', () => {
         const {outputPath} = await translateWithMockModel(
             'mocks/translation/presets',
             presetsDictionary,
-            ['--exclude', 'ru/presets.yaml', '--vars', '{"audience":"internal"}'],
+            ['--exclude', 'ru/presets.yaml', '--presets', '--vars', '{"audience":"internal"}'],
         );
 
         const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');

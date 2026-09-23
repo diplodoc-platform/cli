@@ -222,6 +222,18 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
  * The seed section is nested in `translate`, so a code mode set for the
  * translate run one level up applies to seeding as well.
  */
+async function inheritPresets(config: Config<Hash>): Promise<boolean> {
+    const path = config[configPath];
+
+    if (!path) {
+        return false;
+    }
+
+    const parent = await resolveConfig(path, {filter: scope('translate'), fallback: {}});
+
+    return Boolean(parent.presets);
+}
+
 async function inheritCodeMode(config: Config<Hash>): Promise<CodeMode | undefined> {
     const path = config[configPath];
 
@@ -240,6 +252,7 @@ export type SeedArgs = BaseArgs & {
     include?: string[];
     exclude?: string[];
     vars?: Hash;
+    presets?: boolean;
     varsPreset?: string;
     code?: CodeMode;
     cacheDir: string;
@@ -255,6 +268,8 @@ export type SeedConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     files: string[];
     skipped: [string, string][];
     vars: Hash;
+    /** Apply presets.yaml to conditions; must match the translate run. */
+    presets: boolean;
     code: CodeMode;
     cacheDir: AbsolutePath;
 } & ConfigDefaults;
@@ -277,6 +292,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
         options.include,
         options.exclude,
         options.vars,
+        options.presets,
         options.varsPreset,
         options.code,
         options.config(YFM_CONFIG_FILENAME),
@@ -303,6 +319,9 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
             const exclude = defined('exclude', args, config) || [];
             const files = defined('files', args, config) || [];
             const vars = resolveVars(config, args);
+            // Seeds must split files exactly like the translate run, so the
+            // switch follows the translate section when the seed section is silent.
+            const presets = defined('presets', args, config) ?? (await inheritPresets(config));
             // The seed section, then the translate section, then the .yfm root.
             const varsPreset = await resolveVarsPreset(config, args, [
                 'translate.seed',
@@ -330,6 +349,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 include,
                 exclude,
                 vars,
+                presets,
                 varsPreset,
                 code,
                 cacheDir: resolve(cacheDir),
@@ -342,7 +362,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
 
         this.logger.setup(this.config);
 
-        this.run = new Run(this.config);
+        this.run = new Run(this.config, {usePresets: this.config.presets});
 
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
         await getHooks(this).BeforeRun.promise(this.run);
