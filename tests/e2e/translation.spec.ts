@@ -575,6 +575,8 @@ describe('Translate command', () => {
         'Внешний раздел': 'External section',
         'Внутренний раздел': 'Internal section',
         'Только для сотрудников.': 'For employees only.',
+        'Чат поддержки на русском.': 'The support chat in Russian.',
+        'Чат поддержки на английском.': 'The support chat in English.',
     };
 
     test('leave conditions alone without --presets, whatever presets.yaml says', async () => {
@@ -604,13 +606,31 @@ describe('Translate command', () => {
 
         // `audience` comes from the `public` section of presets.yaml, selected by
         // `varsPreset` of the .yfm root: the internal block is dropped and its
-        // condition does not reach the model. `support` is defined only in the
-        // `public` section of ru/presets.yaml, so its block stays.
+        // condition does not reach the model. `support` is defined only for the
+        // source language (ru/presets.yaml), the target build does not know it,
+        // so its block stays.
         expect(page).toContain('Public paragraph.');
         expect(page).toContain('A paragraph for external readers only.');
         expect(page).not.toContain('Внутренний абзац');
         expect(page).not.toContain('audience');
         expect(page).toContain('Support answers on weekdays.');
+    });
+
+    test('evaluate conditions under the presets of the target language', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml', '--presets'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        // ru/presets.yaml says `lang: ru`, en/presets.yaml says `lang: en`. The
+        // translation is built as en/index.md, so the conditions see the target
+        // presets: the Russian branch is dropped, the English one is translated.
+        expect(page).toContain('The support chat in English.');
+        expect(page).not.toContain('in Russian');
+        expect(page).not.toContain('lang ==');
     });
 
     test('select another vars preset from the command line', async () => {

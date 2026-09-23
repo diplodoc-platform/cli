@@ -15,7 +15,7 @@ import {
 } from '~/core/program';
 import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {normalizePath, own} from '~/core/utils';
+import {own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {DESCRIPTION, NAME, options} from './config';
@@ -227,7 +227,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         const [files, skipped] = await this.run.getFiles();
 
         // Presets are loaded by now: hand providers the per-file vars.
-        this.config.varsFor = (path) => this.run.vars.for(normalizePath(path));
+        this.config.varsFor = (path, target) => this.run.varsFor(path, target);
 
         if (this.provider) {
             await this.provider.skip(skipped, this.config);

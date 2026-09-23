@@ -85,6 +85,18 @@ export class Run extends BaseRun<CommonRunConfig> {
         }
     }
 
+    /**
+     * Vars of a source file as the build of its translation sees them: the
+     * presets on the path of the target file (`ru/x.md` -> `en/x.md`) under
+     * `--vars`. The presets of the source describe the source build: its
+     * `lang: ru` would keep the Russian branch of `{% if lang == "ru" %}`.
+     */
+    varsFor(path: string, targetLanguage: string) {
+        const file = normalizePath(path);
+
+        return this.vars.for(file, languagePath(file, this.config.source.language, targetLanguage));
+    }
+
     async getFiles({inlinedTocs = false}: GetFilesOptions = {}): Promise<
         [string[], [string, string][]]
     > {
@@ -224,4 +236,22 @@ export class Run extends BaseRun<CommonRunConfig> {
 
         return loader.load();
     }
+}
+
+/**
+ * The path of a file in the target language directory, as `languageRepath`
+ * places the translation; a file outside a source language directory (the
+ * input is that directory itself) keeps its path.
+ */
+function languagePath(file: NormalizedPath, source: string, target: string) {
+    const parts = file.split('/');
+    const index = parts.slice(0, -1).indexOf(source);
+
+    if (index === -1) {
+        return file;
+    }
+
+    parts[index] = target;
+
+    return parts.join('/') as NormalizedPath;
 }

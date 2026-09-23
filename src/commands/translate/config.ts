@@ -123,9 +123,9 @@ const presets = option({
     flags: '--presets',
     desc: `
         Apply presets.yaml to conditions, as build does: the vars preset section
-        of every presets.yaml on the path of a file is merged with its default
-        section, under --vars. Off by default, so a run without it evaluates
-        conditions exactly as before; the presets of the source file apply.
+        of every presets.yaml on the path of the translated file (ru/x.md is
+        judged as en/x.md) is merged with its default section, under --vars.
+        Off by default, so a run without it evaluates conditions exactly as before.
     `,
     defaultInfo: false,
 });

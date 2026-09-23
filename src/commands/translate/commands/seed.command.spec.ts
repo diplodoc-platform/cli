@@ -23,7 +23,10 @@ function project(files: Record<string, string>) {
 async function runSeed(argv: string, files: string[]) {
     const seed = new Seed();
 
-    vi.spyOn(Run.prototype, 'prepareRun').mockImplementation(async () => undefined);
+    // Tocs stay out of these tests; presets load as in a real run.
+    vi.spyOn(Run.prototype, 'prepareRun').mockImplementation(async function (this: Run) {
+        await this.vars.init();
+    });
     vi.spyOn(Run.prototype, 'getFiles').mockResolvedValue([files, []]);
 
     const rawArgs = ['node', 'index'].concat(argv.split(' '));
@@ -142,6 +145,69 @@ describe('Translate.Seed command', () => {
 
         const argument = await runSeed(`-i ${off} --source ru --target en --presets`, []);
         expect(argument.config.presets).toBe(true);
+    });
+
+    it('should take the presets switch of the translate section without a seed section', async () => {
+        const input = project({
+            '.yfm': 'varsPreset: public\ntranslate:\n  presets: true\n',
+            'ru/article.md': 'Раз.\n',
+        });
+        const cacheDir = mkdtempSync(join(tmpdir(), 'yfm-seed-command-cache-')) as AbsolutePath;
+
+        const seed = await runSeed(
+            `-i ${input} --source ru --target en --cache-dir ${cacheDir}`,
+            [],
+        );
+
+        expect(seed.config.presets).toBe(true);
+    });
+
+    it('should align both sides under the presets of the target language', async () => {
+        const input = project({
+            '.yfm': 'translate:\n  presets: true\n',
+            'ru/presets.yaml': 'default:\n  lang: ru\n',
+            'en/presets.yaml': 'default:\n  lang: en\n',
+            'ru/article.md':
+                'Общее.\n\n{% if lang == "ru" %}\n\nРусское.\n\n{% else %}\n\nАнглийское.\n\n{% endif %}\n',
+            'en/article.md': 'Common.\n\nEnglish.\n',
+        });
+        const cacheDir = mkdtempSync(join(tmpdir(), 'yfm-seed-command-cache-')) as AbsolutePath;
+
+        await runSeed(`-i ${input} --source ru --target en --cache-dir ${cacheDir}`, [
+            'ru/article.md',
+        ]);
+
+        const seeds = new SeedStore(seedFilePath(cacheDir, 'ru', 'en'));
+        seeds.load();
+
+        // The translate run sees the presets of en/article.md, where the
+        // English branch is the one that stays: the seed pairs it with the
+        // existing translation, not the Russian branch.
+        const {units} = await loadTranslationUnits({
+            inputPath: join(input, 'ru/article.md') as AbsolutePath,
+            path: 'ru/article.md',
+            sourceLanguage: 'ru',
+            targetLanguage: 'en',
+            vars: {lang: 'en'},
+        });
+
+        expect(units).toHaveLength(2);
+        expect(seeds.get(units[1])).toEqual(expect.stringContaining('English.'));
+    });
+
+    it('should take the code mode of the translate section without a seed section', async () => {
+        const input = project({
+            '.yfm': 'translate:\n  code: precise\n',
+            'ru/article.md': 'Раз.\n',
+        });
+        const cacheDir = mkdtempSync(join(tmpdir(), 'yfm-seed-command-cache-')) as AbsolutePath;
+
+        const seed = await runSeed(
+            `-i ${input} --source ru --target en --cache-dir ${cacheDir}`,
+            [],
+        );
+
+        expect(seed.config.code).toBe('precise');
     });
 
     it('should default the code mode to adaptive', async () => {

@@ -11,8 +11,11 @@ import {configPath, defined, resolveConfig} from '~/core/config';
 
 import {TranslateError} from './errors';
 
-/** Vars of one file: its presets under `--vars`. Paths are relative to the input. */
-export type VarsResolver = (path: string) => Hash;
+/**
+ * Vars of one source file translated into a language: the presets of its
+ * translation under `--vars`. Paths are relative to the input.
+ */
+export type VarsResolver = (path: string, targetLanguage: string) => Hash;
 
 type PartialLocale = {
     language: string;
@@ -184,23 +187,40 @@ export async function resolveVarsPreset(
         return argument;
     }
 
+    return (await sectionValue<string>(config, args, sections, 'varsPreset')) || 'default';
+}
+
+/**
+ * The first value of `key` in the `sections` of the .yfm, in order; the
+ * empty name is the file root. Reads the file itself, so a command whose
+ * own section is missing (`translate.seed` in a .yfm with only `translate`)
+ * still sees the enclosing sections.
+ */
+export async function sectionValue<T>(
+    config: Config<Hash>,
+    args: Hash,
+    sections: string[],
+    key: string,
+): Promise<T | undefined> {
     // A .yfm without the command's section resolves to the defaults and
-    // loses its path; the file is still there with the root keys, so it is
-    // located again the way the program does.
+    // loses its path; the file is still there, so it is located again the
+    // way the program does.
     const path = config[configPath] || configFile(args);
-    if (path) {
-        const root: Hash = await resolveConfig(path, {fallback: {}});
+    if (!path) {
+        return undefined;
+    }
 
-        for (const name of sections) {
-            const value = sectionOf(root, name)?.varsPreset;
+    const root: Hash = await resolveConfig(path, {fallback: {}});
 
-            if (value) {
-                return value;
-            }
+    for (const name of sections) {
+        const value = sectionOf(root, name)?.[key];
+
+        if (value !== undefined && value !== null) {
+            return value;
         }
     }
 
-    return 'default';
+    return undefined;
 }
 
 /** A nested section of a config by dotted name; undefined when missing. `''` is the root. */
