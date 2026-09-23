@@ -1,6 +1,6 @@
 import type {TranslateRunArgs} from '../fixtures';
 
-import {readFileSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {glob} from 'glob';
 import strip from 'strip-ansi';
@@ -648,6 +648,46 @@ describe('Translate command', () => {
         expect(page).toContain('Internal paragraph.');
         expect(page).not.toContain('external readers');
         expect(page).toContain('Support answers on weekdays.');
+    });
+
+    const presetsFilterDictionary = {
+        Обзор: 'Overview',
+        'Общий абзац.': 'A common paragraph.',
+        Заметка: 'Note',
+        'Заметка для англоязычных читателей.': 'A note for English readers.',
+        'Заметка для русскоязычных читателей.': 'A note for Russian readers.',
+        'Английская страница': 'English page',
+        'Страница только для английской версии.': 'A page for the English version only.',
+        'Русская страница': 'Russian page',
+        'Страница только для русской версии.': 'A page for the Russian version only.',
+        'Выбор файлов': 'File selection',
+    };
+
+    test('select the files to translate under the presets of the translation', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets-filter',
+            presetsFilterDictionary,
+            ['--presets'],
+        );
+
+        // `translate.filter` takes the files from the toc and the includes of
+        // its pages. They are judged under the presets of the translation, like
+        // the content: what the English page and toc keep is translated, what
+        // they drop is not, and no kept include points to a file missing from
+        // the translation.
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+        expect(page).toContain('_includes/en-note.md');
+        expect(page).not.toContain('_includes/ru-note.md');
+        expect(existsSync(join(outputPath, 'en/_includes/en-note.md'))).toBe(true);
+        expect(existsSync(join(outputPath, 'en/_includes/ru-note.md'))).toBe(false);
+
+        // The toc keeps its items with their conditions for the build to judge:
+        // the English build drops the Russian page and finds the English one.
+        const toc = readFileSync(join(outputPath, 'en/toc.yaml'), 'utf8');
+        expect(toc).toContain('href: en-only.md');
+        expect(toc).toContain('when: lang == "ru"');
+        expect(existsSync(join(outputPath, 'en/en-only.md'))).toBe(true);
+        expect(existsSync(join(outputPath, 'en/ru-only.md'))).toBe(false);
     });
 
     test('let --vars override the presets', async () => {

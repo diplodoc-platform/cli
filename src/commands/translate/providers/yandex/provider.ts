@@ -309,7 +309,7 @@ function processor(params: TranslatorParams, translate: Translate) {
 
         const inputPath = join(inputRoot, path);
         const output = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
-        const vars = varsFor(path, targetLanguage);
+        const vars = varsFor(path);
 
         const content = new FileLoader(inputPath);
 

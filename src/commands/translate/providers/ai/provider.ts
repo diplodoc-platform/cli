@@ -461,7 +461,7 @@ function makeProcessor(params: ProcessorParams) {
             path,
             sourceLanguage,
             targetLanguage,
-            vars: varsFor(path, targetLanguage),
+            vars: varsFor(path),
             code,
         });
 

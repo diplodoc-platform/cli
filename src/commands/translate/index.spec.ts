@@ -43,6 +43,12 @@ describe('Translate command', () => {
             });
 
             test(
+                'should require one target language',
+                '--presets --target kk',
+                '--presets takes one target language',
+            );
+
+            test(
                 'should handle config',
                 '',
                 {presets: true},

@@ -11,6 +11,7 @@ import {asyncify, eachLimit} from 'async';
 
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, defined} from '~/core/config';
+import {normalizePath} from '~/core/utils';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
@@ -25,6 +26,7 @@ import {SeedStore, alignTranslationUnits, seedFilePath} from '../providers/ai/ut
 import {options as aiOptions} from '../providers/ai/config';
 import {Run} from '../run';
 import {
+    checkPresetsTargets,
     configDefaults,
     resolveSource,
     resolveTargets,
@@ -191,7 +193,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         // Both sides take the vars the translate run gives the source file,
         // the presets of its translation: a different set on either side
         // would keep or drop other conditional blocks and misalign the units.
-        const vars = varsFor(file, targetLanguage);
+        const vars = varsFor(file);
         const source = await loadTranslationUnits({
             inputPath,
             path: file,
@@ -308,6 +310,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
             // switch follows the translate section when the seed section is silent.
             const presets =
                 defined('presets', args, config) ?? (await inheritPresets(config, args));
+            checkPresetsTargets(presets, target);
             // The seed section, then the translate section, then the .yfm root.
             const varsPreset = await resolveVarsPreset(config, args, [
                 'translate.seed',
@@ -367,7 +370,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 files: Array.from(files),
                 sourceLanguage: source.language,
                 targetLanguage: target.language,
-                varsFor: (path, target) => this.run.varsFor(path, target),
+                varsFor: (path) => this.run.vars.for(normalizePath(path)),
                 code,
                 cacheDir,
             });

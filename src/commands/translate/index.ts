@@ -15,7 +15,7 @@ import {
 } from '~/core/program';
 import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {own} from '~/core/utils';
+import {normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {DESCRIPTION, NAME, options} from './config';
@@ -25,6 +25,7 @@ import {Seed} from './commands/seed';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {Extension as AITranslation} from './providers/ai';
 import {
+    checkPresetsTargets,
     copyAssets,
     resolveCodeMode,
     resolveSource,
@@ -167,6 +168,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             const files = defined('files', args, config);
             const vars = resolveVars(config, args);
             const presets = defined('presets', args, config) || false;
+            checkPresetsTargets(presets, target);
             // The translate section, then the .yfm root where build keeps it.
             const varsPreset = await resolveVarsPreset(config, args, ['translate', '']);
 
@@ -227,7 +229,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         const [files, skipped] = await this.run.getFiles();
 
         // Presets are loaded by now: hand providers the per-file vars.
-        this.config.varsFor = (path, target) => this.run.varsFor(path, target);
+        this.config.varsFor = (path) => this.run.vars.for(normalizePath(path));
 
         if (this.provider) {
             await this.provider.skip(skipped, this.config);

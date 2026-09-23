@@ -200,6 +200,18 @@ describe('Translate.Seed command', () => {
         expect(seeds.get(units[1])).toEqual(expect.stringContaining('English.'));
     });
 
+    it('should require one target language with presets', async () => {
+        const input = project({'ru/article.md': 'Раз.\n'});
+        const cacheDir = mkdtempSync(join(tmpdir(), 'yfm-seed-command-cache-')) as AbsolutePath;
+
+        await expect(
+            runSeed(
+                `-i ${input} --source ru --target en --target kk --presets --cache-dir ${cacheDir}`,
+                [],
+            ),
+        ).rejects.toThrow('--presets takes one target language');
+    });
+
     it('should take the code mode of the translate section without a seed section', async () => {
         const input = project({
             '.yfm': 'translate:\n  code: precise\n',

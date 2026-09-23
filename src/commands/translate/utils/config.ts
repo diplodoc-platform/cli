@@ -12,10 +12,10 @@ import {configPath, defined, resolveConfig} from '~/core/config';
 import {TranslateError} from './errors';
 
 /**
- * Vars of one source file translated into a language: the presets of its
- * translation under `--vars`. Paths are relative to the input.
+ * Vars of one source file: the presets of its translation under `--vars`.
+ * Paths are relative to the input.
  */
-export type VarsResolver = (path: string, targetLanguage: string) => Hash;
+export type VarsResolver = (path: string) => Hash;
 
 type PartialLocale = {
     language: string;
@@ -167,6 +167,21 @@ export function resolveFiles(
 
 export function resolveVars(config: {vars?: Hash}, args: {vars?: Hash}) {
     return merge(config.vars || {}, args.vars);
+}
+
+/**
+ * Presets judge a run by the build of its translation: the files it takes,
+ * the includes they follow and their content. That is one target language
+ * per run; several languages run one by one.
+ */
+export function checkPresetsTargets(presets: boolean, targets: Locale[]) {
+    if (presets && targets.length > 1) {
+        throw new TranslateError(
+            '--presets takes one target language: conditions are judged by the presets ' +
+                'of the translation. Run the translation once per language.',
+            'CONFIG',
+        );
+    }
 }
 
 /**

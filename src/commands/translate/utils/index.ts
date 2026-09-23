@@ -9,6 +9,7 @@ export {
     resolveVars,
     resolveVarsPreset,
     resolveCodeMode,
+    checkPresetsTargets,
 } from './config';
 export {resolveVcsDiffFiles} from './vcs';
 export {
