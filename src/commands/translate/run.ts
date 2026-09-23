@@ -20,6 +20,11 @@ type CommonRunConfig = Omit<TranslateConfig, 'provider' | 'timeout' | 'copyAsset
     ExtractConfig &
     ConfigDefaults;
 
+export type RunOptions = {
+    /** Apply presets.yaml to conditions, as build does. Off for extract. */
+    usePresets?: boolean;
+};
+
 export type GetFilesOptions = {
     /**
      * Whether the caller loads tocs through `getFileContent`, which inlines
@@ -41,7 +46,7 @@ export class Run extends BaseRun<CommonRunConfig> {
     readonly markdown: MarkdownService;
     readonly tocYamlList: Set<NormalizedPath>;
 
-    constructor(config: Config<CommonRunConfig>) {
+    constructor(config: Config<CommonRunConfig>, {usePresets = true}: RunOptions = {}) {
         super(config);
 
         this.scopes.set('input', this.realpathSync(config.input));
@@ -49,11 +54,12 @@ export class Run extends BaseRun<CommonRunConfig> {
         const sourcePath = join(config.input, config.source.language) as AbsolutePath;
         this.scopes.set('source', this.realpathSync(sourcePath));
 
-        // Presets apply as for build: the `varsPreset` section of every
-        // presets.yaml on the path of a file, under `--vars`. Conditions are
-        // then evaluated as in the build of the source language, so the
+        // With presets, vars apply as for build: the `varsPreset` section of
+        // every presets.yaml on the path of a file, under `--vars`, so the
         // content that the build drops does not go to translation either.
-        this.vars = new VarsService(this, {usePresets: true});
+        // Extract keeps them off: the XLIFF for external tools takes its
+        // variables from `--vars` only.
+        this.vars = new VarsService(this, {usePresets});
         this.meta = new MetaService(this);
         this.toc = new TocService(this, {skipMissingVars: true, mode: 'translate'});
         this.markdown = new MarkdownService(this, {skipMissingVars: true, mode: 'translate'});

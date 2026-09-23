@@ -304,7 +304,11 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
             const files = defined('files', args, config) || [];
             const vars = resolveVars(config, args);
             // The seed section, then the translate section, then the .yfm root.
-            const varsPreset = await resolveVarsPreset(config, args, ['translate', '']);
+            const varsPreset = await resolveVarsPreset(config, args, [
+                'translate.seed',
+                'translate',
+                '',
+            ]);
             // Seeds feed the LLM cache, so they follow the translate section
             // of the config and then the LLM default.
             const code =

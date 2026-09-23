@@ -163,7 +163,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             const files = defined('files', args, config);
             const vars = resolveVars(config, args);
             // The translate section, then the .yfm root where build keeps it.
-            const varsPreset = await resolveVarsPreset(config, args, ['']);
+            const varsPreset = await resolveVarsPreset(config, args, ['translate', '']);
 
             // CLI report paths are resolved from cwd, config values from the config dir.
             let report: AbsolutePath | undefined;

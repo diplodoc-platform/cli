@@ -569,8 +569,10 @@ describe('Translate command', () => {
         Обзор: 'Overview',
         'Публичный абзац.': 'Public paragraph.',
         'Внутренний абзац.': 'Internal paragraph.',
+        'Абзац только для внешних читателей.': 'A paragraph for external readers only.',
         'Поддержка отвечает по будням.': 'Support answers on weekdays.',
         Пресеты: 'Presets',
+        'Внешний раздел': 'External section',
         'Внутренний раздел': 'Internal section',
         'Только для сотрудников.': 'For employees only.',
     };
@@ -589,6 +591,7 @@ describe('Translate command', () => {
         // condition does not reach the model. `support` is defined only in the
         // `public` section of ru/presets.yaml, so its block stays.
         expect(page).toContain('Public paragraph.');
+        expect(page).toContain('A paragraph for external readers only.');
         expect(page).not.toContain('Внутренний абзац');
         expect(page).not.toContain('audience');
         expect(page).toContain('Support answers on weekdays.');
@@ -607,6 +610,7 @@ describe('Translate command', () => {
         // unset, and a condition on an unknown variable keeps its block, as
         // before presets: translation never drops content it cannot judge.
         expect(page).toContain('Internal paragraph.');
+        expect(page).not.toContain('external readers');
         expect(page).toContain('Support answers on weekdays.');
     });
 
@@ -621,5 +625,36 @@ describe('Translate command', () => {
 
         expect(page).toContain('Internal paragraph.');
         expect(page).toContain('Support answers on weekdays.');
+    });
+
+    test('keep presets out of extract: the XLIFF for external tools takes --vars only', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/translation/presets');
+
+        await cleanupDirectory(outputPath);
+
+        const report = await TestAdapter.extract.run(inputPath, outputPath, [
+            '--source',
+            'ru-RU',
+            '--target',
+            'en-US',
+            '--exclude',
+            'ru/presets.yaml',
+        ]);
+
+        expect(report.errors).toEqual([]);
+        expect(report.code).toBe(0);
+
+        // Without --vars every condition stays unresolved and its content is
+        // extracted as is, however the .yfm root or presets.yaml would decide it.
+        // presets.yaml would make `audience` internal by default and the .yfm
+        // root public: either way one of the blocks would vanish.
+        const xliff = readFileSync(join(outputPath, 'en/index.md.xliff'), 'utf8');
+        expect(xliff).toContain('Внутренний абзац.');
+        expect(xliff).toContain('Абзац только для внешних читателей.');
+        expect(xliff).toContain('Публичный абзац.');
+
+        const toc = readFileSync(join(outputPath, 'en/toc.yaml.xliff'), 'utf8');
+        expect(toc).toContain('Внутренний раздел');
+        expect(toc).toContain('Внешний раздел');
     });
 });

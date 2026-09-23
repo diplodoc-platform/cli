@@ -114,6 +114,17 @@ describe('Translate.Seed command', () => {
         expect(argument.config.varsPreset).toBe('default');
     });
 
+    it('should let a section select the default preset over the root', async () => {
+        const input = project({
+            '.yfm': 'varsPreset: internal\ntranslate:\n  varsPreset: default\n  seed:\n    cacheDir: cache\n',
+            'ru/article.md': 'Раз.\n',
+        });
+
+        const seed = await runSeed(`-i ${input} --source ru --target en`, []);
+
+        expect(seed.config.varsPreset).toBe('default');
+    });
+
     it('should default the code mode to adaptive', async () => {
         const input = project({'ru/article.md': 'Раз.\n'});
         const cacheDir = mkdtempSync(join(tmpdir(), 'yfm-seed-command-cache-')) as AbsolutePath;

@@ -7,7 +7,7 @@ import {globSync} from 'glob';
 import {merge} from 'lodash';
 import {filter} from 'minimatch';
 
-import {configPath, defined, resolveConfig, scope} from '~/core/config';
+import {configPath, defined, resolveConfig} from '~/core/config';
 
 import {TranslateError} from './errors';
 
@@ -167,25 +167,21 @@ export function resolveVars(config: {vars?: Hash}, args: {vars?: Hash}) {
 }
 
 /**
- * Vars preset of a run: the argument, then the command's own config
- * section, then the enclosing sections of the same .yfm (`parents`, the
- * empty name being the file root, where build keeps `varsPreset`), then
- * `default`.
+ * Vars preset of a run: the argument, then the `sections` of the .yfm in
+ * order - the command's own section first, then the enclosing ones, the
+ * empty name being the file root, where build keeps `varsPreset` - then
+ * `default`. Sections are read from the file itself, not from the resolved
+ * config: that one already carries `default` from the config defaults, so
+ * a section could not select `default` over a root preset through it.
  */
 export async function resolveVarsPreset(
     config: Config<Hash>,
     args: Hash,
-    parents: string[] = [''],
+    sections: string[] = [''],
 ): Promise<string> {
     const argument = defined('varsPreset', args);
     if (argument) {
         return argument;
-    }
-
-    // The config defaults already put `default` here, so only another value
-    // counts as set: `varsPreset: default` in a section reads as "unset".
-    if (config.varsPreset && config.varsPreset !== 'default') {
-        return config.varsPreset;
     }
 
     // A .yfm without the command's section resolves to the defaults and
@@ -195,10 +191,8 @@ export async function resolveVarsPreset(
     if (path) {
         const root: Hash = await resolveConfig(path, {fallback: {}});
 
-        for (const name of parents) {
-            // A missing section resolves to the root, which is the last fallback anyway.
-            const section: Hash = name ? scope(name)(root) : root;
-            const value = defined('varsPreset', section);
+        for (const name of sections) {
+            const value = sectionOf(root, name)?.varsPreset;
 
             if (value) {
                 return value;
@@ -207,6 +201,21 @@ export async function resolveVarsPreset(
     }
 
     return 'default';
+}
+
+/** A nested section of a config by dotted name; undefined when missing. `''` is the root. */
+function sectionOf(root: Hash, name: string): Hash | undefined {
+    let current: Hash | undefined = root;
+
+    for (const part of name ? name.split('.') : []) {
+        if (!current || typeof current !== 'object' || !(part in current)) {
+            return undefined;
+        }
+
+        current = current[part];
+    }
+
+    return current;
 }
 
 function configFile(args: {input?: string; config?: string}): AbsolutePath | undefined {
