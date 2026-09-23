@@ -62,6 +62,21 @@ describe('translate ai prompts', () => {
             );
         });
 
+        it('should strip the xliff wrapper from the previous version', () => {
+            const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
+            const [, user] = buildMessages(['Колонки по статусам'], {
+                ...config,
+                hints: [
+                    {source: wrap('Колонкам по статусам'), translation: wrap('Columns by status')},
+                ],
+            });
+
+            expect(user.content).toContain('Previous source:\nКолонкам по статусам\n');
+            expect(user.content).toContain('Existing translation:\nColumns by status\n');
+            expect(user.content).toContain('replaced "Колонкам" with "Колонки"');
+            expect(user.content).not.toContain('<source');
+        });
+
         it('should leave the user message unchanged without hints', () => {
             const [, plain] = buildMessages(['Привет'], config);
             const [, empty] = buildMessages(['Привет'], {...config, hints: [undefined]});

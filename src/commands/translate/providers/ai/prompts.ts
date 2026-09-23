@@ -5,6 +5,7 @@ import {ok} from 'node:assert';
 import {existsSync, readFileSync} from 'node:fs';
 import {dedent} from 'ts-dedent';
 
+import {unwrap} from './utils/align';
 import {wordChanges} from './utils/diff';
 
 export type PromptMode = 'append' | 'replace';
@@ -145,13 +146,15 @@ function renderMemory(fragments: string[], hints: (SeedHint | undefined)[]): str
             return;
         }
 
+        // Seeds keep units in their XLIFF wrapper; the fragments went out
+        // without it, and the memory must read the same way.
         const changes = wordChanges(hint.source, fragments[index]);
         const lines = [
             `Fragment ${index + 1}:`,
             'Previous source:',
-            hint.source,
+            unwrap(hint.source),
             'Existing translation:',
-            hint.translation,
+            unwrap(hint.translation),
         ];
         if (changes.length) {
             lines.push(`Changes in the source: ${changes.join('; ')}`);

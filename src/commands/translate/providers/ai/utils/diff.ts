@@ -14,38 +14,46 @@ export function words(text: string): string[] {
     return unwrap(text).match(TOKEN) || [];
 }
 
-/**
- * Dice coefficient over the word bags of two unit texts: 1 for equal
- * bags, 0 for disjoint ones. Word order is ignored on purpose - an edited
- * sentence keeps most of its words wherever they moved, and the value
- * only has to tell an edit from a new sentence.
- */
-export function similarity(a: string, b: string): number {
-    const left = words(a);
-    const right = words(b);
+/** Word counts of a unit text and their total: built once, compared many times. */
+export type WordBag = {counts: Map<string, number>; size: number};
 
-    if (!left.length && !right.length) {
+export function bag(text: string): WordBag {
+    const counts = new Map<string, number>();
+    let size = 0;
+    for (const word of words(text)) {
+        counts.set(word, (counts.get(word) || 0) + 1);
+        size++;
+    }
+    return {counts, size};
+}
+
+/**
+ * Dice coefficient over two word bags: 1 for equal bags, 0 for disjoint
+ * ones. Word order is ignored on purpose - an edited sentence keeps most
+ * of its words wherever they moved, and the value only has to tell an
+ * edit from a new sentence.
+ */
+export function bagSimilarity(a: WordBag, b: WordBag): number {
+    if (!a.size && !b.size) {
         return 1;
     }
-    if (!left.length || !right.length) {
+    if (!a.size || !b.size) {
         return 0;
     }
 
-    const counts = new Map<string, number>();
-    for (const word of left) {
-        counts.set(word, (counts.get(word) || 0) + 1);
-    }
-
+    // Iterate the smaller bag: the intersection is bounded by it.
+    const [small, large] = a.counts.size <= b.counts.size ? [a, b] : [b, a];
     let common = 0;
-    for (const word of right) {
-        const count = counts.get(word) || 0;
-        if (count > 0) {
-            common++;
-            counts.set(word, count - 1);
-        }
+    for (const [word, count] of small.counts) {
+        common += Math.min(count, large.counts.get(word) || 0);
     }
 
-    return (2 * common) / (left.length + right.length);
+    return (2 * common) / (a.size + b.size);
+}
+
+/** `bagSimilarity` of two texts. */
+export function similarity(a: string, b: string): number {
+    return bagSimilarity(bag(a), bag(b));
 }
 
 /**

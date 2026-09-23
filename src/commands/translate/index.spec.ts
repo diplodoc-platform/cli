@@ -615,6 +615,21 @@ describe('Translate command', () => {
                     cacheDir: undefined,
                 });
 
+                test('should send memory hints by default', '', {
+                    memoryHints: true,
+                });
+
+                test('should handle no-memory-hints arg', '--no-memory-hints', {
+                    memoryHints: false,
+                });
+
+                test(
+                    'should read memoryHints from config',
+                    '',
+                    {memoryHints: false},
+                    {memoryHints: false},
+                );
+
                 describe('auth via api headers', () => {
                     const test = testConfig<AITranslationConfig>(
                         '--source ru --target en --provider openai',

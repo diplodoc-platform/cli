@@ -117,6 +117,17 @@ type Config = {
 
 export type AITranslationConfig = TranslateConfig & Config;
 
+/**
+ * A negatable flag always carries its default in args, so the config key
+ * is consulted unless `--no-memory-hints` was given.
+ */
+function resolveMemoryHints(args: Args, config: Hash): boolean {
+    if (args.memoryHints === false) {
+        return false;
+    }
+    return !own<boolean, 'memoryHints'>(config, 'memoryHints') || config.memoryHints !== false;
+}
+
 function readEnv(names: string[]): string | undefined {
     for (const name of names) {
         const value = process.env[name];
@@ -376,7 +387,7 @@ export class Extension {
                     config.judgeModel =
                         (defined('judgeModel', args, config) as string | undefined) || undefined;
                     config.judgeThreshold = intOr(defined('judgeThreshold', args, config), 70);
-                    config.memoryHints = defined('memoryHints', args, config) !== false;
+                    config.memoryHints = resolveMemoryHints(args, config);
 
                     config.temperature = resolveTemperature(defined('temperature', args, config));
                     config.maxOutputTokens = intOr(defined('maxOutputTokens', args, config), 4000);

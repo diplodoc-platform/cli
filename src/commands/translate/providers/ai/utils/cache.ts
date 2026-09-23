@@ -5,7 +5,7 @@ import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 
 import {lcs} from './align';
-import {similarity} from './diff';
+import {bag, bagSimilarity} from './diff';
 
 const VERSION = 1;
 
@@ -213,46 +213,74 @@ export class TranslationStore {
      * back to the seed dictionary and then to this run's own translations.
      */
     resolve(file: string, texts: string[]): (string | undefined)[] {
-        return this.match(file, texts).translations;
+        return this.lookup(file, texts).translations;
     }
 
     /**
      * The previous version of every unit `resolve()` leaves without a
-     * translation: the entries of the file memory the sequence match did
-     * not use are the units the file no longer contains, and the closest
-     * of them by word overlap is what the unit was before the edit. Units
-     * are served in document order and an entry is used once, so two
-     * edited sentences never share a previous version. Nothing for files
-     * without a memory and for units too far from every unused entry.
+     * translation, see `lookup()`.
      */
     hints(file: string, texts: string[]): (SeedHint | undefined)[] {
-        const {translations, unused} = this.match(file, texts);
-        const result: (SeedHint | undefined)[] = texts.map(() => undefined);
-        const memory = this.seeds?.memory(file) || [];
-        const free = new Set(unused);
+        return this.lookup(file, texts).hints;
+    }
 
-        for (let i = 0; i < texts.length; i++) {
-            if (translations[i] !== undefined || !free.size) {
+    /**
+     * `resolve()` and `hints()` in one pass over the file memory.
+     *
+     * The entries of the memory the sequence match did not use are the
+     * units the file no longer contains, and the closest of them by word
+     * overlap to an unresolved unit is what the unit was before the edit.
+     * Units are served in document order and an entry is used once, so two
+     * edited sentences never share a previous version. Nothing for files
+     * without a memory and for units too far from every unused entry.
+     *
+     * Word bags are built once per text: a file changed as a whole (a
+     * switched code mode, new vars) compares every unit with every unused
+     * entry, and the pairs that cannot reach the threshold by their sizes
+     * alone are skipped before any counting.
+     */
+    lookup(
+        file: string,
+        texts: string[],
+    ): {translations: (string | undefined)[]; hints: (SeedHint | undefined)[]} {
+        const {translations, unused} = this.match(file, texts);
+        const hints: (SeedHint | undefined)[] = texts.map(() => undefined);
+        const memory = this.seeds?.memory(file) || [];
+        const candidates = unused.map((j) => ({index: j, bag: bag(memory[j][0])}));
+        const free = new Set(candidates);
+
+        for (let i = 0; i < texts.length && free.size; i++) {
+            if (translations[i] !== undefined) {
                 continue;
             }
 
-            let best = -1;
+            const unit = bag(texts[i]);
+            let best: (typeof candidates)[number] | undefined;
             let score = HINT_MIN_SIMILARITY;
-            for (const j of free) {
-                const value = similarity(texts[i], memory[j][0]);
-                if (value > score || (value === score && best < 0)) {
-                    best = j;
+
+            for (const candidate of free) {
+                // Dice cannot exceed 2 * min / (min + max): sizes too far
+                // apart never reach the threshold.
+                const min = Math.min(unit.size, candidate.bag.size);
+                const max = Math.max(unit.size, candidate.bag.size);
+                if ((2 * min) / (min + max) < HINT_MIN_SIMILARITY) {
+                    continue;
+                }
+
+                const value = bagSimilarity(unit, candidate.bag);
+                if (value > score || (value === score && !best)) {
+                    best = candidate;
                     score = value;
                 }
             }
 
-            if (best >= 0) {
+            if (best) {
                 free.delete(best);
-                result[i] = {source: memory[best][0], translation: memory[best][1]};
+                hints[i] = {source: memory[best.index][0], translation: memory[best.index][1]};
             }
         }
 
-        return result;
+        return {translations, hints};
     }
 
     set(text: string, translation: string) {

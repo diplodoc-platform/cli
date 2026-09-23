@@ -1028,11 +1028,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
         const context = describeDocument(path, docContext);
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
-        const resolved = store ? store.resolve(path, texts) : [];
-        // The previous version of every changed unit, from the seed memory
-        // of the file: sent along with the unit so the model applies the
-        // edit instead of translating from scratch.
-        const hinted = store && memoryHints ? store.hints(path, texts) : [];
+        // Stored translations of the units and, for the changed ones, their
+        // previous version from the seed memory of the file: sent along
+        // with the unit so the model applies the edit instead of
+        // translating from scratch.
+        const lookup = store ? store.lookup(path, texts) : {translations: [], hints: []};
+        const resolved = lookup.translations;
+        const hinted = memoryHints ? lookup.hints : [];
         let buffer: string[] = [];
         let bufferHints: (SeedHint | undefined)[] = [];
         let bufferTokens = 0;

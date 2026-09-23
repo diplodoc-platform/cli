@@ -342,6 +342,39 @@ describe('translate ai cache', () => {
 
             expect(store.hints('ru/b.md', ['Привет мир'])).toEqual([undefined]);
         });
+
+        it('should serve translations and hints in one lookup', () => {
+            const store = withMemory('ru/a.md', [
+                ['Привет', 'Hi'],
+                ['Один два три четыре', 'One two three four'],
+            ]);
+
+            expect(store.lookup('ru/a.md', ['Привет', 'Один два три пять'])).toEqual({
+                translations: ['Hi', undefined],
+                hints: [
+                    undefined,
+                    {source: 'Один два три четыре', translation: 'One two three four'},
+                ],
+            });
+        });
+
+        it('should handle a file changed as a whole in reasonable time', () => {
+            const sentence = (k: number) =>
+                `Предложение номер ${k} описывает поле ${k % 17} очереди и его ограничение ${k % 5}.`;
+            const pairs: [string, string][] = Array.from({length: 1500}, (_, k) => [
+                sentence(k),
+                `Sentence ${k}`,
+            ]);
+            const store = withMemory('ru/a.md', pairs);
+            const texts = pairs.map(([source]) => source.replace('описывает', 'задает'));
+
+            const started = Date.now();
+            const {hints} = store.lookup('ru/a.md', texts);
+
+            expect(Date.now() - started).toBeLessThan(2000);
+            expect(hints.filter(Boolean).length).toBe(1500);
+            expect(hints[7]?.source).toBe(sentence(7));
+        });
     });
 
     describe('TranslationStore with seeds', () => {
