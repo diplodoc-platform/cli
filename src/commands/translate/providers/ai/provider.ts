@@ -4,6 +4,7 @@ import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {CompletionResult, LLMClient} from './clients/types';
 import type {MarkupRepair} from './utils';
+import type {SeedHint} from './utils/cache';
 import type {JudgePair} from './judge';
 import type {TargetStat, TranslateReportJudge} from '../../report';
 
@@ -34,7 +35,13 @@ import {
     seedFilePath,
     stripAddedMarkup,
 } from './utils';
-import {DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, buildMessages, splitFragments} from './prompts';
+import {
+    DEFAULT_SYSTEM_PROMPT,
+    DEFAULT_USER_PROMPT,
+    buildMessages,
+    renderMemoryEntry,
+    splitFragments,
+} from './prompts';
 import {untranslatedMarker} from './utils/script';
 import {judgeTranslations} from './judge';
 
@@ -142,7 +149,8 @@ export class Provider {
                         (stat.untranslatedRetried
                             ? ` untranslated-retried: ${stat.untranslatedRetried}` +
                               ` untranslated-kept: ${stat.untranslatedKept}`
-                            : ''),
+                            : '') +
+                        (stat.memoryHints ? ` memory-hints: ${stat.memoryHints}` : ''),
                 );
 
                 const judge = pairs.length
@@ -642,6 +650,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         retry,
         rateLimitRetry,
         dryRun,
+        memoryHints = true,
     } = config;
 
     const schedule = scheduler(maxConcurrency);
@@ -664,10 +673,14 @@ export function makeTranslator(params: TranslatorParams): Translate {
     // never reaches the report.
     const repairs = new Map<string, number>();
 
+    // `hints` is parallel to `fragments`: the previous version of a
+    // fragment travels with it through every retry, so a re-request sends
+    // the same memory as the first attempt.
     async function translateBatch(
         path: string,
         fragments: string[],
         context: string,
+        hints: (SeedHint | undefined)[] = [],
     ): Promise<string[]> {
         if (!fragments.length) {
             return [];
@@ -685,6 +698,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 glossaryPairs,
                 contextFiles,
                 context,
+                hints,
             },
         );
 
@@ -806,9 +820,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
         fragments: string[],
         context: string,
         what: string,
+        hints: (SeedHint | undefined)[] = [],
     ): Promise<(string | undefined)[]> {
         try {
-            return await translateBatch(path, fragments, context);
+            return await translateBatch(path, fragments, context, hints);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             logger.warn(path, `${what} failed (${error.message}).`);
@@ -822,9 +837,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         const result: (string | undefined)[] = [];
 
-        for (const fragment of fragments) {
+        for (const [index, fragment] of fragments.entries()) {
             try {
-                result.push((await translateBatch(path, [fragment], context))[0]);
+                result.push((await translateBatch(path, [fragment], context, [hints[index]]))[0]);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 logger.warn(path, `${what} failed (${error.message}).`);
@@ -849,6 +864,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         fragments: string[],
         parts: string[],
         context: string,
+        hints: (SeedHint | undefined)[] = [],
     ): Promise<string[]> {
         if (dryRun) {
             return parts;
@@ -875,6 +891,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             indexes.map((index) => fragments[index]),
             context,
             'Markup retry',
+            indexes.map((index) => hints[index]),
         );
 
         const result = [...parts];
@@ -921,6 +938,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         fragments: string[],
         parts: string[],
         context: string,
+        hints: (SeedHint | undefined)[] = [],
     ): Promise<string[]> {
         if (dryRun || marker === null) {
             return parts;
@@ -953,6 +971,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             indexes.map((index) => fragments[index]),
             context,
             'Untranslated retry',
+            indexes.map((index) => hints[index]),
         );
 
         const result = [...parts];
@@ -977,12 +996,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
         path: string,
         fragments: string[],
         context: string,
+        hints: (SeedHint | undefined)[] = [],
     ): Promise<string[]> {
         try {
-            const parts = await translateBatch(path, fragments, context);
-            const retried = await retryUntranslated(path, fragments, parts, context);
+            const parts = await translateBatch(path, fragments, context, hints);
+            const retried = await retryUntranslated(path, fragments, parts, context, hints);
 
-            return await repairDamaged(path, fragments, retried, context);
+            return await repairDamaged(path, fragments, retried, context, hints);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof LLMResponseError && fragments.length > 1) {
@@ -991,10 +1011,17 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     `Batch of ${fragments.length} fragments failed (${error.message}); retrying one-by-one.`,
                 );
                 const result: string[] = [];
-                for (const fragment of fragments) {
-                    const single = await translateBatch(path, [fragment], context);
-                    const retried = await retryUntranslated(path, [fragment], single, context);
-                    const repaired = await repairDamaged(path, [fragment], retried, context);
+                for (const [index, fragment] of fragments.entries()) {
+                    const hint = [hints[index]];
+                    const single = await translateBatch(path, [fragment], context, hint);
+                    const retried = await retryUntranslated(
+                        path,
+                        [fragment],
+                        single,
+                        context,
+                        hint,
+                    );
+                    const repaired = await repairDamaged(path, [fragment], retried, context, hint);
                     result.push(repaired[0]);
                 }
                 return result;
@@ -1007,8 +1034,20 @@ export function makeTranslator(params: TranslatorParams): Translate {
         const context = describeDocument(path, docContext);
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
-        const resolved = store ? store.resolve(path, texts) : [];
+        // Stored translations of the units and, for the changed ones, their
+        // previous version from the seed memory of the file: sent along
+        // with the unit so the model applies the edit instead of
+        // translating from scratch. Without hints the memory is not
+        // searched for previous versions at all.
+        let resolved: (string | undefined)[] = [];
+        let hinted: (SeedHint | undefined)[] = [];
+        if (store && memoryHints) {
+            ({translations: resolved, hints: hinted} = store.lookup(path, texts));
+        } else if (store) {
+            resolved = store.resolve(path, texts);
+        }
         let buffer: string[] = [];
+        let bufferHints: (SeedHint | undefined)[] = [];
         let bufferTokens = 0;
 
         const release = () => {
@@ -1016,6 +1055,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 return;
             }
             const batch = buffer;
+            const batchHints = bufferHints;
             const batchTokens = bufferTokens;
             requests.push(
                 schedule(async () => {
@@ -1023,7 +1063,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         if (!dryRun) {
                             logger.request(path, `${batch.length} units, ~${batchTokens} tokens`);
                         }
-                        const translated = await translateWithSplit(path, batch, context);
+                        const translated = await translateWithSplit(
+                            path,
+                            batch,
+                            context,
+                            batchHints,
+                        );
                         translated.forEach((text, i) => {
                             stat.markupStripped += repairs.get(batch[i]) || 0;
 
@@ -1067,6 +1112,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 }),
             );
             buffer = [];
+            bufferHints = [];
             bufferTokens = 0;
         };
 
@@ -1120,11 +1166,23 @@ export function makeTranslator(params: TranslatorParams): Translate {
             cache.set(text, defer);
             promises.push(defer.promise);
 
-            if (bufferTokens + tokens > maxBatchTokens && buffer.length) {
+            // The memory entry goes out in the same request as the unit, so
+            // it counts towards the batch budget. Only towards the batch: a
+            // unit that fits alone is still sent with its memory.
+            const hint = hinted[index];
+            const size = hint
+                ? tokens + estimateTokens(renderMemoryEntry(buffer.length + 1, text, hint))
+                : tokens;
+
+            if (bufferTokens + size > maxBatchTokens && buffer.length) {
                 release();
             }
             buffer.push(text);
-            bufferTokens += tokens;
+            bufferHints.push(hint);
+            if (hint) {
+                stat.memoryHints++;
+            }
+            bufferTokens += size;
         }
 
         release();

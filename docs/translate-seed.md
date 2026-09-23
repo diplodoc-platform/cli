@@ -67,6 +67,36 @@ translation diverged from the source at this place. Such a pair still
 reproduces what the file has, so it stays in the per-file memory, but it
 does not enter the dictionary.
 
+## Changed sentences
+
+A unit the seed does not cover is sent to the model. When the file memory
+still holds a close previous version of it (the sentence was edited, not
+written anew), the request carries that previous source, its existing
+translation and the word-level changes between the two versions, with the
+instruction to apply exactly these changes to the existing translation. The
+model then changes what the edit changed and keeps the rest of the wording,
+so the translated page gets a diff of the same size as the source page, and
+terminology does not drift between edits.
+
+The previous version is the unused entry of the file memory whose words
+overlap the unit the most (Dice coefficient over the word bags), and at
+least by 0.6; every entry is used once, in document order. A unit without
+such an entry is translated as before. A new seeding run is required for
+the memory to know the versions the files had before the edit, which is
+what the seed flow does anyway.
+
+The translate stat line reports the units sent with a previous version as
+`memory-hints: N`, and the run report as `cache.hints`. `--no-memory-hints`
+(config: `memoryHints: false`) turns the feature off for a run.
+The memory of a unit counts towards `--max-batch-tokens` together with
+the unit, so batches with many edited units hold fewer units.
+
+Measured on ru->en point edits of the Tracker documentation
+(`docs/specs/2026-09-22-translate-memory-hints-design.md`): the median
+number of words changed in the translation beyond the source edit went from
+9 to 0, the judge's consistency score from 74 to 99, at about 2% more
+tokens per request.
+
 ## Output
 
 The stat line counts files and units:

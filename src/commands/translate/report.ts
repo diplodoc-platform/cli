@@ -52,7 +52,8 @@ export type TranslateReportCounters = {
     /** Token usage as reported by the provider; null when not reported. */
     tokens: {input: number; output: number} | null;
     requests: {total: number; fallback: number; retries: number};
-    cache: {enabled: boolean; hits: number; misses: number; hitRate: number | null};
+    /** `hints`: units sent to the model together with their previous version from the seed. */
+    cache: {enabled: boolean; hits: number; misses: number; hitRate: number | null; hints: number};
     /** Markup and translation defects handled in model output before composing. */
     fixes: {
         markupStripped: number;
@@ -109,6 +110,8 @@ export type TargetStat = {
     /** Units the enabled cache did not cover. */
     cacheMisses: number;
     cacheEnabled: boolean;
+    /** Units sent to the model with their previous version from the seed memory. */
+    memoryHints: number;
     /** Units returned by the model untranslated. */
     untranslated: number;
     /** Delimiter runs of inline markup the model added around fragments and the CLI removed. */
@@ -146,6 +149,7 @@ export function createTargetStat(): TargetStat {
         cached: 0,
         cacheMisses: 0,
         cacheEnabled: false,
+        memoryHints: 0,
         untranslated: 0,
         markupStripped: 0,
         markupRetried: 0,
@@ -222,6 +226,7 @@ function targetCounters(stat: TargetStat): TranslateReportCounters {
             hits: stat.cached,
             misses: stat.cacheMisses,
             hitRate: stat.cacheEnabled && lookups > 0 ? round(stat.cached / lookups, 4) : null,
+            hints: stat.memoryHints,
         },
         fixes: {
             markupStripped: stat.markupStripped,
@@ -240,6 +245,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
     let cacheEnabled = false;
     let hits = 0;
     let misses = 0;
+    let hints = 0;
 
     for (const target of targets) {
         totals.files.translated += target.files.translated;
@@ -271,6 +277,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         cacheEnabled = cacheEnabled || target.cache.enabled;
         hits += target.cache.hits;
         misses += target.cache.misses;
+        hints += target.cache.hints;
     }
 
     totals.tokens = usageSeen ? tokens : null;
@@ -279,6 +286,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         hits,
         misses,
         hitRate: cacheEnabled && hits + misses > 0 ? round(hits / (hits + misses), 4) : null,
+        hints,
     };
 
     return totals;
