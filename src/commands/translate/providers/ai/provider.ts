@@ -35,7 +35,13 @@ import {
     seedFilePath,
     stripAddedMarkup,
 } from './utils';
-import {DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, buildMessages, splitFragments} from './prompts';
+import {
+    DEFAULT_SYSTEM_PROMPT,
+    DEFAULT_USER_PROMPT,
+    buildMessages,
+    renderMemoryEntry,
+    splitFragments,
+} from './prompts';
 import {untranslatedMarker} from './utils/script';
 import {judgeTranslations} from './judge';
 
@@ -1160,15 +1166,23 @@ export function makeTranslator(params: TranslatorParams): Translate {
             cache.set(text, defer);
             promises.push(defer.promise);
 
-            if (bufferTokens + tokens > maxBatchTokens && buffer.length) {
+            // The memory entry goes out in the same request as the unit, so
+            // it counts towards the batch budget. Only towards the batch: a
+            // unit that fits alone is still sent with its memory.
+            const hint = hinted[index];
+            const size = hint
+                ? tokens + estimateTokens(renderMemoryEntry(buffer.length + 1, text, hint))
+                : tokens;
+
+            if (bufferTokens + size > maxBatchTokens && buffer.length) {
                 release();
             }
             buffer.push(text);
-            bufferHints.push(hinted[index]);
-            if (hinted[index]) {
+            bufferHints.push(hint);
+            if (hint) {
                 stat.memoryHints++;
             }
-            bufferTokens += tokens;
+            bufferTokens += size;
         }
 
         release();

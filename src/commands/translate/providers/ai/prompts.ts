@@ -142,24 +142,9 @@ function renderMemory(fragments: string[], hints: (SeedHint | undefined)[]): str
     const entries: string[] = [];
 
     hints.forEach((hint, index) => {
-        if (!hint || index >= fragments.length) {
-            return;
+        if (hint && index < fragments.length) {
+            entries.push(renderMemoryEntry(index + 1, fragments[index], hint));
         }
-
-        // Seeds keep units in their XLIFF wrapper; the fragments went out
-        // without it, and the memory must read the same way.
-        const changes = wordChanges(hint.source, fragments[index]);
-        const lines = [
-            `Fragment ${index + 1}:`,
-            'Previous source:',
-            unwrap(hint.source),
-            'Existing translation:',
-            unwrap(hint.translation),
-        ];
-        if (changes.length) {
-            lines.push(`Changes in the source: ${changes.join('; ')}`);
-        }
-        entries.push(lines.join('\n'));
     });
 
     if (!entries.length) {
@@ -167,6 +152,28 @@ function renderMemory(fragments: string[], hints: (SeedHint | undefined)[]): str
     }
 
     return [MEMORY_PREAMBLE, ...entries].join('\n\n');
+}
+
+/**
+ * The memory entry of one fragment. Exported for batching: the entry
+ * travels in the same request as the fragment and counts towards its size.
+ */
+export function renderMemoryEntry(position: number, fragment: string, hint: SeedHint): string {
+    // Seeds keep units in their XLIFF wrapper; the fragments went out
+    // without it, and the memory must read the same way.
+    const changes = wordChanges(hint.source, fragment);
+    const lines = [
+        `Fragment ${position}:`,
+        'Previous source:',
+        unwrap(hint.source),
+        'Existing translation:',
+        unwrap(hint.translation),
+    ];
+    if (changes.length) {
+        lines.push(`Changes in the source: ${changes.join('; ')}`);
+    }
+
+    return lines.join('\n');
 }
 
 function applyVars(template: string, vars: Record<string, string>): string {

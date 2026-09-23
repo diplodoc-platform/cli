@@ -27,6 +27,7 @@ import {
     SeedStore,
     TranslationStore,
     cacheFingerprint,
+    estimateTokens,
     seedFilePath,
 } from './utils';
 
@@ -1020,6 +1021,50 @@ describe('translate ai provider', () => {
                 expect(userMessage(client, 0)).not.toContain('Translation memory');
                 expect(stat.memoryHints).toBe(0);
                 expect(lookup).not.toHaveBeenCalled();
+            });
+
+            it('should count the memory towards the batch budget', async () => {
+                const first = 'Чтобы настроить колонки доски, откройте её настройки.';
+                const second = 'Чтобы удалить колонку доски, откройте её меню.';
+                // A store per run: the first run stores its translations.
+                const store = () => {
+                    const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-hints-'));
+                    const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                    seeds.record('ru/a.md', [
+                        [
+                            'Чтобы настроить колонки доски, откройте настройки.',
+                            'To set up columns, open the settings.',
+                        ],
+                        [
+                            'Чтобы удалить колонку доски, откройте меню.',
+                            'To delete a column, open the menu.',
+                        ],
+                    ]);
+                    return new TranslationStore(
+                        join(dir, 'store.json'),
+                        cacheFingerprint({}),
+                        seeds,
+                    );
+                };
+                // Both units fit one batch by their own size, not with their memory.
+                const maxBatchTokens = estimateTokens(first) + estimateTokens(second) + 1;
+
+                const hinted = answering([['One.'], ['Two.']]);
+                const withHints = makeParams(hinted, {maxBatchTokens}, store());
+                await makeTranslator(withHints.params)('ru/a.md', [first, second]);
+
+                expect(withHints.stat.memoryHints).toBe(2);
+                expect(hinted.complete).toHaveBeenCalledTimes(2);
+
+                const plain = answering([['One.', 'Two.']]);
+                const withoutHints = makeParams(
+                    plain,
+                    {maxBatchTokens, memoryHints: false},
+                    store(),
+                );
+                await makeTranslator(withoutHints.params)('ru/a.md', [first, second]);
+
+                expect(plain.complete).toHaveBeenCalledTimes(1);
             });
 
             it('should send a new sentence without memory', async () => {

@@ -88,6 +88,8 @@ what the seed flow does anyway.
 The translate stat line reports the units sent with a previous version as
 `memory-hints: N`, and the run report as `cache.hints`. `--no-memory-hints`
 (config: `memoryHints: false`) turns the feature off for a run.
+The memory of a unit counts towards `--max-batch-tokens` together with
+the unit, so batches with many edited units hold fewer units.
 
 Measured on ru->en point edits of the Tracker documentation
 (`docs/specs/2026-09-22-translate-memory-hints-design.md`): the median
