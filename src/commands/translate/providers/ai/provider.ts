@@ -1031,10 +1031,15 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // Stored translations of the units and, for the changed ones, their
         // previous version from the seed memory of the file: sent along
         // with the unit so the model applies the edit instead of
-        // translating from scratch.
-        const lookup = store ? store.lookup(path, texts) : {translations: [], hints: []};
-        const resolved = lookup.translations;
-        const hinted = memoryHints ? lookup.hints : [];
+        // translating from scratch. Without hints the memory is not
+        // searched for previous versions at all.
+        let resolved: (string | undefined)[] = [];
+        let hinted: (SeedHint | undefined)[] = [];
+        if (store && memoryHints) {
+            ({translations: resolved, hints: hinted} = store.lookup(path, texts));
+        } else if (store) {
+            resolved = store.resolve(path, texts);
+        }
         let buffer: string[] = [];
         let bufferHints: (SeedHint | undefined)[] = [];
         let bufferTokens = 0;

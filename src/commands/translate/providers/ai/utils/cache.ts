@@ -213,7 +213,7 @@ export class TranslationStore {
      * back to the seed dictionary and then to this run's own translations.
      */
     resolve(file: string, texts: string[]): (string | undefined)[] {
-        return this.lookup(file, texts).translations;
+        return this.match(file, texts).translations;
     }
 
     /**

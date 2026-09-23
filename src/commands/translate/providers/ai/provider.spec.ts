@@ -1010,13 +1010,16 @@ describe('translate ai provider', () => {
 
             it('should send no memory when disabled', async () => {
                 const client = answering([['To set up the columns by status:']]);
-                const {params, stat} = makeParams(client, {memoryHints: false}, seededStore());
+                const store = seededStore();
+                const lookup = vi.spyOn(store, 'lookup');
+                const {params, stat} = makeParams(client, {memoryHints: false}, store);
                 const translate = makeTranslator(params);
 
                 await translate('ru/a.md', [edited]);
 
                 expect(userMessage(client, 0)).not.toContain('Translation memory');
                 expect(stat.memoryHints).toBe(0);
+                expect(lookup).not.toHaveBeenCalled();
             });
 
             it('should send a new sentence without memory', async () => {
