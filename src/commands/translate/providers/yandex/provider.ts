@@ -8,13 +8,13 @@ import type {TargetStat} from '../../report';
 import {extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
 import axios, {AxiosError} from 'axios';
-import liquid from '@diplodoc/transform/lib/liquid';
 
 import {LogLevel} from '~/core/logger';
 
 import {
     FileLoader,
     TranslateError,
+    applyConditions,
     compose,
     extract,
     languageRepath,
@@ -316,13 +316,7 @@ function processor(params: TranslatorParams, translate: Translate) {
         await content.load();
 
         if (Object.keys(vars).length && content.isString) {
-            content.set(
-                liquid(content.data as string, vars, inputPath, {
-                    conditions: 'strict',
-                    substitutions: false,
-                    cycles: false,
-                }),
-            );
+            content.set(applyConditions(content.data as string, vars, inputPath));
         }
 
         if (!content.data) {

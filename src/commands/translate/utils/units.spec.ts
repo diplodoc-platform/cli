@@ -2,6 +2,7 @@ import {mkdirSync, mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it} from 'vitest';
+import {escapeRegExp} from 'lodash';
 import {extract} from '@diplodoc/translation';
 
 import {loadTranslationUnits} from './units';
@@ -91,6 +92,61 @@ describe('translate units loader', () => {
             expect(withVars.units.join('\n')).toContain('Общее');
             // Without vars liquid is not applied and the text stays.
             expect(withoutVars.units.join('\n')).toContain('Внутреннее');
+        });
+
+        it('should keep the frontmatter as written when vars are provided', async () => {
+            const frontmatter =
+                "---\ntitle: 'Обзор'\nmetadata:\n    - property: 'og:type'\n      content: 'article'\n---\n";
+            const inputPath = file(
+                frontmatter +
+                    '\n# Обзор\n\n{% if audience == "internal" %}\nВнутреннее.\n{% endif %}\n\nОбщее.\n',
+            );
+
+            const {content, units} = await loadTranslationUnits({
+                inputPath,
+                path: 'ru/article.md',
+                sourceLanguage: 'ru',
+                targetLanguage: 'en',
+                vars: {audience: 'external'},
+            });
+
+            // Liquid re-serializes the frontmatter (indentation, quotes); the
+            // translation is composed from this text, so the source form stays.
+            expect(content.data).toMatch(new RegExp('^' + escapeRegExp(frontmatter)));
+            expect(units.join('\n')).not.toContain('Внутреннее');
+        });
+
+        it('should extract a heading that repeats a frontmatter title with a no-break space', async () => {
+            const inputPath = file(
+                '---\ntitle: "Yandex\u00a0Tracker"\n---\n\n# Yandex\u00a0Tracker\n\nОбщее.\n',
+            );
+
+            const {units} = await loadTranslationUnits({
+                inputPath,
+                path: 'ru/article.md',
+                sourceLanguage: 'ru',
+                targetLanguage: 'en',
+                vars: {audience: 'external'},
+            });
+
+            expect(units.join('\n')).toContain('Общее.');
+        });
+
+        it('should apply the conditions of the frontmatter', async () => {
+            const inputPath = file(
+                '---\ntitle: \'{% if audience == "internal" %}Для своих{% else %}Для всех{% endif %}\'\n---\n\nОбщее.\n',
+            );
+
+            const {content} = await loadTranslationUnits({
+                inputPath,
+                path: 'ru/article.md',
+                sourceLanguage: 'ru',
+                targetLanguage: 'en',
+                vars: {audience: 'external'},
+            });
+
+            expect(content.data).toContain('Для всех');
+            expect(content.data).not.toContain('Для своих');
         });
 
         it('should return no units for an empty file', async () => {

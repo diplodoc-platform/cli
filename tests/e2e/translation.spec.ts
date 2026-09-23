@@ -1,6 +1,7 @@
 import type {TranslateRunArgs} from '../fixtures';
 
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync, mkdtempSync, readFileSync, realpathSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {glob} from 'glob';
 import strip from 'strip-ansi';
@@ -72,6 +73,7 @@ async function translateWithMockModel(
     testRootPath: string,
     dictionary: Record<string, string>,
     extraArgs: string[] = [],
+    {cacheDir}: {cacheDir?: string} = {},
 ) {
     const {inputPath, outputPath} = getTestPaths(testRootPath);
 
@@ -106,7 +108,7 @@ async function translateWithMockModel(
             '1',
             '--rate-limit-retry',
             '0',
-            '--no-cache',
+            ...(cacheDir ? ['--cache-dir', cacheDir] : ['--no-cache']),
             ...extraArgs,
         ]);
 
@@ -688,6 +690,58 @@ describe('Translate command', () => {
         expect(toc).toContain('when: lang == "ru"');
         expect(existsSync(join(outputPath, 'en/en-only.md'))).toBe(true);
         expect(existsSync(join(outputPath, 'en/ru-only.md'))).toBe(false);
+    });
+
+    test('seed and translate split files the same way under the presets of the .yfm', async () => {
+        const {inputPath} = getTestPaths('mocks/translation/presets-seed');
+        const cacheDir = realpathSync.native(mkdtempSync(join(tmpdir(), 'yfm-presets-seed-')));
+        const report = join(cacheDir, 'report.json');
+
+        const seed = await TestAdapter.runner.runRaw([
+            'translate',
+            'seed',
+            '--input',
+            inputPath,
+            '--source',
+            'ru-RU',
+            '--target',
+            'en-US',
+            '--cache-dir',
+            cacheDir,
+        ]);
+
+        expect(seed.errors).toEqual([]);
+        expect(seed.code).toBe(0);
+
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets-seed',
+            {},
+            ['--report', report],
+            {cacheDir},
+        );
+
+        // The way the neurotranslate cube runs: `presets: true` in the translate
+        // section of the .yfm, no seed section. Both commands judge the files
+        // under the presets of the translation, so every unit the run sends is
+        // already seeded from the existing English pages - one written with its
+        // conditions, one without them, a no-break space in the frontmatter -
+        // and nothing goes to the model. A seed without presets would leave
+        // the conditional units of second.md unpaired.
+        const {totals} = JSON.parse(readFileSync(report, 'utf8'));
+        expect(totals.requests.total).toBe(0);
+        expect(totals.cache.misses).toBe(0);
+        expect(totals.units.fromCache).toBe(totals.units.total);
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+        expect(page).toContain('The support chat in English.');
+        expect(page).not.toContain('in Russian');
+        expect(page).not.toContain('internal paragraph');
+        // The frontmatter keeps the form it is written in.
+        expect(page).toContain("    - property: 'og:title'");
+
+        const second = readFileSync(join(outputPath, 'en/second.md'), 'utf8');
+        expect(second).toContain('For the English version only.');
+        expect(second).not.toContain('Russian');
     });
 
     test('let --vars override the presets', async () => {

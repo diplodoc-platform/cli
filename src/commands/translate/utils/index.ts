@@ -1,7 +1,7 @@
 export type {Locale, CodeMode, VarsResolver} from './config';
 export {resolveSchemas, FileLoader, copyAssets, languageRepath} from './fs';
 export {extract, compose} from './translate';
-export {loadTranslationUnits} from './units';
+export {applyConditions, loadTranslationUnits} from './units';
 export {
     resolveSource,
     resolveTargets,
