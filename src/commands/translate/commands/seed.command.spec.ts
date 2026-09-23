@@ -1,4 +1,4 @@
-import {mkdirSync, mkdtempSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, realpathSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
 import {afterEach, describe, expect, it, vi} from 'vitest';
@@ -12,7 +12,12 @@ import {Run} from '../run';
 import {Seed} from './seed';
 
 function project(files: Record<string, string>) {
-    const dir = mkdtempSync(join(tmpdir(), 'yfm-seed-command-')) as AbsolutePath;
+    // The long form of the path: on Windows the temp dir comes as an 8.3 name
+    // (RUNNER~1), and files read through the run (presets.yaml) resolve out
+    // of a scope taken from the short one.
+    const dir = realpathSync.native(
+        mkdtempSync(join(tmpdir(), 'yfm-seed-command-')),
+    ) as AbsolutePath;
     for (const [path, content] of Object.entries(files)) {
         mkdirSync(dirname(join(dir, path)), {recursive: true});
         writeFileSync(join(dir, path), content);
