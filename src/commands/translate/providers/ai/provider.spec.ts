@@ -272,19 +272,19 @@ describe('translate ai provider', () => {
             expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('run success'));
         });
 
-        it('should not double the markup a model puts back around a bold label', async () => {
+        it('should not double the markup a model puts back around a bold line', async () => {
             const root = mkdtempSync(join(tmpdir(), 'yfm-ai-markup-'));
             const input = join(root, 'docs');
             const output = join(root, 'out');
             mkdirSync(join(input, 'ru'), {recursive: true});
-            writeFileSync(join(input, 'ru', 'test.md'), '**Дата релиза:** 2026-08-25\n');
+            writeFileSync(join(input, 'ru', 'test.md'), '**Дата релиза: 2026-08-25**\n');
 
-            // The bold opens the line, so its markers live in the skeleton
-            // and the fragment is `Дата релиза:<x bold_close/> 2026-08-25`.
-            // The model translates the text and writes the markers back.
+            // The bold wraps the whole line, so its markers live in the
+            // skeleton and the fragment is `Дата релиза: 2026-08-25`. The
+            // model translates the text and writes the markers back.
             const client: LLMClient = {
                 name: 'fake',
-                complete: vi.fn(async () => ({text: '**Release date:** 2026-08-25'})),
+                complete: vi.fn(async () => ({text: '**Release date: 2026-08-25**'})),
             };
 
             const reportPath = join(root, 'report.json');
@@ -321,19 +321,20 @@ describe('translate ai provider', () => {
             } as unknown as AITranslationConfig);
 
             expect(readFileSync(join(output, 'en', 'test.md'), 'utf8')).toBe(
-                '**Release date:** 2026-08-25\n',
+                '**Release date: 2026-08-25**\n',
             );
 
+            // Both runs the model added are cut: the opening and the closing one.
             const report = JSON.parse(readFileSync(reportPath, 'utf8'));
             expect(report.totals.fixes).toEqual({
-                markupStripped: 1,
+                markupStripped: 2,
                 markupRetried: 0,
                 markupDamaged: 0,
                 untranslatedRetried: 0,
                 untranslatedKept: 0,
             });
             expect(logger.stat).toHaveBeenCalledWith(
-                expect.stringContaining('added-markup-stripped: 1'),
+                expect.stringContaining('added-markup-stripped: 2'),
             );
         });
 

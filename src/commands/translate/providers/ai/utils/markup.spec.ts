@@ -392,11 +392,6 @@ const DOC = [
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
 const unwrap = (unit: string) => unit.replace(/^<source[^>]*>|<\/source>$/g, '');
 
-/** A model that puts the markers of a bold label back into the fragment. */
-function addMarkers(text: string): string {
-    return text.replace(/^([^<]+:)(<x[^>]*\/>)?/, (_, label, tag) => `**${label}**${tag || ''}`);
-}
-
 /** A model that wraps the whole fragment it was given into markers. */
 function wrapMarkers(text: string): string {
     return `**${text}**`;
@@ -456,8 +451,10 @@ function repair(doc: string, model: (text: string) => string) {
 }
 
 describe('stripAddedMarkup over real extract and compose', () => {
-    it('should compose exactly like the source when the model adds markers', () => {
-        const {dirty, repaired} = repair(DOC, addMarkers);
+    // Compact extraction keeps a bold label inside its fragment, so a model
+    // doubles markup by wrapping a whole fragment it was given.
+    it('should compose exactly like the source when the model wraps every fragment', () => {
+        const {dirty, repaired} = repair(DOC, wrapMarkers);
 
         expect(dirty).toContain('****');
         expect(repaired).toBe(DOC);
