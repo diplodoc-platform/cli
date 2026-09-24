@@ -91,7 +91,39 @@ describe('translate eval report', () => {
         });
 
         expect(result.passed).toBe(false);
-        expect(result.failures).toEqual(['judge left 2 pair(s) unscored']);
+        expect(result.failures).toEqual(['judge left 2 pair(s) of 10 unscored (more than 5%)']);
+    });
+
+    it('should tolerate a few unscored judge pairs', () => {
+        const result = report([], {
+            judge: {
+                model: 'eval-mock',
+                threshold: 70,
+                scored: 100,
+                averageScore: 100,
+                low: 0,
+                skippedPairs: 1,
+            },
+        });
+
+        expect(result.failures).toEqual([]);
+        expect(result.passed).toBe(true);
+    });
+
+    it('should fail when the judge misses a large share of pairs', () => {
+        const result = report([], {
+            judge: {
+                model: 'eval-mock',
+                threshold: 70,
+                scored: 100,
+                averageScore: 100,
+                low: 0,
+                skippedPairs: 20,
+            },
+        });
+
+        expect(result.passed).toBe(false);
+        expect(result.failures.join(' ')).toContain('20 pair(s) of 120 unscored');
     });
 
     it('should gate similarity only when the threshold is set', () => {

@@ -33,6 +33,14 @@ describe('translate eval corpus', () => {
         expect(() => listCorpusPages(corpus, 'ru', 'en')).toThrow(/no en reference/);
     });
 
+    it('should list pages without references when references are optional', () => {
+        const corpus = makeCorpus({'ru/about.md': 'x'});
+
+        expect(listCorpusPages(corpus, 'ru', 'en', {requireReference: false})).toEqual([
+            'about.md',
+        ]);
+    });
+
     it('should load glossary pairs and tolerate a missing file', () => {
         const corpus = makeCorpus({
             'glossary.yaml': 'glossaryPairs:\n  - sourceText: заметка\n    translatedText: note\n',

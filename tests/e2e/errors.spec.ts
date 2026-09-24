@@ -92,7 +92,18 @@ describe('Errors', () => {
         ]);
     });
 
-    test('mocks/errors/lint-loglevel', ({html}: TestResult) => {
+    test('mocks/errors/invalid-visibility', ({md, html}: TestResult) => {
+        expectErrors(md, [
+            'ERR index.md: 3: YFM023 / invalid-visibility-audience Visibility audience is missing or invalid [Expected: :::visibility human or :::visibility agent] [Context: ":::visibility robots"]',
+        ]);
+        expectErrors(html, [
+            'ERR index.md: 3: YFM023 / invalid-visibility-audience Visibility audience is missing or invalid [Expected: :::visibility human or :::visibility agent] [Context: ":::visibility robots"]',
+        ]);
+    });
+
+    test('mocks/errors/lint-loglevel', ({md, html}: TestResult) => {
+        expect(md.errors).toEqual([]);
+        expect(md.warns).toEqual([]);
         expectErrors(html, [
             'ERR index.md: 5: MD010 / no-hard-tabs Hard tabs [Column: 1]',
             'ERR index.md: 1: MD018 / no-missing-space-atx No space after hash on atx style heading [Context: "#Heading without a space after..."]',

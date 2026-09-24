@@ -1,8 +1,10 @@
 import type {Logger} from '~/core/logger';
+import type {CodeMode, VarsResolver} from '../../utils';
 import type {TranslateConfig} from '~/commands/translate';
 import type {AITranslationConfig} from './index';
 import type {CompletionResult, LLMClient} from './clients/types';
 import type {MarkupRepair} from './utils';
+import type {SeedHint} from './utils/cache';
 import type {JudgePair} from './judge';
 import type {TargetStat, TranslateReportJudge} from '../../report';
 
@@ -33,8 +35,17 @@ import {
     seedFilePath,
     stripAddedMarkup,
 } from './utils';
-import {DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, buildMessages, splitFragments} from './prompts';
+import {
+    DEFAULT_SYSTEM_PROMPT,
+    DEFAULT_USER_PROMPT,
+    buildMessages,
+    renderMemoryEntry,
+    splitFragments,
+} from './prompts';
+import {untranslatedMarker} from './utils/script';
 import {judgeTranslations} from './judge';
+
+export {untranslatedMarker};
 
 const SOURCE_PREVIEW_LIMIT = 80;
 
@@ -73,6 +84,9 @@ export class Provider {
             ? this.clientFactory(fallbackClientConfig(config))
             : undefined;
         const {input, output, source, target: targets, vars, dryRun, maxConcurrency} = config;
+        // The run resolves presets per file; a config without a run (tests,
+        // direct calls) falls back to the flat vars.
+        const varsFor = config.varsFor ?? (() => vars);
 
         this.report = RunReport.start(config, files.length, this.skippedFiles);
 
@@ -105,7 +119,8 @@ export class Provider {
                     output,
                     sourceLanguage: source.language,
                     targetLanguage: target.language,
-                    vars,
+                    varsFor,
+                    code: config.code,
                     translate,
                     onTranslated: collect,
                 });
@@ -133,7 +148,12 @@ export class Provider {
                         (stat.markupRetried
                             ? ` damaged-markup-retried: ${stat.markupRetried}` +
                               ` damaged-markup-kept: ${stat.markupDamaged}`
-                            : ''),
+                            : '') +
+                        (stat.untranslatedRetried
+                            ? ` untranslated-retried: ${stat.untranslatedRetried}` +
+                              ` untranslated-kept: ${stat.untranslatedKept}`
+                            : '') +
+                        (stat.memoryHints ? ` memory-hints: ${stat.memoryHints}` : ''),
                 );
 
                 const judge = pairs.length
@@ -329,7 +349,8 @@ type ProcessorParams = {
     output: string;
     sourceLanguage: string;
     targetLanguage: string;
-    vars: Hash;
+    varsFor: VarsResolver;
+    code: CodeMode;
     translate: Translate;
     onTranslated?: (path: string, units: string[], parts: string[]) => void;
 };
@@ -421,7 +442,8 @@ function makeJudgeCollector(pairs: JudgePair[]) {
 }
 
 function makeProcessor(params: ProcessorParams) {
-    const {input, output, sourceLanguage, targetLanguage, vars, translate, onTranslated} = params;
+    const {input, output, sourceLanguage, targetLanguage, varsFor, code, translate, onTranslated} =
+        params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -439,7 +461,8 @@ function makeProcessor(params: ProcessorParams) {
             path,
             sourceLanguage,
             targetLanguage,
-            vars,
+            vars: varsFor(path),
+            code,
         });
 
         if (!content.data || !units.length) {
@@ -513,59 +536,6 @@ export function makeStore(
     seeds.load();
 
     return new TranslationStore(file, fingerprint, seeds);
-}
-
-/**
- * CLDR composite script codes (ISO 15924) that are not valid Unicode
- * script property values: expanded into their component scripts.
- */
-const COMPOSITE_SCRIPTS: Record<string, string[]> = {
-    Hans: ['Han'],
-    Hant: ['Han'],
-    Jpan: ['Han', 'Hiragana', 'Katakana'],
-    Kore: ['Hangul', 'Han'],
-};
-
-function scriptsOf(language: string): string[] {
-    try {
-        const script = new Intl.Locale(language).maximize().script;
-        if (!script) {
-            return [];
-        }
-
-        return COMPOSITE_SCRIPTS[script] || [script];
-    } catch {
-        return [];
-    }
-}
-
-/**
- * Returns a regexp matching source-script characters that must not survive
- * translation, or null when the pair cannot be discriminated by script and
- * identity responses have to be trusted. The script of a language comes
- * from the CLDR likely-subtags data, so any language known to the runtime
- * is supported. Scripts shared with the target do not discriminate (e.g.
- * only kana counts for ja -> zh). A Latin source never discriminates:
- * code, identifiers and product names are Latin in documents of any
- * language, so a Latin identity response cannot be told apart from a
- * legitimately untranslatable unit.
- */
-export function untranslatedMarker(sourceLanguage: string, targetLanguage: string): RegExp | null {
-    const target = new Set(scriptsOf(targetLanguage));
-    const source = scriptsOf(sourceLanguage).filter(
-        (script) => script !== 'Latn' && !target.has(script),
-    );
-
-    if (!source.length) {
-        return null;
-    }
-
-    try {
-        return new RegExp(source.map((script) => `\\p{Script=${script}}`).join('|'), 'u');
-    } catch {
-        // Script codes unknown to the regexp engine disable the check.
-        return null;
-    }
 }
 
 /**
@@ -683,6 +653,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         retry,
         rateLimitRetry,
         dryRun,
+        memoryHints = true,
     } = config;
 
     const schedule = scheduler(maxConcurrency);
@@ -705,10 +676,14 @@ export function makeTranslator(params: TranslatorParams): Translate {
     // never reaches the report.
     const repairs = new Map<string, number>();
 
+    // `hints` is parallel to `fragments`: the previous version of a
+    // fragment travels with it through every retry, so a re-request sends
+    // the same memory as the first attempt.
     async function translateBatch(
         path: string,
         fragments: string[],
         context: string,
+        hints: (SeedHint | undefined)[] = [],
     ): Promise<string[]> {
         if (!fragments.length) {
             return [];
@@ -726,6 +701,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 glossaryPairs,
                 contextFiles,
                 context,
+                hints,
             },
         );
 
@@ -846,12 +822,14 @@ export function makeTranslator(params: TranslatorParams): Translate {
         path: string,
         fragments: string[],
         context: string,
+        what: string,
+        hints: (SeedHint | undefined)[] = [],
     ): Promise<(string | undefined)[]> {
         try {
-            return await translateBatch(path, fragments, context);
+            return await translateBatch(path, fragments, context, hints);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-            logger.warn(path, `Markup retry failed (${error.message}).`);
+            logger.warn(path, `${what} failed (${error.message}).`);
 
             // Only a malformed answer is worth splitting; a rate limit or a
             // server error would meet every fragment the same way.
@@ -862,12 +840,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         const result: (string | undefined)[] = [];
 
-        for (const fragment of fragments) {
+        for (const [index, fragment] of fragments.entries()) {
             try {
-                result.push((await translateBatch(path, [fragment], context))[0]);
+                result.push((await translateBatch(path, [fragment], context, [hints[index]]))[0]);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
-                logger.warn(path, `Markup retry failed (${error.message}).`);
+                logger.warn(path, `${what} failed (${error.message}).`);
                 result.push(undefined);
             }
         }
@@ -889,6 +867,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         fragments: string[],
         parts: string[],
         context: string,
+        hints: (SeedHint | undefined)[] = [],
     ): Promise<string[]> {
         if (dryRun) {
             return parts;
@@ -914,6 +893,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
             path,
             indexes.map((index) => fragments[index]),
             context,
+            'Markup retry',
+            indexes.map((index) => hints[index]),
         );
 
         const result = [...parts];
@@ -944,15 +925,87 @@ export function makeTranslator(params: TranslatorParams): Translate {
         return result;
     }
 
+    /**
+     * Re-requests the fragments the model returned unchanged, in the
+     * source language. The same prompt in a request of its own is enough
+     * to fix most of them, and a request that mentions the failed attempt
+     * is not: describing the echo to the model reproduces it - see
+     * docs/specs/2026-09-16-translate-untranslated-units-design.md for the
+     * numbers.
+     *
+     * A fragment that comes back untranslated again keeps its source text
+     * and is counted by the caller.
+     */
+    async function retryUntranslated(
+        path: string,
+        fragments: string[],
+        parts: string[],
+        context: string,
+        hints: (SeedHint | undefined)[] = [],
+    ): Promise<string[]> {
+        if (dryRun || marker === null) {
+            return parts;
+        }
+
+        // Bound after the guard, so the closures below need no narrowing
+        // of the captured `marker`. Named `sourceScript` (not `script`) to
+        // read clearly next to `scriptsOf()`.
+        const sourceScript: RegExp = marker;
+
+        const refused = (fragment: string, part: string | undefined) =>
+            part !== undefined && part === fragment && sourceScript.test(part);
+
+        const indexes = fragments
+            .map((_, index) => index)
+            .filter((index) => refused(fragments[index], parts[index]));
+
+        if (!indexes.length) {
+            return parts;
+        }
+
+        // A retried fragment can still end up under the markup counters:
+        // if the retry answer arrives with damaged markup that the repair
+        // cannot save, the fragment falls back to its source text there.
+        stat.untranslatedRetried += indexes.length;
+        logger.warn(path, `${indexes.length} fragment(s) came back untranslated; retrying them.`);
+
+        const retried = await retryFragments(
+            path,
+            indexes.map((index) => fragments[index]),
+            context,
+            'Untranslated retry',
+            indexes.map((index) => hints[index]),
+        );
+
+        const result = [...parts];
+
+        // Acceptance mirrors the rule that triggered the retry: anything
+        // but the same echo counts as a translation. A stricter rule -
+        // rejecting any answer that still carries source-script text -
+        // would throw away legitimate translations of pages that quote the
+        // source language on purpose, and ship their source text instead.
+        indexes.forEach((index, position) => {
+            const candidate = retried[position];
+
+            if (candidate !== undefined && !refused(fragments[index], candidate)) {
+                result[index] = candidate;
+            }
+        });
+
+        return result;
+    }
+
     async function translateWithSplit(
         path: string,
         fragments: string[],
         context: string,
+        hints: (SeedHint | undefined)[] = [],
     ): Promise<string[]> {
         try {
-            const parts = await translateBatch(path, fragments, context);
+            const parts = await translateBatch(path, fragments, context, hints);
+            const retried = await retryUntranslated(path, fragments, parts, context, hints);
 
-            return await repairDamaged(path, fragments, parts, context);
+            return await repairDamaged(path, fragments, retried, context, hints);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof LLMResponseError && fragments.length > 1) {
@@ -961,9 +1014,17 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     `Batch of ${fragments.length} fragments failed (${error.message}); retrying one-by-one.`,
                 );
                 const result: string[] = [];
-                for (const fragment of fragments) {
-                    const single = await translateBatch(path, [fragment], context);
-                    const repaired = await repairDamaged(path, [fragment], single, context);
+                for (const [index, fragment] of fragments.entries()) {
+                    const hint = [hints[index]];
+                    const single = await translateBatch(path, [fragment], context, hint);
+                    const retried = await retryUntranslated(
+                        path,
+                        [fragment],
+                        single,
+                        context,
+                        hint,
+                    );
+                    const repaired = await repairDamaged(path, [fragment], retried, context, hint);
                     result.push(repaired[0]);
                 }
                 return result;
@@ -976,7 +1037,20 @@ export function makeTranslator(params: TranslatorParams): Translate {
         const context = describeDocument(path, docContext);
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
+        // Stored translations of the units and, for the changed ones, their
+        // previous version from the seed memory of the file: sent along
+        // with the unit so the model applies the edit instead of
+        // translating from scratch. Without hints the memory is not
+        // searched for previous versions at all.
+        let resolved: (string | undefined)[] = [];
+        let hinted: (SeedHint | undefined)[] = [];
+        if (store && memoryHints) {
+            ({translations: resolved, hints: hinted} = store.lookup(path, texts));
+        } else if (store) {
+            resolved = store.resolve(path, texts);
+        }
         let buffer: string[] = [];
+        let bufferHints: (SeedHint | undefined)[] = [];
         let bufferTokens = 0;
 
         const release = () => {
@@ -984,6 +1058,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 return;
             }
             const batch = buffer;
+            const batchHints = bufferHints;
             const batchTokens = bufferTokens;
             requests.push(
                 schedule(async () => {
@@ -991,7 +1066,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         if (!dryRun) {
                             logger.request(path, `${batch.length} units, ~${batchTokens} tokens`);
                         }
-                        const translated = await translateWithSplit(path, batch, context);
+                        const translated = await translateWithSplit(
+                            path,
+                            batch,
+                            context,
+                            batchHints,
+                        );
                         translated.forEach((text, i) => {
                             stat.markupStripped += repairs.get(batch[i]) || 0;
 
@@ -1003,10 +1083,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
                                 return;
                             }
                             if (!dryRun && text === batch[i] && marker?.test(text)) {
-                                // The model returned source-script text unchanged.
-                                // Keep it out of the store so the next run retries,
-                                // and surface the miss in the stats.
+                                // The model returned source-script text unchanged
+                                // and the retry did not fix it. Keep it out of the
+                                // store so the next run tries again, and surface
+                                // the miss in the stats.
                                 stat.untranslated++;
+                                stat.untranslatedKept++;
                                 logger.warn(path, 'Unit returned untranslated by the model.');
                                 cache.get(batch[i])?.resolve(text);
                                 return;
@@ -1033,10 +1115,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 }),
             );
             buffer = [];
+            bufferHints = [];
             bufferTokens = 0;
         };
 
-        for (const text of texts) {
+        for (const [index, text] of texts.entries()) {
             const tokens = estimateTokens(text);
 
             stat.unitsTotal++;
@@ -1052,7 +1135,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 continue;
             }
 
-            const stored = store?.get(text);
+            const stored = resolved[index];
             if (stored !== undefined) {
                 const {text: healed, normalized, stripped} = healCached(text, stored);
                 // Identity entries for units that still contain source-script
@@ -1086,11 +1169,23 @@ export function makeTranslator(params: TranslatorParams): Translate {
             cache.set(text, defer);
             promises.push(defer.promise);
 
-            if (bufferTokens + tokens > maxBatchTokens && buffer.length) {
+            // The memory entry goes out in the same request as the unit, so
+            // it counts towards the batch budget. Only towards the batch: a
+            // unit that fits alone is still sent with its memory.
+            const hint = hinted[index];
+            const size = hint
+                ? tokens + estimateTokens(renderMemoryEntry(buffer.length + 1, text, hint))
+                : tokens;
+
+            if (bufferTokens + size > maxBatchTokens && buffer.length) {
                 release();
             }
             buffer.push(text);
-            bufferTokens += tokens;
+            bufferHints.push(hint);
+            if (hint) {
+                stat.memoryHints++;
+            }
+            bufferTokens += size;
         }
 
         release();

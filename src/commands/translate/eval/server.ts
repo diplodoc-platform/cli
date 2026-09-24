@@ -81,19 +81,40 @@ export type CaptureServer = BaseServer & {
 
 /**
  * Starts an echo endpoint for a capture run: fragments are returned
- * unchanged and recorded per file. Requires the translate run to use
- * `CAPTURE_USER_PROMPT` and `--max-concurrency 1` so that the request
- * order matches the document order.
+ * unchanged and recorded per file, once each. Requires the translate
+ * run to use `CAPTURE_USER_PROMPT` and `--max-concurrency 1` so that
+ * the request order matches the document order.
+ *
+ * Deduplication matters because an echoed fragment is indistinguishable
+ * from a refused translation (byte-identical output still carrying
+ * source-script text), so `retryUntranslated` re-requests the fragments
+ * of a batch exactly once, right after that batch (the capture run is
+ * sequential, so a retry never arrives later). Without dedup that
+ * repeat would be recorded as a second, distinct unit and double the
+ * file's unit count.
+ *
+ * The dedup only looks at the previous request for a file, not its
+ * whole history: `translate()` caches by unit text for the run, so it
+ * never asks for the same unit twice on its own, and a fragment that
+ * legitimately recurs in a later batch must still be recorded, or the
+ * positional pairing in `buildTranslationMemory` would silently
+ * mispair units.
  */
 export async function startCaptureServer(): Promise<CaptureServer> {
     const units = new Map<string, string[]>();
+    const previous = new Map<string, Set<string>>();
 
     const server = await startChatServer((messages) => {
         const user = messages[messages.length - 1].content;
         const request = parseCaptureRequest(user);
 
-        const known = units.get(request.file) || [];
-        units.set(request.file, known.concat(request.fragments));
+        const skip = previous.get(request.file);
+        const fresh = skip
+            ? request.fragments.filter((fragment) => !skip.has(fragment))
+            : request.fragments;
+
+        previous.set(request.file, new Set(request.fragments));
+        units.set(request.file, (units.get(request.file) || []).concat(fresh));
 
         return request.fragments.join(`\n${FRAGMENT_SEPARATOR}\n`);
     });

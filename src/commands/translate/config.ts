@@ -111,12 +111,50 @@ const vars = option({
     desc: `
         Pass list of variables directly to translation.
         Variables should be passed in JSON format.
-        Translation command ignores any presets.yaml.
+        Passed variables override the same in presets.yaml when --presets is on.
 
         Example:
           {{PROGRAM}} -i ./ -o ./build -v '{"name":"test"}'
     `,
     parser: (value) => JSON.parse(value),
+});
+
+const presets = option({
+    flags: '--presets',
+    desc: `
+        Apply presets.yaml to conditions, as the build of the translation does:
+        the vars preset section of every presets.yaml on the path of the target
+        file (ru/x.md is judged as en/x.md) is merged with its default section,
+        under --vars. Takes one target language per run. Off by default, so a
+        run without it evaluates conditions exactly as before.
+    `,
+    defaultInfo: false,
+});
+
+const varsPreset = option({
+    flags: '--vars-preset <value>',
+    desc: `
+        Select vars preset of documentation for --presets, as for build.
+        Defaults to varsPreset of the .yfm root, then to default.
+    `,
+});
+
+const code = option({
+    flags: '--code <mode>',
+    desc: `
+        How much of fenced code blocks goes to translation.
+
+        ${cyan('no')} - nothing, code blocks are copied as they are.
+        ${cyan('all')} - the whole block, keys and values included.
+        ${cyan('precise')} - only <placeholders> and comments of bash/shell fences.
+        ${cyan('adaptive')} - also line comments of other languages (yaml, python, go, sql, ...)
+        and labels of mermaid diagrams. Commented-out code stays as is.
+
+        Defaults to ${cyan('adaptive')} for LLM providers and ${cyan('precise')} for yandex.
+        The seed command takes the value of the translate section and defaults to ${cyan('adaptive')}.
+        A single block is overridden with its info string: \`\`\`yaml translate=no
+    `,
+    choices: ['no', 'all', 'precise', 'adaptive'],
 });
 
 const dryRun = option({
@@ -217,6 +255,9 @@ export const options = {
     exclude,
     includeVcsDiff,
     vars,
+    presets,
+    varsPreset,
+    code,
     dryRun,
     copyAssets,
     timeout,

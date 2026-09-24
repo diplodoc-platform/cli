@@ -24,6 +24,7 @@ import type {CodeHighlightConfig, ThemerArgs, ThemerConfig} from './features/the
 import type {WatchArgs, WatchConfig} from './features/watch';
 import type {YaMakeArgs, YaMakeConfig, YaMakeRawConfig} from './features/ya-make';
 import type {LlmsArgs, LlmsConfig} from './features/llms';
+import type {CompanionsArgs} from './features/companions';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
 import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
@@ -33,7 +34,10 @@ export type {EntryData, PageData} from './services/entry';
 
 export {OutputFormat, TransformConfig};
 
-type BaseArgs = {output: AbsolutePath};
+type BaseArgs = {
+    output: AbsolutePath;
+    baseHref?: string;
+};
 
 type ExtendedLang = {
     lang: string;
@@ -57,17 +61,28 @@ export type ContentConfig = {
     multilineTermDefinitions: boolean;
 };
 
-/**
- * Controls emission of the standalone OpenAPI spec companion (`*.openapi.json`):
- *  - `true` — emit in both md2md and md2html;
- *  - `'md'` — emit only in md2md (default);
- *  - `false` — disabled.
- *
- * `undefined` means "not configured": the default (`'md'`) is owned and applied by the
- * openapi extension (`DEFAULT_OPENAPI_COMPANIONS_MODE`), the single consumer of this value.
- */
 export type AiConfig = {
+    /** Emit prepared Markdown or YAML companions next to static HTML pages. */
+    mdCompanions?: boolean;
+    /**
+     * Controls emission of the standalone OpenAPI spec companion (`*.openapi.json`):
+     *  - `true` — emit in both md2md and md2html;
+     *  - `'md'` — emit only in md2md (default);
+     *  - `false` — disabled.
+     *
+     * `undefined` means "not configured": the default (`'md'`) is owned and applied by the
+     * openapi extension (`DEFAULT_OPENAPI_COMPANIONS_MODE`), the single consumer of this value.
+     */
     openapiCompanions?: boolean | 'md';
+};
+
+export type MarkdownActionsMode = 'visible' | 'dropdown' | 'none';
+
+export type ViewerInterfaceConfig = Partial<
+    Record<'toc' | 'search' | 'feedback' | 'gallery', boolean>
+> & {
+    markdownActions?: MarkdownActionsMode;
+    [key: string]: boolean | MarkdownActionsMode | undefined;
 };
 
 /** Maps a generated OpenAPI leading page to its standalone spec companion file. */
@@ -89,6 +104,7 @@ type BaseConfig = {
     // TODO(patch): exetend langs list by newly supported langs or change type to string
     langs: Langs;
     outputFormat: `${OutputFormat}`;
+    baseHref?: string;
     varsPreset: string;
     vars: Hash;
     allowHtml: boolean;
@@ -111,7 +127,7 @@ type BaseConfig = {
     // TODO: explicitly handle
     analytics: DocAnalytics;
     supportGithubAnchors?: boolean;
-    interface?: Record<string, boolean>;
+    interface?: ViewerInterfaceConfig;
     feedback?: {
         url?: string;
     };
@@ -164,7 +180,8 @@ export type BuildArgs = ProgramArgs &
             WatchArgs &
             YaMakeArgs &
             ThemerArgs &
-            LlmsArgs
+            LlmsArgs &
+            CompanionsArgs
     >;
 
 export type BuildRawConfig = BaseArgs &

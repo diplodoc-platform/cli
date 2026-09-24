@@ -138,6 +138,8 @@ export type Meta = {
     alternate?: Alternate[];
     /** Page tags */
     tags?: string[];
+    /** Page summary */
+    summary?: string;
 } & VcsMetadata &
     Resources &
     Record<string, unknown>;

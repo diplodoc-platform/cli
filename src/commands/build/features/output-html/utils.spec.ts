@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import MarkdownIt from 'markdown-it';
 import file from '@diplodoc/transform/lib/plugins/file';
+import visibility from '@diplodoc/transform/lib/plugins/visibility';
 
 import {decodeAnchor, filterBundledExtensionAssets, getBaseMdItPlugins} from './utils';
 
@@ -33,6 +34,12 @@ describe('output-html utils ', () => {
             const plugins = getBaseMdItPlugins();
 
             expect(plugins).toContain(file);
+        });
+
+        it('should include audience visibility plugin in the list', () => {
+            const plugins = getBaseMdItPlugins();
+
+            expect(plugins).toContain(visibility);
         });
 
         it('should include multiple base plugins', () => {

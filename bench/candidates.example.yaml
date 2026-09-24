@@ -1,0 +1,34 @@
+# Example benchmark configuration. Copy it, fill in the real endpoints
+# and model ids, and keep the keys in environment variables - never in
+# this file.
+#
+# Dry run first:
+#   npm run translate:bench -- --candidates bench/candidates.yaml --dry-run
+# Then the real thing:
+#   npm run translate:bench -- --candidates bench/candidates.yaml --repeats 3
+
+baseline: current
+
+# One judge for every comparison: a judge that changes between
+# candidates would make the win rates incomparable.
+judge:
+  model: <judge model id>
+  apiBase: https://<gateway>/v1
+  authEnv: BENCH_JUDGE_KEY
+  batchSize: 10
+
+candidates:
+  - name: current
+    provider: openai
+    model: <model id currently used in production>
+    apiBase: https://<gateway>/v1
+    authEnv: BENCH_CURRENT_KEY
+
+  - name: glm
+    provider: openai
+    model: <glm model id>
+    apiBase: https://<gateway>/v1
+    authEnv: BENCH_GLM_KEY
+    # apiHeaders:
+    #     - 'X-Gateway-Tenant: docs'
+    # systemPrompt: ./bench/prompts/glm-system.txt

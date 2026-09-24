@@ -1,6 +1,8 @@
 import type {BaseArgs} from '~/core/program';
-import type {Locale} from '../utils';
+import type {Config} from '~/core/config';
+import type {CodeMode, Locale, VarsResolver} from '../utils';
 import type {ConfigDefaults} from '../utils/config';
+import type {AlignedUnits} from '../providers/ai/utils';
 
 import {existsSync} from 'node:fs';
 import {join, relative, resolve} from 'node:path';
@@ -9,6 +11,7 @@ import {asyncify, eachLimit} from 'async';
 
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, defined} from '~/core/config';
+import {normalizePath} from '~/core/utils';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
@@ -18,12 +21,19 @@ import {
 
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
-import {TranslateError, languageRepath, loadTranslationUnits} from '../utils';
-import {SeedStore, collectSeedPairs, seedFilePath} from '../providers/ai/utils';
+import {TranslateError, languageRepath, loadTranslationUnits, resolveCodeMode} from '../utils';
+import {SeedStore, alignTranslationUnits, seedFilePath} from '../providers/ai/utils';
 import {options as aiOptions} from '../providers/ai/config';
-import {untranslatedMarker} from '../providers/ai/provider';
 import {Run} from '../run';
-import {configDefaults, resolveSource, resolveTargets, resolveVars} from '../utils/config';
+import {
+    checkPresetsTargets,
+    configDefaults,
+    resolveSource,
+    resolveTargets,
+    resolveVars,
+    resolveVarsPreset,
+    sectionValue,
+} from '../utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
 
 import {getHooks, withHooks} from './hooks';
@@ -36,15 +46,35 @@ export type SeedParams = {
     files: string[];
     sourceLanguage: string;
     targetLanguage: string;
-    vars: Hash;
+    /** Flat vars for every file; `varsFor` takes precedence. */
+    vars?: Hash;
+    /** Vars of a source file as translated; the target file takes the same vars, or the units diverge. */
+    varsFor?: VarsResolver;
+    /** Must match the code mode of the translate run, or the cache keys diverge. LLM default when unset. */
+    code?: CodeMode;
     cacheDir: AbsolutePath;
 };
 
+export type SeedPartial = {
+    file: string;
+    /** Source units without a counterpart in the translation. */
+    unseeded: number;
+    /** Source units in total. */
+    units: number;
+};
+
 export type SeedStats = {
+    /** Files that contributed at least one pair, partially seeded ones included. */
     seededFiles: number;
     seededUnits: number;
     skippedUnits: number;
     missingTargets: string[];
+    /** Files whose translation aligned with the source only in part. */
+    partial: SeedPartial[];
+    unseededUnits: number;
+    /** Pairs kept for their file only, out of the shared dictionary. */
+    doubtfulUnits: number;
+    /** Files whose translation did not align with the source at all. */
     mismatched: string[];
     /** Files whose source or target failed to load or extract. */
     failed: [string, string][];
@@ -54,12 +84,23 @@ export type SeedStats = {
  * Derives translation cache seeds from existing target files.
  *
  * For every source file whose translation exists, both sides are split
- * into units the same way the translate run does; positionally aligned
- * pairs become cache entries, so a following translate run reuses the
- * existing translations and only sends changed units to the LLM.
+ * into units the same way the translate run does and aligned block by
+ * block (see `alignTranslationUnits`); the aligned pairs become cache
+ * entries, so a following translate run reuses the existing translations
+ * and only sends changed units to the LLM. A block whose translation
+ * diverged is left out on its own; the rest of the file is still seeded.
  */
 export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
-    const {input, files, sourceLanguage, targetLanguage, vars, cacheDir} = params;
+    const {
+        input,
+        files,
+        sourceLanguage,
+        targetLanguage,
+        vars: flatVars = {},
+        varsFor = () => flatVars,
+        code = 'adaptive',
+        cacheDir,
+    } = params;
 
     const inputRoot = resolve(input);
     const repath = languageRepath({
@@ -68,7 +109,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         sourceLanguage,
         targetLanguage,
     });
-    const marker = untranslatedMarker(sourceLanguage, targetLanguage);
+    const languages = {source: sourceLanguage, target: targetLanguage};
     const seeds = new SeedStore(seedFilePath(cacheDir, sourceLanguage, targetLanguage));
 
     const stats: SeedStats = {
@@ -76,9 +117,14 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         seededUnits: 0,
         skippedUnits: 0,
         missingTargets: [],
+        partial: [],
+        unseededUnits: 0,
+        doubtfulUnits: 0,
         mismatched: [],
         failed: [],
     };
+
+    const aligned = new Map<string, AlignedUnits & {units: number}>();
 
     await eachLimit(
         files,
@@ -93,32 +139,72 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             }
 
             try {
-                await seedFile(file, inputPath, targetPath);
+                const result = await alignFile(file, inputPath, targetPath);
+                if (result) {
+                    aligned.set(file, result);
+                }
             } catch (error) {
                 // One broken file (unparseable target markup, bad
                 // frontmatter, ...) must not kill the whole seeding run:
                 // the file is reported and falls back to a full
-                // retranslation, exactly like a unit-count mismatch.
+                // retranslation, exactly like a translation that does not
+                // align.
                 stats.failed.push([file, String(error)]);
             }
         }),
     );
 
+    // Files are recorded in their given order, not in completion order:
+    // the dictionary breaks ties between wordings by the first recorded
+    // one, and a seed must not change between two runs on the same input.
+    for (const file of files) {
+        const result = aligned.get(file);
+        if (!result) {
+            continue;
+        }
+
+        if (!result.pairs.length && result.unseeded) {
+            stats.mismatched.push(file);
+            continue;
+        }
+
+        seeds.record(file, result.pairs);
+
+        stats.seededFiles++;
+        stats.seededUnits += result.pairs.length;
+        stats.skippedUnits += result.skipped;
+        stats.doubtfulUnits += result.doubtful;
+
+        if (result.unseeded) {
+            stats.partial.push({file, unseeded: result.unseeded, units: result.units});
+            stats.unseededUnits += result.unseeded;
+        }
+    }
+
     seeds.flush();
 
     return stats;
 
-    async function seedFile(file: string, inputPath: AbsolutePath, targetPath: AbsolutePath) {
+    async function alignFile(
+        file: string,
+        inputPath: AbsolutePath,
+        targetPath: AbsolutePath,
+    ): Promise<(AlignedUnits & {units: number}) | undefined> {
+        // Both sides take the vars the translate run gives the source file,
+        // the presets of its translation: a different set on either side
+        // would keep or drop other conditional blocks and misalign the units.
+        const vars = varsFor(file);
         const source = await loadTranslationUnits({
             inputPath,
             path: file,
             sourceLanguage,
             targetLanguage,
             vars,
+            code,
         });
 
         if (!source.units.length) {
-            return;
+            return undefined;
         }
 
         const target = await loadTranslationUnits({
@@ -127,23 +213,24 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             sourceLanguage: targetLanguage,
             targetLanguage: sourceLanguage,
             vars,
+            code,
         });
 
-        const result = collectSeedPairs(source.units, target.units, marker);
-
-        if (result.status === 'mismatch') {
-            stats.mismatched.push(file);
-            return;
-        }
-
-        for (const [sourceUnit, targetUnit] of result.pairs) {
-            seeds.set(sourceUnit, targetUnit);
-        }
-
-        stats.seededFiles++;
-        stats.seededUnits += result.pairs.length;
-        stats.skippedUnits += result.skipped;
+        return {...alignTranslationUnits(source, target, languages), units: source.units.length};
     }
+}
+
+/**
+ * The seed section is nested in `translate`, so the presets switch and the
+ * code mode set for the translate run one level up apply to seeding as well,
+ * also when the .yfm has no seed section of its own.
+ */
+async function inheritPresets(config: Config<Hash>, args: Hash): Promise<boolean> {
+    return Boolean(await sectionValue<boolean>(config, args, ['translate'], 'presets'));
+}
+
+async function inheritCodeMode(config: Config<Hash>, args: Hash): Promise<CodeMode | undefined> {
+    return resolveCodeMode({}, {code: await sectionValue(config, args, ['translate'], 'code')});
 }
 
 export type SeedArgs = BaseArgs & {
@@ -152,6 +239,9 @@ export type SeedArgs = BaseArgs & {
     include?: string[];
     exclude?: string[];
     vars?: Hash;
+    presets?: boolean;
+    varsPreset?: string;
+    code?: CodeMode;
     cacheDir: string;
 };
 
@@ -165,6 +255,9 @@ export type SeedConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     files: string[];
     skipped: [string, string][];
     vars: Hash;
+    /** Apply presets.yaml to conditions; must match the translate run. */
+    presets: boolean;
+    code: CodeMode;
     cacheDir: AbsolutePath;
 } & ConfigDefaults;
 
@@ -186,6 +279,9 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
         options.include,
         options.exclude,
         options.vars,
+        options.presets,
+        options.varsPreset,
+        options.code,
         options.config(YFM_CONFIG_FILENAME),
         aiOptions.cacheDir,
     ];
@@ -202,7 +298,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
     apply(program?: BaseProgram) {
         super.apply(program);
 
-        getBaseHooks(this).Config.tap('Translate.Seed', (config, args) => {
+        getBaseHooks(this).Config.tapPromise('Translate.Seed', async (config, args) => {
             const {input, quiet, strict} = pick(args, ['input', 'quiet', 'strict']) as SeedArgs;
             const source = resolveSource(config, args);
             const target = resolveTargets(config, args);
@@ -210,6 +306,23 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
             const exclude = defined('exclude', args, config) || [];
             const files = defined('files', args, config) || [];
             const vars = resolveVars(config, args);
+            // Seeds must split files exactly like the translate run, so the
+            // switch follows the translate section when the seed section is silent.
+            const presets =
+                defined('presets', args, config) ?? (await inheritPresets(config, args));
+            checkPresetsTargets(presets, target);
+            // The seed section, then the translate section, then the .yfm root.
+            const varsPreset = await resolveVarsPreset(config, args, [
+                'translate.seed',
+                'translate',
+                '',
+            ]);
+            // Seeds feed the LLM cache, so they follow the translate section
+            // of the config and then the LLM default.
+            const code =
+                resolveCodeMode(args, config) ??
+                (await inheritCodeMode(config, args)) ??
+                'adaptive';
             const cacheDir = defined('cacheDir', args, config);
 
             if (!cacheDir) {
@@ -227,17 +340,20 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 include,
                 exclude,
                 vars,
+                presets,
+                varsPreset,
+                code,
                 cacheDir: resolve(cacheDir),
             });
         });
     }
 
     async action() {
-        const {input, source, target: targets, vars, cacheDir} = this.config;
+        const {input, source, target: targets, code, cacheDir} = this.config;
 
         this.logger.setup(this.config);
 
-        this.run = new Run(this.config);
+        this.run = new Run(this.config, {usePresets: this.config.presets});
 
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
         await getHooks(this).BeforeRun.promise(this.run);
@@ -254,14 +370,22 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 files: Array.from(files),
                 sourceLanguage: source.language,
                 targetLanguage: target.language,
-                vars,
+                varsFor: (path) => this.run.vars.for(normalizePath(path)),
+                code,
                 cacheDir,
             });
+
+            for (const {file, unseeded, units} of stats.partial) {
+                this.logger.warn(
+                    file,
+                    `Existing translation diverges in ${unseeded} of ${units} units; they were not seeded.`,
+                );
+            }
 
             for (const file of stats.mismatched) {
                 this.logger.warn(
                     file,
-                    'Unit counts diverge between source and translation; the file was not seeded.',
+                    'Existing translation does not align with the source; the file was not seeded.',
                 );
             }
 
@@ -275,7 +399,10 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                     `skipped-units: ${stats.skippedUnits} ` +
                     `missing-targets: ${stats.missingTargets.length} ` +
                     `mismatched: ${stats.mismatched.length} ` +
-                    `failed: ${stats.failed.length}`,
+                    `failed: ${stats.failed.length} ` +
+                    `partial-files: ${stats.partial.length} ` +
+                    `unseeded-units: ${stats.unseededUnits} ` +
+                    `doubtful-units: ${stats.doubtfulUnits}`,
             );
         }
     }

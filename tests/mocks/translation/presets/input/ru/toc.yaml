@@ -1,0 +1,10 @@
+title: Пресеты
+items:
+  - name: Обзор
+    href: index.md
+  - name: Внутренний раздел
+    href: internal.md
+    when: audience == "internal"
+  - name: Внешний раздел
+    href: index.md
+    when: audience == "public"

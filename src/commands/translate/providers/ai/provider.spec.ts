@@ -27,6 +27,7 @@ import {
     SeedStore,
     TranslationStore,
     cacheFingerprint,
+    estimateTokens,
     seedFilePath,
 } from './utils';
 
@@ -256,7 +257,13 @@ describe('translate ai provider', () => {
             expect(target.chars.translated).toBeGreaterThan(0);
             expect(target.tokens.input).toBeGreaterThan(0);
             expect(target.tokens.output).toBeGreaterThan(0);
-            expect(target.cache).toEqual({enabled: false, hits: 0, misses: 0, hitRate: null});
+            expect(target.cache).toEqual({
+                enabled: false,
+                hits: 0,
+                misses: 0,
+                hitRate: null,
+                hints: 0,
+            });
             expect(target.judge.scored).toBe(2);
             expect(target.judge.threshold).toBe(80);
             expect(target.judge.belowThreshold).toBe(2);
@@ -322,6 +329,8 @@ describe('translate ai provider', () => {
                 markupStripped: 1,
                 markupRetried: 0,
                 markupDamaged: 0,
+                untranslatedRetried: 0,
+                untranslatedKept: 0,
             });
             expect(logger.stat).toHaveBeenCalledWith(
                 expect.stringContaining('added-markup-stripped: 1'),
@@ -930,6 +939,146 @@ describe('translate ai provider', () => {
     });
 
     describe('makeTranslator', () => {
+        describe('memory hints', () => {
+            const previous = 'Чтобы настроить колонкам по статусам:';
+            const edited = 'Чтобы настроить колонки по статусам:';
+
+            function seededStore() {
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-hints-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                seeds.record('ru/a.md', [
+                    ['Привет', 'Hi'],
+                    [previous, 'To set up columns by status:'],
+                ]);
+                const store = new TranslationStore(
+                    join(dir, 'store.json'),
+                    cacheFingerprint({}),
+                    seeds,
+                );
+                store.load();
+                return store;
+            }
+
+            // Answers by call, whatever the request says: the memory block
+            // precedes the fragments in the user message, so the fragments
+            // cannot be parsed back the way `makeClient` does it.
+            function answering(answers: string[][]) {
+                let call = 0;
+                const client: LLMClient = {
+                    name: 'fake',
+                    complete: vi.fn(async () => ({
+                        text: answers[call++].join(`\n${FRAGMENT_SEPARATOR}\n`),
+                    })),
+                };
+                return client;
+            }
+
+            function userMessage(client: LLMClient, call: number): string {
+                const messages = vi.mocked(client.complete).mock.calls[call][0];
+                return messages[messages.length - 1].content;
+            }
+
+            it('should send a changed unit with its previous version from the seed', async () => {
+                const client = answering([['To set up the columns by status:']]);
+                const {params, stat} = makeParams(client, {}, seededStore());
+                const translate = makeTranslator(params);
+
+                const result = await translate('ru/a.md', ['Привет', edited]);
+
+                expect(result).toEqual(['Hi', 'To set up the columns by status:']);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+                const user = userMessage(client, 0);
+                expect(user).toContain('Translation memory.');
+                expect(user).toContain(`Previous source:\n${previous}`);
+                expect(user).toContain('Existing translation:\nTo set up columns by status:');
+                expect(user).toContain('Changes in the source: replaced "колонкам" with "колонки"');
+                expect(user.indexOf('Translation memory.')).toBeLessThan(user.indexOf(edited));
+                expect(stat.memoryHints).toBe(1);
+            });
+
+            it('should resend the memory when retrying an untranslated fragment', async () => {
+                const client = answering([[edited], ['To set up the columns by status:']]);
+                const {params} = makeParams(client, {}, seededStore());
+                const translate = makeTranslator(params);
+
+                const result = await translate('ru/a.md', [edited]);
+
+                expect(result).toEqual(['To set up the columns by status:']);
+                expect(client.complete).toHaveBeenCalledTimes(2);
+                expect(userMessage(client, 0)).toContain('Translation memory.');
+                expect(userMessage(client, 1)).toContain('Translation memory.');
+            });
+
+            it('should send no memory when disabled', async () => {
+                const client = answering([['To set up the columns by status:']]);
+                const store = seededStore();
+                const lookup = vi.spyOn(store, 'lookup');
+                const {params, stat} = makeParams(client, {memoryHints: false}, store);
+                const translate = makeTranslator(params);
+
+                await translate('ru/a.md', [edited]);
+
+                expect(userMessage(client, 0)).not.toContain('Translation memory');
+                expect(stat.memoryHints).toBe(0);
+                expect(lookup).not.toHaveBeenCalled();
+            });
+
+            it('should count the memory towards the batch budget', async () => {
+                const first = 'Чтобы настроить колонки доски, откройте её настройки.';
+                const second = 'Чтобы удалить колонку доски, откройте её меню.';
+                // A store per run: the first run stores its translations.
+                const store = () => {
+                    const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-hints-'));
+                    const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                    seeds.record('ru/a.md', [
+                        [
+                            'Чтобы настроить колонки доски, откройте настройки.',
+                            'To set up columns, open the settings.',
+                        ],
+                        [
+                            'Чтобы удалить колонку доски, откройте меню.',
+                            'To delete a column, open the menu.',
+                        ],
+                    ]);
+                    return new TranslationStore(
+                        join(dir, 'store.json'),
+                        cacheFingerprint({}),
+                        seeds,
+                    );
+                };
+                // Both units fit one batch by their own size, not with their memory.
+                const maxBatchTokens = estimateTokens(first) + estimateTokens(second) + 1;
+
+                const hinted = answering([['One.'], ['Two.']]);
+                const withHints = makeParams(hinted, {maxBatchTokens}, store());
+                await makeTranslator(withHints.params)('ru/a.md', [first, second]);
+
+                expect(withHints.stat.memoryHints).toBe(2);
+                expect(hinted.complete).toHaveBeenCalledTimes(2);
+
+                const plain = answering([['One.', 'Two.']]);
+                const withoutHints = makeParams(
+                    plain,
+                    {maxBatchTokens, memoryHints: false},
+                    store(),
+                );
+                await makeTranslator(withoutHints.params)('ru/a.md', [first, second]);
+
+                expect(plain.complete).toHaveBeenCalledTimes(1);
+            });
+
+            it('should send a new sentence without memory', async () => {
+                const client = answering([['Something else entirely.']]);
+                const {params, stat} = makeParams(client, {}, seededStore());
+                const translate = makeTranslator(params);
+
+                await translate('ru/a.md', ['Совсем другое предложение.']);
+
+                expect(userMessage(client, 0)).not.toContain('Translation memory');
+                expect(stat.memoryHints).toBe(0);
+            });
+        });
+
         it('should translate texts through the client', async () => {
             const client = makeClient(translated);
             const {params} = makeParams(client);
@@ -1140,10 +1289,118 @@ describe('translate ai provider', () => {
             expect(result).toEqual([unit]);
             expect(store.get(unit)).toBeUndefined();
             expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(client.complete).toHaveBeenCalledTimes(2);
             expect(warn).toHaveBeenCalledWith(
                 'file.md',
                 'Unit returned untranslated by the model.',
             );
+        });
+
+        it('should retry a unit the model returned untranslated', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const translated = '<source xml:space="preserve">Source text</source>';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const client = makeClient((fragments, call) => (call === 0 ? fragments : [translated]));
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([translated]);
+            expect(store.get(unit)).toBe(translated);
+            expect(stat.untranslated).toBe(0);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslatedKept).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+        });
+
+        it('should retry only the echoed fragment in a mixed batch', async () => {
+            const unit1 = wrap('Первый текст');
+            const unit2 = wrap('Второй текст');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? [`T:${fragments[0]}`, fragments[1]] : [`T:${fragments[0]}`],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit1, unit2]);
+
+            expect(result).toEqual([wrap('T:Первый текст'), wrap('T:Второй текст')]);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+
+            // Only the echoed second fragment goes into the retry request;
+            // the already-translated first fragment must not be re-sent.
+            const [retryMessages] = vi.mocked(client.complete).mock.calls[1];
+            const retryFragments = splitFragments(retryMessages[retryMessages.length - 1].content);
+            expect(retryFragments).toEqual(['Второй текст']);
+        });
+
+        it('should keep the source text when the retry request throws', async () => {
+            const unit = wrap('Исходный текст');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? fragments : new Error('network blip'),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100});
+            const translate = makeTranslator(params);
+
+            await expect(translate('file.md', [unit])).resolves.toEqual([unit]);
+
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(stat.untranslatedRetried).toBe(1);
+        });
+
+        it('should accept a changed retry answer even when it keeps source-script text', async () => {
+            const unit = wrap('Исходный текст');
+            const retryAnswer = 'Source text. Пример на исходном языке.';
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const client = makeClient((fragments, call) =>
+                call === 0 ? fragments : [retryAnswer],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100}, store);
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            // Deliberate: see the acceptance-rule rationale comment in
+            // provider.ts (`retryUntranslated`) - a changed answer is a
+            // translation even if it still carries source-script text.
+            expect(result).toEqual([wrap(retryAnswer)]);
+            expect(store.get(unit)).toBe(wrap(retryAnswer));
+            expect(stat.untranslated).toBe(0);
+            expect(stat.untranslatedKept).toBe(0);
+        });
+
+        it('should not retry an identity response without source-script text', async () => {
+            const unit = '<source xml:space="preserve">GitHub API</source>';
+            const client = makeClient((fragments) => fragments);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100});
+            const translate = makeTranslator(params);
+
+            await translate('file.md', [unit]);
+
+            expect(stat.untranslatedRetried).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not retry untranslated units in a dry run', async () => {
+            const unit = '<source xml:space="preserve">Исходный текст</source>';
+            const client = makeClient((fragments) => fragments);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 100, dryRun: true});
+            const translate = makeTranslator(params);
+
+            await translate('file.md', [unit]);
+
+            expect(stat.untranslatedRetried).toBe(0);
+            expect(stat.requests).toBe(1);
+            expect(client.complete).not.toHaveBeenCalled();
         });
 
         it('should cache identity responses for units without source-script text', async () => {

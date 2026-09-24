@@ -161,6 +161,17 @@ const noCache = option({
     desc: 'Disable the persistent translation cache for this run.',
 });
 
+const noMemoryHints = option({
+    flags: '--no-memory-hints',
+    desc: `
+        Do not send a changed unit together with its previous version from the
+        seed memory (see yfm translate seed). By default a unit whose earlier
+        wording the seed knows is sent with that wording, its existing
+        translation and the changes, so the model applies the edit instead of
+        translating from scratch. Config alternative: ${cyan('memoryHints: false')}.
+    `,
+});
+
 const contextFile = option({
     flags: '--context-file <value>',
     desc: `
@@ -274,6 +285,7 @@ export const options = {
     judgeThreshold,
     cacheDir,
     noCache,
+    noMemoryHints,
     temperature,
     maxOutputTokens,
     maxBatchTokens,

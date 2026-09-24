@@ -88,37 +88,18 @@ export class TocService {
     }
 
     get entries() {
-        const allEntries = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isEntry);
+        const paths = this.relations.overallOrder() as NormalizedPath[];
+        const allEntries = paths.filter(this.isEntry);
 
-        // Find all TOC files and determine the minimum nesting level
-        const allTocPaths = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isToc);
-        if (allTocPaths.length === 0) {
+        if (!paths.some(this.isToc)) {
             return allEntries;
         }
 
-        // Calculate nesting levels for all TOC files
-        const nestingLevels = allTocPaths.map((tocPath) => tocPath.split('/').length);
-        const minNestingLevel = Math.min(...nestingLevels);
+        return allEntries.filter((entry) => {
+            const dependents = this.relations.dependantsOf(entry) as NormalizedPath[];
 
-        // Filter entries to include only those from TOC files that are either:
-        // 1. At the minimum nesting level (root TOC files)
-        // 2. Or TOC files that are referenced by includes from other TOC files
-        const filteredEntries = allEntries.filter((entry) => {
-            // Find all TOC files that reference this entry
-            const tocPaths = (this.relations.dependantsOf(entry) as NormalizedPath[]).filter(
-                this.isToc,
-            );
-
-            // Check if any of the referencing TOC files is a root TOC or is referenced itself
-            return tocPaths.some((tocPath) => {
-                const nestingLevel = tocPath.split('/').length;
-                const isRootToc = nestingLevel === minNestingLevel;
-                const isReferenced = this.relations.dependenciesOf(tocPath).length > 0;
-                return isRootToc || isReferenced;
-            });
+            return dependents.some(this.isToc);
         });
-
-        return filteredEntries;
     }
 
     private run: Run;
@@ -247,14 +228,14 @@ export class TocService {
         memoize.release(this._dump, path);
     }
 
-    @bounded isToc(path: NormalizedPath) {
+    @bounded isToc(path: NormalizedPath): boolean {
         if (!this.relations.hasNode(path)) {
             return false;
         }
 
         const data = this.relations.getNodeData(path);
 
-        return data.type === 'toc' && data.data;
+        return data.type === 'toc' && data.data !== undefined;
     }
 
     @bounded isEntry(path: NormalizedPath) {

@@ -20,6 +20,7 @@ import term from '@diplodoc/transform/lib/plugins/term';
 import blockAnchor from '@diplodoc/transform/lib/plugins/block-anchor';
 import inlineCode from '@diplodoc/transform/lib/plugins/inline-code';
 import file from '@diplodoc/transform/lib/plugins/file';
+import visibility from '@diplodoc/transform/lib/plugins/visibility';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as openapi from '@diplodoc/openapi-extension';
@@ -84,6 +85,7 @@ export function getBaseMdItPlugins() {
         blockAnchor,
         (md: MarkdownIt) => colorPlugin(md, {inline: true}),
         noTranslate({mode: 'render'}),
+        visibility,
     ];
 }
 

@@ -1,0 +1,10 @@
+title: Выбор файлов
+items:
+  - name: Обзор
+    href: index.md
+  - name: Английская страница
+    href: en-only.md
+    when: lang == "en"
+  - name: Русская страница
+    href: ru-only.md
+    when: lang == "ru"

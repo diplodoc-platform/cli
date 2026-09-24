@@ -1,4 +1,5 @@
 import type {TranslateLogger} from './logger';
+import type {CodeMode} from './utils/config';
 
 import {mkdirSync, writeFileSync} from 'node:fs';
 import {dirname} from 'node:path';
@@ -51,9 +52,16 @@ export type TranslateReportCounters = {
     /** Token usage as reported by the provider; null when not reported. */
     tokens: {input: number; output: number} | null;
     requests: {total: number; fallback: number; retries: number};
-    cache: {enabled: boolean; hits: number; misses: number; hitRate: number | null};
-    /** Markup defects handled in model output before composing. */
-    fixes: {markupStripped: number; markupRetried: number; markupDamaged: number};
+    /** `hints`: units sent to the model together with their previous version from the seed. */
+    cache: {enabled: boolean; hits: number; misses: number; hitRate: number | null; hints: number};
+    /** Markup and translation defects handled in model output before composing. */
+    fixes: {
+        markupStripped: number;
+        markupRetried: number;
+        markupDamaged: number;
+        untranslatedRetried: number;
+        untranslatedKept: number;
+    };
 };
 
 export type TranslateReportTarget = TranslateReportCounters & {
@@ -71,6 +79,8 @@ export type TranslateRunReport = {
     provider: string;
     model?: string;
     fallbackModel?: string;
+    /** Code processing mode of the run, see `--code`. */
+    code?: CodeMode;
     /** True when at least one request was served by the fallback model. */
     fallbackUsed: boolean;
     dryRun: boolean;
@@ -100,6 +110,8 @@ export type TargetStat = {
     /** Units the enabled cache did not cover. */
     cacheMisses: number;
     cacheEnabled: boolean;
+    /** Units sent to the model with their previous version from the seed memory. */
+    memoryHints: number;
     /** Units returned by the model untranslated. */
     untranslated: number;
     /** Delimiter runs of inline markup the model added around fragments and the CLI removed. */
@@ -108,6 +120,10 @@ export type TargetStat = {
     markupRetried: number;
     /** Fragments that kept their source text because the retry did not fix the markup. */
     markupDamaged: number;
+    /** Fragments re-requested because the model returned them untranslated. */
+    untranslatedRetried: number;
+    /** Fragments that kept their source text because the retry returned them untranslated again; also counted in `untranslated`. */
+    untranslatedKept: number;
     fallbackRequests: number;
     /** Extra request attempts after retryable errors. */
     retries: number;
@@ -133,10 +149,13 @@ export function createTargetStat(): TargetStat {
         cached: 0,
         cacheMisses: 0,
         cacheEnabled: false,
+        memoryHints: 0,
         untranslated: 0,
         markupStripped: 0,
         markupRetried: 0,
         markupDamaged: 0,
+        untranslatedRetried: 0,
+        untranslatedKept: 0,
         fallbackRequests: 0,
         retries: 0,
         unitsTotal: 0,
@@ -207,11 +226,14 @@ function targetCounters(stat: TargetStat): TranslateReportCounters {
             hits: stat.cached,
             misses: stat.cacheMisses,
             hitRate: stat.cacheEnabled && lookups > 0 ? round(stat.cached / lookups, 4) : null,
+            hints: stat.memoryHints,
         },
         fixes: {
             markupStripped: stat.markupStripped,
             markupRetried: stat.markupRetried,
             markupDamaged: stat.markupDamaged,
+            untranslatedRetried: stat.untranslatedRetried,
+            untranslatedKept: stat.untranslatedKept,
         },
     };
 }
@@ -223,6 +245,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
     let cacheEnabled = false;
     let hits = 0;
     let misses = 0;
+    let hints = 0;
 
     for (const target of targets) {
         totals.files.translated += target.files.translated;
@@ -242,6 +265,8 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         totals.fixes.markupStripped += target.fixes.markupStripped;
         totals.fixes.markupRetried += target.fixes.markupRetried;
         totals.fixes.markupDamaged += target.fixes.markupDamaged;
+        totals.fixes.untranslatedRetried += target.fixes.untranslatedRetried;
+        totals.fixes.untranslatedKept += target.fixes.untranslatedKept;
 
         if (target.tokens) {
             usageSeen = true;
@@ -252,6 +277,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         cacheEnabled = cacheEnabled || target.cache.enabled;
         hits += target.cache.hits;
         misses += target.cache.misses;
+        hints += target.cache.hints;
     }
 
     totals.tokens = usageSeen ? tokens : null;
@@ -260,6 +286,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         hits,
         misses,
         hitRate: cacheEnabled && hits + misses > 0 ? round(hits / (hits + misses), 4) : null,
+        hints,
     };
 
     return totals;
@@ -269,6 +296,7 @@ type RunReportInfo = {
     provider: string;
     model?: string;
     fallbackModel?: string;
+    code?: CodeMode;
     dryRun: boolean;
     sourceLanguage: string;
     targetLanguages: string[];
@@ -285,6 +313,7 @@ type RunReportConfig = {
     report?: AbsolutePath;
     model?: string;
     fallbackModel?: string;
+    code?: CodeMode;
 };
 
 /** Builds a report error entry from a caught error. */
@@ -311,6 +340,7 @@ export class RunReport {
             provider: config.provider,
             model: config.model,
             fallbackModel: config.fallbackModel,
+            code: config.code,
             dryRun: config.dryRun,
             sourceLanguage: config.source.language,
             targetLanguages: config.target.map((target) => target.language),
@@ -376,6 +406,7 @@ export class RunReport {
             provider: this.info.provider,
             ...(this.info.model ? {model: this.info.model} : {}),
             ...(this.info.fallbackModel ? {fallbackModel: this.info.fallbackModel} : {}),
+            ...(this.info.code ? {code: this.info.code} : {}),
             fallbackUsed: totals.requests.fallback > 0,
             dryRun: this.info.dryRun,
             sourceLanguage: this.info.sourceLanguage,
@@ -435,6 +466,10 @@ export class RunReport {
             (totals.fixes.markupRetried
                 ? `; damaged markup: ${totals.fixes.markupRetried} retried, ` +
                   `${totals.fixes.markupDamaged} kept as source`
+                : '') +
+            (totals.fixes.untranslatedRetried
+                ? `; untranslated: ${totals.fixes.untranslatedRetried} retried, ` +
+                  `${totals.fixes.untranslatedKept} kept as source`
                 : '');
 
         return (

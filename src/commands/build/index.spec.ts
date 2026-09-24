@@ -707,9 +707,27 @@ describe('Build command', () => {
             'feedback',
         ]);
 
+        test(
+            'should preserve interface.markdownActions from config',
+            '',
+            {interface: {markdownActions: 'visible'}},
+            {interface: {markdownActions: 'visible'}},
+        );
+
         testBooleanFlag('originAsInput', '--origin-as-input', false);
 
         testBooleanFlag('buildStats', '--build-stats', false);
+
+        testNestedBooleanFlag('aiMdCompanions', '--ai-md-companions', false, [
+            'ai',
+            'mdCompanions',
+        ]);
+        test(
+            'should prioritize CLI no-ai-md-companions over config',
+            '--no-ai-md-companions',
+            {ai: {mdCompanions: true}},
+            {ai: {mdCompanions: false}},
+        );
 
         testBooleanFlag('copyOnWrite', '--copy-on-write', true);
 

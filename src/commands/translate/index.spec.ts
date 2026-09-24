@@ -31,6 +31,107 @@ describe('Translate command', () => {
             });
         });
 
+        describe('presets', () => {
+            const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
+
+            test('should be off by default', '', {
+                presets: false,
+            });
+
+            test('should handle arg', '--presets', {
+                presets: true,
+            });
+
+            test(
+                'should require one target language',
+                '--presets --target kk',
+                '--presets takes one target language',
+            );
+
+            test(
+                'should handle config',
+                '',
+                {presets: true},
+                {
+                    presets: true,
+                },
+            );
+        });
+
+        describe('varsPreset', () => {
+            const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
+
+            test('should default to default', '', {
+                varsPreset: 'default',
+            });
+
+            test('should handle arg', '--vars-preset public', {
+                varsPreset: 'public',
+            });
+
+            test(
+                'should handle config',
+                '',
+                {varsPreset: 'internal'},
+                {
+                    varsPreset: 'internal',
+                },
+            );
+
+            test(
+                'should prefer arg over config',
+                '--vars-preset public',
+                {varsPreset: 'internal'},
+                {
+                    varsPreset: 'public',
+                },
+            );
+        });
+
+        describe('code', () => {
+            const yandex = testConfig('--source ru --target en --folder 1 --auth t1.a');
+            const openai = testConfig('--source ru --target en --provider openai --auth sk-test');
+
+            yandex('should default to precise for yandex', '', {
+                code: 'precise',
+            });
+
+            openai('should default to adaptive for LLM providers', '', {
+                code: 'adaptive',
+            });
+
+            yandex('should handle arg', '--code adaptive', {
+                code: 'adaptive',
+            });
+
+            yandex('should accept the engine-only modes', '--code no', {
+                code: 'no',
+            });
+
+            openai(
+                'should handle config',
+                '',
+                {code: 'precise'},
+                {
+                    code: 'precise',
+                },
+            );
+
+            yandex(
+                'should fail on unknown mode',
+                '--code weird',
+                `error: option '--code <mode>' argument 'weird' is invalid. Allowed choices are no, all, precise, adaptive.`,
+            );
+
+            yandex(
+                'should fail on unknown mode in config',
+                '',
+                // @ts-ignore
+                {code: 'weird'},
+                'Unknown code mode "weird", expected one of: no, all, precise, adaptive',
+            );
+        });
+
         describe('source', () => {
             const test = testConfig('--target ru --folder 1 --auth t1.a');
 
@@ -570,6 +671,21 @@ describe('Translate command', () => {
                 test('should handle no-cache arg', '--cache-dir .translate-cache --no-cache', {
                     cacheDir: undefined,
                 });
+
+                test('should send memory hints by default', '', {
+                    memoryHints: true,
+                });
+
+                test('should handle no-memory-hints arg', '--no-memory-hints', {
+                    memoryHints: false,
+                });
+
+                test(
+                    'should read memoryHints from config',
+                    '',
+                    {memoryHints: false},
+                    {memoryHints: false},
+                );
 
                 describe('auth via api headers', () => {
                     const test = testConfig<AITranslationConfig>(

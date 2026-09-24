@@ -1,6 +1,8 @@
 import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
+import type * as CoreUtils from '~/core/utils';
 import type {Toc} from '~/core/toc';
 import type {LlmsConfig} from './index';
+import type {MarkdownCollector} from '../output-md/collect';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -8,7 +10,8 @@ import {OutputFormat} from '~/commands/build/config';
 
 import {LLMS_FULL_FILENAME, Llms} from './index';
 
-vi.mock('~/core/utils', async () => ({
+vi.mock('~/core/utils', async (importOriginal) => ({
+    ...(await importOriginal<typeof CoreUtils>()),
     isExternalHref: (path: string) =>
         /^(\w{1,10}:)?\/\//.test(path) || /^([+\w]{1,10}:)/.test(path),
     normalizePath: (path: string) => path.replace(/\\/g, '/') as NormalizedPath,
@@ -16,9 +19,6 @@ vi.mock('~/core/utils', async () => ({
         const stripped = path.replace(/\.[^/.]+$/, '');
         return ext ? `${stripped}.${ext}` : stripped;
     },
-    // `stripHtmlTags` protects code blocks with these; the real ones keep
-    // the aggregator under test working on real markdown.
-    ...(await import('~/core/utils/fence')),
 }));
 
 vi.mock('~/core/program', () => ({
@@ -50,6 +50,11 @@ vi.mock('../output-md/collect', () => {
         SELF_CONTAINED: 'self-contained',
         MarkdownCollector: vi.fn().mockImplementation(() => ({
             collect: vi.fn().mockResolvedValue('Collected Markdown Content'),
+            collectWithInfo: vi.fn().mockResolvedValue({
+                content: 'Collected Markdown Content',
+                audienceSpecificContent: [],
+                errors: [],
+            }),
         })),
     };
 });
@@ -63,6 +68,9 @@ function createMockRun(
         description?: string;
         llmsFullMaxSize?: number;
         openapiCompanions?: OpenapiCompanionEntry[];
+        baseHref?: string;
+        mdCompanions?: boolean;
+        skipHtmlExtension?: boolean;
     } = {},
 ): Run {
     return {
@@ -73,11 +81,22 @@ function createMockRun(
                 description: options.description ?? 'AI Assistant Context Description',
                 llmsFullMaxSize: options.llmsFullMaxSize ?? 4 * 1024 ** 2,
             },
+            baseHref: options.baseHref,
+            ai: {mdCompanions: options.mdCompanions ?? false},
+            skipHtmlExtension: options.skipHtmlExtension ?? false,
         } as unknown as LlmsConfig & {outputFormat: OutputFormat},
         meta: {
             dump: vi.fn().mockResolvedValue({
                 title: 'Meta Title Target',
                 description: 'Detailed meta description text',
+            }),
+        },
+        markdown: {
+            graph: vi.fn().mockResolvedValue({
+                path: normalizedPath('docs/page.md'),
+                content: 'Collected Markdown Content',
+                deps: [],
+                assets: [],
             }),
         },
         logger: {
@@ -103,8 +122,26 @@ type TestableLlms = {
     ): boolean;
     collectEntries(toc: Toc, tocDir: string): unknown[];
     excludeNoIndex(run: Run, entries: unknown[]): Promise<unknown[]>;
+    generate(run: Run, toc: Toc): Promise<void>;
     renderIndex(run: Run, title: string, entries: unknown[], tocDir: string): Promise<string>;
-    renderFull(run: Run, title: string, entries: unknown[]): Promise<string>;
+    renderFull(
+        run: Run,
+        title: string,
+        entries: unknown[],
+        audience: 'human' | 'agent',
+        fileName: string,
+        reportErrors?: boolean,
+        audienceSpecificContent?: Set<'human' | 'agent'>,
+    ): Promise<string>;
+    collectBody(
+        run: Run,
+        collector: MarkdownCollector,
+        entryPath: NormalizedPath,
+        audience: 'human' | 'agent',
+        fileName: string,
+        reportErrors: boolean,
+        audienceSpecificContent?: Set<'human' | 'agent'>,
+    ): Promise<string>;
 };
 
 describe('LLMs Plugin Architecture', () => {
@@ -501,6 +538,70 @@ describe('LLMs Plugin Architecture', () => {
             expect(result).toContain('- [Setup Guide](setup.md): Detailed meta description text');
         });
 
+        it('should link static HTML builds to source companions when enabled', async () => {
+            const run = createMockRun({
+                outputFormat: OutputFormat.html,
+                mdCompanions: true,
+                baseHref: 'https://example.com/docs/',
+            });
+            const entries = [
+                {
+                    href: normalizedPath('setup.md'),
+                    path: normalizedPath('en/setup.md'),
+                    name: 'Setup Guide',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'en');
+
+            expect(result).toContain(
+                '- [Setup Guide](https://example.com/docs/en/setup.md): Detailed meta description text',
+            );
+        });
+
+        it('should honor extensionless HTML publishing when companions are disabled', async () => {
+            const run = createMockRun({
+                outputFormat: OutputFormat.html,
+                skipHtmlExtension: true,
+            });
+            const entries = [
+                {
+                    href: normalizedPath('guide.md'),
+                    path: normalizedPath('docs/guide.md'),
+                    name: 'Guide',
+                },
+                {
+                    href: normalizedPath('section/index.md'),
+                    path: normalizedPath('docs/section/index.md'),
+                    name: 'Section',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).toContain('- [Guide](guide): Detailed meta description text');
+            expect(result).toContain('- [Section](section/): Detailed meta description text');
+        });
+
+        it('should make generated links absolute when baseHref is configured', async () => {
+            const run = createMockRun({
+                outputFormat: OutputFormat.html,
+                baseHref: 'https://example.com/docs/',
+            });
+            const entries = [
+                {
+                    href: normalizedPath('intro.md'),
+                    path: normalizedPath('en/intro.md'),
+                    name: 'Introduction',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'en');
+
+            expect(result).toContain('- [Introduction](https://example.com/docs/en/intro.html)');
+            expect(result).toContain('[llms-full.txt](https://example.com/docs/en/llms-full.txt)');
+        });
+
         it('should fallback to meta title if entry name is missing', async () => {
             const run = createMockRun();
             const entries = [
@@ -701,6 +802,30 @@ describe('LLMs Plugin Architecture', () => {
     });
 
     describe('renderFull content aggregator', () => {
+        it('does not write an agent corpus when no article has audience-specific content', async () => {
+            const run = {
+                ...createMockRun({outputFormat: OutputFormat.md}),
+                input: '/input' as AbsolutePath,
+                output: '/output' as AbsolutePath,
+                read: vi.fn().mockResolvedValue('Common content only.'),
+                write: vi.fn().mockResolvedValue(undefined),
+            } as unknown as Run;
+            const toc = {
+                path: normalizedPath('toc.yaml'),
+                title: 'Docs',
+                items: [{name: 'Page', href: normalizedPath('page.md')}],
+            } as unknown as Toc;
+
+            await llmsInstance.generate(run, toc);
+
+            expect(run.write).toHaveBeenCalledTimes(2);
+            expect(run.write).not.toHaveBeenCalledWith(
+                expect.stringContaining('llms-full-agent.txt'),
+                expect.anything(),
+                expect.anything(),
+            );
+        });
+
         it('should join titles and markdown text together', async () => {
             const run = createMockRun();
             const entries = [
@@ -711,10 +836,79 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             expect(result).toContain('# Full Book');
             expect(result).toContain('Collected Markdown Content');
+        });
+
+        it('should keep agent content, omit human content, and resolve its links', async () => {
+            const run = createMockRun({baseHref: 'https://example.com/docs/'});
+            const collector = {
+                collectWithInfo: vi.fn().mockResolvedValue({
+                    content: [
+                        'Common content',
+                        '[Related page](related.md)',
+                        '',
+                        'Agent instructions',
+                    ].join('\n'),
+                    audienceSpecificContent: ['human', 'agent'],
+                    errors: [],
+                }),
+            } as unknown as MarkdownCollector;
+
+            const result = await llmsInstance.collectBody(
+                run,
+                collector,
+                normalizedPath('docs/page.md'),
+                'agent',
+                LLMS_FULL_FILENAME,
+                true,
+            );
+
+            expect(result).toContain('Common content');
+            expect(result).toContain('Agent instructions');
+            expect(result).toContain('[Related page](https://example.com/docs/docs/related.md)');
+            expect(result).not.toContain('Human instructions');
+            expect(result).not.toContain(':::visibility');
+        });
+
+        it('should report an invalid audience without a misleading collected line number', async () => {
+            const run = createMockRun();
+            const collector = {
+                collectWithInfo: vi.fn().mockResolvedValue({
+                    content: 'Included content.',
+                    audienceSpecificContent: [],
+                    errors: [
+                        {
+                            line: 3,
+                            value: 'robots',
+                            message:
+                                'Invalid visibility audience "robots" at line 3; expected "human" or "agent"',
+                        },
+                    ],
+                }),
+            } as unknown as MarkdownCollector;
+
+            await llmsInstance.collectBody(
+                run,
+                collector,
+                normalizedPath('docs/page.md'),
+                'human',
+                LLMS_FULL_FILENAME,
+                true,
+            );
+
+            expect(run.logger.error).toHaveBeenCalledWith(
+                'llms-full.txt: docs/page.md: Invalid visibility audience "robots"; expected "human" or "agent"',
+            );
+            expect(run.logger.error).not.toHaveBeenCalledWith(expect.stringContaining('at line'));
         });
 
         it('should totally ignore non-markdown documents like yaml files', async () => {
@@ -727,7 +921,13 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             expect(result.trim()).toBe('# Full Book');
         });
@@ -747,7 +947,13 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             expect(result).toContain('# Full Book');
             expect(result).toContain('Collected Markdown Content');
@@ -770,7 +976,13 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             // Title is always present
             expect(result).toContain('# Full Book');
@@ -793,7 +1005,13 @@ describe('LLMs Plugin Architecture', () => {
                 },
             ];
 
-            const result = await llmsInstance.renderFull(run, 'Full Book', entries);
+            const result = await llmsInstance.renderFull(
+                run,
+                'Full Book',
+                entries,
+                'human',
+                LLMS_FULL_FILENAME,
+            );
 
             expect(result).toContain('# Full Book');
             expect(result).toContain('Collected Markdown Content');

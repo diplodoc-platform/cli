@@ -16,9 +16,78 @@ import {
     prepareInlinedContent,
     rebaseRelativePaths,
     rebaseUrl,
+    resolveAbsolutePaths,
     stripFirstHeading,
     stripHash,
 } from './merge-includes';
+
+describe('resolveAbsolutePaths', () => {
+    const baseHref = 'https://example.com/docs/';
+
+    it('resolves inline links, images, and definitions from the source page', () => {
+        const content = [
+            '[Guide](../guide.md#start)',
+            '![Image](./images/icon.svg)',
+            '[reference]: /shared/page.md "Shared"',
+        ].join('\n');
+
+        expect(resolveAbsolutePaths(content, 'en/deep/page.md' as NormalizedPath, baseHref)).toBe(
+            [
+                '[Guide](https://example.com/docs/en/guide.md#start)',
+                '![Image](https://example.com/docs/en/deep/images/icon.svg)',
+                '[reference]: https://example.com/docs/shared/page.md "Shared"',
+            ].join('\n'),
+        );
+    });
+
+    it('preserves external links, anchors, code spans, and fenced code', () => {
+        const content = [
+            '[External](https://other.example/page)',
+            '[Anchor](#section)',
+            '`[Code](local.md)`',
+            '```md',
+            '[Fence](local.md)',
+            '```',
+        ].join('\n');
+
+        expect(resolveAbsolutePaths(content, 'en/page.md' as NormalizedPath, baseHref)).toBe(
+            content,
+        );
+    });
+
+    it('resolves angle-bracket destinations and preserves external URLs', () => {
+        const content = [
+            '[External](<https://other.example/page>)',
+            '[Guide](<guide.md>)',
+            '[external-reference]: <https://other.example/reference> "External"',
+            '[guide-reference]: <guide.md> "Guide"',
+        ].join('\n');
+
+        expect(resolveAbsolutePaths(content, 'en/page.md' as NormalizedPath, baseHref)).toBe(
+            [
+                '[External](<https://other.example/page>)',
+                '[Guide](<https://example.com/docs/en/guide.md>)',
+                '[external-reference]: <https://other.example/reference> "External"',
+                '[guide-reference]: <https://example.com/docs/en/guide.md> "Guide"',
+            ].join('\n'),
+        );
+    });
+
+    it('preserves links inside fenced code nested in a blockquote', () => {
+        const content = ['> ```md', '> [Example](local.md)', '> ```', '[Outside](local.md)'].join(
+            '\n',
+        );
+
+        expect(resolveAbsolutePaths(content, 'en/page.md' as NormalizedPath, baseHref)).toBe(
+            [
+                '> ```md',
+                '> [Example](local.md)',
+                '> ```',
+                '[Outside](https://example.com/docs/en/local.md)',
+            ].join('\n'),
+        );
+    });
+});
 
 describe('rebaseUrl', () => {
     it('should rebase a simple relative path', () => {

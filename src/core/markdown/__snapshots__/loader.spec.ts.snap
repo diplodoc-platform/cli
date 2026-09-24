@@ -67,6 +67,48 @@ exports[`Markdown loader > resolveAssets > should detect asset 1`] = `
 ]
 `;
 
+exports[`Markdown loader > resolveAssets > should detect gallery image asset 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        17,
+        30,
+      ],
+      "options": {
+        "gallerySrc": "./some-big.png",
+        "height": undefined,
+        "inline": undefined,
+        "title": undefined,
+        "width": undefined,
+      },
+      "path": "some.png",
+      "search": null,
+      "size": 1024,
+      "subtype": "image",
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        17,
+        30,
+      ],
+      "path": "some-big.png",
+      "search": null,
+      "size": 1024,
+      "subtype": "gallery",
+      "title": "img",
+      "type": "image",
+    },
+  ],
+]
+`;
+
 exports[`Markdown loader > resolveAssets > should detect html anchor with download attribute (download first) 1`] = `
 [
   [

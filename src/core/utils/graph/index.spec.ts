@@ -1,8 +1,128 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
+import {DepGraph} from 'dependency-graph';
 
 import {Graph} from '.';
 
 describe('Graph', () => {
+    describe('overallOrder', () => {
+        it.each([
+            {nodes: [], edges: [], order: [], leaves: []},
+            {nodes: ['A', 'B'], edges: [], order: ['A', 'B'], leaves: ['A', 'B']},
+            {
+                nodes: ['leaf', 'first', 'second', 'shared'],
+                edges: [
+                    ['first', 'shared'],
+                    ['first', 'leaf'],
+                    ['second', 'shared'],
+                ],
+                order: ['shared', 'leaf', 'first', 'second'],
+                leaves: ['shared', 'leaf'],
+            },
+            {
+                nodes: ['cycleA', 'cycleB', 'leaf', 'root', 'rootLeaf'],
+                edges: [
+                    ['cycleA', 'cycleB'],
+                    ['cycleB', 'cycleA'],
+                    ['cycleB', 'leaf'],
+                    ['root', 'rootLeaf'],
+                ],
+                order: ['rootLeaf', 'root', 'leaf', 'cycleB', 'cycleA'],
+                leaves: ['rootLeaf', 'leaf'],
+            },
+            {nodes: ['A'], edges: [['A', 'A']], order: ['A'], leaves: []},
+        ])('should preserve traversal order for $nodes', ({nodes, edges, order, leaves}) => {
+            const graph = new Graph();
+            for (const node of nodes) {
+                graph.addNode(node);
+            }
+            for (const [from, to] of edges) {
+                graph.addDependency(from, to);
+            }
+
+            expect(graph.overallOrder()).toEqual(order);
+            expect(graph.overallOrder(true)).toEqual(leaves);
+        });
+
+        it('should avoid quadratic array scans when ordering disconnected nodes', () => {
+            const graph = new Graph();
+            const nodes = Array.from({length: 30}, (_, index) => `node${index}`);
+            for (const node of nodes) {
+                graph.addNode(node);
+            }
+
+            const lookups = vi.spyOn(Array.prototype, 'indexOf');
+            let order: string[];
+            let scannedElements: number;
+            try {
+                order = graph.overallOrder();
+                scannedElements = lookups.mock.contexts.reduce<number>((total, context) => {
+                    return total + (context as unknown[]).length;
+                }, 0);
+            } finally {
+                lookups.mockRestore();
+            }
+
+            expect(order).toEqual(nodes);
+            expect(scannedElements).toBeLessThanOrEqual(nodes.length * 2);
+        });
+
+        it('should match dependency-graph ordering across cyclic and disconnected graphs', () => {
+            let seed = 123456789;
+            const random = () => {
+                seed = (seed * 1664525 + 1013904223) % 2 ** 32;
+                return seed / 2 ** 32;
+            };
+
+            for (let trial = 0; trial < 100; trial++) {
+                const graph = new Graph();
+                const reference = new DepGraph({circular: true});
+                const count = Math.floor(random() * 30);
+                for (let index = 0; index < count; index++) {
+                    graph.addNode(`node${index}`);
+                    reference.addNode(`node${index}`);
+                }
+                for (let edge = 0; edge < count * 3; edge++) {
+                    const from = `node${Math.floor(random() * count)}`;
+                    const to = `node${Math.floor(random() * count)}`;
+                    graph.addDependency(from, to);
+                    reference.addDependency(from, to);
+                }
+
+                expect(graph.overallOrder()).toEqual(reference.overallOrder());
+                expect(graph.overallOrder(true)).toEqual(reference.overallOrder(true));
+            }
+        });
+
+        it('should handle deep chains without recursive traversal', () => {
+            const graph = new Graph();
+            const nodes = Array.from({length: 5000}, (_, index) => `node${index}`);
+            for (const node of nodes) {
+                graph.addNode(node);
+            }
+            for (let index = 1; index < nodes.length; index++) {
+                graph.addDependency(nodes[index - 1], nodes[index]);
+            }
+
+            expect(graph.overallOrder()).toEqual([...nodes].reverse());
+            expect(graph.overallOrder(true)).toEqual([nodes[nodes.length - 1]]);
+        });
+
+        it('should reflect removed and reinserted nodes between reads', () => {
+            const graph = new Graph();
+            graph.addNode('A');
+            graph.addNode('B');
+            graph.addDependency('A', 'B');
+            expect(graph.overallOrder()).toEqual(['B', 'A']);
+
+            graph.removeDependency('A', 'B');
+            expect(graph.overallOrder()).toEqual(['A', 'B']);
+
+            graph.removeNode('A');
+            graph.addNode('A');
+            expect(graph.overallOrder()).toEqual(['B', 'A']);
+        });
+    });
+
     describe('extract', () => {
         it('should return empty graph for non-existent node', () => {
             const graph = new Graph();

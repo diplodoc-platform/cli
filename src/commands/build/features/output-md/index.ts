@@ -1,21 +1,17 @@
-import type {Build, Run} from '~/commands/build';
+import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 
-import {dirname, join} from 'node:path';
-import {flow} from 'lodash';
+import {join} from 'node:path';
 
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, defined} from '~/core/config';
-import {THEME_ASSETS_PATH} from '~/constants';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
-import {getHooks as getMetaHooks, getPublicMeta} from '~/core/meta';
+import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
-import {addMetaFrontmatter, buildAlternateEntries, getCustomCollectPlugins} from './utils';
-import {MarkdownCollector} from './collect';
-import {resolvePropagatedFrontmatter} from './frontmatter-propagation';
+import {getCustomCollectPlugins} from './utils';
+import {MarkdownOutputRenderer, prepareMarkdownMeta} from './renderer';
 import {options} from './config';
 
 export type OutputMdArgs = {
@@ -108,82 +104,27 @@ export class OutputMd {
         getBuildHooks(program)
             .BeforeRun.for('md')
             .tap('Build.Md', (run) => {
-                const config = run.config.preprocess;
-
                 getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (collects) => {
                     return collects.concat(getCustomCollectPlugins());
                 });
 
-                const copiedIncludes = new Set<string>();
-                const copiedAssets = new Set<string>();
+                const renderer = new MarkdownOutputRenderer(run);
 
                 getMetaHooks(run.meta).Dump.tap('Build.Md', (meta, file) => {
-                    if (meta.alternate) {
-                        // Expected type missing, to be compatible with old formats
-                        // @ts-ignore
-                        meta.alternate = meta.alternate.map(flow(get('href'), shortLink));
-                    }
-
-                    // Add companion and llms.txt alternate links to the frontmatter.
-                    // buildAlternateEntries skips include files and handles toc resolution.
-                    try {
-                        const tocDir = dirname(run.toc.for(file).path) as NormalizedPath;
-                        const entries = buildAlternateEntries(file, tocDir, run.config.llms);
-                        if (entries.length) {
-                            meta.alternate = [...(meta.alternate || []), ...entries];
-                        }
-                    } catch {
-                        // File is not part of any toc (e.g. standalone include) — skip.
-                    }
-
-                    const hasTheme = run.exists(join(run.output, THEME_ASSETS_PATH));
-                    if (hasTheme) {
-                        meta.theme = THEME_ASSETS_PATH;
-                    }
-
-                    return meta;
+                    return prepareMarkdownMeta(run, meta, file);
                 });
 
-                // Recursively merge transformed markdown deps into a
-                // self-contained document (see MarkdownCollector).
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     {name: 'Build.Md', stage: -Infinity},
-                    async (vfile) => {
-                        const collector = new MarkdownCollector(
-                            run,
-                            run.config.preprocess,
-                            copiedIncludes,
-                        );
-
-                        vfile.data = await collector.collect(vfile.path);
-                    },
+                    (vfile) => renderer.collectMarkdown(vfile),
                 );
 
-                getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', async (vfile) => {
-                    vfile.data.meta = getPublicMeta(await run.meta.dump(vfile.path));
-                });
-
-                getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
-                    if (config.mergeIncludes) {
-                        const propagated = await resolvePropagatedFrontmatter(run, vfile.path);
-                        if (propagated) {
-                            run.meta.add(vfile.path, propagated);
-                        }
-                    }
-
-                    const meta = getPublicMeta(await run.meta.dump(vfile.path));
-                    const lineWidth = config.disableMetaMaxLineWidth ? Infinity : undefined;
-                    vfile.data = addMetaFrontmatter(vfile.data, meta, lineWidth);
-                });
-
-                getLeadingHooks(run.leading).Dump.tapPromise(
-                    'Build.Md',
-                    this.copyAssets(run, run.leading, copiedAssets),
+                getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', (vfile) =>
+                    renderer.finalizeMarkdown(vfile),
                 );
 
-                getMarkdownHooks(run.markdown).Dump.tapPromise(
-                    'Build.Md',
-                    this.copyAssets(run, run.markdown, copiedAssets),
+                getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', (vfile) =>
+                    renderer.renderLeading(vfile),
                 );
             });
 
@@ -195,42 +136,5 @@ export class OutputMd {
                     await run.copy(run.config[configPath], join(run.output, '.yfm'));
                 }
             });
-    }
-
-    private copyAssets(run: Run, service: Run['leading'] | Run['markdown'], cache: Set<string>) {
-        return async (vfile: {path: NormalizedPath}) => {
-            const assets = await service.assets(vfile.path);
-
-            await all(
-                assets.map(async ({path, size}) => {
-                    if (!isMediaLink(path)) {
-                        return;
-                    }
-
-                    if (cache.has(path)) {
-                        return;
-                    }
-                    cache.add(path);
-
-                    if (run.toc.isEntry(path)) {
-                        return;
-                    }
-
-                    if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
-                        run.logger.error(
-                            'YFM013',
-                            `${path}: YFM013 / File asset limit exceeded: ${size} (limit is ${run.config.content.maxAssetSize})`,
-                        );
-                    }
-
-                    try {
-                        run.logger.copy(join(run.input, path), join(run.output, path));
-                        await run.copy(join(run.input, path), join(run.output, path));
-                    } catch (error) {
-                        run.logger.warn(`Unable to copy resource asset ${path}.`, error);
-                    }
-                }),
-            );
-        };
     }
 }

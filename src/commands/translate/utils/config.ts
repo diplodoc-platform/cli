@@ -1,3 +1,5 @@
+import type {Config} from '~/core/config';
+
 import {ok} from 'node:assert';
 import {dirname, isAbsolute, relative, resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
@@ -5,7 +7,15 @@ import {globSync} from 'glob';
 import {merge} from 'lodash';
 import {filter} from 'minimatch';
 
-import {defined} from '~/core/config';
+import {configPath, defined, resolveConfig} from '~/core/config';
+
+import {TranslateError} from './errors';
+
+/**
+ * Vars of one source file: the presets of its translation under `--vars`.
+ * Paths are relative to the input.
+ */
+export type VarsResolver = (path: string) => Hash;
 
 type PartialLocale = {
     language: string;
@@ -159,6 +169,105 @@ export function resolveVars(config: {vars?: Hash}, args: {vars?: Hash}) {
     return merge(config.vars || {}, args.vars);
 }
 
+/**
+ * Presets judge a run by the build of its translation: the files it takes,
+ * the includes they follow and their content. That is one target language
+ * per run; several languages run one by one.
+ */
+export function checkPresetsTargets(presets: boolean, targets: Locale[]) {
+    if (presets && targets.length > 1) {
+        throw new TranslateError(
+            '--presets takes one target language: conditions are judged by the presets ' +
+                'of the translation. Run the translation once per language.',
+            'CONFIG',
+        );
+    }
+}
+
+/**
+ * Vars preset of a run: the argument, then the `sections` of the .yfm in
+ * order - the command's own section first, then the enclosing ones, the
+ * empty name being the file root, where build keeps `varsPreset` - then
+ * `default`. Sections are read from the file itself, not from the resolved
+ * config: that one already carries `default` from the config defaults, so
+ * a section could not select `default` over a root preset through it.
+ */
+export async function resolveVarsPreset(
+    config: Config<Hash>,
+    args: Hash,
+    sections: string[] = [''],
+): Promise<string> {
+    const argument = defined('varsPreset', args);
+    if (argument) {
+        return argument;
+    }
+
+    return (await sectionValue<string>(config, args, sections, 'varsPreset')) || 'default';
+}
+
+/**
+ * The first value of `key` in the `sections` of the .yfm, in order; the
+ * empty name is the file root. Reads the file itself, so a command whose
+ * own section is missing (`translate.seed` in a .yfm with only `translate`)
+ * still sees the enclosing sections.
+ */
+export async function sectionValue<T>(
+    config: Config<Hash>,
+    args: Hash,
+    sections: string[],
+    key: string,
+): Promise<T | undefined> {
+    // A .yfm without the command's section resolves to the defaults and
+    // loses its path; the file is still there, so it is located again the
+    // way the program does.
+    const path = config[configPath] || configFile(args);
+    if (!path) {
+        return undefined;
+    }
+
+    const root: Hash = await resolveConfig(path, {fallback: {}});
+
+    for (const name of sections) {
+        const value = sectionOf(root, name)?.[key];
+
+        if (value !== undefined && value !== null) {
+            return value;
+        }
+    }
+
+    return undefined;
+}
+
+/** A nested section of a config by dotted name; undefined when missing. `''` is the root. */
+function sectionOf(root: Hash, name: string): Hash | undefined {
+    let current: Hash | undefined = root;
+
+    for (const part of name ? name.split('.') : []) {
+        if (!current || typeof current !== 'object' || !(part in current)) {
+            return undefined;
+        }
+
+        current = current[part];
+    }
+
+    return current;
+}
+
+function configFile(args: {input?: string; config?: string}): AbsolutePath | undefined {
+    const {input, config} = args;
+
+    if (!config) {
+        return undefined;
+    }
+
+    // `./x` and `../x` are relative to the cwd, a bare name (`.yfm`) to the input.
+    if (isAbsolute(config) || /^\.\.?[\\/]/.test(config)) {
+        return resolve(config) as AbsolutePath;
+    }
+
+    return resolve(input || '.', config) as AbsolutePath;
+}
+
 function skip(
     array: string[],
     skipped: [string, string][],
@@ -185,6 +294,35 @@ function skip(
         },
         [[], skipped] as [string[], [string, string][]],
     );
+}
+
+/**
+ * How much of fenced code blocks goes to translation, see `--code`.
+ * Mirrors the `code` option of @diplodoc/translation.
+ */
+export type CodeMode = 'no' | 'all' | 'precise' | 'adaptive';
+
+export const CODE_MODES: CodeMode[] = ['no', 'all', 'precise', 'adaptive'];
+
+/**
+ * Reads the code mode from args or config and validates it.
+ * Returns undefined when unset, so that each provider applies its own default.
+ */
+export function resolveCodeMode(args: Hash, config: Hash): CodeMode | undefined {
+    const value = defined('code', args, config) as CodeMode | undefined;
+
+    if (value === undefined || value === null) {
+        return undefined;
+    }
+
+    if (!CODE_MODES.includes(value)) {
+        throw new TranslateError(
+            `Unknown code mode "${value}", expected one of: ${CODE_MODES.join(', ')}`,
+            'CONFIG',
+        );
+    }
+
+    return value;
 }
 
 export function configDefaults() {

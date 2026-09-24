@@ -50,6 +50,7 @@ Top-level fields:
 | `provider`        | string   | Translation provider name (`openai`, `anthropic`, `yandexgpt`, `openrouter`, `yandex`).       |
 | `model`           | string?  | Model identifier (LLM providers only).                                                        |
 | `fallbackModel`   | string?  | The `--fallback-model` value when configured.                                                 |
+| `code`            | string?  | Code processing mode of the run: `no`, `all`, `precise` or `adaptive` (see `--code`).         |
 | `fallbackUsed`    | boolean  | True when at least one request was served by the fallback model.                              |
 | `dryRun`          | boolean  | True for `--dry-run`; volume and token numbers are estimates then.                            |
 | `sourceLanguage`  | string   | Source language.                                                                              |
@@ -61,29 +62,32 @@ Top-level fields:
 
 Counters (`totals` and each entry of `targets`):
 
-| Field                         | Type           | Description                                                                                                                          |
-| ----------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `files.translated`            | number         | Files processed successfully.                                                                                                        |
-| `files.failed`                | number         | Files that failed.                                                                                                                   |
-| `files.retried`               | number         | Files re-queued for the final sweep after transient errors.                                                                          |
-| `units.total`                 | number         | Translation units (segments) seen.                                                                                                   |
-| `units.translated`            | number         | Units translated by the provider during this run.                                                                                    |
-| `units.fromCache`             | number         | Units served from the persistent cache (including seeds).                                                                            |
-| `units.untranslated`          | number         | Units the model returned untranslated.                                                                                               |
-| `units.oversized`             | number         | Units skipped as too big for a single request.                                                                                       |
-| `chars.source`                | number         | Source characters across all seen units.                                                                                             |
-| `chars.translated`            | number         | Characters of translations produced during this run.                                                                                 |
-| `chars.request`               | number         | Characters actually sent in requests.                                                                                                |
-| `tokens`                      | object or null | `input`/`output` token usage as reported by the provider; `null` when the provider does not report usage. Estimated in dry-run mode. |
-| `requests.total`              | number         | Translation requests sent.                                                                                                           |
-| `requests.fallback`           | number         | Requests served by the fallback model.                                                                                               |
-| `requests.retries`            | number         | Extra request attempts after retryable errors.                                                                                       |
-| `cache.enabled`               | boolean        | Whether the persistent cache (`--cache-dir`) was active.                                                                             |
-| `cache.hits` / `cache.misses` | number         | Cache lookups by outcome.                                                                                                            |
-| `cache.hitRate`               | number or null | `hits / (hits + misses)`, `null` when the cache is disabled or was not consulted.                                                    |
-| `fixes.markupStripped`        | number         | Delimiter runs of inline markup the model added around fragments and removed before composing (fresh and cached translations alike). |
-| `fixes.markupRetried`         | number         | Fragments re-requested because the model returned them with markup that cannot be composed (a dropped placeholder).                  |
-| `fixes.markupDamaged`         | number         | Fragments that kept their source text because the retry did not fix the markup; also counted in `units.untranslated`.                |
+| Field                         | Type           | Description                                                                                                                                                  |
+| ----------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `files.translated`            | number         | Files processed successfully.                                                                                                                                |
+| `files.failed`                | number         | Files that failed.                                                                                                                                           |
+| `files.retried`               | number         | Files re-queued for the final sweep after transient errors.                                                                                                  |
+| `units.total`                 | number         | Translation units (segments) seen.                                                                                                                           |
+| `units.translated`            | number         | Units translated by the provider during this run.                                                                                                            |
+| `units.fromCache`             | number         | Units served from the persistent cache (including seeds).                                                                                                    |
+| `units.untranslated`          | number         | Units the model returned untranslated.                                                                                                                       |
+| `units.oversized`             | number         | Units skipped as too big for a single request.                                                                                                               |
+| `chars.source`                | number         | Source characters across all seen units.                                                                                                                     |
+| `chars.translated`            | number         | Characters of translations produced during this run.                                                                                                         |
+| `chars.request`               | number         | Characters actually sent in requests.                                                                                                                        |
+| `tokens`                      | object or null | `input`/`output` token usage as reported by the provider; `null` when the provider does not report usage. Estimated in dry-run mode.                         |
+| `requests.total`              | number         | Translation requests sent.                                                                                                                                   |
+| `requests.fallback`           | number         | Requests served by the fallback model.                                                                                                                       |
+| `requests.retries`            | number         | Extra request attempts after retryable errors.                                                                                                               |
+| `cache.enabled`               | boolean        | Whether the persistent cache (`--cache-dir`) was active.                                                                                                     |
+| `cache.hits` / `cache.misses` | number         | Cache lookups by outcome.                                                                                                                                    |
+| `cache.hitRate`               | number or null | `hits / (hits + misses)`, `null` when the cache is disabled or was not consulted.                                                                            |
+| `cache.hints`                 | number         | Units sent to the model together with their previous version from the seed memory (see `docs/translate-seed.md`, "Changed sentences").                       |
+| `fixes.markupStripped`        | number         | Delimiter runs of inline markup the model added around fragments and removed before composing (fresh and cached translations alike).                         |
+| `fixes.markupRetried`         | number         | Fragments re-requested because the model returned them with markup that cannot be composed (a dropped placeholder).                                          |
+| `fixes.markupDamaged`         | number         | Fragments that kept their source text because the retry did not fix the markup; also counted in `units.untranslated`.                                        |
+| `fixes.untranslatedRetried`   | number         | Fragments re-requested because the model returned them unchanged in the source language; the ones the retry did not fix are counted in `units.untranslated`. |
+| `fixes.untranslatedKept`      | number         | Fragments that kept their source text because the retry returned them untranslated again; also counted in `units.untranslated`.                              |
 
 Judge stats (`targets[].judge`, present when `--judge` is enabled):
 
@@ -126,8 +130,14 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
     "chars": {"source": 15200, "translated": 16900, "request": 8300},
     "tokens": {"input": 5200, "output": 4800},
     "requests": {"total": 18, "fallback": 2, "retries": 3},
-    "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529},
-    "fixes": {"markupStripped": 2, "markupRetried": 1, "markupDamaged": 0}
+    "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529, "hints": 12},
+    "fixes": {
+      "markupStripped": 2,
+      "markupRetried": 1,
+      "markupDamaged": 0,
+      "untranslatedRetried": 1,
+      "untranslatedKept": 0
+    }
   },
   "targets": [
     {
@@ -143,8 +153,14 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
       "chars": {"source": 15200, "translated": 16900, "request": 8300},
       "tokens": {"input": 5200, "output": 4800},
       "requests": {"total": 18, "fallback": 2, "retries": 3},
-      "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529},
-      "fixes": {"markupStripped": 2, "markupRetried": 1, "markupDamaged": 0},
+      "cache": {"enabled": true, "hits": 154, "misses": 186, "hitRate": 0.4529, "hints": 12},
+      "fixes": {
+        "markupStripped": 2,
+        "markupRetried": 1,
+        "markupDamaged": 0,
+        "untranslatedRetried": 1,
+        "untranslatedKept": 0
+      },
       "judge": {
         "model": "gpt-4o",
         "threshold": 70,

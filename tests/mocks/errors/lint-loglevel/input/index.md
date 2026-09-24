@@ -3,3 +3,11 @@
 Some intro text for the page.
 
 	This line is indented with a hard tab.
+
+**C**
+
+:   {% cut "Chain" %}
+
+    Description.
+
+    {% endcut %}

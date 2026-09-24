@@ -1,5 +1,5 @@
 import type {BaseArgs, ICallable} from '~/core/program';
-import type {Locale} from './utils';
+import type {CodeMode, Locale, VarsResolver} from './utils';
 import type {ConfigDefaults} from './utils/config';
 
 import {ok} from 'assert';
@@ -15,7 +15,7 @@ import {
 } from '~/core/program';
 import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {own} from '~/core/utils';
+import {normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {DESCRIPTION, NAME, options} from './config';
@@ -24,7 +24,16 @@ import {Compose} from './commands/compose';
 import {Seed} from './commands/seed';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {Extension as AITranslation} from './providers/ai';
-import {copyAssets, resolveSource, resolveTargets, resolveVars, resolveVcsDiffFiles} from './utils';
+import {
+    checkPresetsTargets,
+    copyAssets,
+    resolveCodeMode,
+    resolveSource,
+    resolveTargets,
+    resolveVars,
+    resolveVarsPreset,
+    resolveVcsDiffFiles,
+} from './utils';
 import {Run} from './run';
 import {configDefaults} from './utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from './extract-openapi';
@@ -54,6 +63,9 @@ export type TranslateArgs = BaseArgs & {
     exclude?: string[];
     includeVcsDiff?: string | boolean;
     vars?: Hash;
+    presets?: boolean;
+    varsPreset?: string;
+    code?: CodeMode;
     copyAssets?: boolean;
     report?: string;
 };
@@ -69,6 +81,15 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     files: string[];
     skipped: [string, string][];
     vars: Hash;
+    /**
+     * Vars of a file: the presets on its path under `vars`. Set by the run
+     * once presets are loaded; providers fall back to `vars` without it.
+     */
+    varsFor?: VarsResolver;
+    /** Apply presets.yaml to conditions, see `--presets`. Off when unset (extract). */
+    presets?: boolean;
+    /** Code processing mode. Unset until the provider applies its default. */
+    code?: CodeMode;
     dryRun: boolean;
     copyAssets: boolean;
     timeout: number;
@@ -98,6 +119,9 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         options.exclude,
         options.includeVcsDiff,
         options.vars,
+        options.presets,
+        options.varsPreset,
+        options.code,
         options.dryRun,
         options.copyAssets,
         options.timeout,
@@ -129,7 +153,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
     apply(program?: BaseProgram) {
         super.apply(program);
 
-        getBaseHooks(this).Config.tap('Translate', (config, args) => {
+        getBaseHooks(this).Config.tapPromise('Translate', async (config, args) => {
             const {input, output, quiet, strict} = pick(args, [
                 'input',
                 'output',
@@ -143,6 +167,10 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             const includeVcsDiff = defined('includeVcsDiff', args, config) || false;
             const files = defined('files', args, config);
             const vars = resolveVars(config, args);
+            const presets = defined('presets', args, config) || false;
+            checkPresetsTargets(presets, target);
+            // The translate section, then the .yfm root where build keeps it.
+            const varsPreset = await resolveVarsPreset(config, args, ['translate', '']);
 
             // CLI report paths are resolved from cwd, config values from the config dir.
             let report: AbsolutePath | undefined;
@@ -166,6 +194,9 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 exclude,
                 includeVcsDiff,
                 vars,
+                presets,
+                varsPreset,
+                code: resolveCodeMode(args, config),
                 provider: defined('provider', args, config),
                 dryRun: defined('dryRun', args, config) || false,
                 copyAssets: defined('copyAssets', args, config) || false,
@@ -190,12 +221,15 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             this.config.include = include.concat(changed.map((file) => escapeGlob(file)));
         }
 
-        this.run = new Run(this.config);
+        this.run = new Run(this.config, {usePresets: this.config.presets});
 
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
 
         await this.run.prepareRun();
         const [files, skipped] = await this.run.getFiles();
+
+        // Presets are loaded by now: hand providers the per-file vars.
+        this.config.varsFor = (path) => this.run.vars.for(normalizePath(path));
 
         if (this.provider) {
             await this.provider.skip(skipped, this.config);

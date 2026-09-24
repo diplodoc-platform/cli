@@ -5,15 +5,26 @@ import {existsSync, readFileSync, readdirSync} from 'node:fs';
 import {join} from 'node:path';
 import {load} from 'js-yaml';
 
+export type ListCorpusOptions = {
+    /**
+     * Fail when a source page has no reference translation. The eval
+     * gate needs references to score similarity; the benchmark compares
+     * candidates against each other and does without them.
+     */
+    requireReference?: boolean;
+};
+
 /**
  * Lists markdown pages of the corpus: paths relative to the language
- * directory, e.g. `syntax/code.md`. Every source page must have a
- * reference translation - the eval cannot score a page without one.
+ * directory, e.g. `syntax/code.md`. By default every source page must
+ * have a reference translation - the eval cannot score a page without
+ * one.
  */
 export function listCorpusPages(
     corpus: string,
     sourceLanguage: string,
     targetLanguage: string,
+    options: ListCorpusOptions = {},
 ): string[] {
     const sourceRoot = join(corpus, sourceLanguage);
     ok(existsSync(sourceRoot), `Corpus source directory not found: ${sourceRoot}`);
@@ -34,11 +45,13 @@ export function listCorpusPages(
     walk(sourceRoot, '');
     pages.sort((left, right) => (left < right ? -1 : Number(left > right)));
 
-    const missing = pages.filter((page) => !existsSync(join(corpus, targetLanguage, page)));
-    ok(
-        !missing.length,
-        `Corpus pages have no ${targetLanguage} reference translation: ${missing.join(', ')}`,
-    );
+    if (options.requireReference !== false) {
+        const missing = pages.filter((page) => !existsSync(join(corpus, targetLanguage, page)));
+        ok(
+            !missing.length,
+            `Corpus pages have no ${targetLanguage} reference translation: ${missing.join(', ')}`,
+        );
+    }
 
     return pages;
 }

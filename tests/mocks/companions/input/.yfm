@@ -1,0 +1,4 @@
+ai:
+  mdCompanions: true
+content:
+  multilineTermDefinitions: true

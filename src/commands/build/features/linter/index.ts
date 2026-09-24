@@ -5,6 +5,8 @@ import type {Command} from '~/core/config';
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 import {LogLevels, getLogLevel, log, normalizeConfig} from '@diplodoc/yfmlint';
+import deflist from '@diplodoc/transform/lib/plugins/deflist';
+import visibility from '@diplodoc/transform/lib/plugins/visibility';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
@@ -105,55 +107,75 @@ export class Lint {
             return config;
         });
 
-        getBuildHooks(program)
-            .BeforeRun.for('html')
-            .tap('Lint', (run) => {
-                getMarkdownHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
-                    if (!run.config.lint.enabled) {
-                        return;
-                    }
+        const registerMarkdownLint = (format: 'html' | 'md') => {
+            getBuildHooks(program)
+                .BeforeRun.for(format)
+                .tap('Lint', (run) => {
+                    const lintPlugins =
+                        format === 'md'
+                            ? run.markdown.plugins.concat(deflist, visibility)
+                            : undefined;
 
-                    const deps = await run.markdown.deps(vfile.path);
-                    const assets = await run.markdown.assets(vfile.path);
-
-                    const errors = await run.lint(vfile.path, vfile.data, {
-                        deps,
-                        assets,
-                    });
-
-                    if (errors) {
-                        for (const error of errors) {
-                            error.lineNumber = run.markdown.remap(vfile.path, error.lineNumber);
-                        }
-
-                        log(errors, run.logger);
-                    }
-                });
-
-                getLeadingHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
-                    if (!run.config.lint.enabled) {
-                        return;
-                    }
-
-                    const logLevel = getLogLevel(run.config.lint.config, ['YAML001']);
-
-                    if (logLevel === LogLevels.DISABLED) {
-                        return;
-                    }
-
-                    run.leading.walkLinks(vfile.data, (link: string) => {
-                        if (isExternalHref(link) || !EXTENSIONS.test(link)) {
+                    getMarkdownHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
+                        if (!run.config.lint.enabled) {
                             return;
                         }
 
-                        if (!run.exists(join(run.input, dirname(vfile.path), link))) {
-                            run.logger[logLevel](
-                                `Link is unreachable: ${bold(link)} in ${bold(vfile.path)}`,
-                            );
+                        const deps = await run.markdown.deps(vfile.path);
+                        const assets = await run.markdown.assets(vfile.path);
+
+                        const errors = await run.lint(
+                            vfile.path,
+                            vfile.data,
+                            {deps, assets},
+                            lintPlugins,
+                        );
+                        // Markdown output only needs the audience directive validation added for
+                        // viewer companions. Other lint rules remain an HTML-build contract.
+                        const relevantErrors =
+                            format === 'md'
+                                ? errors?.filter((error) => error.ruleNames.includes('YFM023'))
+                                : errors;
+
+                        if (relevantErrors) {
+                            for (const error of relevantErrors) {
+                                error.lineNumber = run.markdown.remap(vfile.path, error.lineNumber);
+                            }
+
+                            log(relevantErrors, run.logger);
                         }
                     });
+
+                    if (format === 'html') {
+                        getLeadingHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
+                            if (!run.config.lint.enabled) {
+                                return;
+                            }
+
+                            const logLevel = getLogLevel(run.config.lint.config, ['YAML001']);
+
+                            if (logLevel === LogLevels.DISABLED) {
+                                return;
+                            }
+
+                            run.leading.walkLinks(vfile.data, (link: string) => {
+                                if (isExternalHref(link) || !EXTENSIONS.test(link)) {
+                                    return;
+                                }
+
+                                if (!run.exists(join(run.input, dirname(vfile.path), link))) {
+                                    run.logger[logLevel](
+                                        `Link is unreachable: ${bold(link)} in ${bold(vfile.path)}`,
+                                    );
+                                }
+                            });
+                        });
+                    }
                 });
-            });
+        };
+
+        registerMarkdownLint('html');
+        registerMarkdownLint('md');
 
         getBuildHooks(program)
             .AfterRun.for('md')

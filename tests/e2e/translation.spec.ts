@@ -1,11 +1,21 @@
 import type {TranslateRunArgs} from '../fixtures';
 
-import {readFileSync} from 'node:fs';
+import {existsSync, mkdtempSync, readFileSync, realpathSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {glob} from 'glob';
+import strip from 'strip-ansi';
 import {describe, expect, test} from 'vitest';
 
-import {TestAdapter, cleanupDirectory, compareDirectories, getTestPaths} from '../fixtures';
+import {
+    MOCK_USER_PROMPT,
+    TestAdapter,
+    adaptiveCodeSupported,
+    cleanupDirectory,
+    compareDirectories,
+    getTestPaths,
+    startMockModel,
+} from '../fixtures';
 
 const generateMapTestTemplate = (
     testTitle: string,
@@ -58,6 +68,75 @@ const buildFilesYamlTestTemplate = (
         await compareDirectories(outputPath);
     });
 };
+
+async function translateWithMockModel(
+    testRootPath: string,
+    dictionary: Record<string, string>,
+    extraArgs: string[] = [],
+    {cacheDir}: {cacheDir?: string} = {},
+) {
+    const {inputPath, outputPath} = getTestPaths(testRootPath);
+
+    await cleanupDirectory(outputPath);
+
+    const model = await startMockModel(dictionary);
+
+    try {
+        const report = await TestAdapter.runner.runRaw([
+            'translate',
+            '--input',
+            inputPath,
+            '--output',
+            outputPath,
+            '--source',
+            'ru-RU',
+            '--target',
+            'en-US',
+            '--provider',
+            'openai',
+            '--model',
+            'mock',
+            '--auth',
+            'mock-token',
+            '--api-base',
+            model.apiBase,
+            '--user-prompt',
+            MOCK_USER_PROMPT,
+            '--max-concurrency',
+            '1',
+            '--retry',
+            '1',
+            '--rate-limit-retry',
+            '0',
+            ...(cacheDir ? ['--cache-dir', cacheDir] : ['--no-cache']),
+            ...extraArgs,
+        ]);
+
+        expect(report.errors).toEqual([]);
+        expect(report.code).toBe(0);
+    } finally {
+        await model.close();
+    }
+
+    expect(model.misses).toEqual([]);
+
+    return {inputPath, outputPath};
+}
+
+/**
+ * Lines of the translated page that differ from the source page.
+ * Every other line is byte-identical, which is what keeps code examples valid.
+ */
+function changedLines(inputPath: string, outputPath: string, file: string) {
+    const source = readFileSync(join(inputPath, file), 'utf8').split('\n');
+    const result = readFileSync(join(outputPath, file), 'utf8').split('\n');
+
+    expect(result.length, `line count changed, translated page:\n${result.join('\n')}`).toBe(
+        source.length,
+    );
+
+    return result.filter((line, index) => line !== source[index]);
+}
 
 describe('Translate command', () => {
     buildFilesYamlTestTemplate(
@@ -261,6 +340,57 @@ describe('Translate command', () => {
         expect(rootXliff).toContain('Общее');
     });
 
+    test('translate keeps link-included tocs as standalone files', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/translation/toc-include-link');
+
+        await cleanupDirectory(outputPath);
+
+        // Unlike `extract`, `translate` reads every file as it is on disk: the
+        // parent toc keeps its `include` entry, so the included toc needs a
+        // translation of its own. A dry run lists the files without calling
+        // the provider.
+        const report = await TestAdapter.runner.runRaw([
+            'translate',
+            '--input',
+            inputPath,
+            '--output',
+            outputPath,
+            '--source',
+            'ru-RU',
+            '--target',
+            'es-ES',
+            '--provider',
+            'openai',
+            '--model',
+            'test',
+            '--api-base',
+            'http://127.0.0.1:9/v1',
+            '--auth',
+            'dummy',
+            '--dry-run',
+        ]);
+
+        expect(report.errors).toEqual([]);
+        expect(report.code).toBe(0);
+
+        const log = report.stdout + '\n' + report.stderr;
+        const translated = log
+            .split('\n')
+            .map((line) => strip(line).trim())
+            .filter((line) => line.startsWith('TRANSLATE '))
+            .map((line) => line.slice('TRANSLATE '.length).trim().replace(/\\/g, '/'))
+            .sort();
+
+        expect(translated).toEqual([
+            'api/common/thing.md',
+            'api/common/toc.yaml',
+            'api/index.md',
+            'api/toc.yaml',
+            'index.md',
+            'toc.yaml',
+        ]);
+    });
+
     test('do not extract included tocs from sections without root articles', async () => {
         const {inputPath, outputPath} = getTestPaths(
             'mocks/translation/toc-include-no-root-articles',
@@ -291,5 +421,370 @@ describe('Translate command', () => {
         const rootXliff = readFileSync(join(outputPath, 'toc.yaml.xliff'), 'utf8');
         expect(rootXliff).toContain('Поддержка');
         expect(rootXliff).toContain('Частые вопросы');
+    });
+
+    test.skipIf(!adaptiveCodeSupported)(
+        'translate comments in fenced code and keep the code as is',
+        async () => {
+            const {inputPath, outputPath} = await translateWithMockModel(
+                'mocks/translation/code-comments',
+                {
+                    'Комментарии в коде': 'Comments in code',
+                    Комментарии: 'Comments',
+                    'Комментарии в блоках кода': 'Comments in code blocks',
+                    'Комментарии переводятся, код и отступы остаются как есть.':
+                        'Comments are translated, code and indentation stay as is.',
+                    'Клиентская часть': 'Client side',
+                    'обязательное шифрование': 'encryption is required',
+                    'Серверная часть': 'Server side',
+                    'Загружаем конфиг': 'Load the config',
+                    'из файла': 'from a file',
+                    'Настройки клиента': 'Client settings',
+                    'адрес сервера': 'server address',
+                    'Выбираем всех пользователей': 'Select all users',
+                    'без фильтра': 'without a filter',
+                    'ваш токен': 'your token',
+                    подсказка: 'hint',
+                    'старый токен': 'old token',
+                    'Пункт списка': 'List item',
+                    'Комментарий в списке': 'Comment inside a list',
+                    значение: 'value',
+                },
+            );
+
+            expect(changedLines(inputPath, outputPath, 'index.md')).toEqual([
+                '# Comments in code blocks',
+                'Comments are translated, code and indentation stay as is.',
+                '# Client side',
+                '  encryption_mode: required # encryption is required',
+                '# Server side',
+                '# Load the config',
+                'config = load()  # from a file',
+                '// Client settings',
+                "const url = 'https://example.com'; // server address",
+                '-- Select all users',
+                'SELECT * FROM users; -- without a filter',
+                '# Client side',
+                'export TOKEN=<your token> # hint',
+                '# export TOKEN=<old token>',
+                '- List item',
+                '  # Comment inside a list',
+                'value: <value>',
+            ]);
+
+            await compareDirectories(outputPath);
+        },
+    );
+
+    test.skipIf(!adaptiveCodeSupported)(
+        'translate only shell comments and placeholders in the precise code mode',
+        async () => {
+            const {inputPath, outputPath} = await translateWithMockModel(
+                'mocks/translation/code-comments',
+                {
+                    'Комментарии в коде': 'Comments in code',
+                    Комментарии: 'Comments',
+                    'Комментарии в блоках кода': 'Comments in code blocks',
+                    'Комментарии переводятся, код и отступы остаются как есть.':
+                        'Comments are translated, code and indentation stay as is.',
+                    'Клиентская часть': 'Client side',
+                    'ваш токен': 'your token',
+                    подсказка: 'hint',
+                    // The precise mode sends the whole shell comment, commented-out code included.
+                    'export TOKEN=&lt;старый токен&gt;': 'export TOKEN=&lt;old token&gt;',
+                    'Пункт списка': 'List item',
+                    значение: 'value',
+                },
+                ['--code', 'precise'],
+            );
+
+            // Comments of yaml, python, ts and sql fences stay untouched.
+            expect(changedLines(inputPath, outputPath, 'index.md')).toEqual([
+                '# Comments in code blocks',
+                'Comments are translated, code and indentation stay as is.',
+                '# Client side',
+                'export TOKEN=<your token> # hint',
+                '# export TOKEN=<old token>',
+                '- List item',
+                'value: <value>',
+            ]);
+        },
+    );
+
+    test.skipIf(!adaptiveCodeSupported)(
+        'translate labels of mermaid diagrams and keep their structure',
+        async () => {
+            const {inputPath, outputPath} = await translateWithMockModel(
+                'mocks/translation/mermaid',
+                {
+                    'Схемы mermaid': 'Mermaid diagrams',
+                    Схемы: 'Diagrams',
+                    'Подписи в схемах mermaid': 'Labels in mermaid diagrams',
+                    RPC: 'RPC',
+                    // Units reach the model XML-escaped, as they are stored in XLIFF.
+                    'Клиент&lt;br/&gt;(bus_client)': 'Client&lt;br/&gt;(bus_client)',
+                    'Создает protobuf сообщение': 'Creates a protobuf message',
+                    'Передает сообщение как набор байт': 'Passes the message as a set of bytes',
+                    Ответ: 'Response',
+                    'Обмен Handshake': 'Handshake exchange',
+                    'Каждую секунду': 'Every second',
+                    'Дожидается полного сообщения&lt;br/&gt;по известному размеру':
+                        'Waits for the whole message&lt;br/&gt;by its known size',
+                    'Поток данных': 'Data flow',
+                    Клиент: 'Client',
+                    Запрос: 'Request',
+                    Сервер: 'Server',
+                    'Есть кэш?': 'Cached?',
+                    Да: 'Yes',
+                    Кэш: 'Cache',
+                    Нет: 'No',
+                    'База данных': 'Database',
+                    Сеть: 'Network',
+                    Доли: 'Shares',
+                },
+            );
+
+            expect(changedLines(inputPath, outputPath, 'index.md')).toEqual([
+                '# Labels in mermaid diagrams',
+                '    participant C as Client<br/>(bus_client)',
+                '    Note over RPC: Creates a protobuf message',
+                '    RPC->>Bus: Passes the message as a set of bytes',
+                '    Bus-->>+RPC: Response',
+                '    Note over C,Bus: Handshake exchange',
+                '    loop Every second',
+                '        Bus->>Bus: Waits for the whole message<br/>by its known size',
+                'title: Data flow',
+                '    A[Client] -->|Request| B(Server)',
+                '    B --> C{Cached?}',
+                '    C -- Yes --> D[[Cache]]',
+                '    C -. No .-> E[("Database")]',
+                '    E ==> F((Response))',
+                '    subgraph net [Network]',
+                '    title Shares',
+            ]);
+
+            await compareDirectories(outputPath);
+        },
+    );
+
+    const presetsDictionary = {
+        Обзор: 'Overview',
+        'Публичный абзац.': 'Public paragraph.',
+        'Внутренний абзац.': 'Internal paragraph.',
+        'Абзац только для внешних читателей.': 'A paragraph for external readers only.',
+        'Поддержка отвечает по будням.': 'Support answers on weekdays.',
+        Пресеты: 'Presets',
+        'Внешний раздел': 'External section',
+        'Внутренний раздел': 'Internal section',
+        'Только для сотрудников.': 'For employees only.',
+        'Чат поддержки на русском.': 'The support chat in Russian.',
+        'Чат поддержки на английском.': 'The support chat in English.',
+    };
+
+    test('leave conditions alone without --presets, whatever presets.yaml says', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        // Regular runs are unchanged: no variable is known, so every
+        // condition keeps its block and goes to the model as text.
+        expect(page).toContain('Internal paragraph.');
+        expect(page).toContain('A paragraph for external readers only.');
+        expect(page).toContain('audience == "internal"');
+    });
+
+    test('apply the vars preset of the .yfm root to conditions with --presets, as build does', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml', '--presets'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        // `audience` comes from the `public` section of presets.yaml, selected by
+        // `varsPreset` of the .yfm root: the internal block is dropped and its
+        // condition does not reach the model. `support` is defined only for the
+        // source language (ru/presets.yaml), the target build does not know it,
+        // so its block stays.
+        expect(page).toContain('Public paragraph.');
+        expect(page).toContain('A paragraph for external readers only.');
+        expect(page).not.toContain('Внутренний абзац');
+        expect(page).not.toContain('audience');
+        expect(page).toContain('Support answers on weekdays.');
+    });
+
+    test('evaluate conditions under the presets of the target language', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml', '--presets'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        // ru/presets.yaml says `lang: ru`, en/presets.yaml says `lang: en`. The
+        // translation is built as en/index.md, so the conditions see the target
+        // presets: the Russian branch is dropped, the English one is translated.
+        expect(page).toContain('The support chat in English.');
+        expect(page).not.toContain('in Russian');
+        expect(page).not.toContain('lang ==');
+    });
+
+    test('select another vars preset from the command line', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml', '--presets', '--vars-preset', 'default'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        // The `default` sections only: the audience is internal. `support` is
+        // unset, and a condition on an unknown variable keeps its block, as
+        // before presets: translation never drops content it cannot judge.
+        expect(page).toContain('Internal paragraph.');
+        expect(page).not.toContain('external readers');
+        expect(page).toContain('Support answers on weekdays.');
+    });
+
+    const presetsFilterDictionary = {
+        Обзор: 'Overview',
+        'Общий абзац.': 'A common paragraph.',
+        Заметка: 'Note',
+        'Заметка для англоязычных читателей.': 'A note for English readers.',
+        'Заметка для русскоязычных читателей.': 'A note for Russian readers.',
+        'Английская страница': 'English page',
+        'Страница только для английской версии.': 'A page for the English version only.',
+        'Русская страница': 'Russian page',
+        'Страница только для русской версии.': 'A page for the Russian version only.',
+        'Выбор файлов': 'File selection',
+    };
+
+    test('select the files to translate under the presets of the translation', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets-filter',
+            presetsFilterDictionary,
+            ['--presets'],
+        );
+
+        // `translate.filter` takes the files from the toc and the includes of
+        // its pages. They are judged under the presets of the translation, like
+        // the content: what the English page and toc keep is translated, what
+        // they drop is not, and no kept include points to a file missing from
+        // the translation.
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+        expect(page).toContain('_includes/en-note.md');
+        expect(page).not.toContain('_includes/ru-note.md');
+        expect(existsSync(join(outputPath, 'en/_includes/en-note.md'))).toBe(true);
+        expect(existsSync(join(outputPath, 'en/_includes/ru-note.md'))).toBe(false);
+
+        // The toc keeps its items with their conditions for the build to judge:
+        // the English build drops the Russian page and finds the English one.
+        const toc = readFileSync(join(outputPath, 'en/toc.yaml'), 'utf8');
+        expect(toc).toContain('href: en-only.md');
+        expect(toc).toContain('when: lang == "ru"');
+        expect(existsSync(join(outputPath, 'en/en-only.md'))).toBe(true);
+        expect(existsSync(join(outputPath, 'en/ru-only.md'))).toBe(false);
+    });
+
+    test('seed and translate split files the same way under the presets of the .yfm', async () => {
+        const {inputPath} = getTestPaths('mocks/translation/presets-seed');
+        const cacheDir = realpathSync.native(mkdtempSync(join(tmpdir(), 'yfm-presets-seed-')));
+        const report = join(cacheDir, 'report.json');
+
+        const seed = await TestAdapter.runner.runRaw([
+            'translate',
+            'seed',
+            '--input',
+            inputPath,
+            '--source',
+            'ru-RU',
+            '--target',
+            'en-US',
+            '--cache-dir',
+            cacheDir,
+        ]);
+
+        expect(seed.errors).toEqual([]);
+        expect(seed.code).toBe(0);
+
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets-seed',
+            {},
+            ['--report', report],
+            {cacheDir},
+        );
+
+        // The way the neurotranslate cube runs: `presets: true` in the translate
+        // section of the .yfm, no seed section. Both commands judge the files
+        // under the presets of the translation, so every unit the run sends is
+        // already seeded from the existing English pages - one written with its
+        // conditions, one without them, a no-break space in the frontmatter -
+        // and nothing goes to the model. A seed without presets would leave
+        // the conditional units of second.md unpaired.
+        const {totals} = JSON.parse(readFileSync(report, 'utf8'));
+        expect(totals.requests.total).toBe(0);
+        expect(totals.cache.misses).toBe(0);
+        expect(totals.units.fromCache).toBe(totals.units.total);
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+        expect(page).toContain('The support chat in English.');
+        expect(page).not.toContain('in Russian');
+        expect(page).not.toContain('internal paragraph');
+        // The frontmatter keeps the form it is written in.
+        expect(page).toContain("    - property: 'og:title'");
+
+        const second = readFileSync(join(outputPath, 'en/second.md'), 'utf8');
+        expect(second).toContain('For the English version only.');
+        expect(second).not.toContain('Russian');
+    });
+
+    test('let --vars override the presets', async () => {
+        const {outputPath} = await translateWithMockModel(
+            'mocks/translation/presets',
+            presetsDictionary,
+            ['--exclude', 'ru/presets.yaml', '--presets', '--vars', '{"audience":"internal"}'],
+        );
+
+        const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');
+
+        expect(page).toContain('Internal paragraph.');
+        expect(page).toContain('Support answers on weekdays.');
+    });
+
+    test('keep presets out of extract: the XLIFF for external tools takes --vars only', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/translation/presets');
+
+        await cleanupDirectory(outputPath);
+
+        const report = await TestAdapter.extract.run(inputPath, outputPath, [
+            '--source',
+            'ru-RU',
+            '--target',
+            'en-US',
+            '--exclude',
+            'ru/presets.yaml',
+        ]);
+
+        expect(report.errors).toEqual([]);
+        expect(report.code).toBe(0);
+
+        // Without --vars every condition stays unresolved and its content is
+        // extracted as is, however the .yfm root or presets.yaml would decide it.
+        // presets.yaml would make `audience` internal by default and the .yfm
+        // root public: either way one of the blocks would vanish.
+        const xliff = readFileSync(join(outputPath, 'en/index.md.xliff'), 'utf8');
+        expect(xliff).toContain('Внутренний абзац.');
+        expect(xliff).toContain('Абзац только для внешних читателей.');
+        expect(xliff).toContain('Публичный абзац.');
+
+        const toc = readFileSync(join(outputPath, 'en/toc.yaml.xliff'), 'utf8');
+        expect(toc).toContain('Внутренний раздел');
+        expect(toc).toContain('Внешний раздел');
     });
 });

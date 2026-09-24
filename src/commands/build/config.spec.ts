@@ -2,7 +2,7 @@ import type {BuildArgs, BuildConfig} from './types';
 
 import {describe, expect, it} from 'vitest';
 
-import {resolveAiConfig} from './config';
+import {normalizeBaseHref, resolveAiConfig} from './config';
 
 const config = (ai?: {openapiCompanions?: boolean | 'md'}) => ({ai}) as unknown as BuildConfig;
 const args = (value?: unknown) =>
@@ -38,5 +38,21 @@ describe('resolveAiConfig', () => {
         expect(resolveAiConfig(config({openapiCompanions: 'md'}), args(false))).toEqual({
             openapiCompanions: false,
         });
+    });
+});
+
+describe('normalizeBaseHref', () => {
+    it('returns undefined for a missing or empty value', () => {
+        expect(normalizeBaseHref(undefined)).toBeUndefined();
+        expect(normalizeBaseHref(null)).toBeUndefined();
+        expect(normalizeBaseHref('')).toBeUndefined();
+    });
+
+    it('appends a trailing slash when missing', () => {
+        expect(normalizeBaseHref('https://example.com/docs')).toBe('https://example.com/docs/');
+    });
+
+    it('preserves an existing trailing slash', () => {
+        expect(normalizeBaseHref('https://example.com/docs/')).toBe('https://example.com/docs/');
     });
 });

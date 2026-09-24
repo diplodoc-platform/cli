@@ -4,12 +4,18 @@ import type {HashedGraphNode, Scheduler, StepFunction} from '../utils';
 import {basename, dirname, join, relative} from 'node:path';
 import slugify from 'slugify';
 
-import {fenceCloseTail, isExternalHref, matchFenceOpen, normalizePath} from '~/core/utils';
+import {
+    fenceCloseTail,
+    isExternalHref,
+    matchFenceOpen,
+    normalizePath,
+    resolveAbsoluteHref,
+} from '~/core/utils';
 
 import {contentWithoutFrontmatter} from '../../output-html/plugins/includes';
 
-const LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g;
-const LINK_DEF_RE = /^(\s*\[(?!\*)[^\]]+\]:\s+)(\S+)(\s.*|)$/;
+const LINK_URL_RE = /(\]\(\s*)(<[^>\n]*>|[^)\s]+)/g;
+const LINK_DEF_RE = /^(\s*\[(?!\*)[^\]]+\]:\s+)(<[^>\n]*>|\S+)(\s.*|)$/;
 const NOTITLE_RE = /\bnotitle\b/;
 // Leading whitespace allowed — term definitions are often indented inside lists
 // (markdown-it termDefinitions uses tShift; merge-includes must match the same).
@@ -90,6 +96,16 @@ function newFenceState(): FenceState {
     return {active: false, markup: ''};
 }
 
+function stripBlockquoteMarkers(line: string): string {
+    let content = line.trimStart();
+
+    while (content.startsWith('>')) {
+        content = content.slice(1).trimStart();
+    }
+
+    return content;
+}
+
 /**
  * Tracks fenced code blocks across sequential line processing.
  * Returns true if the current line is inside a code block (should be skipped).
@@ -136,7 +152,7 @@ export function rebaseRelativePaths(
     const fence = newFenceState();
 
     const result = lines.map((line) => {
-        if (processCodeFence(line.trimStart(), fence)) {
+        if (processCodeFence(stripBlockquoteMarkers(line), fence)) {
             return line;
         }
         return rebaseLinksInLine(line, fromDir, toDir);
@@ -145,9 +161,39 @@ export function rebaseRelativePaths(
     return result.join('\n');
 }
 
+/**
+ * Resolves Markdown links and images against the static publication root.
+ *
+ * The collected body has already had included-file links rebased to `fromPath`,
+ * so that page path is sufficient to resolve every remaining local URL.
+ */
+export function resolveAbsolutePaths(
+    content: string,
+    fromPath: NormalizedPath,
+    baseHref: string,
+): string {
+    const fromDir = dirname(fromPath) || '.';
+    const lines = content.split('\n');
+    const fence = newFenceState();
+
+    return lines
+        .map((line) => {
+            if (processCodeFence(stripBlockquoteMarkers(line), fence)) {
+                return line;
+            }
+
+            return rewriteLinksInLine(line, (url) => resolveAbsoluteHref(url, baseHref, fromDir));
+        })
+        .join('\n');
+}
+
 const CODE_SPAN_PLACEHOLDER_RE = /\uFFFDCS(\d+)\uFFFD/g;
 
 function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string {
+    return rewriteLinksInLine(line, (url) => rebaseUrl(url, fromDir, toDir));
+}
+
+function rewriteLinksInLine(line: string, resolver: (url: string) => string | null): string {
     const codeSpans: string[] = [];
     let processed = line.replace(/(`+).*?\1/g, (match) => {
         codeSpans.push(match);
@@ -155,7 +201,7 @@ function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string
     });
 
     processed = processed.replace(LINK_URL_RE, (_match, prefix, url) => {
-        const rebased = rebaseUrl(url, fromDir, toDir);
+        const rebased = rewriteDestination(url, resolver);
         if (rebased === null) {
             return _match;
         }
@@ -163,7 +209,7 @@ function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string
     });
 
     processed = processed.replace(LINK_DEF_RE, (_match, prefix, url, suffix) => {
-        const rebased = rebaseUrl(url, fromDir, toDir);
+        const rebased = rewriteDestination(url, resolver);
         if (rebased === null) {
             return _match;
         }
@@ -178,6 +224,21 @@ function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string
     }
 
     return processed;
+}
+
+function rewriteDestination(
+    destination: string,
+    resolver: (url: string) => string | null,
+): string | null {
+    const enclosed = destination.startsWith('<') && destination.endsWith('>');
+    const url = enclosed ? destination.slice(1, -1) : destination;
+    const resolved = resolver(url);
+
+    if (resolved === null) {
+        return null;
+    }
+
+    return enclosed ? `<${resolved}>` : resolved;
 }
 
 export function stripHash(link: string): string {

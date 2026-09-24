@@ -17,6 +17,7 @@ function makeReport(path?: AbsolutePath) {
         provider: 'openai',
         model: 'gpt-4o-mini',
         fallbackModel: 'gpt-4o',
+        code: 'adaptive',
         dryRun: false,
         sourceLanguage: 'ru',
         targetLanguages: ['en'],
@@ -72,6 +73,8 @@ describe('translate run report', () => {
             stat.markupStripped = 4;
             stat.markupRetried = 2;
             stat.markupDamaged = 1;
+            stat.untranslatedRetried = 5;
+            stat.untranslatedKept = 2;
             stat.oversized = 0;
             stat.sourceChars = 1000;
             stat.translatedChars = 1100;
@@ -95,6 +98,7 @@ describe('translate run report', () => {
             expect(data.provider).toBe('openai');
             expect(data.model).toBe('gpt-4o-mini');
             expect(data.fallbackModel).toBe('gpt-4o');
+            expect(data.code).toBe('adaptive');
             expect(data.fallbackUsed).toBe(true);
             expect(data.sourceLanguage).toBe('ru');
             expect(data.targetLanguages).toEqual(['en']);
@@ -115,8 +119,20 @@ describe('translate run report', () => {
             expect(target.chars).toEqual({source: 1000, translated: 1100, request: 700});
             expect(target.tokens).toEqual({input: 500, output: 550});
             expect(target.requests).toEqual({total: 4, fallback: 1, retries: 2});
-            expect(target.cache).toEqual({enabled: true, hits: 3, misses: 7, hitRate: 0.3});
-            expect(target.fixes).toEqual({markupStripped: 4, markupRetried: 2, markupDamaged: 1});
+            expect(target.cache).toEqual({
+                enabled: true,
+                hits: 3,
+                misses: 7,
+                hitRate: 0.3,
+                hints: 0,
+            });
+            expect(target.fixes).toEqual({
+                markupStripped: 4,
+                markupRetried: 2,
+                markupDamaged: 1,
+                untranslatedRetried: 5,
+                untranslatedKept: 2,
+            });
 
             expect(data.totals.units.total).toBe(10);
             expect(data.totals.cache.hitRate).toBe(0.3);
@@ -124,6 +140,8 @@ describe('translate run report', () => {
                 markupStripped: 4,
                 markupRetried: 2,
                 markupDamaged: 1,
+                untranslatedRetried: 5,
+                untranslatedKept: 2,
             });
         });
 
@@ -152,6 +170,7 @@ describe('translate run report', () => {
                 hits: 0,
                 misses: 0,
                 hitRate: null,
+                hints: 0,
             });
             expect(data.fallbackUsed).toBe(false);
         });
@@ -249,6 +268,18 @@ describe('translate run report', () => {
 
             expect(report.summary()).toContain('added markup stripped: 7');
             expect(report.summary()).toContain('damaged markup: 3 retried, 1 kept as source');
+        });
+
+        it('should mention retried untranslated units in the summary only when it happened', () => {
+            const report = makeReport();
+            const stat = createTargetStat();
+
+            stat.untranslatedRetried = 4;
+            stat.untranslatedKept = 1;
+
+            report.addTarget('en', stat);
+
+            expect(report.summary()).toContain('untranslated: 4 retried, 1 kept as source');
         });
     });
 });

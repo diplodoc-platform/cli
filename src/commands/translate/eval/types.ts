@@ -24,9 +24,13 @@ export type PageResult = {
     page: string;
     markupViolations: MarkupViolation[];
     glossaryViolations: GlossaryViolation[];
-    untranslated: UntranslatedLine[];
-    /** Token-level F1 similarity against the reference translation, 0..1. */
-    similarity: number;
+    /** `null` when the corpus has no reference translation of this page. */
+    untranslated: UntranslatedLine[] | null;
+    /**
+     * Token-level F1 similarity against the reference translation, 0..1.
+     * `null` when the corpus has no reference translation of this page.
+     */
+    similarity: number | null;
     /** Judge segments below the threshold that belong to this page. */
     judgeLow: number;
 };
@@ -61,6 +65,34 @@ export type EvalReport = {
     judge: JudgeSummary | null;
     thresholds: EvalThresholds;
     /** Threshold failures; empty means the run passed. */
+    failures: string[];
+    passed: boolean;
+};
+
+export type EvalSeriesTotals = {
+    markup: number;
+    glossary: number;
+    untranslated: number;
+    /** Pages with at least one defect, with the 1-based run numbers. */
+    pages: {page: string; runs: number[]}[];
+};
+
+export type EvalSeriesJudge = {
+    model: string;
+    threshold: number;
+    scored: number;
+    /** Average weighted by the number of scored units of each run. */
+    averageScore: number;
+    low: number;
+    skippedPairs: number;
+};
+
+export type EvalSeriesReport = {
+    repeats: number;
+    runs: EvalReport[];
+    totals: EvalSeriesTotals;
+    judge: EvalSeriesJudge | null;
+    thresholds: EvalThresholds;
     failures: string[];
     passed: boolean;
 };

@@ -1,4 +1,4 @@
-import type {AiConfig, BuildArgs, BuildConfig, ContentConfig} from './types';
+import type {AiConfig, BuildArgs, BuildConfig, ContentConfig, ViewerInterfaceConfig} from './types';
 import type {ExtendedOption} from '~/core/config';
 
 import {ok} from 'node:assert';
@@ -58,6 +58,18 @@ const outputFormat = option({
         If ${bold('md')} is selected, then renders md to prepared md files
         enriched by additional metadata.
         (Useful for complex documentation servers with runtime rendering)
+    `,
+});
+
+const baseHref = option({
+    flags: '--base-href <url>',
+    desc: `
+        Override the publication root used by static HTML metadata and llms artifacts.
+
+        A trailing slash is added automatically when missing.
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --base-href https://example.com/docs
     `,
 });
 
@@ -394,7 +406,10 @@ export function resolveAiConfig<C extends BuildConfig>(config: C, args: BuildArg
     return {...ai, openapiCompanions};
 }
 
-function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
+function getInterfaceProps<C extends BuildConfig>(
+    config: C,
+    args: BuildArgs,
+): ViewerInterfaceConfig {
     const interfaceProps = ['toc', 'search', 'feedback', 'gallery'] as const;
     type InterfaceProp = (typeof interfaceProps)[number];
 
@@ -420,6 +435,10 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
         },
         {} as Record<InterfaceProp, boolean>,
     );
+
+    if (configInterface.markdownActions !== undefined) {
+        return {...result, markdownActions: configInterface.markdownActions};
+    }
 
     return result;
 }
@@ -462,6 +481,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     const lang = defined('lang', config);
     const viewerInterface = getInterfaceProps(config, args);
     const feedbackUrl = defined('feedbackUrl', args, config);
+    const baseHref = defined('baseHref', args, config);
 
     if (valuable(lang)) {
         if (!langs.length) {
@@ -492,6 +512,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     });
     config.langs = langs;
     config.lang = lang || langs[0];
+    config.baseHref = normalizeBaseHref(baseHref);
     config.vcs = toggleable('vcs', args, config);
     config.vcs.token = defined('vcsToken', args);
     config.interface = {
@@ -529,6 +550,14 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     return config;
 }
 
+export function normalizeBaseHref(baseHref: string | null | undefined): string | undefined {
+    if (!baseHref) {
+        return undefined;
+    }
+
+    return baseHref.endsWith('/') ? baseHref : `${baseHref}/`;
+}
+
 export function validate<C extends DeepFrozen<BuildConfig>>(config: C) {
     ok(!config.vcs?.token, 'Do not store secret VCS token in config. Use args or env.');
 }
@@ -543,6 +572,7 @@ export const options = {
     workerMaxOldSpace: globalOptions.workerMaxOldSpace,
     langs,
     outputFormat,
+    baseHref,
     varsPreset,
     vars,
     allowHtml,

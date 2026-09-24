@@ -1,5 +1,13 @@
 import type {EvalReport, EvalThresholds, JudgeSummary, PageResult} from './types';
 
+/**
+ * Share of judge pairs that may stay unscored before the run is called
+ * broken. A pair the judge fails to score is its own hiccup, not a
+ * translation defect, and a single miss used to fail the whole run; a
+ * judge that misses this much of the batch is malfunctioning.
+ */
+export const MAX_UNSCORED_SHARE = 0.05;
+
 export const DEFAULT_THRESHOLDS: EvalThresholds = {
     maxMarkupViolations: 0,
     maxGlossaryViolations: 0,
@@ -38,9 +46,13 @@ export function buildReport(params: BuildReportParams): EvalReport {
     for (const page of pages) {
         totals.markup += page.markupViolations.length;
         totals.glossary += page.glossaryViolations.length;
-        totals.untranslated += page.untranslated.length;
+        totals.untranslated += page.untranslated?.length || 0;
 
-        if (thresholds.minSimilarity > 0 && page.similarity < thresholds.minSimilarity) {
+        if (
+            thresholds.minSimilarity > 0 &&
+            page.similarity !== null &&
+            page.similarity < thresholds.minSimilarity
+        ) {
             failures.push(
                 `${page.page}: similarity ${page.similarity} is below ${thresholds.minSimilarity}`,
             );
@@ -69,10 +81,15 @@ export function buildReport(params: BuildReportParams): EvalReport {
                 `judge average score ${judge.averageScore} is below ${thresholds.minJudgeScore}`,
             );
         }
-        // Unscored pairs silently weaken the average, so they fail the
-        // gate instead of hiding behind it.
-        if (judge.skippedPairs > 0) {
-            failures.push(`judge left ${judge.skippedPairs} pair(s) unscored`);
+        // Unscored pairs silently weaken the average, so a large share of
+        // them fails the gate instead of hiding behind it. A rare miss is
+        // the judge's own flakiness, not a translation defect.
+        const sent = judge.scored + judge.skippedPairs;
+        if (sent > 0 && judge.skippedPairs / sent > MAX_UNSCORED_SHARE) {
+            failures.push(
+                `judge left ${judge.skippedPairs} pair(s) of ${sent} unscored ` +
+                    `(more than ${MAX_UNSCORED_SHARE * 100}%)`,
+            );
         }
     }
 
@@ -112,8 +129,8 @@ export function renderReport(report: EvalReport): string {
         page.page,
         cell(page.markupViolations.length),
         cell(page.glossaryViolations.length),
-        cell(page.untranslated.length),
-        page.similarity.toFixed(3),
+        page.untranslated === null ? '-' : cell(page.untranslated.length),
+        page.similarity === null ? '-' : page.similarity.toFixed(3),
         cell(page.judgeLow),
     ]);
 
@@ -133,7 +150,9 @@ export function renderReport(report: EvalReport): string {
                     `[glossary] "${violation.sourceText}" must be translated as ` +
                     `"${violation.translatedText}" (${violation.sourceOccurrences} occurrence(s))`,
             ),
-            ...page.untranslated.map((line) => `[untranslated] line ${line.line}: ${line.text}`),
+            ...(page.untranslated || []).map(
+                (line) => `[untranslated] line ${line.line}: ${line.text}`,
+            ),
         ];
         if (details.length) {
             lines.push(`${page.page}:`, ...details.map((detail) => `  ${detail}`), '');

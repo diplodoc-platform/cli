@@ -104,6 +104,15 @@ describe('buildCompanionAlternate', () => {
         // shortLink converts /index to / but keeps .md extension
         expect(result.href).toBe('ru/index.md');
     });
+
+    it('should use baseHref for an absolute companion link', () => {
+        const result = buildCompanionAlternate(
+            'ru/about.md' as NormalizedPath,
+            'https://example.com/docs/',
+        );
+
+        expect(result.href).toBe('https://example.com/docs/ru/about.md');
+    });
 });
 
 describe('buildLlmsAlternate', () => {
@@ -151,6 +160,20 @@ describe('buildLlmsAlternate', () => {
 
         expect(result).not.toBeNull();
         expect(result).toEqual({href: '../llms.txt', rel: 'describedby'});
+    });
+
+    it('should use baseHref for an absolute llms.txt link', () => {
+        const result = buildLlmsAlternate(
+            {enabled: true},
+            file,
+            tocDir,
+            'https://example.com/docs/',
+        );
+
+        expect(result).toEqual({
+            href: 'https://example.com/docs/ru/llms.txt',
+            rel: 'describedby',
+        });
     });
 
     it('should return null when enabled is false and no url', () => {
@@ -223,5 +246,26 @@ describe('buildAlternateEntries', () => {
 
         expect(entries).toHaveLength(2);
         expect(entries[1].href).toBe('../llms.txt');
+    });
+
+    it('should make companion and llms links absolute when baseHref is configured', () => {
+        const entries = buildAlternateEntries(
+            file,
+            tocDir,
+            {enabled: true},
+            'https://example.com/docs/',
+        );
+
+        expect(entries).toEqual([
+            {
+                href: 'https://example.com/docs/ru/about.md',
+                type: 'text/markdown',
+                title: 'Markdown version',
+            },
+            {
+                href: 'https://example.com/docs/ru/llms.txt',
+                rel: 'describedby',
+            },
+        ]);
     });
 });

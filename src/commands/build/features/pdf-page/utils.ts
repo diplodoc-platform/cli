@@ -141,7 +141,7 @@ export function addPagePrefixToAnchors(root: HTMLElement, options: PreprocessPdf
 
     for (const node of elements(
         root,
-        '[id]:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.yfm-anchor)',
+        '[id]:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.yfm-anchor):not(.yfm-term_dfn)',
     )) {
         const id = node.getAttribute('id');
 

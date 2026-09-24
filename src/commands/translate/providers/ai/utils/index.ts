@@ -11,7 +11,8 @@ export {
     throwLLMError,
 } from './errors';
 export {SeedStore, TranslationStore, cacheFingerprint, seedFilePath} from './cache';
-export {collectSeedPairs} from './seed';
+export {alignTranslationUnits} from './seed';
+export type {AlignedUnits, SeedPair, TranslationSide} from './seed';
 export {keepsMarkup, stripAddedMarkup} from './markup';
 export type {MarkupRepair} from './markup';
 

@@ -1,0 +1,5 @@
+default:
+  audience: internal
+  product: Demo
+public:
+  audience: public

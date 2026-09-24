@@ -1,6 +1,7 @@
 import type {BaseProgram} from '~/core/program';
 import type {Config as ResolvedConfig} from '~/core/config';
 import type {Translate, TranslateArgs, TranslateConfig} from '~/commands/translate';
+import type {CodeMode} from '~/commands/translate/utils';
 import type {LLMClient} from './clients/types';
 import type {GlossaryPair, PromptMode} from './prompts';
 
@@ -76,6 +77,7 @@ type Args = {
     judgeThreshold?: number;
     cacheDir?: string;
     cache?: boolean;
+    memoryHints?: boolean;
     temperature?: number;
     maxOutputTokens?: number;
     maxBatchTokens?: number;
@@ -88,6 +90,7 @@ type Config = {
     auth?: string;
     folder?: string;
     model: string;
+    code: CodeMode;
     fallbackModel?: string;
     apiBase?: string;
     fallbackApiBase?: string;
@@ -102,6 +105,8 @@ type Config = {
     judgeModel?: string;
     judgeThreshold: number;
     cacheDir?: AbsolutePath;
+    /** Send changed units with their previous version from the seed memory. */
+    memoryHints: boolean;
     temperature?: number;
     maxOutputTokens: number;
     maxBatchTokens: number;
@@ -111,6 +116,17 @@ type Config = {
 };
 
 export type AITranslationConfig = TranslateConfig & Config;
+
+/**
+ * A negatable flag always carries its default in args, so the config key
+ * is consulted unless `--no-memory-hints` was given.
+ */
+function resolveMemoryHints(args: Args, config: Hash): boolean {
+    if (args.memoryHints === false) {
+        return false;
+    }
+    return !own<boolean, 'memoryHints'>(config, 'memoryHints') || config.memoryHints !== false;
+}
 
 function readEnv(names: string[]): string | undefined {
     for (const name of names) {
@@ -272,6 +288,7 @@ export class Extension {
                         .addOption(options.judgeThreshold)
                         .addOption(options.cacheDir)
                         .addOption(options.noCache)
+                        .addOption(options.noMemoryHints)
                         .addOption(options.temperature)
                         .addOption(options.maxOutputTokens)
                         .addOption(options.maxBatchTokens)
@@ -282,6 +299,14 @@ export class Extension {
                     if (providerName === 'yandexgpt') {
                         command.addOption(options.folder);
                     }
+                });
+
+                // LLMs handle comments and diagram labels well, so the adaptive
+                // code mode is the default for every LLM provider.
+                getBaseHooks(program).Config.tap(`${ExtensionName}.${providerName}`, (config) => {
+                    config.code = config.code ?? 'adaptive';
+
+                    return config;
                 });
 
                 getBaseHooks(
@@ -362,6 +387,7 @@ export class Extension {
                     config.judgeModel =
                         (defined('judgeModel', args, config) as string | undefined) || undefined;
                     config.judgeThreshold = intOr(defined('judgeThreshold', args, config), 70);
+                    config.memoryHints = resolveMemoryHints(args, config);
 
                     config.temperature = resolveTemperature(defined('temperature', args, config));
                     config.maxOutputTokens = intOr(defined('maxOutputTokens', args, config), 4000);

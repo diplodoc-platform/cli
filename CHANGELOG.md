@@ -1,5 +1,107 @@
 # Changelog
 
+## [5.62.0](https://github.com/diplodoc-platform/cli/compare/v5.61.0...v5.62.0) (2026-09-21)
+
+
+### Features
+
+* **build:** emit static Markdown companions ([4a2b898](https://github.com/diplodoc-platform/cli/commit/4a2b89857cee6bdf5053d9e565bdfe05a5ecebfd))
+
+
+### Bug Fixes
+
+* **build:** address companion sonar findings ([6855efb](https://github.com/diplodoc-platform/cli/commit/6855efb00ac731e2f25f8447c573210b9b4eaa76))
+* **build:** filter companion graphs before collection ([c2aae71](https://github.com/diplodoc-platform/cli/commit/c2aae71085618c2a57a2df490a7a6d1d43b22bf3))
+* **build:** initialize AI config for companions ([d3dc216](https://github.com/diplodoc-platform/cli/commit/d3dc2160477455c5ce7ab55ce2c6cd3742f1225c))
+* **build:** preserve visibility in companion includes ([24e3f30](https://github.com/diplodoc-platform/cli/commit/24e3f301076dbace897287a65995f28e33bae490))
+* **llms:** preserve audience separators ([890d5ac](https://github.com/diplodoc-platform/cli/commit/890d5acfaffcf94b65d4e6b92df4b21ff3f6b994))
+* **llms:** preserve merge behavior while restoring separators ([b516ab0](https://github.com/diplodoc-platform/cli/commit/b516ab0e6987dfa2492aadec5a52c9f47d53b190))
+
+
+
+### Performance Improvements
+
+* **build:** skip fallback parsing for regular pages ([722509d](https://github.com/diplodoc-platform/cli/commit/722509d8a3a028dddedb3e1fe14191b2674dd565))
+* **meta:** avoid duplicate path normalization ([39fb290](https://github.com/diplodoc-platform/cli/commit/39fb290884ddb0737c67d1e71dce41750952aef9))
+
+## [5.61.1](https://github.com/diplodoc-platform/cli/compare/v5.61.0...v5.61.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* **translate:** seed translations whose edge markers were hoisted into their skeleton ([#2284](https://github.com/diplodoc-platform/cli/issues/2284)) ([348de81](https://github.com/diplodoc-platform/cli/commit/348de816af5822c48e6aef3b25db17b82ea6d4e5))
+
+## [5.61.0](https://github.com/diplodoc-platform/cli/compare/v5.60.0...v5.61.0) (2026-09-17)
+
+
+### Features
+
+* **translate:** eval series as the gate before a model change ([#2282](https://github.com/diplodoc-platform/cli/issues/2282)) ([c92ab94](https://github.com/diplodoc-platform/cli/commit/c92ab946da1d9440eb0d0d490cc810bd984d31fa))
+
+
+### Bug Fixes
+
+* **build:** copy images referenced only by gallery-src ([#2273](https://github.com/diplodoc-platform/cli/issues/2273)) ([6b40188](https://github.com/diplodoc-platform/cli/commit/6b4018833b426173bc0759a1009500dbde22161a))
+* **cli:** avoid markdown lint plugin side effects ([b52daf9](https://github.com/diplodoc-platform/cli/commit/b52daf9c71d11dca0c57a31dca011e2683402965))
+* **cli:** limit markdown lint to audience validation ([6405640](https://github.com/diplodoc-platform/cli/commit/64056408c61b50d4f4980e05d7e4f595be717ab7))
+* **deps:** Update @diplodoc/ajv@0.6.1 ([#2280](https://github.com/diplodoc-platform/cli/issues/2280)) ([b397a4d](https://github.com/diplodoc-platform/cli/commit/b397a4d0ac6c4c03e0fafc52eed13652cf47e827))
+* **translate:** stop shipping units the model returns untranslated ([#2277](https://github.com/diplodoc-platform/cli/issues/2277)) ([b4a58e7](https://github.com/diplodoc-platform/cli/commit/b4a58e7bbf90b1a96897865fd0005e4755cc8fb2))
+
+
+### Miscellaneous Chores
+
+* **master:** release 5.61.0 ([afe8760](https://github.com/diplodoc-platform/cli/commit/afe8760262311bec1118cd29714d091552002c42))
+
+## [5.60.0](https://github.com/diplodoc-platform/cli/compare/v5.59.0...v5.60.0) (2026-09-16)
+
+
+### Features
+
+* **translate:** align existing translations block by block when seeding ([#2272](https://github.com/diplodoc-platform/cli/issues/2272)) ([c3eae2d](https://github.com/diplodoc-platform/cli/commit/c3eae2d9ef2209e9569bc6a8f8d12fb71b922372))
+
+## [5.59.0](https://github.com/diplodoc-platform/cli/compare/v5.58.1...v5.59.0) (2026-09-15)
+
+
+### Features
+
+* build audience-specific documentation DOCSTOOLS-6553 ([0e9ddd8](https://github.com/diplodoc-platform/cli/commit/0e9ddd86cc46e58a23a073e301cedbc61ca4ecf0))
+* **llms:** add viewer audience variants ([a55e657](https://github.com/diplodoc-platform/cli/commit/a55e657fa59f1ce9083aa68b3f5ee9d464073557))
+* **translate:** model benchmark with a pairwise judge ([#2256](https://github.com/diplodoc-platform/cli/issues/2256)) ([fb7aac0](https://github.com/diplodoc-platform/cli/commit/fb7aac0a798f3d24c5a63a821849266d3a449fd8))
+
+
+### Bug Fixes
+
+* address audience build review DOCSTOOLS-6553 ([fa5ccc6](https://github.com/diplodoc-platform/cli/commit/fa5ccc6d70cb55c3bf7ef3aeb75c754948da8add))
+* **cli:** omit merged line number from visibility errors DOCSTOOLS-6553 ([4cd4686](https://github.com/diplodoc-platform/cli/commit/4cd4686001ca50c151b62cfefb64877f5b6eb406))
+* **e2e:** update transform regression snapshots ([59708ab](https://github.com/diplodoc-platform/cli/commit/59708abef8717da4a8beb0756c3634867e84fdca))
+* **translate:** keep link-included tocs in translate and seed file lists ([#2270](https://github.com/diplodoc-platform/cli/issues/2270)) ([16da1c3](https://github.com/diplodoc-platform/cli/commit/16da1c38b1e54e7953d530829804762e7f5ab878))
+
+## [5.58.1](https://github.com/diplodoc-platform/cli/compare/v5.58.0...v5.58.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.13.2 ([#2268](https://github.com/diplodoc-platform/cli/issues/2268)) ([ec0b779](https://github.com/diplodoc-platform/cli/commit/ec0b7798928bce5e328b0df4512fb6f821830867))
+* preserve PDF footnote links ([#2267](https://github.com/diplodoc-platform/cli/issues/2267)) ([3b06f69](https://github.com/diplodoc-platform/cli/commit/3b06f69b8caeee67924b7d0cc17cfc3200044333))
+
+## [5.58.0](https://github.com/diplodoc-platform/cli/compare/v5.57.4...v5.58.0) (2026-09-15)
+
+
+### Features
+
+* added summary field in meta ([#2261](https://github.com/diplodoc-platform/cli/issues/2261)) ([1c4d1c4](https://github.com/diplodoc-platform/cli/commit/1c4d1c4288192d24a6cee748abb709e8693d89f7))
+* **translate:** allow the fallback model on its own endpoint ([#2255](https://github.com/diplodoc-platform/cli/issues/2255)) ([6e1a8a6](https://github.com/diplodoc-platform/cli/commit/6e1a8a6e553ab1f4d8079bea1e7090b68c02dc06))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/ajv@0.5.0 ([#2262](https://github.com/diplodoc-platform/cli/issues/2262)) ([7b1e454](https://github.com/diplodoc-platform/cli/commit/7b1e4540ea7873f122502ca430d0211215bd53b1))
+* **deps:** Update @diplodoc/client@5.12.2 ([#2253](https://github.com/diplodoc-platform/cli/issues/2253)) ([570a3eb](https://github.com/diplodoc-platform/cli/commit/570a3ebb19563dde93cf183c67d2ebe9eef0f60e))
+* **deps:** Update @diplodoc/client@5.13.0, dev:@diplodoc/page-constructor-extension@0.13.16 ([452bfb5](https://github.com/diplodoc-platform/cli/commit/452bfb53261db285a908a5e78540ed1d2cd5e8a5))
+* **deps:** Update dev:@diplodoc/search-extension@3.1.2 ([#2251](https://github.com/diplodoc-platform/cli/issues/2251)) ([d5b86df](https://github.com/diplodoc-platform/cli/commit/d5b86dff70d1db9ad61adb5433eb1acce4194fe6))
+* **translate:** recover from models which reject temperature ([#2257](https://github.com/diplodoc-platform/cli/issues/2257)) ([2e81018](https://github.com/diplodoc-platform/cli/commit/2e81018f35dfb5ca4feb056622d0607c788826b8))
+* **translate:** strip emphasis the model adds around fragments ([#2254](https://github.com/diplodoc-platform/cli/issues/2254)) ([56ff3ee](https://github.com/diplodoc-platform/cli/commit/56ff3ee2dd24345c03a20d0b5dc64181f8c2c792))
+
 ## [5.57.4](https://github.com/diplodoc-platform/cli/compare/v5.57.3...v5.57.4) (2026-09-09)
 
 

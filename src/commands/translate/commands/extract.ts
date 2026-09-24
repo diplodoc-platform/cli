@@ -129,14 +129,17 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
 
         this.logger.setup(this.config);
 
-        this.run = new Run(this.config);
+        // Extract feeds external tools: its variables come from `--vars` only,
+        // presets.yaml stays out of the XLIFF (see translate for presets).
+        this.run = new Run(this.config, {usePresets: false});
 
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
         await getHooks(this).BeforeRun.promise(this.run);
 
         await this.run.prepareRun();
 
-        const [files, skipped] = await this.run.getFiles();
+        // Extract loads tocs through `getFileContent`, which inlines includes.
+        const [files, skipped] = await this.run.getFiles({inlinedTocs: true});
         const exit = process.exit;
 
         for (const target of targets) {

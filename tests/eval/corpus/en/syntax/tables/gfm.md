@@ -57,7 +57,7 @@ Use the `:` character in the separator row to align text in columns to the left,
 
 ## Opening wide tables in a modal window
 
-Wide tables are convenient to open in a modal window. In simple tables, this is implemented using the `{wide-content title="table title"}` attribute. The attribute must be added after the table, leaving one empty line between them.
+Wide tables are convenient to open in a modal window. In simple tables, this is implemented using the `{wide-content title="название таблицы"}` attribute. The attribute must be added after the table, leaving one empty line between them.
 
 ```markdown
 | Заголовок1  | Заголовок2  |

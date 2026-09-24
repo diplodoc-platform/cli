@@ -4,22 +4,50 @@ import {join} from 'node:path';
 import {describe, expect, it} from 'vitest';
 
 import {DEFAULT_THRESHOLDS} from './report';
+import {main, parseArgs} from './cli';
 import {
     baseTranslateArgs,
     captureRunArgs,
     evaluatePages,
-    main,
     mockProviderArgs,
-    parseArgs,
     readJudgeSummary,
     realProviderArgs,
     stripLangPrefix,
-} from './cli';
+} from './run';
 
 function write(root: string, path: string, content: string) {
     const target = join(root, path);
     mkdirSync(join(target, '..'), {recursive: true});
     writeFileSync(target, content);
+}
+
+/**
+ * A tiny corpus plus a stand-in for `yfm translate` that copies the
+ * reference pages into the output, which is exactly what a perfect
+ * provider would produce for this corpus. Shared by the real-mode
+ * `main()` tests below.
+ */
+function buildStubCorpus(root: string): void {
+    write(root, 'corpus/ru/a.md', '# Заметка\n\nЭто заметка.\n');
+    write(root, 'corpus/en/a.md', '# Note\n\nThis is a note.\n');
+    write(
+        root,
+        'corpus/glossary.yaml',
+        'glossaryPairs:\n  - sourceText: заметка\n    translatedText: note\n',
+    );
+
+    write(
+        root,
+        'fake-cli.js',
+        [
+            "const {cpSync, mkdirSync} = require('node:fs');",
+            "const {join} = require('node:path');",
+            "const input = process.argv[process.argv.indexOf('-i') + 1];",
+            "const output = process.argv[process.argv.indexOf('-o') + 1];",
+            'mkdirSync(output, {recursive: true});',
+            "cpSync(join(input, 'en'), join(output, 'en'), {recursive: true});",
+        ].join('\n'),
+    );
 }
 
 describe('translate eval cli', () => {
@@ -60,6 +88,19 @@ describe('translate eval cli', () => {
         it('should reject unknown options and missing values', () => {
             expect(() => parseArgs(['--bogus'])).toThrow(/Unknown option/);
             expect(() => parseArgs(['--model'])).toThrow(/requires a value/);
+        });
+
+        it('should default to a single run', () => {
+            expect(parseArgs([]).repeats).toBe(1);
+        });
+
+        it('should parse repeats', () => {
+            expect(parseArgs(['--repeats', '3']).repeats).toBe(3);
+        });
+
+        it('should reject a non-positive repeats value', () => {
+            expect(() => parseArgs(['--repeats', '0'])).toThrow();
+            expect(() => parseArgs(['--repeats', 'many'])).toThrow();
         });
     });
 
@@ -187,29 +228,7 @@ describe('translate eval cli', () => {
         it('should run the full flow in real mode against a stub provider CLI', async () => {
             const root = mkdtempSync(join(tmpdir(), 'eval-cli-main-'));
 
-            write(root, 'corpus/ru/a.md', '# Заметка\n\nЭто заметка.\n');
-            write(root, 'corpus/en/a.md', '# Note\n\nThis is a note.\n');
-            write(
-                root,
-                'corpus/glossary.yaml',
-                'glossaryPairs:\n  - sourceText: заметка\n    translatedText: note\n',
-            );
-
-            // A stand-in for `yfm translate`: copies the reference pages
-            // into the output, which is exactly what a perfect provider
-            // would produce for this corpus.
-            write(
-                root,
-                'fake-cli.js',
-                [
-                    "const {cpSync, mkdirSync} = require('node:fs');",
-                    "const {join} = require('node:path');",
-                    "const input = process.argv[process.argv.indexOf('-i') + 1];",
-                    "const output = process.argv[process.argv.indexOf('-o') + 1];",
-                    'mkdirSync(output, {recursive: true});',
-                    "cpSync(join(input, 'en'), join(output, 'en'), {recursive: true});",
-                ].join('\n'),
-            );
+            buildStubCorpus(root);
 
             const workdir = join(root, 'work');
             mkdirSync(workdir, {recursive: true});
@@ -236,6 +255,48 @@ describe('translate eval cli', () => {
             expect(report.model).toBe('stub-model');
             expect(report.pages).toEqual([expect.objectContaining({page: 'a.md', similarity: 1})]);
             expect(report.judge).toBeNull();
+        });
+
+        it('should run a series of runs with --repeats and aggregate them into one series report', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'eval-cli-series-'));
+
+            buildStubCorpus(root);
+
+            const workdir = join(root, 'work');
+            mkdirSync(workdir, {recursive: true});
+
+            const code = await main([
+                '--real',
+                '--no-judge',
+                '--cli',
+                join(root, 'fake-cli.js'),
+                '--corpus',
+                join(root, 'corpus'),
+                '--workdir',
+                workdir,
+                '--model',
+                'stub-model',
+                '--repeats',
+                '2',
+            ]);
+
+            expect(code).toBe(0);
+
+            const series = JSON.parse(readFileSync(join(workdir, 'eval-report.json'), 'utf8'));
+
+            expect(series.repeats).toBe(2);
+            expect(series.runs).toHaveLength(2);
+            expect(series.passed).toBe(true);
+
+            const run1 = JSON.parse(
+                readFileSync(join(workdir, 'run-1', 'eval-report.json'), 'utf8'),
+            );
+            const run2 = JSON.parse(
+                readFileSync(join(workdir, 'run-2', 'eval-report.json'), 'utf8'),
+            );
+
+            expect(run1.passed).toBe(true);
+            expect(run2.passed).toBe(true);
         });
 
         it('should fail fast when the CLI binary is missing', async () => {

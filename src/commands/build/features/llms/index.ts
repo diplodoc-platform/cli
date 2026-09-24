@@ -4,19 +4,25 @@ import type {Toc} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 import {extractFrontMatter} from '@diplodoc/liquid';
+import {
+    type ContentAudience,
+    filterAudienceContent,
+} from '@diplodoc/transform/lib/plugins/visibility';
 
 import {defined} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
-import {isExternalHref, normalizePath, setExt} from '~/core/utils';
+import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
 
 import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
+import {resolveAbsolutePaths} from '../output-md/plugins/merge-includes';
 
 import {stripHtmlTags} from './utils';
 import {options, resolveLlmsFullMaxSize} from './config';
 
 export const LLMS_INDEX_FILENAME = 'llms.txt';
 export const LLMS_FULL_FILENAME = 'llms-full.txt';
+export const LLMS_FULL_AGENT_FILENAME = 'llms-full-agent.txt';
 
 const LLMS_SEPARATOR = '\n\n';
 const LLMS_SEPARATOR_SIZE = Buffer.byteLength(LLMS_SEPARATOR, 'utf8');
@@ -142,10 +148,35 @@ export class Llms {
         const title = toc.title || '';
 
         const index = await this.renderIndex(run, title, entries, tocDir);
-        const full = await this.renderFull(run, title, entries);
+        const audienceSpecificContent = new Set<ContentAudience>();
+        const full = await this.renderFull(
+            run,
+            title,
+            entries,
+            'human',
+            LLMS_FULL_FILENAME,
+            true,
+            audienceSpecificContent,
+        );
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
+
+        // Viewer builds use the md output as their storage artifact. Keep a separate agent
+        // corpus there so the runtime endpoint can select an audience without buffering and
+        // reparsing the whole llms-full file on every request. Static html builds only expose the
+        // canonical human corpus above.
+        if (run.config.outputFormat === OutputFormat.md && audienceSpecificContent.size > 0) {
+            const agentFull = await this.renderFull(
+                run,
+                title,
+                entries,
+                'agent',
+                LLMS_FULL_AGENT_FILENAME,
+                false,
+            );
+            await run.write(join(run.output, tocDir, LLMS_FULL_AGENT_FILENAME), agentFull, true);
+        }
     }
 
     /**
@@ -262,18 +293,24 @@ export class Llms {
             const pageTitle = typeof meta.title === 'string' ? meta.title : '';
             const name = entry.name || pageTitle || description || entry.href;
             const suffix = description ? `: ${description}` : '';
-            // Link to the real output file: rendered .html for html builds,
-            // the original href (.md/.yaml) for md builds.
-            const href = html ? setExt(entry.href, 'html') : entry.href;
+            // Link to the artifact that readers can fetch directly. Static HTML
+            // builds use source-format companions when enabled; otherwise they
+            // keep the HTML route and honor extensionless publishing.
+            const relativeHref = resolveEntryHref(run, entry.href, html);
+            const href = resolveAbsoluteHref(relativeHref, run.config.baseHref, tocDir);
 
             lines.push(`- [${name}](${href})${suffix}`);
         }
+
+        const fullHref = run.config.baseHref
+            ? resolveAbsoluteHref(LLMS_FULL_FILENAME, run.config.baseHref, tocDir)
+            : `/${LLMS_FULL_FILENAME}`;
 
         lines.push(
             '',
             '---',
             '',
-            `For more comprehensive documentation, see [${LLMS_FULL_FILENAME}](/${LLMS_FULL_FILENAME})`,
+            `For more comprehensive documentation, see [${LLMS_FULL_FILENAME}](${fullHref})`,
         );
 
         return lines.join('\n') + '\n';
@@ -322,13 +359,22 @@ export class Llms {
             const name = entry.parentName || entry.name || 'API Reference';
             // Normalize to forward slashes — llms.txt is a web-oriented format
             // and `relative()` returns backslashes on Windows.
-            const companionHref = relative(tocDir, companion.companionPath).replace(/\\/g, '/');
+            const relativeHref = relative(tocDir, companion.companionPath).replace(/\\/g, '/');
+            const companionHref = resolveAbsoluteHref(relativeHref, run.config.baseHref, tocDir);
 
             lines.push(`- [${name}](${companionHref}): OpenAPI specification`);
         }
     }
 
-    private async renderFull(run: Run, title: string, entries: LlmsEntry[]) {
+    private async renderFull(
+        run: Run,
+        title: string,
+        entries: LlmsEntry[],
+        audience: 'human' | 'agent',
+        fileName: string,
+        reportErrors = true,
+        audienceSpecificContent?: Set<ContentAudience>,
+    ) {
         const parts: string[] = [];
 
         if (title) {
@@ -343,7 +389,7 @@ export class Llms {
 
         // Assemble fully self-contained markdown (all includes merged),
         // independent of the build's output format — see MarkdownCollector.
-        const collector = new MarkdownCollector(run, SELF_CONTAINED);
+        const collector = new MarkdownCollector(run, SELF_CONTAINED, {audience});
 
         for (const entry of entries) {
             // Leading (yaml) pages have no markdown body to inline; they still
@@ -352,7 +398,15 @@ export class Llms {
                 continue;
             }
 
-            const body = await this.collectBody(run, collector, entry.path);
+            const body = await this.collectBody(
+                run,
+                collector,
+                entry.path,
+                audience,
+                fileName,
+                reportErrors,
+                audienceSpecificContent,
+            );
 
             if (!body) {
                 continue;
@@ -367,7 +421,7 @@ export class Llms {
             if (candidateSize > maxSize) {
                 run.logger.info(
                     'YFM022',
-                    `llms-full.txt: size limit reached at ${currentSize} bytes ` +
+                    `${fileName}: size limit reached at ${currentSize} bytes ` +
                         `(limit ${maxSize}), stopped before adding ${entry.path}`,
                 );
                 break;
@@ -384,18 +438,51 @@ export class Llms {
         run: Run,
         collector: MarkdownCollector,
         entryPath: NormalizedPath,
+        audience: 'human' | 'agent',
+        fileName: string,
+        reportErrors: boolean,
+        audienceSpecificContent?: Set<ContentAudience>,
     ): Promise<string> {
         try {
-            const body = await collector.collect(entryPath);
+            const collected = await collector.collectWithInfo(entryPath);
 
-            // Strip <style> and <script> blocks — they are useless for LLM
-            // consumption (LLMs don't execute JS or apply CSS) and only add
-            // noise to the corpus. Code blocks are protected (see stripHtmlTags).
-            return stripHtmlTags(body, ['style', 'script']);
+            // Keep the established order: strip non-LLM HTML before audience
+            // filtering. Collection must filter first for dependency safety, so
+            // recover only the root's trailing whitespace from the old order.
+            const strippedBody = stripHtmlTags(collected.content, ['style', 'script']);
+            const source = await run.markdown.graph(entryPath);
+            const strippedSource = stripHtmlTags(source.content, ['style', 'script']);
+            const filteredSource = filterAudienceContent(strippedSource, audience).content;
+            const trailingWhitespace = filteredSource.slice(filteredSource.trimEnd().length);
+            const body = strippedBody + trailingWhitespace;
+
+            for (const detectedAudience of collected.audienceSpecificContent) {
+                audienceSpecificContent?.add(detectedAudience);
+            }
+
+            if (reportErrors) {
+                for (const error of collected.errors) {
+                    const message = error.message.replace(` at line ${error.line}`, '');
+                    run.logger.error(`${fileName}: ${entryPath}: ${message}`);
+                }
+            }
+
+            return run.config.baseHref
+                ? resolveAbsolutePaths(body, entryPath, run.config.baseHref)
+                : body;
         } catch (error) {
-            run.logger.warn(`llms-full.txt: unable to assemble ${entryPath}: ${error}`);
+            run.logger.warn(`${fileName}: unable to assemble ${entryPath}: ${error}`);
 
             return '';
         }
     }
+}
+
+function resolveEntryHref(run: Run, entryHref: NormalizedPath, html: boolean) {
+    if (!html || run.config.ai.mdCompanions) {
+        return entryHref;
+    }
+
+    const htmlHref = setExt(entryHref, 'html');
+    return run.config.skipHtmlExtension ? shortLink(htmlHref) : htmlHref;
 }

@@ -1,0 +1,15 @@
+title: Companion Test
+href: index.md
+items:
+  - name: Article
+    href: nested/article.md
+  - name: Landing
+    href: landing.yaml
+  - name: Audience
+    href: audience.md
+  - name: Fallback visibility
+    href: fallback.md
+  - name: Term visibility
+    href: terms.md
+  - name: Recollected Markdown
+    href: recollected.md

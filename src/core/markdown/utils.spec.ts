@@ -7,6 +7,7 @@ import {
     filterRanges,
     findFileBlocks,
     findIncludedBlockRanges,
+    findLinksInfo,
     findPcImages,
     getPcIconTitle,
     parsePcBlocks,
@@ -365,6 +366,82 @@ describe('findFileBlocks', () => {
 
     it('should return empty array for empty content', () => {
         expect(findFileBlocks('')).toEqual([]);
+    });
+});
+
+describe('findLinksInfo gallery', () => {
+    it('should collect gallery-src as a separate asset', () => {
+        const content = '![](small.png){gallery-src=big.png}';
+        const assets = findLinksInfo(content);
+
+        expect(assets.map((asset) => asset.path)).toEqual(['small.png', 'big.png']);
+    });
+
+    it('should set gallery AssetInfo fields correctly', () => {
+        const content = '![alt](small.png){gallery-src=big.png}';
+        const [, gallery] = findLinksInfo(content);
+
+        expect(gallery).toMatchObject({
+            path: 'big.png',
+            type: 'image',
+            subtype: 'gallery',
+            title: 'alt',
+            autotitle: false,
+            hash: null,
+            search: null,
+        });
+    });
+
+    it('should share location with the source image', () => {
+        const content = '![](small.png){gallery-src=big.png}';
+        const [image, gallery] = findLinksInfo(content);
+
+        expect(gallery.location).toEqual(image.location);
+    });
+
+    it('should collect quoted gallery-src', () => {
+        const content = '![](small.png){gallery-src="big.png"}';
+        const assets = findLinksInfo(content);
+
+        expect(assets.map((asset) => asset.path)).toEqual(['small.png', 'big.png']);
+    });
+
+    it('should collect gallery-src declared after other options', () => {
+        const content = '![](small.png){width=100 gallery-src=big.png}';
+        const assets = findLinksInfo(content);
+
+        expect(assets.map((asset) => asset.path)).toEqual(['small.png', 'big.png']);
+    });
+
+    // `parseLinkOptions` does not read options of reference links at all
+    // (`![alt][ref]{width=100}` yields empty options), so `gallery-src` on them
+    // is not collected either. Whoever fixes option parsing should drop this test.
+    it('should not collect gallery-src of reference images', () => {
+        const content = '![alt][ref]{gallery-src=big.png}';
+        const assets = findLinksInfo(content);
+
+        expect(assets.map((asset) => asset.path)).toEqual(['ref']);
+    });
+
+    it('should ignore external gallery-src', () => {
+        const content = '![](small.png){gallery-src=https://example.com/big.png}';
+        const assets = findLinksInfo(content);
+
+        expect(assets.map((asset) => asset.path)).toEqual(['small.png']);
+    });
+
+    it('should ignore gallery-src of plain links', () => {
+        const content = '[text](page.md){gallery-src=big.png}';
+        const assets = findLinksInfo(content);
+
+        expect(assets.map((asset) => asset.path)).toEqual(['page.md']);
+    });
+
+    it('should not break images without gallery-src', () => {
+        const content = '![](small.png){width=100}';
+        const assets = findLinksInfo(content);
+
+        expect(assets.map((asset) => asset.path)).toEqual(['small.png']);
     });
 });
 
