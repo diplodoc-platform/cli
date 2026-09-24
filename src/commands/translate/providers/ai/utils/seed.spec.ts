@@ -328,6 +328,25 @@ describe('translate seed pairs', () => {
             expect(result.unseeded).toBe(2);
         });
 
+        it('should pair a heading with ids of its own', () => {
+            const result = alignTranslationUnits(
+                {
+                    units: [unit('Что дальше'), unit('Смотрите примеры.')],
+                    skeleton: '## %%%0%%%\n\n%%%1%%%',
+                },
+                {
+                    units: [unit('What next'), unit('See the examples.')],
+                    skeleton: '## %%%0%%% {#see-also}\n\n%%%1%%%',
+                },
+                RU_EN,
+            );
+
+            expect(result.unseeded).toBe(0);
+            expect(result.fragments.map(({kind, target}) => [kind, target])).toEqual([
+                ['line', '## %%%0%%% {#see-also}'],
+            ]);
+        });
+
         it('should fall back to positional pairing without skeletons', () => {
             const result = alignTranslationUnits(
                 {units: [unit('Привет.'), unit('Пока.')]},
@@ -513,6 +532,23 @@ describe('translate seed pairs with localized links', () => {
 
             expect(result.pairs).toEqual([]);
             expect(store.resolve('file.md', [unit(source)])).toEqual([undefined]);
+        });
+
+        it('should keep an article of the other edition of a site for its file only', () => {
+            const source = `See the ${link('article', 'https://en.example.org/wiki/Calendar')}.`;
+            const translation = `См. ${link('статью', 'https://ru.example.org/wiki/Календарь')}.`;
+            const result = align(source, translation);
+
+            expect(result.pairs).toEqual([[unit(source), unit(translation), true]]);
+            expect(result.doubtful).toBe(1);
+        });
+
+        it('should seed a link to the channel in the language of the translation', () => {
+            const source = `Join the ${link('channel', 'https://t.example/team')}.`;
+            const translation = `Подпишитесь на ${link('канал', 'https://t.example/team_ru')}.`;
+            const result = align(source, translation);
+
+            expect(result.pairs).toEqual([[unit(source), unit(translation)]]);
         });
 
         it('should not doubt a link to the same page on another domain', () => {

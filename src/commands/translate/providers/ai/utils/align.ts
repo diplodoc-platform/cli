@@ -16,6 +16,8 @@ export type Block = {
     anchors: string[];
     /** Signature plus anchors: equal keys mean the same element with the same content. */
     key: string;
+    /** Index of the skeleton line carrying the block, markdown only. */
+    line?: number;
 };
 
 /** Source block index paired with a target block index. */
@@ -30,6 +32,8 @@ const ORDERED = /^\d+[.)] /;
 const PLACEHOLDER_RUN = /%%%(?: %%%)+/g;
 // Spaces around a table cell separator: `|Continent |` is the same cell as `|Континент|`.
 const CELL_SEPARATOR_SPACE = / ?\| ?/g;
+// A heading id at the end of a line: `## %%%0%%% {#intro} { #other }`.
+const ANCHOR = /^\{\s*#([^\s{}]+)\s*\}$/;
 
 const SOURCE_WRAPPER = /^\s*<source(?:\s[^>]*)?>([\s\S]*)<\/source>\s*$/;
 // `[^<>]` keeps a run of unclosed `<` from being rescanned quadratically.
@@ -89,7 +93,12 @@ export function unitAnchors(unit: string, languages: string[] = []): string[] {
     return anchors.sort(byCodePoint);
 }
 
-export type LinkRelation = 'same' | 'nested' | 'other';
+/**
+ * `same`: the same page; `nested`: the same page under another section of
+ * another site; `edition`: a page of the edition of the site in the other
+ * language, whose title differs; `other`: another page.
+ */
+export type LinkRelation = 'same' | 'nested' | 'edition' | 'other';
 
 /** Link destinations of a unit, bare urls of its text included. */
 export function unitLinks(unit: string): string[] {
@@ -97,7 +106,7 @@ export function unitLinks(unit: string): string[] {
     const plain = text.replace(TAG, ' ').replace(ENTITY, ' ');
     const urls = new Set<string>();
 
-    for (const [, url] of text.matchAll(LINK_DESTINATION)) {
+    for (const url of linkDestinations(text)) {
         urls.add(url);
     }
     for (const [url] of plain.matchAll(BARE_URL)) {
@@ -105,6 +114,45 @@ export function unitLinks(unit: string): string[] {
     }
 
     return [...urls];
+}
+
+/** Destinations of the `[...](url)` links written in a text, in order. */
+export function linkDestinations(text: string): string[] {
+    return Array.from(text.matchAll(LINK_DESTINATION), (match) => match[1]);
+}
+
+/** The text with every `[...](url)` destination passed through `replace`. */
+export function replaceLinkDestinations(text: string, replace: (url: string) => string): string {
+    return text.replace(LINK_DESTINATION, (_, url: string) => `](${replace(url)})`);
+}
+
+/**
+ * The link as the structure of a skeleton line compares it: the host
+ * without a leading language label, the path without the language parts
+ * (see `pathSegments`), the query and section. Equal keys mean the same
+ * page. Unlike `linkRelation` the host counts: a skeleton link has no
+ * text of its own to confirm the pair, and `t.example/team_ru` is not
+ * `social.example/team`. Without languages it is the link as is.
+ */
+export function linkPath(url: string, languages: string[]): string {
+    if (!languages.length) {
+        return url;
+    }
+
+    const {path, rest} = splitLink(url);
+    const segments = pathSegments(path, languages);
+    // A destination that is a variable as a whole keeps it: `({{help-url}})`
+    // and `({{faq-url}})` are different links.
+    if (!segments.length) {
+        return url;
+    }
+
+    const host = hostOf(url);
+    const [label, ...labels] = host.split('.');
+    const codes = new Set(languages.map((language) => language.slice(0, 2).toLowerCase()));
+    const site = labels.length > 1 && codes.has(label) ? labels.join('.') : host;
+
+    return (site ? `//${site}/` : '') + segments.join('/') + rest;
 }
 
 /**
@@ -149,8 +197,12 @@ export function linkRelation(a: string, b: string, languages: string[]): LinkRel
         return 'same';
     }
 
-    if (!languages.length || linkAnchor(a, languages) !== linkAnchor(b, languages)) {
+    if (!languages.length) {
         return 'other';
+    }
+
+    if (linkAnchor(a, languages) !== linkAnchor(b, languages)) {
+        return editions(a, b, languages) ? 'edition' : 'other';
     }
 
     const left = pathSegments(splitLink(a).path, languages);
@@ -169,6 +221,43 @@ export function linkRelation(a: string, b: string, languages: string[]): LinkRel
     const nested = isSubsequence(left, right) || isSubsequence(right, left);
 
     return nested && otherSites(a, b) ? 'nested' : 'other';
+}
+
+/**
+ * Whether two links lead to the editions of one site in the languages of
+ * the pair (`en.example.org/wiki/Calendar` and `ru.example.org/wiki/Календарь`),
+ * at the same place of the path: a translator links the article in the
+ * other language, and its title is translated.
+ */
+function editions(a: string, b: string, languages: string[]): boolean {
+    const left = hostOf(a);
+    const right = hostOf(b);
+    if (!left || !right || left === right) {
+        return false;
+    }
+
+    const codes = new Set(languages.map((language) => language.slice(0, 2).toLowerCase()));
+    const site = (host: string) => {
+        const [label, ...rest] = host.split('.');
+        return rest.length > 1 && codes.has(label) ? rest.join('.') : null;
+    };
+    if (!site(left) || site(left) !== site(right)) {
+        return false;
+    }
+
+    const leftPath = pathSegments(splitLink(a).path, languages);
+    const rightPath = pathSegments(splitLink(b).path, languages);
+
+    return (
+        leftPath.length > 0 &&
+        leftPath.length === rightPath.length &&
+        leftPath.slice(0, -1).join('/') === rightPath.slice(0, -1).join('/')
+    );
+}
+
+/** The host of an absolute link, lowercased; empty for relative links. */
+function hostOf(url: string): string {
+    return (ORIGIN.exec(url)?.[0].replace(/^[^:]*:\/\//, '') || '').toLowerCase();
 }
 
 /** Whether both links are absolute and lead to different hosts. */
@@ -193,11 +282,24 @@ function pathSegments(path: string, languages: string[]): string[] {
     // it: only what follows the last one is compared.
     const variable = segments.map((segment) => segment.includes('{{')).lastIndexOf(true);
 
-    return segments.slice(variable + 1).filter((segment) => {
-        const language = LANGUAGE.exec(segment)?.[1];
+    return segments
+        .slice(variable + 1)
+        .filter((segment) => {
+            const language = LANGUAGE.exec(segment)?.[1];
 
-        return segment && !(language && codes.has(language.toLowerCase()));
-    });
+            return segment && !(language && codes.has(language.toLowerCase()));
+        })
+        .map((segment) => withoutLanguageSuffix(segment, codes));
+}
+
+// A name ending with a language: `channel_ru`, `team-en@example.com`, `screen-en.png`.
+const LANGUAGE_SUFFIX = /([a-z\d])[-_]([a-z]{2})(?=$|[@.])/gi;
+
+/** A path segment without the language suffixes of its names, see `LANGUAGE_SUFFIX`. */
+function withoutLanguageSuffix(segment: string, codes: Set<string>): string {
+    return segment.replace(LANGUAGE_SUFFIX, (match, last: string, code: string) =>
+        codes.has(code.toLowerCase()) ? last : match,
+    );
 }
 
 /** Whether the path is written from a variable (`{{source-root}}/...`). */
@@ -328,24 +430,29 @@ function makeBlock(
 
 /**
  * The signature keeps what tells blocks apart structurally: indentation,
- * list markers, container syntax, link destinations. Inline markup is
- * dropped because the translation may hoist emphasis and code markers into
- * the skeleton differently, list marker flavours are unified, and spaces
- * around table cell separators are dropped.
+ * list markers, container syntax, link destinations (compared by their
+ * path, see `linkPath`). Inline markup is dropped because the translation
+ * may hoist emphasis and code markers into the skeleton differently, list
+ * marker flavours are unified, and spaces around table cell separators are
+ * dropped. Heading ids (`{#id}`) are anchors of the block rather than its
+ * structure: a translator adds ids of their own, and a heading with an
+ * extra id is still the same heading.
  */
 function markdownBlocks(skeleton: string, units: string[], languages: string[]): Block[] {
     const blocks: Block[] = [];
 
-    for (const line of skeleton.split('\n')) {
+    skeleton.split('\n').forEach((line, index) => {
         const ids = Array.from(line.matchAll(PLACEHOLDER), (match) => Number(match[1]));
         if (!ids.length) {
-            continue;
+            return;
         }
 
         const raw = (LEADING_INDENT.exec(line) as RegExpExecArray)[0];
         const indent = raw.replace(/\t/g, '    ');
-        const body = line
-            .slice(raw.length)
+        const {body: text, anchors} = lineAnchors(line);
+        const body = replaceLinkDestinations(text.slice(raw.length), (url) =>
+            linkPath(url, languages),
+        )
             .replace(BULLET, '- ')
             .replace(ORDERED, '1. ')
             .replace(PLACEHOLDER, '%%%')
@@ -356,10 +463,36 @@ function markdownBlocks(skeleton: string, units: string[], languages: string[]):
         const signature = indent + body;
         const structure = indent + body.replace(PLACEHOLDER_RUN, '%%%');
 
-        blocks.push(makeBlock(ids, signature, structure, [], units, languages));
-    }
+        const own = anchors.map(({id}) => 'id:' + id);
+
+        blocks.push({...makeBlock(ids, signature, structure, own, units, languages), line: index});
+    });
 
     return blocks;
+}
+
+/**
+ * Heading ids at the end of a skeleton line (`## %%%0%%% {#intro}`) and
+ * the line without them. Only the tail counts: `{#T}` elsewhere on a line
+ * is the text of an autotitled link, not an id.
+ */
+export function lineAnchors(line: string): {body: string; anchors: {id: string; text: string}[]} {
+    const anchors: {id: string; text: string}[] = [];
+    let end = line.trimEnd().length;
+
+    // Read the ids from the end: a regexp for the tail is quadratic on long
+    // runs of spaces.
+    while (end > 0 && line[end - 1] === '}') {
+        const start = line.lastIndexOf('{', end - 1);
+        const match = start < 0 ? null : ANCHOR.exec(line.slice(start, end));
+        if (!match) {
+            break;
+        }
+        anchors.unshift({id: match[1], text: match[0]});
+        end = line.slice(0, start).trimEnd().length;
+    }
+
+    return {body: anchors.length ? line.slice(0, end) : line, anchors};
 }
 
 /**
@@ -628,7 +761,7 @@ function fillGap(matching: Matching, previous: BlockPair, next: BlockPair) {
     if (!sources.length || sources.length !== targets.length) {
         return;
     }
-    if (!sources.every((i, k) => source[i].structure === target[targets[k]].structure)) {
+    if (!sources.every((i, k) => sameElement(source[i], target[targets[k]]))) {
         return;
     }
 
@@ -663,13 +796,35 @@ function extend(matching: Matching, from: number, to: number, direction: 1 | -1)
     while (i >= 0 && j >= 0 && i < source.length && j < target.length && isFree(matching, i, j)) {
         const sources = unmatchedRun(source, matchedSource, i, direction);
         const targets = unmatchedRun(target, matchedTarget, j, direction);
-        if (source[i].structure !== target[j].structure || sources.length !== targets.length) {
+        if (
+            sources.length !== targets.length ||
+            !sources.every((s, k) => sameElement(source[s], target[targets[k]]))
+        ) {
             return;
         }
         sources.forEach((s, k) => pair(matching, s, targets[k]));
         i = sources[sources.length - 1] + direction;
         j = targets[targets.length - 1] + direction;
     }
+}
+
+/**
+ * Whether two blocks may be the same element when their keys differ: the
+ * same structure, and heading ids that do not contradict. A translator
+ * adds ids of their own, but two headings with ids and none in common are
+ * two different headings (a glossary sorted by the letters of each
+ * language).
+ */
+function sameElement(a: Block, b: Block): boolean {
+    if (a.structure !== b.structure) {
+        return false;
+    }
+
+    const ids = (block: Block) => block.anchors.filter((anchor) => anchor.startsWith('id:'));
+    const left = ids(a);
+    const right = ids(b);
+
+    return !left.length || !right.length || left.some((id) => right.includes(id));
 }
 
 function range(from: number, to: number): number[] {

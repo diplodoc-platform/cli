@@ -112,6 +112,8 @@ export type TargetStat = {
     cacheEnabled: boolean;
     /** Units sent to the model with their previous version from the seed memory. */
     memoryHints: number;
+    /** Localized code blocks and lines of existing translations put back into the output. */
+    fragmentsRestored: number;
     /** Units returned by the model untranslated. */
     untranslated: number;
     /** Delimiter runs of inline markup the model added around fragments and the CLI removed. */
@@ -150,6 +152,7 @@ export function createTargetStat(): TargetStat {
         cacheMisses: 0,
         cacheEnabled: false,
         memoryHints: 0,
+        fragmentsRestored: 0,
         untranslated: 0,
         markupStripped: 0,
         markupRetried: 0,

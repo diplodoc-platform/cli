@@ -57,6 +57,15 @@ for `example.org/.../changes/check.html`): such a pair is seeded for its file
 but marked doubtful. On the same site, relative links included, an extra
 section is another page (`/en/docs/install.md` for `/ru/docs/admin/install.md`),
 for example a link the source has just fixed, and the pair is not seeded.
+A language suffix of a name in the path is dropped too (`t.example/channel_ru`
+for `t.example/channel`, `team-ru@example.com`). A page of the other edition
+of a site at the same place of the path (`ru.example.org/wiki/Календарь` for
+`en.example.org/wiki/Calendar`, a wiki in two languages whose titles are
+translated) is seeded for its file and marked doubtful, as an extra section.
+
+Heading ids (`{#id}` at the end of a line) are not part of the structure: a
+heading with an id the translator added is still the same heading. Two
+headings that both have ids and none in common are different headings.
 
 A code span pairs with a code span of the same text on the other side. One
 left without a pair may be words the other side leaves plain, verbatim or
@@ -66,6 +75,51 @@ confirmed by plain text around it.
 
 Identity pairs that still contain source-script characters are untranslated
 leftovers and are not seeded, so the next run gets another chance at them.
+
+## Localized code blocks, heading ids and link lines
+
+A translate run composes the output from the skeleton of the source file,
+so whatever lives in the skeleton rather than in the units comes from the
+source: the text of a code block without a language, a heading id only the
+translation has, the destination of a link that makes up a list item as a
+whole (`* [Channel](https://t.example/channel)`: the unit is the link text).
+The seed keeps such pieces of the existing translation per file and the
+translate run puts them back:
+
+- a fenced code block is kept when the translation changed only text in
+  it: same fence lines and line count, and every changed line drops words
+  of the source script or brings words of the target script. A block
+  whose command changed is outdated rather than localized and follows the
+  source. Code blocks pair by position: the one that follows the same
+  aligned text block, counted from it, and is followed by text blocks that
+  agree (aligned with each other, or both without a pair). Languages written
+  in the same script keep no code blocks: a translated line cannot be told
+  from changed code.
+- heading ids the translation added to an aligned line are kept after the
+  ids of the source;
+- a link destination of an aligned line takes the one of the translation
+  when it leads to the same page on the same site: the host without a
+  language label and the path without the language parts are the same
+  (`t.example/channel_ru` for `t.example/channel`).
+
+A piece is put back only where the source still has it as the seed saw it:
+the same code block text, the same line with the same text, at the same
+occurrence in the file. A copy of a localized code block that the source
+added takes the same localization; a line is not copied, so that heading ids
+stay unique. Comments inside code are units (`--code adaptive`,
+the default of the LLM providers) and are seeded like any other sentence.
+
+What the output takes from the source although the existing translation had
+localized it is reported per file, so that a reviewer sees it:
+
+```
+WARN ru/page.md Existing translation localized 1 code block and heading ids or link addresses in 1 line the source has changed since; the output takes them from the source.
+WARN ru/page.md Existing translation localized 1 link the output takes from the source again, e.g. https://ru.example.org/wiki/... instead of https://en.example.org/wiki/....
+```
+
+The second line appears when a sentence with a localized link went to the
+model and the output has the address of the source; the localized addresses
+of a file are taken from its seeded pairs.
 
 ## Repeated sentences
 
@@ -118,7 +172,7 @@ tokens per request.
 The stat line counts files and units:
 
 ```
-PROCESSED ru-en seeded-files: 1090 seeded-units: 24500 skipped-units: 12 missing-targets: 34 mismatched: 3 failed: 34 partial-files: 140 unseeded-units: 900 doubtful-units: 25
+PROCESSED ru-en seeded-files: 1090 seeded-units: 24500 skipped-units: 12 missing-targets: 34 mismatched: 3 failed: 34 partial-files: 140 unseeded-units: 900 doubtful-units: 25 skeleton-fragments: 160
 ```
 
 - `seeded-files`, `seeded-units`: files and units that produced pairs, partially seeded files included;
@@ -127,7 +181,10 @@ PROCESSED ru-en seeded-files: 1090 seeded-units: 24500 skipped-units: 12 missing
 - `partial-files`, `unseeded-units`: files whose translation aligned in part, and their units left without a pair;
 - `mismatched`: files whose translation did not align at all;
 - `failed`: files whose source or translation could not be read or extracted;
-- `doubtful-units`: pairs kept for their file only, out of the dictionary.
+- `doubtful-units`: pairs kept for their file only, out of the dictionary;
+- `skeleton-fragments`: localized code blocks and lines kept for the translate run.
+
+The translate stat line reports the fragments it put back as `restored-fragments: N`.
 
 Files that were not seeded in full are reported one per line on stderr, so
 that a caller can mark them in a review:
@@ -142,7 +199,8 @@ WARN ru/broken.md Failed to seed the file: ...
 
 The output of a translate run follows the skeleton of the source file:
 blank lines, trailing whitespace and the placement of inline markup markers
-come from the source, not from the existing translation. A marker the
+come from the source, not from the existing translation; only the code
+blocks and lines described above are taken from the translation. A marker the
 translation lost to its own skeleton (a code span or emphasis ending right
 at a unit boundary) is put back into the seeded unit, so a translator's
 code span at the edge of a sentence survives. The reverse does not compose:

@@ -3,12 +3,12 @@ import type {AITranslationConfig} from '../providers/ai';
 import type {LLMClient} from '../providers/ai/clients/types';
 import type {Defer} from '../providers/ai/utils';
 
-import {mkdirSync, mkdtempSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
-import {makeStore, makeTranslator} from '../providers/ai/provider';
+import {Provider, makeStore, makeTranslator} from '../providers/ai/provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from '../providers/ai/prompts';
 import {SeedStore, seedFilePath} from '../providers/ai/utils';
 import {createTargetStat} from '../report';
@@ -417,6 +417,164 @@ describe('translate seed', () => {
 
             expect(stats.seededUnits).toBe(1);
             expect(stats.skippedUnits).toBe(1);
+        });
+    });
+
+    describe('localized translations', () => {
+        const ru = [
+            '# Календарь {#calendar}',
+            '',
+            'О реформе читайте в [статье вики](https://ru.example.org/wiki/Григорианский_календарь). Второе предложение.',
+            '',
+            'Откройте меню:',
+            '',
+            '```',
+            'Настройки - Эксперименты - Отладка плагинов',
+            '```',
+            '',
+            '## Что дальше',
+            '',
+            'Смотрите [документацию](https://docs.example.com/docs/ru/admin-guide/gpu).',
+            '',
+        ].join('\n');
+        const en = [
+            '# Calendar {#calendar}',
+            '',
+            'Read about the reform in the [wiki article](https://en.example.org/wiki/Adoption_of_the_Gregorian_calendar). The second sentence.',
+            '',
+            'Open the menu:',
+            '',
+            '```',
+            'Settings - Experiments - Plugin debugging',
+            '```',
+            '',
+            '## What next {#see-also}',
+            '',
+            'See the [documentation](https://docs.example.com/docs/en/admin-guide/gpu).',
+            '',
+        ].join('\n');
+
+        async function translate(input: AbsolutePath, cacheDir: AbsolutePath, answers: Hash) {
+            const output = mkdtempSync(join(tmpdir(), 'yfm-seed-out-'));
+            const requests: string[] = [];
+            const client: LLMClient = {
+                name: 'fake',
+                complete: vi.fn(async (messages) => {
+                    const fragments = splitFragments(messages[messages.length - 1].content);
+                    requests.push(...fragments);
+                    return {
+                        text: fragments
+                            .map((text) => answers[text] ?? `T:${text}`)
+                            .join(`\n${FRAGMENT_SEPARATOR}\n`),
+                    };
+                }),
+            };
+            const warn = vi.fn();
+            const provider = new Provider(() => client, {} as never);
+            Object.assign(provider, {
+                logger: {
+                    translate: vi.fn(),
+                    translated: vi.fn(),
+                    request: vi.fn(),
+                    stat: vi.fn(),
+                    warn,
+                    error: vi.fn(),
+                    info: vi.fn(),
+                },
+            });
+
+            await provider.translate(['ru/page.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                model: 'fake',
+                cacheDir,
+                memoryHints: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 200,
+                maxConcurrency: 1,
+                retry: 0,
+            } as unknown as AITranslationConfig);
+
+            return {page: readFileSync(join(output, 'en/page.md'), 'utf8'), requests, warn};
+        }
+
+        it('should change only the edited sentence of a localized page', async () => {
+            const input = project({'ru/page.md': ru, 'en/page.md': en});
+            const cacheDir = cache();
+
+            const stats = await seedTranslations({
+                input,
+                files: ['ru/page.md'],
+                sourceLanguage: 'ru',
+                targetLanguage: 'en',
+                vars: {},
+                cacheDir,
+            });
+
+            expect(stats.partial).toEqual([]);
+            expect(stats.skeletonFragments).toBe(2);
+
+            writeFileSync(
+                join(input, 'ru/page.md'),
+                ru.replace('Второе предложение.', 'Второе предложение изменилось.'),
+            );
+
+            const {page, requests, warn} = await translate(input, cacheDir, {
+                'Второе предложение изменилось.': 'The second sentence changed.',
+            });
+
+            expect(requests).toEqual(['Второе предложение изменилось.']);
+            expect(page).toBe(en.replace('The second sentence.', 'The second sentence changed.'));
+            expect(warn).not.toHaveBeenCalled();
+        });
+
+        it('should report what the source changed under the localized fragments', async () => {
+            const input = project({'ru/page.md': ru, 'en/page.md': en});
+            const cacheDir = cache();
+
+            await seedTranslations({
+                input,
+                files: ['ru/page.md'],
+                sourceLanguage: 'ru',
+                targetLanguage: 'en',
+                vars: {},
+                cacheDir,
+            });
+
+            writeFileSync(
+                join(input, 'ru/page.md'),
+                ru
+                    .replace('Отладка плагинов', 'Отладка расширений')
+                    .replace('## Что дальше', '## Что почитать')
+                    .replace('О реформе читайте', 'Подробнее о реформе читайте'),
+            );
+
+            const {page, warn} = await translate(input, cacheDir, {});
+
+            // The changed code block and heading come from the source; the
+            // changed sentence went to the model and kept the source link.
+            expect(page).toContain('Настройки - Эксперименты - Отладка расширений');
+            expect(page).not.toContain('{#see-also}');
+            expect(warn).toHaveBeenCalledWith(
+                'ru/page.md',
+                'Existing translation localized 1 code block and heading ids or link ' +
+                    'addresses in 1 line the source has changed since; the output takes ' +
+                    'them from the source.',
+            );
+            expect(warn).toHaveBeenCalledWith(
+                'ru/page.md',
+                'Existing translation localized 1 link the output takes from the source ' +
+                    'again, e.g. https://ru.example.org/wiki/Григорианский_календарь ' +
+                    'instead of https://en.example.org/wiki/Adoption_of_the_Gregorian_calendar.',
+            );
         });
     });
 });

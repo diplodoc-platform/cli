@@ -43,6 +43,8 @@ import {
     splitFragments,
 } from './prompts';
 import {untranslatedMarker} from './utils/script';
+import {localizedUrls, revertedUrls} from './utils/links';
+import {restoreFragments} from './utils/skeleton';
 import {judgeTranslations} from './judge';
 
 export {untranslatedMarker};
@@ -122,6 +124,9 @@ export class Provider {
                     varsFor,
                     code: config.code,
                     translate,
+                    store,
+                    stat,
+                    logger: this.logger,
                     onTranslated: collect,
                 });
 
@@ -153,7 +158,10 @@ export class Provider {
                             ? ` untranslated-retried: ${stat.untranslatedRetried}` +
                               ` untranslated-kept: ${stat.untranslatedKept}`
                             : '') +
-                        (stat.memoryHints ? ` memory-hints: ${stat.memoryHints}` : ''),
+                        (stat.memoryHints ? ` memory-hints: ${stat.memoryHints}` : '') +
+                        (stat.fragmentsRestored
+                            ? ` restored-fragments: ${stat.fragmentsRestored}`
+                            : ''),
                 );
 
                 const judge = pairs.length
@@ -352,6 +360,10 @@ type ProcessorParams = {
     varsFor: VarsResolver;
     code: CodeMode;
     translate: Translate;
+    /** Seed memory of the files: localized skeleton fragments and links. */
+    store?: TranslationStore;
+    stat?: TargetStat;
+    logger?: Pick<TranslateLogger, 'warn'>;
     onTranslated?: (path: string, units: string[], parts: string[]) => void;
 };
 
@@ -442,10 +454,22 @@ function makeJudgeCollector(pairs: JudgePair[]) {
 }
 
 function makeProcessor(params: ProcessorParams) {
-    const {input, output, sourceLanguage, targetLanguage, varsFor, code, translate, onTranslated} =
-        params;
+    const {
+        input,
+        output,
+        sourceLanguage,
+        targetLanguage,
+        varsFor,
+        code,
+        translate,
+        store,
+        stat,
+        logger,
+        onTranslated,
+    } = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
+    const languages = [sourceLanguage, targetLanguage];
 
     return async function (path: string) {
         const ext = extname(path);
@@ -474,9 +498,64 @@ function makeProcessor(params: ProcessorParams) {
 
         onTranslated?.(path, units, parts);
 
-        content.set(compose(skeleton, parts, {useSource: true, schemas, ajvOptions}));
+        const composed = keepLocalized(path, skeleton, units, parts);
+
+        content.set(compose(composed, parts, {useSource: true, schemas, ajvOptions}));
         await content.dump(outputPath);
     };
+
+    /**
+     * The output is composed from the source skeleton, so what the
+     * translator localized outside the units would come back from the
+     * source. The code blocks, heading ids and link destinations the seed
+     * recorded for the file are put back where the source did not change
+     * them; what could
+     * not be kept, and links that point to a source address again, are
+     * reported per file for the reviewer.
+     */
+    function keepLocalized<T>(path: string, skeleton: T, units: string[], parts: string[]): T {
+        if (!store) {
+            return skeleton;
+        }
+
+        const reverted = revertedUrls(parts, localizedUrls(store.memory(path), languages));
+        if (reverted.length) {
+            const [[url, localized]] = reverted;
+            logger?.warn(
+                path,
+                `Existing translation localized ${plural(reverted.length, 'link')} ` +
+                    `the output takes from the source again, e.g. ${url} instead of ${localized}.`,
+            );
+        }
+
+        if (typeof skeleton !== 'string') {
+            return skeleton;
+        }
+
+        const restored = restoreFragments(skeleton, units, store.fragments(path));
+        if (stat) {
+            stat.fragmentsRestored += restored.restored;
+        }
+
+        const {code: blocks, line: lines} = restored.dropped;
+        if (blocks || lines) {
+            const dropped = [
+                blocks ? plural(blocks, 'code block') : '',
+                lines ? `heading ids or link addresses in ${plural(lines, 'line')}` : '',
+            ].filter(Boolean);
+            logger?.warn(
+                path,
+                `Existing translation localized ${dropped.join(' and ')} ` +
+                    'the source has changed since; the output takes them from the source.',
+            );
+        }
+
+        return restored.skeleton as T;
+    }
+}
+
+function plural(count: number, noun: string): string {
+    return `${count} ${noun}${count === 1 ? '' : 's'}`;
 }
 
 type TranslatorParams = {

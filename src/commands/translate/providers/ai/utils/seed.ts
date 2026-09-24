@@ -1,4 +1,5 @@
 import type {JSONObject} from '@diplodoc/translation';
+import type {SkeletonFragment} from './skeleton';
 
 import {
     alignBlocks,
@@ -11,6 +12,7 @@ import {
 } from './align';
 import {keepsMarkup, restoreHoistedMarkers} from './markup';
 import {foreignWordPattern, untranslatedMarker} from './script';
+import {skeletonFragments} from './skeleton';
 
 export type TranslationSide = {
     units: string[];
@@ -31,6 +33,8 @@ export type AlignedUnits = {
     unseeded: number;
     /** Pairs kept for the file only, see `doubtfulPair`. */
     doubtful: number;
+    /** Localized code blocks and lines of the translation, see `skeletonFragments`. */
+    fragments: SkeletonFragment[];
     blocks: {
         source: number;
         target: number;
@@ -73,16 +77,23 @@ export function alignTranslationUnits(
     const linkLanguages = [languages.source, languages.target];
     const sourceBlocks = parseBlocks(source.skeleton, source.units, linkLanguages);
     const targetBlocks = parseBlocks(target.skeleton, target.units, linkLanguages);
+    const blockPairs = alignBlocks(sourceBlocks, targetBlocks);
     const result: AlignedUnits = {
         pairs: [],
         skipped: 0,
         unseeded: 0,
         doubtful: 0,
+        fragments: skeletonFragments(
+            source,
+            target,
+            {source: sourceBlocks, target: targetBlocks, pairs: blockPairs},
+            languages,
+        ),
         blocks: {source: sourceBlocks.length, target: targetBlocks.length, paired: 0},
     };
     const seeded = new Set<number>();
 
-    for (const [i, j] of alignBlocks(sourceBlocks, targetBlocks)) {
+    for (const [i, j] of blockPairs) {
         result.blocks.paired++;
 
         for (const [s, targetUnit] of pairBlockUnits(
@@ -233,20 +244,24 @@ function inProse(unit: string, code: string): boolean {
 
 /**
  * Whether every link of `from` has a link to the same page in `unit`, see
- * `linkRelation`; with `nested`, also one to the page under another section.
+ * `linkRelation`; with `nested`, also one to the page under another section
+ * or to the page of the edition of the site in the other language.
  */
 function hasLinksOf(unit: string, from: string, languages: string[], nested: boolean): boolean {
     const links = unitLinks(unit);
     const accepted = (link: string, other: string) => {
         const relation = linkRelation(link, other, languages);
 
-        return relation === 'same' || (nested && relation === 'nested');
+        return relation === 'same' || (nested && relation !== 'other');
     };
 
     return unitLinks(from).every((link) => links.some((other) => accepted(link, other)));
 }
 
-/** Whether the links of a pair only match with a section of a path added. */
+/**
+ * Whether the links of a pair only match with a section of a path added or
+ * in another edition of the site.
+ */
 function nestedLinks(source: string, target: string, languages: string[]): boolean {
     return (
         !hasLinksOf(target, source, languages, false) ||

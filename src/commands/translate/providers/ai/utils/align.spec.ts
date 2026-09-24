@@ -171,6 +171,54 @@ describe('translate seed alignment', () => {
             expect(third.signature).toBe('1. %%%');
         });
 
+        it('should take heading ids out of the structure into the anchors', () => {
+            const [plain] = blocksOf(['## [[What next]]']);
+            const [own] = blocksOf(['## [[What next]] {#see-also}']);
+            const [spaced] = blocksOf(['## [[What next]] { #see-also }']);
+
+            expect(own.signature).toBe(plain.signature);
+            expect(own.structure).toBe(plain.structure);
+            expect(own.anchors).toEqual(['id:see-also']);
+            expect(spaced.key).toBe(own.key);
+            expect(own.key).not.toBe(plain.key);
+            expect(own.line).toBe(0);
+        });
+
+        it('should read ids from a long line in linear time', () => {
+            const spaces = ' '.repeat(200_000);
+            const started = Date.now();
+            const [block] = blocksOf([`## [[Title]]${spaces}x${spaces}{#id}`]);
+
+            expect(block.anchors).toEqual(['id:id']);
+            expect(Date.now() - started).toBeLessThan(1000);
+        });
+
+        it('should not take the text of an autotitled link for an id', () => {
+            const [link] = blocksOf(['- [[See]] [{#T}](page.md)']);
+
+            expect(link.anchors).toEqual([]);
+            expect(link.signature).toBe('- %%% [{#T}](page.md)');
+        });
+
+        it('should compare link destinations of the skeleton by their path', () => {
+            const item = (url: string) =>
+                parseBlocks(`* [%%%0%%%](${url})`, [unit('Channel')], ['en', 'ru'])[0];
+
+            expect(item('https://t.example/channel_ru').key).toBe(
+                item('https://t.example/channel').key,
+            );
+            expect(item('../ru/page.md').key).toBe(item('../en/page.md').key);
+            expect(item('../ru/a/page.md').key).not.toBe(item('../ru/b/page.md').key);
+            expect(item('{{help-url}}').key).not.toBe(item('{{faq-url}}').key);
+            // Another site is another link, even with the same path.
+            expect(item('https://t.example/team_ru').key).not.toBe(
+                item('https://social.example/team').key,
+            );
+            expect(item('https://ru.example.org/wiki/A').key).toBe(
+                item('https://en.example.org/wiki/A').key,
+            );
+        });
+
         it('should append units missing from the skeleton as their own blocks', () => {
             const blocks = parseBlocks('%%%0%%%', [unit('One.'), unit('Orphan.')]);
 
@@ -217,6 +265,36 @@ describe('translate seed alignment', () => {
     });
 
     describe('alignBlocks', () => {
+        it('should pair a heading with an extra id but not headings with other ids', () => {
+            const source = blocksOf([
+                '# [[Top]]',
+                '[[Intro.]]',
+                '## [[А]] {#rus-a}',
+                '[[One.]]',
+                '## [[Next]]',
+                '[[Two.]]',
+            ]);
+            const target = blocksOf([
+                '# [[Top]]',
+                '[[Intro.]]',
+                '## [[D]] {#d}',
+                '[[One.]]',
+                '## [[Next]] {#next}',
+                '[[Two.]]',
+            ]);
+
+            // The gap around the first heading holds a contradiction: the
+            // headings are different, and the gap is not paired. The second
+            // heading only gained an id.
+            expect(alignBlocks(source, target)).toEqual([
+                [0, 0],
+                [1, 1],
+                [3, 3],
+                [4, 4],
+                [5, 5],
+            ]);
+        });
+
         const section = (version: string, items: string[]) => [
             `{% cut "**[[${version}]]**" %}`,
             '',
@@ -359,6 +437,10 @@ describe('translate seed links and prose', () => {
                 'https://example.com/repo/blob/main/src/examples/sample/main.cpp',
                 '{{source-root}}/src/examples/sample/main.cpp',
             ],
+            ['https://t.example/channel_en', 'https://t.example/channel_ru'],
+            ['https://t.example/channel', 'https://t.example/channel_ru'],
+            ['mailto:team_en@example.com', 'mailto:team-ru@example.com'],
+            ['../_assets/screen-en.png', '../_assets/screen-ru.png'],
         ])('should take %j and %j for the same page', (a, b) => {
             expect(linkRelation(a, b, EN_RU)).toBe('same');
             expect(linkRelation(b, a, EN_RU)).toBe('same');
@@ -374,7 +456,27 @@ describe('translate seed links and prose', () => {
             expect(linkRelation(b, a, EN_RU)).toBe('nested');
         });
 
+        it('should take the same article of two editions of a site for the same page', () => {
+            const a = 'https://en.example.org/wiki/Unix';
+            const b = 'https://ru.example.org/wiki/Unix';
+
+            expect(linkRelation(a, b, EN_RU)).toBe('same');
+        });
+
         it.each([
+            ['https://en.example.org/wiki/Calendar', 'https://ru.example.org/wiki/Календарь'],
+            ['http://en.example.org/wiki/Calendar', 'https://ru.example.org/wiki/Календарь'],
+        ])('should take %j and %j for pages of two editions of a site', (a, b) => {
+            expect(linkRelation(a, b, EN_RU)).toBe('edition');
+            expect(linkRelation(b, a, EN_RU)).toBe('edition');
+        });
+
+        it.each([
+            ['https://en.example.org/wiki/A', 'https://en.example.org/wiki/B'],
+            ['https://en.example.org/wiki/A', 'https://ru.example.org/blog/B'],
+            ['https://example.org/wiki/A', 'https://ru.example.org/wiki/B'],
+            ['https://en.example.org/wiki/A', 'https://ru.example.com/wiki/B'],
+            ['https://example.com/menu', 'https://example.com/me'],
             ['/en/admin/install.md', '/ru/user/install.md'],
             ['/en/docs/install.md', '/ru/docs/admin/install.md'],
             [
