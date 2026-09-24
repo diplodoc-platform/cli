@@ -1234,6 +1234,21 @@ describe('Build watch feature', () => {
             expect(processEntry).toBeCalledTimes(2);
         });
 
+        it('should rebuild an entry when an included code file changes', async () => {
+            await register('./index.md', "{% code './example.ts' %}");
+            await register('./example.ts', 'const value = 1;');
+            await create('./toc.yaml', 'href: index.md');
+
+            depends('entry', 'index.md', 'example.ts');
+            nodeData('entry', 'example.ts', {type: 'source'});
+            expect(processEntry).toBeCalledTimes(1);
+
+            await change('./example.ts', 'const value = 2;');
+
+            expect(processEntry).toBeCalledTimes(2);
+            expect(processEntry).toHaveBeenLastCalledWith('index.md');
+        });
+
         it('should handle asset change without releasing markdown includes', async () => {
             expect(processEntry).not.toBeCalled();
 
