@@ -46,8 +46,9 @@ const AUTOLINK = /<x\b[^>]*\bctype="link_autolink"[^>]*>/g;
 // A link reference definition extracted as text: `[ref]: url`, the url
 // looking like an address (a scheme, a path, a section or a file), not a
 // word (`[Optional]: the value`, `[Note]: e.g.`, `[Deadline]: 12:00`).
-const REFERENCE =
-    /^\s*\[[^\]]+\]:\s*<?((?:[a-z][a-z\d+.-]*:\/\/|\.{0,2}\/|#)[^\s<>]*|[^\s<>]*\.[a-z][a-z\d]{0,4})>?(?:\s|$)/i;
+const REFERENCE = /^\s*\[[^\]]+\]:\s*<?([^\s<>]+)>?(?:\s|$)/;
+const ADDRESS = /^(?:[a-z][a-z\d+.-]*:\/\/|\.{0,2}\/|#)/i;
+const FILE_NAME = /\.[a-z][a-z\d]{0,4}$/i;
 const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
@@ -123,7 +124,7 @@ export function unitLinks(unit: string): string[] {
         }
     }
     const reference = REFERENCE.exec(plain)?.[1];
-    if (reference) {
+    if (reference && (ADDRESS.test(reference) || FILE_NAME.test(reference))) {
         urls.add(reference);
     }
     for (const [url] of plain.matchAll(BARE_URL)) {

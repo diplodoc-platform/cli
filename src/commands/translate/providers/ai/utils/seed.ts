@@ -243,8 +243,8 @@ function inProse(unit: string, code: string): boolean {
     }
 
     const words = code.split(WORD_JOINERS).filter(Boolean);
-    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pattern = words.length > 1 ? words.map(escape).join('[\\s_-]+') : escape(code);
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+    const pattern = words.length > 1 ? words.map(escape).join(String.raw`[\s_-]+`) : escape(code);
     const caseless =
         code.length > 2 &&
         !code.startsWith('-') &&
