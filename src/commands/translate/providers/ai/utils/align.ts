@@ -152,9 +152,10 @@ export function sameLink(a: string, b: string, languages: string[]): boolean {
 }
 
 function splitLink(url: string): {path: string; rest: string} {
-    const [, path, rest = ''] = /^([^?#]*)(.*)$/.exec(url) as RegExpExecArray;
+    const query = url.search(/[?#]/);
+    const end = query < 0 ? url.length : query;
 
-    return {path: path.replace(ORIGIN, ''), rest};
+    return {path: url.slice(0, end).replace(ORIGIN, ''), rest: url.slice(end)};
 }
 
 function pathSegments(path: string, languages: string[]): string[] {
