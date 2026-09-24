@@ -43,8 +43,9 @@ const ENTITY = /&#?\w+;/g;
 const LINK_DESTINATION = /\]\(<?([^\s)<>]+)>?(?:\s[^)]*)?\)/g;
 // An autolink placeholder keeps its url in `equiv-text="&lt;url&gt;"`.
 const AUTOLINK = /<x\b[^>]*\bctype="link_autolink"[^>]*>/g;
-// A link reference definition extracted as text: `[ref]: url`.
-const REFERENCE = /^\s*\[[^\]]+\]:\s*<?(\S+?)>?(?:\s|$)/;
+// A link reference definition extracted as text: `[ref]: url`, the url
+// looking like an address, not a word (`[Optional]: the value...`).
+const REFERENCE = /^\s*\[[^\]]+\]:\s*<?([^\s<>]*[/.#:][^\s<>]*?)>?(?:\s|$)/;
 const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
@@ -243,20 +244,28 @@ function linkParts(url: string, languages: string[]): LinkParts {
     const variables = segments.filter((segment) => segment.includes('{{'));
 
     return {
-        host: linkHost(url) || '',
+        // A language subdomain (`en.wikipedia.org`) is a language segment too.
+        host: (linkHost(url) || '').replace(/^([a-z]{2})\./, (label, code: string) =>
+            codes.has(code) ? '' : label,
+        ),
         segments,
         variable: variables.length === 1 ? segments.indexOf(variables[0]) : -1,
         rest: url.slice(end),
     };
 }
 
-/** Whether one path has only sections more than the other, same query and section. */
+/**
+ * Whether two links lead to one page on two sites that lay their pages out
+ * differently: one path has only sections more than the other, with the
+ * same query and section. On one site that is another page.
+ */
 function nestedPaths(a: string, b: string, languages: string[]): boolean {
     const left = linkParts(a, languages);
     const right = linkParts(b, languages);
 
     return (
         left.rest === right.rest &&
+        Boolean(left.host && right.host && left.host !== right.host) &&
         sameSite(left.host, right.host) &&
         (isSubsequence(left.segments, right.segments) ||
             isSubsequence(right.segments, left.segments))
@@ -267,7 +276,7 @@ function nestedPaths(a: string, b: string, languages: string[]): boolean {
  * Whether the paths match around a variable. With a variable on both sides
  * it has to be the same variable with the same segments around it. With
  * one on one side the segments before it have to start the other path and
- * the segments after it have to end it.
+ * the segments after it, the page at least, have to end it.
  */
 function variableMatch(from: LinkParts, to: LinkParts): boolean {
     if (from.variable >= 0 && to.variable >= 0) {
@@ -278,6 +287,13 @@ function variableMatch(from: LinkParts, to: LinkParts): boolean {
     const before = pattern.segments.slice(0, pattern.variable);
     const after = pattern.segments.slice(pattern.variable + 1);
 
+    // A variable at the end may stand only for a language segment dropped
+    // on the other side (`/docs/{{lang}}/`); for more (`{{link-console}}`,
+    // `/docs/{{page}}`) it says nothing about the page.
+    if (!after.length) {
+        return path.segments.join('/') === before.join('/');
+    }
+
     return (
         before.length + after.length <= path.segments.length &&
         path.segments.slice(0, before.length).join('/') === before.join('/') &&
@@ -287,33 +303,39 @@ function variableMatch(from: LinkParts, to: LinkParts): boolean {
 
 /**
  * Whether two hosts are one site or its translation: the same host, or the
- * same name under another top-level domain (`example.com`, `example.org`,
- * `docs.example.ru`). A relative link belongs to any site.
+ * same domain name under another top-level domain (`example.com` and
+ * `example.org`, `docs.example.com` and `docs.example.org`, not
+ * `console.example.com` and `example.com`). Ports and addresses (`10.0.0.1`,
+ * `localhost`) have to be the same. A relative link belongs to any site.
  */
 function sameSite(left: string, right: string): boolean {
     if (!left || !right || left === right) {
         return true;
     }
 
-    return siteName(left) === siteName(right);
-}
+    const [leftName, leftPort = ''] = left.split(':');
+    const [rightName, rightPort = ''] = right.split(':');
+    const domain = (name: string) => /\.[a-z][a-z\d-]*$/.test(name);
 
-function siteName(host: string): string {
-    const labels = host.split('.');
+    if (leftPort !== rightPort || !domain(leftName) || !domain(rightName)) {
+        return false;
+    }
 
-    return labels.length > 1 ? labels[labels.length - 2] : host;
+    const withoutTop = (name: string) => name.slice(0, name.lastIndexOf('.'));
+
+    return withoutTop(leftName) === withoutTop(rightName);
 }
 
 /**
- * The host of an absolute link as a site: the scheme, credentials, port
- * and a leading `www.` do not make another site.
+ * The host of an absolute link with its port as a site: the scheme,
+ * credentials and a leading `www.` do not make another site.
  */
 function linkHost(url: string): string | undefined {
     const authority = ORIGIN.exec(url)?.[1];
 
     return authority
         ?.replace(/^[^@]*@/, '')
-        .replace(/:\d*$/, '')
+        .replace(/:$/, '')
         .replace(/^www\./i, '')
         .toLowerCase();
 }
@@ -779,12 +801,10 @@ function matchByPages(matching: Matching, languages: string[]) {
 
 /**
  * Whether every link of each block leads to the page of a link of the other
- * as far as block alignment is concerned: the same page, or paths one of
- * which only has a section more (`doc/dg/objects/x.html` for
- * `doc/en/objects/x.html`). Whether the unit carrying such a link is
- * reused is up to `linkRelation`; its neighbours in the block do not
- * depend on it. Paths that differ in a section (`compute/index.md`,
- * `storage/index.md`) are other pages, and so are the blocks.
+ * as far as block alignment is concerned: the same page, or the page on
+ * another site laid out differently, see `nestedPaths`. Pages of the same
+ * name in different sections of one site (`compute/index.md`,
+ * `docs/index.md`) are other pages, and so are the blocks.
  */
 function blocksLinked(source: Block, target: Block, languages: string[]): boolean {
     const related = (from: string, to: string) =>

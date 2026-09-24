@@ -219,24 +219,38 @@ function codesMatch(source: string, target: string): boolean {
 
 // Separators of the words of an identifier written as words.
 const WORD_JOINERS = /[\s_-]+/;
-// A word of its own: no letter, digit or identifier joiner right around it.
-const WORD_START = String.raw`(?<![\p{L}\p{N}_]|[\p{L}\p{N}]-)`;
-const WORD_END = String.raw`(?![\p{L}\p{N}_]|-[\p{L}\p{N}])`;
+// A word of its own: no letter or digit around it, and no joiner of a
+// longer identifier, path or name (`row_cache_size`, `config.yaml`,
+// `/usr/bin`, `$HOME`, `C++`).
+const WORD_START = String.raw`(?<![\p{L}\p{N}_$]|[\p{L}\p{N}][-.\/:@#+])`;
+const WORD_END = String.raw`(?![\p{L}\p{N}_+]|[-.\/:@#][\p{L}\p{N}])`;
 
 /**
- * Whether the plain text of a unit has the code as a word of its own, in
- * any case ("JSON" for `json`), an identifier of several words
- * (`row_cache`) with any of the separators ("Row cache", "row-cache"). A
- * longer word or identifier around it does not count: `id` is not in
- * "uuid", `row_cache` is not in `row_cache_size`.
+ * Whether the plain text of a unit has the code as a word of its own, an
+ * identifier of several words (`row_cache`) with any separators ("row
+ * cache", "row-cache"). A longer word, identifier or path around it does
+ * not count: `id` is not in "uuid", `row_cache` is not in `row_cache_size`,
+ * `config` is not in "config.yaml". Case may differ only for a word of one
+ * case longer than two characters ("JSON" for `json`), not for a flag
+ * (`-f`, `-F`) or a name in mixed case (`getUser`). A code of one character
+ * or without letters and digits is never confirmed by text.
  */
 function inProse(unit: string, code: string): boolean {
-    const prose = unitProse(unit);
+    if ([...code].length < 2 || !/[\p{L}\p{N}]/u.test(code)) {
+        return false;
+    }
+
     const words = code.split(WORD_JOINERS).filter(Boolean);
     const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const pattern = words.length > 1 ? words.map(escape).join('[\\s_-]+') : escape(code);
+    const caseless =
+        code.length > 2 &&
+        !code.startsWith('-') &&
+        (code === code.toLowerCase() || code === code.toUpperCase());
 
-    return new RegExp(`${WORD_START}${pattern}${WORD_END}`, 'iu').test(prose);
+    return new RegExp(`${WORD_START}${pattern}${WORD_END}`, caseless ? 'iu' : 'u').test(
+        unitProse(unit),
+    );
 }
 
 /**

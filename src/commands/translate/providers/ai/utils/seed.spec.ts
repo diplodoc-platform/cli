@@ -588,10 +588,41 @@ describe('translate seed pairs that must not be reused', () => {
         expect(result.pairs).toEqual([]);
     });
 
+    it('should not pin list items by a page on the same site under another section', () => {
+        const result = alignTranslationUnits(
+            side([
+                `- [[Admin guide.]] [[Read ${link('install', 'docs/admin/install.md')}.]]`,
+                `- [[User guide.]] [[Read ${link('install', 'docs/user/install.md')}.]]`,
+            ]),
+            side([`- [[Руководство.]] [[Прочитайте ${link('установка', 'docs/install.md')}.]]`]),
+            EN_RU,
+        );
+
+        expect(result.pairs).toEqual([]);
+    });
+
+    it('should not reuse a link written as a variable for the whole address', () => {
+        const result = alignTranslationUnits(
+            side([`- [[Open the ${link('console', '{{link-console-main}}')}.]]`]),
+            side([`- [[Откройте ${link('консоль', 'https://example.com/billing/accounts')}.]]`]),
+            EN_RU,
+        );
+
+        expect(result.pairs).toEqual([]);
+    });
+
     it.each([
         ['a longer identifier', 'Set row_cache_size.', `Задайте ${code('row_cache')}.`],
         ['a part of a word', 'Specify the uuid.', `Укажите ${code('id')}.`],
         ['words across a boundary', 'Call reset identity.', `Вызовите ${code('set_id')}.`],
+        ['a flag in another case', 'Use the -F flag.', `Используйте флаг ${code('-f')}.`],
+        ['an article', 'Pass a value.', `Передайте ${code('a')}.`],
+        ['a dash', 'Items - list.', `Элементы ${code('-')} список.`],
+        ['a file name', 'Edit config.yaml now.', `Измените ${code('config')}.`],
+        ['a part of a dotted name', 'Call foo.bar here.', `Вызовите ${code('bar')}.`],
+        ['a part of a path', 'Look in /usr/bin today.', `Загляните в ${code('bin')}.`],
+        ['a variable', 'Set $HOME first.', `Задайте ${code('HOME')}.`],
+        ['a name in mixed case', 'Use getuser now.', `Используйте ${code('getUser')}.`],
     ])('should not confirm code by %s', (_, source, translation) => {
         expect(compatibleUnits(unit(source), unit(translation), ['en', 'ru'])).toBe(false);
     });

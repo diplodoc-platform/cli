@@ -395,6 +395,19 @@ describe('translate seed links and prose', () => {
             // A variable matches only the literal segments around it.
             ['{{root}}/admin/install.md', '{{root}}/install.md'],
             ['{{admin-root}}/install.md', '{{user-root}}/install.md'],
+            // A variable for the whole address or its end says nothing of the page.
+            ['{{link-console-main}}', 'https://example.com/billing/accounts'],
+            ['/docs/{{page}}', '/docs/admin/upgrade.md'],
+            // Other sites: subdomains, shared suffixes, addresses and ports.
+            ['https://console.example.com/', 'https://example.com/'],
+            ['https://docs.example.com/install.html', 'https://blog.example.com/install.html'],
+            [
+                'https://alice.github.io/tool/install.html',
+                'https://bob.github.io/tool/install.html',
+            ],
+            ['https://shop.co.uk/docs/install.html', 'https://other.co.uk/docs/install.html'],
+            ['http://10.0.0.1/admin', 'http://192.168.0.1/admin'],
+            ['http://localhost:8080/api', 'http://localhost:9090/api'],
             ['/docs/admin/install.md', '/guide/{{lang}}/install.md'],
             ['/docs/admin/install.md', '{{root}}/user/install.md'],
         ])('should tell source %j from translation %j', (source, target) => {
@@ -406,7 +419,9 @@ describe('translate seed links and prose', () => {
             ['{{root}}/src/main.cpp', '{{root}}/src/main.cpp'],
             ['https://example.com/repo/blob/main/src/main.cpp', '{{source-root}}/src/main.cpp'],
             ['/docs/admin/install.md', '/docs/{{section}}/install.md'],
-            ['https://example.com/docs/page.md', 'https://docs.example.ru/docs/page.md'],
+            ['https://docs.example.com/docs/page.md', 'https://docs.example.ru/docs/page.md'],
+            ['https://en.example.org/wiki/MD5', 'https://ru.example.org/wiki/MD5'],
+            ['https://example.com/docs/{{lang}}/', 'https://example.com/docs/ru/'],
         ])('should take source %j and translation %j for the same page', (source, target) => {
             expect(linkRelation(source, target, EN_RU)).toBe('same');
         });

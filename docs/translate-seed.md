@@ -50,10 +50,13 @@ request, a wrong pair puts a wrong sentence into the document.
 
 A link is present when the other side has a link to the same page, not a
 word of its text: the same query and section, and the same path once the
-domain and the language segments are dropped. A variable in the path
-(`{{source-root}}/src/main.cpp`) matches the literal segments around it.
-Another domain counts only for the same site name (`example.com` and
-`example.org`, not `github.com` and `gitlab.com`). The source path may
+domain and the language segments (`/en/`, `en.` in the host) are dropped.
+A variable in the path (`{{source-root}}/src/main.cpp`) matches the literal
+segments around it and needs the page after it; at the end of the path it
+may stand only for a language segment (`/docs/{{lang}}/`). Another domain
+counts only when it differs in the top-level domain alone (`example.com`
+and `example.org`, not `console.example.com` and `example.com`, not
+`github.com` and `gitlab.com`); ports and addresses have to match. The source path may
 have a section more than the translation only on another site, which lays
 its pages out differently (`example.com/.../v5/changes/check.html` for
 `example.org/.../changes/check.html`): such a pair is seeded for its file
@@ -64,17 +67,21 @@ source has just fixed, and the unit is not seeded.
 Blocks are aligned by their links first as they are (paths without the
 domain and the language segments), then, in the gaps left, by the pages
 the links lead to when every link of one block leads to the page of a
-link of the other or differs from it only in a section more. Pages of the
-same name in different sections (`compute/index.md`, `storage/index.md`)
-never pin a block pair.
+link of the other, or of another site laid out differently. Pages of the
+same name in different sections of one site (`compute/index.md`,
+`docs/index.md`) never pin a block pair.
 
 A code span pairs with a code span of the same text on the other side,
 however many times each side repeats it. One left without a pair may be
-a word of its own in the plain text of the other side, in any case
-("JSON" for `json`), an identifier of several words with any separators
-("row cache" for `row_cache`), but only while the other side has no code
-of its own left: a changed identifier is not confirmed by plain text
-around it, and a longer word does not count (`id` is not in "uuid").
+a word of its own in the plain text of the other side, an identifier of
+several words with any separators ("row cache" for `row_cache`), but only
+while the other side has no code of its own left: a changed identifier is
+not confirmed by plain text around it. A longer word, identifier or path
+does not count (`id` is not in "uuid", `config` is not in "config.yaml").
+Case may differ only for a word of one case longer than two characters
+("JSON" for `json`), not for a flag (`-f`) or a name in mixed case
+(`getUser`); a code of one character or without letters is never
+confirmed by text.
 
 Identity pairs that still contain source-script characters are untranslated
 leftovers and are not seeded, so the next run gets another chance at them.
