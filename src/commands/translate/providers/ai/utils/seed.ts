@@ -184,11 +184,14 @@ export function compatibleUnits(source: string, target: string): boolean {
     }
 
     // A link is present when the other side has the same one, up to its
-    // language segment; code may also turn up as plain text there.
+    // language segment; code may also turn up as plain text there, with
+    // spaces for its underscores (`row_cache` for "row cache").
     const present = (anchors: string[], text: string) => {
         const other = new Set(tokens(anchors));
+        const words = loosen(text);
 
-        return (token: string) => other.has(token) || text.includes(token);
+        return (token: string) =>
+            other.has(token) || text.includes(token) || words.includes(loosen(token));
     };
 
     if (
@@ -199,6 +202,13 @@ export function compatibleUnits(source: string, target: string): boolean {
     }
 
     return keepsMarkup(sourceText, targetText);
+}
+
+const WORD_JOINERS = /[\s_-]+/g;
+
+/** Text with word separators unified, to find an identifier written as words. */
+function loosen(text: string): string {
+    return text.replace(WORD_JOINERS, ' ').toLowerCase();
 }
 
 // A pair this much longer on one side is rarely a translation; short units

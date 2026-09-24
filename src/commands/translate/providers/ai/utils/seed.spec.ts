@@ -33,6 +33,15 @@ describe('translate seed pairs', () => {
             ).toBe(true);
         });
 
+        it('should accept a translation that put words into code as an identifier', () => {
+            expect(
+                compatibleUnits(
+                    unit('Support row cache for following tablet cell peers'),
+                    unit(`Поддержка ${code('row_cache')} для ведомых пиров`),
+                ),
+            ).toBe(true);
+        });
+
         it('should accept a range written with another dash', () => {
             expect(
                 compatibleUnits(

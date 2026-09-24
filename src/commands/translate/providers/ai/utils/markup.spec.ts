@@ -263,6 +263,12 @@ describe('stripAddedMarkup', () => {
 describe('keepsMarkup', () => {
     const source = `x.y${CODE_CLOSE} is the prefix, ${CODE_OPEN}z.w${CODE_CLOSE} kept as alias`;
 
+    it('should not take underscores inside code for emphasis', () => {
+        expect(
+            keepsMarkup('Support row cache', `Поддержка ${CODE_OPEN}row_cache${CODE_CLOSE}`),
+        ).toBe(true);
+    });
+
     it('should accept a translation that keeps every placeholder', () => {
         const translation = `x.y${CODE_CLOSE} это префикс, ${CODE_OPEN}z.w${CODE_CLOSE} как алиас`;
 
