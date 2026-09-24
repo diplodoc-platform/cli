@@ -33,13 +33,28 @@ describe('translate seed pairs', () => {
             ).toBe(true);
         });
 
-        it('should accept a translation that put words into code as an identifier', () => {
-            expect(
-                compatibleUnits(
-                    unit('Support row cache for following tablet cell peers'),
-                    unit(`Поддержка ${code('row_cache')} для ведомых пиров`),
-                ),
-            ).toBe(true);
+        describe('identifiers put into code', () => {
+            it.each([
+                ['Support row cache for peers', 'row_cache'],
+                ['Support row-cache for peers', 'row_cache'],
+                ['Support Row Cache for peers', 'row_cache'],
+                ['Support row cache for peers', 'row-cache'],
+                ['Use the wait_for method', 'wait_for'],
+            ])('should accept %j with %j in code', (source, identifier) => {
+                expect(
+                    compatibleUnits(unit(source), unit(`Поддержка ${code(identifier)} для пиров`)),
+                ).toBe(true);
+            });
+
+            it.each([
+                ['Support column cache for peers', 'row_cache'],
+                ['Support rowcache for peers', 'row_cache'],
+                ['Support row cache for peers', 'row_cache_size'],
+            ])('should reject %j with %j in code', (source, identifier) => {
+                expect(
+                    compatibleUnits(unit(source), unit(`Поддержка ${code(identifier)} для пиров`)),
+                ).toBe(false);
+            });
         });
 
         it('should accept a range written with another dash', () => {
@@ -64,22 +79,49 @@ describe('translate seed pairs', () => {
         const link = (text: string, url: string) =>
             `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
 
-        it('should accept a link localized to the translation language', () => {
-            expect(
-                compatibleUnits(
-                    unit(`More details ${link('here', 'https://ytsaurus.tech/en/blog/post')}.`),
-                    unit(`Подробнее ${link('здесь', 'https://ytsaurus.tech/ru/blog/post')}.`),
-                ),
-            ).toBe(true);
-        });
+        describe('localized links', () => {
+            const EN_RU_LANGUAGES = ['en', 'ru'];
+            const pair = (from: string, to: string) =>
+                [
+                    unit(`More details ${link('here', from)}.`),
+                    unit(`Подробнее ${link('здесь', to)}.`),
+                ] as const;
 
-        it('should reject units whose links lead to different pages', () => {
-            expect(
-                compatibleUnits(
-                    unit(`More details ${link('here', 'https://ytsaurus.tech/en/blog/post')}.`),
-                    unit(`Подробнее ${link('здесь', 'https://ytsaurus.tech/ru/blog/other')}.`),
-                ),
-            ).toBe(false);
+            it('should accept a link localized to the translation language', () => {
+                const [source, target] = pair(
+                    'https://ytsaurus.tech/en/blog/post',
+                    'https://ytsaurus.tech/ru/blog/post',
+                );
+
+                expect(compatibleUnits(source, target, EN_RU_LANGUAGES)).toBe(true);
+            });
+
+            it('should compare links as they are without languages', () => {
+                const [source, target] = pair(
+                    'https://ytsaurus.tech/en/blog/post',
+                    'https://ytsaurus.tech/ru/blog/post',
+                );
+
+                expect(compatibleUnits(source, target)).toBe(false);
+            });
+
+            it('should accept a link to the same page on another domain', () => {
+                const [source, target] = pair(
+                    'https://yandex.ru/dev/direct/doc/ref-v5/changes/check.html',
+                    'https://yandex.com/dev/direct/doc/changes/check.html',
+                );
+
+                expect(compatibleUnits(source, target, EN_RU_LANGUAGES)).toBe(true);
+            });
+
+            it.each([
+                ['https://ytsaurus.tech/en/blog/post', 'https://ytsaurus.tech/ru/blog/other'],
+                ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],
+            ])('should reject %j translated as %j', (from, to) => {
+                const [source, target] = pair(from, to);
+
+                expect(compatibleUnits(source, target, EN_RU_LANGUAGES)).toBe(false);
+            });
         });
 
         it('should reject a unit whose code marker was hoisted into its own skeleton', () => {
@@ -291,5 +333,25 @@ describe('translate seed pairs with hoisted markers', () => {
         );
 
         expect(result.pairs).toEqual([[unit(source), unit(translation)]]);
+    });
+});
+
+describe('translate seed pairs with localized links', () => {
+    const link = (text: string, url: string) =>
+        `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
+
+    it('should seed a translation keeping its own localized link', () => {
+        const source = `${link('Documentation', 'https://ytsaurus.tech/docs/en/gpu')}.`;
+        const translation = `${link('Документация', 'https://ytsaurus.tech/docs/ru/gpu')}.`;
+        const result = alignTranslationUnits(
+            side([`- [[Added GPU checks.]] [[${source}]]`]),
+            side([`- [[Добавлены проверки GPU.]] [[${translation}]]`]),
+            {source: 'en', target: 'ru'},
+        );
+
+        expect(result.pairs).toEqual([
+            [unit('Added GPU checks.'), unit('Добавлены проверки GPU.')],
+            [unit(source), unit(translation)],
+        ]);
     });
 });

@@ -28,6 +28,8 @@ const LEADING_INDENT = /^[ \t]*/;
 const BULLET = /^[*+] /;
 const ORDERED = /^\d+[.)] /;
 const PLACEHOLDER_RUN = /%%%(?: %%%)+/g;
+// Spaces around a table cell separator: `|Continent |` is the same cell as `|Континент|`.
+const CELL_SEPARATOR_SPACE = / ?\| ?/g;
 
 const SOURCE_WRAPPER = /^\s*<source(?:\s[^>]*)?>([\s\S]*)<\/source>\s*$/;
 // `[^<>]` keeps a run of unclosed `<` from being rescanned quadratically.
@@ -37,8 +39,8 @@ const LINK_DESTINATION = /\]\(([^)\s"]+)\)/g;
 const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
-// A language path segment of a localized link: `/en/`, `/ru/`, `/en-us/`.
-const LANGUAGE_SEGMENT = /\/[a-z]{2}(?:-[a-z]{2})?(?=\/|$)/gi;
+// A path segment naming a language: `en`, `ru`, `en-us`.
+const LANGUAGE = /^([a-z]{2})(?:-[a-z]{2})?$/i;
 
 /** Locale-independent string order: anchors and keys must compare the same on every machine. */
 function byCodePoint(a: string, b: string): number {
@@ -54,8 +56,8 @@ function byCodePoint(a: string, b: string): number {
  * different sentences rarely do, so the tokens both pin blocks during
  * alignment and reject wrong pairs.
  *
- * Links are compared with their language segments masked, see
- * `languageNeutralUrl`.
+ * Links are compared by their page when languages are given, see
+ * `linkAnchor`.
  *
  * Numbers are read from the tag-stripped text only: placeholder ids and
  * entities inside tags are transport noise. Dotted numbers stay whole
@@ -65,7 +67,7 @@ function byCodePoint(a: string, b: string): number {
  * the skeleton leaves an unpaired placeholder, and the span then runs to
  * the unit edge.
  */
-export function unitAnchors(unit: string): string[] {
+export function unitAnchors(unit: string, languages: string[] = []): string[] {
     const text = unwrap(unit);
     const plain = text.replace(TAG, ' ').replace(ENTITY, ' ');
     const anchors: string[] = [];
@@ -78,7 +80,7 @@ export function unitAnchors(unit: string): string[] {
         urls.add(url);
     }
     for (const url of urls) {
-        anchors.push('url:' + languageNeutralUrl(url));
+        anchors.push('url:' + linkAnchor(url, languages));
     }
 
     for (const code of codeSpans(text)) {
@@ -93,12 +95,30 @@ export function unitAnchors(unit: string): string[] {
 }
 
 /**
- * The link with its language segments masked. A translator points a link
- * to the page in the language of the translation (`/docs/ru/...` for
- * `/docs/en/...`), and both still stand for the same link.
+ * What a link is compared by. Without languages it is the link as is. When
+ * aligning a translation, a translator points a link to the page for the
+ * translation language: another domain, a language segment, a different
+ * section of the same site (`yandex.ru/dev/direct/doc/ref-v5/changes/check.html`
+ * for `yandex.com/dev/direct/doc/changes/check.html`). The last segment of
+ * the path, the page itself, stays the same, so that is what is compared,
+ * with the section it leads to; a language segment is not a page
+ * (`/docs/en` and `/docs/ru` are `docs`).
  */
-export function languageNeutralUrl(url: string): string {
-    return url.replace(LANGUAGE_SEGMENT, '/*');
+export function linkAnchor(url: string, languages: string[]): string {
+    if (!languages.length) {
+        return url;
+    }
+
+    const codes = new Set(languages.map((language) => language.slice(0, 2).toLowerCase()));
+    const [, path, hash = ''] = /^([^?#]*)(?:\?[^#]*)?(#.*)?$/.exec(url) as RegExpExecArray;
+    const segments = path.split('/').filter((segment) => {
+        const language = LANGUAGE.exec(segment)?.[1];
+
+        return segment && !(language && codes.has(language.toLowerCase()));
+    });
+    const page = segments[segments.length - 1];
+
+    return page ? page + hash : url;
 }
 
 /** The unit text without its XLIFF `<source>` wrapper. */
@@ -140,18 +160,22 @@ function codeSpans(text: string): string[] {
  * Units that no skeleton line carries (there should be none) are appended as
  * blocks of their own, so that every unit belongs to exactly one block.
  */
-export function parseBlocks(skeleton: string | JSONObject | undefined, units: string[]): Block[] {
+export function parseBlocks(
+    skeleton: string | JSONObject | undefined,
+    units: string[],
+    languages: string[] = [],
+): Block[] {
     let blocks: Block[] = [];
     if (typeof skeleton === 'string') {
-        blocks = markdownBlocks(skeleton, units);
+        blocks = markdownBlocks(skeleton, units, languages);
     } else if (skeleton) {
-        blocks = objectBlocks(skeleton, units);
+        blocks = objectBlocks(skeleton, units, languages);
     }
 
     const seen = new Set(blocks.flatMap((block) => block.units));
     for (let index = 0; index < units.length; index++) {
         if (!seen.has(index)) {
-            blocks.push(makeBlock([index], '', '', [], units));
+            blocks.push(makeBlock([index], '', '', [], units, languages));
         }
     }
 
@@ -164,10 +188,12 @@ function makeBlock(
     structure: string,
     context: string[],
     units: string[],
+    languages: string[],
 ): Block {
-    const anchors = [...context, ...ids.flatMap((id) => unitAnchors(units[id] ?? ''))].sort(
-        byCodePoint,
-    );
+    const anchors = [
+        ...context,
+        ...ids.flatMap((id) => unitAnchors(units[id] ?? '', languages)),
+    ].sort(byCodePoint);
 
     return {units: ids, signature, structure, anchors, key: JSON.stringify([signature, anchors])};
 }
@@ -176,9 +202,10 @@ function makeBlock(
  * The signature keeps what tells blocks apart structurally: indentation,
  * list markers, container syntax, link destinations. Inline markup is
  * dropped because the translation may hoist emphasis and code markers into
- * the skeleton differently, and list marker flavours are unified.
+ * the skeleton differently, list marker flavours are unified, and spaces
+ * around table cell separators are dropped.
  */
-function markdownBlocks(skeleton: string, units: string[]): Block[] {
+function markdownBlocks(skeleton: string, units: string[], languages: string[]): Block[] {
     const blocks: Block[] = [];
 
     for (const line of skeleton.split('\n')) {
@@ -196,11 +223,12 @@ function markdownBlocks(skeleton: string, units: string[]): Block[] {
             .replace(PLACEHOLDER, '%%%')
             .replace(INLINE_MARKUP, '')
             .replace(/\s+/g, ' ')
+            .replace(CELL_SEPARATOR_SPACE, '|')
             .trim();
         const signature = indent + body;
         const structure = indent + body.replace(PLACEHOLDER_RUN, '%%%');
 
-        blocks.push(makeBlock(ids, signature, structure, [], units));
+        blocks.push(makeBlock(ids, signature, structure, [], units, languages));
     }
 
     return blocks;
@@ -211,7 +239,7 @@ function markdownBlocks(skeleton: string, units: string[]): Block[] {
  * the object it belongs to: in a toc the `href` tells entries apart, the
  * `name` is what gets translated.
  */
-function objectBlocks(skeleton: JSONObject, units: string[]): Block[] {
+function objectBlocks(skeleton: JSONObject, units: string[], languages: string[]): Block[] {
     const blocks: Block[] = [];
 
     visit(skeleton, '', []);
@@ -222,7 +250,7 @@ function objectBlocks(skeleton: JSONObject, units: string[]): Block[] {
         if (typeof node === 'string') {
             const ids = Array.from(node.matchAll(PLACEHOLDER), (match) => Number(match[1]));
             if (ids.length) {
-                blocks.push(makeBlock(ids, path, path, context, units));
+                blocks.push(makeBlock(ids, path, path, context, units, languages));
             }
             return;
         }

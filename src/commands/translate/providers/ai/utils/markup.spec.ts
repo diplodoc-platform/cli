@@ -263,10 +263,27 @@ describe('stripAddedMarkup', () => {
 describe('keepsMarkup', () => {
     const source = `x.y${CODE_CLOSE} is the prefix, ${CODE_OPEN}z.w${CODE_CLOSE} kept as alias`;
 
-    it('should not take underscores inside code for emphasis', () => {
-        expect(
-            keepsMarkup('Support row cache', `Поддержка ${CODE_OPEN}row_cache${CODE_CLOSE}`),
-        ).toBe(true);
+    describe('underscores', () => {
+        it.each([
+            ['Support row cache', `Поддержка ${CODE_OPEN}row_cache${CODE_CLOSE}`],
+            ['Support row_cache', 'Поддержка row_cache'],
+            ['Use wait_for', `Используйте ${CODE_OPEN}wait_for${CODE_CLOSE}`],
+            ['Use a__b and c_d_e', 'Используйте a__b и c_d_e'],
+        ])('should not take underscores inside a word for emphasis: %j', (source, translation) => {
+            expect(keepsMarkup(source, translation)).toBe(true);
+        });
+
+        it('should still reject a translation that lost the code of an identifier', () => {
+            expect(
+                keepsMarkup(`Use ${CODE_OPEN}wait_for${CODE_CLOSE}`, 'Используйте wait_for'),
+            ).toBe(false);
+        });
+
+        it('should still count emphasis written with underscores', () => {
+            expect(keepsMarkup('An _important_ note', 'Важная заметка')).toBe(false);
+            expect(keepsMarkup('An important note', 'Важная _заметка')).toBe(false);
+            expect(keepsMarkup('An important note', 'Важная _заметка_')).toBe(true);
+        });
     });
 
     it('should accept a translation that keeps every placeholder', () => {

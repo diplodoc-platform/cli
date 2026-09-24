@@ -62,8 +62,9 @@ export function alignTranslationUnits(
 ): AlignedUnits {
     const marker = untranslatedMarker(languages.source, languages.target);
     const doubtful = doubtfulPair(languages);
-    const sourceBlocks = parseBlocks(source.skeleton, source.units);
-    const targetBlocks = parseBlocks(target.skeleton, target.units);
+    const linkLanguages = [languages.source, languages.target];
+    const sourceBlocks = parseBlocks(source.skeleton, source.units, linkLanguages);
+    const targetBlocks = parseBlocks(target.skeleton, target.units, linkLanguages);
     const result: AlignedUnits = {
         pairs: [],
         skipped: 0,
@@ -81,6 +82,7 @@ export function alignTranslationUnits(
             targetBlocks[j].units,
             source.units,
             target.units,
+            linkLanguages,
         )) {
             const sourceUnit = source.units[s];
 
@@ -115,14 +117,15 @@ function pairBlockUnits(
     targetIds: number[],
     sourceUnits: string[],
     targetUnits: string[],
+    languages: string[],
 ): [number, string][] {
     const candidates: [number, number][] = [];
 
     if (sourceIds.length === targetIds.length) {
         sourceIds.forEach((id, k) => candidates.push([id, targetIds[k]]));
     } else {
-        const bySource = uniqueAnchors(sourceIds, sourceUnits);
-        const byTarget = uniqueAnchors(targetIds, targetUnits);
+        const bySource = uniqueAnchors(sourceIds, sourceUnits, languages);
+        const byTarget = uniqueAnchors(targetIds, targetUnits, languages);
 
         for (const [anchors, s] of bySource) {
             const t = byTarget.get(anchors);
@@ -134,7 +137,7 @@ function pairBlockUnits(
 
     return candidates
         .map(([s, t]): [number, string] => [s, reusableTarget(sourceUnits[s], targetUnits[t])])
-        .filter(([s, target]) => compatibleUnits(sourceUnits[s], target));
+        .filter(([s, target]) => compatibleUnits(sourceUnits[s], target, languages));
 }
 
 const WRAPPED_UNIT = /^(\s*<source(?:\s[^>]*)?>)([\s\S]*)(<\/source>\s*)$/;
@@ -160,18 +163,18 @@ function reusableTarget(source: string, target: string): string {
 
 /**
  * Whether two units can be translations of each other: same numbers, every
- * code span and link of one present in the other (a link localized to the
- * translation language counts, see `languageNeutralUrl`), and the inline markup of
+ * code span and link of one present in the other (a link localized from one
+ * of `languages` to the other counts, see `linkAnchor`), and the inline markup of
  * the translation consistent with the source. A translator may put a
  * parameter name into code the source left plain, that is fine; a unit
  * whose code marker was hoisted into its own skeleton is not, because the
  * source skeleton would then restore a marker the unit still carries.
  */
-export function compatibleUnits(source: string, target: string): boolean {
+export function compatibleUnits(source: string, target: string, languages: string[] = []): boolean {
     const sourceText = unwrap(source);
     const targetText = unwrap(target);
-    const sourceAnchors = unitAnchors(source);
-    const targetAnchors = unitAnchors(target);
+    const sourceAnchors = unitAnchors(source, languages);
+    const targetAnchors = unitAnchors(target, languages);
 
     const numbers = (anchors: string[]) => anchors.filter((anchor) => anchor.startsWith('num:'));
     const tokens = (anchors: string[]) =>
@@ -183,8 +186,8 @@ export function compatibleUnits(source: string, target: string): boolean {
         return false;
     }
 
-    // A link is present when the other side has the same one, up to its
-    // language segment; code may also turn up as plain text there, with
+    // A link is present when the other side has one to the same page, see
+    // `linkAnchor`; code may also turn up as plain text there, with
     // spaces for its underscores (`row_cache` for "row cache").
     const present = (anchors: string[], text: string) => {
         const other = new Set(tokens(anchors));
@@ -267,12 +270,12 @@ export function doubtfulPair(
 }
 
 /** Units keyed by their anchors, keeping the keys that occur exactly once. */
-function uniqueAnchors(ids: number[], units: string[]): Map<string, number> {
+function uniqueAnchors(ids: number[], units: string[], languages: string[]): Map<string, number> {
     const counts = new Map<string, number>();
     const result = new Map<string, number>();
 
     ids.forEach((id) => {
-        const key = unitAnchors(units[id]).join('\n');
+        const key = unitAnchors(units[id], languages).join('\n');
         if (!key) {
             return;
         }

@@ -43,14 +43,45 @@ describe('translate seed alignment', () => {
             ]);
         });
 
-        it('should mask the language segments of a link', () => {
-            const text = (url: string) =>
-                `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">docs</g>`;
+        describe('links of localized pages', () => {
+            const link = (url: string) =>
+                unit(
+                    `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">docs</g>`,
+                );
+            const EN_RU = ['en', 'ru'];
 
-            expect(unitAnchors(unit(text('https://ytsaurus.tech/docs/en/admin-guide')))).toEqual(
-                unitAnchors(unit(text('https://ytsaurus.tech/docs/ru/admin-guide'))),
-            );
-            expect(unitAnchors(unit(text('/en-us/docs/ru')))).toEqual(['url:/*/docs/*']);
+            it.each([
+                ['https://ytsaurus.tech/docs/en/gpu', 'https://ytsaurus.tech/docs/ru/gpu'],
+                [
+                    'https://yandex.ru/dev/direct/doc/ref-v5/changes/checkDictionaries.html',
+                    'https://yandex.com/dev/direct/doc/changes/checkDictionaries.html',
+                ],
+                ['../ru/concepts/page.md#section', '../en/concepts/page.md#section'],
+                ['https://ytsaurus.tech/docs/ru', 'https://ytsaurus.tech/docs/en/'],
+                ['/en-us/docs/', '/ru-ru/docs'],
+            ])('should compare %j and %j as one page', (from, to) => {
+                expect(unitAnchors(link(from), EN_RU)).toEqual(unitAnchors(link(to), EN_RU));
+            });
+
+            it.each([
+                ['https://ytsaurus.tech/docs/en/gpu', 'https://ytsaurus.tech/docs/en/cpu'],
+                ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],
+                ['pragmas.md#yt.FileCacheTtl', 'pragmas.md#yt.TableContentTmpFolder'],
+            ])('should tell %j from %j', (from, to) => {
+                expect(unitAnchors(link(from), EN_RU)).not.toEqual(unitAnchors(link(to), EN_RU));
+            });
+
+            it('should compare the page by its last segment and section', () => {
+                expect(unitAnchors(link('https://x.y/en/a/b.md?x=1#y'), EN_RU)).toEqual([
+                    'url:b.md#y',
+                ]);
+            });
+
+            it('should keep the links as they are without languages', () => {
+                expect(unitAnchors(link('https://ytsaurus.tech/docs/en/gpu'))).toEqual([
+                    'url:https://ytsaurus.tech/docs/en/gpu',
+                ]);
+            });
         });
 
         it('should ignore numbers inside tag attributes and entities', () => {

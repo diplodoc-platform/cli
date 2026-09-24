@@ -44,8 +44,9 @@ change not translated yet) is left out; a section that moved is found again
 by its anchors.
 
 A pair is kept only when the two units can be translations of each other:
-same numbers, every code span and link of one present in the other (a link
-localized to the translation language, `/en/` to `/ru/`, counts), and
+same numbers, every code span and link of one present in the other (links
+are compared by the page they lead to: a translation pointing to the page
+for its language on another domain or path counts), and
 inline markup consistent between them. An unseeded unit costs one model
 request, a wrong pair puts a wrong sentence into the document.
 
