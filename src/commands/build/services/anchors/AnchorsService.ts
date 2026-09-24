@@ -2,6 +2,7 @@ import type {Run} from '../../run';
 import type {AssetInfo, EntryGraph, EntryGraphNode, IncludeInfo} from '~/core/markdown';
 import type {AnchorIndex} from './types';
 
+import {createHash} from 'node:crypto';
 import {extname, join} from 'node:path';
 import {parseHref} from '@diplodoc/utils';
 
@@ -9,14 +10,15 @@ import {bounded, normalizePath} from '~/core/utils';
 
 const MARKDOWN_EXTENSION = /\.md$/i;
 
+type CacheItem = {
+    signature: string;
+    value: Promise<ReadonlySet<string>>;
+};
+
 export class AnchorsService {
     private readonly run: Run;
 
-    // Anchors are collected once per target page and reused for the whole build.
-    // Watch mode is out of scope here: page content does not change within a
-    // single build run, so a plain per-path memoization is enough and avoids
-    // re-rendering (and re-hashing) a popular page for every incoming link.
-    private readonly cache = new Map<NormalizedPath, Promise<ReadonlySet<string>>>();
+    private readonly cache = new Map<NormalizedPath, CacheItem>();
 
     constructor(run: Run) {
         this.run = run;
@@ -83,28 +85,28 @@ export class AnchorsService {
         return candidate;
     }
 
-    private get(path: NormalizedPath): Promise<ReadonlySet<string>> {
+    private async get(path: NormalizedPath): Promise<ReadonlySet<string>> {
+        const graph = await this.run.markdown.graph(path);
+        const signature = getGraphSignature(graph);
         const cached = this.cache.get(path);
-        if (cached) {
-            return cached;
+        if (cached?.signature === signature) {
+            return cached.value;
         }
 
-        const value = this.collect(path).catch((error) => {
-            // Do not poison the cache with a rejected promise: drop it so a
-            // later lookup can retry instead of replaying the same failure.
-            if (this.cache.get(path) === value) {
+        const value = this.collect(path, graph);
+        this.cache.set(path, {signature, value});
+
+        try {
+            return await value;
+        } catch (error) {
+            if (this.cache.get(path)?.value === value) {
                 this.cache.delete(path);
             }
             throw error;
-        });
-
-        this.cache.set(path, value);
-
-        return value;
+        }
     }
 
-    private async collect(path: NormalizedPath): Promise<ReadonlySet<string>> {
-        const graph = await this.run.markdown.graph(path);
+    private async collect(path: NormalizedPath, graph: EntryGraph): Promise<ReadonlySet<string>> {
         const anchorIds = new Set<string>();
         const {deps, assets} = flattenGraph(graph);
 
@@ -143,4 +145,20 @@ function flattenGraph(graph: EntryGraph) {
     graph.deps.forEach(visit);
 
     return {deps, assets};
+}
+
+function getGraphSignature(graph: EntryGraph) {
+    const digest = createHash('sha256');
+
+    const visit = (node: Pick<EntryGraph, 'path' | 'content' | 'deps'>) => {
+        digest.update(node.path);
+        digest.update('\0');
+        digest.update(node.content);
+        digest.update('\0');
+        node.deps.forEach(visit);
+    };
+
+    visit(graph);
+
+    return digest.digest('hex');
 }

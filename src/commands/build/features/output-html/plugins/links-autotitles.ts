@@ -42,11 +42,11 @@ export default ((md, opts) => {
             const anchorPage = resolveAnchorPage(normalizedFile);
             const anchorIsUnreachable = Boolean(
                 anchor &&
-                anchorIndex &&
-                normalizedFile.toLowerCase().endsWith('.md') &&
-                (!anchorPage ||
-                    !entries.includes(anchorPage) ||
-                    !anchorIndex.get(anchorPage)?.has(anchor)),
+                    anchorIndex &&
+                    normalizedFile.toLowerCase().endsWith('.md') &&
+                    (!anchorPage ||
+                        !entries.includes(anchorPage) ||
+                        !anchorIndex.get(anchorPage)?.has(anchor)),
             );
 
             if ((!isEmptyLink && !isTitleRefLink) || !isPageFile) {
