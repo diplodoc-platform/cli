@@ -43,6 +43,16 @@ describe('translate seed alignment', () => {
             ]);
         });
 
+        it('should mask the language segments of a link', () => {
+            const text = (url: string) =>
+                `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">docs</g>`;
+
+            expect(unitAnchors(unit(text('https://ytsaurus.tech/docs/en/admin-guide')))).toEqual(
+                unitAnchors(unit(text('https://ytsaurus.tech/docs/ru/admin-guide'))),
+            );
+            expect(unitAnchors(unit(text('/en-us/docs/ru')))).toEqual(['url:/*/docs/*']);
+        });
+
         it('should ignore numbers inside tag attributes and entities', () => {
             const text = 'Line<x ctype="lb" equiv-text="&amp;#10;" id="x-12"/>break and&#160;space';
 

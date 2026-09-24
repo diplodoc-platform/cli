@@ -37,6 +37,8 @@ const LINK_DESTINATION = /\]\(([^)\s"]+)\)/g;
 const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
+// A language path segment of a localized link: `/en/`, `/ru/`, `/en-us/`.
+const LANGUAGE_SEGMENT = /\/[a-z]{2}(?:-[a-z]{2})?(?=\/|$)/gi;
 
 /** Locale-independent string order: anchors and keys must compare the same on every machine. */
 function byCodePoint(a: string, b: string): number {
@@ -51,6 +53,9 @@ function byCodePoint(a: string, b: string): number {
  * numbers. Two translations of one sentence carry the same tokens, two
  * different sentences rarely do, so the tokens both pin blocks during
  * alignment and reject wrong pairs.
+ *
+ * Links are compared with their language segments masked, see
+ * `languageNeutralUrl`.
  *
  * Numbers are read from the tag-stripped text only: placeholder ids and
  * entities inside tags are transport noise. Dotted numbers stay whole
@@ -73,7 +78,7 @@ export function unitAnchors(unit: string): string[] {
         urls.add(url);
     }
     for (const url of urls) {
-        anchors.push('url:' + url);
+        anchors.push('url:' + languageNeutralUrl(url));
     }
 
     for (const code of codeSpans(text)) {
@@ -85,6 +90,15 @@ export function unitAnchors(unit: string): string[] {
     }
 
     return anchors.sort(byCodePoint);
+}
+
+/**
+ * The link with its language segments masked. A translator points a link
+ * to the page in the language of the translation (`/docs/ru/...` for
+ * `/docs/en/...`), and both still stand for the same link.
+ */
+export function languageNeutralUrl(url: string): string {
+    return url.replace(LANGUAGE_SEGMENT, '/*');
 }
 
 /** The unit text without its XLIFF `<source>` wrapper. */

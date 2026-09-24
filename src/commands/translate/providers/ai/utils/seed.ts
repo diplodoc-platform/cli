@@ -160,7 +160,8 @@ function reusableTarget(source: string, target: string): string {
 
 /**
  * Whether two units can be translations of each other: same numbers, every
- * code span and link of one present in the other, and the inline markup of
+ * code span and link of one present in the other (a link localized to the
+ * translation language counts, see `languageNeutralUrl`), and the inline markup of
  * the translation consistent with the source. A translator may put a
  * parameter name into code the source left plain, that is fine; a unit
  * whose code marker was hoisted into its own skeleton is not, because the
@@ -182,9 +183,17 @@ export function compatibleUnits(source: string, target: string): boolean {
         return false;
     }
 
+    // A link is present when the other side has the same one, up to its
+    // language segment; code may also turn up as plain text there.
+    const present = (anchors: string[], text: string) => {
+        const other = new Set(tokens(anchors));
+
+        return (token: string) => other.has(token) || text.includes(token);
+    };
+
     if (
-        !tokens(sourceAnchors).every((token) => targetText.includes(token)) ||
-        !tokens(targetAnchors).every((token) => sourceText.includes(token))
+        !tokens(sourceAnchors).every(present(targetAnchors, targetText)) ||
+        !tokens(targetAnchors).every(present(sourceAnchors, sourceText))
     ) {
         return false;
     }

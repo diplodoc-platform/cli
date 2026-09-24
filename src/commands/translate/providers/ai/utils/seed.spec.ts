@@ -52,6 +52,27 @@ describe('translate seed pairs', () => {
             ).toBe(false);
         });
 
+        const link = (text: string, url: string) =>
+            `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
+
+        it('should accept a link localized to the translation language', () => {
+            expect(
+                compatibleUnits(
+                    unit(`More details ${link('here', 'https://ytsaurus.tech/en/blog/post')}.`),
+                    unit(`Подробнее ${link('здесь', 'https://ytsaurus.tech/ru/blog/post')}.`),
+                ),
+            ).toBe(true);
+        });
+
+        it('should reject units whose links lead to different pages', () => {
+            expect(
+                compatibleUnits(
+                    unit(`More details ${link('here', 'https://ytsaurus.tech/en/blog/post')}.`),
+                    unit(`Подробнее ${link('здесь', 'https://ytsaurus.tech/ru/blog/other')}.`),
+                ),
+            ).toBe(false);
+        });
+
         it('should reject a unit whose code marker was hoisted into its own skeleton', () => {
             // The source keeps only the closing marker (the opening one sits
             // in its skeleton); the translation carries both. Composed with
