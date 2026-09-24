@@ -368,14 +368,19 @@ export class MarkdownService {
                 graph.addDependency(path, asset.path);
             }
 
-            if (asset.type === 'link' && (asset.autotitle || asset.hash) && asset.path) {
-                const target = asset.hash
-                    ? resolveMarkdownPage(asset.path, (candidate) =>
-                          this.run.exists(
-                              normalizePath(join(this.run.input, candidate)) as AbsolutePath,
-                          ),
-                      )
-                    : asset.path;
+            if (
+                (asset.type === 'link' || asset.type === 'def') &&
+                (asset.autotitle || asset.hash) &&
+                asset.path
+            ) {
+                const target =
+                    asset.type === 'def' || asset.hash
+                        ? resolveMarkdownPage(asset.path, (candidate) =>
+                              this.run.exists(
+                                  normalizePath(join(this.run.input, candidate)) as AbsolutePath,
+                              ),
+                          )
+                        : asset.path;
                 if (target && target !== path) {
                     graph.addNode(target);
                     graph.setNodeData(target, {type: 'source'});

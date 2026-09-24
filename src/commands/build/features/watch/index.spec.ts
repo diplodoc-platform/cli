@@ -1218,8 +1218,11 @@ describe('Build watch feature', () => {
             expect(processEntry).toBeCalledTimes(2);
         });
 
-        it('rebuilds a page with a fragment link when its target changes', async () => {
-            await register('./index.md', '[Link](target.md#old)');
+        it.each([
+            ['inline', '[Link](target.md#old)'],
+            ['reference-style', '[Link][target]\n\n[target]: target.md#old'],
+        ])('rebuilds a page with a %s fragment link when its target changes', async (_, link) => {
+            await register('./index.md', link);
             await register('./target.md', '## Old');
             await create(
                 './toc.yaml',
@@ -1240,6 +1243,14 @@ describe('Build watch feature', () => {
 
             await change('./target.md', '## Newer');
             expect(processEntry).not.toHaveBeenCalledWith('index.md');
+        });
+
+        it('does not treat a reference image definition as a Markdown source', async () => {
+            await register('./index.md', '![Image][asset]\n\n[asset]: image.png');
+            await register('./image.png', 'image-data');
+            await create('./toc.yaml', 'href: index.md');
+
+            expect(run(build).entry.isSource(normalizePath('image.png'))).toBe(false);
         });
 
         it('should handle entry include update', async () => {
