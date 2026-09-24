@@ -1,5 +1,8 @@
 import {describe, expect, it} from 'vitest';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 
+import {SeedStore, TranslationStore} from './cache';
 import {alignTranslationUnits, compatibleUnits, doubtfulPair} from './seed';
 
 const RU_EN = {source: 'ru', target: 'en'};
@@ -436,6 +439,11 @@ describe('translate seed pairs with localized links', () => {
                 `Call ${code('getUser')}, not getuser.`,
                 `Вызовите getUser, а не ${code('getuser')}.`,
             ],
+            [
+                'a link to a page under another section of the same site',
+                `See ${link('install', '/en/docs/install.md')}.`,
+                `См. ${link('установка', '/ru/docs/admin/install.md')}.`,
+            ],
         ])('should not seed %s', (_, source, translation) => {
             const result = align(source, translation);
 
@@ -455,11 +463,6 @@ describe('translate seed pairs with localized links', () => {
                 `См. ${link('пример', '{{source-root}}/src/sample/main.cpp')}.`,
             ],
             ['words put into code', 'Support row cache.', `Поддержка ${code('row_cache')}.`],
-            [
-                'a link to the page under another section',
-                `See ${link('install', '/en/docs/install.md')}.`,
-                `См. ${link('установка', '/ru/docs/admin/install.md')}.`,
-            ],
         ])('should seed %s', (_, source, translation) => {
             const result = align(source, translation);
 
@@ -473,27 +476,43 @@ describe('translate seed pairs with localized links', () => {
         });
     });
 
-    describe('doubtful pairs with links under another section', () => {
+    describe('links under another section', () => {
         const align = (source: string, translation: string) =>
             alignTranslationUnits(side([`- [[${source}]]`]), side([`- [[${translation}]]`]), {
                 source: 'en',
                 target: 'ru',
             });
 
-        it.each([
-            [
-                `See ${link('install', '/en/docs/install.md')}.`,
-                `См. ${link('установка', '/ru/docs/admin/install.md')}.`,
-            ],
-            [
-                `See ${link('check', 'https://example.com/docs/api/v5/changes/check.html')}.`,
-                `См. ${link('check', 'https://example.org/docs/api/changes/check.html')}.`,
-            ],
-        ])('should keep %j for its file only', (source, translation) => {
+        // Another site may lay its pages out differently: the pair is kept
+        // for its file, out of the shared dictionary.
+        it('should keep a link to another site under another section for its file only', () => {
+            const source = `See ${link('check', 'https://example.com/docs/api/v5/changes/check.html')}.`;
+            const translation = `См. ${link('check', 'https://example.org/docs/api/changes/check.html')}.`;
             const result = align(source, translation);
 
             expect(result.pairs).toEqual([[unit(source), unit(translation), true]]);
             expect(result.doubtful).toBe(1);
+        });
+
+        // On the same site another section is another page: the source has
+        // just fixed its link, and the translation must not keep the old one,
+        // neither from the dictionary nor from the memory of its file.
+        it.each([
+            ['/en/docs/install.md', '/ru/docs/admin/install.md'],
+            [
+                'https://example.com/en/docs/install.md',
+                'https://example.com/ru/docs/admin/install.md',
+            ],
+        ])('should not reuse a translation keeping %j as %j', (fixed, stale) => {
+            const source = `See ${link('install', fixed)}.`;
+            const translation = `См. ${link('установка', stale)}.`;
+            const result = align(source, translation);
+            const seeds = new SeedStore(join(tmpdir(), 'seed-6830-none.json'));
+            seeds.record('file.md', result.pairs);
+            const store = new TranslationStore(join(tmpdir(), 'cache-6830-none.json'), 'x', seeds);
+
+            expect(result.pairs).toEqual([]);
+            expect(store.resolve('file.md', [unit(source)])).toEqual([undefined]);
         });
 
         it('should not doubt a link to the same page on another domain', () => {

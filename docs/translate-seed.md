@@ -51,11 +51,12 @@ request, a wrong pair puts a wrong sentence into the document.
 A link is present when the other side has a link to the same page: the
 same page, query and section, and the same path once domains, language
 segments and a variable for the start of the path (`{{source-root}}`) are
-dropped. A path with an extra section (`example.com/.../v5/changes/check.html`
-for `example.org/.../changes/check.html`) may be the same page of another
-site layout or another page, so such a pair is seeded for its file but
-marked doubtful; a link to another section (`/en/admin/install.md` for
-`/ru/user/install.md`) is not present.
+dropped. A path with an extra section is the same page only on another site,
+which may lay its pages out differently (`example.com/.../v5/changes/check.html`
+for `example.org/.../changes/check.html`): such a pair is seeded for its file
+but marked doubtful. On the same site, relative links included, an extra
+section is another page (`/en/docs/install.md` for `/ru/docs/admin/install.md`),
+for example a link the source has just fixed, and the pair is not seeded.
 
 A code span pairs with a code span of the same text on the other side. One
 left without a pair may be words the other side leaves plain, verbatim or

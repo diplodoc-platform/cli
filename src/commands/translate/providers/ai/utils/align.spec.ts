@@ -369,14 +369,18 @@ describe('translate seed links and prose', () => {
                 'https://example.com/docs/api/v5/changes/check.html',
                 'https://example.org/docs/api/changes/check.html',
             ],
-            ['/en/docs/install.md', '/ru/docs/admin/install.md'],
-        ])('should take %j and %j for the page under another section', (a, b) => {
+        ])('should take %j and %j for the page under another section of another site', (a, b) => {
             expect(linkRelation(a, b, EN_RU)).toBe('nested');
             expect(linkRelation(b, a, EN_RU)).toBe('nested');
         });
 
         it.each([
             ['/en/admin/install.md', '/ru/user/install.md'],
+            ['/en/docs/install.md', '/ru/docs/admin/install.md'],
+            [
+                'https://example.com/en/docs/install.md',
+                'https://example.com/ru/docs/admin/install.md',
+            ],
             ['/en/search?q=dogs', '/ru/search?q=cats'],
             ['pragmas.md#yt.FileCacheTtl', 'pragmas.md#yt.TableContentTmpFolder'],
             ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],

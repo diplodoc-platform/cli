@@ -138,10 +138,11 @@ export function linkAnchor(url: string, languages: string[]): string {
  * Page, query and section have to match either way. Domains, language
  * segments and variables for a part of the path (`{{source-root}}`) are
  * what a translation of a page changes, so the paths without them are the
- * same page. An extra section of the path (`api/v5/changes/check.html` for
- * `api/changes/check.html`) may be the same page of another site layout or
- * another page (`docs/admin/install.md` for `docs/install.md`): such a
- * pair is doubtful.
+ * same page. An extra section of the path is the same page only on another
+ * site, which may lay its pages out differently (`example.com/api/v5/check.html`
+ * for `example.org/api/check.html`): such a pair is doubtful. On the same
+ * site, relative links included, it is another page (`docs/admin/install.md`
+ * for `docs/install.md`), for example the link the source has just changed.
  */
 export function linkRelation(a: string, b: string, languages: string[]): LinkRelation {
     if (a === b) {
@@ -165,7 +166,17 @@ export function linkRelation(a: string, b: string, languages: string[]): LinkRel
         return 'same';
     }
 
-    return isSubsequence(left, right) || isSubsequence(right, left) ? 'nested' : 'other';
+    const nested = isSubsequence(left, right) || isSubsequence(right, left);
+
+    return nested && otherSites(a, b) ? 'nested' : 'other';
+}
+
+/** Whether both links are absolute and lead to different hosts. */
+function otherSites(a: string, b: string): boolean {
+    const left = ORIGIN.exec(a)?.[0].toLowerCase();
+    const right = ORIGIN.exec(b)?.[0].toLowerCase();
+
+    return Boolean(left && right && left !== right);
 }
 
 function splitLink(url: string): {path: string; rest: string} {
