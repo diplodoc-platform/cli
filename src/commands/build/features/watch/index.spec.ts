@@ -1218,6 +1218,30 @@ describe('Build watch feature', () => {
             expect(processEntry).toBeCalledTimes(2);
         });
 
+        it('rebuilds a page with a fragment link when its target changes', async () => {
+            await register('./index.md', '[Link](target.md#old)');
+            await register('./target.md', '## Old');
+            await create(
+                './toc.yaml',
+                'href: index.md\nitems:\n  - name: Target\n    href: target.md',
+            );
+
+            depends('entry', 'index.md', 'target.md');
+            processEntry.mockClear();
+
+            await change('./target.md', '## New');
+
+            expect(processEntry).toHaveBeenCalledWith('index.md');
+            depends('entry', 'index.md', 'target.md');
+
+            await change('./index.md', 'No link');
+            depends('entry', 'index.md', 'target.md', false);
+            processEntry.mockClear();
+
+            await change('./target.md', '## Newer');
+            expect(processEntry).not.toHaveBeenCalledWith('index.md');
+        });
+
         it('should handle entry include update', async () => {
             expect(processEntry).not.toBeCalled();
 

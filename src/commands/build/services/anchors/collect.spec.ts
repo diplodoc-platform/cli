@@ -89,6 +89,10 @@ describe('collectAnchorIds', () => {
         expect(anchorIds).toEqual(new Set(['raw-block', 'raw-inline']));
     });
 
+    it('collects the complete unquoted HTML id containing a slash', () => {
+        expect(collect('<div id=foo/bar></div>')).toEqual(new Set(['foo/bar']));
+    });
+
     it('does not collect raw HTML IDs when HTML rendering is disabled', () => {
         const html = new MarkdownIt({html: false}).render('<div id="raw-anchor"></div>');
         const anchorIds = new Set<string>();

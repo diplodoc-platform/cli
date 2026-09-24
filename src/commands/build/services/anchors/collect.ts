@@ -1,7 +1,7 @@
 import {unescapeAll} from 'markdown-it/lib/common/utils';
 
 const HTML_TAG = /<(\/?)([A-Za-z][\w:-]*)(?=[\s/>])((?:"[^"]*"|'[^']*'|[^'">])*)>/g;
-const HTML_ATTRIBUTE = /([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`/]+)))?/g;
+const HTML_ATTRIBUTE = /([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
 const HTML_COMMENT = /<!--[\s\S]*?-->/g;
 const RAW_TEXT_TAGS = new Set(['script', 'style', 'textarea', 'title']);
 

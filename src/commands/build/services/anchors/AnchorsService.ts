@@ -3,12 +3,10 @@ import type {AssetInfo, EntryGraph, EntryGraphNode, IncludeInfo} from '~/core/ma
 import type {AnchorIndex} from './types';
 
 import {createHash} from 'node:crypto';
-import {extname, join} from 'node:path';
-import {parseHref} from '@diplodoc/utils';
+import {join} from 'node:path';
 
-import {bounded, normalizePath} from '~/core/utils';
-
-const MARKDOWN_EXTENSION = /\.md$/i;
+import {bounded} from '~/core/utils';
+import {resolveMarkdownPage} from '~/core/markdown';
 
 type CacheItem = {
     signature: string;
@@ -54,35 +52,7 @@ export class AnchorsService {
 
     @bounded
     resolve(path: NormalizedPath): NormalizedPath | null {
-        let pathname: string | null;
-
-        try {
-            pathname = parseHref(path).pathname;
-        } catch {
-            return null;
-        }
-
-        if (!pathname) {
-            return null;
-        }
-
-        let candidate = normalizePath(pathname);
-
-        if (candidate.endsWith('/')) {
-            if (this.exists(join(candidate, 'index.yaml'))) {
-                return null;
-            }
-
-            candidate = normalizePath(join(candidate, 'index.md'));
-        } else if (!extname(candidate)) {
-            candidate = normalizePath(candidate + '.md');
-        }
-
-        if (!MARKDOWN_EXTENSION.test(candidate) || !this.exists(candidate)) {
-            return null;
-        }
-
-        return candidate;
+        return resolveMarkdownPage(path, (candidate) => this.exists(candidate));
     }
 
     private async get(path: NormalizedPath): Promise<ReadonlySet<string>> {
