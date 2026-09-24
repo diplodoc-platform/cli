@@ -2,7 +2,7 @@ import type {JSONObject} from '@diplodoc/translation';
 
 import {describe, expect, it} from 'vitest';
 
-import {alignBlocks, lcs, parseBlocks, sameLink, unitAnchors, unitProse} from './align';
+import {alignBlocks, lcs, linkRelation, parseBlocks, unitAnchors, unitProse} from './align';
 
 const unit = (text: string) => `<source xml:space="preserve">${text}</source>`;
 
@@ -346,11 +346,11 @@ describe('translate seed alignment', () => {
 describe('translate seed links and prose', () => {
     const EN_RU = ['en', 'ru'];
 
-    describe('sameLink', () => {
+    describe('linkRelation', () => {
         it.each([
             ['https://example.com/docs/en/gpu', 'https://example.com/docs/ru/gpu'],
             [
-                'https://example.com/docs/api/v5/changes/check.html',
+                'https://example.com/docs/api/changes/check.html',
                 'https://example.org/docs/api/changes/check.html',
             ],
             ['../ru/concepts/page.md#section', '../en/concepts/page.md#section'],
@@ -359,9 +359,20 @@ describe('translate seed links and prose', () => {
                 'https://example.com/repo/blob/main/src/examples/sample/main.cpp',
                 '{{source-root}}/src/examples/sample/main.cpp',
             ],
-        ])('should take %j and %j for one page', (a, b) => {
-            expect(sameLink(a, b, EN_RU)).toBe(true);
-            expect(sameLink(b, a, EN_RU)).toBe(true);
+        ])('should take %j and %j for the same page', (a, b) => {
+            expect(linkRelation(a, b, EN_RU)).toBe('same');
+            expect(linkRelation(b, a, EN_RU)).toBe('same');
+        });
+
+        it.each([
+            [
+                'https://example.com/docs/api/v5/changes/check.html',
+                'https://example.org/docs/api/changes/check.html',
+            ],
+            ['/en/docs/install.md', '/ru/docs/admin/install.md'],
+        ])('should take %j and %j for the page under another section', (a, b) => {
+            expect(linkRelation(a, b, EN_RU)).toBe('nested');
+            expect(linkRelation(b, a, EN_RU)).toBe('nested');
         });
 
         it.each([
@@ -370,12 +381,12 @@ describe('translate seed links and prose', () => {
             ['pragmas.md#yt.FileCacheTtl', 'pragmas.md#yt.TableContentTmpFolder'],
             ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],
         ])('should tell %j from %j', (a, b) => {
-            expect(sameLink(a, b, EN_RU)).toBe(false);
+            expect(linkRelation(a, b, EN_RU)).toBe('other');
         });
 
         it('should compare links as they are without languages', () => {
-            expect(sameLink('/en/gpu', '/ru/gpu', [])).toBe(false);
-            expect(sameLink('/en/gpu', '/en/gpu', [])).toBe(true);
+            expect(linkRelation('/en/gpu', '/ru/gpu', [])).toBe('other');
+            expect(linkRelation('/en/gpu', '/en/gpu', [])).toBe('same');
         });
     });
 

@@ -49,13 +49,19 @@ inline markup consistent between them. An unseeded unit costs one model
 request, a wrong pair puts a wrong sentence into the document.
 
 A link is present when the other side has a link to the same page: the
-same page, query and section, and the path of one, without the domain and
-language segments, contained in the path of the other. A translation
-pointing to the page for its language counts (`example.com/.../v5/changes/check.html`
-for `example.org/.../changes/check.html`), a link to another section does
-not (`/en/admin/install.md` for `/ru/user/install.md`). A code span is
-present as a code span with the same text, or in the plain text of the
-other side, verbatim or as words (`row_cache` for "row cache").
+same page, query and section, and the same path once domains, language
+segments and a variable for the start of the path (`{{source-root}}`) are
+dropped. A path with an extra section (`example.com/.../v5/changes/check.html`
+for `example.org/.../changes/check.html`) may be the same page of another
+site layout or another page, so such a pair is seeded for its file but
+marked doubtful; a link to another section (`/en/admin/install.md` for
+`/ru/user/install.md`) is not present.
+
+A code span pairs with a code span of the same text on the other side. One
+left without a pair may be words the other side leaves plain, verbatim or
+with other separators (`row_cache` for "row cache"), but only while the
+other side has no code of its own left: a changed identifier is not
+confirmed by plain text around it.
 
 Identity pairs that still contain source-script characters are untranslated
 leftovers and are not seeded, so the next run gets another chance at them.

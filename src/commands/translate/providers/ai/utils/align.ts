@@ -89,6 +89,8 @@ export function unitAnchors(unit: string, languages: string[] = []): string[] {
     return anchors.sort(byCodePoint);
 }
 
+export type LinkRelation = 'same' | 'nested' | 'other';
+
 /** Link destinations of a unit, bare urls of its text included. */
 export function unitLinks(unit: string): string[] {
     const text = unwrap(unit);
@@ -113,7 +115,7 @@ export function unitLinks(unit: string): string[] {
  * for `example.org/docs/api/changes/check.html`). The key is the page
  * with its query and section; a language segment is not a page (`/docs/en`
  * and `/docs/ru` are `docs`). Whether two links lead to the same page is
- * then decided by `sameLink`.
+ * then decided by `linkRelation`.
  */
 export function linkAnchor(url: string, languages: string[]): string {
     if (!languages.length) {
@@ -128,27 +130,42 @@ export function linkAnchor(url: string, languages: string[]): string {
 }
 
 /**
- * Whether two links lead to the same page. Without languages they have to
- * be equal. With them the page, the query and the section have to match,
- * and the path of one, without the domain and language segments, has to
- * contain the path of the other: the translation may drop a section of the
- * path (`ref-v5/changes/check.html` for `changes/check.html`) or have a
- * variable for a part of it (`{{source-root}}/src/main.cpp`), not lead to
- * another one (`admin/install.md` for `user/install.md`).
+ * How two links relate: `same` for the same page, `nested` for the same
+ * page when the path of one, without the domain and language segments,
+ * contains the path of the other and more, `other` otherwise. Without
+ * languages links are the same only when equal.
+ *
+ * Page, query and section have to match either way. Domains, language
+ * segments and variables for a part of the path (`{{source-root}}`) are
+ * what a translation of a page changes, so the paths without them are the
+ * same page. An extra section of the path (`api/v5/changes/check.html` for
+ * `api/changes/check.html`) may be the same page of another site layout or
+ * another page (`docs/admin/install.md` for `docs/install.md`): such a
+ * pair is doubtful.
  */
-export function sameLink(a: string, b: string, languages: string[]): boolean {
+export function linkRelation(a: string, b: string, languages: string[]): LinkRelation {
     if (a === b) {
-        return true;
+        return 'same';
     }
 
     if (!languages.length || linkAnchor(a, languages) !== linkAnchor(b, languages)) {
-        return false;
+        return 'other';
     }
 
     const left = pathSegments(splitLink(a).path, languages);
     const right = pathSegments(splitLink(b).path, languages);
+    const endsWith = (path: string[], tail: string[]) =>
+        path.slice(path.length - tail.length).join('/') === tail.join('/');
 
-    return isSubsequence(left, right) || isSubsequence(right, left);
+    if (
+        left.join('/') === right.join('/') ||
+        (isVariablePath(splitLink(a).path) && endsWith(right, left)) ||
+        (isVariablePath(splitLink(b).path) && endsWith(left, right))
+    ) {
+        return 'same';
+    }
+
+    return isSubsequence(left, right) || isSubsequence(right, left) ? 'nested' : 'other';
 }
 
 function splitLink(url: string): {path: string; rest: string} {
@@ -160,15 +177,21 @@ function splitLink(url: string): {path: string; rest: string} {
 
 function pathSegments(path: string, languages: string[]): string[] {
     const codes = new Set(languages.map((language) => language.slice(0, 2).toLowerCase()));
+    const segments = path.split('/');
+    // A variable (`{{source-root}}`) stands for the part of the path before
+    // it: only what follows the last one is compared.
+    const variable = segments.map((segment) => segment.includes('{{')).lastIndexOf(true);
 
-    return path.split('/').filter((segment) => {
+    return segments.slice(variable + 1).filter((segment) => {
         const language = LANGUAGE.exec(segment)?.[1];
 
-        // A variable (`{{source-root}}`) stands for a part of the path.
-        return (
-            segment && !segment.includes('{{') && !(language && codes.has(language.toLowerCase()))
-        );
+        return segment && !(language && codes.has(language.toLowerCase()));
     });
+}
+
+/** Whether the path is written from a variable (`{{source-root}}/...`). */
+function isVariablePath(path: string): boolean {
+    return path.includes('{{');
 }
 
 function isSubsequence(short: string[], long: string[]): boolean {

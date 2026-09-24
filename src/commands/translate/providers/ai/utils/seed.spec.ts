@@ -110,6 +110,11 @@ describe('translate seed pairs', () => {
                     `Call ${code('get_user')}.`,
                     `Вызовите ${code('get-user')}.`,
                 ],
+                [
+                    'code swapped with plain text',
+                    `Call ${code('getUser')}, not getuser.`,
+                    `Вызовите getUser, а не ${code('getuser')}.`,
+                ],
             ])('should reject %s', (_, source, target) => {
                 expect(compatibleUnits(unit(source), unit(target), EN_RU_LANGUAGES)).toBe(false);
             });
@@ -426,6 +431,11 @@ describe('translate seed pairs with localized links', () => {
                 `Call ${code('get_user')}.`,
                 `Вызовите ${code('get-user')}.`,
             ],
+            [
+                'code swapped with plain text',
+                `Call ${code('getUser')}, not getuser.`,
+                `Вызовите getUser, а не ${code('getuser')}.`,
+            ],
         ])('should not seed %s', (_, source, translation) => {
             const result = align(source, translation);
 
@@ -445,6 +455,11 @@ describe('translate seed pairs with localized links', () => {
                 `См. ${link('пример', '{{source-root}}/src/sample/main.cpp')}.`,
             ],
             ['words put into code', 'Support row cache.', `Поддержка ${code('row_cache')}.`],
+            [
+                'a link to the page under another section',
+                `See ${link('install', '/en/docs/install.md')}.`,
+                `См. ${link('установка', '/ru/docs/admin/install.md')}.`,
+            ],
         ])('should seed %s', (_, source, translation) => {
             const result = align(source, translation);
 
@@ -455,6 +470,37 @@ describe('translate seed pairs with localized links', () => {
                 [unit(source), unit(translation)],
             ]);
             expect(result.unseeded).toBe(0);
+        });
+    });
+
+    describe('doubtful pairs with links under another section', () => {
+        const align = (source: string, translation: string) =>
+            alignTranslationUnits(side([`- [[${source}]]`]), side([`- [[${translation}]]`]), {
+                source: 'en',
+                target: 'ru',
+            });
+
+        it.each([
+            [
+                `See ${link('install', '/en/docs/install.md')}.`,
+                `См. ${link('установка', '/ru/docs/admin/install.md')}.`,
+            ],
+            [
+                `See ${link('check', 'https://example.com/docs/api/v5/changes/check.html')}.`,
+                `См. ${link('check', 'https://example.org/docs/api/changes/check.html')}.`,
+            ],
+        ])('should keep %j for its file only', (source, translation) => {
+            const result = align(source, translation);
+
+            expect(result.pairs).toEqual([[unit(source), unit(translation), true]]);
+            expect(result.doubtful).toBe(1);
+        });
+
+        it('should not doubt a link to the same page on another domain', () => {
+            const source = `See ${link('check', 'https://example.com/docs/api/changes/check.html')}.`;
+            const translation = `См. ${link('check', 'https://example.org/docs/api/changes/check.html')}.`;
+
+            expect(align(source, translation).doubtful).toBe(0);
         });
     });
 });

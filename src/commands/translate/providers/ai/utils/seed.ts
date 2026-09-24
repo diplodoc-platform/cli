@@ -2,8 +2,8 @@ import type {JSONObject} from '@diplodoc/translation';
 
 import {
     alignBlocks,
+    linkRelation,
     parseBlocks,
-    sameLink,
     unitAnchors,
     unitLinks,
     unitProse,
@@ -185,35 +185,73 @@ export function compatibleUnits(source: string, target: string, languages: strin
 
     return (
         numbers(source) === numbers(target) &&
-        hasCodeOf(target, source) &&
-        hasCodeOf(source, target) &&
-        hasLinksOf(target, source, languages) &&
-        hasLinksOf(source, target, languages) &&
+        codesMatch(source, target) &&
+        hasLinksOf(target, source, languages, true) &&
+        hasLinksOf(source, target, languages, true) &&
         keepsMarkup(unwrap(source), unwrap(target))
     );
 }
 
 /**
- * Whether every code span of `from` is in `unit`: as a code span with the
- * same text, or in its plain text, verbatim or as words (`row cache` for
- * `row_cache`). Only plain text is compared loosely: two code spans are
- * the same identifier only when their texts match.
+ * Whether the code spans of two units match. A code span pairs with a code
+ * span of the same text on the other side. One left without a pair may be
+ * words the other side leaves plain, verbatim or with other separators
+ * (`row_cache` for "row cache"), but only while the other side has no code
+ * of its own left: `getUser` in code for `getuser` in code is another
+ * identifier, whatever plain text is around.
  */
-function hasCodeOf(unit: string, from: string): boolean {
-    const codes = new Set(codeTexts(unit));
-    const prose = unitProse(unit);
-    const words = loosen(prose);
+function codesMatch(source: string, target: string): boolean {
+    const rest = codeTexts(target);
+    const unpaired: string[] = [];
 
-    return codeTexts(from).every(
-        (code) => codes.has(code) || prose.includes(code) || words.includes(loosen(code)),
+    for (const code of codeTexts(source)) {
+        const index = rest.indexOf(code);
+
+        if (index < 0) {
+            unpaired.push(code);
+        } else {
+            rest.splice(index, 1);
+        }
+    }
+
+    if (unpaired.length && rest.length) {
+        return false;
+    }
+
+    return (
+        unpaired.every((code) => inProse(target, code)) &&
+        rest.every((code) => inProse(source, code))
     );
 }
 
-/** Whether every link of `from` has a link to the same page in `unit`, see `sameLink`. */
-function hasLinksOf(unit: string, from: string, languages: string[]): boolean {
-    const links = unitLinks(unit);
+/** Whether the plain text of a unit has the code as it is or as words. */
+function inProse(unit: string, code: string): boolean {
+    const prose = unitProse(unit);
 
-    return unitLinks(from).every((link) => links.some((other) => sameLink(link, other, languages)));
+    return prose.includes(code) || loosen(prose).includes(loosen(code));
+}
+
+/**
+ * Whether every link of `from` has a link to the same page in `unit`, see
+ * `linkRelation`; with `nested`, also one to the page under another section.
+ */
+function hasLinksOf(unit: string, from: string, languages: string[], nested: boolean): boolean {
+    const links = unitLinks(unit);
+    const accepted = (link: string, other: string) => {
+        const relation = linkRelation(link, other, languages);
+
+        return relation === 'same' || (nested && relation === 'nested');
+    };
+
+    return unitLinks(from).every((link) => links.some((other) => accepted(link, other)));
+}
+
+/** Whether the links of a pair only match with a section of a path added. */
+function nestedLinks(source: string, target: string, languages: string[]): boolean {
+    return (
+        !hasLinksOf(target, source, languages, false) ||
+        !hasLinksOf(source, target, languages, false)
+    );
 }
 
 function codeTexts(unit: string): string[] {
@@ -266,7 +304,13 @@ export function doubtfulPair(
         return false;
     };
 
+    const linkLanguages = [languages.source, languages.target];
+
     return (source, target) => {
+        if (nestedLinks(source, target, linkLanguages)) {
+            return true;
+        }
+
         const sourceText = unwrap(source).replace(TAGS, ' ').replace(ENTITIES, ' ').trim();
         const targetText = unwrap(target).replace(TAGS, ' ').replace(ENTITIES, ' ').trim();
 
