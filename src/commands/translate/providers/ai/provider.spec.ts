@@ -106,6 +106,21 @@ const CODE_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-2"/>';
 
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
 
+// Links as `extract` leaves them in a unit: contained in the fragment, and
+// crossing its edge, where `]`, `(`, the address and `)` stand side by side.
+const COMMIT = 'https://github.com/ytsaurus/ytsaurus/commit/8013fee';
+const ISSUE = 'https://github.com/ytsaurus/ytsaurus/issues/930';
+const LINK_OPEN = `<g ctype="link" equiv-text="[{{text}}](${COMMIT})" id="g-1" x-begin="[" x-end="](${COMMIT})">`;
+const LINK_TAIL =
+    '<x ctype="link_text_part_close" equiv-text="]" id="x-1"/>' +
+    '<x ctype="link_attributes_part_open" equiv-text="(" id="x-2"/>' +
+    `<x ctype="link_attributes_href" equiv-text="${ISSUE}" id="x-3"/>` +
+    '<x ctype="link_attributes_part_close" equiv-text=")" id="x-4"/>';
+// What the model gets for LINK_TAIL.
+const LINK_TAIL_MASKED = '<x ctype="link_text_part_close" id="x-1"/>';
+// The address gpt-5.6-sol wrote for the commit link.
+const BROKEN_COMMIT = 'https://github.com/ytsaurus/ytsaurus/ytsaurus/commit/8013fee';
+
 function makeFullClient() {
     return {
         name: 'fake',
@@ -334,6 +349,66 @@ describe('translate ai provider', () => {
             });
             expect(logger.stat).toHaveBeenCalledWith(
                 expect.stringContaining('added-markup-stripped: 1'),
+            );
+        });
+
+        it('should compose links with the source addresses whatever the model writes', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-links-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(
+                join(input, 'ru', 'test.md'),
+                `- Исправлено в [8013fee](${COMMIT}).\n- [Issue](${ISSUE}) исправлен.\n`,
+            );
+
+            // A model that puts an address of its own into every link
+            // placeholder it gets.
+            const client = makeClient((fragments) =>
+                fragments.map((fragment) =>
+                    fragment
+                        .replace('Исправлено в', 'Fixed in')
+                        .replace('исправлен', 'fixed')
+                        .replace(
+                            / id="/g,
+                            ` equiv-text="${BROKEN_COMMIT}" x-end="](${BROKEN_COMMIT})" id="`,
+                        ),
+                ),
+            );
+            const provider = new Provider(() => client, {} as never);
+            Object.assign(provider, {
+                logger: {
+                    translate: vi.fn(),
+                    translated: vi.fn(),
+                    request: vi.fn(),
+                    stat: vi.fn(),
+                    warn: vi.fn(),
+                    error: vi.fn(),
+                    skipped: vi.fn(),
+                },
+            });
+
+            await provider.translate(['ru/test.md'], {
+                provider: 'openai',
+                model: 'test-model',
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 200,
+                maxConcurrency: 2,
+                retry: 0,
+            } as unknown as AITranslationConfig);
+
+            expect(readFileSync(join(output, 'en', 'test.md'), 'utf8')).toBe(
+                `- Fixed in [8013fee](${COMMIT}).\n- [Issue](${ISSUE}) fixed.\n`,
             );
         });
 
@@ -1067,6 +1142,52 @@ describe('translate ai provider', () => {
                 expect(plain.complete).toHaveBeenCalledTimes(1);
             });
 
+            it('should give the memory the placeholder ids of the fragment', async () => {
+                const link = (id: number, href: string) =>
+                    `<g ctype="link" equiv-text="[{{text}}](${href})" id="g-${id}" x-begin="[" x-end="](${href})">`;
+                const sentence = (end: string) =>
+                    wrap(
+                        `Откройте ${link(1, 'stream.md')}вычисление</g> и ` +
+                            `${link(2, 'spec.md')}спеку</g> ${end}.`,
+                    );
+                // The existing translation has the links in the other order,
+                // so its own ids are the other way round.
+                const existing = wrap(
+                    `Open ${link(1, 'spec.md')}the spec</g> of ` +
+                        `${link(2, 'stream.md')}the computation</g> here.`,
+                );
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-hint-ids-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                seeds.record('ru/a.md', [[sentence('здесь'), existing]]);
+                const store = new TranslationStore(
+                    join(dir, 'store.json'),
+                    cacheFingerprint({}),
+                    seeds,
+                );
+                // The model applies the edit to the memory as it got it.
+                const client = answering([
+                    [
+                        'Open <g ctype="link" id="g-2">the spec</g> of ' +
+                            '<g ctype="link" id="g-1">the computation</g> there.',
+                    ],
+                ]);
+                const {params} = makeParams(client, {maxBatchTokens: 500}, store);
+                const translate = makeTranslator(params);
+
+                const result = await translate('ru/a.md', [sentence('там')]);
+
+                expect(userMessage(client, 0)).toContain(
+                    'Existing translation:\nOpen <g ctype="link" id="g-2">the spec</g> of ' +
+                        '<g ctype="link" id="g-1">the computation</g> here.',
+                );
+                expect(result).toEqual([
+                    wrap(
+                        `Open ${link(2, 'spec.md')}the spec</g> of ` +
+                            `${link(1, 'stream.md')}the computation</g> there.`,
+                    ),
+                ]);
+            });
+
             it('should send a new sentence without memory', async () => {
                 const client = answering([['Something else entirely.']]);
                 const {params, stat} = makeParams(client, {}, seededStore());
@@ -1233,6 +1354,73 @@ describe('translate ai provider', () => {
             expect(stat.translatedUnits).toBe(0);
             // Never stored: the next run has to get another chance at it.
             expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('should keep link addresses out of the request and take them from the source', async () => {
+            const units = [
+                wrap(`Исправлено в ${LINK_OPEN}коммите</g>.`),
+                wrap(`Issue${LINK_TAIL} исправлен.`),
+            ];
+            // Whatever address the model writes into a placeholder, it is
+            // not the one that reaches the output.
+            const client = makeClient(() => [
+                `Fixed in <g ctype="link" id="g-1" x-end="](${BROKEN_COMMIT})">commit</g>.`,
+                `Issue<x ctype="link_text_part_close" equiv-text="](${BROKEN_COMMIT})" id="x-1"/> fixed.`,
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', units);
+
+            expect(result).toEqual([
+                wrap(`Fixed in ${LINK_OPEN}commit</g>.`),
+                wrap(`Issue${LINK_TAIL} fixed.`),
+            ]);
+            const messages = vi.mocked(client.complete).mock.calls[0][0];
+            expect(messages[messages.length - 1].content).toBe(
+                [
+                    'Исправлено в <g ctype="link" id="g-1">коммите</g>.',
+                    `Issue${LINK_TAIL_MASKED} исправлен.`,
+                ].join(`\n${FRAGMENT_SEPARATOR}\n`),
+            );
+            // Counted as sent: without the addresses.
+            expect(stat.bytes).toBe(
+                wrap('Исправлено в <g ctype="link" id="g-1">коммите</g>.').length +
+                    wrap(`Issue${LINK_TAIL_MASKED} исправлен.`).length,
+            );
+            expect(stat.markupRetried).toBe(0);
+        });
+
+        it('should retry a fragment that lost a part of a link', async () => {
+            const unit = wrap(`Issue${LINK_TAIL} исправлен.`);
+            // Composed as is, the first answer gives `[Issue fixed.`.
+            const client = makeClient((_, call) =>
+                call === 0 ? ['Issue fixed.'] : [`Issue${LINK_TAIL_MASKED} fixed.`],
+            );
+            const {params, stat, warn} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([wrap(`Issue${LINK_TAIL} fixed.`)]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('damaged markup'));
+        });
+
+        it('should keep the source text of a fragment that keeps repeating a link', async () => {
+            const unit = wrap(`Исправлено в ${LINK_OPEN}коммите</g>.`);
+            const client = makeClient(() => [
+                'Fixed in <g ctype="link" id="g-1">commit</g> <g ctype="link" id="g-1">commit</g>.',
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            const translate = makeTranslator(params);
+
+            const result = await translate('file.md', [unit]);
+
+            expect(result).toEqual([unit]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
         });
 
         it('should not count cache misses when the store is disabled', async () => {

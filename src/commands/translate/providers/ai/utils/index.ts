@@ -15,6 +15,7 @@ export {alignTranslationUnits} from './seed';
 export type {AlignedUnits, SeedPair, TranslationSide} from './seed';
 export {keepsMarkup, stripAddedMarkup} from './markup';
 export type {MarkupRepair} from './markup';
+export {keepsPlaceholders, maskAddresses, renumberMemory, unmaskAddresses} from './placeholders';
 
 export class Defer<T = string> {
     resolve!: (text: T) => void;

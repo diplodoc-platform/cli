@@ -84,7 +84,7 @@ Counters (`totals` and each entry of `targets`):
 | `cache.hitRate`               | number or null | `hits / (hits + misses)`, `null` when the cache is disabled or was not consulted.                                                                            |
 | `cache.hints`                 | number         | Units sent to the model together with their previous version from the seed memory (see `docs/translate-seed.md`, "Changed sentences").                       |
 | `fixes.markupStripped`        | number         | Delimiter runs of inline markup the model added around fragments and removed before composing (fresh and cached translations alike).                         |
-| `fixes.markupRetried`         | number         | Fragments re-requested because the model returned them with markup that cannot be composed (a dropped placeholder).                                          |
+| `fixes.markupRetried`         | number         | Fragments re-requested because the model returned them with markup that cannot be composed (a dropped placeholder, a lost or repeated part of a link).       |
 | `fixes.markupDamaged`         | number         | Fragments that kept their source text because the retry did not fix the markup; also counted in `units.untranslated`.                                        |
 | `fixes.untranslatedRetried`   | number         | Fragments re-requested because the model returned them unchanged in the source language; the ones the retry did not fix are counted in `units.untranslated`. |
 | `fixes.untranslatedKept`      | number         | Fragments that kept their source text because the retry returned them untranslated again; also counted in `units.untranslated`.                              |
