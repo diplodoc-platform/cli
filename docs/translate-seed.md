@@ -48,21 +48,33 @@ same numbers, every code span and link of one present in the other, and
 inline markup consistent between them. An unseeded unit costs one model
 request, a wrong pair puts a wrong sentence into the document.
 
-A link is present when the other side has a link to the same page: the
-same page, query and section, and the same path once domains, language
-segments and a variable for the start of the path (`{{source-root}}`) are
-dropped. A path with an extra section is the same page only on another site,
-which may lay its pages out differently (`example.com/.../v5/changes/check.html`
-for `example.org/.../changes/check.html`): such a pair is seeded for its file
-but marked doubtful. On the same site, relative links included, an extra
-section is another page (`/en/docs/install.md` for `/ru/docs/admin/install.md`),
-for example a link the source has just fixed, and the pair is not seeded.
+A link is present when the other side has a link to the same page, not a
+word of its text: the same query and section, and the same path once the
+domain and the language segments are dropped. A variable in the path
+(`{{source-root}}/src/main.cpp`) matches the literal segments around it.
+Another domain counts only for the same site name (`example.com` and
+`example.org`, not `github.com` and `gitlab.com`). The source path may
+have a section more than the translation only on another site, which lays
+its pages out differently (`example.com/.../v5/changes/check.html` for
+`example.org/.../changes/check.html`): such a pair is seeded for its file
+but marked doubtful. On the same site, and whenever the translation has a
+section the source lacks, it is another page, for example a link the
+source has just fixed, and the unit is not seeded.
 
-A code span pairs with a code span of the same text on the other side. One
-left without a pair may be words the other side leaves plain, verbatim or
-with other separators (`row_cache` for "row cache"), but only while the
-other side has no code of its own left: a changed identifier is not
-confirmed by plain text around it.
+Blocks are aligned by their links first as they are (paths without the
+domain and the language segments), then, in the gaps left, by the pages
+the links lead to when every link of one block leads to the page of a
+link of the other or differs from it only in a section more. Pages of the
+same name in different sections (`compute/index.md`, `storage/index.md`)
+never pin a block pair.
+
+A code span pairs with a code span of the same text on the other side,
+however many times each side repeats it. One left without a pair may be
+a word of its own in the plain text of the other side, in any case
+("JSON" for `json`), an identifier of several words with any separators
+("row cache" for `row_cache`), but only while the other side has no code
+of its own left: a changed identifier is not confirmed by plain text
+around it, and a longer word does not count (`id` is not in "uuid").
 
 Identity pairs that still contain source-script characters are untranslated
 leftovers and are not seeded, so the next run gets another chance at them.

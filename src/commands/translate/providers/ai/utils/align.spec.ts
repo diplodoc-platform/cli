@@ -53,8 +53,8 @@ describe('translate seed alignment', () => {
             it.each([
                 ['https://example.com/docs/en/gpu', 'https://example.com/docs/ru/gpu'],
                 [
-                    'https://example.com/docs/api/v5/changes/check.html',
-                    'https://example.org/docs/api/changes/check.html',
+                    'https://example.com/docs/api/check.html',
+                    'https://example.org/docs/api/check.html',
                 ],
                 ['../ru/concepts/page.md#section', '../en/concepts/page.md#section'],
                 ['https://example.com/docs/ru', 'https://example.com/docs/en/'],
@@ -67,13 +67,19 @@ describe('translate seed alignment', () => {
                 ['https://example.com/docs/en/gpu', 'https://example.com/docs/en/cpu'],
                 ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],
                 ['pragmas.md#yt.FileCacheTtl', 'pragmas.md#yt.TableContentTmpFolder'],
+                // Pages of the same name in different sections pin no blocks.
+                ['compute/index.md', 'storage/index.md'],
+                [
+                    'https://example.com/docs/api/v5/changes/check.html',
+                    'https://example.org/docs/api/changes/check.html',
+                ],
             ])('should tell %j from %j', (from, to) => {
                 expect(unitAnchors(link(from), EN_RU)).not.toEqual(unitAnchors(link(to), EN_RU));
             });
 
-            it('should key the page by its last segment, query and section', () => {
+            it('should key a link by its path without the domain and language, query and section', () => {
                 expect(unitAnchors(link('https://x.y/en/a/b.md?x=1#y'), EN_RU)).toEqual([
-                    'url:b.md?x=1#y',
+                    'url:a/b.md?x=1#y',
                 ]);
             });
 
@@ -369,9 +375,40 @@ describe('translate seed links and prose', () => {
                 'https://example.com/docs/api/v5/changes/check.html',
                 'https://example.org/docs/api/changes/check.html',
             ],
-        ])('should take %j and %j for the page under another section of another site', (a, b) => {
-            expect(linkRelation(a, b, EN_RU)).toBe('nested');
-            expect(linkRelation(b, a, EN_RU)).toBe('nested');
+            ['//example.com/docs/api/v5/check.html', 'https://example.org/docs/api/check.html'],
+        ])(
+            'should take source %j and translation %j for the page under another section of another site',
+            (source, target) => {
+                expect(linkRelation(source, target, EN_RU)).toBe('nested');
+                // A section the translation has on top of the source is an
+                // address the source has just changed.
+                expect(linkRelation(target, source, EN_RU)).toBe('other');
+            },
+        );
+
+        it.each([
+            // Another site under another name is not a translation of the page.
+            [
+                'https://github.com/org/repo/docs/page.md',
+                'https://gitlab.com/org/repo/docs/page.md',
+            ],
+            // A variable matches only the literal segments around it.
+            ['{{root}}/admin/install.md', '{{root}}/install.md'],
+            ['{{admin-root}}/install.md', '{{user-root}}/install.md'],
+            ['/docs/admin/install.md', '/guide/{{lang}}/install.md'],
+            ['/docs/admin/install.md', '{{root}}/user/install.md'],
+        ])('should tell source %j from translation %j', (source, target) => {
+            expect(linkRelation(source, target, EN_RU)).toBe('other');
+            expect(linkRelation(target, source, EN_RU)).toBe('other');
+        });
+
+        it.each([
+            ['{{root}}/src/main.cpp', '{{root}}/src/main.cpp'],
+            ['https://example.com/repo/blob/main/src/main.cpp', '{{source-root}}/src/main.cpp'],
+            ['/docs/admin/install.md', '/docs/{{section}}/install.md'],
+            ['https://example.com/docs/page.md', 'https://docs.example.ru/docs/page.md'],
+        ])('should take source %j and translation %j for the same page', (source, target) => {
+            expect(linkRelation(source, target, EN_RU)).toBe('same');
         });
 
         it.each([
@@ -381,6 +418,20 @@ describe('translate seed links and prose', () => {
                 'https://example.com/en/docs/install.md',
                 'https://example.com/ru/docs/admin/install.md',
             ],
+            // The same site whatever the scheme, port, `www.` and case of the host.
+            [
+                'http://example.com/en/docs/install.md',
+                'https://example.com/ru/docs/admin/install.md',
+            ],
+            [
+                'https://www.example.com/en/docs/install.md',
+                'https://example.com/ru/docs/admin/install.md',
+            ],
+            [
+                'https://example.com:8443/en/docs/install.md',
+                'https://EXAMPLE.com/ru/docs/admin/install.md',
+            ],
+            ['//example.com/en/docs/install.md', 'https://example.com/ru/docs/admin/install.md'],
             ['/en/search?q=dogs', '/ru/search?q=cats'],
             ['pragmas.md#yt.FileCacheTtl', 'pragmas.md#yt.TableContentTmpFolder'],
             ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],

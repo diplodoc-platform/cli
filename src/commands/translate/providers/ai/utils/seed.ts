@@ -82,7 +82,7 @@ export function alignTranslationUnits(
     };
     const seeded = new Set<number>();
 
-    for (const [i, j] of alignBlocks(sourceBlocks, targetBlocks)) {
+    for (const [i, j] of alignBlocks(sourceBlocks, targetBlocks, linkLanguages)) {
         result.blocks.paired++;
 
         for (const [s, targetUnit] of pairBlockUnits(
@@ -186,8 +186,7 @@ export function compatibleUnits(source: string, target: string, languages: strin
     return (
         numbers(source) === numbers(target) &&
         codesMatch(source, target) &&
-        hasLinksOf(target, source, languages, true) &&
-        hasLinksOf(source, target, languages, true) &&
+        linksMatch(source, target, languages, true) &&
         keepsMarkup(unwrap(source), unwrap(target))
     );
 }
@@ -201,18 +200,12 @@ export function compatibleUnits(source: string, target: string, languages: strin
  * identifier, whatever plain text is around.
  */
 function codesMatch(source: string, target: string): boolean {
-    const rest = codeTexts(target);
-    const unpaired: string[] = [];
-
-    for (const code of codeTexts(source)) {
-        const index = rest.indexOf(code);
-
-        if (index < 0) {
-            unpaired.push(code);
-        } else {
-            rest.splice(index, 1);
-        }
-    }
+    const sourceCodes = new Set(codeTexts(source));
+    const targetCodes = new Set(codeTexts(target));
+    // An identifier in code on both sides is paired however many times each
+    // side repeats it.
+    const unpaired = [...sourceCodes].filter((code) => !targetCodes.has(code));
+    const rest = [...targetCodes].filter((code) => !sourceCodes.has(code));
 
     if (unpaired.length && rest.length) {
         return false;
@@ -224,47 +217,57 @@ function codesMatch(source: string, target: string): boolean {
     );
 }
 
-/** Whether the plain text of a unit has the code as it is or as words. */
+// Separators of the words of an identifier written as words.
+const WORD_JOINERS = /[\s_-]+/;
+// A word of its own: no letter, digit or identifier joiner right around it.
+const WORD_START = String.raw`(?<![\p{L}\p{N}_]|[\p{L}\p{N}]-)`;
+const WORD_END = String.raw`(?![\p{L}\p{N}_]|-[\p{L}\p{N}])`;
+
+/**
+ * Whether the plain text of a unit has the code as a word of its own, in
+ * any case ("JSON" for `json`), an identifier of several words
+ * (`row_cache`) with any of the separators ("Row cache", "row-cache"). A
+ * longer word or identifier around it does not count: `id` is not in
+ * "uuid", `row_cache` is not in `row_cache_size`.
+ */
 function inProse(unit: string, code: string): boolean {
     const prose = unitProse(unit);
+    const words = code.split(WORD_JOINERS).filter(Boolean);
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = words.length > 1 ? words.map(escape).join('[\\s_-]+') : escape(code);
 
-    return prose.includes(code) || loosen(prose).includes(loosen(code));
+    return new RegExp(`${WORD_START}${pattern}${WORD_END}`, 'iu').test(prose);
 }
 
 /**
- * Whether every link of `from` has a link to the same page in `unit`, see
- * `linkRelation`; with `nested`, also one to the page under another section.
+ * Whether every link of each unit has a link to the same page in the other
+ * one, see `linkRelation`; with `nested`, also one to the page on another
+ * site under a section less.
  */
-function hasLinksOf(unit: string, from: string, languages: string[], nested: boolean): boolean {
-    const links = unitLinks(unit);
-    const accepted = (link: string, other: string) => {
-        const relation = linkRelation(link, other, languages);
+function linksMatch(source: string, target: string, languages: string[], nested: boolean): boolean {
+    const sourceLinks = unitLinks(source);
+    const targetLinks = unitLinks(target);
+    const accepted = (from: string, to: string) => {
+        const relation = linkRelation(from, to, languages);
 
         return relation === 'same' || (nested && relation === 'nested');
     };
 
-    return unitLinks(from).every((link) => links.some((other) => accepted(link, other)));
+    return (
+        sourceLinks.every((from) => targetLinks.some((to) => accepted(from, to))) &&
+        targetLinks.every((to) => sourceLinks.some((from) => accepted(from, to)))
+    );
 }
 
 /** Whether the links of a pair only match with a section of a path added. */
 function nestedLinks(source: string, target: string, languages: string[]): boolean {
-    return (
-        !hasLinksOf(target, source, languages, false) ||
-        !hasLinksOf(source, target, languages, false)
-    );
+    return !linksMatch(source, target, languages, false);
 }
 
 function codeTexts(unit: string): string[] {
     return unitAnchors(unit)
         .filter((anchor) => anchor.startsWith('code:'))
         .map((anchor) => anchor.slice('code:'.length));
-}
-
-const WORD_JOINERS = /[\s_-]+/g;
-
-/** Text with word separators unified, to find an identifier written as words. */
-function loosen(text: string): string {
-    return text.replace(WORD_JOINERS, ' ').toLowerCase();
 }
 
 // A pair this much longer on one side is rarely a translation; short units

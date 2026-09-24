@@ -16,6 +16,10 @@ export type Block = {
     anchors: string[];
     /** Signature plus anchors: equal keys mean the same element with the same content. */
     key: string;
+    /** The key with links reduced to their page, see `linkPage`. */
+    pageKey: string;
+    /** Link destinations of the block units. */
+    links: string[];
 };
 
 /** Source block index paired with a target block index. */
@@ -35,12 +39,18 @@ const SOURCE_WRAPPER = /^\s*<source(?:\s[^>]*)?>([\s\S]*)<\/source>\s*$/;
 // `[^<>]` keeps a run of unclosed `<` from being rescanned quadratically.
 const TAG = /<[^<>]+>/g;
 const ENTITY = /&#?\w+;/g;
-const LINK_DESTINATION = /\]\(([^)\s"]+)\)/g;
+// A link destination, `<...>` and a title allowed: `](url &quot;title&quot;)`.
+const LINK_DESTINATION = /\]\(<?([^\s)<>]+)>?(?:\s[^)]*)?\)/g;
+// An autolink placeholder keeps its url in `equiv-text="&lt;url&gt;"`.
+const AUTOLINK = /<x\b[^>]*\bctype="link_autolink"[^>]*>/g;
+// A link reference definition extracted as text: `[ref]: url`.
+const REFERENCE = /^\s*\[[^\]]+\]:\s*<?(\S+?)>?(?:\s|$)/;
 const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
-// Scheme and host of an absolute link: a translation may lead to another domain.
-const ORIGIN = /^[a-z][a-z\d+.-]*:\/\/[^/]*/i;
+// Scheme and host of an absolute link, the scheme optional (`//host/...`):
+// a translation may lead to another domain.
+const ORIGIN = /^(?:[a-z][a-z\d+.-]*:)?\/\/([^/?#]*)/i;
 // A path segment naming a language: `en`, `ru`, `en-us`.
 const LANGUAGE = /^([a-z]{2})(?:-[a-z]{2})?$/i;
 
@@ -91,14 +101,27 @@ export function unitAnchors(unit: string, languages: string[] = []): string[] {
 
 export type LinkRelation = 'same' | 'nested' | 'other';
 
-/** Link destinations of a unit, bare urls of its text included. */
+/**
+ * Link destinations of a unit: links with or without a title, autolinks,
+ * reference definitions and bare urls of its text.
+ */
 export function unitLinks(unit: string): string[] {
     const text = unwrap(unit);
-    const plain = text.replace(TAG, ' ').replace(ENTITY, ' ');
+    const plain = text.replace(TAG, ' ').replace(/&amp;/g, '&').replace(ENTITY, ' ');
     const urls = new Set<string>();
 
     for (const [, url] of text.matchAll(LINK_DESTINATION)) {
-        urls.add(url);
+        urls.add(decodeAmp(url));
+    }
+    for (const [tag] of text.matchAll(AUTOLINK)) {
+        const url = /equiv-text="&lt;([^"]*?)&gt;"/.exec(tag)?.[1];
+        if (url) {
+            urls.add(decodeAmp(url));
+        }
+    }
+    const reference = REFERENCE.exec(plain)?.[1];
+    if (reference) {
+        urls.add(reference);
     }
     for (const [url] of plain.matchAll(BARE_URL)) {
         urls.add(url);
@@ -107,102 +130,192 @@ export function unitLinks(unit: string): string[] {
     return [...urls];
 }
 
+function decodeAmp(url: string): string {
+    return url.replace(/&amp;/g, '&');
+}
+
 /**
  * The key a link aligns blocks by. Without languages it is the link as is.
  * When aligning a translation, a translator points a link to the page for
- * the translation language: another domain, a language segment, a
- * different section of the same site (`example.com/docs/api/v5/changes/check.html`
- * for `example.org/docs/api/changes/check.html`). The key is the page
- * with its query and section; a language segment is not a page (`/docs/en`
- * and `/docs/ru` are `docs`). Whether two links lead to the same page is
- * then decided by `linkRelation`.
+ * the translation language: a language segment (`/docs/en/` for
+ * `/docs/ru/`) or another domain. The key is the path without the domain
+ * and the language segments, with its query and section. Whether two
+ * links lead to the same page in all other cases (a variable for a part of
+ * the path, a site that lays its pages out differently) is decided by
+ * `linkRelation` when the units are paired, not by the key.
  */
 export function linkAnchor(url: string, languages: string[]): string {
     if (!languages.length) {
         return url;
     }
 
-    const {path, rest} = splitLink(url);
-    const segments = pathSegments(path, languages);
-    const page = segments[segments.length - 1];
+    const {segments, rest} = linkParts(url, languages);
 
-    return page ? page + rest : url;
+    return segments.join('/') + rest;
 }
 
 /**
- * How two links relate: `same` for the same page, `nested` for the same
- * page when the path of one, without the domain and language segments,
- * contains the path of the other and more, `other` otherwise. Without
+ * The page a link leads to: the last segment of its path without the
+ * language ones, with its query and section. Pages of the same name in
+ * different sections share it (`compute/index.md`, `storage/index.md`), so
+ * it only proposes block pairs whose links `linkRelation` then confirms.
+ */
+function linkPage(url: string, languages: string[]): string {
+    const {segments, rest} = linkParts(url, languages);
+
+    return (segments[segments.length - 1] ?? '') + rest;
+}
+
+/**
+ * How the link of a source unit relates to a link of its translation:
+ * `same` for the same page, `nested` for the same page on another site
+ * that lays its pages out differently, `other` otherwise. Without
  * languages links are the same only when equal.
  *
- * Page, query and section have to match either way. Domains, language
- * segments and variables for a part of the path (`{{source-root}}`) are
- * what a translation of a page changes, so the paths without them are the
- * same page. An extra section of the path is the same page only on another
- * site, which may lay its pages out differently (`example.com/api/v5/check.html`
- * for `example.org/api/check.html`): such a pair is doubtful. On the same
- * site, relative links included, it is another page (`docs/admin/install.md`
- * for `docs/install.md`), for example the link the source has just changed.
+ * Query and section have to match. The path is compared without the
+ * domain and the language segments (`/docs/en/` for `/docs/ru/`). A
+ * variable for a part of the path (`{{source-root}}/src/main.cpp`) stands
+ * for what lies between the literal segments around it. Another domain is
+ * a translation of the site only when the name of the site stays
+ * (`example.com` and `example.org`, not `github.com` and `gitlab.com`).
+ *
+ * The source path may have a section more than the translation only on
+ * another site (`example.com/api/v5/check.html` for
+ * `example.org/api/check.html`): such a pair is doubtful. On the same
+ * site, relative links included, a section more or less is another page
+ * (`docs/admin/install.md` for `docs/install.md`), and a section the
+ * translation has on top of the source is, on any site, the address the
+ * source has just changed.
  */
-export function linkRelation(a: string, b: string, languages: string[]): LinkRelation {
-    if (a === b) {
+export function linkRelation(source: string, target: string, languages: string[]): LinkRelation {
+    if (source === target) {
         return 'same';
     }
 
-    if (!languages.length || linkAnchor(a, languages) !== linkAnchor(b, languages)) {
+    if (!languages.length) {
         return 'other';
     }
 
-    const left = pathSegments(splitLink(a).path, languages);
-    const right = pathSegments(splitLink(b).path, languages);
-    const endsWith = (path: string[], tail: string[]) =>
-        path.slice(path.length - tail.length).join('/') === tail.join('/');
+    const from = linkParts(source, languages);
+    const to = linkParts(target, languages);
 
-    if (
-        left.join('/') === right.join('/') ||
-        (isVariablePath(splitLink(a).path) && endsWith(right, left)) ||
-        (isVariablePath(splitLink(b).path) && endsWith(left, right))
-    ) {
+    if (from.rest !== to.rest || !sameSite(from.host, to.host)) {
+        return 'other';
+    }
+
+    if (from.variable >= 0 || to.variable >= 0) {
+        return variableMatch(from, to) ? 'same' : 'other';
+    }
+
+    if (from.segments.join('/') === to.segments.join('/')) {
         return 'same';
     }
 
-    const nested = isSubsequence(left, right) || isSubsequence(right, left);
+    const otherSite = Boolean(from.host && to.host && from.host !== to.host);
 
-    return nested && otherSites(a, b) ? 'nested' : 'other';
+    return otherSite && isSubsequence(to.segments, from.segments) ? 'nested' : 'other';
 }
 
-/** Whether both links are absolute and lead to different hosts. */
-function otherSites(a: string, b: string): boolean {
-    const left = ORIGIN.exec(a)?.[0].toLowerCase();
-    const right = ORIGIN.exec(b)?.[0].toLowerCase();
+type LinkParts = {
+    /** Host as a site, see `linkHost`; empty for a relative link. */
+    host: string;
+    /** Path segments without the language ones. */
+    segments: string[];
+    /** Index of the only variable segment, -1 without one. */
+    variable: number;
+    /** Query and section. */
+    rest: string;
+};
 
-    return Boolean(left && right && left !== right);
-}
-
-function splitLink(url: string): {path: string; rest: string} {
+function linkParts(url: string, languages: string[]): LinkParts {
     const query = url.search(/[?#]/);
     const end = query < 0 ? url.length : query;
-
-    return {path: url.slice(0, end).replace(ORIGIN, ''), rest: url.slice(end)};
-}
-
-function pathSegments(path: string, languages: string[]): string[] {
     const codes = new Set(languages.map((language) => language.slice(0, 2).toLowerCase()));
-    const segments = path.split('/');
-    // A variable (`{{source-root}}`) stands for the part of the path before
-    // it: only what follows the last one is compared.
-    const variable = segments.map((segment) => segment.includes('{{')).lastIndexOf(true);
+    const segments = url
+        .slice(0, end)
+        .replace(ORIGIN, '')
+        .split('/')
+        .filter((segment) => {
+            const language = LANGUAGE.exec(segment)?.[1];
 
-    return segments.slice(variable + 1).filter((segment) => {
-        const language = LANGUAGE.exec(segment)?.[1];
+            return segment && !(language && codes.has(language.toLowerCase()));
+        });
+    const variables = segments.filter((segment) => segment.includes('{{'));
 
-        return segment && !(language && codes.has(language.toLowerCase()));
-    });
+    return {
+        host: linkHost(url) || '',
+        segments,
+        variable: variables.length === 1 ? segments.indexOf(variables[0]) : -1,
+        rest: url.slice(end),
+    };
 }
 
-/** Whether the path is written from a variable (`{{source-root}}/...`). */
-function isVariablePath(path: string): boolean {
-    return path.includes('{{');
+/** Whether one path has only sections more than the other, same query and section. */
+function nestedPaths(a: string, b: string, languages: string[]): boolean {
+    const left = linkParts(a, languages);
+    const right = linkParts(b, languages);
+
+    return (
+        left.rest === right.rest &&
+        sameSite(left.host, right.host) &&
+        (isSubsequence(left.segments, right.segments) ||
+            isSubsequence(right.segments, left.segments))
+    );
+}
+
+/**
+ * Whether the paths match around a variable. With a variable on both sides
+ * it has to be the same variable with the same segments around it. With
+ * one on one side the segments before it have to start the other path and
+ * the segments after it have to end it.
+ */
+function variableMatch(from: LinkParts, to: LinkParts): boolean {
+    if (from.variable >= 0 && to.variable >= 0) {
+        return from.segments.join('/') === to.segments.join('/');
+    }
+
+    const [pattern, path] = from.variable >= 0 ? [from, to] : [to, from];
+    const before = pattern.segments.slice(0, pattern.variable);
+    const after = pattern.segments.slice(pattern.variable + 1);
+
+    return (
+        before.length + after.length <= path.segments.length &&
+        path.segments.slice(0, before.length).join('/') === before.join('/') &&
+        path.segments.slice(path.segments.length - after.length).join('/') === after.join('/')
+    );
+}
+
+/**
+ * Whether two hosts are one site or its translation: the same host, or the
+ * same name under another top-level domain (`example.com`, `example.org`,
+ * `docs.example.ru`). A relative link belongs to any site.
+ */
+function sameSite(left: string, right: string): boolean {
+    if (!left || !right || left === right) {
+        return true;
+    }
+
+    return siteName(left) === siteName(right);
+}
+
+function siteName(host: string): string {
+    const labels = host.split('.');
+
+    return labels.length > 1 ? labels[labels.length - 2] : host;
+}
+
+/**
+ * The host of an absolute link as a site: the scheme, credentials, port
+ * and a leading `www.` do not make another site.
+ */
+function linkHost(url: string): string | undefined {
+    const authority = ORIGIN.exec(url)?.[1];
+
+    return authority
+        ?.replace(/^[^@]*@/, '')
+        .replace(/:\d*$/, '')
+        .replace(/^www\./i, '')
+        .toLowerCase();
 }
 
 function isSubsequence(short: string[], long: string[]): boolean {
@@ -322,8 +435,21 @@ function makeBlock(
         ...context,
         ...ids.flatMap((id) => unitAnchors(units[id] ?? '', languages)),
     ].sort(byCodePoint);
+    const links = ids.flatMap((id) => unitLinks(units[id] ?? ''));
+    const pages = anchors
+        .filter((anchor) => !anchor.startsWith('url:'))
+        .concat(links.map((url) => 'url:' + linkPage(url, languages)))
+        .sort(byCodePoint);
 
-    return {units: ids, signature, structure, anchors, key: JSON.stringify([signature, anchors])};
+    return {
+        units: ids,
+        signature,
+        structure,
+        anchors,
+        key: JSON.stringify([signature, anchors]),
+        pageKey: JSON.stringify([signature, pages]),
+        links,
+    };
 }
 
 /**
@@ -536,11 +662,18 @@ function runs(blocks: Block[]): Run[] {
  * 4. Anchored blocks with a key unique on both sides are paired wherever
  *    they are (a moved section), and the pairing is extended through the
  *    unmatched neighbours run by run while the structure agrees.
+ * 5. With languages, blocks left in the gaps are paired by the pages their
+ *    links lead to when `linkRelation` confirms every link (a translation
+ *    on a site laid out differently), and step 3 runs once more.
  *
  * Pairs are returned in source order; pairs from step 4 break monotonicity
  * with the target, which the seed dictionary does not need.
  */
-export function alignBlocks(source: Block[], target: Block[]): BlockPair[] {
+export function alignBlocks(
+    source: Block[],
+    target: Block[],
+    languages: string[] = [],
+): BlockPair[] {
     const matching: Matching = {
         source,
         target,
@@ -551,6 +684,11 @@ export function alignBlocks(source: Block[], target: Block[]): BlockPair[] {
     matchByKeys(matching);
     fillGaps(matching);
     recoverMoves(matching);
+
+    if (languages.length) {
+        matchByPages(matching, languages);
+        fillGaps(matching);
+    }
 
     const pairs: BlockPair[] = [];
     for (let i = 0; i < source.length; i++) {
@@ -597,6 +735,65 @@ function matchByKeys(matching: Matching) {
 
 function sameRun(a: Run, b: Run): boolean {
     return a.length === b.length && a.offset === b.offset;
+}
+
+/**
+ * Step 5: blocks of every gap left by the steps above paired by the pages
+ * their links lead to, see `linkPage`. A translation points its links to
+ * the pages of another site laid out differently, so the keys of such
+ * blocks never match. A pair is kept only when every link of each block
+ * leads to the same page as a link of the other one, see `linkRelation`.
+ */
+function matchByPages(matching: Matching, languages: string[]) {
+    const {source, target, matchedSource, matchedTarget} = matching;
+    const linked = (blocks: Block[], matched: Int32Array, from: number, to: number) =>
+        range(from, to).filter((index) => matched[index] < 0 && blocks[index].links.length);
+    const gaps: [BlockPair, BlockPair][] = [];
+    let previous: BlockPair = [-1, -1];
+
+    for (let i = 0; i < source.length; i++) {
+        if (matchedSource[i] >= 0) {
+            gaps.push([previous, [i, matchedSource[i]]]);
+            previous = [i, matchedSource[i]];
+        }
+    }
+    gaps.push([previous, [source.length, target.length]]);
+
+    for (const [from, to] of gaps) {
+        const sources = linked(source, matchedSource, from[0] + 1, to[0]);
+        const targets = linked(target, matchedTarget, from[1] + 1, to[1]);
+        const pairs = lcs(
+            sources.map((index) => source[index].pageKey),
+            targets.map((index) => target[index].pageKey),
+        );
+
+        for (const [k, l] of pairs) {
+            const [i, j] = [sources[k], targets[l]];
+
+            if (blocksLinked(source[i], target[j], languages)) {
+                pair(matching, i, j);
+            }
+        }
+    }
+}
+
+/**
+ * Whether every link of each block leads to the page of a link of the other
+ * as far as block alignment is concerned: the same page, or paths one of
+ * which only has a section more (`doc/dg/objects/x.html` for
+ * `doc/en/objects/x.html`). Whether the unit carrying such a link is
+ * reused is up to `linkRelation`; its neighbours in the block do not
+ * depend on it. Paths that differ in a section (`compute/index.md`,
+ * `storage/index.md`) are other pages, and so are the blocks.
+ */
+function blocksLinked(source: Block, target: Block, languages: string[]): boolean {
+    const related = (from: string, to: string) =>
+        linkRelation(from, to, languages) !== 'other' || nestedPaths(from, to, languages);
+
+    return (
+        source.links.every((from) => target.links.some((to) => related(from, to))) &&
+        target.links.every((to) => source.links.some((from) => related(from, to)))
+    );
 }
 
 /** Step 3: positional substitutions inside every gap between kept pairs. */

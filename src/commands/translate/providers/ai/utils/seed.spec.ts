@@ -1,4 +1,5 @@
 import {describe, expect, it} from 'vitest';
+import {extract} from '@diplodoc/translation';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 
@@ -503,6 +504,14 @@ describe('translate seed pairs with localized links', () => {
                 'https://example.com/en/docs/install.md',
                 'https://example.com/ru/docs/admin/install.md',
             ],
+            [
+                'http://example.com/en/docs/install.md',
+                'https://example.com/ru/docs/admin/install.md',
+            ],
+            [
+                'https://www.example.com/en/docs/install.md',
+                'https://example.com/ru/docs/admin/install.md',
+            ],
         ])('should not reuse a translation keeping %j as %j', (fixed, stale) => {
             const source = `See ${link('install', fixed)}.`;
             const translation = `См. ${link('установка', stale)}.`;
@@ -521,5 +530,121 @@ describe('translate seed pairs with localized links', () => {
 
             expect(align(source, translation).doubtful).toBe(0);
         });
+    });
+});
+
+// Cases found in review: each one used to reuse a translation that does not
+// belong to its source unit.
+describe('translate seed pairs that must not be reused', () => {
+    const link = (text: string, url: string) =>
+        `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
+    const code = (text: string) =>
+        `<x ctype="code_open" equiv-text="\`" id="x-1"/>${text}<x ctype="code_close" equiv-text="\`" id="x-2"/>`;
+    const EN_RU = {source: 'en', target: 'ru'};
+    const texts = (pairs: [string, string, true?][]) =>
+        pairs.map(([source, target]) => [source, target].map((u) => u.replace(/<[^>]+>/g, '')));
+
+    it('should not pin list items by pages of the same name in different sections', () => {
+        const source = side([
+            `- [[Compute overview.]] [[${link('Start', 'compute/index.md')}]]`,
+            `- [[Storage overview.]] [[${link('Start', 'storage/index.md')}]]`,
+        ]);
+
+        const one = alignTranslationUnits(
+            source,
+            side([`- [[Обзор хранилища.]] [[${link('Начало', 'storage/index.md')}]]`]),
+            EN_RU,
+        );
+        const swapped = alignTranslationUnits(
+            source,
+            side([
+                `- [[Обзор хранилища.]] [[${link('Начало', 'storage/index.md')}]]`,
+                `- [[Обзор вычислений.]] [[${link('Начало', 'compute/index.md')}]]`,
+            ]),
+            EN_RU,
+        );
+
+        expect(texts(one.pairs)).not.toContainEqual(['Compute overview.', 'Обзор хранилища.']);
+        expect(texts(swapped.pairs)).not.toContainEqual(['Compute overview.', 'Обзор хранилища.']);
+        expect(texts(swapped.pairs)).not.toContainEqual(['Storage overview.', 'Обзор вычислений.']);
+    });
+
+    it.each([
+        ['a variable path with another tail', '{{root}}/admin/install.md', '{{root}}/install.md'],
+        ['another variable', '{{admin-root}}/install.md', '{{user-root}}/install.md'],
+        ['a variable after another prefix', '/docs/admin/install.md', '/guide/{{lang}}/install.md'],
+        [
+            'another site of the same path',
+            'https://github.com/o/r/a.md',
+            'https://gitlab.com/o/r/a.md',
+        ],
+    ])('should not reuse a link to %s', (_, from, to) => {
+        const result = alignTranslationUnits(
+            side([`- [[See ${link('install', from)}.]]`]),
+            side([`- [[См. ${link('установка', to)}.]]`]),
+            EN_RU,
+        );
+
+        expect(result.pairs).toEqual([]);
+    });
+
+    it.each([
+        ['a longer identifier', 'Set row_cache_size.', `Задайте ${code('row_cache')}.`],
+        ['a part of a word', 'Specify the uuid.', `Укажите ${code('id')}.`],
+        ['words across a boundary', 'Call reset identity.', `Вызовите ${code('set_id')}.`],
+    ])('should not confirm code by %s', (_, source, translation) => {
+        expect(compatibleUnits(unit(source), unit(translation), ['en', 'ru'])).toBe(false);
+    });
+
+    it.each([
+        [
+            'a word in another case',
+            'Record the log in JSON format.',
+            `Запишите лог в формате ${code('json')}.`,
+        ],
+        [
+            'an identifier the translation repeats',
+            `A multi-source ${code('Computation')} is split.`,
+            `${code('Computation')} с несколькими источниками делится на ${code('Computation')}.`,
+        ],
+    ])('should still confirm code by %s', (_, source, translation) => {
+        expect(compatibleUnits(unit(source), unit(translation), ['en', 'ru'])).toBe(true);
+    });
+
+    // Links the anchors used to miss, taken from the real extraction.
+    const extracted = (markdown: string) =>
+        extract(markdown, {
+            compact: true,
+            unitLocalIds: true,
+            source: {language: 'en', locale: 'US'},
+            target: {language: 'ru', locale: 'RU'},
+        });
+
+    it.each([
+        [
+            'a link with a title',
+            'See [install](/en/admin/install.md "Install guide").\n',
+            'См. [установку](/ru/user/install.md "Install guide").\n',
+        ],
+        [
+            'an autolink',
+            'See <https://example.com/new/page> now.\n',
+            'См. <https://example.com/old/other> сейчас.\n',
+        ],
+        [
+            'a bare url with another query',
+            'Open https://example.com/en/search?q=a&sort=asc now.\n',
+            'Откройте https://example.com/ru/search?q=a&sort=desc сейчас.\n',
+        ],
+        [
+            'a reference definition',
+            'Text with a [ref] link.\n\n[ref]: /en/admin/install.md\n',
+            'Текст со [ссылкой][ref].\n\n[ref]: /ru/user/install.md\n',
+        ],
+    ])('should not reuse %s to another page', (_, source, translation) => {
+        const result = alignTranslationUnits(extracted(source), extracted(translation), EN_RU);
+        const linked = /install\.md|example\.com/;
+
+        expect(result.pairs.filter(([text]) => linked.test(text))).toEqual([]);
     });
 });
