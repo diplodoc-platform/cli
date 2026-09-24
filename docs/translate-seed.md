@@ -51,8 +51,8 @@ request, a wrong pair puts a wrong sentence into the document.
 A link is present when the other side has a link to the same page: the
 same page, query and section, and the path of one, without the domain and
 language segments, contained in the path of the other. A translation
-pointing to the page for its language counts (`yandex.ru/.../ref-v5/changes/check.html`
-for `yandex.com/.../changes/check.html`), a link to another section does
+pointing to the page for its language counts (`example.com/.../v5/changes/check.html`
+for `example.org/.../changes/check.html`), a link to another section does
 not (`/en/admin/install.md` for `/ru/user/install.md`). A code span is
 present as a code span with the same text, or in the plain text of the
 other side, verbatim or as words (`row_cache` for "row cache").

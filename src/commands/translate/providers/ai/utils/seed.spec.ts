@@ -125,8 +125,8 @@ describe('translate seed pairs', () => {
 
             it('should accept a link localized to the translation language', () => {
                 const [source, target] = pair(
-                    'https://ytsaurus.tech/en/blog/post',
-                    'https://ytsaurus.tech/ru/blog/post',
+                    'https://example.com/en/blog/post',
+                    'https://example.com/ru/blog/post',
                 );
 
                 expect(compatibleUnits(source, target, EN_RU_LANGUAGES)).toBe(true);
@@ -134,8 +134,8 @@ describe('translate seed pairs', () => {
 
             it('should compare links as they are without languages', () => {
                 const [source, target] = pair(
-                    'https://ytsaurus.tech/en/blog/post',
-                    'https://ytsaurus.tech/ru/blog/post',
+                    'https://example.com/en/blog/post',
+                    'https://example.com/ru/blog/post',
                 );
 
                 expect(compatibleUnits(source, target)).toBe(false);
@@ -143,15 +143,15 @@ describe('translate seed pairs', () => {
 
             it('should accept a link to the same page on another domain', () => {
                 const [source, target] = pair(
-                    'https://yandex.ru/dev/direct/doc/ref-v5/changes/check.html',
-                    'https://yandex.com/dev/direct/doc/changes/check.html',
+                    'https://example.com/docs/api/v5/changes/check.html',
+                    'https://example.org/docs/api/changes/check.html',
                 );
 
                 expect(compatibleUnits(source, target, EN_RU_LANGUAGES)).toBe(true);
             });
 
             it.each([
-                ['https://ytsaurus.tech/en/blog/post', 'https://ytsaurus.tech/ru/blog/other'],
+                ['https://example.com/en/blog/post', 'https://example.com/ru/blog/other'],
                 ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],
             ])('should reject %j translated as %j', (from, to) => {
                 const [source, target] = pair(from, to);
@@ -377,8 +377,8 @@ describe('translate seed pairs with localized links', () => {
         `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
 
     it('should seed a translation keeping its own localized link', () => {
-        const source = `${link('Documentation', 'https://ytsaurus.tech/docs/en/gpu')}.`;
-        const translation = `${link('Документация', 'https://ytsaurus.tech/docs/ru/gpu')}.`;
+        const source = `${link('Documentation', 'https://example.com/docs/en/gpu')}.`;
+        const translation = `${link('Документация', 'https://example.com/docs/ru/gpu')}.`;
         const result = alignTranslationUnits(
             side([`- [[Added GPU checks.]] [[${source}]]`]),
             side([`- [[Добавлены проверки GPU.]] [[${translation}]]`]),
@@ -436,13 +436,13 @@ describe('translate seed pairs with localized links', () => {
         it.each([
             [
                 'a link to the same page on another domain and path',
-                `See ${link('check', 'https://yandex.ru/dev/direct/doc/ref-v5/changes/check.html')}.`,
-                `См. ${link('check', 'https://yandex.com/dev/direct/doc/changes/check.html')}.`,
+                `See ${link('check', 'https://example.com/docs/api/v5/changes/check.html')}.`,
+                `См. ${link('check', 'https://example.org/docs/api/changes/check.html')}.`,
             ],
             [
                 'a link with a variable for a part of the path',
-                `See ${link('example', 'https://github.com/ytsaurus/ytsaurus/blob/main/yt/sample/main.cpp')}.`,
-                `См. ${link('пример', '{{source-root}}/yt/sample/main.cpp')}.`,
+                `See ${link('example', 'https://example.com/repo/blob/main/src/sample/main.cpp')}.`,
+                `См. ${link('пример', '{{source-root}}/src/sample/main.cpp')}.`,
             ],
             ['words put into code', 'Support row cache.', `Поддержка ${code('row_cache')}.`],
         ])('should seed %s', (_, source, translation) => {

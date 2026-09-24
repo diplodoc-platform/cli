@@ -51,20 +51,20 @@ describe('translate seed alignment', () => {
             const EN_RU = ['en', 'ru'];
 
             it.each([
-                ['https://ytsaurus.tech/docs/en/gpu', 'https://ytsaurus.tech/docs/ru/gpu'],
+                ['https://example.com/docs/en/gpu', 'https://example.com/docs/ru/gpu'],
                 [
-                    'https://yandex.ru/dev/direct/doc/ref-v5/changes/checkDictionaries.html',
-                    'https://yandex.com/dev/direct/doc/changes/checkDictionaries.html',
+                    'https://example.com/docs/api/v5/changes/check.html',
+                    'https://example.org/docs/api/changes/check.html',
                 ],
                 ['../ru/concepts/page.md#section', '../en/concepts/page.md#section'],
-                ['https://ytsaurus.tech/docs/ru', 'https://ytsaurus.tech/docs/en/'],
+                ['https://example.com/docs/ru', 'https://example.com/docs/en/'],
                 ['/en-us/docs/', '/ru-ru/docs'],
             ])('should compare %j and %j as one page', (from, to) => {
                 expect(unitAnchors(link(from), EN_RU)).toEqual(unitAnchors(link(to), EN_RU));
             });
 
             it.each([
-                ['https://ytsaurus.tech/docs/en/gpu', 'https://ytsaurus.tech/docs/en/cpu'],
+                ['https://example.com/docs/en/gpu', 'https://example.com/docs/en/cpu'],
                 ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],
                 ['pragmas.md#yt.FileCacheTtl', 'pragmas.md#yt.TableContentTmpFolder'],
             ])('should tell %j from %j', (from, to) => {
@@ -78,8 +78,8 @@ describe('translate seed alignment', () => {
             });
 
             it('should keep the links as they are without languages', () => {
-                expect(unitAnchors(link('https://ytsaurus.tech/docs/en/gpu'))).toEqual([
-                    'url:https://ytsaurus.tech/docs/en/gpu',
+                expect(unitAnchors(link('https://example.com/docs/en/gpu'))).toEqual([
+                    'url:https://example.com/docs/en/gpu',
                 ]);
             });
         });
@@ -348,16 +348,16 @@ describe('translate seed links and prose', () => {
 
     describe('sameLink', () => {
         it.each([
-            ['https://ytsaurus.tech/docs/en/gpu', 'https://ytsaurus.tech/docs/ru/gpu'],
+            ['https://example.com/docs/en/gpu', 'https://example.com/docs/ru/gpu'],
             [
-                'https://yandex.ru/dev/direct/doc/ref-v5/changes/check.html',
-                'https://yandex.com/dev/direct/doc/changes/check.html',
+                'https://example.com/docs/api/v5/changes/check.html',
+                'https://example.org/docs/api/changes/check.html',
             ],
             ['../ru/concepts/page.md#section', '../en/concepts/page.md#section'],
             ['/en/search?q=dogs', '/ru/search?q=dogs'],
             [
-                'https://github.com/ytsaurus/ytsaurus/blob/main/yt/examples/sample/main.cpp',
-                '{{source-root}}/yt/examples/sample/main.cpp',
+                'https://example.com/repo/blob/main/src/examples/sample/main.cpp',
+                '{{source-root}}/src/examples/sample/main.cpp',
             ],
         ])('should take %j and %j for one page', (a, b) => {
             expect(sameLink(a, b, EN_RU)).toBe(true);

@@ -109,8 +109,8 @@ export function unitLinks(unit: string): string[] {
  * The key a link aligns blocks by. Without languages it is the link as is.
  * When aligning a translation, a translator points a link to the page for
  * the translation language: another domain, a language segment, a
- * different section of the same site (`yandex.ru/dev/direct/doc/ref-v5/changes/check.html`
- * for `yandex.com/dev/direct/doc/changes/check.html`). The key is the page
+ * different section of the same site (`example.com/docs/api/v5/changes/check.html`
+ * for `example.org/docs/api/changes/check.html`). The key is the page
  * with its query and section; a language segment is not a page (`/docs/en`
  * and `/docs/ru` are `docs`). Whether two links lead to the same page is
  * then decided by `sameLink`.
@@ -133,7 +133,7 @@ export function linkAnchor(url: string, languages: string[]): string {
  * and the path of one, without the domain and language segments, has to
  * contain the path of the other: the translation may drop a section of the
  * path (`ref-v5/changes/check.html` for `changes/check.html`) or have a
- * variable for a part of it (`{{source-root}}/yt/main.cpp`), not lead to
+ * variable for a part of it (`{{source-root}}/src/main.cpp`), not lead to
  * another one (`admin/install.md` for `user/install.md`).
  */
 export function sameLink(a: string, b: string, languages: string[]): boolean {
