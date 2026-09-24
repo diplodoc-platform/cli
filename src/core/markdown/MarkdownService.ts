@@ -371,7 +371,9 @@ export class MarkdownService {
             if (asset.type === 'link' && (asset.autotitle || asset.hash) && asset.path) {
                 const target = asset.hash
                     ? resolveMarkdownPage(asset.path, (candidate) =>
-                          this.run.exists(join(this.run.input, candidate)),
+                          this.run.exists(
+                              normalizePath(join(this.run.input, candidate)) as AbsolutePath,
+                          ),
                       )
                     : asset.path;
                 if (target && target !== path) {
