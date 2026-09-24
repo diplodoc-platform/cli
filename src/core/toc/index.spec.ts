@@ -343,6 +343,157 @@ describe('toc-loader', () => {
         ),
     );
 
+    describe('noIndex', () => {
+        it('applies root noIndex to the entry point and all descendants', async () => {
+            const {run, toc} = setupService();
+            const warn = vi.spyOn(run.logger, 'warn');
+            const content = dedent`
+                title: Private documentation
+                href: index.md
+                noIndex: true
+                items:
+                  - name: Child
+                    href: child.md
+                    noIndex: false
+            `;
+
+            mockData(run, content, {}, {}, []);
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+            expect(run.meta.get('index.md' as NormalizedPath).noIndex).toBe(true);
+            expect(run.meta.get('child.md' as NormalizedPath).noIndex).toBe(true);
+            expect(warn).toHaveBeenCalledWith(
+                'Ignoring noIndex: false for "Child" in toc: toc.yaml; inherited noIndex: true cannot be overridden.',
+            );
+        });
+
+        it('applies item noIndex to its page and descendants without affecting siblings', async () => {
+            const {run, toc} = setupService();
+            const content = dedent`
+                items:
+                  - name: Public page
+                    href: public.md
+                  - name: Private section
+                    href: private.md
+                    noIndex: true
+                    items:
+                      - name: Private child
+                        href: private-child.md
+                        noIndex: false
+                  - name: Another public page
+                    href: another-public.md
+            `;
+
+            mockData(run, content, {}, {}, []);
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+            expect(run.meta.get('public.md' as NormalizedPath).noIndex).toBeUndefined();
+            expect(run.meta.get('private.md' as NormalizedPath).noIndex).toBe(true);
+            expect(run.meta.get('private-child.md' as NormalizedPath).noIndex).toBe(true);
+            expect(run.meta.get('another-public.md' as NormalizedPath).noIndex).toBeUndefined();
+        });
+
+        it('accepts noIndex: false without an inherited restriction', async () => {
+            const {run, toc} = setupService();
+            const warn = vi.spyOn(run.logger, 'warn');
+            const content = dedent`
+                noIndex: false
+                items:
+                  - name: Public page
+                    href: public.md
+                    noIndex: false
+            `;
+
+            mockData(run, content, {}, {}, []);
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+            expect(run.meta.get('public.md' as NormalizedPath).noIndex).toBeUndefined();
+            expect(warn).not.toHaveBeenCalled();
+        });
+
+        it.each(['Named include', ''])(
+            'warns about ignored noIndex overrides in an include: %s',
+            async (name) => {
+                const {run, toc} = setupService();
+                const warn = vi.spyOn(run.logger, 'warn');
+                const content = dedent`
+                    items:
+                      - name: '${name}'
+                        noIndex: true
+                        include:
+                          path: _includes/private/toc.yaml
+                          mode: link
+                `;
+                const files = {
+                    '_includes/private/toc.yaml': dedent`
+                        noIndex: false
+                        items:
+                          - name: Private page
+                            href: page.md
+                            noIndex: false
+                    `,
+                };
+
+                mockData(run, content, {}, files, []);
+                await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+                expect(run.meta.get('_includes/private/page.md' as NormalizedPath).noIndex).toBe(
+                    true,
+                );
+                expect(warn).toHaveBeenCalledWith(
+                    'Ignoring noIndex: false for "<unnamed>" in toc: _includes/private/toc.yaml; inherited noIndex: true cannot be overridden.',
+                );
+                expect(warn).toHaveBeenCalledWith(
+                    expect.stringContaining('noIndex: false for "Private page"'),
+                );
+            },
+        );
+
+        it('preserves noIndex from named, flat, and locally restricted includes', async () => {
+            const {run, toc} = setupService();
+            const content = dedent`
+                items:
+                  - name: Named include
+                    include:
+                      path: _includes/named/toc.yaml
+                      mode: link
+                  - include:
+                      path: _includes/flat/toc.yaml
+                      mode: link
+                  - noIndex: true
+                    include:
+                      path: _includes/local/toc.yaml
+                      mode: link
+            `;
+            const files = {
+                '_includes/named/toc.yaml': dedent`
+                    noIndex: true
+                    items:
+                      - name: Named page
+                        href: page.md
+                `,
+                '_includes/flat/toc.yaml': dedent`
+                    noIndex: true
+                    items:
+                      - name: Flat page
+                        href: page.md
+                `,
+                '_includes/local/toc.yaml': dedent`
+                    items:
+                      - name: Locally restricted page
+                        href: page.md
+                `,
+            };
+
+            mockData(run, content, {}, files, []);
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+            expect(run.meta.get('_includes/named/page.md' as NormalizedPath).noIndex).toBe(true);
+            expect(run.meta.get('_includes/flat/page.md' as NormalizedPath).noIndex).toBe(true);
+            expect(run.meta.get('_includes/local/page.md' as NormalizedPath).noIndex).toBe(true);
+        });
+    });
+
     describe('includes', () => {
         it(
             'should rebase items href for includes in link mode',

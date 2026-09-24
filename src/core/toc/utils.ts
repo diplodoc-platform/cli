@@ -4,6 +4,23 @@ import {evaluate} from '@diplodoc/liquid';
 
 import {isExternalHref, own} from '~/core/utils';
 
+/** Resolves inherited indexing restrictions and reports ignored overrides. */
+export function resolveNoIndex(
+    item: {noIndex?: boolean; name?: unknown; href?: unknown},
+    inheritedNoIndex: boolean,
+    path: NormalizedPath,
+    logger: {warn(message: string): unknown},
+): boolean {
+    if (inheritedNoIndex && item.noIndex === false) {
+        const name = String(item.name ?? item.href ?? '<unnamed>');
+        logger.warn(
+            `Ignoring noIndex: false for "${name}" in toc: ${path}; inherited noIndex: true cannot be overridden.`,
+        );
+    }
+
+    return inheritedNoIndex || item.noIndex === true;
+}
+
 export function isRelative(path: AnyPath): path is RelativePath {
     return /^\.{1,2}\//.test(path) || !/^(\w{0,7}:)?\/\//.test(path);
 }
