@@ -197,6 +197,81 @@ describe('translate ai provider', () => {
             expect(logger.warn).toHaveBeenCalledWith('ru/test.md', expect.stringContaining('/100'));
         });
 
+        it('should translate page-constructor cards around liquid conditions and warn about blocks left untranslated', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-pc-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(
+                join(input, 'ru', 'test.md'),
+                [
+                    '::: page-constructor',
+                    'blocks:',
+                    '  - type: card-layout-block',
+                    '    children:',
+                    '      - type: basic-card',
+                    '        title: Яндекс Формы',
+                    '',
+                    '        {% if distr != "on-prem" %}',
+                    '      - type: basic-card',
+                    '        title: Почта',
+                    '        {% endif %}',
+                    ':::',
+                    '',
+                    '::: page-constructor',
+                    'blocks:',
+                    '  - type: basic-card',
+                    "    title: {% if distr == 'saas' %}Формы{% endif %}",
+                    ':::',
+                    '',
+                ].join('\n'),
+            );
+
+            const provider = new Provider(() => makeFullClient(), {} as never);
+            const logger = {
+                translate: vi.fn(),
+                translated: vi.fn(),
+                request: vi.fn(),
+                stat: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+            };
+            Object.assign(provider, {logger});
+
+            await provider.translate(['ru/test.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+            } as unknown as AITranslationConfig);
+
+            const result = readFileSync(join(output, 'en', 'test.md'), 'utf8');
+            expect(result).toContain('        title: T:Яндекс Формы\n');
+            expect(result).toContain(
+                '        {% if distr != "on-prem" %}\n' +
+                    '      - type: basic-card\n' +
+                    '        title: T:Почта\n' +
+                    '        {% endif %}\n',
+            );
+            expect(result).toContain("    title: {% if distr == 'saas' %}Формы{% endif %}\n");
+            expect(logger.warn).toHaveBeenCalledTimes(1);
+            expect(logger.warn).toHaveBeenCalledWith(
+                'ru/test.md',
+                expect.stringMatching(/^page-constructor block at line 14 is left untranslated: /),
+            );
+            expect(logger.error).not.toHaveBeenCalled();
+        });
+
         it('should write a machine-readable run report when configured', async () => {
             const root = mkdtempSync(join(tmpdir(), 'yfm-ai-report-'));
             const input = join(root, 'docs');

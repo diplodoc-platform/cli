@@ -91,7 +91,7 @@ export class Provider {
                 const stat = createTargetStat();
                 const request = requester(translatorParams, cache, stat);
                 const translate = translator(request, cache, this.logger, stat);
-                const process = processor(translatorParams, translate);
+                const process = processor(translatorParams, translate, this.logger);
 
                 await eachLimit(
                     files,
@@ -296,7 +296,7 @@ function requester(params: RequesterParams, cache: Cache, stat: TargetStat): Req
     };
 }
 
-function processor(params: TranslatorParams, translate: Translate) {
+function processor(params: TranslatorParams, translate: Translate, logger: Logger) {
     const {input, output, sourceLanguage, targetLanguage, varsFor, code} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
@@ -325,7 +325,7 @@ function processor(params: TranslatorParams, translate: Translate) {
         }
 
         const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
-        const {units, skeleton} = extract(content.data, {
+        const {units, skeleton, warnings} = extract(content.data, {
             compact: true,
             code,
             source: {
@@ -339,6 +339,10 @@ function processor(params: TranslatorParams, translate: Translate) {
             schemas,
             ajvOptions,
         });
+
+        for (const warning of warnings) {
+            logger.warn(path, warning);
+        }
 
         if (!units.length) {
             await content.dump(output);

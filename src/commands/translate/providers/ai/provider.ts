@@ -484,14 +484,19 @@ function makeProcessor(params: ProcessorParams) {
         const inputPath = join(inputRoot, path);
         const outputPath = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
 
-        const {content, units, skeleton, schemas, ajvOptions} = await loadTranslationUnits({
-            inputPath,
-            path,
-            sourceLanguage,
-            targetLanguage,
-            vars: varsFor(path),
-            code,
-        });
+        const {content, units, skeleton, schemas, ajvOptions, warnings} =
+            await loadTranslationUnits({
+                inputPath,
+                path,
+                sourceLanguage,
+                targetLanguage,
+                vars: varsFor(path),
+                code,
+            });
+
+        for (const warning of warnings ?? []) {
+            logger?.warn(path, warning);
+        }
 
         if (!content.data || !units.length) {
             await content.dump(outputPath);
