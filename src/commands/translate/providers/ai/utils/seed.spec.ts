@@ -601,6 +601,22 @@ describe('translate seed pairs that must not be reused', () => {
         expect(result.pairs).toEqual([]);
     });
 
+    it('should not pin one of two items linking pages of one name on another site', () => {
+        const result = alignTranslationUnits(
+            side([
+                `- [[Admin guide.]] [[Read ${link('install', 'https://docs.example.ru/admin/install.md')}.]]`,
+                `- [[User guide.]] [[Read ${link('install', 'https://docs.example.ru/user/install.md')}.]]`,
+            ]),
+            side([
+                `- [[Руководство.]] [[Прочитайте ${link('установка', 'https://docs.example.com/install.md')}.]]`,
+            ]),
+            EN_RU,
+        );
+
+        expect(texts(result.pairs)).not.toContainEqual(['Admin guide.', 'Руководство.']);
+        expect(texts(result.pairs)).not.toContainEqual(['User guide.', 'Руководство.']);
+    });
+
     it('should not reuse a link written as a variable for the whole address', () => {
         const result = alignTranslationUnits(
             side([`- [[Open the ${link('console', '{{link-console-main}}')}.]]`]),
@@ -623,6 +639,7 @@ describe('translate seed pairs that must not be reused', () => {
         ['a part of a path', 'Look in /usr/bin today.', `Загляните в ${code('bin')}.`],
         ['a variable', 'Set $HOME first.', `Задайте ${code('HOME')}.`],
         ['a name in mixed case', 'Use getuser now.', `Используйте ${code('getUser')}.`],
+        ['text in mixed case', 'Call getUser now.', `Вызовите ${code('getuser')}.`],
     ])('should not confirm code by %s', (_, source, translation) => {
         expect(compatibleUnits(unit(source), unit(translation), ['en', 'ru'])).toBe(false);
     });

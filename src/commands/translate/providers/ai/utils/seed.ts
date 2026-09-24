@@ -224,6 +224,8 @@ const WORD_JOINERS = /[\s_-]+/;
 // `/usr/bin`, `$HOME`, `C++`).
 const WORD_START = String.raw`(?<![\p{L}\p{N}_$]|[\p{L}\p{N}][-.\/:@#+])`;
 const WORD_END = String.raw`(?![\p{L}\p{N}_+]|[-.\/:@#][\p{L}\p{N}])`;
+// A word as prose writes it: one case, or a capital letter and small ones.
+const PLAIN_CASE = /^(?:\p{Lu}?[\p{Ll}\p{N}]*|[\p{Lu}\p{N}]*)$/u;
 
 /**
  * Whether the plain text of a unit has the code as a word of its own, an
@@ -248,8 +250,14 @@ function inProse(unit: string, code: string): boolean {
         !code.startsWith('-') &&
         (code === code.toLowerCase() || code === code.toUpperCase());
 
-    return new RegExp(`${WORD_START}${pattern}${WORD_END}`, caseless ? 'iu' : 'u').test(
-        unitProse(unit),
+    const matches = unitProse(unit).matchAll(
+        new RegExp(`${WORD_START}${pattern}${WORD_END}`, caseless ? 'giu' : 'gu'),
+    );
+
+    // A word in mixed case ("getUser") is a name of its own even for a code
+    // in one case (`getuser`); a capitalized word ("Row Cache") is not.
+    return [...matches].some(([text]) =>
+        text.split(/[^\p{L}\p{N}]+/u).every((word) => PLAIN_CASE.test(word)),
     );
 }
 

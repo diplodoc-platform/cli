@@ -104,6 +104,20 @@ describe('translate seed alignment', () => {
             expect(unitAnchors(unit(close))).toEqual(['code:spark.enabled']);
         });
 
+        it.each([
+            ['[Note]: e.g. the value is ignored.', []],
+            ['[Deadline]: 12:00 sharp.', []],
+            ['[ref]: /docs/admin/install.md', ['url:/docs/admin/install.md']],
+            ['[ref]: install.md', ['url:install.md']],
+        ])(
+            'should read %j as a reference definition only when it holds an address',
+            (text, anchors) => {
+                expect(
+                    unitAnchors(unit(text)).filter((anchor) => anchor.startsWith('url:')),
+                ).toEqual(anchors);
+            },
+        );
+
         it('should keep bare urls of the text', () => {
             expect(unitAnchors(unit('See https://example.com/x?y=1 for details'))).toEqual([
                 'num:1',
@@ -397,6 +411,9 @@ describe('translate seed links and prose', () => {
             ['{{admin-root}}/install.md', '{{user-root}}/install.md'],
             // A variable for the whole address or its end says nothing of the page.
             ['{{link-console-main}}', 'https://example.com/billing/accounts'],
+            ['{{link-console-main}}', 'https://github.com'],
+            ['{{root}}/en', 'https://any.example.net/ru'],
+            ['{{link}}#setup', 'https://other.example.net/#setup'],
             ['/docs/{{page}}', '/docs/admin/upgrade.md'],
             // Other sites: subdomains, shared suffixes, addresses and ports.
             ['https://console.example.com/', 'https://example.com/'],
@@ -421,6 +438,7 @@ describe('translate seed links and prose', () => {
             ['/docs/admin/install.md', '/docs/{{section}}/install.md'],
             ['https://docs.example.com/docs/page.md', 'https://docs.example.ru/docs/page.md'],
             ['https://en.example.org/wiki/MD5', 'https://ru.example.org/wiki/MD5'],
+            ['https://example.com:443/docs/x.md', 'https://example.com/docs/x.md'],
             ['https://example.com/docs/{{lang}}/', 'https://example.com/docs/ru/'],
         ])('should take source %j and translation %j for the same page', (source, target) => {
             expect(linkRelation(source, target, EN_RU)).toBe('same');

@@ -44,8 +44,10 @@ const LINK_DESTINATION = /\]\(<?([^\s)<>]+)>?(?:\s[^)]*)?\)/g;
 // An autolink placeholder keeps its url in `equiv-text="&lt;url&gt;"`.
 const AUTOLINK = /<x\b[^>]*\bctype="link_autolink"[^>]*>/g;
 // A link reference definition extracted as text: `[ref]: url`, the url
-// looking like an address, not a word (`[Optional]: the value...`).
-const REFERENCE = /^\s*\[[^\]]+\]:\s*<?([^\s<>]*[/.#:][^\s<>]*?)>?(?:\s|$)/;
+// looking like an address (a scheme, a path, a section or a file), not a
+// word (`[Optional]: the value`, `[Note]: e.g.`, `[Deadline]: 12:00`).
+const REFERENCE =
+    /^\s*\[[^\]]+\]:\s*<?((?:[a-z][a-z\d+.-]*:\/\/|\.{0,2}\/|#)[^\s<>]*|[^\s<>]*\.[a-z][a-z\d]{0,4})>?(?:\s|$)/i;
 const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
@@ -244,9 +246,11 @@ function linkParts(url: string, languages: string[]): LinkParts {
     const variables = segments.filter((segment) => segment.includes('{{'));
 
     return {
-        // A language subdomain (`en.wikipedia.org`) is a language segment too.
-        host: (linkHost(url) || '').replace(/^([a-z]{2})\./, (label, code: string) =>
-            codes.has(code) ? '' : label,
+        // A language subdomain (`en.wikipedia.org`) is a language segment
+        // too, unless it is all there is before the top-level domain.
+        host: (linkHost(url) || '').replace(
+            /^([a-z]{2})\.(?=[^.]+\.[^.]+)/,
+            (label, code: string) => (codes.has(code) ? '' : label),
         ),
         segments,
         variable: variables.length === 1 ? segments.indexOf(variables[0]) : -1,
@@ -288,10 +292,11 @@ function variableMatch(from: LinkParts, to: LinkParts): boolean {
     const after = pattern.segments.slice(pattern.variable + 1);
 
     // A variable at the end may stand only for a language segment dropped
-    // on the other side (`/docs/{{lang}}/`); for more (`{{link-console}}`,
-    // `/docs/{{page}}`) it says nothing about the page.
+    // on the other side (`/docs/{{lang}}/`), and only after a literal
+    // segment; a variable for the whole address (`{{link-console}}`) or
+    // for a page (`/docs/{{page}}`) says nothing about the page.
     if (!after.length) {
-        return path.segments.join('/') === before.join('/');
+        return before.length > 0 && path.segments.join('/') === before.join('/');
     }
 
     return (
@@ -335,7 +340,7 @@ function linkHost(url: string): string | undefined {
 
     return authority
         ?.replace(/^[^@]*@/, '')
-        .replace(/:$/, '')
+        .replace(/:(?:80|443)?$/, '')
         .replace(/^www\./i, '')
         .toLowerCase();
 }
@@ -782,8 +787,8 @@ function matchByPages(matching: Matching, languages: string[]) {
     gaps.push([previous, [source.length, target.length]]);
 
     for (const [from, to] of gaps) {
-        const sources = linked(source, matchedSource, from[0] + 1, to[0]);
-        const targets = linked(target, matchedTarget, from[1] + 1, to[1]);
+        const sources = unique(linked(source, matchedSource, from[0] + 1, to[0]), source);
+        const targets = unique(linked(target, matchedTarget, from[1] + 1, to[1]), target);
         const pairs = lcs(
             sources.map((index) => source[index].pageKey),
             targets.map((index) => target[index].pageKey),
@@ -797,6 +802,20 @@ function matchByPages(matching: Matching, languages: string[]) {
             }
         }
     }
+}
+
+/**
+ * The blocks whose page key no other block of the list has: two items of a
+ * gap linking pages of one name are a choice, not a match.
+ */
+function unique(indexes: number[], blocks: Block[]): number[] {
+    const counts = new Map<string, number>();
+
+    for (const index of indexes) {
+        counts.set(blocks[index].pageKey, (counts.get(blocks[index].pageKey) || 0) + 1);
+    }
+
+    return indexes.filter((index) => counts.get(blocks[index].pageKey) === 1);
 }
 
 /**
