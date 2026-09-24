@@ -1,4 +1,5 @@
 import type {SeedPair} from './seed';
+import type {SkeletonFragment} from './skeleton';
 
 import {createHash} from 'node:crypto';
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
@@ -39,6 +40,8 @@ type SeedFile = {
     version: number;
     translations: Record<string, string>;
     files: Record<string, [string, string][]>;
+    /** Absent in seeds written before skeleton fragments: nothing to restore then. */
+    skeletons?: Record<string, SkeletonFragment[]>;
 };
 
 /** The previous version of a changed unit: a source the file no longer contains and its translation. */
@@ -68,6 +71,10 @@ const HINT_MIN_SIMILARITY = 0.6;
  * sentence repeated in one file with different wordings keeps each of
  * them in place when the file is translated again, and so that a changed
  * sentence can be traced back to its previous version.
+ *
+ * Next to the pairs a file keeps the pieces of its translation that live
+ * in the skeleton and that the translator localized: code blocks and
+ * lines with heading ids or link destinations, see `SkeletonFragment`.
  */
 export class SeedStore {
     private readonly file: string;
@@ -75,6 +82,8 @@ export class SeedStore {
     private translations: Record<string, string> = {};
 
     private files: Record<string, [string, string][]> = {};
+
+    private skeletons: Record<string, SkeletonFragment[]> = {};
 
     private readonly counts = new Map<string, Map<string, number>>();
 
@@ -92,6 +101,7 @@ export class SeedStore {
             if (data.version === SEED_VERSION && data.translations) {
                 this.translations = data.translations;
                 this.files = data.files || {};
+                this.skeletons = data.skeletons || {};
             }
         } catch {
             // A corrupted seed file is not fatal - start from scratch.
@@ -125,18 +135,26 @@ export class SeedStore {
      * Records the pairs of a file, in document order. Every pair enters the
      * per-file memory; doubtful pairs stay out of the dictionary.
      */
-    record(file: string, pairs: SeedPair[]) {
+    record(file: string, pairs: SeedPair[], fragments: SkeletonFragment[] = []) {
         this.files[file] = pairs.map(([text, translation]) => [text, translation]);
         for (const [text, translation, doubtful] of pairs) {
             if (!doubtful) {
                 this.set(text, translation);
             }
         }
+        if (fragments.length) {
+            this.skeletons[file] = fragments;
+        }
     }
 
     /** Source/translation pairs recorded for a file, in document order. */
     memory(file: string): [string, string][] | undefined {
         return this.files[file];
+    }
+
+    /** Localized skeleton fragments recorded for a file. */
+    fragments(file: string): SkeletonFragment[] {
+        return this.skeletons[file] || [];
     }
 
     flush() {
@@ -147,6 +165,7 @@ export class SeedStore {
                 version: SEED_VERSION,
                 translations: this.translations,
                 files: this.files,
+                skeletons: this.skeletons,
             }),
         );
     }
@@ -200,6 +219,16 @@ export class TranslationStore {
 
     get(text: string): string | undefined {
         return this.seeds?.get(text) ?? this.translations[hash(text)];
+    }
+
+    /** The seed pairs of a file, see `SeedStore.memory`. */
+    memory(file: string): [string, string][] {
+        return this.seeds?.memory(file) || [];
+    }
+
+    /** The localized skeleton fragments of a file, see `SeedStore.fragments`. */
+    fragments(file: string): SkeletonFragment[] {
+        return this.seeds?.fragments(file) || [];
     }
 
     /**
