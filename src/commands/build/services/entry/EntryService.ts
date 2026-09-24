@@ -3,7 +3,7 @@ import type {Toc} from '~/core/toc';
 import type {GraphInfo as MarkdownGraphInfo} from '~/core/markdown';
 import type {GraphInfo as LeadingGraphInfo} from '~/core/leading';
 import type {EntryInfo, Run} from '~/commands/build';
-import type {EntryData, PageData, PageState} from './types';
+import type {EntryData, MarkdownData, PageData, PageState} from './types';
 import type {Template} from '~/core/template';
 
 import {extname, join} from 'node:path';
@@ -51,6 +51,16 @@ function stripUnresolvedVars(str: string): string {
         result += closeIdx !== -1 ? parts[i].substring(closeIdx + 2) : parts[i];
     }
     return result.replace(/\s+/g, ' ').trim();
+}
+
+function getBrowserState(state: PageState, staticContent: boolean) {
+    const browserState = getPublicState(state);
+
+    if (staticContent && browserState.data.leading === false) {
+        delete (browserState.data as Partial<MarkdownData>).html;
+    }
+
+    return browserState;
 }
 
 @withHooks
@@ -252,7 +262,7 @@ export class EntryService {
 
         style.map(template.addStyle);
 
-        template.addScript(template.escape(JSON.stringify(getPublicState(state))), {
+        template.addScript(template.escape(JSON.stringify(getBrowserState(state, staticContent))), {
             inline: true,
             position: 'state',
             attrs: {
