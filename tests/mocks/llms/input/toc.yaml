@@ -6,6 +6,7 @@ items:
     href: start.md
   - name: API Reference
     href: api.md
+    noIndex: true
   - name: Beta Feature
     href: beta.md
     when: showBeta

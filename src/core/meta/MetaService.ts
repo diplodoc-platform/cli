@@ -139,6 +139,7 @@ export class MetaService {
      * Adds/merges metadata for a path.
      *
      * Handles special fields:
+     * - `noIndex`: Once enabled, cannot be disabled by a later metadata source
      * - `restricted-access`: Prevents duplicate access rules
      * - `metadata`: Custom meta tags (merged via `addMetadata()`)
      * - `alternate`: Alternate links (merged via `addAlternates()`)
@@ -154,13 +155,19 @@ export class MetaService {
         const file = normalizePath(path);
 
         if (this.config.rawAddMeta) {
+            const current = this.meta.get(file);
+            const noIndex = current?.noIndex === true || record.noIndex === true;
+
             if (isRaw) {
-                this.meta.set(file, record);
+                this.meta.set(file, noIndex ? {...record, noIndex: true} : record);
+            } else if (noIndex) {
+                this.meta.set(file, {...(current ?? this.initialMeta()), noIndex: true});
             }
             return;
         }
 
         const meta = this.meta.get(file) || this.initialMeta();
+        const noIndex = meta.noIndex === true || record.noIndex === true;
 
         // check repeat right
         if (meta['restricted-access']?.length && record['restricted-access']) {
@@ -190,6 +197,10 @@ export class MetaService {
                 'restricted-access',
             ]),
         );
+
+        if (noIndex) {
+            result.noIndex = true;
+        }
 
         this.meta.set(file, result);
 

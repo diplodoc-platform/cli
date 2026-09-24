@@ -1,0 +1,5 @@
+noIndex: true
+
+items:
+  - name: Included private page
+    href: private.md
