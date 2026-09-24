@@ -390,4 +390,71 @@ describe('translate seed pairs with localized links', () => {
             [unit(source), unit(translation)],
         ]);
     });
+
+    // The cases of the review of the precise link and code comparison, run
+    // through the whole alignment: the neutral sentence is seeded, the
+    // sentence whose link or code differs is left for the model.
+    describe('pairs a precise comparison rejects', () => {
+        const code = (text: string) =>
+            `<x ctype="code_open" equiv-text="\`" id="x-1"/>${text}<x ctype="code_close" equiv-text="\`" id="x-2"/>`;
+        const align = (source: string, translation: string) =>
+            alignTranslationUnits(
+                side([`- [[Added checks.]] [[${source}]]`]),
+                side([`- [[Добавлены проверки.]] [[${translation}]]`]),
+                {source: 'en', target: 'ru'},
+            );
+
+        it.each([
+            [
+                'a link to a page in another section',
+                `See ${link('install', '/en/admin/install.md')}.`,
+                `См. ${link('установка', '/ru/user/install.md')}.`,
+            ],
+            [
+                'a link confirmed by a plain word only',
+                `Read ${link('guide', '/en/guide')}.`,
+                'Читайте guide.',
+            ],
+            [
+                'a link with another query',
+                `See ${link('results', '/en/search?q=dogs')}.`,
+                `См. ${link('результаты', '/ru/search?q=cats')}.`,
+            ],
+            ['code in another case', `Call ${code('getUser')}.`, `Вызовите ${code('getuser')}.`],
+            [
+                'code with other separators',
+                `Call ${code('get_user')}.`,
+                `Вызовите ${code('get-user')}.`,
+            ],
+        ])('should not seed %s', (_, source, translation) => {
+            const result = align(source, translation);
+
+            expect(result.pairs).toEqual([[unit('Added checks.'), unit('Добавлены проверки.')]]);
+            expect(result.unseeded).toBe(1);
+        });
+
+        it.each([
+            [
+                'a link to the same page on another domain and path',
+                `See ${link('check', 'https://yandex.ru/dev/direct/doc/ref-v5/changes/check.html')}.`,
+                `См. ${link('check', 'https://yandex.com/dev/direct/doc/changes/check.html')}.`,
+            ],
+            [
+                'a link with a variable for a part of the path',
+                `See ${link('example', 'https://github.com/ytsaurus/ytsaurus/blob/main/yt/sample/main.cpp')}.`,
+                `См. ${link('пример', '{{source-root}}/yt/sample/main.cpp')}.`,
+            ],
+            ['words put into code', 'Support row cache.', `Поддержка ${code('row_cache')}.`],
+        ])('should seed %s', (_, source, translation) => {
+            const result = align(source, translation);
+
+            // A Latin identifier the source writes as words makes the pair
+            // doubtful: seeded for its file, kept out of the dictionary.
+            expect(result.pairs.map(([text, seed]) => [text, seed])).toEqual([
+                [unit('Added checks.'), unit('Добавлены проверки.')],
+                [unit(source), unit(translation)],
+            ]);
+            expect(result.unseeded).toBe(0);
+        });
+    });
 });
