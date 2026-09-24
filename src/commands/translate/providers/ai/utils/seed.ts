@@ -1,6 +1,14 @@
 import type {JSONObject} from '@diplodoc/translation';
 
-import {alignBlocks, parseBlocks, unitAnchors, unwrap} from './align';
+import {
+    alignBlocks,
+    parseBlocks,
+    sameLink,
+    unitAnchors,
+    unitLinks,
+    unitProse,
+    unwrap,
+} from './align';
 import {keepsMarkup, restoreHoistedMarkers} from './markup';
 import {foreignWordPattern, untranslatedMarker} from './script';
 
@@ -163,48 +171,55 @@ function reusableTarget(source: string, target: string): string {
 
 /**
  * Whether two units can be translations of each other: same numbers, every
- * code span and link of one present in the other (a link localized from one
- * of `languages` to the other counts, see `linkAnchor`), and the inline markup of
+ * code span and link of one present in the other, and the inline markup of
  * the translation consistent with the source. A translator may put a
  * parameter name into code the source left plain, that is fine; a unit
  * whose code marker was hoisted into its own skeleton is not, because the
  * source skeleton would then restore a marker the unit still carries.
  */
 export function compatibleUnits(source: string, target: string, languages: string[] = []): boolean {
-    const sourceText = unwrap(source);
-    const targetText = unwrap(target);
-    const sourceAnchors = unitAnchors(source, languages);
-    const targetAnchors = unitAnchors(target, languages);
+    const numbers = (unit: string) =>
+        unitAnchors(unit)
+            .filter((anchor) => anchor.startsWith('num:'))
+            .join('\n');
 
-    const numbers = (anchors: string[]) => anchors.filter((anchor) => anchor.startsWith('num:'));
-    const tokens = (anchors: string[]) =>
-        anchors
-            .filter((anchor) => !anchor.startsWith('num:'))
-            .map((anchor) => anchor.slice(anchor.indexOf(':') + 1));
+    return (
+        numbers(source) === numbers(target) &&
+        hasCodeOf(target, source) &&
+        hasCodeOf(source, target) &&
+        hasLinksOf(target, source, languages) &&
+        hasLinksOf(source, target, languages) &&
+        keepsMarkup(unwrap(source), unwrap(target))
+    );
+}
 
-    if (numbers(sourceAnchors).join('\n') !== numbers(targetAnchors).join('\n')) {
-        return false;
-    }
+/**
+ * Whether every code span of `from` is in `unit`: as a code span with the
+ * same text, or in its plain text, verbatim or as words (`row cache` for
+ * `row_cache`). Only plain text is compared loosely: two code spans are
+ * the same identifier only when their texts match.
+ */
+function hasCodeOf(unit: string, from: string): boolean {
+    const codes = new Set(codeTexts(unit));
+    const prose = unitProse(unit);
+    const words = loosen(prose);
 
-    // A link is present when the other side has one to the same page, see
-    // `linkAnchor`; code may also turn up as plain text there, with
-    // spaces for its underscores (`row_cache` for "row cache").
-    const present = (anchors: string[], text: string) => {
-        const other = new Set(tokens(anchors));
-        const words = loosen(text);
+    return codeTexts(from).every(
+        (code) => codes.has(code) || prose.includes(code) || words.includes(loosen(code)),
+    );
+}
 
-        return (token: string) =>
-            other.has(token) || text.includes(token) || words.includes(loosen(token));
-    };
+/** Whether every link of `from` has a link to the same page in `unit`, see `sameLink`. */
+function hasLinksOf(unit: string, from: string, languages: string[]): boolean {
+    const links = unitLinks(unit);
 
-    if (
-        !tokens(sourceAnchors).every(present(targetAnchors, targetText)) ||
-        !tokens(targetAnchors).every(present(sourceAnchors, sourceText))
-    ) {
-        return false;
-    }
+    return unitLinks(from).every((link) => links.some((other) => sameLink(link, other, languages)));
+}
 
-    return keepsMarkup(sourceText, targetText);
+function codeTexts(unit: string): string[] {
+    return unitAnchors(unit)
+        .filter((anchor) => anchor.startsWith('code:'))
+        .map((anchor) => anchor.slice('code:'.length));
 }
 
 const WORD_JOINERS = /[\s_-]+/g;

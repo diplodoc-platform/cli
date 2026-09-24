@@ -2,7 +2,7 @@ import type {JSONObject} from '@diplodoc/translation';
 
 import {describe, expect, it} from 'vitest';
 
-import {alignBlocks, lcs, parseBlocks, unitAnchors} from './align';
+import {alignBlocks, lcs, parseBlocks, sameLink, unitAnchors, unitProse} from './align';
 
 const unit = (text: string) => `<source xml:space="preserve">${text}</source>`;
 
@@ -71,9 +71,9 @@ describe('translate seed alignment', () => {
                 expect(unitAnchors(link(from), EN_RU)).not.toEqual(unitAnchors(link(to), EN_RU));
             });
 
-            it('should compare the page by its last segment and section', () => {
+            it('should key the page by its last segment, query and section', () => {
                 expect(unitAnchors(link('https://x.y/en/a/b.md?x=1#y'), EN_RU)).toEqual([
-                    'url:b.md#y',
+                    'url:b.md?x=1#y',
                 ]);
             });
 
@@ -339,6 +339,57 @@ describe('translate seed alignment', () => {
                 [0, 0],
                 [1, 1],
             ]);
+        });
+    });
+});
+
+describe('translate seed links and prose', () => {
+    const EN_RU = ['en', 'ru'];
+
+    describe('sameLink', () => {
+        it.each([
+            ['https://ytsaurus.tech/docs/en/gpu', 'https://ytsaurus.tech/docs/ru/gpu'],
+            [
+                'https://yandex.ru/dev/direct/doc/ref-v5/changes/check.html',
+                'https://yandex.com/dev/direct/doc/changes/check.html',
+            ],
+            ['../ru/concepts/page.md#section', '../en/concepts/page.md#section'],
+            ['/en/search?q=dogs', '/ru/search?q=dogs'],
+            [
+                'https://github.com/ytsaurus/ytsaurus/blob/main/yt/examples/sample/main.cpp',
+                '{{source-root}}/yt/examples/sample/main.cpp',
+            ],
+        ])('should take %j and %j for one page', (a, b) => {
+            expect(sameLink(a, b, EN_RU)).toBe(true);
+            expect(sameLink(b, a, EN_RU)).toBe(true);
+        });
+
+        it.each([
+            ['/en/admin/install.md', '/ru/user/install.md'],
+            ['/en/search?q=dogs', '/ru/search?q=cats'],
+            ['pragmas.md#yt.FileCacheTtl', 'pragmas.md#yt.TableContentTmpFolder'],
+            ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],
+        ])('should tell %j from %j', (a, b) => {
+            expect(sameLink(a, b, EN_RU)).toBe(false);
+        });
+
+        it('should compare links as they are without languages', () => {
+            expect(sameLink('/en/gpu', '/ru/gpu', [])).toBe(false);
+            expect(sameLink('/en/gpu', '/en/gpu', [])).toBe(true);
+        });
+    });
+
+    describe('unitProse', () => {
+        const OPEN = '<x ctype="code_open" equiv-text="`" id="x-1"/>';
+        const CLOSE = '<x ctype="code_close" equiv-text="`" id="x-2"/>';
+
+        it.each([
+            [`Call ${OPEN}get_user${CLOSE} here`, 'Call  here'],
+            [`get_user${CLOSE} starts it`, ' starts it'],
+            [`It ends with ${OPEN}get_user`, 'It ends with '],
+            ['No code &amp; entity', 'No code   entity'],
+        ])('should drop code spans of %j', (text, prose) => {
+            expect(unitProse(unit(text))).toBe(prose);
         });
     });
 });

@@ -79,6 +79,42 @@ describe('translate seed pairs', () => {
         const link = (text: string, url: string) =>
             `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
 
+        describe('review cases', () => {
+            const EN_RU_LANGUAGES = ['en', 'ru'];
+            const link = (text: string, url: string) =>
+                `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
+
+            it.each([
+                [
+                    'a link to a page in another section',
+                    `See ${link('install', '/en/admin/install.md')}.`,
+                    `См. ${link('установка', '/ru/user/install.md')}.`,
+                ],
+                [
+                    'a link confirmed by a plain word only',
+                    `Read ${link('guide', '/en/guide')}.`,
+                    'Читайте guide.',
+                ],
+                [
+                    'a link with another query',
+                    `See ${link('results', '/en/search?q=dogs')}.`,
+                    `См. ${link('результаты', '/ru/search?q=cats')}.`,
+                ],
+                [
+                    'code in another case',
+                    `Call ${code('getUser')}.`,
+                    `Вызовите ${code('getuser')}.`,
+                ],
+                [
+                    'code with other separators',
+                    `Call ${code('get_user')}.`,
+                    `Вызовите ${code('get-user')}.`,
+                ],
+            ])('should reject %s', (_, source, target) => {
+                expect(compatibleUnits(unit(source), unit(target), EN_RU_LANGUAGES)).toBe(false);
+            });
+        });
+
         describe('localized links', () => {
             const EN_RU_LANGUAGES = ['en', 'ru'];
             const pair = (from: string, to: string) =>

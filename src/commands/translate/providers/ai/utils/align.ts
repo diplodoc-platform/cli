@@ -39,6 +39,8 @@ const LINK_DESTINATION = /\]\(([^)\s"]+)\)/g;
 const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
+// Scheme and host of an absolute link: a translation may lead to another domain.
+const ORIGIN = /^[a-z][a-z\d+.-]*:\/\/[^/]*/i;
 // A path segment naming a language: `en`, `ru`, `en-us`.
 const LANGUAGE = /^([a-z]{2})(?:-[a-z]{2})?$/i;
 
@@ -72,14 +74,7 @@ export function unitAnchors(unit: string, languages: string[] = []): string[] {
     const plain = text.replace(TAG, ' ').replace(ENTITY, ' ');
     const anchors: string[] = [];
 
-    const urls = new Set<string>();
-    for (const [, url] of text.matchAll(LINK_DESTINATION)) {
-        urls.add(url);
-    }
-    for (const [url] of plain.matchAll(BARE_URL)) {
-        urls.add(url);
-    }
-    for (const url of urls) {
+    for (const url of unitLinks(unit)) {
         anchors.push('url:' + linkAnchor(url, languages));
     }
 
@@ -94,31 +89,129 @@ export function unitAnchors(unit: string, languages: string[] = []): string[] {
     return anchors.sort(byCodePoint);
 }
 
+/** Link destinations of a unit, bare urls of its text included. */
+export function unitLinks(unit: string): string[] {
+    const text = unwrap(unit);
+    const plain = text.replace(TAG, ' ').replace(ENTITY, ' ');
+    const urls = new Set<string>();
+
+    for (const [, url] of text.matchAll(LINK_DESTINATION)) {
+        urls.add(url);
+    }
+    for (const [url] of plain.matchAll(BARE_URL)) {
+        urls.add(url);
+    }
+
+    return [...urls];
+}
+
 /**
- * What a link is compared by. Without languages it is the link as is. When
- * aligning a translation, a translator points a link to the page for the
- * translation language: another domain, a language segment, a different
- * section of the same site (`yandex.ru/dev/direct/doc/ref-v5/changes/check.html`
- * for `yandex.com/dev/direct/doc/changes/check.html`). The last segment of
- * the path, the page itself, stays the same, so that is what is compared,
- * with the section it leads to; a language segment is not a page
- * (`/docs/en` and `/docs/ru` are `docs`).
+ * The key a link aligns blocks by. Without languages it is the link as is.
+ * When aligning a translation, a translator points a link to the page for
+ * the translation language: another domain, a language segment, a
+ * different section of the same site (`yandex.ru/dev/direct/doc/ref-v5/changes/check.html`
+ * for `yandex.com/dev/direct/doc/changes/check.html`). The key is the page
+ * with its query and section; a language segment is not a page (`/docs/en`
+ * and `/docs/ru` are `docs`). Whether two links lead to the same page is
+ * then decided by `sameLink`.
  */
 export function linkAnchor(url: string, languages: string[]): string {
     if (!languages.length) {
         return url;
     }
 
-    const codes = new Set(languages.map((language) => language.slice(0, 2).toLowerCase()));
-    const [, path, hash = ''] = /^([^?#]*)(?:\?[^#]*)?(#.*)?$/.exec(url) as RegExpExecArray;
-    const segments = path.split('/').filter((segment) => {
-        const language = LANGUAGE.exec(segment)?.[1];
-
-        return segment && !(language && codes.has(language.toLowerCase()));
-    });
+    const {path, rest} = splitLink(url);
+    const segments = pathSegments(path, languages);
     const page = segments[segments.length - 1];
 
-    return page ? page + hash : url;
+    return page ? page + rest : url;
+}
+
+/**
+ * Whether two links lead to the same page. Without languages they have to
+ * be equal. With them the page, the query and the section have to match,
+ * and the path of one, without the domain and language segments, has to
+ * contain the path of the other: the translation may drop a section of the
+ * path (`ref-v5/changes/check.html` for `changes/check.html`) or have a
+ * variable for a part of it (`{{source-root}}/yt/main.cpp`), not lead to
+ * another one (`admin/install.md` for `user/install.md`).
+ */
+export function sameLink(a: string, b: string, languages: string[]): boolean {
+    if (a === b) {
+        return true;
+    }
+
+    if (!languages.length || linkAnchor(a, languages) !== linkAnchor(b, languages)) {
+        return false;
+    }
+
+    const left = pathSegments(splitLink(a).path, languages);
+    const right = pathSegments(splitLink(b).path, languages);
+
+    return isSubsequence(left, right) || isSubsequence(right, left);
+}
+
+function splitLink(url: string): {path: string; rest: string} {
+    const [, path, rest = ''] = /^([^?#]*)(.*)$/.exec(url) as RegExpExecArray;
+
+    return {path: path.replace(ORIGIN, ''), rest};
+}
+
+function pathSegments(path: string, languages: string[]): string[] {
+    const codes = new Set(languages.map((language) => language.slice(0, 2).toLowerCase()));
+
+    return path.split('/').filter((segment) => {
+        const language = LANGUAGE.exec(segment)?.[1];
+
+        // A variable (`{{source-root}}`) stands for a part of the path.
+        return (
+            segment && !segment.includes('{{') && !(language && codes.has(language.toLowerCase()))
+        );
+    });
+}
+
+function isSubsequence(short: string[], long: string[]): boolean {
+    let index = 0;
+
+    for (const segment of long) {
+        if (index < short.length && short[index] === segment) {
+            index++;
+        }
+    }
+
+    return index === short.length;
+}
+
+/**
+ * The text of a unit outside its code spans, tags and entities dropped:
+ * where a code span of the other side may turn up as plain words.
+ */
+export function unitProse(unit: string): string {
+    const text = unwrap(unit);
+    let prose = '';
+    let from = 0;
+    let inCode = false;
+
+    for (const match of text.matchAll(CODE_MARKER)) {
+        const index = match.index as number;
+
+        if (match[1] === 'open') {
+            prose += text.slice(from, index);
+            inCode = true;
+        } else {
+            // A close without an open: the span started before the unit.
+            prose = inCode ? prose : '';
+            inCode = false;
+        }
+
+        from = index + match[0].length;
+    }
+
+    if (!inCode) {
+        prose += text.slice(from);
+    }
+
+    return prose.replace(TAG, ' ').replace(ENTITY, ' ');
 }
 
 /** The unit text without its XLIFF `<source>` wrapper. */
