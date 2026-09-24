@@ -20,6 +20,11 @@ type CommonRunConfig = Omit<TranslateConfig, 'provider' | 'timeout' | 'copyAsset
     ExtractConfig &
     ConfigDefaults;
 
+export type RunOptions = {
+    /** Apply presets.yaml to conditions, as build does (`--presets`). Off by default. */
+    usePresets?: boolean;
+};
+
 export type GetFilesOptions = {
     /**
      * Whether the caller loads tocs through `getFileContent`, which inlines
@@ -34,6 +39,48 @@ export type GetFilesOptions = {
     inlinedTocs?: boolean;
 };
 
+/**
+ * Presets as the build of the translation sees them: every lookup - tocs and
+ * their merges, the includes that `translate.filter` follows, the content -
+ * takes the presets on the path of the target file (`ru/x.md` -> `en/x.md`).
+ * The presets of the source describe the source build: its `lang: ru` would
+ * keep the Russian branch of `{% if lang == "ru" %}` in the English page, and
+ * a lookup left on the source would pick other files than the content keeps.
+ */
+class TranslationVarsService extends VarsService {
+    private readonly languages: {source: string; target: string};
+
+    constructor(run: Run, languages: {source: string; target: string}) {
+        super(run);
+
+        this.languages = languages;
+    }
+
+    for(path: RelativePath, from?: NormalizedPath) {
+        const {source, target} = this.languages;
+
+        return super.for(path, languagePath(normalizePath(from || path), source, target));
+    }
+}
+
+/**
+ * The path of a file in the target language directory, as `languageRepath`
+ * places the translation; a file outside a source language directory (the
+ * input is that directory itself) keeps its path.
+ */
+function languagePath(file: NormalizedPath, source: string, target: string) {
+    const parts = file.split('/');
+    const index = parts.slice(0, -1).indexOf(source);
+
+    if (index === -1) {
+        return file;
+    }
+
+    parts[index] = target;
+
+    return parts.join('/') as NormalizedPath;
+}
+
 export class Run extends BaseRun<CommonRunConfig> {
     readonly vars: VarsService;
     readonly meta: MetaService;
@@ -41,7 +88,7 @@ export class Run extends BaseRun<CommonRunConfig> {
     readonly markdown: MarkdownService;
     readonly tocYamlList: Set<NormalizedPath>;
 
-    constructor(config: Config<CommonRunConfig>) {
+    constructor(config: Config<CommonRunConfig>, {usePresets = false}: RunOptions = {}) {
         super(config);
 
         this.scopes.set('input', this.realpathSync(config.input));
@@ -49,7 +96,19 @@ export class Run extends BaseRun<CommonRunConfig> {
         const sourcePath = join(config.input, config.source.language) as AbsolutePath;
         this.scopes.set('source', this.realpathSync(sourcePath));
 
-        this.vars = new VarsService(this, {usePresets: false});
+        // With `--presets`, vars apply as for the build of the translation:
+        // the `varsPreset` section of every presets.yaml on the path of the
+        // target file, under `--vars`, so the content that the build drops
+        // does not go to translation either. Off by default and never on for
+        // extract: the XLIFF for external tools takes its variables from
+        // `--vars` only.
+        this.vars = usePresets
+            ? new TranslationVarsService(this, {
+                  source: config.source.language,
+                  // One target per run with presets, see `checkPresetsTargets`.
+                  target: config.target[0].language,
+              })
+            : new VarsService(this, {usePresets: false});
         this.meta = new MetaService(this);
         this.toc = new TocService(this, {skipMissingVars: true, mode: 'translate'});
         this.markdown = new MarkdownService(this, {skipMissingVars: true, mode: 'translate'});

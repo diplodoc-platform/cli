@@ -1,5 +1,5 @@
 import type {TranslateConfig} from '~/commands/translate';
-import type {CodeMode} from '~/commands/translate/utils';
+import type {CodeMode, VarsResolver} from '~/commands/translate/utils';
 import type {YandexTranslationConfig} from '.';
 import type {AxiosResponse} from 'axios';
 import type {Logger} from '~/core/logger';
@@ -8,13 +8,13 @@ import type {TargetStat} from '../../report';
 import {extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
 import axios, {AxiosError} from 'axios';
-import liquid from '@diplodoc/transform/lib/liquid';
 
 import {LogLevel} from '~/core/logger';
 
 import {
     FileLoader,
     TranslateError,
+    applyConditions,
     compose,
     extract,
     languageRepath,
@@ -79,7 +79,9 @@ export class Provider {
                     targetLanguage: target.language,
                     // yandexCloudTranslateGlossaryPairs,
                     folderId: folder,
-                    vars,
+                    // The run resolves presets per file; a config without a
+                    // run (tests, direct calls) falls back to the flat vars.
+                    varsFor: config.varsFor ?? (() => vars),
                     code,
                     dryRun,
                     timeout,
@@ -149,7 +151,7 @@ type TranslatorParams = {
     output: string;
     sourceLanguage: string;
     targetLanguage: string;
-    vars: Hash;
+    varsFor: VarsResolver;
     code: CodeMode;
     // yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 };
@@ -295,7 +297,7 @@ function requester(params: RequesterParams, cache: Cache, stat: TargetStat): Req
 }
 
 function processor(params: TranslatorParams, translate: Translate) {
-    const {input, output, sourceLanguage, targetLanguage, vars, code} = params;
+    const {input, output, sourceLanguage, targetLanguage, varsFor, code} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -307,19 +309,14 @@ function processor(params: TranslatorParams, translate: Translate) {
 
         const inputPath = join(inputRoot, path);
         const output = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
+        const vars = varsFor(path);
 
         const content = new FileLoader(inputPath);
 
         await content.load();
 
         if (Object.keys(vars).length && content.isString) {
-            content.set(
-                liquid(content.data as string, vars, inputPath, {
-                    conditions: 'strict',
-                    substitutions: false,
-                    cycles: false,
-                }),
-            );
+            content.set(applyConditions(content.data as string, vars, inputPath));
         }
 
         if (!content.data) {

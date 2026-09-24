@@ -17,7 +17,7 @@ output, and survives model, prompt and glossary changes. Every seeding run
 rebuilds the file from scratch.
 
 The seed is keyed by unit texts, so the options that shape the units must
-match between the two commands: `--source`, `--target`, `--vars` and `--code`.
+match between the two commands: `--source`, `--target`, `--vars`, `--presets`, `--vars-preset` and `--code`.
 The seed takes `code` from the `translate` section of the config (or from its
 own `translate.seed` section) and otherwise defaults to `adaptive`, the mode
 of the LLM providers. A project that translates with the yandex provider,

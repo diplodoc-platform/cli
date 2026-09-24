@@ -31,6 +31,63 @@ describe('Translate command', () => {
             });
         });
 
+        describe('presets', () => {
+            const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
+
+            test('should be off by default', '', {
+                presets: false,
+            });
+
+            test('should handle arg', '--presets', {
+                presets: true,
+            });
+
+            test(
+                'should require one target language',
+                '--presets --target kk',
+                '--presets takes one target language',
+            );
+
+            test(
+                'should handle config',
+                '',
+                {presets: true},
+                {
+                    presets: true,
+                },
+            );
+        });
+
+        describe('varsPreset', () => {
+            const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
+
+            test('should default to default', '', {
+                varsPreset: 'default',
+            });
+
+            test('should handle arg', '--vars-preset public', {
+                varsPreset: 'public',
+            });
+
+            test(
+                'should handle config',
+                '',
+                {varsPreset: 'internal'},
+                {
+                    varsPreset: 'internal',
+                },
+            );
+
+            test(
+                'should prefer arg over config',
+                '--vars-preset public',
+                {varsPreset: 'internal'},
+                {
+                    varsPreset: 'public',
+                },
+            );
+        });
+
         describe('code', () => {
             const yandex = testConfig('--source ru --target en --folder 1 --auth t1.a');
             const openai = testConfig('--source ru --target en --provider openai --auth sk-test');

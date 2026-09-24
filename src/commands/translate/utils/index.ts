@@ -1,8 +1,16 @@
-export type {Locale, CodeMode} from './config';
+export type {Locale, CodeMode, VarsResolver} from './config';
 export {resolveSchemas, FileLoader, copyAssets, languageRepath} from './fs';
 export {extract, compose} from './translate';
-export {loadTranslationUnits} from './units';
-export {resolveSource, resolveTargets, resolveFiles, resolveVars, resolveCodeMode} from './config';
+export {applyConditions, loadTranslationUnits} from './units';
+export {
+    resolveSource,
+    resolveTargets,
+    resolveFiles,
+    resolveVars,
+    resolveVarsPreset,
+    resolveCodeMode,
+    checkPresetsTargets,
+} from './config';
 export {resolveVcsDiffFiles} from './vcs';
 export {
     TranslateError,

@@ -1,6 +1,6 @@
 import type {BaseArgs} from '~/core/program';
 import type {Config} from '~/core/config';
-import type {CodeMode, Locale} from '../utils';
+import type {CodeMode, Locale, VarsResolver} from '../utils';
 import type {ConfigDefaults} from '../utils/config';
 import type {AlignedUnits} from '../providers/ai/utils';
 
@@ -10,7 +10,8 @@ import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, configPath, defined, resolveConfig, scope} from '~/core/config';
+import {Command, defined} from '~/core/config';
+import {normalizePath} from '~/core/utils';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
@@ -24,7 +25,15 @@ import {TranslateError, languageRepath, loadTranslationUnits, resolveCodeMode} f
 import {SeedStore, alignTranslationUnits, seedFilePath} from '../providers/ai/utils';
 import {options as aiOptions} from '../providers/ai/config';
 import {Run} from '../run';
-import {configDefaults, resolveSource, resolveTargets, resolveVars} from '../utils/config';
+import {
+    checkPresetsTargets,
+    configDefaults,
+    resolveSource,
+    resolveTargets,
+    resolveVars,
+    resolveVarsPreset,
+    sectionValue,
+} from '../utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
 
 import {getHooks, withHooks} from './hooks';
@@ -37,7 +46,10 @@ export type SeedParams = {
     files: string[];
     sourceLanguage: string;
     targetLanguage: string;
-    vars: Hash;
+    /** Flat vars for every file; `varsFor` takes precedence. */
+    vars?: Hash;
+    /** Vars of a source file as translated; the target file takes the same vars, or the units diverge. */
+    varsFor?: VarsResolver;
     /** Must match the code mode of the translate run, or the cache keys diverge. LLM default when unset. */
     code?: CodeMode;
     cacheDir: AbsolutePath;
@@ -84,7 +96,8 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         files,
         sourceLanguage,
         targetLanguage,
-        vars,
+        vars: flatVars = {},
+        varsFor = () => flatVars,
         code = 'adaptive',
         cacheDir,
     } = params;
@@ -177,6 +190,10 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         inputPath: AbsolutePath,
         targetPath: AbsolutePath,
     ): Promise<(AlignedUnits & {units: number}) | undefined> {
+        // Both sides take the vars the translate run gives the source file,
+        // the presets of its translation: a different set on either side
+        // would keep or drop other conditional blocks and misalign the units.
+        const vars = varsFor(file);
         const source = await loadTranslationUnits({
             inputPath,
             path: file,
@@ -204,19 +221,16 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
 }
 
 /**
- * The seed section is nested in `translate`, so a code mode set for the
- * translate run one level up applies to seeding as well.
+ * The seed section is nested in `translate`, so the presets switch and the
+ * code mode set for the translate run one level up apply to seeding as well,
+ * also when the .yfm has no seed section of its own.
  */
-async function inheritCodeMode(config: Config<Hash>): Promise<CodeMode | undefined> {
-    const path = config[configPath];
+async function inheritPresets(config: Config<Hash>, args: Hash): Promise<boolean> {
+    return Boolean(await sectionValue<boolean>(config, args, ['translate'], 'presets'));
+}
 
-    if (!path) {
-        return undefined;
-    }
-
-    const parent = await resolveConfig(path, {filter: scope('translate')});
-
-    return resolveCodeMode({}, parent);
+async function inheritCodeMode(config: Config<Hash>, args: Hash): Promise<CodeMode | undefined> {
+    return resolveCodeMode({}, {code: await sectionValue(config, args, ['translate'], 'code')});
 }
 
 export type SeedArgs = BaseArgs & {
@@ -225,6 +239,8 @@ export type SeedArgs = BaseArgs & {
     include?: string[];
     exclude?: string[];
     vars?: Hash;
+    presets?: boolean;
+    varsPreset?: string;
     code?: CodeMode;
     cacheDir: string;
 };
@@ -239,6 +255,8 @@ export type SeedConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     files: string[];
     skipped: [string, string][];
     vars: Hash;
+    /** Apply presets.yaml to conditions; must match the translate run. */
+    presets: boolean;
     code: CodeMode;
     cacheDir: AbsolutePath;
 } & ConfigDefaults;
@@ -261,6 +279,8 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
         options.include,
         options.exclude,
         options.vars,
+        options.presets,
+        options.varsPreset,
         options.code,
         options.config(YFM_CONFIG_FILENAME),
         aiOptions.cacheDir,
@@ -286,10 +306,23 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
             const exclude = defined('exclude', args, config) || [];
             const files = defined('files', args, config) || [];
             const vars = resolveVars(config, args);
+            // Seeds must split files exactly like the translate run, so the
+            // switch follows the translate section when the seed section is silent.
+            const presets =
+                defined('presets', args, config) ?? (await inheritPresets(config, args));
+            checkPresetsTargets(presets, target);
+            // The seed section, then the translate section, then the .yfm root.
+            const varsPreset = await resolveVarsPreset(config, args, [
+                'translate.seed',
+                'translate',
+                '',
+            ]);
             // Seeds feed the LLM cache, so they follow the translate section
             // of the config and then the LLM default.
             const code =
-                resolveCodeMode(args, config) ?? (await inheritCodeMode(config)) ?? 'adaptive';
+                resolveCodeMode(args, config) ??
+                (await inheritCodeMode(config, args)) ??
+                'adaptive';
             const cacheDir = defined('cacheDir', args, config);
 
             if (!cacheDir) {
@@ -307,6 +340,8 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 include,
                 exclude,
                 vars,
+                presets,
+                varsPreset,
                 code,
                 cacheDir: resolve(cacheDir),
             });
@@ -314,11 +349,11 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
     }
 
     async action() {
-        const {input, source, target: targets, vars, code, cacheDir} = this.config;
+        const {input, source, target: targets, code, cacheDir} = this.config;
 
         this.logger.setup(this.config);
 
-        this.run = new Run(this.config);
+        this.run = new Run(this.config, {usePresets: this.config.presets});
 
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
         await getHooks(this).BeforeRun.promise(this.run);
@@ -335,7 +370,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                 files: Array.from(files),
                 sourceLanguage: source.language,
                 targetLanguage: target.language,
-                vars,
+                varsFor: (path) => this.run.vars.for(normalizePath(path)),
                 code,
                 cacheDir,
             });
