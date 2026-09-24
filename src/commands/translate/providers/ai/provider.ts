@@ -32,8 +32,12 @@ import {
     estimateTokens,
     fallbackClientConfig,
     keepsMarkup,
+    keepsPlaceholders,
+    maskAddresses,
+    renumberMemory,
     seedFilePath,
     stripAddedMarkup,
+    unmaskAddresses,
 } from './utils';
 import {
     DEFAULT_SYSTEM_PROMPT,
@@ -690,30 +694,40 @@ export function makeTranslator(params: TranslatorParams): Translate {
         }
 
         const wrappers = fragments.map(unwrapUnit);
-        const messages = buildMessages(
-            wrappers.map((wrapper) => wrapper.text),
-            {
-                systemPrompt,
-                userPrompt,
-                promptMode,
-                sourceLanguage,
-                targetLanguage,
-                glossaryPairs,
-                contextFiles,
-                context,
-                hints,
-            },
-        );
+        // Link and image addresses stay out of the request, see
+        // `maskAddresses`. The memory reads the same way as the fragments,
+        // with the ids of the fragment it goes with.
+        const masked = wrappers.map((wrapper) => maskAddresses(wrapper.text));
+        const sent = wrappers.map(({open, close}, index) => open + masked[index] + close);
+        const messages = buildMessages(masked, {
+            systemPrompt,
+            userPrompt,
+            promptMode,
+            sourceLanguage,
+            targetLanguage,
+            glossaryPairs,
+            contextFiles,
+            context,
+            hints: hints.map((hint, index) => {
+                if (!hint) {
+                    return undefined;
+                }
+
+                const {source, translation} = renumberMemory(wrappers[index].text, hint);
+
+                return {source: maskAddresses(source), translation: maskAddresses(translation)};
+            }),
+        });
 
         if (dryRun) {
             const inputTokens = messages.reduce((sum, m) => sum + estimateTokens(m.content), 0);
             stat.inputTokens += inputTokens;
-            stat.outputTokens += fragments.reduce((sum, f) => sum + estimateTokens(f), 0);
+            stat.outputTokens += sent.reduce((sum, f) => sum + estimateTokens(f), 0);
             // Dry-run tokens are estimates, but they are the point of the
             // mode (quota planning) - surface them in the report too.
             stat.usageSeen = true;
             stat.requests++;
-            stat.bytes += bytes(fragments);
+            stat.bytes += bytes(sent);
             return fragments;
         }
 
@@ -769,7 +783,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         }
 
         stat.requests++;
-        stat.bytes += bytes(fragments);
+        stat.bytes += bytes(sent);
         if (result.usage) {
             stat.usageSeen = true;
             stat.inputTokens += result.usage.inputTokens;
@@ -797,9 +811,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // Restore the wrapper; unwrap defensively in case the model echoed it.
         // An empty translation of a non-empty fragment is never valid - keep
         // the source text instead (matches the built-in prompt rules).
+        // Placeholders come back from the source: the model only placed them.
         return parts.map((part, index) => {
             const {open, text, close} = wrappers[index];
-            const translation = unwrapUnit(stripFence(part)).text || text;
+            const answer = unwrapUnit(stripFence(part)).text;
+            const translation = answer ? unmaskAddresses(text, answer) : text;
             const repair = stripAddedMarkup(text, translation);
 
             // Counted only once the answer is kept: a retry replaces both
@@ -856,7 +872,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
     /**
      * Retranslates the fragments whose markup the repair could not save:
      * a placeholder the model dropped without writing its marker in place
-     * loses the formatting or leaves an unpaired delimiter in the line.
+     * loses the formatting or leaves an unpaired delimiter in the line,
+     * and a link placeholder lost or repeated breaks the link.
      *
      * One more request is cheaper than a broken line, and a fragment the
      * retry does not fix keeps its source text: untranslated composes
@@ -873,8 +890,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             return parts;
         }
 
-        const kept = (fragment: string, part: string) =>
-            keepsMarkup(unwrapUnit(fragment).text, unwrapUnit(part).text);
+        const kept = (fragment: string, part: string) => {
+            const source = unwrapUnit(fragment).text;
+            const text = unwrapUnit(part).text;
+
+            return keepsMarkup(source, text) && keepsPlaceholders(source, text);
+        };
         const indexes = fragments
             .map((_, index) => index)
             .filter((index) => !kept(fragments[index], parts[index]));
