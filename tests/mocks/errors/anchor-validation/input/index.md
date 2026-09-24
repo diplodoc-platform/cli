@@ -15,3 +15,5 @@
 [valid raw inline](architecture.md#raw-inline-anchor)
 
 ## Local heading
+
+[valid unquoted raw HTML ID](architecture.md#raw/slash-anchor)

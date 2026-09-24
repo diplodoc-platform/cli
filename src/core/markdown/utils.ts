@@ -1,13 +1,51 @@
 import type {AssetInfo, ImageOptions, Location} from './types';
 import type {ConstructorBlock, PageContent} from '@diplodoc/page-constructor-extension';
 
+import {extname, join} from 'node:path';
+import {parseHref} from '@diplodoc/utils';
 import {load as yamlLoad} from 'js-yaml';
 
-import {MEDIA_FORMATS, parseLocalUrl, walkLinks} from '~/core/utils';
+import {MEDIA_FORMATS, normalizePath, parseLocalUrl, walkLinks} from '~/core/utils';
 
 type AssetModifier = '!' | '@' | '';
 
 const modifiers = {'!': 'image', '@': 'video', '': 'link'} as const;
+
+/** Resolves a local URL to an existing Markdown page. */
+export function resolveMarkdownPage(
+    path: NormalizedPath,
+    exists: (path: NormalizedPath) => boolean,
+): NormalizedPath | null {
+    let pathname: string | null;
+
+    try {
+        pathname = parseHref(path).pathname;
+    } catch {
+        return null;
+    }
+
+    if (!pathname) {
+        return null;
+    }
+
+    let candidate = normalizePath(pathname);
+
+    if (candidate.endsWith('/')) {
+        if (exists(join(candidate, 'index.yaml') as NormalizedPath)) {
+            return null;
+        }
+
+        candidate = normalizePath(join(candidate, 'index.md'));
+    } else if (!extname(candidate)) {
+        candidate = normalizePath(candidate + '.md');
+    }
+
+    if (!/\.md$/i.test(candidate) || !exists(candidate)) {
+        return null;
+    }
+
+    return candidate;
+}
 
 export function findLink(content: string): string | undefined {
     const rx = /]\(\s*/g;

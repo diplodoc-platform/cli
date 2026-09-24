@@ -15,3 +15,5 @@
 <div id="raw-block-anchor"></div>
 
 Text with <span id="raw-inline-anchor">an inline anchor</span>.
+
+<div id=raw/slash-anchor></div>
