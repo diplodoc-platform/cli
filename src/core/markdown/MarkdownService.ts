@@ -21,7 +21,7 @@ import {Buckets, Defer, Graph, VFile, all, bounded, fullPath, normalizePath} fro
 
 import {LoaderAPI, loader} from './loader';
 import {getHooks, withHooks} from './hooks';
-import {parseHeading} from './utils';
+import {parseHeading, resolveMarkdownPage} from './utils';
 
 type MarkdownServiceConfig = {
     outputFormat: `${TransformMode}`;
@@ -368,10 +368,24 @@ export class MarkdownService {
                 graph.addDependency(path, asset.path);
             }
 
-            if (['link'].includes(asset.type) && asset.autotitle) {
-                graph.addNode(asset.path);
-                graph.setNodeData(asset.path, {type: 'source'});
-                graph.addDependency(path, asset.path);
+            if (
+                (asset.type === 'link' || asset.type === 'def') &&
+                (asset.autotitle || asset.hash) &&
+                asset.path
+            ) {
+                const target =
+                    asset.type === 'def' || asset.hash
+                        ? resolveMarkdownPage(asset.path, (candidate) =>
+                              this.run.exists(
+                                  normalizePath(join(this.run.input, candidate)) as AbsolutePath,
+                              ),
+                          )
+                        : asset.path;
+                if (target && target !== path) {
+                    graph.addNode(target);
+                    graph.setNodeData(target, {type: 'source'});
+                    graph.addDependency(path, target);
+                }
             }
         });
 

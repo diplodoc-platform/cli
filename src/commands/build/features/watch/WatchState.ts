@@ -40,7 +40,7 @@ export class WatchState {
 
     async processEntry(entry: NormalizedPath) {
         this.run.entry.release(entry);
-        this.run.entry.relations.release(entry);
+        this.releaseEntryDependencies(entry);
         await this.program.processEntry(entry);
         this.detachedEntries.release(entry);
     }
@@ -115,5 +115,31 @@ export class WatchState {
         }
 
         return [...entries];
+    }
+
+    private releaseEntryDependencies(entry: NormalizedPath) {
+        const graph = this.run.entry.relations;
+        if (!graph.hasNode(entry)) {
+            return;
+        }
+
+        const prune = (node: string) => {
+            if (
+                !graph.hasNode(node) ||
+                this.run.toc.isEntry(node as NormalizedPath) ||
+                graph.directDependentsOf(node).length
+            ) {
+                return;
+            }
+
+            const dependencies = graph.directDependenciesOf(node);
+            graph.removeNode(node);
+            dependencies.forEach(prune);
+        };
+
+        for (const dependency of graph.directDependenciesOf(entry)) {
+            graph.removeDependency(entry, dependency);
+            prune(dependency);
+        }
     }
 }
