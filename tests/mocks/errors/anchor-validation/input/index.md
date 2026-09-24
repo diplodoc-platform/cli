@@ -11,4 +11,7 @@
 
 {% include [source links](_includes/source-links.md) %}
 
+[valid raw block](architecture.md#raw-block-anchor)
+[valid raw inline](architecture.md#raw-inline-anchor)
+
 ## Local heading

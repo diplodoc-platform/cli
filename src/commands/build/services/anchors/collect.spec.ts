@@ -25,9 +25,9 @@ function collect(markdown: string, options: AnchorsOptions = {}) {
         ...options,
     });
 
-    const tokens = md.parse(markdown, {});
+    const html = md.render(markdown);
     const anchorIds = new Set<string>();
-    collectAnchorIds(tokens, anchorIds);
+    collectAnchorIds(html, anchorIds);
 
     return anchorIds;
 }
@@ -79,5 +79,33 @@ describe('collectAnchorIds', () => {
         // decodes hashes before comparison, so a percent-encoded link to this
         // anchor must match.
         expect(anchorIds.has('раздел')).toBe(true);
+    });
+
+    it('collects IDs from raw block and inline HTML', () => {
+        const anchorIds = collect(
+            '<div id="raw-block" data-title="a > b"></div>\n\nText <span id=raw-inline>here</span>',
+        );
+
+        expect(anchorIds).toEqual(new Set(['raw-block', 'raw-inline']));
+    });
+
+    it('does not collect raw HTML IDs when HTML rendering is disabled', () => {
+        const html = new MarkdownIt({html: false}).render('<div id="raw-anchor"></div>');
+        const anchorIds = new Set<string>();
+
+        collectAnchorIds(html, anchorIds);
+
+        expect(anchorIds.size).toBe(0);
+    });
+
+    it('decodes HTML entities and ignores markup in comments, code, and raw text', () => {
+        const anchorIds = collect(
+            '<div data-description="id=wrong" id="raw&amp;anchor"></div>\n' +
+                '<!-- <div id="commented"></div> -->\n\n' +
+                '`<div id="code"></div>`\n\n' +
+                '<script>const sample = `<div id="script-content"></div>`;</script>',
+        );
+
+        expect(anchorIds).toEqual(new Set(['raw&anchor']));
     });
 });

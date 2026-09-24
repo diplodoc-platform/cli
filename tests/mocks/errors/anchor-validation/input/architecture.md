@@ -11,3 +11,7 @@
 {% anchor block-anchor %}
 
 {% include [included heading](_includes/target-heading.md) %}
+
+<div id="raw-block-anchor"></div>
+
+Text with <span id="raw-inline-anchor">an inline anchor</span>.

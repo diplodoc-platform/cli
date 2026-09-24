@@ -162,11 +162,10 @@ export class Run extends BaseRun<BuildConfig> {
             assets: assetsRemap,
         });
 
-        const tokens = parse(cleanMarkdown);
+        const result = compile(parse(cleanMarkdown));
         if (anchorIds) {
-            collectAnchorIds(tokens, anchorIds);
+            collectAnchorIds(result, anchorIds);
         }
-        const result = compile(tokens);
 
         return [result, env] as const;
     }
