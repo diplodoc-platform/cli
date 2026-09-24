@@ -1,19 +1,22 @@
 import type {Run} from '../../run';
 import type {AssetInfo, EntryGraph} from '~/core/markdown';
 
+import {join, resolve} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
 import {AnchorsService} from './AnchorsService';
 
 describe('AnchorsService', () => {
+    const input = resolve('input');
+
     it('resolves Markdown pages, extensionless paths, directories, and queries', () => {
-        const existing = new Set([
-            '/input/page.md',
-            '/input/guide/index.md',
-            '/input/leading/index.yaml',
+        const existing = new Set<string>([
+            join(input, 'page.md'),
+            join(input, 'guide/index.md'),
+            join(input, 'leading/index.yaml'),
         ]);
         const service = new AnchorsService({
-            input: '/input',
+            input,
             exists: (path: string) => existing.has(path),
         } as Run);
 
@@ -55,8 +58,8 @@ describe('AnchorsService', () => {
             },
         );
         const run = {
-            input: '/input',
-            exists: (path: string) => path === '/input/page.md',
+            input,
+            exists: (path: string) => path === join(input, 'page.md'),
             toc: {entries: ['page.md']},
             markdown: {graph: vi.fn(async () => graph)},
             transform,
@@ -112,8 +115,8 @@ describe('AnchorsService', () => {
                 },
             );
         const run = {
-            input: '/input',
-            exists: (path: string) => path === '/input/page.md',
+            input,
+            exists: (path: string) => path === join(input, 'page.md'),
             toc: {entries: ['page.md']},
             markdown: {graph: vi.fn(async () => graph)},
             transform,
