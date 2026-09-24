@@ -51,6 +51,7 @@ import {Themer} from './features/themer';
 import {Analytics} from './features/analytics';
 import {Llms} from './features/llms';
 import {Companions} from './features/companions';
+import {CodeIncluder} from './features/code-includer';
 
 export type * from './types';
 
@@ -118,6 +119,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly llms = new Llms();
 
+    readonly codeIncluder = new CodeIncluder();
+
     readonly options = [
         options.input('./'),
         options.output({required: true}),
@@ -182,6 +185,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.neuroExpert,
         this.analytics,
         this.llms,
+        this.codeIncluder,
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
