@@ -650,6 +650,8 @@ describe('translate seed pairs that must not be reused', () => {
             'Record the log in JSON format.',
             `Запишите лог в формате ${code('json')}.`,
         ],
+        ['a product name as it is', 'Use ClickHouse here.', `Используйте ${code('ClickHouse')}.`],
+        ['a name in mixed case as it is', 'Call getUser now.', `Вызовите ${code('getUser')}.`],
         [
             'an identifier the translation repeats',
             `A multi-source ${code('Computation')} is split.`,

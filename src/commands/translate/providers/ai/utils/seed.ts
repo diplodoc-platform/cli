@@ -255,9 +255,11 @@ function inProse(unit: string, code: string): boolean {
     );
 
     // A word in mixed case ("getUser") is a name of its own even for a code
-    // in one case (`getuser`); a capitalized word ("Row Cache") is not.
-    return [...matches].some(([text]) =>
-        text.split(/[^\p{L}\p{N}]+/u).every((word) => PLAIN_CASE.test(word)),
+    // in one case (`getuser`); a capitalized word ("Row Cache") is not, and
+    // the code itself as it is ("ClickHouse" for `ClickHouse`) always counts.
+    return [...matches].some(
+        ([text]) =>
+            text === code || text.split(/[^\p{L}\p{N}]+/u).every((word) => PLAIN_CASE.test(word)),
     );
 }
 
