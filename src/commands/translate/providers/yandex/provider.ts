@@ -21,7 +21,7 @@ import {
     resolveSchemas,
 } from '../../utils';
 import {TranslateLogger} from '../../logger';
-import {RunReport, createTargetStat, reportError} from '../../report';
+import {RunReport, createTargetStat, reportError, reportExtractWarning} from '../../report';
 
 import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
 
@@ -99,8 +99,20 @@ export class Provider {
                     asyncify(async (file: string) => {
                         try {
                             this.logger.translate(file);
-                            await process(file);
+                            const warnings = await process(file);
                             stat.filesTranslated++;
+                            if (warnings.length) {
+                                stat.filesPartial++;
+                            }
+                            for (const warning of warnings) {
+                                this.logger.warn(file, warning);
+                                this.report?.addError(
+                                    reportExtractWarning(warning, {
+                                        target: target.language,
+                                        path: file,
+                                    }),
+                                );
+                            }
                             if (!dryRun) {
                                 this.logger.translated(file);
                             }
@@ -301,10 +313,11 @@ function processor(params: TranslatorParams, translate: Translate) {
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
-    return async function (path: string) {
+    /** Returns the parts of the file the engine left untranslated, one line each. */
+    return async function (path: string): Promise<string[]> {
         const ext = extname(path);
         if (!['.yaml', '.md'].includes(ext)) {
-            return;
+            return [];
         }
 
         const inputPath = join(inputRoot, path);
@@ -321,11 +334,11 @@ function processor(params: TranslatorParams, translate: Translate) {
 
         if (!content.data) {
             await content.dump(output);
-            return;
+            return [];
         }
 
         const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
-        const {units, skeleton} = extract(content.data, {
+        const {units, skeleton, warnings} = extract(content.data, {
             compact: true,
             code,
             source: {
@@ -342,7 +355,7 @@ function processor(params: TranslatorParams, translate: Translate) {
 
         if (!units.length) {
             await content.dump(output);
-            return;
+            return warnings;
         }
 
         const parts = await translate(path, units);
@@ -350,6 +363,8 @@ function processor(params: TranslatorParams, translate: Translate) {
         content.set(compose(skeleton, parts, {useSource: true, schemas, ajvOptions}));
 
         await content.dump(output);
+
+        return warnings;
     };
 }
 
