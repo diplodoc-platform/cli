@@ -473,9 +473,10 @@ function segmentPattern(segment: string, codes: Set<string>): RegExp {
         ')(?:[-_][A-Z]{2})?';
     const literals = segment.split(VARIABLE).map(escape);
     const variables = segment.match(VARIABLE) ?? [];
-    const pattern = literals.reduce(
-        (result, literal, index) =>
-            result + (isLanguageVariable(variables[index - 1]) ? language : '.+') + literal,
+    const pattern = variables.reduce(
+        (result, variable, index) =>
+            result + (isLanguageVariable(variable) ? language : '.+') + literals[index + 1],
+        literals[0],
     );
 
     return new RegExp('^' + pattern + '$');
