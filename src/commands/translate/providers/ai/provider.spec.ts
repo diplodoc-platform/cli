@@ -197,7 +197,7 @@ describe('translate ai provider', () => {
             expect(logger.warn).toHaveBeenCalledWith('ru/test.md', expect.stringContaining('/100'));
         });
 
-        it('should translate page-constructor cards around liquid conditions and warn about blocks left untranslated', async () => {
+        it('should translate page-constructor cards around liquid conditions and report blocks left untranslated', async () => {
             const root = mkdtempSync(join(tmpdir(), 'yfm-ai-pc-'));
             const input = join(root, 'docs');
             const output = join(root, 'out');
@@ -253,6 +253,7 @@ describe('translate ai provider', () => {
                 maxBatchTokens: 100,
                 maxConcurrency: 2,
                 retry: 0,
+                report: join(root, 'report.json'),
             } as unknown as AITranslationConfig);
 
             const result = readFileSync(join(output, 'en', 'test.md'), 'utf8');
@@ -270,6 +271,21 @@ describe('translate ai provider', () => {
                 expect.stringMatching(/^page-constructor block at line 14 is left untranslated: /),
             );
             expect(logger.error).not.toHaveBeenCalled();
+
+            // The file is written, but the run is partial.
+            const report = JSON.parse(readFileSync(join(root, 'report.json'), 'utf8'));
+            expect(report.status).toBe('partial');
+            expect(report.totals.files).toEqual({translated: 1, failed: 0, retried: 0});
+            expect(report.errors).toEqual([
+                {
+                    target: 'en',
+                    path: 'ru/test.md',
+                    code: 'EXTRACT_WARNING',
+                    message: expect.stringMatching(
+                        /^page-constructor block at line 14 is left untranslated: /,
+                    ),
+                },
+            ]);
         });
 
         it('should write a machine-readable run report when configured', async () => {

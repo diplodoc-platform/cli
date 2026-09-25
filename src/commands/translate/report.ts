@@ -332,6 +332,17 @@ export function reportError(
 }
 
 /**
+ * Builds a report entry for a part of a file the engine left untranslated.
+ * The file is still written, so the run completes as partial.
+ */
+export function reportExtractWarning(
+    message: string,
+    info: {target?: string; path?: string} = {},
+): TranslateReportError {
+    return {...info, code: 'EXTRACT_WARNING', message};
+}
+
+/**
  * Collects per-run translation statistics and produces the machine-readable
  * run report. Providers feed it with per-target counters and errors; the
  * report is finalized once and optionally written to `info.path`.

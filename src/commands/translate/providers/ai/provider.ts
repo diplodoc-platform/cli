@@ -17,7 +17,13 @@ import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
 import {TranslateError, compose, languageRepath, loadTranslationUnits} from '../../utils';
 import {TranslateLogger} from '../../logger';
-import {RunReport, createTargetStat, reportError, scoreDistribution} from '../../report';
+import {
+    RunReport,
+    createTargetStat,
+    reportError,
+    reportExtractWarning,
+    scoreDistribution,
+} from '../../report';
 
 import {
     Defer,
@@ -200,7 +206,7 @@ export class Provider {
         maxConcurrency: number;
         dryRun: boolean;
         store?: TranslationStore;
-        processFile: (file: string) => Promise<void>;
+        processFile: (file: string) => Promise<string[]>;
         stat: TargetStat;
         target: string;
     }) {
@@ -210,10 +216,11 @@ export class Provider {
         const run = async (file: string, finalPass: boolean) => {
             try {
                 this.logger.translate(file);
-                await processFile(file);
+                const warnings = await processFile(file);
                 // Flush after every file to keep progress on crashes.
                 store?.flush();
                 stat.filesTranslated++;
+                this.reportFileWarnings(file, warnings, target);
                 if (!dryRun) {
                     this.logger.translated(file);
                 }
@@ -250,6 +257,13 @@ export class Provider {
                 maxConcurrency,
                 asyncify((file: string) => run(file, true)),
             );
+        }
+    }
+
+    private reportFileWarnings(file: string, warnings: string[], target: string) {
+        for (const warning of warnings) {
+            this.logger.warn(file, warning);
+            this.report?.addError(reportExtractWarning(warning, {target, path: file}));
         }
     }
 
@@ -475,10 +489,11 @@ function makeProcessor(params: ProcessorParams) {
     const outputRoot = resolve(output);
     const languages = [sourceLanguage, targetLanguage];
 
-    return async function (path: string) {
+    /** Returns the parts of the file the engine left untranslated, one line each. */
+    return async function (path: string): Promise<string[]> {
         const ext = extname(path);
         if (!['.yaml', '.md'].includes(ext)) {
-            return;
+            return [];
         }
 
         const inputPath = join(inputRoot, path);
@@ -494,13 +509,9 @@ function makeProcessor(params: ProcessorParams) {
                 code,
             });
 
-        for (const warning of warnings ?? []) {
-            logger?.warn(path, warning);
-        }
-
         if (!content.data || !units.length) {
             await content.dump(outputPath);
-            return;
+            return warnings;
         }
 
         const parts = await translate(path, units, {title: extractTitle(content.data)});
@@ -511,6 +522,8 @@ function makeProcessor(params: ProcessorParams) {
 
         content.set(compose(composed, parts, {useSource: true, schemas, ajvOptions}));
         await content.dump(outputPath);
+
+        return warnings;
     };
 
     /**

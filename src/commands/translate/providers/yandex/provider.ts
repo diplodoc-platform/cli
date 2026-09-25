@@ -21,7 +21,7 @@ import {
     resolveSchemas,
 } from '../../utils';
 import {TranslateLogger} from '../../logger';
-import {RunReport, createTargetStat, reportError} from '../../report';
+import {RunReport, createTargetStat, reportError, reportExtractWarning} from '../../report';
 
 import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
 
@@ -91,7 +91,7 @@ export class Provider {
                 const stat = createTargetStat();
                 const request = requester(translatorParams, cache, stat);
                 const translate = translator(request, cache, this.logger, stat);
-                const process = processor(translatorParams, translate, this.logger);
+                const process = processor(translatorParams, translate);
 
                 await eachLimit(
                     files,
@@ -99,8 +99,17 @@ export class Provider {
                     asyncify(async (file: string) => {
                         try {
                             this.logger.translate(file);
-                            await process(file);
+                            const warnings = await process(file);
                             stat.filesTranslated++;
+                            for (const warning of warnings) {
+                                this.logger.warn(file, warning);
+                                this.report?.addError(
+                                    reportExtractWarning(warning, {
+                                        target: target.language,
+                                        path: file,
+                                    }),
+                                );
+                            }
                             if (!dryRun) {
                                 this.logger.translated(file);
                             }
@@ -296,15 +305,16 @@ function requester(params: RequesterParams, cache: Cache, stat: TargetStat): Req
     };
 }
 
-function processor(params: TranslatorParams, translate: Translate, logger: Logger) {
+function processor(params: TranslatorParams, translate: Translate) {
     const {input, output, sourceLanguage, targetLanguage, varsFor, code} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
-    return async function (path: string) {
+    /** Returns the parts of the file the engine left untranslated, one line each. */
+    return async function (path: string): Promise<string[]> {
         const ext = extname(path);
         if (!['.yaml', '.md'].includes(ext)) {
-            return;
+            return [];
         }
 
         const inputPath = join(inputRoot, path);
@@ -321,7 +331,7 @@ function processor(params: TranslatorParams, translate: Translate, logger: Logge
 
         if (!content.data) {
             await content.dump(output);
-            return;
+            return [];
         }
 
         const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
@@ -340,13 +350,9 @@ function processor(params: TranslatorParams, translate: Translate, logger: Logge
             ajvOptions,
         });
 
-        for (const warning of warnings) {
-            logger.warn(path, warning);
-        }
-
         if (!units.length) {
             await content.dump(output);
-            return;
+            return warnings;
         }
 
         const parts = await translate(path, units);
@@ -354,6 +360,8 @@ function processor(params: TranslatorParams, translate: Translate, logger: Logge
         content.set(compose(skeleton, parts, {useSource: true, schemas, ajvOptions}));
 
         await content.dump(output);
+
+        return warnings;
     };
 }
 

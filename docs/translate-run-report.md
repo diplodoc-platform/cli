@@ -60,6 +60,8 @@ Top-level fields:
 | `targets`         | target[] | Per-target-language counters, plus `judge` stats when `--judge` is enabled.                   |
 | `errors`          | error[]  | Every recorded error: `target?`, `path?`, stable `code`, `message`.                           |
 
+A part of a file the engine left untranslated, such as a `page-constructor` block whose YAML cannot be parsed, is recorded in `errors` with the code `EXTRACT_WARNING`. The file is still written, and the run is `partial`.
+
 Counters (`totals` and each entry of `targets`):
 
 | Field                         | Type           | Description                                                                                                                                                  |

@@ -57,7 +57,7 @@ export type LoadedTranslationUnits = {
     schemas?: ExtractOptions['schemas'];
     ajvOptions?: ExtractOptions['ajvOptions'];
     /** Parts of the file the engine left untranslated, one line each. */
-    warnings?: string[];
+    warnings: string[];
 };
 
 /**
@@ -81,7 +81,7 @@ export async function loadTranslationUnits(
     }
 
     if (!content.data) {
-        return {content, units: []};
+        return {content, units: [], warnings: []};
     }
 
     const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
