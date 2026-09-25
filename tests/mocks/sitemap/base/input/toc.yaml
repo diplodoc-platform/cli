@@ -1,0 +1,8 @@
+title: Sitemap test
+items:
+  - name: Index
+    href: ru/index.md
+  - name: Guide
+    href: ru/guide.md
+  - name: Secret
+    href: ru/secret.md
