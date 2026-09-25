@@ -43,7 +43,7 @@ type Placeholder = {
 };
 
 function attr(attrs: string, name: string): string | undefined {
-    return new RegExp(`(?:^|\\s)${name}="([^"]*)"`).exec(attrs)?.[1];
+    return new RegExp(String.raw`(?:^|\s)${name}="([^"]*)"`).exec(attrs)?.[1];
 }
 
 function placeholders(text: string): Placeholder[] {
