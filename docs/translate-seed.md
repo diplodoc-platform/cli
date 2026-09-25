@@ -48,8 +48,123 @@ same numbers, every code span and link of one present in the other, and
 inline markup consistent between them. An unseeded unit costs one model
 request, a wrong pair puts a wrong sentence into the document.
 
+A link is present when the other side has a link to the same page, not a
+word of its text: the same query and section, and the same path once the
+domain and the language segments (`/en/`, `en.` in the host) are dropped.
+A variable in the path (`{{source-root}}/src/main.cpp`, `{{ domain }}` with
+spaces too) matches the literal segments around it, `.` and `..` resolved.
+A language variable (a name with the word `lang`, `language`, `locale` or
+`lng`: `{{lang}}`, `{{ui-lang}}`) stands for a language segment or for none
+(`/docs/{{lang}}/` for `/docs/ru/` and `/docs/`). A variable in a segment
+stands for one segment around its literal parts (`v{{version}}` for `v2`).
+Any other variable stands for at least one segment, `..` only at the start
+of the path: `/docs/{{section}}/install.md` is not `/docs/install.md`. A
+variable in the page (`/docs/{{page}}`, `/docs/{{page}}.md`) or for the
+whole address says nothing about the page, unless it is a language
+(`graph-{{lang}}.png`). Another domain
+counts only when it differs in the top-level domain alone (`example.com`
+and `example.org`, not `console.example.com` and `example.com`, not
+`github.com` and `gitlab.com`); ports and addresses have to match. The source path may
+have a section more than the translation only on another site, which lays
+its pages out differently (`example.com/.../v5/changes/check.html` for
+`example.org/.../changes/check.html`): such a pair is seeded for its file
+but marked doubtful. On the same site, and whenever the translation has a
+section the source lacks, it is another page, for example a link the
+source has just fixed, and the unit is not seeded.
+
+A language suffix of a name in the path is dropped with the language
+segments (`t.example/channel_ru` for `t.example/channel`,
+`team-ru@example.com`). A page of the other language edition of a site at
+the same place of the path (`ru.example.org/wiki/Календарь` for
+`en.example.org/wiki/Calendar`, a wiki whose titles are translated) is
+seeded for its file and marked doubtful, as a section more on another site.
+
+Heading ids (`{#id}` at the end of a line) are not part of the structure: a
+heading with an id the translator added is still the same heading. Two
+headings that both have ids and none in common are different headings.
+
+Blocks are aligned by their links first as they are (paths without the
+domain and the language segments), then, in the gaps left, by the pages
+the links lead to when every link of one block leads to the page of a
+link of the other, or of another site laid out differently. Pages of the
+same name in different sections of one site (`compute/index.md`,
+`docs/index.md`) never pin a block pair.
+
+A code span pairs with a code span of the same text on the other side,
+however many times each side repeats it. One left without a pair may be
+a word of its own in the plain text of the other side, an identifier of
+several words with any separators ("row cache" for `row_cache`), but only
+while the other side has no code of its own left: a changed identifier is
+not confirmed by plain text around it. A longer word, identifier or path
+does not count (`id` is not in "uuid", `config` is not in "config.yaml").
+Case may differ only for a word of one case longer than two characters
+("JSON" for `json`), not for a flag (`-f`) or a name in mixed case
+(`getUser`); a code of one character or without letters is never
+confirmed by text.
+
 Identity pairs that still contain source-script characters are untranslated
 leftovers and are not seeded, so the next run gets another chance at them.
+
+## Localized code blocks, heading ids and link lines
+
+A translate run composes the output from the skeleton of the source file,
+so whatever lives in the skeleton rather than in the units comes from the
+source: the text of a code block without a language, a heading id only the
+translation has, the destination of a link that makes up a list item as a
+whole (`* [Channel](https://t.example/channel)`: the unit is the link text).
+The seed keeps such pieces of the existing translation per file and the
+translate run puts them back:
+
+- a fenced code block is kept when the translation changed only text in
+  it: same fence lines and line count, and in every changed line the text
+  in the source script (or, from a source written in Latin, the text in
+  the target script) is replaced and the code around it stays as it is.
+  The text of a comment is free, the code before it stays
+  (`yt list //home # Список` for `yt list //home # List`); the markers are
+  those of the block language (`#` in a shell or Python, `--` and `#` in
+  SQL, `#` and `//` elsewhere, a line of `/*` up to its end, `%` or `;`
+  too); a changed `#` or `%` line of a shell or a block without a
+  language is not localized: either side may be a prompt (`# Привет` and
+  `# reboot` cannot be told apart). Outside comments the whole
+  text of a string of text, prose with no word in another script, is
+  replaced by prose (`"Полнота данных"` for `"Data completeness"`); in a
+  string with such words they stay where they are as code
+  (`"SELECT Имя FROM сотрудники"` is not localized as
+  `"SELECT Name FROM employees WHERE secret"`). Other text is replaced by
+  words with the spaces and punctuation it has, a line of text alone by
+  any number of words: `echo "Привет"` is not localized as `rm -rf /`,
+  `echo "$(date)"` or `printf "Hello"`, `git commit -m Исправление` not as
+  `git commit -m Fix --amend`. A block whose command changed is outdated
+  rather than localized and follows the source. Code blocks pair by
+  position: the one that follows the same aligned text block, counted from
+  it, and is followed by text blocks that agree (aligned with each other,
+  or both without a pair). Languages written in the same script keep no
+  code blocks: a translated line cannot be told from changed code.
+- heading ids the translation added to an aligned line are kept after the
+  ids of the source;
+- a link destination of an aligned line takes the one of the translation
+  when it leads to the same page on the same site: the host without a
+  language label and the path without the language parts are the same
+  (`t.example/channel_ru` for `t.example/channel`).
+
+A piece is put back only where the source still has it as the seed saw it:
+the same code block text, the same line with the same text, at the same
+occurrence in the file. A copy of a localized code block that the source
+added takes the same localization; a line is not copied, so that heading ids
+stay unique. Comments inside code are units (`--code adaptive`, the default
+of the LLM providers) and are seeded like any other sentence.
+
+What the output takes from the source although the existing translation had
+localized it is reported per file, so that a reviewer sees it:
+
+```
+WARN ru/page.md Existing translation localized 1 code block and heading ids or link addresses in 1 line the source has changed since; the output takes them from the source.
+WARN ru/page.md Existing translation localized 1 link the output takes from the source again, e.g. https://ru.example.org/wiki/... instead of https://en.example.org/wiki/....
+```
+
+The second line appears when a sentence with a localized link went to the
+model and the output has the address of the source; the localized addresses
+of a file are taken from its seeded pairs.
 
 ## Repeated sentences
 
@@ -102,7 +217,7 @@ tokens per request.
 The stat line counts files and units:
 
 ```
-PROCESSED ru-en seeded-files: 1090 seeded-units: 24500 skipped-units: 12 missing-targets: 34 mismatched: 3 failed: 34 partial-files: 140 unseeded-units: 900 doubtful-units: 25
+PROCESSED ru-en seeded-files: 1090 seeded-units: 24500 skipped-units: 12 missing-targets: 34 mismatched: 3 failed: 34 partial-files: 140 unseeded-units: 900 doubtful-units: 25 skeleton-fragments: 160
 ```
 
 - `seeded-files`, `seeded-units`: files and units that produced pairs, partially seeded files included;
@@ -111,7 +226,10 @@ PROCESSED ru-en seeded-files: 1090 seeded-units: 24500 skipped-units: 12 missing
 - `partial-files`, `unseeded-units`: files whose translation aligned in part, and their units left without a pair;
 - `mismatched`: files whose translation did not align at all;
 - `failed`: files whose source or translation could not be read or extracted;
-- `doubtful-units`: pairs kept for their file only, out of the dictionary.
+- `doubtful-units`: pairs kept for their file only, out of the dictionary;
+- `skeleton-fragments`: localized code blocks and lines kept for the translate run.
+
+The translate stat line reports the fragments it put back as `restored-fragments: N`.
 
 Files that were not seeded in full are reported one per line on stderr, so
 that a caller can mark them in a review:
@@ -126,7 +244,8 @@ WARN ru/broken.md Failed to seed the file: ...
 
 The output of a translate run follows the skeleton of the source file:
 blank lines, trailing whitespace and the placement of inline markup markers
-come from the source, not from the existing translation. A marker the
+come from the source, not from the existing translation; only the code
+blocks and lines described above are taken from the translation. A marker the
 translation lost to its own skeleton (a code span or emphasis ending right
 at a unit boundary) is put back into the seeded unit, so a translator's
 code span at the edge of a sentence survives. The reverse does not compose:

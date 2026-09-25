@@ -1,5 +1,9 @@
 import {describe, expect, it} from 'vitest';
+import {extract} from '@diplodoc/translation';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 
+import {SeedStore, TranslationStore} from './cache';
 import {alignTranslationUnits, compatibleUnits, doubtfulPair} from './seed';
 
 const RU_EN = {source: 'ru', target: 'en'};
@@ -33,6 +37,30 @@ describe('translate seed pairs', () => {
             ).toBe(true);
         });
 
+        describe('identifiers put into code', () => {
+            it.each([
+                ['Support row cache for peers', 'row_cache'],
+                ['Support row-cache for peers', 'row_cache'],
+                ['Support Row Cache for peers', 'row_cache'],
+                ['Support row cache for peers', 'row-cache'],
+                ['Use the wait_for method', 'wait_for'],
+            ])('should accept %j with %j in code', (source, identifier) => {
+                expect(
+                    compatibleUnits(unit(source), unit(`Поддержка ${code(identifier)} для пиров`)),
+                ).toBe(true);
+            });
+
+            it.each([
+                ['Support column cache for peers', 'row_cache'],
+                ['Support rowcache for peers', 'row_cache'],
+                ['Support row cache for peers', 'row_cache_size'],
+            ])('should reject %j with %j in code', (source, identifier) => {
+                expect(
+                    compatibleUnits(unit(source), unit(`Поддержка ${code(identifier)} для пиров`)),
+                ).toBe(false);
+            });
+        });
+
         it('should accept a range written with another dash', () => {
             expect(
                 compatibleUnits(
@@ -50,6 +78,95 @@ describe('translate seed pairs', () => {
             expect(
                 compatibleUnits(unit(`Set ${code('foo')}`), unit(`Задайте ${code('bar')}`)),
             ).toBe(false);
+        });
+
+        const link = (text: string, url: string) =>
+            `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
+
+        describe('review cases', () => {
+            const EN_RU_LANGUAGES = ['en', 'ru'];
+            const link = (text: string, url: string) =>
+                `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
+
+            it.each([
+                [
+                    'a link to a page in another section',
+                    `See ${link('install', '/en/admin/install.md')}.`,
+                    `См. ${link('установка', '/ru/user/install.md')}.`,
+                ],
+                [
+                    'a link confirmed by a plain word only',
+                    `Read ${link('guide', '/en/guide')}.`,
+                    'Читайте guide.',
+                ],
+                [
+                    'a link with another query',
+                    `See ${link('results', '/en/search?q=dogs')}.`,
+                    `См. ${link('результаты', '/ru/search?q=cats')}.`,
+                ],
+                [
+                    'code in another case',
+                    `Call ${code('getUser')}.`,
+                    `Вызовите ${code('getuser')}.`,
+                ],
+                [
+                    'code with other separators',
+                    `Call ${code('get_user')}.`,
+                    `Вызовите ${code('get-user')}.`,
+                ],
+                [
+                    'code swapped with plain text',
+                    `Call ${code('getUser')}, not getuser.`,
+                    `Вызовите getUser, а не ${code('getuser')}.`,
+                ],
+            ])('should reject %s', (_, source, target) => {
+                expect(compatibleUnits(unit(source), unit(target), EN_RU_LANGUAGES)).toBe(false);
+            });
+        });
+
+        describe('localized links', () => {
+            const EN_RU_LANGUAGES = ['en', 'ru'];
+            const pair = (from: string, to: string) =>
+                [
+                    unit(`More details ${link('here', from)}.`),
+                    unit(`Подробнее ${link('здесь', to)}.`),
+                ] as const;
+
+            it('should accept a link localized to the translation language', () => {
+                const [source, target] = pair(
+                    'https://example.com/en/blog/post',
+                    'https://example.com/ru/blog/post',
+                );
+
+                expect(compatibleUnits(source, target, EN_RU_LANGUAGES)).toBe(true);
+            });
+
+            it('should compare links as they are without languages', () => {
+                const [source, target] = pair(
+                    'https://example.com/en/blog/post',
+                    'https://example.com/ru/blog/post',
+                );
+
+                expect(compatibleUnits(source, target)).toBe(false);
+            });
+
+            it('should accept a link to the same page on another domain', () => {
+                const [source, target] = pair(
+                    'https://example.com/docs/api/v5/changes/check.html',
+                    'https://example.org/docs/api/changes/check.html',
+                );
+
+                expect(compatibleUnits(source, target, EN_RU_LANGUAGES)).toBe(true);
+            });
+
+            it.each([
+                ['https://example.com/en/blog/post', 'https://example.com/ru/blog/other'],
+                ['https://x.y/ui/page.html', 'https://x.y/ui/other.html'],
+            ])('should reject %j translated as %j', (from, to) => {
+                const [source, target] = pair(from, to);
+
+                expect(compatibleUnits(source, target, EN_RU_LANGUAGES)).toBe(false);
+            });
         });
 
         it('should reject a unit whose code marker was hoisted into its own skeleton', () => {
@@ -212,6 +329,25 @@ describe('translate seed pairs', () => {
             expect(result.unseeded).toBe(2);
         });
 
+        it('should pair a heading with ids of its own', () => {
+            const result = alignTranslationUnits(
+                {
+                    units: [unit('Что дальше'), unit('Смотрите примеры.')],
+                    skeleton: '## %%%0%%%\n\n%%%1%%%',
+                },
+                {
+                    units: [unit('What next'), unit('See the examples.')],
+                    skeleton: '## %%%0%%% {#see-also}\n\n%%%1%%%',
+                },
+                RU_EN,
+            );
+
+            expect(result.unseeded).toBe(0);
+            expect(result.fragments.map(({kind, target}) => [kind, target])).toEqual([
+                ['line', '## %%%0%%% {#see-also}'],
+            ]);
+        });
+
         it('should fall back to positional pairing without skeletons', () => {
             const result = alignTranslationUnits(
                 {units: [unit('Привет.'), unit('Пока.')]},
@@ -261,5 +397,360 @@ describe('translate seed pairs with hoisted markers', () => {
         );
 
         expect(result.pairs).toEqual([[unit(source), unit(translation)]]);
+    });
+});
+
+describe('translate seed pairs with localized links', () => {
+    const link = (text: string, url: string) =>
+        `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
+
+    it('should seed a translation keeping its own localized link', () => {
+        const source = `${link('Documentation', 'https://example.com/docs/en/gpu')}.`;
+        const translation = `${link('Документация', 'https://example.com/docs/ru/gpu')}.`;
+        const result = alignTranslationUnits(
+            side([`- [[Added GPU checks.]] [[${source}]]`]),
+            side([`- [[Добавлены проверки GPU.]] [[${translation}]]`]),
+            {source: 'en', target: 'ru'},
+        );
+
+        expect(result.pairs).toEqual([
+            [unit('Added GPU checks.'), unit('Добавлены проверки GPU.')],
+            [unit(source), unit(translation)],
+        ]);
+    });
+
+    // The cases of the review of the precise link and code comparison, run
+    // through the whole alignment: the neutral sentence is seeded, the
+    // sentence whose link or code differs is left for the model.
+    describe('pairs a precise comparison rejects', () => {
+        const code = (text: string) =>
+            `<x ctype="code_open" equiv-text="\`" id="x-1"/>${text}<x ctype="code_close" equiv-text="\`" id="x-2"/>`;
+        const align = (source: string, translation: string) =>
+            alignTranslationUnits(
+                side([`- [[Added checks.]] [[${source}]]`]),
+                side([`- [[Добавлены проверки.]] [[${translation}]]`]),
+                {source: 'en', target: 'ru'},
+            );
+
+        it.each([
+            [
+                'a link to a page in another section',
+                `See ${link('install', '/en/admin/install.md')}.`,
+                `См. ${link('установка', '/ru/user/install.md')}.`,
+            ],
+            [
+                'a link confirmed by a plain word only',
+                `Read ${link('guide', '/en/guide')}.`,
+                'Читайте guide.',
+            ],
+            [
+                'a link with another query',
+                `See ${link('results', '/en/search?q=dogs')}.`,
+                `См. ${link('результаты', '/ru/search?q=cats')}.`,
+            ],
+            ['code in another case', `Call ${code('getUser')}.`, `Вызовите ${code('getuser')}.`],
+            [
+                'code with other separators',
+                `Call ${code('get_user')}.`,
+                `Вызовите ${code('get-user')}.`,
+            ],
+            [
+                'code swapped with plain text',
+                `Call ${code('getUser')}, not getuser.`,
+                `Вызовите getUser, а не ${code('getuser')}.`,
+            ],
+            [
+                'a link to a page under another section of the same site',
+                `See ${link('install', '/en/docs/install.md')}.`,
+                `См. ${link('установка', '/ru/docs/admin/install.md')}.`,
+            ],
+        ])('should not seed %s', (_, source, translation) => {
+            const result = align(source, translation);
+
+            expect(result.pairs).toEqual([[unit('Added checks.'), unit('Добавлены проверки.')]]);
+            expect(result.unseeded).toBe(1);
+        });
+
+        it.each([
+            [
+                'a link to the same page on another domain and path',
+                `See ${link('check', 'https://example.com/docs/api/v5/changes/check.html')}.`,
+                `См. ${link('check', 'https://example.org/docs/api/changes/check.html')}.`,
+            ],
+            [
+                'a link with a variable for a part of the path',
+                `See ${link('example', 'https://example.com/repo/blob/main/src/sample/main.cpp')}.`,
+                `См. ${link('пример', '{{source-root}}/src/sample/main.cpp')}.`,
+            ],
+            ['words put into code', 'Support row cache.', `Поддержка ${code('row_cache')}.`],
+        ])('should seed %s', (_, source, translation) => {
+            const result = align(source, translation);
+
+            // A Latin identifier the source writes as words makes the pair
+            // doubtful: seeded for its file, kept out of the dictionary.
+            expect(result.pairs.map(([text, seed]) => [text, seed])).toEqual([
+                [unit('Added checks.'), unit('Добавлены проверки.')],
+                [unit(source), unit(translation)],
+            ]);
+            expect(result.unseeded).toBe(0);
+        });
+    });
+
+    describe('links under another section', () => {
+        const align = (source: string, translation: string) =>
+            alignTranslationUnits(side([`- [[${source}]]`]), side([`- [[${translation}]]`]), {
+                source: 'en',
+                target: 'ru',
+            });
+
+        // Another site may lay its pages out differently: the pair is kept
+        // for its file, out of the shared dictionary.
+        it('should keep a link to another site under another section for its file only', () => {
+            const source = `See ${link('check', 'https://example.com/docs/api/v5/changes/check.html')}.`;
+            const translation = `См. ${link('check', 'https://example.org/docs/api/changes/check.html')}.`;
+            const result = align(source, translation);
+
+            expect(result.pairs).toEqual([[unit(source), unit(translation), true]]);
+            expect(result.doubtful).toBe(1);
+        });
+
+        // On the same site another section is another page: the source has
+        // just fixed its link, and the translation must not keep the old one,
+        // neither from the dictionary nor from the memory of its file.
+        it.each([
+            ['/en/docs/install.md', '/ru/docs/admin/install.md'],
+            [
+                'https://example.com/en/docs/install.md',
+                'https://example.com/ru/docs/admin/install.md',
+            ],
+            [
+                'http://example.com/en/docs/install.md',
+                'https://example.com/ru/docs/admin/install.md',
+            ],
+            [
+                'https://www.example.com/en/docs/install.md',
+                'https://example.com/ru/docs/admin/install.md',
+            ],
+        ])('should not reuse a translation keeping %j as %j', (fixed, stale) => {
+            const source = `See ${link('install', fixed)}.`;
+            const translation = `См. ${link('установка', stale)}.`;
+            const result = align(source, translation);
+            const seeds = new SeedStore(join(tmpdir(), 'seed-6830-none.json'));
+            seeds.record('file.md', result.pairs);
+            const store = new TranslationStore(join(tmpdir(), 'cache-6830-none.json'), 'x', seeds);
+
+            expect(result.pairs).toEqual([]);
+            expect(store.resolve('file.md', [unit(source)])).toEqual([undefined]);
+        });
+
+        it('should keep an article of the other edition of a site for its file only', () => {
+            const source = `See the ${link('article', 'https://en.example.org/wiki/Calendar')}.`;
+            const translation = `См. ${link('статью', 'https://ru.example.org/wiki/Календарь')}.`;
+            const result = align(source, translation);
+
+            expect(result.pairs).toEqual([[unit(source), unit(translation), true]]);
+            expect(result.doubtful).toBe(1);
+        });
+
+        it('should seed a link to the channel in the language of the translation', () => {
+            const source = `Join the ${link('channel', 'https://t.example/team')}.`;
+            const translation = `Подпишитесь на ${link('канал', 'https://t.example/team_ru')}.`;
+            const result = align(source, translation);
+
+            expect(result.pairs).toEqual([[unit(source), unit(translation)]]);
+        });
+
+        it('should not doubt a link to the same page on another domain', () => {
+            const source = `See ${link('check', 'https://example.com/docs/api/changes/check.html')}.`;
+            const translation = `См. ${link('check', 'https://example.org/docs/api/changes/check.html')}.`;
+
+            expect(align(source, translation).doubtful).toBe(0);
+        });
+    });
+});
+
+// Cases found in review: each one used to reuse a translation that does not
+// belong to its source unit.
+describe('translate seed pairs that must not be reused', () => {
+    const link = (text: string, url: string) =>
+        `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
+    const code = (text: string) =>
+        `<x ctype="code_open" equiv-text="\`" id="x-1"/>${text}<x ctype="code_close" equiv-text="\`" id="x-2"/>`;
+    const EN_RU = {source: 'en', target: 'ru'};
+    const texts = (pairs: [string, string, true?][]) =>
+        pairs.map(([source, target]) => [source, target].map((u) => u.replace(/<[^>]+>/g, '')));
+
+    it('should not pin list items by pages of the same name in different sections', () => {
+        const source = side([
+            `- [[Compute overview.]] [[${link('Start', 'compute/index.md')}]]`,
+            `- [[Storage overview.]] [[${link('Start', 'storage/index.md')}]]`,
+        ]);
+
+        const one = alignTranslationUnits(
+            source,
+            side([`- [[Обзор хранилища.]] [[${link('Начало', 'storage/index.md')}]]`]),
+            EN_RU,
+        );
+        const swapped = alignTranslationUnits(
+            source,
+            side([
+                `- [[Обзор хранилища.]] [[${link('Начало', 'storage/index.md')}]]`,
+                `- [[Обзор вычислений.]] [[${link('Начало', 'compute/index.md')}]]`,
+            ]),
+            EN_RU,
+        );
+
+        expect(texts(one.pairs)).not.toContainEqual(['Compute overview.', 'Обзор хранилища.']);
+        expect(texts(swapped.pairs)).not.toContainEqual(['Compute overview.', 'Обзор хранилища.']);
+        expect(texts(swapped.pairs)).not.toContainEqual(['Storage overview.', 'Обзор вычислений.']);
+    });
+
+    it.each([
+        ['a variable path with another tail', '{{root}}/admin/install.md', '{{root}}/install.md'],
+        ['another variable', '{{admin-root}}/install.md', '{{user-root}}/install.md'],
+        ['a variable after another prefix', '/docs/admin/install.md', '/guide/{{lang}}/install.md'],
+        ['a page as a variable', '/docs/{{page}}', '/docs'],
+        ['a section for a page as a variable', '/docs', '/docs/{{page}}'],
+        ['a page as a variable in a segment', 'changelog/{{version}}.md', 'changelog/2-1.md'],
+        [
+            'another site of the same path',
+            'https://github.com/o/r/a.md',
+            'https://gitlab.com/o/r/a.md',
+        ],
+    ])('should not reuse a link to %s', (_, from, to) => {
+        const result = alignTranslationUnits(
+            side([`- [[See ${link('install', from)}.]]`]),
+            side([`- [[См. ${link('установка', to)}.]]`]),
+            EN_RU,
+        );
+
+        expect(result.pairs).toEqual([]);
+    });
+
+    it('should not pin list items by a page on the same site under another section', () => {
+        const result = alignTranslationUnits(
+            side([
+                `- [[Admin guide.]] [[Read ${link('install', 'docs/admin/install.md')}.]]`,
+                `- [[User guide.]] [[Read ${link('install', 'docs/user/install.md')}.]]`,
+            ]),
+            side([`- [[Руководство.]] [[Прочитайте ${link('установка', 'docs/install.md')}.]]`]),
+            EN_RU,
+        );
+
+        expect(result.pairs).toEqual([]);
+    });
+
+    it('should not pin one of two items linking pages of one name on another site', () => {
+        const result = alignTranslationUnits(
+            side([
+                `- [[Admin guide.]] [[Read ${link('install', 'https://docs.example.ru/admin/install.md')}.]]`,
+                `- [[User guide.]] [[Read ${link('install', 'https://docs.example.ru/user/install.md')}.]]`,
+            ]),
+            side([
+                `- [[Руководство.]] [[Прочитайте ${link('установка', 'https://docs.example.com/install.md')}.]]`,
+            ]),
+            EN_RU,
+        );
+
+        expect(texts(result.pairs)).not.toContainEqual(['Admin guide.', 'Руководство.']);
+        expect(texts(result.pairs)).not.toContainEqual(['User guide.', 'Руководство.']);
+    });
+
+    it('should not reuse a link written as a variable for the whole address', () => {
+        const result = alignTranslationUnits(
+            side([`- [[Open the ${link('console', '{{link-console-main}}')}.]]`]),
+            side([`- [[Откройте ${link('консоль', 'https://example.com/billing/accounts')}.]]`]),
+            EN_RU,
+        );
+
+        expect(result.pairs).toEqual([]);
+    });
+
+    it.each([
+        ['a longer identifier', 'Set row_cache_size.', `Задайте ${code('row_cache')}.`],
+        ['a part of a word', 'Specify the uuid.', `Укажите ${code('id')}.`],
+        ['words across a boundary', 'Call reset identity.', `Вызовите ${code('set_id')}.`],
+        ['a flag in another case', 'Use the -F flag.', `Используйте флаг ${code('-f')}.`],
+        ['an article', 'Pass a value.', `Передайте ${code('a')}.`],
+        ['a dash', 'Items - list.', `Элементы ${code('-')} список.`],
+        ['a file name', 'Edit config.yaml now.', `Измените ${code('config')}.`],
+        ['a part of a dotted name', 'Call foo.bar here.', `Вызовите ${code('bar')}.`],
+        ['a part of a path', 'Look in /usr/bin today.', `Загляните в ${code('bin')}.`],
+        ['a variable', 'Set $HOME first.', `Задайте ${code('HOME')}.`],
+        ['a name in mixed case', 'Use getuser now.', `Используйте ${code('getUser')}.`],
+        ['text in mixed case', 'Call getUser now.', `Вызовите ${code('getuser')}.`],
+    ])('should not confirm code by %s', (_, source, translation) => {
+        expect(compatibleUnits(unit(source), unit(translation), ['en', 'ru'])).toBe(false);
+    });
+
+    it.each([
+        [
+            'a word in another case',
+            'Record the log in JSON format.',
+            `Запишите лог в формате ${code('json')}.`,
+        ],
+        ['a product name as it is', 'Use ClickHouse here.', `Используйте ${code('ClickHouse')}.`],
+        ['a name in mixed case as it is', 'Call getUser now.', `Вызовите ${code('getUser')}.`],
+        [
+            'an identifier the translation repeats',
+            `A multi-source ${code('Computation')} is split.`,
+            `${code('Computation')} с несколькими источниками делится на ${code('Computation')}.`,
+        ],
+    ])('should still confirm code by %s', (_, source, translation) => {
+        expect(compatibleUnits(unit(source), unit(translation), ['en', 'ru'])).toBe(true);
+    });
+
+    // Links the anchors used to miss, taken from the real extraction.
+    const extracted = (markdown: string) =>
+        extract(markdown, {
+            compact: true,
+            unitLocalIds: true,
+            source: {language: 'en', locale: 'US'},
+            target: {language: 'ru', locale: 'RU'},
+        });
+
+    it.each([
+        [
+            'a link with a title',
+            'See [install](/en/admin/install.md "Install guide").\n',
+            'См. [установку](/ru/user/install.md "Install guide").\n',
+        ],
+        [
+            'an autolink',
+            'See <https://example.com/new/page> now.\n',
+            'См. <https://example.com/old/other> сейчас.\n',
+        ],
+        [
+            'a bare url with another query',
+            'Open https://example.com/en/search?q=a&sort=asc now.\n',
+            'Откройте https://example.com/ru/search?q=a&sort=desc сейчас.\n',
+        ],
+        [
+            'a reference definition',
+            'Text with a [ref] link.\n\n[ref]: /en/admin/install.md\n',
+            'Текст со [ссылкой][ref].\n\n[ref]: /ru/user/install.md\n',
+        ],
+        [
+            'an autolink between variable braces',
+            'Open with `{{`, see <https://example.com/en/admin/install>, and close with `}}`.\n',
+            'Откройте `{{`, см. <https://example.com/ru/user/upgrade>, и закройте `}}`.\n',
+        ],
+    ])('should not reuse %s to another page', (_, source, translation) => {
+        const result = alignTranslationUnits(extracted(source), extracted(translation), EN_RU);
+        const linked = /install\.md|example\.com/;
+
+        expect(result.pairs.filter(([text]) => linked.test(text))).toEqual([]);
+    });
+
+    it('should not take links with spaced variables for one link', () => {
+        const url = (page: string) =>
+            `https://example.{{ domain }}/docs/${page}.html?lang={{ lang }}`;
+        const source =
+            `Limit the views with [frequency](${url('frequency')}).\n\n` +
+            `Pick the countries with [geo](${url('geo')}).\n`;
+        const translation = `Выберите страны через [геотаргетинг](${url('geo')}).\n`;
+        const result = alignTranslationUnits(extracted(source), extracted(translation), EN_RU);
+
+        expect(result.pairs.filter(([text]) => text.includes('frequency'))).toEqual([]);
     });
 });

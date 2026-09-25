@@ -185,6 +185,54 @@ describe('translate ai cache', () => {
             ]);
             expect(second.memory('ru/other.md')).toBeUndefined();
         });
+
+        it('should persist the skeleton fragments of a file', () => {
+            const file = join(tmpDir(), 'seed.ru-en.json');
+            const fragment = {
+                kind: 'code' as const,
+                source: '```\nНастройки\n```',
+                occurrence: 0,
+                target: '```\nSettings\n```',
+            };
+
+            const first = new SeedStore(file);
+            first.record('ru/a.md', [['Привет', 'Hi']], [fragment]);
+            first.record('ru/b.md', [['Пока', 'Bye']]);
+            first.flush();
+
+            const second = new SeedStore(file);
+            second.load();
+
+            expect(second.fragments('ru/a.md')).toEqual([fragment]);
+            expect(second.fragments('ru/b.md')).toEqual([]);
+            expect(
+                new TranslationStore(join(tmpDir(), 't.json'), 'x', second).fragments('ru/a.md'),
+            ).toEqual([fragment]);
+        });
+
+        it('should drop the skeleton fragments a new seed of the file no longer finds', () => {
+            const file = join(tmpDir(), 'seed.ru-en.json');
+            const fragment = {
+                kind: 'code' as const,
+                source: '```\nНастройки\n```',
+                occurrence: 0,
+                target: '```\nSettings\n```',
+            };
+
+            const first = new SeedStore(file);
+            first.record('ru/a.md', [['Привет', 'Hi']], [fragment]);
+            first.flush();
+
+            const second = new SeedStore(file);
+            second.load();
+            second.record('ru/a.md', [['Привет', 'Hi']]);
+            second.flush();
+
+            const third = new SeedStore(file);
+            third.load();
+
+            expect(third.fragments('ru/a.md')).toEqual([]);
+        });
     });
 
     describe('SeedStore doubtful pairs', () => {

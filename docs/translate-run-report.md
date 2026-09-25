@@ -60,6 +60,8 @@ Top-level fields:
 | `targets`         | target[] | Per-target-language counters, plus `judge` stats when `--judge` is enabled.                   |
 | `errors`          | error[]  | Every recorded error: `target?`, `path?`, stable `code`, `message`.                           |
 
+A part of a file the engine left untranslated, such as a `page-constructor` block whose YAML cannot be parsed, is recorded in `errors` with the code `EXTRACT_WARNING`. The file is still written and counted in `files.translated` and `files.partial`, and the run is `partial`.
+
 Counters (`totals` and each entry of `targets`):
 
 | Field                         | Type           | Description                                                                                                                                                  |
@@ -67,6 +69,7 @@ Counters (`totals` and each entry of `targets`):
 | `files.translated`            | number         | Files processed successfully.                                                                                                                                |
 | `files.failed`                | number         | Files that failed.                                                                                                                                           |
 | `files.retried`               | number         | Files re-queued for the final sweep after transient errors.                                                                                                  |
+| `files.partial`               | number         | Translated files with parts the engine left untranslated (`EXTRACT_WARNING`); also counted in `files.translated`.                                            |
 | `units.total`                 | number         | Translation units (segments) seen.                                                                                                                           |
 | `units.translated`            | number         | Units translated by the provider during this run.                                                                                                            |
 | `units.fromCache`             | number         | Units served from the persistent cache (including seeds).                                                                                                    |
@@ -84,7 +87,7 @@ Counters (`totals` and each entry of `targets`):
 | `cache.hitRate`               | number or null | `hits / (hits + misses)`, `null` when the cache is disabled or was not consulted.                                                                            |
 | `cache.hints`                 | number         | Units sent to the model together with their previous version from the seed memory (see `docs/translate-seed.md`, "Changed sentences").                       |
 | `fixes.markupStripped`        | number         | Delimiter runs of inline markup the model added around fragments and removed before composing (fresh and cached translations alike).                         |
-| `fixes.markupRetried`         | number         | Fragments re-requested because the model returned them with markup that cannot be composed (a dropped placeholder).                                          |
+| `fixes.markupRetried`         | number         | Fragments re-requested because the model returned them with markup that cannot be composed (a dropped placeholder, a lost or repeated part of a link).       |
 | `fixes.markupDamaged`         | number         | Fragments that kept their source text because the retry did not fix the markup; also counted in `units.untranslated`.                                        |
 | `fixes.untranslatedRetried`   | number         | Fragments re-requested because the model returned them unchanged in the source language; the ones the retry did not fix are counted in `units.untranslated`. |
 | `fixes.untranslatedKept`      | number         | Fragments that kept their source text because the retry returned them untranslated again; also counted in `units.untranslated`.                              |
@@ -125,7 +128,7 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
   "targetLanguages": ["en"],
   "files": {"selected": 12, "skipped": 3},
   "totals": {
-    "files": {"translated": 12, "failed": 0, "retried": 1},
+    "files": {"translated": 12, "failed": 0, "retried": 1, "partial": 0},
     "units": {"total": 340, "translated": 182, "fromCache": 154, "untranslated": 4, "oversized": 0},
     "chars": {"source": 15200, "translated": 16900, "request": 8300},
     "tokens": {"input": 5200, "output": 4800},
@@ -142,7 +145,7 @@ no token usage, persistent cache, judge or markup repair, so `tokens` is
   "targets": [
     {
       "language": "en",
-      "files": {"translated": 12, "failed": 0, "retried": 1},
+      "files": {"translated": 12, "failed": 0, "retried": 1, "partial": 0},
       "units": {
         "total": 340,
         "translated": 182,

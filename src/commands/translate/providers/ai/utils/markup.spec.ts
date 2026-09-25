@@ -263,6 +263,29 @@ describe('stripAddedMarkup', () => {
 describe('keepsMarkup', () => {
     const source = `x.y${CODE_CLOSE} is the prefix, ${CODE_OPEN}z.w${CODE_CLOSE} kept as alias`;
 
+    describe('underscores', () => {
+        it.each([
+            ['Support row cache', `Поддержка ${CODE_OPEN}row_cache${CODE_CLOSE}`],
+            ['Support row_cache', 'Поддержка row_cache'],
+            ['Use wait_for', `Используйте ${CODE_OPEN}wait_for${CODE_CLOSE}`],
+            ['Use a__b and c_d_e', 'Используйте a__b и c_d_e'],
+        ])('should not take underscores inside a word for emphasis: %j', (source, translation) => {
+            expect(keepsMarkup(source, translation)).toBe(true);
+        });
+
+        it('should still reject a translation that lost the code of an identifier', () => {
+            expect(
+                keepsMarkup(`Use ${CODE_OPEN}wait_for${CODE_CLOSE}`, 'Используйте wait_for'),
+            ).toBe(false);
+        });
+
+        it('should still count emphasis written with underscores', () => {
+            expect(keepsMarkup('An _important_ note', 'Важная заметка')).toBe(false);
+            expect(keepsMarkup('An important note', 'Важная _заметка')).toBe(false);
+            expect(keepsMarkup('An important note', 'Важная _заметка_')).toBe(true);
+        });
+    });
+
     it('should accept a translation that keeps every placeholder', () => {
         const translation = `x.y${CODE_CLOSE} это префикс, ${CODE_OPEN}z.w${CODE_CLOSE} как алиас`;
 
@@ -369,11 +392,6 @@ const DOC = [
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
 const unwrap = (unit: string) => unit.replace(/^<source[^>]*>|<\/source>$/g, '');
 
-/** A model that puts the markers of a bold label back into the fragment. */
-function addMarkers(text: string): string {
-    return text.replace(/^([^<]+:)(<x[^>]*\/>)?/, (_, label, tag) => `**${label}**${tag || ''}`);
-}
-
 /** A model that wraps the whole fragment it was given into markers. */
 function wrapMarkers(text: string): string {
     return `**${text}**`;
@@ -433,8 +451,10 @@ function repair(doc: string, model: (text: string) => string) {
 }
 
 describe('stripAddedMarkup over real extract and compose', () => {
-    it('should compose exactly like the source when the model adds markers', () => {
-        const {dirty, repaired} = repair(DOC, addMarkers);
+    // Compact extraction keeps a bold label inside its fragment, so a model
+    // doubles markup by wrapping a whole fragment it was given.
+    it('should compose exactly like the source when the model wraps every fragment', () => {
+        const {dirty, repaired} = repair(DOC, wrapMarkers);
 
         expect(dirty).toContain('****');
         expect(repaired).toBe(DOC);

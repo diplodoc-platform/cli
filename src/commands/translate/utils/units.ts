@@ -56,6 +56,8 @@ export type LoadedTranslationUnits = {
     skeleton?: string | JSONObject;
     schemas?: ExtractOptions['schemas'];
     ajvOptions?: ExtractOptions['ajvOptions'];
+    /** Parts of the file the engine left untranslated, one line each. */
+    warnings: string[];
 };
 
 /**
@@ -79,11 +81,11 @@ export async function loadTranslationUnits(
     }
 
     if (!content.data) {
-        return {content, units: []};
+        return {content, units: [], warnings: []};
     }
 
     const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
-    const {units, skeleton} = extract(content.data, {
+    const {units, skeleton, warnings} = extract(content.data, {
         compact: true,
         code,
         // Unit texts are cache and seed keys: with document-wide placeholder
@@ -96,5 +98,5 @@ export async function loadTranslationUnits(
         ajvOptions,
     });
 
-    return {content, units, skeleton, schemas, ajvOptions};
+    return {content, units, skeleton, schemas, ajvOptions, warnings};
 }

@@ -40,7 +40,8 @@ export type TranslateReportJudge = {
 };
 
 export type TranslateReportCounters = {
-    files: {translated: number; failed: number; retried: number};
+    /** `partial`: translated files with parts the engine left untranslated, also counted in `translated`. */
+    files: {translated: number; failed: number; retried: number; partial: number};
     units: {
         total: number;
         translated: number;
@@ -112,6 +113,8 @@ export type TargetStat = {
     cacheEnabled: boolean;
     /** Units sent to the model with their previous version from the seed memory. */
     memoryHints: number;
+    /** Localized code blocks and lines of existing translations put back into the output. */
+    fragmentsRestored: number;
     /** Units returned by the model untranslated. */
     untranslated: number;
     /** Delimiter runs of inline markup the model added around fragments and the CLI removed. */
@@ -137,6 +140,8 @@ export type TargetStat = {
     filesTranslated: number;
     filesFailed: number;
     filesRetried: number;
+    /** Translated files with parts the engine left untranslated; also counted in `filesTranslated`. */
+    filesPartial: number;
 };
 
 export function createTargetStat(): TargetStat {
@@ -150,6 +155,7 @@ export function createTargetStat(): TargetStat {
         cacheMisses: 0,
         cacheEnabled: false,
         memoryHints: 0,
+        fragmentsRestored: 0,
         untranslated: 0,
         markupStripped: 0,
         markupRetried: 0,
@@ -166,6 +172,7 @@ export function createTargetStat(): TargetStat {
         filesTranslated: 0,
         filesFailed: 0,
         filesRetried: 0,
+        filesPartial: 0,
     };
 }
 
@@ -202,6 +209,7 @@ function targetCounters(stat: TargetStat): TranslateReportCounters {
             translated: stat.filesTranslated,
             failed: stat.filesFailed,
             retried: stat.filesRetried,
+            partial: stat.filesPartial,
         },
         units: {
             total: stat.unitsTotal,
@@ -251,6 +259,7 @@ function sumCounters(targets: TranslateReportCounters[]): TranslateReportCounter
         totals.files.translated += target.files.translated;
         totals.files.failed += target.files.failed;
         totals.files.retried += target.files.retried;
+        totals.files.partial += target.files.partial;
         totals.units.total += target.units.total;
         totals.units.translated += target.units.translated;
         totals.units.fromCache += target.units.fromCache;
@@ -326,6 +335,17 @@ export function reportError(
         code: error instanceof TranslateError ? error.code : 'UNKNOWN',
         message: String((error as Error)?.message || error),
     };
+}
+
+/**
+ * Builds a report entry for a part of a file the engine left untranslated.
+ * The file is still written, so the run completes as partial.
+ */
+export function reportExtractWarning(
+    message: string,
+    info: {target?: string; path?: string} = {},
+): TranslateReportError {
+    return {...info, code: 'EXTRACT_WARNING', message};
 }
 
 /**
@@ -474,7 +494,9 @@ export class RunReport {
 
         return (
             `run ${data.status} in ${seconds}s; ` +
-            `files: ${totals.files.translated} translated, ${totals.files.failed} failed; ` +
+            `files: ${totals.files.translated} translated` +
+            (totals.files.partial ? ` (${totals.files.partial} partial)` : '') +
+            `, ${totals.files.failed} failed; ` +
             `units: ${totals.units.total} (${cached}); ` +
             `chars: ${totals.chars.source} in / ${totals.chars.translated} out` +
             tokens +

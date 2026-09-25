@@ -74,6 +74,8 @@ export type SeedStats = {
     unseededUnits: number;
     /** Pairs kept for their file only, out of the shared dictionary. */
     doubtfulUnits: number;
+    /** Localized code blocks and lines kept for the translate run, see `SkeletonFragment`. */
+    skeletonFragments: number;
     /** Files whose translation did not align with the source at all. */
     mismatched: string[];
     /** Files whose source or target failed to load or extract. */
@@ -120,6 +122,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         partial: [],
         unseededUnits: 0,
         doubtfulUnits: 0,
+        skeletonFragments: 0,
         mismatched: [],
         failed: [],
     };
@@ -168,12 +171,13 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             continue;
         }
 
-        seeds.record(file, result.pairs);
+        seeds.record(file, result.pairs, result.fragments);
 
         stats.seededFiles++;
         stats.seededUnits += result.pairs.length;
         stats.skippedUnits += result.skipped;
         stats.doubtfulUnits += result.doubtful;
+        stats.skeletonFragments += result.fragments.length;
 
         if (result.unseeded) {
             stats.partial.push({file, unseeded: result.unseeded, units: result.units});
@@ -402,7 +406,8 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
                     `failed: ${stats.failed.length} ` +
                     `partial-files: ${stats.partial.length} ` +
                     `unseeded-units: ${stats.unseededUnits} ` +
-                    `doubtful-units: ${stats.doubtfulUnits}`,
+                    `doubtful-units: ${stats.doubtfulUnits} ` +
+                    `skeleton-fragments: ${stats.skeletonFragments}`,
             );
         }
     }

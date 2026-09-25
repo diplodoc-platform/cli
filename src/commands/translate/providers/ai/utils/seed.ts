@@ -1,8 +1,18 @@
 import type {JSONObject} from '@diplodoc/translation';
+import type {SkeletonFragment} from './skeleton';
 
-import {alignBlocks, parseBlocks, unitAnchors, unwrap} from './align';
+import {
+    alignBlocks,
+    linkRelation,
+    parseBlocks,
+    unitAnchors,
+    unitLinks,
+    unitProse,
+    unwrap,
+} from './align';
 import {keepsMarkup, restoreHoistedMarkers} from './markup';
 import {foreignWordPattern, untranslatedMarker} from './script';
+import {skeletonFragments} from './skeleton';
 
 export type TranslationSide = {
     units: string[];
@@ -23,6 +33,8 @@ export type AlignedUnits = {
     unseeded: number;
     /** Pairs kept for the file only, see `doubtfulPair`. */
     doubtful: number;
+    /** Localized code blocks and lines of the translation, see `skeletonFragments`. */
+    fragments: SkeletonFragment[];
     blocks: {
         source: number;
         target: number;
@@ -62,18 +74,26 @@ export function alignTranslationUnits(
 ): AlignedUnits {
     const marker = untranslatedMarker(languages.source, languages.target);
     const doubtful = doubtfulPair(languages);
-    const sourceBlocks = parseBlocks(source.skeleton, source.units);
-    const targetBlocks = parseBlocks(target.skeleton, target.units);
+    const linkLanguages = [languages.source, languages.target];
+    const sourceBlocks = parseBlocks(source.skeleton, source.units, linkLanguages);
+    const targetBlocks = parseBlocks(target.skeleton, target.units, linkLanguages);
+    const blockPairs = alignBlocks(sourceBlocks, targetBlocks, linkLanguages);
     const result: AlignedUnits = {
         pairs: [],
         skipped: 0,
         unseeded: 0,
         doubtful: 0,
+        fragments: skeletonFragments(
+            source,
+            target,
+            {source: sourceBlocks, target: targetBlocks, pairs: blockPairs},
+            languages,
+        ),
         blocks: {source: sourceBlocks.length, target: targetBlocks.length, paired: 0},
     };
     const seeded = new Set<number>();
 
-    for (const [i, j] of alignBlocks(sourceBlocks, targetBlocks)) {
+    for (const [i, j] of blockPairs) {
         result.blocks.paired++;
 
         for (const [s, targetUnit] of pairBlockUnits(
@@ -81,6 +101,7 @@ export function alignTranslationUnits(
             targetBlocks[j].units,
             source.units,
             target.units,
+            linkLanguages,
         )) {
             const sourceUnit = source.units[s];
 
@@ -115,14 +136,15 @@ function pairBlockUnits(
     targetIds: number[],
     sourceUnits: string[],
     targetUnits: string[],
+    languages: string[],
 ): [number, string][] {
     const candidates: [number, number][] = [];
 
     if (sourceIds.length === targetIds.length) {
         sourceIds.forEach((id, k) => candidates.push([id, targetIds[k]]));
     } else {
-        const bySource = uniqueAnchors(sourceIds, sourceUnits);
-        const byTarget = uniqueAnchors(targetIds, targetUnits);
+        const bySource = uniqueAnchors(sourceIds, sourceUnits, languages);
+        const byTarget = uniqueAnchors(targetIds, targetUnits, languages);
 
         for (const [anchors, s] of bySource) {
             const t = byTarget.get(anchors);
@@ -134,7 +156,7 @@ function pairBlockUnits(
 
     return candidates
         .map(([s, t]): [number, string] => [s, reusableTarget(sourceUnits[s], targetUnits[t])])
-        .filter(([s, target]) => compatibleUnits(sourceUnits[s], target));
+        .filter(([s, target]) => compatibleUnits(sourceUnits[s], target, languages));
 }
 
 const WRAPPED_UNIT = /^(\s*<source(?:\s[^>]*)?>)([\s\S]*)(<\/source>\s*)$/;
@@ -166,30 +188,125 @@ function reusableTarget(source: string, target: string): string {
  * whose code marker was hoisted into its own skeleton is not, because the
  * source skeleton would then restore a marker the unit still carries.
  */
-export function compatibleUnits(source: string, target: string): boolean {
-    const sourceText = unwrap(source);
-    const targetText = unwrap(target);
-    const sourceAnchors = unitAnchors(source);
-    const targetAnchors = unitAnchors(target);
+export function compatibleUnits(source: string, target: string, languages: string[] = []): boolean {
+    const numbers = (unit: string) =>
+        unitAnchors(unit)
+            .filter((anchor) => anchor.startsWith('num:'))
+            .join('\n');
 
-    const numbers = (anchors: string[]) => anchors.filter((anchor) => anchor.startsWith('num:'));
-    const tokens = (anchors: string[]) =>
-        anchors
-            .filter((anchor) => !anchor.startsWith('num:'))
-            .map((anchor) => anchor.slice(anchor.indexOf(':') + 1));
+    return (
+        numbers(source) === numbers(target) &&
+        codesMatch(source, target) &&
+        linksMatch(source, target, languages, true) &&
+        keepsMarkup(unwrap(source), unwrap(target))
+    );
+}
 
-    if (numbers(sourceAnchors).join('\n') !== numbers(targetAnchors).join('\n')) {
+/**
+ * Whether the code spans of two units match. A code span pairs with a code
+ * span of the same text on the other side. One left without a pair may be
+ * words the other side leaves plain, verbatim or with other separators
+ * (`row_cache` for "row cache"), but only while the other side has no code
+ * of its own left: `getUser` in code for `getuser` in code is another
+ * identifier, whatever plain text is around.
+ */
+function codesMatch(source: string, target: string): boolean {
+    const sourceCodes = new Set(codeTexts(source));
+    const targetCodes = new Set(codeTexts(target));
+    // An identifier in code on both sides is paired however many times each
+    // side repeats it.
+    const unpaired = [...sourceCodes].filter((code) => !targetCodes.has(code));
+    const rest = [...targetCodes].filter((code) => !sourceCodes.has(code));
+
+    if (unpaired.length && rest.length) {
         return false;
     }
 
-    if (
-        !tokens(sourceAnchors).every((token) => targetText.includes(token)) ||
-        !tokens(targetAnchors).every((token) => sourceText.includes(token))
-    ) {
+    return (
+        unpaired.every((code) => inProse(target, code)) &&
+        rest.every((code) => inProse(source, code))
+    );
+}
+
+// Separators of the words of an identifier written as words.
+const WORD_JOINERS = /[\s_-]+/;
+// A word of its own: no letter or digit around it, and no joiner of a
+// longer identifier, path or name (`row_cache_size`, `config.yaml`,
+// `/usr/bin`, `$HOME`, `C++`).
+const WORD_START = String.raw`(?<![\p{L}\p{N}_$]|[\p{L}\p{N}][-.\/:@#+])`;
+const WORD_END = String.raw`(?![\p{L}\p{N}_+]|[-.\/:@#][\p{L}\p{N}])`;
+// A word as prose writes it: one case, or a capital letter and small ones.
+const PLAIN_CASE = /^(?:\p{Lu}?[\p{Ll}\p{N}]*|[\p{Lu}\p{N}]*)$/u;
+
+/**
+ * Whether the plain text of a unit has the code as a word of its own, an
+ * identifier of several words (`row_cache`) with any separators ("row
+ * cache", "row-cache"). A longer word, identifier or path around it does
+ * not count: `id` is not in "uuid", `row_cache` is not in `row_cache_size`,
+ * `config` is not in "config.yaml". Case may differ only for a word of one
+ * case longer than two characters ("JSON" for `json`), not for a flag
+ * (`-f`, `-F`) or a name in mixed case (`getUser`). A code of one character
+ * or without letters and digits is never confirmed by text.
+ */
+function inProse(unit: string, code: string): boolean {
+    if ([...code].length < 2 || !/[\p{L}\p{N}]/u.test(code)) {
         return false;
     }
 
-    return keepsMarkup(sourceText, targetText);
+    const words = code.split(WORD_JOINERS).filter(Boolean);
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+    const pattern = words.length > 1 ? words.map(escape).join(String.raw`[\s_-]+`) : escape(code);
+    const caseless =
+        code.length > 2 &&
+        !code.startsWith('-') &&
+        (code === code.toLowerCase() || code === code.toUpperCase());
+
+    const matches = unitProse(unit).matchAll(
+        new RegExp(`${WORD_START}${pattern}${WORD_END}`, caseless ? 'giu' : 'gu'),
+    );
+
+    // A word in mixed case ("getUser") is a name of its own even for a code
+    // in one case (`getuser`); a capitalized word ("Row Cache") is not, and
+    // the code itself as it is ("ClickHouse" for `ClickHouse`) always counts.
+    return [...matches].some(
+        ([text]) =>
+            text === code || text.split(/[^\p{L}\p{N}]+/u).every((word) => PLAIN_CASE.test(word)),
+    );
+}
+
+/**
+ * Whether every link of each unit has a link to the same page in the other
+ * one, see `linkRelation`; with `nested`, also one to the page on another
+ * site under a section less or to the page of the edition of the site in
+ * the other language.
+ */
+function linksMatch(source: string, target: string, languages: string[], nested: boolean): boolean {
+    const sourceLinks = unitLinks(source);
+    const targetLinks = unitLinks(target);
+    const accepted = (from: string, to: string) => {
+        const relation = linkRelation(from, to, languages);
+
+        return relation === 'same' || (nested && relation !== 'other');
+    };
+
+    return (
+        sourceLinks.every((from) => targetLinks.some((to) => accepted(from, to))) &&
+        targetLinks.every((to) => sourceLinks.some((from) => accepted(from, to)))
+    );
+}
+
+/**
+ * Whether the links of a pair only match with a section of a path added or
+ * in another edition of the site.
+ */
+function nestedLinks(source: string, target: string, languages: string[]): boolean {
+    return !linksMatch(source, target, languages, false);
+}
+
+function codeTexts(unit: string): string[] {
+    return unitAnchors(unit)
+        .filter((anchor) => anchor.startsWith('code:'))
+        .map((anchor) => anchor.slice('code:'.length));
 }
 
 // A pair this much longer on one side is rarely a translation; short units
@@ -229,7 +346,13 @@ export function doubtfulPair(
         return false;
     };
 
+    const linkLanguages = [languages.source, languages.target];
+
     return (source, target) => {
+        if (nestedLinks(source, target, linkLanguages)) {
+            return true;
+        }
+
         const sourceText = unwrap(source).replace(TAGS, ' ').replace(ENTITIES, ' ').trim();
         const targetText = unwrap(target).replace(TAGS, ' ').replace(ENTITIES, ' ').trim();
 
@@ -248,12 +371,12 @@ export function doubtfulPair(
 }
 
 /** Units keyed by their anchors, keeping the keys that occur exactly once. */
-function uniqueAnchors(ids: number[], units: string[]): Map<string, number> {
+function uniqueAnchors(ids: number[], units: string[], languages: string[]): Map<string, number> {
     const counts = new Map<string, number>();
     const result = new Map<string, number>();
 
     ids.forEach((id) => {
-        const key = unitAnchors(units[id]).join('\n');
+        const key = unitAnchors(units[id], languages).join('\n');
         if (!key) {
             return;
         }

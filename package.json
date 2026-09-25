@@ -88,7 +88,7 @@
     "@diplodoc/color-extension": "^1.0.0",
     "@diplodoc/liquid": "^1.5.3",
     "@diplodoc/transform": "^4.78.0",
-    "@diplodoc/translation": "^1.9.0",
+    "@diplodoc/translation": "^1.10.0",
     "@diplodoc/utils": "^2.3.6",
     "@gravity-ui/uikit-themer": "^1.7.0",
     "@inquirer/prompts": "^8.3.2",

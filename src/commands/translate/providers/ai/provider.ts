@@ -17,7 +17,13 @@ import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
 import {TranslateError, compose, languageRepath, loadTranslationUnits} from '../../utils';
 import {TranslateLogger} from '../../logger';
-import {RunReport, createTargetStat, reportError, scoreDistribution} from '../../report';
+import {
+    RunReport,
+    createTargetStat,
+    reportError,
+    reportExtractWarning,
+    scoreDistribution,
+} from '../../report';
 
 import {
     Defer,
@@ -32,8 +38,12 @@ import {
     estimateTokens,
     fallbackClientConfig,
     keepsMarkup,
+    keepsPlaceholders,
+    maskAddresses,
+    renumberMemory,
     seedFilePath,
     stripAddedMarkup,
+    unmaskAddresses,
 } from './utils';
 import {
     DEFAULT_SYSTEM_PROMPT,
@@ -43,6 +53,8 @@ import {
     splitFragments,
 } from './prompts';
 import {untranslatedMarker} from './utils/script';
+import {localizedUrls, revertedUrls} from './utils/links';
+import {restoreFragments} from './utils/skeleton';
 import {judgeTranslations} from './judge';
 
 export {untranslatedMarker};
@@ -122,6 +134,9 @@ export class Provider {
                     varsFor,
                     code: config.code,
                     translate,
+                    store,
+                    stat,
+                    logger: this.logger,
                     onTranslated: collect,
                 });
 
@@ -153,7 +168,10 @@ export class Provider {
                             ? ` untranslated-retried: ${stat.untranslatedRetried}` +
                               ` untranslated-kept: ${stat.untranslatedKept}`
                             : '') +
-                        (stat.memoryHints ? ` memory-hints: ${stat.memoryHints}` : ''),
+                        (stat.memoryHints ? ` memory-hints: ${stat.memoryHints}` : '') +
+                        (stat.fragmentsRestored
+                            ? ` restored-fragments: ${stat.fragmentsRestored}`
+                            : ''),
                 );
 
                 const judge = pairs.length
@@ -188,7 +206,7 @@ export class Provider {
         maxConcurrency: number;
         dryRun: boolean;
         store?: TranslationStore;
-        processFile: (file: string) => Promise<void>;
+        processFile: (file: string) => Promise<string[]>;
         stat: TargetStat;
         target: string;
     }) {
@@ -198,10 +216,11 @@ export class Provider {
         const run = async (file: string, finalPass: boolean) => {
             try {
                 this.logger.translate(file);
-                await processFile(file);
+                const warnings = await processFile(file);
                 // Flush after every file to keep progress on crashes.
                 store?.flush();
                 stat.filesTranslated++;
+                this.reportFileWarnings(file, warnings, stat, target);
                 if (!dryRun) {
                     this.logger.translated(file);
                 }
@@ -238,6 +257,18 @@ export class Provider {
                 maxConcurrency,
                 asyncify((file: string) => run(file, true)),
             );
+        }
+    }
+
+    /** Parts of a written file the engine left untranslated make the file partial. */
+    private reportFileWarnings(file: string, warnings: string[], stat: TargetStat, target: string) {
+        if (warnings.length) {
+            stat.filesPartial++;
+        }
+
+        for (const warning of warnings) {
+            this.logger.warn(file, warning);
+            this.report?.addError(reportExtractWarning(warning, {target, path: file}));
         }
     }
 
@@ -352,6 +383,10 @@ type ProcessorParams = {
     varsFor: VarsResolver;
     code: CodeMode;
     translate: Translate;
+    /** Seed memory of the files: localized skeleton fragments and links. */
+    store?: TranslationStore;
+    stat?: TargetStat;
+    logger?: Pick<TranslateLogger, 'warn'>;
     onTranslated?: (path: string, units: string[], parts: string[]) => void;
 };
 
@@ -442,41 +477,112 @@ function makeJudgeCollector(pairs: JudgePair[]) {
 }
 
 function makeProcessor(params: ProcessorParams) {
-    const {input, output, sourceLanguage, targetLanguage, varsFor, code, translate, onTranslated} =
-        params;
+    const {
+        input,
+        output,
+        sourceLanguage,
+        targetLanguage,
+        varsFor,
+        code,
+        translate,
+        store,
+        stat,
+        logger,
+        onTranslated,
+    } = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
+    const languages = [sourceLanguage, targetLanguage];
 
-    return async function (path: string) {
+    /** Returns the parts of the file the engine left untranslated, one line each. */
+    return async function (path: string): Promise<string[]> {
         const ext = extname(path);
         if (!['.yaml', '.md'].includes(ext)) {
-            return;
+            return [];
         }
 
         const inputPath = join(inputRoot, path);
         const outputPath = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
 
-        const {content, units, skeleton, schemas, ajvOptions} = await loadTranslationUnits({
-            inputPath,
-            path,
-            sourceLanguage,
-            targetLanguage,
-            vars: varsFor(path),
-            code,
-        });
+        const {content, units, skeleton, schemas, ajvOptions, warnings} =
+            await loadTranslationUnits({
+                inputPath,
+                path,
+                sourceLanguage,
+                targetLanguage,
+                vars: varsFor(path),
+                code,
+            });
 
         if (!content.data || !units.length) {
             await content.dump(outputPath);
-            return;
+            return warnings;
         }
 
         const parts = await translate(path, units, {title: extractTitle(content.data)});
 
         onTranslated?.(path, units, parts);
 
-        content.set(compose(skeleton, parts, {useSource: true, schemas, ajvOptions}));
+        const composed = keepLocalized(path, skeleton, units, parts);
+
+        content.set(compose(composed, parts, {useSource: true, schemas, ajvOptions}));
         await content.dump(outputPath);
+
+        return warnings;
     };
+
+    /**
+     * The output is composed from the source skeleton, so what the
+     * translator localized outside the units would come back from the
+     * source. The code blocks, heading ids and link destinations the seed
+     * recorded for the file are put back where the source did not change
+     * them; what could
+     * not be kept, and links that point to a source address again, are
+     * reported per file for the reviewer.
+     */
+    function keepLocalized<T>(path: string, skeleton: T, units: string[], parts: string[]): T {
+        if (!store) {
+            return skeleton;
+        }
+
+        const reverted = revertedUrls(parts, localizedUrls(store.memory(path), languages));
+        if (reverted.length) {
+            const [[url, localized]] = reverted;
+            logger?.warn(
+                path,
+                `Existing translation localized ${plural(reverted.length, 'link')} ` +
+                    `the output takes from the source again, e.g. ${url} instead of ${localized}.`,
+            );
+        }
+
+        if (typeof skeleton !== 'string') {
+            return skeleton;
+        }
+
+        const restored = restoreFragments(skeleton, units, store.fragments(path));
+        if (stat) {
+            stat.fragmentsRestored += restored.restored;
+        }
+
+        const {code: blocks, line: lines} = restored.dropped;
+        if (blocks || lines) {
+            const dropped = [
+                blocks ? plural(blocks, 'code block') : '',
+                lines ? `heading ids or link addresses in ${plural(lines, 'line')}` : '',
+            ].filter(Boolean);
+            logger?.warn(
+                path,
+                `Existing translation localized ${dropped.join(' and ')} ` +
+                    'the source has changed since; the output takes them from the source.',
+            );
+        }
+
+        return restored.skeleton as T;
+    }
+}
+
+function plural(count: number, noun: string): string {
+    return `${count} ${noun}${count === 1 ? '' : 's'}`;
 }
 
 type TranslatorParams = {
@@ -690,30 +796,40 @@ export function makeTranslator(params: TranslatorParams): Translate {
         }
 
         const wrappers = fragments.map(unwrapUnit);
-        const messages = buildMessages(
-            wrappers.map((wrapper) => wrapper.text),
-            {
-                systemPrompt,
-                userPrompt,
-                promptMode,
-                sourceLanguage,
-                targetLanguage,
-                glossaryPairs,
-                contextFiles,
-                context,
-                hints,
-            },
-        );
+        // Link and image addresses stay out of the request, see
+        // `maskAddresses`. The memory reads the same way as the fragments,
+        // with the ids of the fragment it goes with.
+        const masked = wrappers.map((wrapper) => maskAddresses(wrapper.text));
+        const sent = wrappers.map(({open, close}, index) => open + masked[index] + close);
+        const messages = buildMessages(masked, {
+            systemPrompt,
+            userPrompt,
+            promptMode,
+            sourceLanguage,
+            targetLanguage,
+            glossaryPairs,
+            contextFiles,
+            context,
+            hints: hints.map((hint, index) => {
+                if (!hint) {
+                    return undefined;
+                }
+
+                const {source, translation} = renumberMemory(wrappers[index].text, hint);
+
+                return {source: maskAddresses(source), translation: maskAddresses(translation)};
+            }),
+        });
 
         if (dryRun) {
             const inputTokens = messages.reduce((sum, m) => sum + estimateTokens(m.content), 0);
             stat.inputTokens += inputTokens;
-            stat.outputTokens += fragments.reduce((sum, f) => sum + estimateTokens(f), 0);
+            stat.outputTokens += sent.reduce((sum, f) => sum + estimateTokens(f), 0);
             // Dry-run tokens are estimates, but they are the point of the
             // mode (quota planning) - surface them in the report too.
             stat.usageSeen = true;
             stat.requests++;
-            stat.bytes += bytes(fragments);
+            stat.bytes += bytes(sent);
             return fragments;
         }
 
@@ -769,7 +885,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         }
 
         stat.requests++;
-        stat.bytes += bytes(fragments);
+        stat.bytes += bytes(sent);
         if (result.usage) {
             stat.usageSeen = true;
             stat.inputTokens += result.usage.inputTokens;
@@ -797,9 +913,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // Restore the wrapper; unwrap defensively in case the model echoed it.
         // An empty translation of a non-empty fragment is never valid - keep
         // the source text instead (matches the built-in prompt rules).
+        // Placeholders come back from the source: the model only placed them.
         return parts.map((part, index) => {
             const {open, text, close} = wrappers[index];
-            const translation = unwrapUnit(stripFence(part)).text || text;
+            const answer = unwrapUnit(stripFence(part)).text;
+            const translation = answer ? unmaskAddresses(text, answer) : text;
             const repair = stripAddedMarkup(text, translation);
 
             // Counted only once the answer is kept: a retry replaces both
@@ -856,7 +974,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
     /**
      * Retranslates the fragments whose markup the repair could not save:
      * a placeholder the model dropped without writing its marker in place
-     * loses the formatting or leaves an unpaired delimiter in the line.
+     * loses the formatting or leaves an unpaired delimiter in the line,
+     * and a link placeholder lost or repeated breaks the link.
      *
      * One more request is cheaper than a broken line, and a fragment the
      * retry does not fix keeps its source text: untranslated composes
@@ -873,8 +992,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             return parts;
         }
 
-        const kept = (fragment: string, part: string) =>
-            keepsMarkup(unwrapUnit(fragment).text, unwrapUnit(part).text);
+        const kept = (fragment: string, part: string) => {
+            const source = unwrapUnit(fragment).text;
+            const text = unwrapUnit(part).text;
+
+            return keepsMarkup(source, text) && keepsPlaceholders(source, text);
+        };
         const indexes = fragments
             .map((_, index) => index)
             .filter((index) => !kept(fragments[index], parts[index]));
