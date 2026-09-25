@@ -131,7 +131,7 @@ describe('translate seed skeleton fragments', () => {
                 'Откройте Settings и выберите Профиль',
                 'Open Settings and pick Profile',
             ],
-            ['a string with a name in it', '"title": "Id владельца"', '"title": "Owner ID"'],
+            ['a string of text', '"title": "Полнота данных"', '"title": "Data completeness"'],
             [
                 'a string with a file name',
                 'echo "Файл config.yaml не найден"',
@@ -172,6 +172,16 @@ describe('translate seed skeleton fragments', () => {
                 'psql -c "SELECT Имя, Фамилия FROM Сотрудники"',
                 'psql -c "DELETE FROM employees"',
             ],
+            [
+                'bash',
+                'psql -c "SELECT Имя FROM сотрудники"',
+                'psql -c "SELECT Name FROM employees WHERE secret"',
+            ],
+            [
+                'sql',
+                "SELECT * FROM t WHERE name = 'Иван'",
+                "SELECT * FROM t WHERE name = 'Ivan'OR'x'",
+            ],
             ['bash', '    # echo "Привет" > /etc/motd', '    # rm -rf /'],
             ['python', 'print(total // 2, "штук")', 'print(total // 3, "items")'],
             ['shell-session', '# echo "Привет" > /etc/motd', '# rm -rf /'],
@@ -179,14 +189,17 @@ describe('translate seed skeleton fragments', () => {
             ['bash', 'mkdir Проекты', 'mkdir Projects Archive'],
             ['js', '/* Шаг 1 */ const x = 1;', '/* Step 1 */ const x = 2;'],
             ['bash', 'Проекты', 'rm -rf /'],
-        ])('should not take code of a %s block for a comment', (language, from, to) => {
-            expect(
-                fragments(
-                    ['[[Выполните:]]', '```' + language, from, '```'],
-                    ['[[Run:]]', '```' + language, to, '```'],
-                ),
-            ).toEqual([]);
-        });
+        ])(
+            'should not keep a %s block whose code changed around the text',
+            (language, from, to) => {
+                expect(
+                    fragments(
+                        ['[[Выполните:]]', '```' + language, from, '```'],
+                        ['[[Run:]]', '```' + language, to, '```'],
+                    ),
+                ).toEqual([]);
+            },
+        );
 
         it.each([
             [

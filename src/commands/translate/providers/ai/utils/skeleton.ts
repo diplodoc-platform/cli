@@ -514,7 +514,8 @@ const PROMPT_LINE = /^\s*[#%] /;
 // Prose: letters, numbers, spaces, punctuation of text and an apostrophe
 // inside a word (`user's`); no quotes, `$`, `;`, `|`, `&`, `<`, `=` or
 // other characters that make code.
-const PROSE = String.raw`(?:[\p{L}\p{N}\s,.:!?’«»()–—%/+-]|(?<=\p{L})'(?=\p{L}))`;
+const PROSE_CHARACTER = String.raw`[\p{L}\p{N}\s,.:!?’«»()–—%/+-]`;
+const PROSE = String.raw`(?:${PROSE_CHARACTER}|(?<=\p{L})'(?=\p{L}))`;
 const PROSE_TEXT = new RegExp(`^${PROSE}*$`, 'u');
 // What may join two words of a text: spaces, numbers and punctuation, not
 // a word of another script (`AS name AS` between two aliases is code).
@@ -566,39 +567,17 @@ function textReplaced(
     const [first] = spans;
     const alone =
         spans.length === 1 && !line.slice(0, first.start).trim() && !line.slice(first.end).trim();
-    const strings: string[] = [];
     let pattern = '';
     let last = 0;
-    for (const {start, end, quoted} of spans) {
-        const text = line.slice(start, end);
-        const words = replacement(text, quoted, alone);
-        pattern += escapeRegExp(line.slice(last, start)) + (quoted ? `(${words})` : words);
+    for (const {start, end, quote} of spans) {
+        pattern +=
+            escapeRegExp(line.slice(last, start)) +
+            replacement(line.slice(start, end), quote, alone);
         last = end;
-        if (quoted) {
-            strings.push(text);
-        }
     }
     pattern += escapeRegExp(line.slice(last));
 
-    const match = new RegExp(`^${pattern}$`, 'u').exec(other);
-
-    return (
-        Boolean(match) && strings.every((text, i) => keepsNames(text, match?.[i + 1] ?? '', script))
-    );
-}
-
-/**
- * Whether the translation of the text of a string keeps its words in other
- * scripts, names and terms (`Id` of `"Id владельца"` in `"Owner ID"`): a
- * string of text with code in it (`"SELECT Имя FROM Сотрудники"`) keeps
- * its code.
- */
-function keepsNames(text: string, translation: string, script: RegExp): boolean {
-    const words = new Set(translation.toLowerCase().match(/[\p{L}\p{N}_]+/gu));
-
-    return (text.match(/[\p{L}\p{N}_]+/gu) ?? [])
-        .filter((word) => /\p{L}/u.test(word) && !script.test(word))
-        .every((word) => words.has(word.toLowerCase()));
+    return new RegExp(`^${pattern}$`, 'u').test(other);
 }
 
 /**
@@ -639,7 +618,8 @@ function closedQuotes(code: string): boolean {
     return ['"', "'", '`'].every((quote) => code.split(quote).length % 2 === 1);
 }
 
-type Span = {start: number; end: number; quoted: boolean};
+/** A span of text; `quote` is the quote of a string that is text as a whole. */
+type Span = {start: number; end: number; quote?: string};
 
 /** Spans of the text in the script, see `textReplaced`. */
 function textSpans(line: string, script: RegExp): Span[] {
@@ -652,7 +632,7 @@ function textSpans(line: string, script: RegExp): Span[] {
         if (previous && TEXT_GAP.test(line.slice(previous.end, start))) {
             previous.end = end;
         } else {
-            spans.push({start, end, quoted: false});
+            spans.push({start, end});
         }
     }
 
@@ -663,7 +643,7 @@ function textSpans(line: string, script: RegExp): Span[] {
         if (inside.length && textString(line.slice(from, to), script)) {
             spans = spans
                 .filter((span) => !inside.includes(span))
-                .concat([{start: from, end: to, quoted: true}]);
+                .concat([{start: from, end: to, quote: quoted[0][0]}]);
         }
     }
 
@@ -671,34 +651,34 @@ function textSpans(line: string, script: RegExp): Span[] {
 }
 
 /**
- * Whether the text of a string is text as a whole: prose, and no fewer
- * words of the script than other words (`"Id владельца"`, not
- * `"SELECT id AS Имя FROM users"`, where the text is `Имя` alone).
+ * Whether the text of a string is text as a whole: prose with no word in
+ * another script (`"Полнота данных"`). A word in another script may be code
+ * (`"SELECT Имя FROM сотрудники"`), and a translation cannot tell which of
+ * its words stand for it: such a string keeps them where they are.
  */
 function textString(text: string, script: RegExp): boolean {
-    const words = text.match(/[\p{L}\p{N}_]+/gu) ?? [];
-    const scripted = words.filter((word) => script.test(word)).length;
+    const others = text.replace(new RegExp(script.source, 'gu'), '');
 
-    return PROSE_TEXT.test(text) && scripted * 2 >= words.length;
+    return PROSE_TEXT.test(text) && !/\p{L}/u.test(others);
 }
 
 /**
- * What may stand in place of a text: prose for the text of a string,
- * otherwise words with the spaces and punctuation the text has
+ * What may stand in place of a text: prose without the quote for the text
+ * of a string, otherwise words with the spaces and punctuation the text has
  * (`Исправление` for `Fix`, `поэлементно` for `element-wise`, not for
  * `Fix --amend`; `Проекты` not for `Projects Archive`, another argument),
  * with any spaces for a line of text alone.
  */
-function replacement(text: string, quoted: boolean, alone: boolean): string {
-    if (quoted) {
-        return PROSE + '+?';
+function replacement(text: string, quote: string | undefined, alone: boolean): string {
+    if (quote) {
+        return (quote === "'" ? PROSE_CHARACTER : PROSE) + '+?';
     }
 
     const marks = [...new Set(text.replace(/[\p{L}\p{N}]/gu, '') + (alone ? ' ' : ''))]
         .join('')
         .replace(/[\\\][^-]/g, String.raw`\$&`);
 
-    return String.raw`(?:[\p{L}\p{N}${marks}]|(?<=\p{L})['-](?=\p{L}))+?`;
+    return String.raw`(?:[\p{L}\p{N}${marks}]|(?<=\p{L})-(?=\p{L}))+?`;
 }
 
 function escapeRegExp(text: string): string {

@@ -126,10 +126,11 @@ translate run puts them back:
   too); a changed `#` or `%` line of a shell or a block without a
   language is not localized: either side may be a prompt (`# Привет` and
   `# reboot` cannot be told apart). Outside comments the whole
-  text of a string of text, prose with no fewer words of the script than
-  others, is replaced by prose that keeps its words in other scripts
-  (`"Id владельца"` for `"Owner ID"`, not `"SELECT Имя FROM Сотрудники"`
-  for `"DROP TABLE users"`), other text by
+  text of a string of text, prose with no word in another script, is
+  replaced by prose (`"Полнота данных"` for `"Data completeness"`); in a
+  string with such words they stay where they are as code
+  (`"SELECT Имя FROM сотрудники"` is not localized as
+  `"SELECT Name FROM employees WHERE secret"`). Other text is replaced by
   words with the spaces and punctuation it has, a line of text alone by
   any number of words: `echo "Привет"` is not localized as `rm -rf /`,
   `echo "$(date)"` or `printf "Hello"`, `git commit -m Исправление` not as
