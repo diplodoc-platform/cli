@@ -342,25 +342,34 @@ function linkParts(url: string, languages: string[]): LinkParts {
     };
 }
 
-// A name ending with a language: `channel_ru`, `team-en@example.com`,
-// `screen-en-US.png`, or with a language variable: `graph-{{lang}}.png`.
-// The code in either case and an upper case region, as `segmentPattern` has it.
-const LANGUAGE_SUFFIX =
-    /([a-zA-Z\d])[-_]((?:[a-z]{2}|[A-Z]{2})(?:[-_][A-Z]{2})?|\{\{[^{}]+\}\})(?=$|[@.])/g;
+// A name ending with a language code and an upper case region, as
+// `segmentPattern` has it: `channel_ru`, `screen-en-US`.
+const CODE_SUFFIX = /[-_]([a-z]{2}|[A-Z]{2})(?:[-_][A-Z]{2})?$/;
+// A name ending with a variable: `graph-{{lang}}`.
+const VARIABLE_SUFFIX = /[-_](\{\{[^{}]+\}\})$/;
 
 /**
- * A path segment without the language suffixes of its names, see
- * `LANGUAGE_SUFFIX`: the name of the page in the translation language and
- * the name written with a language variable are the same name.
+ * A path segment without the language suffixes of its names: the name of
+ * the page in the translation language and the name written with a
+ * language variable are the same name. Names end at `@`
+ * (`team-ru@example.com`) and `.` (`screen-en.png`, `graph-{{lang}}.png`).
  */
 function withoutLanguageSuffix(segment: string, codes: Set<string>): string {
-    return segment.replace(LANGUAGE_SUFFIX, (match, last: string, suffix: string) => {
-        const language = suffix.startsWith('{{')
-            ? isLanguageVariable(suffix)
-            : codes.has(suffix.slice(0, 2).toLowerCase());
+    return segment
+        .split(/([@.])/)
+        .map((name, index) => (index % 2 ? name : withoutSuffix(name, codes)))
+        .join('');
+}
 
-        return language ? last : match;
-    });
+function withoutSuffix(name: string, codes: Set<string>): string {
+    const code = CODE_SUFFIX.exec(name);
+    const variable = code ? null : VARIABLE_SUFFIX.exec(name);
+    const language = code
+        ? codes.has(code[1].toLowerCase())
+        : Boolean(variable && isLanguageVariable(variable[1]));
+    const rest = name.slice(0, (code ?? variable)?.index ?? name.length);
+
+    return language && /[a-zA-Z\d]$/.test(rest) ? rest : name;
 }
 
 /**

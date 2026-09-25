@@ -254,13 +254,15 @@ export function restoreFragments(
     }
 
     const output: string[] = [];
-    for (let index = 0; index < lines.length; index++) {
+    let index = 0;
+    while (index < lines.length) {
         const replacement = replacements.get(index);
         if (replacement) {
             output.push(...replacement.lines);
-            index = replacement.end;
+            index = replacement.end + 1;
         } else {
             output.push(lines[index]);
+            index++;
         }
     }
     result.skeleton = output.join('\n');
@@ -292,7 +294,8 @@ function localizeLine(line: string, other: string, languages: string[]): string 
         .anchors.filter(({id}) => !own.has(id))
         .map(({text}) => text);
     if (extra.length) {
-        result = result.replace(/\s*$/, (tail) => ' ' + extra.join(' ') + tail);
+        const body = result.trimEnd();
+        result = body + ' ' + extra.join(' ') + result.slice(body.length);
     }
 
     return result;
