@@ -24,6 +24,7 @@ import type {CodeHighlightConfig, ThemerArgs, ThemerConfig} from './features/the
 import type {WatchArgs, WatchConfig} from './features/watch';
 import type {YaMakeArgs, YaMakeConfig, YaMakeRawConfig} from './features/ya-make';
 import type {LlmsArgs, LlmsConfig} from './features/llms';
+import type {SitemapArgs, SitemapConfig} from './features/sitemap';
 import type {CompanionsArgs} from './features/companions';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
@@ -181,6 +182,7 @@ export type BuildArgs = ProgramArgs &
             YaMakeArgs &
             ThemerArgs &
             LlmsArgs &
+            SitemapArgs &
             CompanionsArgs
     >;
 
@@ -230,6 +232,7 @@ export type BuildConfig = Config<
         ThemerConfig &
         NeuroExpertConfig &
         LlmsConfig &
+        SitemapConfig &
         ContentConfig
 >;
 
