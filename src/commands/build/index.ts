@@ -50,6 +50,7 @@ import {NeuroExpert} from './features/neuro-expert';
 import {Themer} from './features/themer';
 import {Analytics} from './features/analytics';
 import {Llms} from './features/llms';
+import {Sitemap} from './features/sitemap';
 import {Companions} from './features/companions';
 import {CodeIncluder} from './features/code-includer';
 
@@ -119,6 +120,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly llms = new Llms();
 
+    readonly sitemap = new Sitemap();
+
     readonly codeIncluder = new CodeIncluder();
 
     readonly options = [
@@ -185,6 +188,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.neuroExpert,
         this.analytics,
         this.llms,
+        this.sitemap,
         this.codeIncluder,
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
