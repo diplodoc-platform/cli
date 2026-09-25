@@ -101,6 +101,8 @@ export class MarkdownService {
 
     private pathToDeps = new Buckets<IncludeInfo[]>();
 
+    private pathToCodeSources = new Buckets<NormalizedPath[]>();
+
     private pathToAssets = new Buckets<AssetInfo[]>();
 
     private pathToHeadings = new Buckets<HeadingInfo[]>();
@@ -285,6 +287,7 @@ export class MarkdownService {
 
         delete this.cache[key];
         this.pathToDeps.delete(key);
+        this.pathToCodeSources.delete(key);
         this.pathToMeta.delete(key);
         this.pathToAssets.delete(key);
         this.pathToHeadings.delete(key);
@@ -361,6 +364,14 @@ export class MarkdownService {
             }),
         );
 
+        for (const source of this.pathToCodeSources.get(key) || []) {
+            if (source === path) {
+                continue;
+            }
+            graph.addNode(source, {type: 'source'});
+            graph.addDependency(path, source);
+        }
+
         (this.pathToAssets.get(key) || []).map(async (asset) => {
             if (['image', 'video'].includes(asset.type)) {
                 graph.addNode(asset.path);
@@ -421,6 +432,7 @@ export class MarkdownService {
     private proxy(key: string) {
         return {
             deps: this.pathToDeps.bind(key),
+            codeSources: this.pathToCodeSources.bind(key),
             assets: this.pathToAssets.bind(key),
             meta: this.pathToMeta.bind(key),
             comments: this.pathToComments.bind(key),

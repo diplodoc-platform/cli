@@ -54,6 +54,7 @@ function loaderContext(
         api: {
             blockCodes: bucket(),
             deps: bucket(),
+            codeSources: bucket(),
             assets: bucket(),
             meta: bucket(),
             info: bucket(),

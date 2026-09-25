@@ -27,6 +27,7 @@ export class LoaderAPI {
     blockCodes: Bucket<Location[]>;
     comments: Bucket<Location[]>;
     deps: Bucket<IncludeInfo[]>;
+    codeSources: Bucket<NormalizedPath[]>;
     assets: Bucket<AssetInfo[]>;
     meta: Bucket<Meta>;
     headings: Bucket<HeadingInfo[]>;
@@ -35,6 +36,7 @@ export class LoaderAPI {
     constructor(proxy: Partial<LoaderAPI> = {}) {
         this.blockCodes = proxy.blockCodes || bucket();
         this.deps = proxy.deps || bucket();
+        this.codeSources = proxy.codeSources || bucket();
         this.assets = proxy.assets || bucket();
         this.meta = proxy.meta || bucket();
         this.comments = proxy.comments || bucket();
