@@ -275,7 +275,7 @@ describe('translate ai provider', () => {
             // The file is written, but the run is partial.
             const report = JSON.parse(readFileSync(join(root, 'report.json'), 'utf8'));
             expect(report.status).toBe('partial');
-            expect(report.totals.files).toEqual({translated: 1, failed: 0, retried: 0});
+            expect(report.totals.files).toEqual({translated: 1, failed: 0, retried: 0, partial: 1});
             expect(report.errors).toEqual([
                 {
                     target: 'en',

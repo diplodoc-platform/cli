@@ -101,6 +101,9 @@ export class Provider {
                             this.logger.translate(file);
                             const warnings = await process(file);
                             stat.filesTranslated++;
+                            if (warnings.length) {
+                                stat.filesPartial++;
+                            }
                             for (const warning of warnings) {
                                 this.logger.warn(file, warning);
                                 this.report?.addError(

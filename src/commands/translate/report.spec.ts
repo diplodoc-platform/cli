@@ -88,6 +88,7 @@ describe('translate run report', () => {
             stat.filesTranslated = 2;
             stat.filesFailed = 1;
             stat.filesRetried = 1;
+            stat.filesPartial = 1;
 
             report.setFiles(3, 1);
             report.addTarget('en', stat);
@@ -108,7 +109,7 @@ describe('translate run report', () => {
 
             const target = data.targets[0];
             expect(target.language).toBe('en');
-            expect(target.files).toEqual({translated: 2, failed: 1, retried: 1});
+            expect(target.files).toEqual({translated: 2, failed: 1, retried: 1, partial: 1});
             expect(target.units).toEqual({
                 total: 10,
                 translated: 6,
@@ -152,11 +153,15 @@ describe('translate run report', () => {
             en.unitsTotal = 4;
             en.translatedUnits = 4;
             en.sourceChars = 100;
+            en.filesTranslated = 2;
+            en.filesPartial = 1;
 
             const de = createTargetStat();
             de.unitsTotal = 6;
             de.translatedUnits = 6;
             de.sourceChars = 200;
+            de.filesTranslated = 2;
+            de.filesPartial = 1;
 
             report.addTarget('en', en);
             report.addTarget('de', de);
@@ -164,6 +169,7 @@ describe('translate run report', () => {
 
             expect(data.totals.units.total).toBe(10);
             expect(data.totals.chars.source).toBe(300);
+            expect(data.totals.files).toEqual({translated: 4, failed: 0, retried: 0, partial: 2});
             expect(data.totals.tokens).toBeNull();
             expect(data.totals.cache).toEqual({
                 enabled: false,
@@ -253,7 +259,20 @@ describe('translate run report', () => {
             expect(summary).toContain('units: 10 (5 cached, 50% hit rate)');
             expect(summary).toContain('requests: 3');
             expect(summary).toContain('errors: 0');
+            expect(summary).toContain('files: 0 translated, 0 failed');
             expect(summary).not.toContain('added markup stripped');
+        });
+
+        it('should mention partial files in the summary only when there are any', () => {
+            const report = makeReport();
+            const stat = createTargetStat();
+
+            stat.filesTranslated = 3;
+            stat.filesPartial = 1;
+
+            report.addTarget('en', stat);
+
+            expect(report.summary()).toContain('files: 3 translated (1 partial), 0 failed');
         });
 
         it('should mention repaired markup in the summary only when it happened', () => {

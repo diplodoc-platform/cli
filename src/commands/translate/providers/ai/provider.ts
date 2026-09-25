@@ -220,7 +220,7 @@ export class Provider {
                 // Flush after every file to keep progress on crashes.
                 store?.flush();
                 stat.filesTranslated++;
-                this.reportFileWarnings(file, warnings, target);
+                this.reportFileWarnings(file, warnings, stat, target);
                 if (!dryRun) {
                     this.logger.translated(file);
                 }
@@ -260,7 +260,12 @@ export class Provider {
         }
     }
 
-    private reportFileWarnings(file: string, warnings: string[], target: string) {
+    /** Parts of a written file the engine left untranslated make the file partial. */
+    private reportFileWarnings(file: string, warnings: string[], stat: TargetStat, target: string) {
+        if (warnings.length) {
+            stat.filesPartial++;
+        }
+
         for (const warning of warnings) {
             this.logger.warn(file, warning);
             this.report?.addError(reportExtractWarning(warning, {target, path: file}));
