@@ -61,16 +61,16 @@ Counters: `skeleton-fragments: N` in the seed stat line, `restored-fragments: N`
 
 ## Measurements
 
-Trunk of 2026-09-24, `yt/docs` (both directions) and `docs/support/tracker/common` (ru -> en), markdown and yaml files only, no vars. `yfm translate seed` from trunk, then `yfm translate --dry-run` over the unchanged source with that seed. A dry run returns the source text for every unit the seed does not cover, so the output reproduces the existing translation exactly where nothing is lost; "changed lines" are the lines of the existing translation the run would change. "Before" is the seed with the DOCSTOOLS-6830 changes (and `@diplodoc/translation` 1.9.1), "after" is this change on top of them.
+Trunk of 2026-09-24, measured on 2026-09-25, `yt/docs` (both directions) and `docs/support/tracker/common` (ru -> en), markdown and yaml files only, no vars. `yfm translate seed` from trunk, then `yfm translate --dry-run` over the unchanged source with that seed. A dry run returns the source text for every unit the seed does not cover, so the output reproduces the existing translation exactly where nothing is lost; "changed lines" are the lines of the existing translation the run would change. "Before" is the seed with the DOCSTOOLS-6830 changes (and `@diplodoc/translation` 1.9.1), "after" is this change on top of them.
 
 |                          | seeded units | skeleton fragments | changed lines | of them in code | files reproduced as is |
 | ------------------------ | ------------ | ------------------ | ------------- | --------------- | ---------------------- |
-| YT ru -> en, before      | 57615        | -                  | 11040         | 2071            | 434 of 1126            |
-| YT ru -> en, after       | 57703        | 100                | 10834         | 1886            | 436                    |
-| YT en -> ru, before      | 57698        | -                  | 16952         | 4288            | 467 of 1124            |
-| YT en -> ru, after       | 57788        | 112                | 16734         | 4103            | 469                    |
-| Tracker ru -> en, before | 31332        | -                  | 10665         | 1603            | 58 of 720              |
-| Tracker ru -> en, after  | 31515        | 160                | 10427         | 1340            | 61                     |
+| YT ru -> en, before      | 57613        | -                  | 11040         | 2072            | 435 of 1126            |
+| YT ru -> en, after       | 57701        | 100                | 10834         | 1887            | 437                    |
+| YT en -> ru, before      | 57727        | -                  | 17062         | 4261            | 464 of 1124            |
+| YT en -> ru, after       | 57818        | 112                | 16844         | 4076            | 466                    |
+| Tracker ru -> en, before | 31343        | -                  | 10672         | 1605            | 57 of 720              |
+| Tracker ru -> en, after  | 31524        | 160                | 10435         | 1342            | 60                     |
 
 Most of the remaining changed lines are translations that diverged from the source (sections only one language has, merged sentences, reordered pages), which neither version can reuse. The upper bounds of the ticket count those too, and `[{#T}](...)` autotitles as heading ids.
 
