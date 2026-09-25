@@ -68,10 +68,9 @@ function placeholders(text: string): number {
  * that merged two steps with their code must not pair the first code
  * block with the second). A pair is taken only when it looks like a
  * localization of the same code: the fence lines and the line count are
- * the same, and every line that differs carries words of the source
- * script (text to translate) or of the target script (translated text).
- * A block where a command changed is outdated rather than localized, and
- * the source version is right for it.
+ * the same, and every line that differs has its text replaced and its
+ * code as it is, see `localizedLine`. A block where a command changed is
+ * outdated rather than localized, and the source version is right for it.
  *
  * Lines: an aligned block whose line in the translation has heading ids
  * the source line lacks keeps them, after the source ones, and a link
@@ -434,8 +433,26 @@ const SESSIONS = new Set([
     'bat',
 ]);
 const HASHES = new Set([
-    ...['python', 'python3', 'py', 'ruby', 'rb', 'perl', 'pl', 'r', 'yaml', 'yml', 'toml'],
-    ...['ini', 'cfg', 'conf', 'properties', 'nginx', 'dockerfile', 'makefile', 'cmake', 'awk'],
+    'python',
+    'python3',
+    'py',
+    'ruby',
+    'rb',
+    'perl',
+    'pl',
+    'r',
+    'yaml',
+    'yml',
+    'toml',
+    'ini',
+    'cfg',
+    'conf',
+    'properties',
+    'nginx',
+    'dockerfile',
+    'makefile',
+    'cmake',
+    'awk',
 ]);
 const DASHES = new Set([
     'sql',
