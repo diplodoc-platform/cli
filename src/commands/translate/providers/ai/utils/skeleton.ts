@@ -509,6 +509,8 @@ function localizedLine(languages: {source: string; target: string}): LocalizedLi
         (targetScript !== null && textReplaced(target, source, targetScript, markers));
 }
 
+// A line that may be a prompt in a shell block: `# reboot`, `% ls`.
+const PROMPT_LINE = /^\s*[#%] /;
 // Prose: letters, numbers, spaces, punctuation of text and an apostrophe
 // inside a word (`user's`); no quotes, `$`, `;`, `|`, `&`, `<`, `=` or
 // other characters that make code.
@@ -524,7 +526,9 @@ const QUOTED = /"[^"\\\n]*"|'[^'\\\n]*'/g;
  * Whether `other` is `line` with its text in the script replaced, the code
  * around it as it is. The text of a comment is free, the code before it has
  * to stay (`yt list //home # Список` for `yt list //home # List`, not for
- * `yt ls //home # List`). Elsewhere the text is replaced, see
+ * `yt ls //home # List`). A `#` or `%` line of a shell or a block without
+ * a language may be a prompt on either side (`# Привет` and `# reboot`): a
+ * changed one is not told from changed code and is not localized. Elsewhere the text is replaced, see
  * `replacement` (`echo "Привет"` for `echo "Hello"`, not for `rm -rf /`,
  * `printf "Hello"` or `echo "$(date)"`): the words of the script with the
  * spaces and punctuation between them, or the whole text of a string that
@@ -536,6 +540,10 @@ function textReplaced(
     script: RegExp,
     markers: CommentMarkers,
 ): boolean {
+    if (markers.prompts && PROMPT_LINE.test(line)) {
+        return false;
+    }
+
     const comment = commentText(line, markers, script);
     if (comment) {
         const code = line.slice(0, comment[0]);
@@ -558,17 +566,39 @@ function textReplaced(
     const [first] = spans;
     const alone =
         spans.length === 1 && !line.slice(0, first.start).trim() && !line.slice(first.end).trim();
+    const strings: string[] = [];
     let pattern = '';
     let last = 0;
     for (const {start, end, quoted} of spans) {
-        pattern +=
-            escapeRegExp(line.slice(last, start)) +
-            replacement(line.slice(start, end), quoted, alone);
+        const text = line.slice(start, end);
+        const words = replacement(text, quoted, alone);
+        pattern += escapeRegExp(line.slice(last, start)) + (quoted ? `(${words})` : words);
         last = end;
+        if (quoted) {
+            strings.push(text);
+        }
     }
     pattern += escapeRegExp(line.slice(last));
 
-    return new RegExp(`^${pattern}$`, 'u').test(other);
+    const match = new RegExp(`^${pattern}$`, 'u').exec(other);
+
+    return (
+        Boolean(match) && strings.every((text, i) => keepsNames(text, match?.[i + 1] ?? '', script))
+    );
+}
+
+/**
+ * Whether the translation of the text of a string keeps its words in other
+ * scripts, names and terms (`Id` of `"Id владельца"` in `"Owner ID"`): a
+ * string of text with code in it (`"SELECT Имя FROM Сотрудники"`) keeps
+ * its code.
+ */
+function keepsNames(text: string, translation: string, script: RegExp): boolean {
+    const words = new Set(translation.toLowerCase().match(/[\p{L}\p{N}_]+/gu));
+
+    return (text.match(/[\p{L}\p{N}_]+/gu) ?? [])
+        .filter((word) => /\p{L}/u.test(word) && !script.test(word))
+        .every((word) => words.has(word.toLowerCase()));
 }
 
 /**
@@ -576,9 +606,7 @@ function textReplaced(
  * after a marker at the start of the line, up to the end of a block comment
  * that code follows on the line, or after the last marker before the text
  * whose code has all its quotes closed (`x = a // 2  # Половина`, not
- * `curl -H "X-Tag: # Тест"`). A `#` or `%` line of a shell may be a prompt
- * (`# echo "Привет" > /etc/motd`): it is a comment when the text follows
- * the marker right away.
+ * `curl -H "X-Tag: # Тест"`).
  */
 function commentText(
     line: string,
@@ -593,12 +621,8 @@ function commentText(
     const whole = markers.line.exec(line);
     if (whole) {
         const start = whole[0].length;
-        const [first = ''] = line.slice(start).trimStart();
-        const prompt = markers.prompts && (whole[1] === '#' || whole[1] === '%');
         const close = whole[1].startsWith('/*') ? line.indexOf('*/', start) : -1;
-        if (!prompt || script.test(first)) {
-            return [start, close < 0 ? line.length : close];
-        }
+        return [start, close < 0 ? line.length : close];
     }
 
     const ends = [...line.matchAll(markers.after)]
@@ -636,7 +660,7 @@ function textSpans(line: string, script: RegExp): Span[] {
         const from = quoted.index + 1;
         const to = quoted.index + quoted[0].length - 1;
         const inside = spans.filter(({start, end}) => start >= from && end <= to);
-        if (inside.length && PROSE_TEXT.test(line.slice(from, to))) {
+        if (inside.length && textString(line.slice(from, to), script)) {
             spans = spans
                 .filter((span) => !inside.includes(span))
                 .concat([{start: from, end: to, quoted: true}]);
@@ -644,6 +668,18 @@ function textSpans(line: string, script: RegExp): Span[] {
     }
 
     return spans.sort((a, b) => a.start - b.start);
+}
+
+/**
+ * Whether the text of a string is text as a whole: prose, and no fewer
+ * words of the script than other words (`"Id владельца"`, not
+ * `"SELECT id AS Имя FROM users"`, where the text is `Имя` alone).
+ */
+function textString(text: string, script: RegExp): boolean {
+    const words = text.match(/[\p{L}\p{N}_]+/gu) ?? [];
+    const scripted = words.filter((word) => script.test(word)).length;
+
+    return PROSE_TEXT.test(text) && scripted * 2 >= words.length;
 }
 
 /**

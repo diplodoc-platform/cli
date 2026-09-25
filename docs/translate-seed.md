@@ -123,10 +123,13 @@ translate run puts them back:
   (`yt list //home # Список` for `yt list //home # List`); the markers are
   those of the block language (`#` in a shell or Python, `--` and `#` in
   SQL, `#` and `//` elsewhere, a line of `/*` up to its end, `%` or `;`
-  too), and a `#` or `%` line of a shell or a block without a language is
-  a comment only when the text follows the marker (`# echo "Привет"` is a
-  prompt). Outside comments the whole text of a string that holds prose
-  is replaced by prose (`"Id владельца"` for `"Owner ID"`), other text by
+  too); a changed `#` or `%` line of a shell or a block without a
+  language is not localized: either side may be a prompt (`# Привет` and
+  `# reboot` cannot be told apart). Outside comments the whole
+  text of a string of text, prose with no fewer words of the script than
+  others, is replaced by prose that keeps its words in other scripts
+  (`"Id владельца"` for `"Owner ID"`, not `"SELECT Имя FROM Сотрудники"`
+  for `"DROP TABLE users"`), other text by
   words with the spaces and punctuation it has, a line of text alone by
   any number of words: `echo "Привет"` is not localized as `rm -rf /`,
   `echo "$(date)"` or `printf "Hello"`, `git commit -m Исправление` not as

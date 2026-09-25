@@ -132,8 +132,12 @@ describe('translate seed skeleton fragments', () => {
                 'Open Settings and pick Profile',
             ],
             ['a string with a name in it', '"title": "Id владельца"', '"title": "Owner ID"'],
+            [
+                'a string with a file name',
+                'echo "Файл config.yaml не найден"',
+                'echo "File config.yaml not found"',
+            ],
             ['a doc comment', '/** Получить значение стейта. */', '/** Get the state value. */'],
-            ['a comment at the start', '% Корень Кипариса', '% Cypress root'],
         ])('should keep a code block with localized %s', (_, from, to) => {
             expect(
                 fragments(
@@ -162,6 +166,12 @@ describe('translate seed skeleton fragments', () => {
             ['bash', 'mkdir Проекты', 'mkdir -p /etc/cron.d'],
             ['sql', 'SELECT id AS Номер FROM t', 'SELECT id AS number, secret FROM t'],
             ['python', 'print(Привет)', 'print(os.remove(path))'],
+            ['bash', 'psql -c "SELECT Имя FROM Сотрудники"', 'psql -c "DROP TABLE users"'],
+            [
+                'bash',
+                'psql -c "SELECT Имя, Фамилия FROM Сотрудники"',
+                'psql -c "DELETE FROM employees"',
+            ],
             ['bash', '    # echo "Привет" > /etc/motd', '    # rm -rf /'],
             ['python', 'print(total // 2, "штук")', 'print(total // 3, "items")'],
             ['shell-session', '# echo "Привет" > /etc/motd', '# rm -rf /'],
@@ -190,11 +200,6 @@ describe('translate seed skeleton fragments', () => {
                 '"worker_group" = "gpu";  # Only on GPU workers',
             ],
             [
-                '',
-                "% Прочитать целиком таблицу '//home/user/table'",
-                "% Read the entire '//home/user/table' table",
-            ],
-            [
                 'json',
                 '"ip": "192.168.1.0" // Часто IP маскируется',
                 '"ip": "192.168.1.0" // IP address is often masked',
@@ -221,32 +226,60 @@ describe('translate seed skeleton fragments', () => {
             ).toHaveLength(1);
         });
 
-        it('should not keep a code block the translation changed on the real extraction', () => {
-            const side = (markdown: string, source: string, target: string) =>
-                extract(markdown, {
-                    compact: true,
-                    unitLocalIds: true,
-                    code: 'adaptive',
-                    source: {language: source, locale: source === 'ru' ? 'RU' : 'US'},
-                    target: {language: target, locale: target === 'ru' ? 'RU' : 'US'},
-                });
-            const block = (text: string, code: string) =>
-                `${text}\n\n\`\`\`bash\n${code}\n\`\`\`\n`;
+        it.each([
+            ['bash', 'echo "Привет"', 'rm -rf /', 'echo "Hello"'],
+            [
+                'bash',
+                'psql -c "SELECT id AS Имя FROM users"',
+                'psql -c "DELETE FROM users"',
+                'psql -c "SELECT id AS Name FROM users"',
+            ],
+        ])(
+            'should keep a %s block only when its code stays on the real extraction',
+            (language, from, changed, localized) => {
+                const side = (markdown: string, source: string, target: string) =>
+                    extract(markdown, {
+                        compact: true,
+                        unitLocalIds: true,
+                        code: 'adaptive',
+                        source: {language: source, locale: source === 'ru' ? 'RU' : 'US'},
+                        target: {language: target, locale: target === 'ru' ? 'RU' : 'US'},
+                    });
+                const block = (text: string, code: string) =>
+                    `${text}\n\n\`\`\`${language}\n${code}\n\`\`\`\n`;
+                const align = (translation: string) =>
+                    alignTranslationUnits(
+                        side(block('Выполните:', from), 'ru', 'en'),
+                        side(block('Run:', translation), 'en', 'ru'),
+                        {source: 'ru', target: 'en'},
+                    ).fragments;
 
-            const result = alignTranslationUnits(
-                side(block('Выполните:', 'echo "Привет"'), 'ru', 'en'),
-                side(block('Run:', 'rm -rf /'), 'en', 'ru'),
-                {source: 'ru', target: 'en'},
-            );
-            const localized = alignTranslationUnits(
-                side(block('Выполните:', 'echo "Привет"'), 'ru', 'en'),
-                side(block('Run:', 'echo "Hello"'), 'en', 'ru'),
-                {source: 'ru', target: 'en'},
-            );
+                expect(align(changed)).toEqual([]);
+                expect(align(localized)).toHaveLength(1);
+            },
+        );
 
-            expect(result.fragments).toEqual([]);
-            expect(localized.fragments).toHaveLength(1);
-        });
+        it.each([
+            ['bash', '# Привет', '# Hello'],
+            ['shell-session', '# Привет', '# rm -rf /'],
+            [
+                '',
+                "% Прочитать целиком таблицу '//home/user/table'",
+                "% Read the entire '//home/user/table' table",
+            ],
+            ['text', '# Корень', '# reboot'],
+        ])(
+            'should not keep a changed # or %% line of a %j block, a prompt maybe',
+            (language, from, to) => {
+                // `# Hello` and `# reboot` read the same: either side may be a prompt.
+                expect(
+                    fragments(
+                        ['[[Выполните:]]', '```' + language, from, '```'],
+                        ['[[Run:]]', '```' + language, to, '```'],
+                    ),
+                ).toEqual([]);
+            },
+        );
 
         it('should not keep code blocks of a same-script pair', () => {
             // Without a script to tell the languages apart a localized
