@@ -389,21 +389,265 @@ function localizedCode(from: string[], to: string[], localized: LocalizedLine): 
         return false;
     }
 
-    return from.every((line, index) => line === to[index] || localized(line, to[index]));
+    const markers = commentMarkers(from[0]);
+
+    return from.every((line, index) => line === to[index] || localized(line, to[index], markers));
 }
 
-type LocalizedLine = (source: string, target: string) => boolean;
+type LocalizedLine = (source: string, target: string, markers: CommentMarkers) => boolean;
+
+/** Comment markers of a code block. */
+type CommentMarkers = {
+    /** A marker at the start of a line, with the space after it. */
+    line: RegExp;
+    /** A marker after code, with the spaces around it. */
+    after: RegExp;
+    /** Whether a `#` or `%` line may be a prompt (`# rm -rf /`, `% ls`). */
+    prompts: boolean;
+};
+
+// Comment markers by language: shells read `--` and `%` as code
+// (`kubectl exec pod -- ls`, a `%` prompt) and Python reads `//` as code
+// (`total // 2`); SQL dialects start their comments with `--`. A block
+// of another language takes `#` and `//`, and at the start of a line `/*`
+// (`/** Get the state. */`), `--`, `%` and `;` too. A prompt is at home in
+// a shell block, a shell session and a block without a language.
+const SHELLS = new Set([
+    'bash',
+    'sh',
+    'shell',
+    'zsh',
+    'fish',
+    'ksh',
+    'console',
+    'powershell',
+    'ps1',
+]);
+const SESSIONS = new Set([
+    '',
+    'text',
+    'txt',
+    'plaintext',
+    'no-highlight',
+    'terminal',
+    'cmd',
+    'bat',
+]);
+const HASHES = new Set([
+    ...['python', 'python3', 'py', 'ruby', 'rb', 'perl', 'pl', 'r', 'yaml', 'yml', 'toml'],
+    ...['ini', 'cfg', 'conf', 'properties', 'nginx', 'dockerfile', 'makefile', 'cmake', 'awk'],
+]);
+const DASHES = new Set([
+    'sql',
+    'yql',
+    'lua',
+    'haskell',
+    'hs',
+    'plsql',
+    'psql',
+    'mysql',
+    'postgresql',
+]);
+
+function commentMarkers(fence: string): CommentMarkers {
+    const language = fence
+        .trim()
+        .replace(/^[`~]+/, '')
+        .trim()
+        .split(/\s/)[0]
+        .toLowerCase();
+    const session = /-?session$/.test(language);
+    if (SHELLS.has(language) || session) {
+        return {line: /^\s*(#+) /, after: / (#+) /g, prompts: true};
+    }
+    if (HASHES.has(language)) {
+        return {line: /^\s*(#+) /, after: / (#+) /g, prompts: false};
+    }
+    if (DASHES.has(language)) {
+        return {line: /^\s*(--+|#+|\/\/+|\/\*+) /, after: / (--+|#+) /g, prompts: false};
+    }
+
+    return {
+        line: /^\s*(#+|\/\/+|\/\*+|--+|%+|;+) /,
+        after: / (#+|\/\/+) /g,
+        prompts: SESSIONS.has(language),
+    };
+}
 
 /**
- * Whether a changed code line is a translation of the source line: it
- * drops words of the source script or brings words of the target script.
- * Without a script to tell the languages apart (both written in Latin) no
- * change passes: a localized line cannot be told from changed code.
+ * Whether a changed code line is a translation of the source line: the
+ * text in the source script replaced, the code around it as it is, see
+ * `textReplaced`. When the source is written in the script of code (en to
+ * ru), the text in the target script is what the translation put in place
+ * of the source text. Without a script to tell the languages apart (both
+ * written in Latin) no change passes: a localized line cannot be told from
+ * changed code.
  */
 function localizedLine(languages: {source: string; target: string}): LocalizedLine {
     const sourceScript = untranslatedMarker(languages.source, languages.target);
     const targetScript = untranslatedMarker(languages.target, languages.source);
 
-    return (source, target) =>
-        Boolean(sourceScript?.test(source)) || Boolean(targetScript?.test(target));
+    return (source, target, markers) =>
+        (sourceScript !== null && textReplaced(source, target, sourceScript, markers)) ||
+        (targetScript !== null && textReplaced(target, source, targetScript, markers));
+}
+
+// Prose: letters, numbers, spaces, punctuation of text and an apostrophe
+// inside a word (`user's`); no quotes, `$`, `;`, `|`, `&`, `<`, `=` or
+// other characters that make code.
+const PROSE = String.raw`(?:[\p{L}\p{N}\s,.:!?’«»()–—%/+-]|(?<=\p{L})'(?=\p{L}))`;
+const PROSE_TEXT = new RegExp(`^${PROSE}*$`, 'u');
+// What may join two words of a text: spaces, numbers and punctuation, not
+// a word of another script (`AS name AS` between two aliases is code).
+const TEXT_GAP = /^[\p{N}\s,.:!?’«»()–—%/+-]*$/u;
+// A string without escapes.
+const QUOTED = /"[^"\\\n]*"|'[^'\\\n]*'/g;
+
+/**
+ * Whether `other` is `line` with its text in the script replaced, the code
+ * around it as it is. The text of a comment is free, the code before it has
+ * to stay (`yt list //home # Список` for `yt list //home # List`, not for
+ * `yt ls //home # List`). Elsewhere the text is replaced, see
+ * `replacement` (`echo "Привет"` for `echo "Hello"`, not for `rm -rf /`,
+ * `printf "Hello"` or `echo "$(date)"`): the words of the script with the
+ * spaces and punctuation between them, or the whole text of a string that
+ * has them (`"Id владельца"` for `"Owner ID"`).
+ */
+function textReplaced(
+    line: string,
+    other: string,
+    script: RegExp,
+    markers: CommentMarkers,
+): boolean {
+    const comment = commentText(line, markers, script);
+    if (comment) {
+        const code = line.slice(0, comment[0]);
+        const rest = line.slice(comment[1]);
+
+        return (
+            other.length > code.length + rest.length &&
+            other.startsWith(code) &&
+            other.endsWith(rest)
+        );
+    }
+
+    const spans = textSpans(line, script);
+    if (!spans.length) {
+        return false;
+    }
+
+    // A line of text alone has no code to take along: a word may become
+    // more words (`Вход` for `Sign in`).
+    const [first] = spans;
+    const alone =
+        spans.length === 1 && !line.slice(0, first.start).trim() && !line.slice(first.end).trim();
+    let pattern = '';
+    let last = 0;
+    for (const {start, end, quoted} of spans) {
+        pattern +=
+            escapeRegExp(line.slice(last, start)) +
+            replacement(line.slice(start, end), quoted, alone);
+        last = end;
+    }
+    pattern += escapeRegExp(line.slice(last));
+
+    return new RegExp(`^${pattern}$`, 'u').test(other);
+}
+
+/**
+ * Where the text of a line comment starts and ends, undefined without one:
+ * after a marker at the start of the line, up to the end of a block comment
+ * that code follows on the line, or after the last marker before the text
+ * whose code has all its quotes closed (`x = a // 2  # Половина`, not
+ * `curl -H "X-Tag: # Тест"`). A `#` or `%` line of a shell may be a prompt
+ * (`# echo "Привет" > /etc/motd`): it is a comment when the text follows
+ * the marker right away.
+ */
+function commentText(
+    line: string,
+    markers: CommentMarkers,
+    script: RegExp,
+): [number, number] | undefined {
+    const text = line.search(script);
+    if (text < 0) {
+        return undefined;
+    }
+
+    const whole = markers.line.exec(line);
+    if (whole) {
+        const start = whole[0].length;
+        const [first = ''] = line.slice(start).trimStart();
+        const prompt = markers.prompts && (whole[1] === '#' || whole[1] === '%');
+        const close = whole[1].startsWith('/*') ? line.indexOf('*/', start) : -1;
+        if (!prompt || script.test(first)) {
+            return [start, close < 0 ? line.length : close];
+        }
+    }
+
+    const ends = [...line.matchAll(markers.after)]
+        .filter(({index}) => {
+            const code = line.slice(0, index);
+            return index < text && code.trim() !== '' && closedQuotes(code);
+        })
+        .map(({index, 0: marker}) => index + marker.length);
+
+    return ends.length ? [Math.max(...ends), line.length] : undefined;
+}
+
+function closedQuotes(code: string): boolean {
+    return ['"', "'", '`'].every((quote) => code.split(quote).length % 2 === 1);
+}
+
+type Span = {start: number; end: number; quoted: boolean};
+
+/** Spans of the text in the script, see `textReplaced`. */
+function textSpans(line: string, script: RegExp): Span[] {
+    const word = new RegExp(String.raw`(?:${script.source})(?:${script.source}|[\p{N}_’-])*`, 'gu');
+    let spans: Span[] = [];
+    for (const match of line.matchAll(word)) {
+        const start = match.index;
+        const end = start + match[0].length;
+        const previous = spans[spans.length - 1];
+        if (previous && TEXT_GAP.test(line.slice(previous.end, start))) {
+            previous.end = end;
+        } else {
+            spans.push({start, end, quoted: false});
+        }
+    }
+
+    for (const quoted of line.matchAll(QUOTED)) {
+        const from = quoted.index + 1;
+        const to = quoted.index + quoted[0].length - 1;
+        const inside = spans.filter(({start, end}) => start >= from && end <= to);
+        if (inside.length && PROSE_TEXT.test(line.slice(from, to))) {
+            spans = spans
+                .filter((span) => !inside.includes(span))
+                .concat([{start: from, end: to, quoted: true}]);
+        }
+    }
+
+    return spans.sort((a, b) => a.start - b.start);
+}
+
+/**
+ * What may stand in place of a text: prose for the text of a string,
+ * otherwise words with the spaces and punctuation the text has
+ * (`Исправление` for `Fix`, `поэлементно` for `element-wise`, not for
+ * `Fix --amend`; `Проекты` not for `Projects Archive`, another argument),
+ * with any spaces for a line of text alone.
+ */
+function replacement(text: string, quoted: boolean, alone: boolean): string {
+    if (quoted) {
+        return PROSE + '+?';
+    }
+
+    const marks = [...new Set(text.replace(/[\p{L}\p{N}]/gu, '') + (alone ? ' ' : ''))]
+        .join('')
+        .replace(/[\\\][^-]/g, String.raw`\$&`);
+
+    return String.raw`(?:[\p{L}\p{N}${marks}]|(?<=\p{L})['-](?=\p{L}))+?`;
+}
+
+function escapeRegExp(text: string): string {
+    return text.replace(/[.*+?^${}()|[\]\\/]/g, String.raw`\$&`);
 }

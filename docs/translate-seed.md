@@ -116,14 +116,26 @@ The seed keeps such pieces of the existing translation per file and the
 translate run puts them back:
 
 - a fenced code block is kept when the translation changed only text in
-  it: same fence lines and line count, and every changed line drops words
-  of the source script or brings words of the target script. A block
-  whose command changed is outdated rather than localized and follows the
-  source. Code blocks pair by position: the one that follows the same
-  aligned text block, counted from it, and is followed by text blocks that
-  agree (aligned with each other, or both without a pair). Languages written
-  in the same script keep no code blocks: a translated line cannot be told
-  from changed code.
+  it: same fence lines and line count, and in every changed line the text
+  in the source script (or, from a source written in Latin, the text in
+  the target script) is replaced and the code around it stays as it is.
+  The text of a comment is free, the code before it stays
+  (`yt list //home # Список` for `yt list //home # List`); the markers are
+  those of the block language (`#` in a shell or Python, `--` and `#` in
+  SQL, `#` and `//` elsewhere, a line of `/*` up to its end, `%` or `;`
+  too), and a `#` or `%` line of a shell or a block without a language is
+  a comment only when the text follows the marker (`# echo "Привет"` is a
+  prompt). Outside comments the whole text of a string that holds prose
+  is replaced by prose (`"Id владельца"` for `"Owner ID"`), other text by
+  words with the spaces and punctuation it has, a line of text alone by
+  any number of words: `echo "Привет"` is not localized as `rm -rf /`,
+  `echo "$(date)"` or `printf "Hello"`, `git commit -m Исправление` not as
+  `git commit -m Fix --amend`. A block whose command changed is outdated
+  rather than localized and follows the source. Code blocks pair by
+  position: the one that follows the same aligned text block, counted from
+  it, and is followed by text blocks that agree (aligned with each other,
+  or both without a pair). Languages written in the same script keep no
+  code blocks: a translated line cannot be told from changed code.
 - heading ids the translation added to an aligned line are kept after the
   ids of the source;
 - a link destination of an aligned line takes the one of the translation

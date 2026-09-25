@@ -209,6 +209,30 @@ describe('translate ai cache', () => {
                 new TranslationStore(join(tmpDir(), 't.json'), 'x', second).fragments('ru/a.md'),
             ).toEqual([fragment]);
         });
+
+        it('should drop the skeleton fragments a new seed of the file no longer finds', () => {
+            const file = join(tmpDir(), 'seed.ru-en.json');
+            const fragment = {
+                kind: 'code' as const,
+                source: '```\nНастройки\n```',
+                occurrence: 0,
+                target: '```\nSettings\n```',
+            };
+
+            const first = new SeedStore(file);
+            first.record('ru/a.md', [['Привет', 'Hi']], [fragment]);
+            first.flush();
+
+            const second = new SeedStore(file);
+            second.load();
+            second.record('ru/a.md', [['Привет', 'Hi']]);
+            second.flush();
+
+            const third = new SeedStore(file);
+            third.load();
+
+            expect(third.fragments('ru/a.md')).toEqual([]);
+        });
     });
 
     describe('SeedStore doubtful pairs', () => {

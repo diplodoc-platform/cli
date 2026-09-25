@@ -142,8 +142,11 @@ export class SeedStore {
                 this.set(text, translation);
             }
         }
+        // A new seed of the file replaces its fragments, none found included.
         if (fragments.length) {
             this.skeletons[file] = fragments;
+        } else {
+            delete this.skeletons[file];
         }
     }
 
