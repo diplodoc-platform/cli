@@ -1,5 +1,26 @@
 # Changelog
 
+## [5.63.0](https://github.com/diplodoc-platform/cli/compare/v5.62.0...v5.63.0) (2026-09-25)
+
+
+### Features
+
+* **cli:** support local code directives #DOCSTOOLS-6666 ([50f1df7](https://github.com/diplodoc-platform/cli/commit/50f1df7e0c0d59924944580169532dff4169009a))
+* **toc:** support inherited noIndex #DOCSTOOLS-4902 ([3893fb3](https://github.com/diplodoc-platform/cli/commit/3893fb3f362c6d784e21134b1e6585a6fb4250da))
+* **translate:** apply vars presets from .yfm behind --presets ([#2297](https://github.com/diplodoc-platform/cli/issues/2297)) ([2b7a899](https://github.com/diplodoc-platform/cli/commit/2b7a8998c6a62c7696b24085e0f4f5c8af1381f7))
+* **translate:** code mode option for comments and mermaid labels DOCSTOOLS-6809 ([#2291](https://github.com/diplodoc-platform/cli/issues/2291)) ([a339f33](https://github.com/diplodoc-platform/cli/commit/a339f33ae370dd11845323c78e9af3d06af2f74d))
+* **translate:** translation memory hints for changed units ([#2296](https://github.com/diplodoc-platform/cli/issues/2296)) ([deb6ef0](https://github.com/diplodoc-platform/cli/commit/deb6ef0dafab06910b4f4a8169887d5a41b93049))
+
+
+### Bug Fixes
+
+* **translate:** seed localized links, code blocks and identifiers, take link addresses from the source ([#2298](https://github.com/diplodoc-platform/cli/issues/2298)) ([5b043c6](https://github.com/diplodoc-platform/cli/commit/5b043c6024be60d6ce9c03e68296cc00857eb5cd))
+
+
+### Performance Improvements
+
+* **toc:** avoid repeated dependency traversal when filtering entries ([#2285](https://github.com/diplodoc-platform/cli/issues/2285)) ([ee76f76](https://github.com/diplodoc-platform/cli/commit/ee76f7628e1de490dd25e2ee3ef01886d687b498))
+
 ## [5.62.0](https://github.com/diplodoc-platform/cli/compare/v5.61.0...v5.62.0) (2026-09-21)
 
 
