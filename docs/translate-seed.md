@@ -51,9 +51,17 @@ request, a wrong pair puts a wrong sentence into the document.
 A link is present when the other side has a link to the same page, not a
 word of its text: the same query and section, and the same path once the
 domain and the language segments (`/en/`, `en.` in the host) are dropped.
-A variable in the path (`{{source-root}}/src/main.cpp`) matches the literal
-segments around it and needs the page after it; at the end of the path it
-may stand only for a language segment (`/docs/{{lang}}/`). Another domain
+A variable in the path (`{{source-root}}/src/main.cpp`, `{{ domain }}` with
+spaces too) matches the literal segments around it, `.` and `..` resolved.
+A language variable (a name with the word `lang`, `language`, `locale` or
+`lng`: `{{lang}}`, `{{ui-lang}}`) stands for a language segment or for none
+(`/docs/{{lang}}/` for `/docs/ru/` and `/docs/`). A variable in a segment
+stands for one segment around its literal parts (`v{{version}}` for `v2`).
+Any other variable stands for at least one segment, `..` only at the start
+of the path: `/docs/{{section}}/install.md` is not `/docs/install.md`. A
+variable in the page (`/docs/{{page}}`, `/docs/{{page}}.md`) or for the
+whole address says nothing about the page, unless it is a language
+(`graph-{{lang}}.png`). Another domain
 counts only when it differs in the top-level domain alone (`example.com`
 and `example.org`, not `console.example.com` and `example.com`, not
 `github.com` and `gitlab.com`); ports and addresses have to match. The source path may

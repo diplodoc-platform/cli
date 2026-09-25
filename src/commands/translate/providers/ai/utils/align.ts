@@ -50,6 +50,10 @@ const REFERENCE = /^\s*\[[^\]]+\]:\s*<?([^\s<>]+)>?(?:\s|$)/;
 const ADDRESS = /^(?:[a-z][a-z\d+.-]*:\/\/|\.{0,2}\/|#)/i;
 const FILE_NAME = /\.[a-z][a-z\d]{0,4}$/i;
 const BARE_URL = /\bhttps?:\/\/[^\s<>"')]+/g;
+// A variable, `{{ domain }}` with spaces too; its name is `[\w.-]+`.
+const VARIABLE = /\{\{\s*[\w.-]+\s*\}\}/g;
+const WHOLE_VARIABLE = /^\{\{\s*[\w.-]+\s*\}\}$/;
+const LANGUAGE_NAMES = new Set(['lang', 'language', 'locale', 'lng']);
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
 // Scheme and host of an absolute link, the scheme optional (`//host/...`):
@@ -110,7 +114,8 @@ export type LinkRelation = 'same' | 'nested' | 'other';
  * reference definitions and bare urls of its text.
  */
 export function unitLinks(unit: string): string[] {
-    const text = unwrap(unit);
+    // Spaces inside a variable would end the link at `{{`.
+    const text = unwrap(unit).replace(VARIABLE, (variable) => variable.replace(/\s+/g, ''));
     const plain = text.replace(TAG, ' ').replace(/&amp;/g, '&').replace(ENTITY, ' ');
     const urls = new Set<string>();
 
@@ -207,8 +212,8 @@ export function linkRelation(source: string, target: string, languages: string[]
         return 'other';
     }
 
-    if (from.variable >= 0 || to.variable >= 0) {
-        return variableMatch(from, to) ? 'same' : 'other';
+    if (from.variables.length || to.variables.length) {
+        return variableMatch(from, to, languageCodes(languages)) ? 'same' : 'other';
     }
 
     if (from.segments.join('/') === to.segments.join('/')) {
@@ -223,28 +228,37 @@ export function linkRelation(source: string, target: string, languages: string[]
 type LinkParts = {
     /** Host as a site, see `linkHost`; empty for a relative link. */
     host: string;
-    /** Path segments without the language ones. */
+    /** Path segments without the language ones, `.` and `..` resolved. */
     segments: string[];
-    /** Index of the only variable segment, -1 without one. */
-    variable: number;
+    /** Indexes of the segments with a variable. */
+    variables: number[];
     /** Query and section. */
     rest: string;
 };
 
+function languageCodes(languages: string[]): Set<string> {
+    return new Set(languages.map((language) => language.slice(0, 2).toLowerCase()));
+}
+
 function linkParts(url: string, languages: string[]): LinkParts {
     const query = url.search(/[?#]/);
     const end = query < 0 ? url.length : query;
-    const codes = new Set(languages.map((language) => language.slice(0, 2).toLowerCase()));
-    const segments = url
-        .slice(0, end)
-        .replace(ORIGIN, '')
-        .split('/')
-        .filter((segment) => {
-            const language = LANGUAGE.exec(segment)?.[1];
+    const codes = languageCodes(languages);
+    const path: string[] = [];
+    for (const segment of url.slice(0, end).replace(ORIGIN, '').split('/')) {
+        const previous = path[path.length - 1];
+        // `..` takes away a literal segment, not a variable (`{{root}}/..`).
+        if (segment === '..' && previous && previous !== '..' && !previous.includes('{{')) {
+            path.pop();
+        } else if (segment && segment !== '.') {
+            path.push(segment);
+        }
+    }
+    const segments = path.filter((segment) => {
+        const language = LANGUAGE.exec(segment)?.[1];
 
-            return segment && !(language && codes.has(language.toLowerCase()));
-        });
-    const variables = segments.filter((segment) => segment.includes('{{'));
+        return !(language && codes.has(language.toLowerCase()));
+    });
 
     return {
         // A language subdomain (`en.wikipedia.org`) is a language segment
@@ -254,7 +268,7 @@ function linkParts(url: string, languages: string[]): LinkParts {
             (label, code: string) => (codes.has(code) ? '' : label),
         ),
         segments,
-        variable: variables.length === 1 ? segments.indexOf(variables[0]) : -1,
+        variables: segments.flatMap((segment, index) => (segment.includes('{{') ? [index] : [])),
         rest: url.slice(end),
     };
 }
@@ -278,33 +292,103 @@ function nestedPaths(a: string, b: string, languages: string[]): boolean {
 }
 
 /**
- * Whether the paths match around a variable. With a variable on both sides
- * it has to be the same variable with the same segments around it. With
- * one on one side the segments before it have to start the other path and
- * the segments after it, the page at least, have to end it.
+ * Whether the paths match around a variable: equal, or with one variable
+ * segment on one side only, the segments before it start the other path and
+ * the segments after it end it. What it may stand for in between, see
+ * `standsFor`.
  */
-function variableMatch(from: LinkParts, to: LinkParts): boolean {
-    if (from.variable >= 0 && to.variable >= 0) {
-        return from.segments.join('/') === to.segments.join('/');
+function variableMatch(from: LinkParts, to: LinkParts, codes: Set<string>): boolean {
+    if (from.segments.join('/') === to.segments.join('/')) {
+        return true;
+    }
+    if (from.variables.length + to.variables.length !== 1) {
+        return false;
     }
 
-    const [pattern, path] = from.variable >= 0 ? [from, to] : [to, from];
-    const before = pattern.segments.slice(0, pattern.variable);
-    const after = pattern.segments.slice(pattern.variable + 1);
-
-    // A variable at the end may stand only for a language segment dropped
-    // on the other side (`/docs/{{lang}}/`), and only after a literal
-    // segment; a variable for the whole address (`{{link-console}}`) or
-    // for a page (`/docs/{{page}}`) says nothing about the page.
-    if (!after.length) {
-        return before.length > 0 && path.segments.join('/') === before.join('/');
-    }
+    const [pattern, path] = from.variables.length ? [from, to] : [to, from];
+    const index = pattern.variables[0];
+    const before = pattern.segments.slice(0, index);
+    const after = pattern.segments.slice(index + 1);
+    const gap = path.segments.length - before.length - after.length;
 
     return (
-        before.length + after.length <= path.segments.length &&
-        path.segments.slice(0, before.length).join('/') === before.join('/') &&
-        path.segments.slice(path.segments.length - after.length).join('/') === after.join('/')
+        gap >= 0 &&
+        path.segments.slice(0, index).join('/') === before.join('/') &&
+        path.segments.slice(index + gap).join('/') === after.join('/') &&
+        standsFor(pattern.segments[index], path.segments.slice(index, index + gap), {
+            first: index === 0,
+            last: !after.length,
+            alone: pattern.segments.length === 1,
+            codes,
+        })
     );
+}
+
+/**
+ * Whether a variable segment may stand for these segments of the other path.
+ * A language variable stands for a language segment, dropped with the
+ * others, or for none, the default language (`/docs/{{lang}}/install.md`
+ * for `/docs/ru/install.md` and `/docs/install.md`). A variable in a segment
+ * stands for one segment around its literal parts (`v{{version}}` for `v2`).
+ * Any other one stands for at least one segment, `..` only at the start
+ * (`{{root}}`). A variable in the page (`/docs/{{page}}`,
+ * `/docs/{{page}}.md`) or for the whole address (`{{link-console}}`) says
+ * nothing about the page, unless it is a language (`graph-{{lang}}.png`).
+ */
+function standsFor(
+    variable: string,
+    segments: string[],
+    {
+        first,
+        last,
+        alone,
+        codes,
+    }: {first: boolean; last: boolean; alone: boolean; codes: Set<string>},
+): boolean {
+    if (WHOLE_VARIABLE.test(variable)) {
+        if (isLanguageVariable(variable)) {
+            return !segments.length && !alone;
+        }
+
+        return !last && segments.length > 0 && (first || !segments.includes('..'));
+    }
+
+    const variables = variable.match(VARIABLE) ?? [];
+
+    return (
+        segments.length === 1 &&
+        (!last || variables.every(isLanguageVariable)) &&
+        segmentPattern(variable, codes).test(segments[0])
+    );
+}
+
+function isLanguageVariable(variable: string): boolean {
+    return variable
+        .replace(/[{}\s]/g, '')
+        .toLowerCase()
+        .split(/[-_.]/)
+        .some((word) => LANGUAGE_NAMES.has(word));
+}
+
+/**
+ * A segment with variables as a pattern for the segment it stands for, a
+ * language variable for a code of the languages with an upper case region
+ * (`ru`, `RU`, `ru-RU`, not `en-ok`).
+ */
+function segmentPattern(segment: string, codes: Set<string>): RegExp {
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+    const language =
+        '(?:' +
+        [...codes].flatMap((code) => [code, code.toUpperCase()]).join('|') +
+        ')(?:[-_][A-Z]{2})?';
+    const literals = segment.split(VARIABLE).map(escape);
+    const variables = segment.match(VARIABLE) ?? [];
+    const pattern = literals.reduce(
+        (result, literal, index) =>
+            result + (isLanguageVariable(variables[index - 1]) ? language : '.+') + literal,
+    );
+
+    return new RegExp('^' + pattern + '$');
 }
 
 /**

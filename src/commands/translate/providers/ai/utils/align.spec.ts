@@ -73,6 +73,12 @@ describe('translate seed alignment', () => {
                     'https://example.com/docs/api/v5/changes/check.html',
                     'https://example.org/docs/api/changes/check.html',
                 ],
+                // A variable with spaces is a part of the link, not its end.
+                [
+                    'https://example.{{ domain }}/docs/frequency.html',
+                    'https://example.{{ domain }}/docs/geo.html',
+                ],
+                ['{{ link-billing }}/accounts', '{{ link-console }}/folders'],
             ])('should tell %j from %j', (from, to) => {
                 expect(unitAnchors(link(from), EN_RU)).not.toEqual(unitAnchors(link(to), EN_RU));
             });
@@ -415,6 +421,39 @@ describe('translate seed links and prose', () => {
             ['{{root}}/en', 'https://any.example.net/ru'],
             ['{{link}}#setup', 'https://other.example.net/#setup'],
             ['/docs/{{page}}', '/docs/admin/upgrade.md'],
+            // Only a language variable stands for a language or for nothing.
+            ['/docs/{{page}}', '/docs'],
+            ['/docs/{{page}}', '/docs/'],
+            ['/docs/{{page}}', '/docs/ru/'],
+            ['/docs/ru/{{page}}', '/docs/en/'],
+            ['/docs/{{section}}/install.md', '/docs/install.md'],
+            ['/docs/{{section}}/install.md', '/docs/ru/install.md'],
+            ['{{root}}/install.md', 'install.md'],
+            ['/guide/{{lang}}/install.md', '/guide/admin/install.md'],
+            ['{{langchain-docs}}/install.md', 'install.md'],
+            // `.` and `..` stand for nothing.
+            ['{{root}}/install.md', './install.md'],
+            ['/docs/{{section}}/install.md', '/docs/./install.md'],
+            ['docs/{{section}}/install.md', 'docs/../install.md'],
+            ['../{{section}}/install.md', '../../install.md'],
+            ['/docs/ru/../install.md', '/install.md'],
+            // A variable in a segment keeps the rest of the segment.
+            ['/docs/install-{{os}}.md', '/docs/ru/'],
+            ['/docs/v{{version}}/install.md', '/docs/admin/install.md'],
+            ['/docs/v{{version}}/install.md', '/docs/v2/admin/install.md'],
+            // A variable in the page leaves nothing of it but a language.
+            ['/docs/{{page}}.md', '/docs/upgrade.md'],
+            ['{{page}}.md', 'install.md'],
+            ['https://example.com/download/{{os}}.html', 'https://example.com/download/index.html'],
+            ['/docs/install-{{lang}}.md', '/docs/install-admin.md'],
+            ['/docs/sdk-{{lang}}.md', '/docs/sdk-go.md'],
+            ['/img/{{lang}}-{{locale}}.png', '/img/qa-db.png'],
+            ['/img/graph-{{lang}}.png', '/img/graph-en-ok.png'],
+            // `..` does not take a variable away.
+            ['{{root}}/../install.md', 'install.md'],
+            // A variable of the other link is not a literal segment.
+            ['{{root}}/{{section}}/install.md', '{{root}}/install.md'],
+            ['/docs/{{a}}/{{b}}/x.md', '/docs/{{c}}/x.md'],
             // Other sites: subdomains, shared suffixes, addresses and ports.
             ['https://console.example.com/', 'https://example.com/'],
             ['https://docs.example.com/install.html', 'https://blog.example.com/install.html'],
@@ -440,6 +479,21 @@ describe('translate seed links and prose', () => {
             ['https://en.example.org/wiki/MD5', 'https://ru.example.org/wiki/MD5'],
             ['https://example.com:443/docs/x.md', 'https://example.com/docs/x.md'],
             ['https://example.com/docs/{{lang}}/', 'https://example.com/docs/ru/'],
+            ['/guide/{{lang}}/install.md', '/guide/ru/install.md'],
+            ['{{lang}}/install.md', 'ru/install.md'],
+            ['/docs/{{ lang }}/install.md', '/docs/ru/install.md'],
+            ['/docs/{{locale}}/install.md', '/docs/ru-ru/install.md'],
+            // A site keeps the pages of its default language without a segment.
+            ['https://example.com/docs/{{lang}}/sql/x.md', 'https://example.com/docs/sql/x.md'],
+            ['/docs/v{{version}}/install.md', '/docs/v2/install.md'],
+            ['./install.md', 'install.md'],
+            ['docs/admin/../install.md', 'docs/install.md'],
+            ['/docs/ru/../install.md', '/docs/install.md'],
+            ['/docs/{{ui-lang}}/install.md', '/docs/ru/install.md'],
+            ['/docs/{{lang.code}}/install.md', '/docs/ru/install.md'],
+            ['/img/graph-{{lang}}.png', '/img/graph-ru.png'],
+            ['/img/graph-{{lang}}.png', '/img/graph-RU.png'],
+            ['/img/graph-{{locale}}.png', '/img/graph-ru-RU.png'],
         ])('should take source %j and translation %j for the same page', (source, target) => {
             expect(linkRelation(source, target, EN_RU)).toBe('same');
         });

@@ -573,6 +573,9 @@ describe('translate seed pairs that must not be reused', () => {
         ['a variable path with another tail', '{{root}}/admin/install.md', '{{root}}/install.md'],
         ['another variable', '{{admin-root}}/install.md', '{{user-root}}/install.md'],
         ['a variable after another prefix', '/docs/admin/install.md', '/guide/{{lang}}/install.md'],
+        ['a page as a variable', '/docs/{{page}}', '/docs'],
+        ['a section for a page as a variable', '/docs', '/docs/{{page}}'],
+        ['a page as a variable in a segment', 'changelog/{{version}}.md', 'changelog/2-1.md'],
         [
             'another site of the same path',
             'https://github.com/o/r/a.md',
@@ -691,10 +694,27 @@ describe('translate seed pairs that must not be reused', () => {
             'Text with a [ref] link.\n\n[ref]: /en/admin/install.md\n',
             'Текст со [ссылкой][ref].\n\n[ref]: /ru/user/install.md\n',
         ],
+        [
+            'an autolink between variable braces',
+            'Open with `{{`, see <https://example.com/en/admin/install>, and close with `}}`.\n',
+            'Откройте `{{`, см. <https://example.com/ru/user/upgrade>, и закройте `}}`.\n',
+        ],
     ])('should not reuse %s to another page', (_, source, translation) => {
         const result = alignTranslationUnits(extracted(source), extracted(translation), EN_RU);
         const linked = /install\.md|example\.com/;
 
         expect(result.pairs.filter(([text]) => linked.test(text))).toEqual([]);
+    });
+
+    it('should not take links with spaced variables for one link', () => {
+        const url = (page: string) =>
+            `https://example.{{ domain }}/docs/${page}.html?lang={{ lang }}`;
+        const source =
+            `Limit the views with [frequency](${url('frequency')}).\n\n` +
+            `Pick the countries with [geo](${url('geo')}).\n`;
+        const translation = `Выберите страны через [геотаргетинг](${url('geo')}).\n`;
+        const result = alignTranslationUnits(extracted(source), extracted(translation), EN_RU);
+
+        expect(result.pairs.filter(([text]) => text.includes('frequency'))).toEqual([]);
     });
 });
