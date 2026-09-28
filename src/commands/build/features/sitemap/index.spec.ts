@@ -1,6 +1,7 @@
 import type {Build, Run} from '~/commands/build';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {join} from 'node:path';
 
 const captures = vi.hoisted(() => {
     const state = {
@@ -67,7 +68,8 @@ function createMockRun(options: MockRunOptions = {}): Run {
             dump: vi.fn().mockResolvedValue({}),
         },
         read: vi.fn().mockImplementation((path: string) => {
-            const file = Object.keys(options.files ?? {}).find((name) => path.endsWith(name));
+            const normalized = path.replace(/\\/g, '/');
+            const file = Object.keys(options.files ?? {}).find((name) => normalized.endsWith(name));
 
             return file ? (options.files as Record<string, string>)[file] : '';
         }),
@@ -133,7 +135,7 @@ describe('Sitemap generation', () => {
         await afterRun()(run);
 
         expect(run.write).toHaveBeenCalledTimes(1);
-        expect(vi.mocked(run.write).mock.calls[0][0]).toBe('/output/sitemap.xml');
+        expect(vi.mocked(run.write).mock.calls[0][0]).toBe(join('/output', 'sitemap.xml'));
         expect(vi.mocked(run.write).mock.calls[0][1] as string).toContain(
             '<loc>https://example.com/docs/ru/guide.html</loc>',
         );
