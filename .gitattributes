@@ -7,7 +7,7 @@
 *.mjs text eol=lf
 *.cjs text eol=lf
 *.jsx text eol=lf
-*.ts text eol=lf
+*.ts text eol=lf diff
 *.tsx text eol=lf
 *.json text eol=lf
 *.yml text eol=lf
@@ -29,6 +29,4 @@
 *.woff2 binary
 *.ttf binary
 *.eot binary
-
-
 
