@@ -43,6 +43,35 @@ const createMockService = (relationsMock: RelationsMock): EntryService => {
 
 describe('EntryService', () => {
     describe('state', () => {
+        it.each([false, true])(
+            'sets Markdown actions from companion availability when mdCompanions is %s',
+            async (mdCompanions) => {
+                const service = new EntryService({
+                    config: {
+                        langs: ['en'],
+                        analytics: {},
+                        ai: {mdCompanions},
+                        interface: {markdownActions: 'visible'},
+                    },
+                } as never);
+
+                const state = await service.state('en/page.md' as never, {
+                    leading: false,
+                    html: '<p>Page</p>',
+                    headings: [],
+                    meta: {
+                        vcsPath: 'en/page.md' as NormalizedPath,
+                        interface: {markdownActions: 'dropdown'},
+                    },
+                    title: 'Page',
+                });
+
+                expect(state.viewerInterface.markdownActions).toBe(
+                    mdCompanions ? 'dropdown' : 'none',
+                );
+            },
+        );
+
         it('keeps technical tags in internal page metadata', async () => {
             const service = new EntryService({
                 config: {
