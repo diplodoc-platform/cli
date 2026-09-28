@@ -89,6 +89,55 @@ describe('stripAddedMarkup', () => {
         });
     });
 
+    it('should strip emphasis the model adds inside a plain fragment', () => {
+        expect(
+            stripAddedMarkup(
+                'TCP connection setup - the client and server establish a connection.',
+                '**Установка TCP-соединения** - клиент и сервер устанавливают соединение.',
+            ),
+        ).toEqual({
+            text: 'Установка TCP-соединения - клиент и сервер устанавливают соединение.',
+            stripped: 2,
+        });
+    });
+
+    it('should strip underscore strong emphasis the model adds inside a plain fragment', () => {
+        expect(stripAddedMarkup('Plain label - details.', '__Обычная метка__ - детали.')).toEqual({
+            text: 'Обычная метка - детали.',
+            stripped: 2,
+        });
+    });
+
+    it('should keep double underscores inside an identifier', () => {
+        expect(
+            stripAddedMarkup('Use an identifier here.', 'Используйте foo__bar__baz здесь.'),
+        ).toEqual({
+            text: 'Используйте foo__bar__baz здесь.',
+            stripped: 0,
+        });
+    });
+
+    it('should not treat Unicode symbols as CommonMark punctuation', () => {
+        expect(stripAddedMarkup('Plain source.', 'Цена €__price__€ здесь.')).toEqual({
+            text: 'Цена €__price__€ здесь.',
+            stripped: 0,
+        });
+    });
+
+    it('should keep strong-looking markers inside inline code', () => {
+        expect(stripAddedMarkup('Use a path here.', 'Используйте `**/foo/**` здесь.')).toEqual({
+            text: 'Используйте `**/foo/**` здесь.',
+            stripped: 0,
+        });
+    });
+
+    it('should strip every balanced strong pair without changing its boundaries', () => {
+        expect(stripAddedMarkup('Plain source.', '**outer **inner** tail**')).toEqual({
+            text: 'outer inner tail',
+            stripped: 4,
+        });
+    });
+
     it('should strip underscore emphasis the same way', () => {
         const source = `Note:${'<x ctype="italic_close" equiv-text="_" id="x-1"/>'} read it`;
 
@@ -465,6 +514,16 @@ describe('stripAddedMarkup over real extract and compose', () => {
         const {dirty, repaired} = repair(doc, wrapMarkers);
 
         expect(dirty).toContain('****');
+        expect(repaired).toBe(doc);
+    });
+
+    it('should preserve a plain numbered item when the model emphasizes its label', () => {
+        const doc = '1. TCP connection setup - the client and server establish a connection.\n';
+        const {dirty, repaired} = repair(doc, (text) =>
+            text.replace('TCP connection setup', '**TCP connection setup**'),
+        );
+
+        expect(dirty).toContain('1. **TCP connection setup**');
         expect(repaired).toBe(doc);
     });
 
