@@ -16,7 +16,7 @@ const snapshot = (before: string, after: string, target: string): Snapshot => ({
     sourceAfter: after,
     targetBefore: target,
 });
-describe('atomic incremental translation', () => {
+describe('independent incremental edits', () => {
     it('requests only the changed heading and preserves unrelated text', async () => {
         const requests: string[] = [];
         const result = await runUpdate(
@@ -34,7 +34,7 @@ describe('atomic incremental translation', () => {
         expect(result.output).toBe('# New title\r\n\r\nHuman-only `code`');
         expect(result.applied).toBe(1);
     });
-    it('rejects the whole file when the second fragment fails', async () => {
+    it('keeps a successful edit and reports the failed independent fragment', async () => {
         let calls = 0;
         const result = await runUpdate(
             snapshot(
@@ -47,9 +47,9 @@ describe('atomic incremental translation', () => {
                     ? {text: '# New', diagnostics: []}
                     : {text: '', diagnostics: [{code: 'invalid_output', message: 'broken markup'}]},
         );
-        expect(result.output).toBeNull();
-        expect(result.applied).toBe(0);
-        expect(result.rejected).toBe(2);
+        expect(result.output).toBe('# New\n\nKeep `stable`\n\nOld `x`');
+        expect(result.applied).toBe(1);
+        expect(result.rejected).toBe(1);
     });
     it('never sends ambiguous content to the provider', async () => {
         let calls = 0;
@@ -126,6 +126,6 @@ it('does not silently skip whitespace changes inside inline code', async () => {
         snapshot('Use `a b`.', 'Use `a  b`.', 'Use `a b`.'),
         async (request) => ({text: request.sourceAfter, diagnostics: []}),
     );
-    expect(result.output).toBeNull();
-    expect(result.diagnostics.length).toBeGreaterThan(0);
+    expect(result.output).toBe('Use `a  b`.');
+    expect(result.diagnostics).toEqual([]);
 });

@@ -158,7 +158,9 @@ export class Provider {
         );
         report.setUpdates(results);
         for (const result of results) {
-            if (result.diagnostics.length) {
+            if (result.diagnostics.length && result.applied) {
+                stat.filesPartial++;
+            } else if (result.diagnostics.length) {
                 stat.filesFailed++;
             } else if (result.applied) {
                 stat.filesTranslated++;
@@ -1251,7 +1253,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         const context =
             describeDocument(path, docContext) +
             (docContext?.update
-                ? `\nReference context only, never translate these reference fields: ${JSON.stringify(docContext.update)}`
+                ? `\nApply only the source change to the previous translation. Preserve its wording and target-only information wherever the source did not change; do not backfill historical differences. Reference context only, never translate these reference fields: ${JSON.stringify(docContext.update)}`
                 : '');
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];

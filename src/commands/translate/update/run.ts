@@ -6,7 +6,7 @@ import {extract} from '../utils/translate';
 import {protectedPattern, tokenKind} from './protected';
 import {planUpdate} from './plan';
 import {applyTargetEdits} from './apply';
-import {extractRawBlocks} from './ranges';
+import {blockShape, extractRawBlocks} from './ranges';
 export type FragmentRequest = {
     path?: string;
     sourceBefore: string;
@@ -24,17 +24,16 @@ export type UpdateResult = {
     rejected: number;
     diagnostics: UpdateDiagnostic[];
 };
-function tokens(text: string) {
+function tokens(text: string): string[] {
     return text.match(protectedPattern) ?? [];
 }
 function localize(change: PlannedChange): string {
     const before = tokens(change.sourceBefore);
-    const after = tokens(change.sourceAfter);
     const target = tokens(change.previousTranslation);
     if (!change.sourceBefore || !change.sourceAfter) {
         return change.sourceAfter;
     }
-    if (JSON.stringify(before) !== JSON.stringify(after) || before.length !== target.length) {
+    if (before.length !== target.length) {
         throw new Error(
             'Protected inline structure changed or has no unique target correspondence',
         );
@@ -49,10 +48,12 @@ function localize(change: PlannedChange): string {
     ) {
         throw new Error('Localized inline pieces are reordered or have ambiguous correspondence');
     }
-    let index = 0;
-    return change.sourceAfter.replace(protectedPattern, () => target[index++]);
+    return change.sourceAfter.replace(protectedPattern, (token) => {
+        const index = before.indexOf(token);
+        return index < 0 ? token : target[index];
+    });
 }
-/** Translate only authorized ranges; any failed fragment rejects the complete file. */
+/** Translate only authorized ranges; independent failed fragments remain unchanged and are reported. */
 export async function runUpdate(
     snapshot: Snapshot,
     translate: FragmentTranslator,
@@ -61,90 +62,121 @@ export async function runUpdate(
     if (!plan.ok) {
         return {output: null, planned: 0, applied: 0, rejected: 1, diagnostics: [plan.diagnostic]};
     }
-    const count = plan.changes.length;
-    const reject = (diagnostics: UpdateDiagnostic[]): UpdateResult => ({
-        output: null,
-        planned: count,
-        applied: 0,
-        rejected: count,
-        diagnostics,
-    });
-    try {
-        for (const change of plan.changes) {
-            if (!change.sourceBefore) continue;
-            const options = {
-                compact: true,
-                unitLocalIds: true,
-                source: {language: snapshot.entry.sourcePath.split('/')[0], locale: 'RU'},
-                target: {language: snapshot.entry.targetPath.split('/')[0], locale: 'US'},
-            };
-            const before = extract(change.sourceBefore, options);
-            const target = extract(change.previousTranslation, options);
-            if (
-                before.warnings.length ||
-                target.warnings.length ||
-                before.units.length !== target.units.length
-            ) {
-                return reject([
-                    {
+    const count = plan.changes.length + (plan.rejected ?? 0);
+    const diagnostics = [...(plan.diagnostics ?? [])];
+    let rejected = plan.rejected ?? 0;
+    const edits = [];
+    for (const change of plan.changes) {
+        const diagnosticStart = diagnostics.length;
+        try {
+            if (change.literalOutput !== undefined) {
+                edits.push({
+                    ...change.target,
+                    expected: change.expected,
+                    replacement: change.literalOutput,
+                });
+                continue;
+            }
+            if (change.sourceBefore) {
+                const options = {
+                    compact: true,
+                    unitLocalIds: true,
+                    source: {language: snapshot.entry.sourcePath.split('/')[0], locale: 'RU'},
+                    target: {language: snapshot.entry.targetPath.split('/')[0], locale: 'US'},
+                };
+                const before = extract(change.sourceBefore, options),
+                    target = extract(change.previousTranslation, options);
+                if (
+                    before.warnings.length ||
+                    target.warnings.length ||
+                    before.units.length !== target.units.length
+                ) {
+                    diagnostics.push({
                         code: 'target_alignment_conflict',
                         message:
                             'Source and target paragraph units differ; target-only explanations cannot be safely replaced',
-                    },
-                ]);
+                    });
+                    rejected++;
+                    continue;
+                }
             }
-        }
-        // Validate every correspondence before starting provider work.
-        const localized = plan.changes.map(localize);
-        const edits = [];
-        for (const [index, change] of plan.changes.entries()) {
-            const sourceAfter = localized[index];
+            const sourceAfter = localize(change);
             const result = sourceAfter
                 ? await translate({...change, sourceAfter, path: snapshot.entry.sourcePath})
                 : {text: '', diagnostics: []};
             if (result.diagnostics.length) {
-                return reject(result.diagnostics);
+                diagnostics.push(...result.diagnostics);
+                rejected++;
+                continue;
             }
-            const blocks = extractRawBlocks(result.text);
-            const expected = extractRawBlocks(sourceAfter);
+            const blocks = extractRawBlocks(result.text),
+                expected = extractRawBlocks(sourceAfter);
             if (
                 sourceAfter &&
-                (blocks.length !== 1 ||
-                    blocks[0].kind === 'opaque' ||
-                    blocks[0].kind !== expected[0]?.kind ||
+                (blocks.length !== expected.length ||
+                    blocks.some(
+                        (block, index) =>
+                            blockShape(block) !== blockShape(expected[index]) ||
+                            (block.kind === 'opaque' && block.text !== expected[index].text) ||
+                            JSON.stringify(block.container) !==
+                                JSON.stringify(expected[index].container),
+                    ) ||
                     result.text.trim() !== result.text ||
                     JSON.stringify(tokens(result.text)) !== JSON.stringify(tokens(sourceAfter)))
             ) {
-                return reject([
-                    {
-                        code: 'invalid_output',
-                        message: 'Translated fragment changed its protected structure',
-                    },
-                ]);
+                diagnostics.push({
+                    code: 'invalid_output',
+                    message: 'Translated fragment changed its protected structure',
+                });
+                rejected++;
+                continue;
             }
             let replacement = result.text;
             if (change.insertion) {
                 const newline = snapshot.targetBefore!.includes('\r\n') ? '\r\n' : '\n';
-                const atEnd = change.target.start === snapshot.targetBefore!.length;
-                replacement = atEnd
-                    ? `${snapshot.targetBefore!.endsWith(newline + newline) ? '' : newline + newline}${replacement}`
-                    : `${replacement}${newline}${newline}`;
+                const separator = (change.separator ?? '\n\n').replace(/\n/g, newline);
+                replacement =
+                    change.insertionSide === 'after'
+                        ? `${separator}${replacement}`
+                        : `${replacement}${separator}`;
             }
             edits.push({...change.target, expected: change.expected, replacement});
-        }
-        return {
-            output: applyTargetEdits(snapshot.targetBefore!, edits),
-            planned: count,
-            applied: count,
-            rejected: 0,
-            diagnostics: [],
-        };
-    } catch (error) {
-        return reject([
-            {
+        } catch (error) {
+            diagnostics.push({
                 code: 'invalid_output',
                 message: error instanceof Error ? error.message : String(error),
-            },
-        ]);
+            });
+            rejected++;
+        } finally {
+            for (let index = diagnosticStart; index < diagnostics.length; index++) {
+                diagnostics[index] = {
+                    ...diagnostics[index],
+                    message: `Source line ${change.sourceLine}: ${diagnostics[index].message}`,
+                };
+            }
+        }
+    }
+    try {
+        return {
+            output:
+                edits.length || !rejected ? applyTargetEdits(snapshot.targetBefore!, edits) : null,
+            planned: count,
+            applied: edits.length,
+            rejected,
+            diagnostics,
+        };
+    } catch (error) {
+        return {
+            output: null,
+            planned: count,
+            applied: 0,
+            rejected: count,
+            diagnostics: [
+                {
+                    code: 'invalid_output',
+                    message: error instanceof Error ? error.message : String(error),
+                },
+            ],
+        };
     }
 }

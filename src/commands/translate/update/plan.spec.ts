@@ -59,7 +59,11 @@ describe('source delta planner', () => {
                 '# Релизы\n\n## 25.3\n\nРучной текст',
             ),
         );
-        expect(plan).toMatchObject({ok: false});
+        expect(plan.ok).toBe(true);
+        if (plan.ok)
+            expect(plan.changes.map((change) => change.sourceAfter).join('')).toBe(
+                '## 26.1\n\nNew',
+            );
     });
     it('rejects changed YFM containers rather than rewriting the file', () => {
         expect(
@@ -70,7 +74,7 @@ describe('source delta planner', () => {
                     'Localized',
                 ),
             ),
-        ).toMatchObject({ok: false, diagnostic: {code: 'unsupported_structure'}});
+        ).toMatchObject({ok: false, diagnostic: {code: 'target_alignment_conflict'}});
     });
     it('deletes only a uniquely anchored paragraph', () => {
         expect(

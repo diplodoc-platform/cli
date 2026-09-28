@@ -37,11 +37,9 @@ describe('raw target edits', () => {
             expect(input.slice(block.start, block.end)).toBe(block.text);
         }
     });
-    it('keeps YFM containers opaque', () => {
+    it('keeps YFM container delimiters separate from prose', () => {
         expect(
-            extractRawBlocks('{% cut "Title" %}\n\nText\n\n{% endcut %}').every(
-                (b) => b.kind === 'opaque',
-            ),
-        ).toBe(true);
+            extractRawBlocks('{% cut "Title" %}\n\nText\n\n{% endcut %}').map((b) => b.kind),
+        ).toEqual(['marker', 'paragraph', 'marker']);
     });
 });

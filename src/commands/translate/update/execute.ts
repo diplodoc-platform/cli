@@ -56,10 +56,10 @@ export async function executeUpdates(
                 const plan = planUpdate(snapshot);
                 result = {
                     output: null,
-                    planned: plan.ok ? plan.changes.length : 0,
+                    planned: plan.ok ? plan.changes.length + (plan.rejected ?? 0) : 0,
                     applied: 0,
-                    rejected: plan.ok ? 0 : 1,
-                    diagnostics: plan.ok ? [] : [plan.diagnostic],
+                    rejected: plan.ok ? (plan.rejected ?? 0) : 1,
+                    diagnostics: plan.ok ? (plan.diagnostics ?? []) : [plan.diagnostic],
                 };
             } else {
                 result = await runUpdate(snapshot, translate);

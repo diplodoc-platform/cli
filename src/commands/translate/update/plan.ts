@@ -3,9 +3,12 @@ import type {RawRange} from './apply';
 import type {RawBlock} from './ranges';
 
 import {normalizeProseWhitespace} from './protected';
-import {extractRawBlocks} from './ranges';
+import {balancedContainers, blockShape, extractRawBlocks} from './ranges';
+import {patchInclude, patchLinks, patchLiteralLines} from './raw-patch';
+import {correspond, unchangedBlocks} from './correspondence';
 export type PlannedChange = {
     target: RawRange;
+    sourceLine: number;
     expected: string;
     sourceBefore: string;
     sourceAfter: string;
@@ -13,9 +16,12 @@ export type PlannedChange = {
     contextBefore: string;
     contextAfter: string;
     insertion?: boolean;
+    insertionSide?: 'before' | 'after';
+    separator?: string;
+    literalOutput?: string;
 };
 export type UpdatePlan =
-    | {ok: true; changes: PlannedChange[]}
+    | {ok: true; changes: PlannedChange[]; diagnostics?: UpdateDiagnostic[]; rejected?: number}
     | {ok: false; diagnostic: UpdateDiagnostic};
 const conflict = (
     message: string,
@@ -33,126 +39,145 @@ export function planUpdate(snapshot: Snapshot): UpdatePlan {
     const before = extractRawBlocks(snapshot.sourceBefore);
     const after = extractRawBlocks(snapshot.sourceAfter);
     const target = extractRawBlocks(snapshot.targetBefore);
-    const unique = (blocks: RawBlock[]) =>
-        new Set(blocks.map((block) => block.text)).size === blocks.length;
-    if (!unique(before) || !unique(after)) {
-        return conflict('Repeated source blocks make the delta ambiguous');
-    }
-    const unchanged = before.flatMap((block, index) => {
-        const next = after.findIndex((candidate) => candidate.text === block.text);
-        return next < 0 ? [] : [{old: index, next}];
-    });
-    if (unchanged.some((pair, index) => index > 0 && pair.next <= unchanged[index - 1].next)) {
-        return conflict('Reordered source blocks are unsupported');
-    }
-    const map = (index: number): number => {
-        const block = before[index];
-        if (!block) {
-            return -1;
-        }
-        const candidates = target
-            .map((candidate, position) => ({candidate, position}))
-            .filter(({candidate}) => {
-                if (candidate.kind !== block.kind) {
-                    return false;
-                }
-                if (block.anchors.length) {
-                    return block.anchors.some((anchor) => candidate.anchors.includes(anchor));
-                }
-                return (
-                    /^# /.test(block.text) &&
-                    /^# /.test(candidate.text) &&
-                    before.filter((item) => /^# /.test(item.text)).length === 1
-                );
-            });
-        if (candidates.length !== 1) {
-            return -1;
-        }
-        const chosen = candidates[0];
-        // A target anchor shared by several source blocks is not an identity.
-        if (
-            block.anchors.length &&
-            before.some(
-                (other, position) =>
-                    position !== index &&
-                    other.anchors.some((anchor) => chosen.candidate.anchors.includes(anchor)),
-            )
-        ) {
-            return -1;
-        }
-        return chosen.position;
-    };
+    const mapping = correspond(before, target);
+    const map = (index: number) => mapping.get(index) ?? -1;
+    const unchanged = unchangedBlocks(before, after);
     const changes: PlannedChange[] = [];
+    const diagnostics: UpdateDiagnostic[] = [];
+    let rejected = 0;
     const matches = [{old: -1, next: -1}, ...unchanged, {old: before.length, next: after.length}];
-    for (let index = 1; index < matches.length; index++) {
-        const left = matches[index - 1];
-        const right = matches[index];
-        const removed = before.slice(left.old + 1, right.old);
-        const added = after.slice(left.next + 1, right.next);
-        if (!removed.length && !added.length) {
-            continue;
-        }
-        if ([...removed, ...added].some((block) => block.kind === 'opaque')) {
+    const replacement = (oldIndex: number, nextIndex: number | null): UpdatePlan | null => {
+        const old = before[oldIndex],
+            updated = nextIndex === null ? undefined : after[nextIndex];
+
+        if (normalizeProseWhitespace(old.text) === normalizeProseWhitespace(updated?.text ?? ''))
+            return null;
+        const mapped = map(oldIndex);
+        if (mapped < 0) return conflict('Changed block has no unique target correspondence');
+        if (before.filter((block) => block.text === old.text).length > 1 && !old.anchors.length)
+            return conflict('Repeated changed source block has no unique identity');
+        const block = target[mapped];
+        let literalOutput: string | undefined;
+        const links = updated ? patchLinks(old.text, updated.text, block.text) : null;
+        if (links && links.output === undefined)
+            return conflict('Changed link destination diverged in the target');
+        literalOutput = links?.output;
+        if (old.kind === 'marker' && !/{%\s*include\b/.test(old.text))
             return conflict(
-                'Changed structural container has no safe raw mapping',
+                'Container delimiters cannot be edited independently',
                 'unsupported_structure',
             );
-        }
-        if (removed.length > 1 || added.length > 1) {
-            return conflict('Multiple block repartitioning requires explicit correspondence');
-        }
-        const sourceBefore = removed[0]?.text ?? '';
-        const sourceAfter = added[0]?.text ?? '';
-        if (normalizeProseWhitespace(sourceBefore) === normalizeProseWhitespace(sourceAfter)) {
-            continue;
-        }
-        let range: RawRange;
-        let expected = '';
-        if (removed.length) {
-            const mapped = map(left.old + 1);
-            if (mapped < 0) {
-                return conflict('Changed block has no unique target anchor');
-            }
-            const block = target[mapped];
-            if (block.kind === 'opaque') {
-                return conflict('Target container cannot be replaced', 'unsupported_structure');
-            }
-            const previous = left.old >= 0 ? map(left.old) : -1;
-            const next = right.old < before.length ? map(right.old) : -1;
-            if ((previous >= 0 && previous >= mapped) || (next >= 0 && next <= mapped)) {
-                return conflict('Target block order differs from source');
-            }
-            range = {start: block.start, end: block.end};
-            expected = block.text;
-        } else {
-            const previous = left.old >= 0 ? map(left.old) : -1;
-            const next = right.old < before.length ? map(right.old) : target.length;
-            if ((left.old >= 0 && previous < 0) || next < 0 || next !== previous + 1) {
-                return conflict('Insertion boundary is missing or contains target-only blocks');
-            }
-            const start = next < target.length ? target[next].start : snapshot.targetBefore.length;
-            range = {start, end: start};
-        }
+        if (updated && old.kind === 'opaque' && /^(?:---\r?\n|\s*`{3,}|\s*~{3,})/.test(old.text))
+            literalOutput = patchLiteralLines(old.text, updated.text, block.text);
+        if (updated && old.kind === 'marker' && /{%\s*include\b/.test(old.text))
+            literalOutput = patchInclude(old.text, updated.text, block.text);
+        if ((old.kind === 'opaque' || block.kind === 'opaque') && literalOutput === undefined)
+            return conflict('Target container cannot be replaced safely', 'unsupported_structure');
+        if (updated && blockShape(old) !== blockShape(updated))
+            return conflict('Changed block structure requires explicit correspondence');
         changes.push({
-            target: range,
-            expected,
-            sourceBefore,
-            sourceAfter,
-            previousTranslation: expected,
-            contextBefore:
-                before[left.old]?.kind === 'opaque' ? '' : (before[left.old]?.text ?? ''),
-            contextAfter:
-                before[right.old]?.kind === 'opaque' ? '' : (before[right.old]?.text ?? ''),
-            insertion: !removed.length,
+            target: {start: block.start, end: block.end},
+            sourceLine: snapshot.sourceBefore!.slice(0, old.start).split(/\r?\n/).length,
+            expected: block.text,
+            sourceBefore: old.text,
+            sourceAfter: updated?.text ?? '',
+            previousTranslation: block.text,
+            contextBefore: '',
+            contextAfter: '',
+            literalOutput,
         });
+        return null;
+    };
+    const insertion = (added: RawBlock[], oldLeft: number, oldRight: number): UpdatePlan | null => {
+        if (!added.length) return null;
+        if (!balancedContainers(added.map((block) => block.text).join('\n')))
+            return conflict(
+                'Container insertion must be complete and balanced',
+                'unsupported_structure',
+            );
+        if (added.some((block) => block.kind === 'opaque' && /{%\s*if\b/.test(block.text)))
+            return conflict(
+                'Conditional insertion requires an audience-aware mapping',
+                'unsupported_structure',
+            );
+        const previous = map(oldLeft),
+            next = map(oldRight);
+        const wholeSection = added[0].kind === 'heading' || /^\s*{%\s*cut\b/.test(added[0].text);
+        if (previous < 0 && next < 0) return conflict('Insertion has no mapped boundary');
+        if (previous >= 0 && next >= 0 && next !== previous + 1)
+            return conflict('Insertion boundary contains target-only blocks');
+        if ((previous < 0 || next < 0) && !wholeSection && oldLeft >= 0 && oldRight < before.length)
+            return conflict('Insertion boundary is missing');
+        const side = next >= 0 ? 'before' : 'after';
+        const start = next >= 0 ? target[next].start : target[previous].end;
+        const raw = snapshot.sourceAfter.slice(added[0].start, added[added.length - 1].end);
+        changes.push({
+            target: {start, end: start},
+            sourceLine: snapshot.sourceAfter.slice(0, added[0].start).split(/\r?\n/).length,
+            expected: '',
+            sourceBefore: '',
+            sourceAfter: raw,
+            previousTranslation: '',
+            contextBefore: '',
+            contextAfter: '',
+            insertion: true,
+            insertionSide: side,
+            separator: added.every((b) => b.kind === 'table' || b.kind === 'list') ? '\n' : '\n\n',
+        });
+        return null;
+    };
+    const record = (failure: UpdatePlan | null) => {
+        if (failure && !failure.ok) {
+            diagnostics.push(failure.diagnostic);
+            rejected++;
+        }
+    };
+    for (let index = 1; index < matches.length; index++) {
+        const left = matches[index - 1],
+            right = matches[index];
+        const removed = before.slice(left.old + 1, right.old),
+            added = after.slice(left.next + 1, right.next);
+        if (!removed.length && !added.length) continue;
+        const diagnosticStart = diagnostics.length;
+        const sourceOffset = removed[0]?.start ?? snapshot.sourceBefore.length;
+        const sourceLine = snapshot.sourceBefore.slice(0, sourceOffset).split(/\r?\n/).length;
+        if (!removed.length) record(insertion(added, left.old, right.old));
+        else if (!added.length && removed.some((block) => block.kind === 'marker'))
+            record(
+                conflict(
+                    'Container removal requires a complete target correspondence',
+                    'unsupported_structure',
+                ),
+            );
+        else if (!added.length) {
+            for (let offset = 0; offset < removed.length; offset++)
+                record(replacement(left.old + 1 + offset, null));
+        } else if (removed.length === added.length) {
+            for (let offset = 0; offset < removed.length; offset++)
+                record(replacement(left.old + 1 + offset, left.next + 1 + offset));
+        } else if (
+            removed.length === 1 &&
+            removed[0].kind === 'heading' &&
+            added[0].kind === 'heading'
+        ) {
+            record(replacement(left.old + 1, left.next + 1));
+            record(insertion(added.slice(1), left.old + 1, right.old));
+        } else record(conflict('Multiple block repartitioning requires explicit correspondence'));
+        for (let offset = diagnosticStart; offset < diagnostics.length; offset++) {
+            diagnostics[offset] = {
+                ...diagnostics[offset],
+                message: `Source line ${sourceLine}: ${diagnostics[offset].message}`,
+            };
+        }
     }
     const ordered = [...changes].sort((a, b) => a.target.start - b.target.start);
     if (
         ordered.some(
-            (change, index) => index > 0 && change.target.start <= ordered[index - 1].target.end,
+            (change, index) => index > 0 && change.target.start < ordered[index - 1].target.end,
         )
     ) {
         return conflict('Planned target ranges overlap');
     }
-    return {ok: true, changes};
+    if (!changes.length && diagnostics.length) return {ok: false, diagnostic: diagnostics[0]};
+    return diagnostics.length ? {ok: true, changes, diagnostics, rejected} : {ok: true, changes};
 }
