@@ -1,0 +1,69 @@
+[
+  {
+    "name": "tracker-numbered-list-keeps-original-emphasis",
+    "source": "1. Откройте карточку задачи.\n\n1. Проверьте **статус**.\n",
+    "translations": [
+      ["Откройте карточку задачи.", "Open the issue card."],
+      ["Проверьте", "Check"],
+      ["статус", "status"]
+    ],
+    "fault": ["Open the issue card.", "- Open the issue card."],
+    "expected": "1. Open the issue card.\n\n1. Check **status**.\n",
+    "fallback": "1. Откройте карточку задачи.\n\n1. Check **status**.\n"
+  },
+  {
+    "name": "forms-note-rejects-invented-link",
+    "source": "{% note info %}\n\nОтправьте форму после проверки ответа.\n\n{% endnote %}\n",
+    "translations": [
+      ["Отправьте форму после проверки ответа.", "Submit the form after checking the answer."]
+    ],
+    "fault": ["the form", "[the form](https://example.com/invented)"],
+    "expected": "{% note info %}\n\nSubmit the form after checking the answer.\n\n{% endnote %}\n",
+    "fallback": "{% note info %}\n\nОтправьте форму после проверки ответа.\n\n{% endnote %}\n"
+  },
+  {
+    "name": "wiki-rejects-invented-paragraph",
+    "source": "Сначала создайте страницу и затем добавьте таблицу.\n",
+    "translations": [
+      [
+        "Сначала создайте страницу и затем добавьте таблицу.",
+        "First create a page and then add a table."
+      ]
+    ],
+    "fault": ["a page and then", "a page.\n\nThen"],
+    "expected": "First create a page and then add a table.\n",
+    "fallback": "Сначала создайте страницу и затем добавьте таблицу.\n"
+  },
+  {
+    "name": "games-rejects-second-code-span",
+    "source": "Используйте `ysdk.serverTime()` для проверки времени.\n",
+    "translations": [
+      ["Используйте", "Use"],
+      ["для проверки времени.", "for time checks."]
+    ],
+    "fault": ["for time checks.", "for `ysdk.serverTime()` time checks."],
+    "expected": "Use `ysdk.serverTime()` for time checks.\n",
+    "fallback": "Используйте `ysdk.serverTime()` для проверки времени.\n"
+  },
+  {
+    "name": "ytsaurus-live-duplicate-code-span-reproducer",
+    "source": "При удалении используется `$ttl` для этой колонки.\n",
+    "translations": [
+      ["При удалении используется", "Deletion uses"],
+      ["для этой колонки.", "for this column."]
+    ],
+    "fault": ["this column", "the `$ttl` column"],
+    "expected": "Deletion uses `$ttl` for this column.\n",
+    "fallback": "При удалении используется `$ttl` для этой колонки.\n"
+  },
+  {
+    "name": "literal-markers-and-code-are-not-formatting-additions",
+    "source": "Для foo__bar__baz используйте `**/path/**` и вычислите 2 * 3.\n",
+    "translations": [
+      ["Для", "For"],
+      ["используйте", "use"],
+      ["и вычислите", "and calculate"]
+    ],
+    "expected": "For foo__bar__baz use `**/path/**` and calculate 2 * 3.\n"
+  }
+]
