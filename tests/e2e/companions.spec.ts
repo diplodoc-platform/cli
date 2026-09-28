@@ -87,5 +87,8 @@ describe('static Markdown companions', () => {
             await expect(access(join(outputPath, path))).rejects.toThrow();
         }
         await expect(access(join(outputPath, 'audience.md'))).rejects.toThrow();
+
+        const html = await readFile(join(outputPath, 'index.html'), 'utf8');
+        expect(html).toContain('"markdownActions":"none"');
     });
 });

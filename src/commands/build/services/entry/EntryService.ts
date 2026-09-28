@@ -93,6 +93,8 @@ export class EntryService {
         const viewerInterface = {
             ...(baseInterface ?? {}),
             ...(metaInterface ?? {}),
+            // A source VCS path does not imply a published Markdown companion.
+            ...(!this.config.ai?.mdCompanions && {markdownActions: 'none' as const}),
         };
 
         const pdfLink = pdf?.pdfFileUrl;
