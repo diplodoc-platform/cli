@@ -16,6 +16,19 @@ function escapeXml(value: string): string {
 }
 
 /**
+ * Deterministic code-unit order comparison: unlike `String.prototype.sort`'s
+ * default conversion it never depends on the runtime, and unlike `localeCompare`
+ * it does not depend on the host locale.
+ */
+function compareUrls(a: string, b: string): number {
+    if (a === b) {
+        return 0;
+    }
+
+    return a < b ? -1 : 1;
+}
+
+/**
  * Generates sitemap.xml content for the given page urls.
  *
  * Follows the sitemap protocol (https://www.sitemaps.org/schemas/sitemap/0.9/):
@@ -29,7 +42,7 @@ function escapeXml(value: string): string {
  * @returns Serialized sitemap.xml document
  */
 export function generateSitemap(urls: string[]): string {
-    const entries = [...new Set(urls)].sort().map((url) => {
+    const entries = [...new Set(urls)].sort(compareUrls).map((url) => {
         const loc = `${SITEMAP_INDENT.repeat(2)}<loc>${escapeXml(url)}</loc>`;
 
         return [`${SITEMAP_INDENT}<url>`, loc, `${SITEMAP_INDENT}</url>`].join('\n');
