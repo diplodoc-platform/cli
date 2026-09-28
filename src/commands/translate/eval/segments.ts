@@ -70,7 +70,7 @@ export function findUntranslatedLines(
         return [];
     }
 
-    const referenceLines = new Set(reference.split('\n').map(normalizeSpace));
+    const referenceLines = new Set(scanPage(reference).prose.map(({text}) => normalizeSpace(text)));
 
     const result: UntranslatedLine[] = [];
     const page = scanPage(translated);

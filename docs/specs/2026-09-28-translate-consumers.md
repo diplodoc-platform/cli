@@ -1,5 +1,9 @@
 # Additional consumer validation
 
+These are the initial measurements, retained without alteration. See the
+[root-cause follow-up](2026-09-28-translate-consumer-followup.md) for subsequent
+runtime corrections and repeated comparisons.
+
 ## Conclusion
 
 The candidate preserves source formatting on the selected Tracker, Forms,

@@ -1,5 +1,10 @@
 # Preserving translation markup structure
 
+See the [consumer follow-up](2026-09-28-translate-consumer-followup.md) for later
+runtime revisions, repeated consumer runs and remaining limitations. The
+historical measurements below are retained unchanged. Complete inline-code
+spans are now protected; adaptive fenced examples remain translatable.
+
 ## Change
 
 The previous fix removed only invented internal `**...**` and `__...__`
