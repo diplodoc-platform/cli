@@ -5,6 +5,10 @@ both fresh translation and translation memory seeded from an existing locale.
 Keep the validator fixed while changing the CLI under test. A deterministic
 fixture suite and live model runs answer different questions; run both.
 
+A worked example, including failed iterations and an unresolved extraction
+defect, is available in the
+[consumer comparison report](https://github.com/diplodoc-platform/cli/blob/af61d398/docs/specs/2026-09-28-translate-consumer-followup.md).
+
 ## Prepare the binaries and artifacts
 
 Use Node.js 24 or newer and npm 11.5.1 or newer. Build the baseline and candidate
@@ -20,6 +24,11 @@ the independent Markdown inventory checker introduced by
 do not detect all added inline formatting. Build the validator too, since the
 eval launcher checks for its local CLI build even when `--cli` is supplied.
 
+If a checker defect is discovered, keep the original reports and rescore saved
+outputs from both revisions with the same corrected checker. Do not regenerate
+only inconvenient baseline runs. Record binary hashes as well as commit IDs;
+an evaluator-only correction need not rebuild the binaries under comparison.
+
 ```sh
 export BASELINE_CLI=/absolute/path/to/baseline/build/index.js
 export CANDIDATE_CLI=/absolute/path/to/candidate/build/index.js
@@ -31,6 +40,8 @@ export CORPUS_AFTER="$VALIDATION_ROOT/after"
 Keep credentials outside these directories. Use the provider's token file or
 environment-variable mechanism, never a token literal in committed commands or
 reports. Verify that sending the chosen documents to that provider is allowed.
+If diagnosing requests through a local proxy, never persist authorization
+headers. Keep document payloads local unless publication is explicitly allowed.
 
 ## Choose a corpus
 
@@ -155,6 +166,11 @@ comparison. Use this wrapper only in real-model mode: the harness invokes the
 CLI while capturing units in mock mode, with different batching and concurrency
 requirements. Use the ordinary built CLI for mock checks.
 
+When an upgrade changes seed format or validation policy, reseed from the
+original source and approved locale. Never use candidate-generated output as
+its own seed or reference. Distinguish explicitly approved seed translations
+from older generated model-cache entries when interpreting preservation checks.
+
 ## Run the comparison
 
 First run the bundled offline smoke test from the validator checkout:
@@ -200,6 +216,11 @@ runs in total for the combined corpus; the judge adds model requests. Inspect
 one initial run and token usage before increasing the corpus or repeat count.
 Keep failed runs too. If a rerun is necessary, use a new directory and state why.
 
+Run series sequentially unless the shared provider quota is known. Per-process
+concurrency limits do not bound the total across simultaneous series. Report
+gateway-limit failures separately; overlapping diagnostics are not timing
+evidence for a baseline/candidate comparison.
+
 ## Decide whether the change helps
 
 Read `series.json`, individual `run-N/eval-report.json`, `run-report.json`,
@@ -216,12 +237,25 @@ each consumer and mode, not just one combined score:
 - Existing links localized in the reference locale, translated comments inside
   code fences, and pre-existing export defects. Keep raw violations visible,
   then explain shared findings separately from new regressions.
+- A low judge score must be inspected against both source and approved reference;
+  the judge can flag wording already present in the reference. Inspect low-score
+  counts, not only an average that hides isolated defects.
+- An untranslated title or other visible string must not be exempted merely
+  because the same line exists inside a reference code example. Compare reference
+  prose with output prose, and inspect provider misses even when eval says PASS.
 
 Strict eval checks fenced content byte-for-byte, so translating a code comment
 can make the verdict red without introducing markup. Do not raise thresholds
 just to get a green report. Similarity is a wording metric, and a high judge
 score does not detect untranslated fallback reliably. The validator's series
 thresholds apply to totals across repeats, not independently to each run.
+Record the exact thresholds. If acceptance requires zero missed translations,
+an existing allowance of one does not turn a one-miss run into evidence of zero.
+
+Classify every finding. Matching a localized URL anywhere in a reference page
+establishes provenance, not correct placement. Matching formatting inventories
+does not prove semantic equivalence. When claiming that changed JavaScript
+fences only translate comments, compare token streams or inspect the exact diff.
 
 Publish a compact result table with all runs, immutable CLI revisions, corpus
 hashes, model/settings, defect categories and costs. State limits explicitly:
@@ -251,3 +285,11 @@ should make the new regression fail; restore it immediately and rerun the tests.
 Do not replace expected output with snapshots generated by the implementation
 under test. Live runs remain local evidence; deterministic fixtures keep the
 regression reproducible without credentials or model nondeterminism.
+
+Cover failures at their actual boundary: divergent seed alignment, approved
+seed formatting, partially copied edits, localized autolinks, reordered or
+duplicated literal-code identities, and incomplete model batches. An incomplete
+retry batch must preserve answer positions. Include a valid retry that restores
+the same text as a previously rejected answer, so stale rejection state cannot
+silently discard it. Changes to retry context also need a capture-server test
+and the ordinary offline eval, not only real-model runs.
