@@ -1,3 +1,4 @@
+import type {FileUpdateResult} from './update/execute';
 import type {TranslateLogger} from './logger';
 import type {CodeMode} from './utils/config';
 
@@ -11,7 +12,7 @@ import {TranslateError} from './utils';
  * report shape, so consumers (analytics pipelines, dashboards) can detect
  * incompatible reports instead of silently misreading them.
  */
-export const TRANSLATE_REPORT_SCHEMA_VERSION = 1;
+export const TRANSLATE_REPORT_SCHEMA_VERSION = 2;
 
 export type TranslateReportStatus = 'success' | 'partial' | 'failed';
 
@@ -71,6 +72,7 @@ export type TranslateReportTarget = TranslateReportCounters & {
 };
 
 export type TranslateRunReport = {
+    updates?: FileUpdateResult[];
     schemaVersion: number;
     /** ISO 8601 start time of the CLI process. */
     startedAt: string;
@@ -380,10 +382,16 @@ export class RunReport {
 
     private errors: TranslateReportError[] = [];
 
+    private updates?: FileUpdateResult[];
+
     private data: TranslateRunReport | null = null;
 
     constructor(info: RunReportInfo) {
         this.info = info;
+    }
+
+    setUpdates(updates: FileUpdateResult[]) {
+        this.updates = updates;
     }
 
     setFiles(selected: number, skipped: number) {
@@ -435,6 +443,7 @@ export class RunReport {
             totals,
             targets: this.targets,
             errors: this.errors,
+            ...(this.updates ? {updates: this.updates} : {}),
         };
 
         return this.data;

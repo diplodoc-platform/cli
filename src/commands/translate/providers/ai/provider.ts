@@ -1,3 +1,4 @@
+import type {Snapshot} from '../../update/types';
 import type {Logger} from '~/core/logger';
 import type {CodeMode, VarsResolver} from '../../utils';
 import type {TranslateConfig} from '~/commands/translate';
@@ -15,6 +16,9 @@ import {asyncify, eachLimit} from 'async';
 import {LogLevel} from '~/core/logger';
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
+import {extract} from '../../utils/translate';
+import {applyConditions} from '../../utils/units';
+import {executeUpdates} from '../../update/execute';
 import {TranslateError, compose, languageRepath, loadTranslationUnits} from '../../utils';
 import {TranslateLogger} from '../../logger';
 import {
@@ -88,6 +92,87 @@ export class Provider {
     async skip(skipped: [string, string][]) {
         this.skippedFiles = skipped.length;
         this.logger.skipped(skipped);
+    }
+
+    /** Incremental translation never reads seeded answers for changed units. */
+    async update(snapshots: Snapshot[], config: AITranslationConfig) {
+        const target = config.target[0];
+        const stat = createTargetStat();
+        const report = RunReport.start(config, snapshots.length, 0);
+        const client = this.clientFactory(config);
+        const fragment = async (path: string, text: string, context?: DocContext) => {
+            const vars = config.varsFor?.(path) ?? config.vars;
+            if (Object.keys(vars).length && applyConditions(text, vars, path) !== text) {
+                throw new Error('Conditional content requires a raw range mapping');
+            }
+            const loaded = extract(text, {
+                compact: true,
+                unitLocalIds: true,
+                code: config.code,
+                source: {language: config.source.language, locale: config.source.locale || 'RU'},
+                target: {language: target.language, locale: target.locale || 'US'},
+            });
+            if (loaded.warnings.length) {
+                throw new Error(loaded.warnings.join('; '));
+            }
+            if (!loaded.units.length) {
+                return text;
+            }
+            const failed = stat.untranslated + stat.markupDamaged + stat.oversized;
+            const translate = makeTranslator({
+                client,
+                fallbackClient: config.fallbackModel
+                    ? this.clientFactory(fallbackClientConfig(config))
+                    : undefined,
+                config,
+                sourceLanguage: config.source.language,
+                targetLanguage: target.language,
+                cache: new Map(),
+                stat,
+                logger: this.logger,
+            });
+            const parts = await translate(path, loaded.units, context);
+            if (stat.untranslated + stat.markupDamaged + stat.oversized > failed) {
+                throw new Error('Untranslated or invalid units in incremental output');
+            }
+            return String(compose(loaded.skeleton!, parts, {useSource: true}));
+        };
+        const results = await executeUpdates(
+            snapshots,
+            config.output,
+            config.dryRun,
+            async (request) => ({
+                text: (
+                    await fragment(request.path!, request.sourceAfter, {
+                        update: {
+                            sourceBefore: request.sourceBefore,
+                            previousTranslation: request.previousTranslation,
+                            contextBefore: request.contextBefore,
+                            contextAfter: request.contextAfter,
+                        },
+                    })
+                ).trim(),
+                diagnostics: [],
+            }),
+            async (snapshot) => fragment(snapshot.entry.sourcePath, snapshot.sourceAfter),
+        );
+        report.setUpdates(results);
+        for (const result of results) {
+            if (result.diagnostics.length) {
+                stat.filesFailed++;
+            } else if (result.applied) {
+                stat.filesTranslated++;
+            }
+            for (const diagnostic of result.diagnostics) {
+                report.addError({path: result.path, target: target.language, ...diagnostic});
+                this.logger.warn(result.path, `${diagnostic.code}: ${diagnostic.message}`);
+            }
+        }
+        report.addTarget(target.language, stat);
+        report.close(
+            this.logger,
+            stat.filesFailed === snapshots.length && snapshots.length ? 'failed' : undefined,
+        );
     }
 
     async translate(files: string[], config: AITranslationConfig) {
@@ -394,6 +479,12 @@ type Translate = (path: string, texts: string[], context?: DocContext) => Promis
 
 export type DocContext = {
     title?: string;
+    update?: {
+        sourceBefore: string;
+        previousTranslation: string;
+        contextBefore: string;
+        contextAfter: string;
+    };
 };
 
 const SOURCE_OPEN = '<source';
@@ -1157,7 +1248,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
     }
 
     return async function translate(path: string, texts: string[], docContext?: DocContext) {
-        const context = describeDocument(path, docContext);
+        const context =
+            describeDocument(path, docContext) +
+            (docContext?.update
+                ? `\nReference context only, never translate these reference fields: ${JSON.stringify(docContext.update)}`
+                : '');
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
         // Stored translations of the units and, for the changed ones, their

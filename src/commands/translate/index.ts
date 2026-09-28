@@ -1,3 +1,4 @@
+import type {Snapshot} from './update/types';
 import type {BaseArgs, ICallable} from '~/core/program';
 import type {CodeMode, Locale, VarsResolver} from './utils';
 import type {ConfigDefaults} from './utils/config';
@@ -17,6 +18,7 @@ import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {normalizePath, own} from '~/core/utils';
 
+import {loadUpdateManifest} from './update/manifest';
 import {getHooks, withHooks} from './hooks';
 import {DESCRIPTION, NAME, options} from './config';
 import {Extract} from './commands/extract';
@@ -50,11 +52,13 @@ export type {
 } from './report';
 
 export interface IProvider {
+    update?(snapshots: Snapshot[], config: TranslateConfig): Promise<void>;
     skip(files: [string, string][], config: TranslateConfig): Promise<void>;
     translate(files: string[], config: TranslateConfig): Promise<void>;
 }
 
 export type TranslateArgs = BaseArgs & {
+    updateManifest?: string;
     output: AbsolutePath;
     provider: string;
     source?: string;
@@ -72,6 +76,7 @@ export type TranslateArgs = BaseArgs & {
 
 export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     output: AbsolutePath;
+    updateManifest?: string;
     provider: string;
     source: Locale;
     target: Locale[];
@@ -126,6 +131,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         options.copyAssets,
         options.timeout,
         options.report,
+        options.updateManifest,
         options.config(YFM_CONFIG_FILENAME),
     ];
 
@@ -201,6 +207,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 dryRun: defined('dryRun', args, config) || false,
                 copyAssets: defined('copyAssets', args, config) || false,
                 report,
+                updateManifest: defined('updateManifest', args, config),
                 // No global default here: each provider applies its own
                 // (5s for yandex, 60s for LLM providers).
                 timeout: defined('timeout', args, config) as number,
@@ -226,12 +233,39 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
 
         await this.run.prepareRun();
-        const [files, skipped] = await this.run.getFiles();
+        const [files, skipped] = this.config.updateManifest ? [[], []] : await this.run.getFiles();
 
         // Presets are loaded by now: hand providers the per-file vars.
         this.config.varsFor = (path) => this.run.vars.for(normalizePath(path));
 
         if (this.provider) {
+            if (this.config.updateManifest) {
+                ok(
+                    this.provider.update,
+                    `Provider '${this.config.provider}' does not support incremental updates`,
+                );
+                ok(
+                    this.config.target.length === 1,
+                    'Incremental updates require exactly one target language',
+                );
+                ok(
+                    !this.config.includeVcsDiff &&
+                        !this.config.files?.length &&
+                        !this.config.include.length &&
+                        !this.config.exclude.length &&
+                        !this.config.copyAssets,
+                    'Incremental manifest cannot be combined with file filters or asset copying',
+                );
+                const snapshots = await loadUpdateManifest({
+                    path: resolve(this.config.updateManifest),
+                    inputRoot: this.config.input,
+                    outputRoot: this.config.output,
+                    sourceLanguage: this.config.source.language,
+                    targetLanguage: this.config.target[0].language,
+                });
+                await this.provider.update(snapshots, this.config);
+                return;
+            }
             await this.provider.skip(skipped, this.config);
             await this.provider.translate(files, this.config);
 

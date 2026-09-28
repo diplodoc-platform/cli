@@ -243,7 +243,13 @@ const noRefResolve = option({
     default: true,
 });
 
+const updateManifest = option({
+    flags: '--update-manifest <path>',
+    desc: 'Apply only source deltas from a versioned snapshot manifest.',
+});
+
 export const options = {
+    updateManifest,
     input: globalOptions.input,
     output: globalOptions.output,
     config: globalOptions.config,

@@ -1,0 +1,97 @@
+import type {Snapshot} from './types';
+
+import {describe, expect, it} from 'vitest';
+
+import {planUpdate} from './plan';
+const snapshot = (sourceBefore: string, sourceAfter: string, targetBefore: string): Snapshot => ({
+    entry: {
+        kind: 'update',
+        sourcePath: 'ru/a.md',
+        targetPath: 'en/a.md',
+        sourceBeforePath: 'before',
+        sourceAfterPath: 'after',
+        targetBeforePath: 'target',
+    },
+    sourceBefore,
+    sourceAfter,
+    targetBefore,
+});
+describe('source delta planner', () => {
+    it('updates a unique title without backfilling unrelated missing source prose', () => {
+        const plan = planUpdate(
+            snapshot(
+                '# Старый\n\nНет перевода',
+                '# Новый\n\nНет перевода',
+                '# Previous\n\nHuman-only text',
+            ),
+        );
+        expect(plan).toMatchObject({
+            ok: true,
+            changes: [{expected: '# Previous', sourceBefore: '# Старый', sourceAfter: '# Новый'}],
+        });
+        if (plan.ok) {
+            expect(plan.changes).toHaveLength(1);
+        }
+    });
+    it('changes only the paragraph identified by a unique code anchor', () => {
+        const plan = planUpdate(
+            snapshot(
+                'Старое `query_cache`.\n\nОпределение `keep`.',
+                'Новое `query_cache`.\n\nОпределение `keep`.',
+                'Old `query_cache`.\n\nHuman `keep`.',
+            ),
+        );
+        expect(plan).toMatchObject({ok: true, changes: [{expected: 'Old `query_cache`.'}]});
+    });
+    it('rejects repeated paragraphs without positional guesses', () => {
+        expect(
+            planUpdate(snapshot('Старое\n\nСтарое', 'Новое\n\nСтарое', 'Old\n\nOld')),
+        ).toMatchObject({ok: false});
+    });
+    it('returns no changes for identical sources despite divergent target', () => {
+        expect(planUpdate(snapshot('one', 'one', 'human'))).toEqual({ok: true, changes: []});
+    });
+    it('does not backfill historical releases on a new release insertion', () => {
+        const plan = planUpdate(
+            snapshot(
+                '# Releases\n\n## 25.4\n\nOld',
+                '# Releases\n\n## 26.1\n\nNew\n\n## 25.4\n\nOld',
+                '# Релизы\n\n## 25.3\n\nРучной текст',
+            ),
+        );
+        expect(plan).toMatchObject({ok: false});
+    });
+    it('rejects changed YFM containers rather than rewriting the file', () => {
+        expect(
+            planUpdate(
+                snapshot(
+                    '{% cut "Old" %}\nText\n{% endcut %}',
+                    '{% cut "New" %}\nText\n{% endcut %}',
+                    'Localized',
+                ),
+            ),
+        ).toMatchObject({ok: false, diagnostic: {code: 'unsupported_structure'}});
+    });
+    it('deletes only a uniquely anchored paragraph', () => {
+        expect(
+            planUpdate(
+                snapshot(
+                    'Remove `old`.\n\nKeep `new`.',
+                    'Keep `new`.',
+                    'Удалить `old`.\n\nОставить `new`.',
+                ),
+            ),
+        ).toMatchObject({ok: true, changes: [{expected: 'Удалить `old`.', sourceAfter: ''}]});
+    });
+    it('inserts at an adjacent pair of uniquely mapped boundaries', () => {
+        expect(
+            planUpdate(
+                snapshot(
+                    '# A {#a}\n\n# B {#b}',
+                    '# A {#a}\n\nNew\n\n# B {#b}',
+                    '# А {#a}\n\n# Б {#b}',
+                ),
+            ),
+        ).toMatchObject({ok: true, changes: [{expected: '', sourceAfter: 'New'}]});
+    });
+});
