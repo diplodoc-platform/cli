@@ -1,7 +1,42 @@
 import type {MarkupViolation} from './types';
 import type {ProseLine} from './markdown';
+import type Token from 'markdown-it/lib/token';
+
+import MarkdownIt from 'markdown-it';
+// @ts-expect-error The plugin does not ship type declarations.
+import sup from 'markdown-it-sup';
 
 import {scanPage} from './markdown';
+
+const inlineParser = new MarkdownIt({html: true}).use(sup);
+
+/** Independent parsed inventory, including nesting but excluding translated prose. */
+export function formattingInventory(markdown: string): string[] {
+    const result: string[] = [];
+    const visit = (tokens: Token[], parents: string[] = []) => {
+        const stack = [...parents];
+        for (const token of tokens) {
+            if (token.nesting === -1) {
+                stack.pop();
+                continue;
+            }
+            const structural = !['text', 'inline', 'softbreak'].includes(token.type);
+            if (structural) {
+                result.push(
+                    [...stack.filter((type) => type !== 'paragraph_open'), token.type].join('/'),
+                );
+            }
+            if (token.children && token.type !== 'image') {
+                visit(token.children, stack);
+            }
+            if (token.nesting === 1) {
+                stack.push(token.type);
+            }
+        }
+    };
+    visit(inlineParser.parse(markdown, {}));
+    return result.sort();
+}
 
 /**
  * Structural signature of a page: everything the translation must
@@ -307,6 +342,13 @@ export function compareMarkup(source: string, translated: string): MarkupViolati
     compareSequences('links', 'link targets', before.links, after.links, violations);
     compareSequences('headings', 'headings', before.headings, after.headings, violations);
     compareSequences('variables', 'variables', before.variables, after.variables, violations);
+    compareSequences(
+        'formatting',
+        'formatting elements',
+        formattingInventory(source),
+        formattingInventory(translated),
+        violations,
+    );
 
     compareSequences(
         'tables',

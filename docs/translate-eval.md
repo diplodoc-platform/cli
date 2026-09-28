@@ -90,7 +90,10 @@ better than that one" there is the benchmark,
   fences are byte-identical, liquid/YFM directives (notes, cuts, tabs,
   includes, conditions) keep their order and parameters, link and image
   targets survive, heading structure and explicit anchors survive,
-  `{{variables}}` survive, table layout survives.
+  `{{variables}}` survive, table layout survives. An independent Markdown
+  parser also compares formatting inventories, including inline emphasis,
+  code spans, lists, paragraphs and their nesting. It does not import the
+  runtime translation validator.
 - **Glossary** (deterministic): every glossary term used on a source
   page must be rendered with its required translation
   (`tests/eval/corpus/glossary.yaml`, also passed to `--glossary`).

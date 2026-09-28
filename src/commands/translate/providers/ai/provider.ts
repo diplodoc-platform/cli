@@ -53,6 +53,7 @@ import {
     splitFragments,
 } from './prompts';
 import {untranslatedMarker} from './utils/script';
+import {markupStructureIssue} from './utils/markup-structure';
 import {localizedUrls, revertedUrls} from './utils/links';
 import {restoreFragments} from './utils/skeleton';
 import {judgeTranslations} from './judge';
@@ -790,6 +791,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         fragments: string[],
         context: string,
         hints: (SeedHint | undefined)[] = [],
+        markupFeedback?: string,
     ): Promise<string[]> {
         if (!fragments.length) {
             return [];
@@ -820,6 +822,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 return {source: maskAddresses(source), translation: maskAddresses(translation)};
             }),
         });
+
+        if (markupFeedback) {
+            messages[0].content += '\n\nFormatting correction: ' + markupFeedback;
+        }
 
         if (dryRun) {
             const inputTokens = messages.reduce((sum, m) => sum + estimateTokens(m.content), 0);
@@ -942,9 +948,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
         context: string,
         what: string,
         hints: (SeedHint | undefined)[] = [],
+        markupFeedback?: string,
     ): Promise<(string | undefined)[]> {
         try {
-            return await translateBatch(path, fragments, context, hints);
+            return await translateBatch(path, fragments, context, hints, markupFeedback);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             logger.warn(path, `${what} failed (${error.message}).`);
@@ -960,7 +967,17 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         for (const [index, fragment] of fragments.entries()) {
             try {
-                result.push((await translateBatch(path, [fragment], context, [hints[index]]))[0]);
+                result.push(
+                    (
+                        await translateBatch(
+                            path,
+                            [fragment],
+                            context,
+                            [hints[index]],
+                            markupFeedback,
+                        )
+                    )[0],
+                );
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 logger.warn(path, `${what} failed (${error.message}).`);
@@ -996,7 +1013,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
             const source = unwrapUnit(fragment).text;
             const text = unwrapUnit(part).text;
 
-            return keepsMarkup(source, text) && keepsPlaceholders(source, text);
+            return (
+                keepsMarkup(source, text) &&
+                keepsPlaceholders(source, text) &&
+                !markupStructureIssue(source, text)
+            );
         };
         const indexes = fragments
             .map((_, index) => index)
@@ -1018,6 +1039,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             context,
             'Markup retry',
             indexes.map((index) => hints[index]),
+            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.',
         );
 
         const result = [...parts];
@@ -1264,7 +1286,17 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 // Identity entries for units that still contain source-script
                 // characters were cached by older runs that stored untranslated
                 // responses. Treat them as misses so the unit gets another chance.
-                const refused = normalized === text && marker !== null && marker.test(text);
+                const refused =
+                    (normalized === text && marker !== null && marker.test(text)) ||
+                    Boolean(
+                        markupStructureIssue(
+                            unwrapUnit(text).text,
+                            // Seeded translations may legitimately localize URLs.
+                            // Check their shape with the source addresses, without
+                            // changing the cached translation used for composition.
+                            unwrapUnit(unmaskAddresses(text, maskAddresses(healed))).text,
+                        ),
+                    );
                 if (!refused) {
                     if (normalized !== stored && !dryRun) {
                         // Heal wrapper noise cached by older runs. A dry run

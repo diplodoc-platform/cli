@@ -1409,6 +1409,57 @@ describe('translate ai provider', () => {
             expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('damaged markup'));
         });
 
+        it.each([
+            '**Connection setup** - details.',
+            '*Connection setup* - details.',
+            '[Connection setup](https://example.com) - details.',
+            '- Connection setup - details.',
+        ])('should retry invented formatting with feedback: %s', async (answer) => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) => [
+                call === 0 ? answer : 'Connection setup - details.',
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap('Connection setup - details.'),
+            ]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(vi.mocked(client.complete).mock.calls[1][0][0].content).toContain(
+                'Formatting correction:',
+            );
+        });
+
+        it('should not cache a translation that keeps inventing formatting', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'markup-retry-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient(() => ['*Connection setup* - details.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('should retranslate cached invented formatting', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'markup-cache-')), 'cache.json'),
+                'fp',
+            );
+            store.set(unit, wrap('*Connection setup* - details.'));
+            const client = makeClient(() => ['Connection setup - details.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap('Connection setup - details.'),
+            ]);
+            expect(stat.cached).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
         it('should retry a fragment the repair could not make composable', async () => {
             // The model dropped the closing tag and opened a bold the
             // skeleton already opens: stripping its marker is right, but
@@ -1951,20 +2002,21 @@ describe('translate ai provider', () => {
         });
 
         it('should strip the xliff wrapper before prompting and restore it after', async () => {
-            const unit = '<source xml:space="preserve">Привет, <g id="g-1">мир</g></source>';
+            const unit =
+                '<source xml:space="preserve">Привет, <g ctype="bold" x-begin="**" x-end="**" id="g-1">мир</g></source>';
             const client = makeClient(translated);
-            const {params} = makeParams(client);
+            const {params} = makeParams(client, {maxBatchTokens: 500});
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
 
             expect(result).toEqual([
-                '<source xml:space="preserve">T:Привет, <g id="g-1">мир</g></source>',
+                '<source xml:space="preserve">T:Привет, <g ctype="bold" x-begin="**" x-end="**" id="g-1">мир</g></source>',
             ]);
 
             const [messages] = vi.mocked(client.complete).mock.calls[0];
             expect(messages[1].content).not.toContain('<source');
-            expect(messages[1].content).toContain('Привет, <g id="g-1">мир</g>');
+            expect(messages[1].content).toContain('Привет, <g ctype="bold"');
         });
 
         it('should tolerate a stray trailing delimiter in the response', async () => {

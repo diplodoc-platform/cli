@@ -9,6 +9,28 @@ import {
 } from './markup';
 
 describe('translate eval markup checks', () => {
+    it.each([
+        'A **label** here.',
+        'A *label* here.',
+        'A ~~label~~ here.',
+        'A ^label^ here.',
+        'A `label` here.',
+        '- A label here.',
+        'A label.\n\nAnother paragraph.',
+    ])('detects added internal formatting: %s', (translated) => {
+        expect(
+            compareMarkup('A label here.', translated).some((issue) => issue.type === 'formatting'),
+        ).toBe(true);
+    });
+
+    it('ignores marker-like text inside inline code and word underscores', () => {
+        expect(
+            compareMarkup(
+                'Use `**/path/**` and foo__bar__baz.',
+                'Используйте `**/path/**` и foo__bar__baz.',
+            ),
+        ).toEqual([]);
+    });
     describe('normalizeLiquidTag', () => {
         it('should keep the note type and drop cut titles', () => {
             expect(normalizeLiquidTag('note info')).toBe('note:info');
@@ -107,9 +129,10 @@ describe('translate eval markup checks', () => {
             const source = '| a |\n| - |\n| 1 |';
             const violations = compareMarkup(source, '| a |\n| - |');
 
-            expect(violations).toEqual([
-                {type: 'tables', detail: expect.stringContaining('table row pipes')},
-            ]);
+            expect(violations).toContainEqual({
+                type: 'tables',
+                detail: expect.stringContaining('table row pipes'),
+            });
         });
 
         it('should report a changed column count', () => {
@@ -124,9 +147,10 @@ describe('translate eval markup checks', () => {
         it('should report a changed fence count and info', () => {
             const source = '```bash\necho 1\n```';
 
-            expect(compareMarkup(source, 'no fences at all')).toEqual([
-                {type: 'fence-count', detail: expect.stringContaining('1 in source')},
-            ]);
+            expect(compareMarkup(source, 'no fences at all')).toContainEqual({
+                type: 'fence-count',
+                detail: expect.stringContaining('1 in source'),
+            });
             expect(compareMarkup(source, '```sh\necho 1\n```')).toEqual([
                 {type: 'fence-info', detail: expect.stringContaining('bash')},
             ]);
@@ -194,7 +218,10 @@ describe('translate eval markup checks', () => {
 
             const violations = compareMarkup(source, translated);
 
-            expect(violations).toEqual([{type: 'liquid', detail: expect.stringContaining('2')}]);
+            expect(violations).toContainEqual({
+                type: 'liquid',
+                detail: expect.stringContaining('2'),
+            });
         });
 
         it('should report a changed link target', () => {

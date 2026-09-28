@@ -36,6 +36,10 @@ await build({
     bundle: true,
     platform: 'node',
     format: 'esm',
+    // Bundled Markdown parsers use CommonJS imports of Node built-ins.
+    banner: {
+        js: 'import {createRequire} from "node:module"; const require = createRequire(import.meta.url);',
+    },
     target: 'node22',
     outfile,
     logLevel: 'error',
