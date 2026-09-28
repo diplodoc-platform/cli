@@ -560,7 +560,7 @@ describe('translate seed', () => {
             const {page, warn} = await translate(input, cacheDir, {});
 
             // The changed code block and heading come from the source; the
-            // changed sentence went to the model and kept the source link.
+            // changed sentence went to the model but kept the localized link.
             expect(page).toContain('Настройки - Эксперименты - Отладка расширений');
             expect(page).not.toContain('{#see-also}');
             expect(warn).toHaveBeenCalledWith(
@@ -569,12 +569,11 @@ describe('translate seed', () => {
                     'addresses in 1 line the source has changed since; the output takes ' +
                     'them from the source.',
             );
-            expect(warn).toHaveBeenCalledWith(
-                'ru/page.md',
-                'Existing translation localized 1 link the output takes from the source ' +
-                    'again, e.g. https://ru.example.org/wiki/Григорианский_календарь ' +
-                    'instead of https://en.example.org/wiki/Adoption_of_the_Gregorian_calendar.',
+            expect(page).toContain(
+                'https://en.example.org/wiki/Adoption_of_the_Gregorian_calendar',
             );
+            expect(page).not.toContain('https://ru.example.org/wiki/Григорианский_календарь');
+            expect(warn).toHaveBeenCalledTimes(1);
         });
     });
 });

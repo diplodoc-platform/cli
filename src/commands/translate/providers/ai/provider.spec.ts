@@ -20,7 +20,12 @@ import {
     untranslatedMarker,
     unwrapUnit,
 } from './provider';
-import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
+import {
+    DEFAULT_SYSTEM_PROMPT,
+    DEFAULT_USER_PROMPT,
+    FRAGMENT_SEPARATOR,
+    splitFragments,
+} from './prompts';
 import {
     LLMAuthError,
     LLMRateLimitError,
@@ -864,6 +869,35 @@ describe('translate ai provider', () => {
     });
 
     describe('makeStore', () => {
+        it('does not reuse model answers from before literal and edited-prose validation', () => {
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-old-policy-'));
+            const client = makeClient(translated);
+            const config = {
+                cacheDir: dir,
+                model: 'model',
+                promptMode: 'append',
+                glossaryPairs: [],
+            } as unknown as AITranslationConfig;
+            const old = new TranslationStore(
+                join(dir, 'fake.model.ru-en.json'),
+                cacheFingerprint({
+                    provider: 'fake',
+                    model: 'model',
+                    source: 'ru',
+                    target: 'en',
+                    promptMode: 'append',
+                    defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT,
+                    defaultUserPrompt: DEFAULT_USER_PROMPT,
+                    glossaryPairs: [],
+                }),
+            );
+            old.set('Важное уточнение: Текст.', 'Важное уточнение: Text.');
+            old.flush();
+            const current = makeStore(client, config, 'ru', 'en');
+            current?.load();
+            expect(current?.get('Важное уточнение: Текст.')).toBeUndefined();
+        });
+
         it('should return undefined without cacheDir', () => {
             const client = makeClient(translated);
 
@@ -1110,6 +1144,21 @@ describe('translate ai provider', () => {
             const previous = 'Чтобы настроить колонкам по статусам:';
             const edited = 'Чтобы настроить колонки по статусам:';
 
+            it('preserves approved seed formatting without retranslating an unchanged unit', async () => {
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-approved-seed-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                const source = wrap('Выберите другое значение.');
+                const approved = wrap('Select **another value**.');
+                seeds.record('ru/a.md', [[source, approved]]);
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+                const client = makeClient(() => ['Select another value.']);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+                expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([approved]);
+                expect(stat.cached).toBe(1);
+                expect(stat.requests).toBe(0);
+            });
+
             function seededStore() {
                 const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-hints-'));
                 const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
@@ -1163,7 +1212,7 @@ describe('translate ai provider', () => {
                 expect(stat.memoryHints).toBe(1);
             });
 
-            it('should resend the memory when retrying an untranslated fragment', async () => {
+            it('retries an echoed edit without the memory that failed to translate it', async () => {
                 const client = answering([[edited], ['To set up the columns by status:']]);
                 const {params} = makeParams(client, {}, seededStore());
                 const translate = makeTranslator(params);
@@ -1173,7 +1222,41 @@ describe('translate ai provider', () => {
                 expect(result).toEqual(['To set up the columns by status:']);
                 expect(client.complete).toHaveBeenCalledTimes(2);
                 expect(userMessage(client, 0)).toContain('Translation memory.');
-                expect(userMessage(client, 1)).toContain('Translation memory.');
+                expect(userMessage(client, 1)).not.toContain('Translation memory.');
+            });
+
+            it('retries an untranslated inserted phrase without the misleading memory', async () => {
+                const source = 'Важное уточнение: ' + previous;
+                const complete = 'Important clarification: To set up columns by status:';
+                const client = answering([
+                    ['Важное уточнение: To set up columns by status:'],
+                    [complete],
+                ]);
+                const store = seededStore();
+                const {params, stat} = makeParams(
+                    client,
+                    {maxBatchTokens: 500, userPrompt: DEFAULT_USER_PROMPT},
+                    store,
+                );
+
+                expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([complete]);
+                expect(stat.untranslatedRetried).toBe(1);
+                expect(store.get(source)).toBe(complete);
+                expect(userMessage(client, 0)).toContain('Document context:');
+                expect(userMessage(client, 1)).not.toContain('Translation memory.');
+                expect(userMessage(client, 1)).not.toContain('Document context:');
+            });
+
+            it('does not persist a partial translation that keeps an inserted source phrase', async () => {
+                const source = 'Важное уточнение: ' + previous;
+                const partial = 'Важное уточнение: To set up columns by status:';
+                const client = answering([[partial], [partial]]);
+                const store = seededStore();
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+                expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([partial]);
+                expect(store.get(source)).toBeUndefined();
+                expect(stat.untranslatedKept).toBe(1);
             });
 
             it('should send no memory when disabled', async () => {
@@ -1371,21 +1454,28 @@ describe('translate ai provider', () => {
             expect(client.complete).not.toHaveBeenCalled();
         });
 
-        it('should accept a code span the model wrote with its own backticks', async () => {
-            // Both placeholders are inside the unit, so the skeleton
-            // restores nothing: the backticks are the only markup left and
-            // the fragment composes exactly like the source.
+        it('retries guessed code instead of trusting a lost literal placeholder', async () => {
             const unit = wrap(`Run ${CODE_OPEN}yfm build${CODE_CLOSE} in the project root`);
-            const client = makeClient(() => ['В корне проекта выполните `yfm build`']);
+            const client = makeClient((fragments, call) =>
+                call === 0
+                    ? [`Выполните ${CODE_OPEN}yfm build${CODE_CLOSE} в корне проекта`]
+                    : fragments.map((text) =>
+                          text
+                              .replace('Run ', 'Выполните ')
+                              .replace(' in the project root', ' в корне проекта'),
+                      ),
+            );
             const {params, stat} = makeParams(client, {maxBatchTokens: 500});
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
 
-            expect(result).toEqual([wrap('В корне проекта выполните `yfm build`')]);
+            expect(result).toEqual([
+                wrap(`Выполните ${CODE_OPEN}yfm build${CODE_CLOSE} в корне проекта`),
+            ]);
             expect(stat.markupStripped).toBe(0);
-            expect(stat.markupRetried).toBe(0);
-            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.markupRetried).toBe(1);
+            expect(client.complete).toHaveBeenCalledTimes(2);
         });
 
         it('should retry a fragment whose markup the model damaged', async () => {
@@ -1442,6 +1532,25 @@ describe('translate ai provider', () => {
             expect(stat.markupDamaged).toBe(1);
             expect(stat.untranslated).toBe(1);
             expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('rejects duplicate literal identities even when the formatting shape is unchanged', async () => {
+            const source = wrap(
+                `Используйте ${CODE_OPEN}A${CODE_CLOSE} вместо ${CODE_OPEN.replace('x-1', 'x-3')}B${CODE_CLOSE.replace('x-2', 'x-4')}.`,
+            );
+            const client = makeClient((fragments) =>
+                fragments.map((fragment) => {
+                    const literals = fragment.match(/<x ctype="code_literal"[^>]*\/>/g) || [];
+                    expect(literals).toHaveLength(2);
+                    return fragment
+                        .replace('Используйте', 'Use')
+                        .replace('вместо', 'instead of')
+                        .replace(literals[1], literals[0]);
+                }),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            expect(await makeTranslator(params)('file.md', [source])).toEqual([source]);
+            expect(stat.markupDamaged).toBe(1);
         });
 
         it('should retranslate cached invented formatting', async () => {

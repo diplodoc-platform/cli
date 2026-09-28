@@ -6,6 +6,8 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
+import {seedTranslations} from '../../commands/seed';
+
 import {Provider} from './provider';
 import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
 
@@ -16,6 +18,7 @@ type Fixture = {
     fault?: [string, string];
     expected: string;
     fallback?: string;
+    seed?: {source: string; target: string};
 };
 
 const fixtures: Fixture[] = JSON.parse(
@@ -35,6 +38,19 @@ async function translate(fixture: Fixture, persistent: boolean) {
     directories.push(root);
     const input = join(root, 'input');
     mkdirSync(join(input, 'ru'), {recursive: true});
+    if (fixture.seed) {
+        mkdirSync(join(input, 'en'), {recursive: true});
+        writeFileSync(join(input, 'ru/page.md'), fixture.seed.source);
+        writeFileSync(join(input, 'en/page.md'), fixture.seed.target);
+        await seedTranslations({
+            input: input as AbsolutePath,
+            files: ['ru/page.md'],
+            sourceLanguage: 'ru',
+            targetLanguage: 'en',
+            vars: {},
+            cacheDir: join(root, 'cache') as AbsolutePath,
+        });
+    }
     writeFileSync(join(input, 'ru/page.md'), fixture.source);
     let injected = false;
     const client: LLMClient = {
@@ -90,6 +106,7 @@ async function translate(fixture: Fixture, persistent: boolean) {
         maxBatchTokens: 3000,
         maxConcurrency: 1,
         retry: 0,
+        memoryHints: false,
     } as unknown as AITranslationConfig;
     await provider.translate(['ru/page.md'], config);
     const first = JSON.parse(readFileSync(report, 'utf8'));

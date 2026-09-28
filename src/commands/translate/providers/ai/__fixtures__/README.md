@@ -13,7 +13,9 @@ repair and persistent cache. Only the model response is replaced. Each faulty
 response is tested both as a recoverable first attempt and as a persistent
 failure. Persistent failures must preserve the source unit without caching it;
 unaffected units must still translate. The literal-marker case guards against
-overzealous removal of valid text and code.
+overzealous removal of valid text and code. The eight documents produce thirteen
+assertions, including preservation of a seeded localized URL after a prose edit
+and protection of a source-language inline-code literal while its prose translates.
 
 Run from the repository root:
 
@@ -26,8 +28,13 @@ and describe the model's mistake using `fault`. Keep actual formatting in
 `source`, including list indentation, blank lines and YFM delimiters. A fixture
 without `fault` is a preservation control. A fixture with `fault` also needs
 `fallback`, the expected document after both attempts fail.
+A `seed` pair is written and processed by the real seed command before `source`
+is written as the changed document. Do not mock a seed cache into existence.
 
 As a mutation check, temporarily bypass `markupStructureIssue`, run this file,
 and restore the implementation immediately. All ten faulty-response assertions
-must fail while the literal-marker control passes. This verifies that these
+must fail while the three preservation controls pass. This verifies that these
 fixtures exercise the structural guard rather than only mocked responses.
+Separately bypassing `maskLiteralCode` must fail the inline-code-literal fixture.
+Utility and provider tests cover reordered literals, duplicate identities,
+approved seed formatting, stale cache migration and untranslated edit retries.

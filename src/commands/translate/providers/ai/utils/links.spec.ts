@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {localizedUrls, pairLinks, revertedUrls} from './links';
+import {localizedUrls, pairLinks, restoreLocalizedUrls, revertedUrls} from './links';
 
 const RU_EN = ['ru', 'en'];
 
@@ -10,6 +10,38 @@ const link = (text: string, url: string) =>
     `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-1" x-begin="[" x-end="](${url})">${text}</g>`;
 
 describe('translate seed links', () => {
+    describe('restoreLocalizedUrls', () => {
+        const from = 'https://example.com/ru/a';
+        const to = 'https://example.com/en/a';
+        const localized = new Map([[from, to]]);
+
+        it('restores both placeholder destination attributes without changing text', () => {
+            expect(restoreLocalizedUrls(unit(link('Guide', from)), localized)).toBe(
+                unit(link('Guide', to)),
+            );
+        });
+
+        it('does not rewrite a literal link example inside a code placeholder', () => {
+            const text = `<g ctype="code" equiv-text="[example](${from})">[example](${from})</g>`;
+            expect(restoreLocalizedUrls(text, localized)).toBe(text);
+            expect(restoreLocalizedUrls(`Read ${from} or [example](${from})`, localized)).toBe(
+                `Read ${from} or [example](${from})`,
+            );
+        });
+
+        it('escapes query separators while preserving the trusted destination', () => {
+            const target = 'https://example.com/en/a?x=1&y=2';
+            expect(restoreLocalizedUrls(unit(link('Guide', from)), new Map([[from, target]]))).toBe(
+                unit(link('Guide', 'https://example.com/en/a?x=1&amp;y=2')),
+            );
+        });
+
+        it('restores the destination of an autolink placeholder', () => {
+            const auto = (url: string) =>
+                `<x ctype="link_autolink" equiv-text="&lt;${url}&gt;" id="x-1"/>`;
+            expect(restoreLocalizedUrls(unit(auto(from)), localized)).toBe(unit(auto(to)));
+        });
+    });
     describe('pairLinks', () => {
         it('should pair links to the same page one to one', () => {
             expect(

@@ -348,6 +348,49 @@ describe('translate seed alignment', () => {
             ]);
         });
 
+        it('does not pair unrelated plain paragraphs across a diverged section', () => {
+            const source = blocksOf([
+                '# [[Access]] {#intro}',
+                '[[Editors can edit.]] [[Access can be restricted:]]',
+                '- [[Restrictions]]',
+                '## [[Name]] {#name}',
+            ]);
+            const target = blocksOf([
+                '# [[Редактирование]] {#intro}',
+                '[[Обновления видны сразу.]] [[Вы получите уведомление.]]',
+                '## [[Имя]] {#name}',
+            ]);
+            expect(alignBlocks(source, target)).toEqual([
+                [0, 0],
+                [3, 2],
+            ]);
+        });
+
+        it('pairs code comments after reindentation without shifting duplicate numeric anchors', () => {
+            const source = blocksOf([
+                '```js',
+                '        // [[24 часа в миллисекундах.]]',
+                '        const day = 24 * 60 * 60 * 1000;',
+                '        if (elapsed >= day) {',
+                '            // [[Прошло 24 часа.]]',
+                '        }',
+                '```',
+            ]);
+            const target = blocksOf([
+                '```js',
+                '    // [[24 hours in milliseconds.]]',
+                '    const day = 24 * 60 * 60 * 1000;',
+                '    if (elapsed >= day) {',
+                '        // [[24 hours passed.]]',
+                '    }',
+                '```',
+            ]);
+            expect(alignBlocks(source, target)).toEqual([
+                [0, 0],
+                [1, 1],
+            ]);
+        });
+
         it('should leave an inserted section unmatched and keep the rest paired', () => {
             const source = blocksOf([
                 '# [[Releases]]',
@@ -391,11 +434,9 @@ describe('translate seed alignment', () => {
 
             const pairs = alignBlocks(source, target);
 
-            // The paragraph and the anchored item are safe; the plain items are a guess.
-            expect(pairs).toEqual([
-                [0, 0],
-                [4, 3],
-            ]);
+            // The numbered anchor is safe. The introductory prose may have
+            // changed with the list, so the model must translate it afresh.
+            expect(pairs).toEqual([[4, 3]]);
         });
 
         it('should pair blocks whose unit counts differ when the structure around them agrees', () => {

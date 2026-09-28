@@ -1,8 +1,24 @@
 import type {UntranslatedLine} from './types';
+import type Token from 'markdown-it/lib/token';
+
+import MarkdownIt from 'markdown-it';
 
 import {scanPage} from './markdown';
 
 const PREVIEW_LIMIT = 80;
+const parser = new MarkdownIt();
+const normalizeSpace = (text: string) => text.trim().replace(/\s+/g, ' ');
+
+function proseText(tokens: Token[]): string {
+    return tokens
+        .map((token) => {
+            if (token.type === 'code_inline') {
+                return '';
+            }
+            return token.children ? proseText(token.children) : token.content;
+        })
+        .join('');
+}
 
 /**
  * Returns a regexp matching characters of the source language script,
@@ -54,17 +70,17 @@ export function findUntranslatedLines(
         return [];
     }
 
-    const referenceLines = new Set(reference.split('\n').map((line) => line.trim()));
+    const referenceLines = new Set(reference.split('\n').map(normalizeSpace));
 
     const result: UntranslatedLine[] = [];
     const page = scanPage(translated);
 
     for (const {line, text} of page.prose) {
         const trimmed = text.trim();
-        if (!marker.test(trimmed)) {
+        if (!marker.test(proseText(parser.parseInline(trimmed, {})))) {
             continue;
         }
-        if (referenceLines.has(trimmed)) {
+        if (referenceLines.has(normalizeSpace(trimmed))) {
             continue;
         }
         result.push({

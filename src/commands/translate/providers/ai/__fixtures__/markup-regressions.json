@@ -57,6 +57,29 @@
     "fallback": "При удалении используется `$ttl` для этой колонки.\n"
   },
   {
+    "name": "wiki-inline-code-keeps-literal-while-prose-translates",
+    "source": "Добавьте `код-цвета` в ячейку.\n",
+    "translations": [
+      ["Добавьте", "Add"],
+      ["в ячейку.", "to the cell."],
+      ["код-цвета", "color-code"]
+    ],
+    "expected": "Add `код-цвета` to the cell.\n"
+  },
+  {
+    "name": "seeded-link-localization-survives-changed-prose",
+    "source": "Теперь откройте [инструкцию](https://example.com/ru/help).\n",
+    "seed": {
+      "source": "Откройте [инструкцию](https://example.com/ru/help).\n",
+      "target": "Open [the guide](https://example.com/en/help).\n"
+    },
+    "translations": [
+      ["Теперь откройте", "Now open"],
+      ["инструкцию", "the guide"]
+    ],
+    "expected": "Now open [the guide](https://example.com/en/help).\n"
+  },
+  {
     "name": "literal-markers-and-code-are-not-formatting-additions",
     "source": "Для foo__bar__baz используйте `**/path/**` и вычислите 2 * 3.\n",
     "translations": [

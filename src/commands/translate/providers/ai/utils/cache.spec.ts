@@ -140,7 +140,7 @@ describe('translate ai cache', () => {
             writeFileSync(
                 file,
                 JSON.stringify({
-                    version: 2,
+                    version: 3,
                     translations: {abc: 'Hi'},
                     files: {'ru/a.md': [['abc', 'Hi']]},
                 }),
@@ -160,7 +160,7 @@ describe('translate ai cache', () => {
 
             const data = JSON.parse(readFileSync(file, 'utf8'));
 
-            expect(data.version).toBe(3);
+            expect(data.version).toBe(4);
             expect(data.files['ru/a.md']).toEqual([['Привет', 'Hi']]);
         });
 
