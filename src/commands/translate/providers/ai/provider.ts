@@ -1002,30 +1002,27 @@ export function makeTranslator(params: TranslatorParams): Translate {
             // Only a malformed answer is worth splitting; a rate limit or a
             // server error would meet every fragment the same way.
             if (!(error instanceof LLMResponseError) || fragments.length < 2) {
-                return [];
+                return fragments.map(() => undefined);
             }
         }
 
         const result: (string | undefined)[] = [];
 
-        for (const [index, fragment] of fragments.entries()) {
-            try {
-                result.push(
-                    (
-                        await translateBatch(
-                            path,
-                            [fragment],
-                            context,
-                            [hints[index]],
-                            markupFeedback,
-                        )
-                    )[0],
-                );
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (error: any) {
-                logger.warn(path, `${what} failed (${error.message}).`);
-                result.push(undefined);
-            }
+        const middle = Math.ceil(fragments.length / 2);
+        for (const [start, end] of [
+            [0, middle],
+            [middle, fragments.length],
+        ]) {
+            result.push(
+                ...(await retryFragments(
+                    path,
+                    fragments.slice(start, end),
+                    context,
+                    what,
+                    hints.slice(start, end),
+                    markupFeedback,
+                )),
+            );
         }
 
         return result;
@@ -1129,7 +1126,6 @@ export function makeTranslator(params: TranslatorParams): Translate {
         path: string,
         fragments: string[],
         parts: string[],
-        context: string,
         hints: (SeedHint | undefined)[] = [],
     ): Promise<string[]> {
         if (dryRun || marker === null) {
@@ -1150,15 +1146,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
         stat.untranslatedRetried += indexes.length;
         logger.warn(path, `${indexes.length} fragment(s) came back untranslated; retrying them.`);
 
-        // A copied edit can echo again even without its memory. Retry it as
-        // isolated prose, without the source-language document title/context.
-        const copied = indexes.some((index) =>
-            copiedEdit(fragments[index], parts[index], hints[index]),
-        );
+        // Retry isolated prose without the source-language document title:
+        // the exact same context can reproduce an echo, even without memory.
         const retried = await retryFragments(
             path,
             indexes.map((index) => fragments[index]),
-            copied ? '' : context,
+            '',
             'Untranslated retry',
             indexes.map((index) =>
                 copiedEdit(fragments[index], parts[index], hints[index]) ? undefined : hints[index],
@@ -1191,7 +1184,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
     ): Promise<string[]> {
         try {
             const parts = await translateBatch(path, fragments, context, hints);
-            const retried = await retryUntranslated(path, fragments, parts, context, hints);
+            const retried = await retryUntranslated(path, fragments, parts, hints);
 
             return await repairDamaged(path, fragments, retried, context, hints);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1199,21 +1192,22 @@ export function makeTranslator(params: TranslatorParams): Translate {
             if (error instanceof LLMResponseError && fragments.length > 1) {
                 logger.warn(
                     path,
-                    `Batch of ${fragments.length} fragments failed (${error.message}); retrying one-by-one.`,
+                    `Batch of ${fragments.length} fragments failed (${error.message}); retrying smaller batches.`,
                 );
                 const result: string[] = [];
-                for (const [index, fragment] of fragments.entries()) {
-                    const hint = [hints[index]];
-                    const single = await translateBatch(path, [fragment], context, hint);
-                    const retried = await retryUntranslated(
-                        path,
-                        [fragment],
-                        single,
-                        context,
-                        hint,
+                const middle = Math.ceil(fragments.length / 2);
+                for (const [start, end] of [
+                    [0, middle],
+                    [middle, fragments.length],
+                ]) {
+                    result.push(
+                        ...(await translateWithSplit(
+                            path,
+                            fragments.slice(start, end),
+                            context,
+                            hints.slice(start, end),
+                        )),
                     );
-                    const repaired = await repairDamaged(path, [fragment], retried, context, hint);
-                    result.push(repaired[0]);
                 }
                 return result;
             }

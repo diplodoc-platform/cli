@@ -1542,6 +1542,9 @@ describe('translate ai provider', () => {
                 fragments.map((fragment) => {
                     const literals = fragment.match(/<x ctype="code_literal"[^>]*\/>/g) || [];
                     expect(literals).toHaveLength(2);
+                    if (!literals[0] || !literals[1]) {
+                        throw new Error('Expected two protected code literals');
+                    }
                     return fragment
                         .replace('Используйте', 'Use')
                         .replace('вместо', 'instead of')
@@ -1986,7 +1989,7 @@ describe('translate ai provider', () => {
             expect(stat.fallbackRequests).toBe(0);
         });
 
-        it('should retry one-by-one when fragment count mismatches', async () => {
+        it('bisects a malformed batch without guessing which fragment was dropped', async () => {
             const client = makeClient((fragments, call) => {
                 // First (batched) response merges everything into one fragment.
                 if (call === 0) {
@@ -1994,14 +1997,63 @@ describe('translate ai provider', () => {
                 }
                 return translated(fragments);
             });
-            const {params, warn} = makeParams(client);
+            const {params, warn} = makeParams(client, {maxBatchTokens: 500});
             const translate = makeTranslator(params);
 
-            const result = await translate('file.md', ['One', 'Two']);
+            const result = await translate('file.md', [
+                'One',
+                'Two',
+                'Three',
+                'Four',
+                'Five',
+                'Six',
+            ]);
 
-            expect(result).toEqual(['T:One', 'T:Two']);
+            expect(result).toEqual(['T:One', 'T:Two', 'T:Three', 'T:Four', 'T:Five', 'T:Six']);
             expect(client.complete).toHaveBeenCalledTimes(3);
-            expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('one-by-one'));
+            expect(warn).toHaveBeenCalledWith(
+                'file.md',
+                expect.stringContaining('smaller batches'),
+            );
+        });
+
+        it('drops automatic document context when retrying an unseeded echo', async () => {
+            const unit = wrap('Задайте условие показа вопроса:');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? fragments : ['Set the question display condition:'],
+            );
+            const {params} = makeParams(client, {maxBatchTokens: 500, systemPrompt: '{{context}}'});
+            expect(await makeTranslator(params)('ru/page.md', [unit])).toEqual([
+                wrap('Set the question display condition:'),
+            ]);
+            expect(vi.mocked(client.complete).mock.calls[0][0][0].content).toContain(
+                'Document context:',
+            );
+            expect(vi.mocked(client.complete).mock.calls[1][0][0].content).not.toContain(
+                'Document context:',
+            );
+        });
+
+        it('keeps repair positions when a bisected retry half fails', async () => {
+            const units = ['Первый текст', 'Второй текст', 'Третий текст', 'Четвертый текст'].map(
+                wrap,
+            );
+            const client = makeClient((_, call) => {
+                if (call === 0)
+                    return ['- First text', '- Second text', '- Third text', '- Fourth text'];
+                if (call === 1) return ['merged'];
+                if (call === 2) return new LLMAuthError('denied');
+                return ['Third text', 'Fourth text'];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            expect(await makeTranslator(params)('file.md', units)).toEqual([
+                units[0],
+                units[1],
+                wrap('Third text'),
+                wrap('Fourth text'),
+            ]);
+            expect(stat.markupDamaged).toBe(2);
+            expect(client.complete).toHaveBeenCalledTimes(4);
         });
 
         it('should reject and evict cached defers when the batch fails', async () => {
