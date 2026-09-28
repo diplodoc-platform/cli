@@ -1,0 +1,1074 @@
+{
+  "baselineRevision": "f14b47cd1531acbcde2a6e3e0ea99283fe47dc61",
+  "candidateRevision": "b0708ba2c7202ccf98fab1202a5c8c675d546ca4",
+  "languagePair": "ru-RU -> en-US",
+  "model": "deepseek-v4-flash",
+  "maxBatchTokens": 3000,
+  "maxOutputTokens": 16000,
+  "maxConcurrency": 3,
+  "judge": true,
+  "repeatsPerVariantAndMode": 3,
+  "incrementalEdit": "Prefix one ordinary Russian prose line per page with Важное уточнение: ; existing English remains unchanged.",
+  "limitations": [
+    "Public Markdown exports, not the original tasklet source tree.",
+    "Consumer tasklet usage was verified privately; internal configurations are not published.",
+    "Fixed common model for engine comparison, not a replay of each production model/configuration.",
+    "Controlled incremental edits, not historical PR diffs.",
+    "RU to EN only; other configured target languages are not covered.",
+    "Glossary is empty. Public RU/EN locales are not guaranteed to align.",
+    "Strict eval flags localized code comments and destinations; raw counts are retained.",
+    "Provider token counters do not include a separately priced estimate of judge usage."
+  ],
+  "runs": [
+    {
+      "version": "baseline",
+      "mode": "full",
+      "repeat": 1,
+      "passed": false,
+      "failures": ["markup violations: 9 (allowed: 0)", "untranslated lines: 2 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 2
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9
+          },
+          "untranslatedLines": 0
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 943,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "durationMs": 141894,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 1020,
+          "fromCache": 0,
+          "untranslated": 2,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177248,
+          "translated": 153563,
+          "request": 143280
+        },
+        "tokens": {
+          "input": 66756,
+          "output": 38407
+        },
+        "requests": {
+          "total": 75,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 1,
+          "untranslatedRetried": 5,
+          "untranslatedKept": 1
+        }
+      }
+    },
+    {
+      "version": "baseline",
+      "mode": "full",
+      "repeat": 2,
+      "passed": false,
+      "failures": ["markup violations: 9 (allowed: 0)", "untranslated lines: 4 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 4
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9
+          },
+          "untranslatedLines": 0
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 941,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "durationMs": 154650,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 1018,
+          "fromCache": 0,
+          "untranslated": 4,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177248,
+          "translated": 153092,
+          "request": 142959
+        },
+        "tokens": {
+          "input": 66313,
+          "output": 38244
+        },
+        "requests": {
+          "total": 74,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 1,
+          "untranslatedRetried": 4,
+          "untranslatedKept": 3
+        }
+      }
+    },
+    {
+      "version": "baseline",
+      "mode": "full",
+      "repeat": 3,
+      "passed": false,
+      "failures": ["markup violations: 9 (allowed: 0)", "untranslated lines: 3 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 3
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9
+          },
+          "untranslatedLines": 0
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 942,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "durationMs": 160475,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 1019,
+          "fromCache": 0,
+          "untranslated": 3,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177248,
+          "translated": 153187,
+          "request": 142701
+        },
+        "tokens": {
+          "input": 65909,
+          "output": 38159
+        },
+        "requests": {
+          "total": 73,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 1,
+          "untranslatedRetried": 3,
+          "untranslatedKept": 2
+        }
+      }
+    },
+    {
+      "version": "candidate",
+      "mode": "full",
+      "repeat": 1,
+      "passed": false,
+      "failures": ["markup violations: 9 (allowed: 0)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9
+          },
+          "untranslatedLines": 0
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 1
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 945,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "durationMs": 103217,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 1022,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177248,
+          "translated": 153693,
+          "request": 134701
+        },
+        "tokens": {
+          "input": 49168,
+          "output": 36398
+        },
+        "requests": {
+          "total": 26,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      }
+    },
+    {
+      "version": "candidate",
+      "mode": "full",
+      "repeat": 2,
+      "passed": false,
+      "failures": ["markup violations: 9 (allowed: 0)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9
+          },
+          "untranslatedLines": 0
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 1
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 945,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "durationMs": 89383,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 1022,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177248,
+          "translated": 153802,
+          "request": 134701
+        },
+        "tokens": {
+          "input": 49168,
+          "output": 36401
+        },
+        "requests": {
+          "total": 26,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      }
+    },
+    {
+      "version": "candidate",
+      "mode": "full",
+      "repeat": 3,
+      "passed": false,
+      "failures": ["markup violations: 9 (allowed: 0)", "untranslated lines: 3 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 2
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9
+          },
+          "untranslatedLines": 0
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {},
+          "untranslatedLines": 1
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 942,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "durationMs": 135029,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 1019,
+          "fromCache": 0,
+          "untranslated": 3,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177248,
+          "translated": 153063,
+          "request": 142972
+        },
+        "tokens": {
+          "input": 66689,
+          "output": 38215
+        },
+        "requests": {
+          "total": 75,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 2,
+          "markupDamaged": 1,
+          "untranslatedRetried": 4,
+          "untranslatedKept": 2
+        }
+      }
+    },
+    {
+      "version": "baseline",
+      "mode": "seed",
+      "repeat": 1,
+      "passed": false,
+      "failures": ["markup violations: 103 (allowed: 0)", "untranslated lines: 6 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {
+            "links": 39,
+            "formatting": 2
+          },
+          "untranslatedLines": 5
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9,
+            "links": 11
+          },
+          "untranslatedLines": 1
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {
+            "links": 18,
+            "formatting": 1
+          },
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {
+            "links": 19,
+            "fence-content": 4
+          },
+          "untranslatedLines": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 947,
+        "averageScore": 99.1,
+        "low": 6,
+        "skippedPairs": 0
+      },
+      "durationMs": 52653,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 187,
+          "fromCache": 1004,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177464,
+          "translated": 34167,
+          "request": 28984
+        },
+        "tokens": {
+          "input": 16175,
+          "output": 8269
+        },
+        "requests": {
+          "total": 15,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": true,
+          "hits": 1004,
+          "misses": 220,
+          "hitRate": 0.8203,
+          "hints": 11
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 2,
+          "untranslatedKept": 0
+        }
+      }
+    },
+    {
+      "version": "baseline",
+      "mode": "seed",
+      "repeat": 2,
+      "passed": false,
+      "failures": ["markup violations: 103 (allowed: 0)", "untranslated lines: 6 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {
+            "links": 39,
+            "formatting": 2
+          },
+          "untranslatedLines": 5
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9,
+            "links": 11
+          },
+          "untranslatedLines": 1
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {
+            "links": 18,
+            "formatting": 1
+          },
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {
+            "links": 19,
+            "fence-content": 4
+          },
+          "untranslatedLines": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 947,
+        "averageScore": 98.9,
+        "low": 7,
+        "skippedPairs": 0
+      },
+      "durationMs": 58094,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 187,
+          "fromCache": 1006,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177464,
+          "translated": 34134,
+          "request": 28984
+        },
+        "tokens": {
+          "input": 16175,
+          "output": 8262
+        },
+        "requests": {
+          "total": 15,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": true,
+          "hits": 1006,
+          "misses": 218,
+          "hitRate": 0.8219,
+          "hints": 11
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 2,
+          "untranslatedKept": 0
+        }
+      }
+    },
+    {
+      "version": "baseline",
+      "mode": "seed",
+      "repeat": 3,
+      "passed": false,
+      "failures": ["markup violations: 103 (allowed: 0)", "untranslated lines: 7 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {
+            "links": 39,
+            "formatting": 2
+          },
+          "untranslatedLines": 5
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9,
+            "links": 11
+          },
+          "untranslatedLines": 2
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {
+            "links": 18,
+            "formatting": 1
+          },
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {
+            "links": 19,
+            "fence-content": 4
+          },
+          "untranslatedLines": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 947,
+        "averageScore": 99,
+        "low": 7,
+        "skippedPairs": 0
+      },
+      "durationMs": 63545,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 187,
+          "fromCache": 1007,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177464,
+          "translated": 34125,
+          "request": 28803
+        },
+        "tokens": {
+          "input": 15958,
+          "output": 8279
+        },
+        "requests": {
+          "total": 15,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": true,
+          "hits": 1007,
+          "misses": 217,
+          "hitRate": 0.8227,
+          "hints": 11
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 2,
+          "untranslatedKept": 0
+        }
+      }
+    },
+    {
+      "version": "candidate",
+      "mode": "seed",
+      "repeat": 1,
+      "passed": false,
+      "failures": ["markup violations: 98 (allowed: 0)", "untranslated lines: 13 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {
+            "links": 38
+          },
+          "untranslatedLines": 5
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 8,
+            "links": 11
+          },
+          "untranslatedLines": 5
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {
+            "links": 18
+          },
+          "untranslatedLines": 1
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {
+            "links": 19,
+            "fence-content": 4
+          },
+          "untranslatedLines": 2
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 933,
+        "averageScore": 99.3,
+        "low": 4,
+        "skippedPairs": 0
+      },
+      "durationMs": 59514,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 179,
+          "fromCache": 997,
+          "untranslated": 14,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177464,
+          "translated": 33644,
+          "request": 31081
+        },
+        "tokens": {
+          "input": 16544,
+          "output": 8946
+        },
+        "requests": {
+          "total": 15,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": true,
+          "hits": 997,
+          "misses": 227,
+          "hitRate": 0.8145,
+          "hints": 11
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 0,
+          "untranslatedRetried": 14,
+          "untranslatedKept": 14
+        }
+      }
+    },
+    {
+      "version": "candidate",
+      "mode": "seed",
+      "repeat": 2,
+      "passed": false,
+      "failures": ["markup violations: 99 (allowed: 0)", "untranslated lines: 8 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {
+            "links": 38
+          },
+          "untranslatedLines": 5
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9,
+            "links": 11
+          },
+          "untranslatedLines": 1
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {
+            "links": 18
+          },
+          "untranslatedLines": 1
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {
+            "links": 19,
+            "fence-content": 4
+          },
+          "untranslatedLines": 1
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 946,
+        "averageScore": 98.9,
+        "low": 8,
+        "skippedPairs": 1
+      },
+      "durationMs": 60377,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 193,
+          "fromCache": 997,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177464,
+          "translated": 35285,
+          "request": 29812
+        },
+        "tokens": {
+          "input": 16188,
+          "output": 8528
+        },
+        "requests": {
+          "total": 15,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": true,
+          "hits": 997,
+          "misses": 227,
+          "hitRate": 0.8145,
+          "hints": 11
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 0,
+          "untranslatedRetried": 1,
+          "untranslatedKept": 0
+        }
+      }
+    },
+    {
+      "version": "candidate",
+      "mode": "seed",
+      "repeat": 3,
+      "passed": false,
+      "failures": ["markup violations: 99 (allowed: 0)", "untranslated lines: 8 (allowed: 1)"],
+      "consumers": {
+        "forms": {
+          "pages": 3,
+          "violations": {
+            "links": 38
+          },
+          "untranslatedLines": 5
+        },
+        "games": {
+          "pages": 3,
+          "violations": {
+            "fence-content": 9,
+            "links": 11
+          },
+          "untranslatedLines": 1
+        },
+        "tracker": {
+          "pages": 3,
+          "violations": {
+            "links": 18
+          },
+          "untranslatedLines": 0
+        },
+        "wiki": {
+          "pages": 3,
+          "violations": {
+            "links": 19,
+            "fence-content": 4
+          },
+          "untranslatedLines": 2
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 945,
+        "averageScore": 99.3,
+        "low": 5,
+        "skippedPairs": 0
+      },
+      "durationMs": 53879,
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 191,
+          "fromCache": 1001,
+          "untranslated": 2,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177464,
+          "translated": 34960,
+          "request": 31081
+        },
+        "tokens": {
+          "input": 16544,
+          "output": 8895
+        },
+        "requests": {
+          "total": 15,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": true,
+          "hits": 1001,
+          "misses": 223,
+          "hitRate": 0.8178,
+          "hints": 11
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 1,
+          "untranslatedRetried": 14,
+          "untranslatedKept": 1
+        }
+      }
+    }
+  ]
+}
