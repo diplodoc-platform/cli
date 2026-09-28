@@ -1833,6 +1833,22 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(1);
         });
 
+        it.each([
+            `${CODE_OPEN}код-цвета${CODE_CLOSE}`,
+            '<x ctype="liquid_Attributes" equiv-text="{wide-content title=&quot;Название таблицы&quot;}" id="x-1"/>',
+        ])(
+            'does not count protected literals or attributes as untranslated prose: %s',
+            async (literal) => {
+                const unit = wrap(literal);
+                const client = makeClient((fragments) => fragments);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(stat.untranslatedRetried).toBe(0);
+                expect(stat.untranslatedKept).toBe(0);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+            },
+        );
+
         it('should not retry untranslated units in a dry run', async () => {
             const unit = '<source xml:space="preserve">Исходный текст</source>';
             const client = makeClient((fragments) => fragments);

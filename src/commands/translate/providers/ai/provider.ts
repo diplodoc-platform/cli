@@ -53,7 +53,7 @@ import {
     splitFragments,
 } from './prompts';
 import {untranslatedMarker} from './utils/script';
-import {hasCopiedEdit} from './utils/edited-prose';
+import {hasCopiedEdit, hasSourceProse} from './utils/edited-prose';
 import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
 import {localizedUrls, restoreLocalizedUrls, revertedUrls} from './utils/links';
@@ -788,7 +788,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         hasCopiedEdit(fragment, part, hint, marker, allowedSpellings);
     const refusedTranslation = (fragment: string, part: string | undefined, hint?: SeedHint) =>
         part !== undefined &&
-        ((part === fragment && Boolean(marker?.test(part))) || copiedEdit(fragment, part, hint));
+        ((part === fragment && hasSourceProse(part, marker)) || copiedEdit(fragment, part, hint));
     const cachedRepair = (text: string, stored: string, seeded: boolean): CachedRepair => {
         if (!seeded) {
             return healCached(text, stored);
@@ -1325,7 +1325,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 // characters were cached by older runs that stored untranslated
                 // responses. Treat them as misses so the unit gets another chance.
                 const refused =
-                    (normalized === text && marker !== null && marker.test(text)) ||
+                    (normalized === text && hasSourceProse(text, marker)) ||
                     (!seeded &&
                         Boolean(
                             markupStructureIssue(

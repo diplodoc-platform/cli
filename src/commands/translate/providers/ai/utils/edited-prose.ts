@@ -17,6 +17,11 @@ function proseWords(text: string): string[] {
     );
 }
 
+/** Whether source-script characters occur in prose rather than protected data. */
+export function hasSourceProse(text: string, marker: RegExp | null): boolean {
+    return Boolean(marker && proseWords(text).some((word) => marker.test(word)));
+}
+
 /** Detect copied new prose, not old localized names or protected literal text. */
 export function hasCopiedEdit(
     source: string,
