@@ -43,6 +43,55 @@ export function patchInclude(before: string, after: string, target: string): str
     return translated[1] + updated[2] + translated[3];
 }
 
+/** A single changed table number can be copied without retranslating its prose. */
+export function patchTableNumber(
+    before: string,
+    after: string,
+    target: string,
+): {output?: string} | null {
+    const pattern = /\b\d+(?:\.\d+)?\b/g;
+    const oldNumbers = [...before.matchAll(pattern)],
+        newNumbers = [...after.matchAll(pattern)];
+    if (oldNumbers.length !== newNumbers.length) return null;
+    const changed = oldNumbers.flatMap((match, index) =>
+        match[0] === newNumbers[index][0] ? [] : [index],
+    );
+    if (changed.length !== 1) return null;
+    const previous = oldNumbers[changed[0]],
+        next = newNumbers[changed[0]][0];
+    const offset = previous.index;
+    if (
+        offset === undefined ||
+        before.slice(0, offset) + next + before.slice(offset + previous[0].length) !== after
+    )
+        return null;
+    const code = /`[^`\r\n]+`/g;
+    const oldCodes = [...before.matchAll(code)],
+        newCodes = [...after.matchAll(code)],
+        targetCodes = [...target.matchAll(code)];
+    const value = oldCodes[1];
+    if (
+        !value ||
+        !newCodes[1] ||
+        value.index === undefined ||
+        offset < value.index ||
+        offset + previous[0].length > value.index + value[0].length ||
+        oldCodes[0]?.[0] !== newCodes[0]?.[0]
+    )
+        return null;
+    if (oldCodes[0][0] !== targetCodes[0]?.[0]) return {};
+    if (targetCodes[1]?.[0] === newCodes[1]?.[0]) return {output: target};
+    if (targetCodes[1]?.[0] !== value[0]) return {};
+    const targetOffset = targetCodes[1].index;
+    if (targetOffset === undefined) return {};
+    return {
+        output:
+            target.slice(0, targetOffset) +
+            newCodes[1][0] +
+            target.slice(targetOffset + value[0].length),
+    };
+}
+
 /** A link-only source delta needs no prose regeneration, including reordered target links. */
 export function patchLinks(
     before: string,

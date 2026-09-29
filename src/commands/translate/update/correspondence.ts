@@ -36,6 +36,9 @@ export function correspond(before: RawBlock[], target: RawBlock[]): Map<number, 
             (anchor) => anchor !== 'id:T' && translated.anchors.includes(anchor),
         ) ||
             (source.kind !== 'paragraph' && source.text === translated.text) ||
+            (source.kind === 'marker' &&
+                /^{%\s*note\b/.test(source.text) &&
+                /^{%\s*note\b/.test(translated.text)) ||
             (singleTitle && /^# /.test(source.text) && /^# /.test(translated.text)));
     for (const [index, block] of before.entries()) {
         const candidates = target.flatMap((other, offset) =>

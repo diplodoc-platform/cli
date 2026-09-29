@@ -87,6 +87,50 @@ describe('source delta planner', () => {
             ),
         ).toMatchObject({ok: true, changes: [{expected: 'Удалить `old`.', sourceAfter: ''}]});
     });
+    it('deletes an opaque block only when the target has the exact same bytes', () => {
+        const before = '# A\n\n> Shared note.\n\nKeep.';
+        const after = '# A\n\nKeep.';
+        expect(
+            planUpdate(snapshot(before, after, '# A\n\n> Shared note.\n\nRetain.')),
+        ).toMatchObject({
+            ok: true,
+            changes: [{expected: '> Shared note.', literalOutput: '', sourceAfter: ''}],
+        });
+        expect(
+            planUpdate(snapshot(before, after, '# A\n\n> Human note.\n\nRetain.')),
+        ).toMatchObject({ok: false});
+    });
+    it('patches a unique numeric table value without rewriting translated prose', () => {
+        const before = '| `spark.timeout` | `300 seconds` | Таймаут на чтение |';
+        const after = '| `spark.timeout` | `30 seconds` | Таймаут на чтение |';
+        expect(
+            planUpdate(
+                snapshot(before, after, '| `spark.timeout` | `300 seconds` | Read timeout. |'),
+            ),
+        ).toMatchObject({
+            ok: true,
+            changes: [{literalOutput: '| `spark.timeout` | `30 seconds` | Read timeout. |'}],
+        });
+        expect(
+            planUpdate(
+                snapshot(before, after, '| `spark.timeout` | `600 seconds` | Read timeout. |'),
+            ),
+        ).toMatchObject({ok: false});
+        expect(
+            planUpdate(
+                snapshot(
+                    before,
+                    after,
+                    '| `spark.timeout` | `30 seconds` | Previously 300 seconds. |',
+                ),
+            ),
+        ).toMatchObject({
+            ok: true,
+            changes: [
+                {literalOutput: '| `spark.timeout` | `30 seconds` | Previously 300 seconds. |'},
+            ],
+        });
+    });
     it('inserts at an adjacent pair of uniquely mapped boundaries', () => {
         expect(
             planUpdate(

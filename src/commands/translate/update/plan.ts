@@ -4,7 +4,7 @@ import type {RawBlock} from './ranges';
 
 import {normalizeProseWhitespace} from './protected';
 import {balancedContainers, blockShape, extractRawBlocks} from './ranges';
-import {patchInclude, patchLinks, patchLiteralLines} from './raw-patch';
+import {patchInclude, patchLinks, patchLiteralLines, patchTableNumber} from './raw-patch';
 import {correspond, unchangedBlocks} from './correspondence';
 export type PlannedChange = {
     target: RawRange;
@@ -72,6 +72,17 @@ export function planUpdate(snapshot: Snapshot): UpdatePlan {
         if (links && links.output === undefined)
             return conflict('Changed link destination diverged in the target');
         literalOutput = links?.output;
+        if (
+            updated &&
+            old.kind === 'table' &&
+            block.kind === 'table' &&
+            literalOutput === undefined
+        ) {
+            const number = patchTableNumber(old.text, updated.text, block.text);
+            if (number && number.output === undefined)
+                return conflict('Changed table number diverged in the target');
+            literalOutput = number?.output;
+        }
         if (old.kind === 'marker' && !/{%\s*include\b/.test(old.text))
             return conflict(
                 'Container delimiters cannot be edited independently',
@@ -81,6 +92,7 @@ export function planUpdate(snapshot: Snapshot): UpdatePlan {
             literalOutput = patchLiteralLines(old.text, updated.text, block.text);
         if (updated && old.kind === 'marker' && /{%\s*include\b/.test(old.text))
             literalOutput = patchInclude(old.text, updated.text, block.text);
+        if (!updated && old.kind === 'opaque' && old.text === block.text) literalOutput = '';
         if ((old.kind === 'opaque' || block.kind === 'opaque') && literalOutput === undefined)
             return conflict('Target container cannot be replaced safely', 'unsupported_structure');
         if (updated && blockShape(old) !== blockShape(updated))

@@ -72,6 +72,38 @@ describe('structural incremental updates', () => {
         );
         expect(result.output).toBe('# Example\n\nResource 456.');
     });
+    it('inserts before a unique note whose title was translated', async () => {
+        const before =
+            '# Таблицы\n\nПосле создания они монтируются.\n\n{% note warning "Внимание" %}\n\nНе меняйте таблицы.\n\n{% endnote %}';
+        const after = before.replace(
+            '{% note warning "Внимание" %}',
+            'Новый абзац.\n\n{% note warning "Внимание" %}',
+        );
+        const target =
+            '# Tables\n\nThey are mounted after creation.\n\n{% note warning "Attention" %}\n\nDo not change the tables.\n\n{% endnote %}';
+        const result = await runUpdate(snapshot(before, after, target), async () => ({
+            text: 'New paragraph.',
+            diagnostics: [],
+        }));
+        expect(result.output).toBe(
+            target.replace(
+                '{% note warning "Attention" %}',
+                'New paragraph.\n\n{% note warning "Attention" %}',
+            ),
+        );
+        expect(result.rejected).toBe(0);
+    });
+    it('does not use an ambiguous repeated note as an insertion boundary', () => {
+        const before =
+            '# A\n\n{% note warning "Первое" %}\n\nОдин.\n\n{% endnote %}\n\n{% note warning "Второе" %}\n\nДва.\n\n{% endnote %}';
+        const after = before.replace(
+            '{% note warning "Второе" %}',
+            'Новый абзац.\n\n{% note warning "Второе" %}',
+        );
+        const target =
+            '# A\n\n{% note warning "Extra" %}\n\nHuman.\n\n{% endnote %}\n\n{% note warning "First" %}\n\nOne.\n\n{% endnote %}\n\n{% note warning "Second" %}\n\nTwo.\n\n{% endnote %}';
+        expect(planUpdate(snapshot(before, after, target)).ok).toBe(false);
+    });
     it('updates a title and inserts an introduction together', () => {
         const plan = planUpdate(
             snapshot(
