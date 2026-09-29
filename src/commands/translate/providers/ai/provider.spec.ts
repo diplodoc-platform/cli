@@ -112,6 +112,8 @@ const CODE_OPEN = '<x ctype="code_open" equiv-text="`" id="x-1"/>';
 const CODE_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-2"/>';
 
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
+const codeWrap = (text: string) =>
+    `<source data-yfm-context="code" xml:space="preserve">${text}</source>`;
 
 // Links as `extract` leaves them in a unit: contained in the fragment, and
 // crossing its edge, where `]`, `(`, the address and `)` stand side by side.
@@ -1616,6 +1618,90 @@ describe('translate ai provider', () => {
             ]);
             expect(stat.cached).toBe(0);
             expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it('accepts angle-bracket text translated inside a code comment', async () => {
+            const unit = codeWrap('export TOKEN=&lt;старый токен&gt;');
+            const answer = codeWrap('export TOKEN=&lt;old token&gt;');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'code-context-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient(() => ['export TOKEN=&lt;old token&gt;']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([answer]);
+            expect(stat.markupRetried).toBe(0);
+            expect(store.get(unit)).toBe(answer);
+        });
+
+        it('reuses a code-comment translation from persistent cache', async () => {
+            const unit = codeWrap('export TOKEN=&lt;старый токен&gt;');
+            const answer = codeWrap('export TOKEN=&lt;old token&gt;');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'code-cache-')), 'cache.json'),
+                'fp',
+            );
+            store.set(unit, answer);
+            const client = makeClient(() => {
+                throw new Error('Cached code translation must not be requested again');
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([answer]);
+            expect(stat.cached).toBe(1);
+        });
+
+        it('accepts literal angle-bracket text in a wide-table title', async () => {
+            const unit = markTableTitle(wrap('Название &lt;старый токен&gt;'));
+            const answer = markTableTitle(wrap('Title &lt;old token&gt;'));
+            const client = makeClient(() => ['Title &lt;old token&gt;']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([answer]);
+            expect(stat.markupRetried).toBe(0);
+        });
+
+        it('rejects the same invented HTML in ordinary prose', async () => {
+            const unit = wrap('export TOKEN=&lt;старый токен&gt;');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'plain-cache-')), 'cache.json'),
+                'fp',
+            );
+            store.set(
+                codeWrap('export TOKEN=&lt;старый токен&gt;'),
+                codeWrap('export TOKEN=&lt;old token&gt;'),
+            );
+            const client = makeClient(() => ['export TOKEN=&lt;old token&gt;']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(stat.markupRetried).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('preserves literal asterisks in a code comment', async () => {
+            const unit = codeWrap('# *старое*');
+            const answer = codeWrap('# *old*');
+            const client = makeClient(() => ['# *old*']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([answer]);
+            expect(stat.markupRetried).toBe(0);
+        });
+
+        it('still retries a missing placeholder inside a code comment', async () => {
+            const marker = '<x ctype="link" equiv-text="[link]" id="x-1"/>';
+            const unit = codeWrap(`# Значение ${marker}`);
+            const client = makeClient((_, call) =>
+                call === 0 ? ['# Value'] : [`# Value ${marker}`],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                codeWrap(`# Value ${marker}`),
+            ]);
+            expect(stat.markupRetried).toBe(1);
         });
 
         it('should retry a fragment the repair could not make composable', async () => {

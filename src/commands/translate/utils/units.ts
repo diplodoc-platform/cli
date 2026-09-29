@@ -8,6 +8,7 @@ import liquid from '@diplodoc/transform/lib/liquid';
 import {FileLoader, resolveSchemas} from './fs';
 import {extract} from './translate';
 import {markTableTitle} from './table-title';
+import {codeUnitIds, markCodeUnit} from './unit-context';
 
 export type LoadTranslationUnitsParams = {
     /** Absolute path of the file to read. */
@@ -101,8 +102,13 @@ export async function loadTranslationUnits(
     });
 
     const titleIds = new Set(tableTitles.flat());
-    const contextualUnits = units.map((unit, index) =>
-        titleIds.has(index) ? markTableTitle(unit) : unit,
-    );
+    const codeIds =
+        typeof content.data === 'string' && typeof skeleton === 'string'
+            ? codeUnitIds(content.data, skeleton)
+            : new Set<number>();
+    const contextualUnits = units.map((unit, index) => {
+        if (titleIds.has(index)) return markTableTitle(unit);
+        return codeIds.has(index) ? markCodeUnit(unit) : unit;
+    });
     return {content, units: contextualUnits, skeleton, schemas, ajvOptions, warnings, tableTitles};
 }

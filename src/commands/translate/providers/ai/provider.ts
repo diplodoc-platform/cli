@@ -16,7 +16,13 @@ import {LogLevel} from '~/core/logger';
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
 import {TranslateError, compose, languageRepath, loadTranslationUnits} from '../../utils';
-import {isTableTitleFallback, tableTitleFallback, tableTitleIssue} from '../../utils/table-title';
+import {
+    isTableTitleFallback,
+    isTableTitleUnit,
+    tableTitleFallback,
+    tableTitleIssue,
+} from '../../utils/table-title';
+import {isCodeUnit} from '../../utils/unit-context';
 import {TranslateLogger} from '../../logger';
 import {
     RunReport,
@@ -432,6 +438,12 @@ export function unwrapUnit(unit: string): UnitWrapper {
     return {open: '', text: unit, close: ''};
 }
 
+function markupIssueForUnit(source: string, translation: string): string | undefined {
+    return isCodeUnit(source) || isTableTitleUnit(source)
+        ? undefined
+        : markupStructureIssue(unwrapUnit(source).text, unwrapUnit(translation).text);
+}
+
 /**
  * Extracts a human-readable document title to use as translation context:
  * the first H1 for markdown, the `title` field for yaml documents.
@@ -748,6 +760,9 @@ export type CachedRepair = MarkupRepair & {
  */
 export function healCached(unit: string, stored: string): CachedRepair {
     const normalized = normalizeCached(unit, stored);
+    if (isCodeUnit(unit) || isTableTitleUnit(unit)) {
+        return {text: normalized, normalized, stripped: 0};
+    }
     const {open, text, close} = unwrapUnit(normalized);
     const source = unwrapUnit(unit).text;
     const repair = stripAddedMarkup(source, text);
@@ -977,7 +992,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
             const translation = answer
                 ? unmaskAddresses(text, unmaskLiteralCode(text, answer))
                 : text;
-            const repair = stripAddedMarkup(text, translation);
+            const repair =
+                isCodeUnit(fragments[index]) || isTableTitleUnit(fragments[index])
+                    ? {text: translation, stripped: 0}
+                    : stripAddedMarkup(text, translation);
 
             // Counted only once the answer is kept: a retry replaces both
             // the text and its repair.
@@ -1075,7 +1093,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 !tableTitleIssue(fragment, part) &&
                 keepsMarkup(source, text) &&
                 keepsPlaceholders(source, text) &&
-                !markupStructureIssue(source, text)
+                !markupIssueForUnit(fragment, part)
             );
         };
         const indexes = fragments
@@ -1350,12 +1368,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     (normalized === text && hasSourceProse(text, marker)) ||
                     (!seeded &&
                         Boolean(
-                            markupStructureIssue(
-                                unwrapUnit(text).text,
+                            markupIssueForUnit(
+                                text,
                                 // Seeded translations may legitimately localize URLs.
                                 // Check their shape with the source addresses, without
                                 // changing the cached translation used for composition.
-                                unwrapUnit(unmaskAddresses(text, maskAddresses(healed))).text,
+                                unmaskAddresses(text, maskAddresses(healed)),
                             ),
                         ));
                 if (!refused) {
