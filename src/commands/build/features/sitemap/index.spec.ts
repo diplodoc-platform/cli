@@ -65,7 +65,6 @@ function createMockRun(options: MockRunOptions = {}): Run {
         },
         meta: {
             get: vi.fn().mockImplementation((path: string) => options.meta?.[path] ?? {}),
-            dump: vi.fn().mockResolvedValue({}),
         },
         read: vi.fn().mockImplementation((path: string) => {
             const normalized = path.replace(/\\/g, '/');
@@ -153,6 +152,15 @@ describe('Sitemap generation', () => {
         expect(run.logger.warn).toHaveBeenCalledTimes(1);
     });
 
+    it('skips generation and warns when baseHref is not a valid url', async () => {
+        const run = createMockRun({baseHref: 'example.com/docs'});
+
+        await afterRun()(run);
+
+        expect(run.write).not.toHaveBeenCalled();
+        expect(run.logger.warn).toHaveBeenCalledTimes(1);
+    });
+
     it('skips singlepage builds', async () => {
         const run = createMockRun({baseHref: 'https://example.com/docs/', singlePage: true});
 
@@ -189,6 +197,21 @@ describe('Sitemap generation', () => {
 
         expect(xml).toContain('<loc>https://example.com/docs/ru/index.html</loc>');
         expect(xml).not.toContain('secret');
+    });
+
+    it('drops leading pages excluded by yaml metadata', async () => {
+        const run = createMockRun({
+            baseHref: 'https://example.com/docs/',
+            entries: ['ru/index.md', 'ru/leading.yaml'],
+            files: {'ru/leading.yaml': 'noIndex: true\ntitle: Leading\n'},
+        });
+
+        await afterRun()(run);
+
+        const xml = vi.mocked(run.write).mock.calls[0][1] as string;
+
+        expect(xml).toContain('<loc>https://example.com/docs/ru/index.html</loc>');
+        expect(xml).not.toContain('leading');
     });
 
     it('keeps pages that cannot be inspected', async () => {
