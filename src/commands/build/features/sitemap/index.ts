@@ -23,6 +23,11 @@ export type SitemapConfig = {
 
 const SITEMAP_FILENAME = 'sitemap.xml';
 
+type PageMeta = {
+    noIndex?: boolean;
+    'docs-viewer'?: {noIndex?: boolean};
+};
+
 export class Sitemap {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Sitemap', (command: Command) => {
@@ -120,14 +125,19 @@ export class Sitemap {
                     const source = join(run.input, entry);
                     const raw = await run.read(source as AbsolutePath);
 
-                    // Only `.md` files have YAML front matter delimited by `---`;
-                    // for the rest the document itself is the metadata.
-                    const meta = entry.endsWith('.md')
-                        ? extractFrontMatter(raw)[0]
-                        : (load(raw) as {
-                              noIndex?: boolean;
-                              'docs-viewer'?: {noIndex?: boolean};
-                          } | null);
+                    let meta: PageMeta | null | undefined;
+
+                    if (entry.endsWith('.md')) {
+                        // Only `.md` files have YAML front matter delimited by `---`.
+                        meta = extractFrontMatter(raw)[0] as PageMeta | null;
+                    } else {
+                        // Leading pages (`.yaml`) keep their metadata under the
+                        // document's `meta` section (see tests/mocks/metadata);
+                        // fall back to the document root for resilience.
+                        const doc = load(raw) as (PageMeta & {meta?: PageMeta}) | null;
+
+                        meta = doc?.meta ?? doc;
+                    }
 
                     // `noIndex` can live at the meta root (standard YFM frontmatter)
                     // or under the `docs-viewer` namespace (viewer-specific config).

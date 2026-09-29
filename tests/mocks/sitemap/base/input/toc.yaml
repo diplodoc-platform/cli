@@ -6,3 +6,5 @@ items:
     href: ru/guide.md
   - name: Secret
     href: ru/secret.md
+  - name: Leading
+    href: ru/leading.yaml
