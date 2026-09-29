@@ -167,7 +167,7 @@ export class Provider {
             }
             for (const diagnostic of result.diagnostics) {
                 report.addError({path: result.path, target: target.language, ...diagnostic});
-                this.logger.warn(result.path, `${diagnostic.code}: ${diagnostic.message}`);
+                this.logger.error(result.path, `${diagnostic.code}: ${diagnostic.message}`);
             }
         }
         report.addTarget(target.language, stat);

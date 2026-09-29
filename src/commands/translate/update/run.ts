@@ -53,6 +53,18 @@ function localize(change: PlannedChange): string {
         return index < 0 ? token : target[index];
     });
 }
+function withInsertionSeparator(
+    change: PlannedChange,
+    replacement: string,
+    target: string,
+): string {
+    if (!change.insertion) return replacement;
+    const newline = target.includes('\r\n') ? '\r\n' : '\n';
+    const separator = (change.separator ?? '\n\n').replace(/\n/g, newline);
+    return change.insertionSide === 'after'
+        ? `${separator}${replacement}`
+        : `${replacement}${separator}`;
+}
 /** Translate only authorized ranges; independent failed fragments remain unchanged and are reported. */
 export async function runUpdate(
     snapshot: Snapshot,
@@ -73,7 +85,11 @@ export async function runUpdate(
                 edits.push({
                     ...change.target,
                     expected: change.expected,
-                    replacement: change.literalOutput,
+                    replacement: withInsertionSeparator(
+                        change,
+                        change.literalOutput,
+                        snapshot.targetBefore!,
+                    ),
                 });
                 continue;
             }
@@ -131,15 +147,7 @@ export async function runUpdate(
                 rejected++;
                 continue;
             }
-            let replacement = result.text;
-            if (change.insertion) {
-                const newline = snapshot.targetBefore!.includes('\r\n') ? '\r\n' : '\n';
-                const separator = (change.separator ?? '\n\n').replace(/\n/g, newline);
-                replacement =
-                    change.insertionSide === 'after'
-                        ? `${separator}${replacement}`
-                        : `${replacement}${separator}`;
-            }
+            const replacement = withInsertionSeparator(change, result.text, snapshot.targetBefore!);
             edits.push({...change.target, expected: change.expected, replacement});
         } catch (error) {
             diagnostics.push({

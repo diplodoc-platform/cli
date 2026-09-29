@@ -98,6 +98,7 @@ export function extractRawBlocks(text: string): RawBlock[] {
         const anchors = [...raw.matchAll(/\{\s*#([^}\s]+)\s*\}|`([^`\r\n]+)`/g)].map((m) =>
             m[1] ? `id:${m[1]}` : `code:${m[2]}`,
         );
+        for (const match of raw.matchAll(/\]\(([^)]+)\)/g)) anchors.push(`link:${match[1]}`);
         for (const match of raw.matchAll(/@[-a-z0-9]+\/[-a-z0-9]+|\bsbr:\d+/gi))
             anchors.push(match[0].startsWith('sbr:') ? 'ref:sbr' : `package:${match[0]}`);
         if (kind === 'marker' && /{%\s*include\b/.test(raw))

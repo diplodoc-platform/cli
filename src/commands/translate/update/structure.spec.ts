@@ -113,6 +113,66 @@ describe('structural incremental updates', () => {
             ).ok,
         ).toBe(false);
     });
+    it('inserts a language-neutral conditional link at a mapped boundary', async () => {
+        const before = '# Issue\n\n* [{#T}](old.md)\n\n[*key]: definition';
+        const added = '{% if distr != "on-prem" %}\n* [{#T}](chat.md)\n{% endif %}';
+        const after = before.replace('\n\n[*key]', `\n${added}\n\n[*key]`);
+        const target = '# Issue\n\n* [{#T}](old.md)\n\n[*key]: Human definition';
+        const result = await runUpdate(snapshot(before, after, target), async () => {
+            throw Error('A structural link needs no model');
+        });
+        expect(result.output).toBe(
+            '# Issue\n\n* [{#T}](old.md)\n\n' + added + '\n\n[*key]: Human definition',
+        );
+        expect(result.applied).toBe(1);
+        expect(result.rejected).toBe(0);
+    });
+    it('finds the boundary among several placeholder links with distinct destinations', async () => {
+        const before =
+            '# Issue\n\n* [{#T}](ticket-links.md)\n* [{#T}](attach-file.md)\n* [{#T}](move-ticket.md)\n\n[*key]: {% include notitle [issue-key](glossary.md#issue-key) %}\n\n{% include [image-style](image.md) %}';
+        const added = '{% if distr != "on-prem" %}\n* [{#T}](chat.md)\n{% endif %}';
+        const after = before.replace('move-ticket.md)\n\n', `move-ticket.md)\n${added}\n\n`);
+        const target =
+            '# Issue\n\n* [{#T}](ticket-links.md)\n* [{#T}](attach-file.md)\n* [{#T}](move-ticket.md)\n\n{% include [image-style](image.md) %}';
+        const result = await runUpdate(snapshot(before, after, target), async () => {
+            throw Error('A structural link needs no model');
+        });
+        expect(result.output).toContain(added);
+        expect(result.applied).toBe(1);
+        expect(result.rejected).toBe(0);
+    });
+    it('recognizes an already translated conditional with the same unique link', async () => {
+        const before = '# Plugins\n\nIntro.\n\nNext paragraph.';
+        const addition =
+            "{% if audience == 'internal' %}Русский [Слоты](https://example.test/slots).{% endif %}";
+        const after = before.replace('Intro.\n\n', `Intro.\n\n${addition}\n\n`);
+        const target =
+            "# Plugins\n\nIntroduction.\n\n{% if audience == 'internal' %}English [Slots](https://example.test/slots).{% endif %}\n\nHuman next paragraph.";
+        const result = await runUpdate(snapshot(before, after, target), async () => {
+            throw Error('Already translated content needs no model');
+        });
+        expect(result.output).toBe(target);
+        expect(result.rejected).toBe(0);
+        expect(result.applied).toBe(0);
+    });
+    it('does not count an existing conditional as a newly applied duplicate', () => {
+        const conditional = '{% if audience == "internal" %}\n* [{#T}](chat.md)\n{% endif %}';
+        const before = `# A\n\n${conditional}\n\nNext paragraph.`;
+        const after = `# A\n\n${conditional}\n\n${conditional}\n\nNext paragraph.`;
+        const target = `# A\n\n${conditional}\n\nHuman next paragraph.`;
+        const plan = planUpdate(snapshot(before, after, target));
+        expect(plan.ok && plan.changes.length === 0).toBe(false);
+    });
+    it('rejects a new conditional containing prose without a matching target block', () => {
+        const before = '# Plugins\n\nIntro.\n\nNext paragraph.';
+        const after = before.replace(
+            'Intro.\n\n',
+            "Intro.\n\n{% if audience == 'internal' %}Русский текст.{% endif %}\n\n",
+        );
+        expect(
+            planUpdate(snapshot(before, after, '# Plugins\n\nIntroduction.\n\nNext paragraph.')).ok,
+        ).toBe(false);
+    });
 });
 
 it('updates exact metadata scalars and include paths while retaining localized values', async () => {

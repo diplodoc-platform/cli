@@ -28,6 +28,16 @@ const conflict = (
     code: UpdateDiagnostic['code'] = 'target_alignment_conflict',
 ): UpdatePlan => ({ok: false, diagnostic: {code, message}});
 
+function conditionalIdentity(text: string): string | null {
+    const directives = [...text.matchAll(/{%\s*(?:if|else|elif|endif)\b[^%]*%}/g)].map((m) => m[0]);
+    const links = [...text.matchAll(/\]\(([^)]+)\)/g)].map((m) => m[1]);
+    return directives.length && links.length ? JSON.stringify({directives, links}) : null;
+}
+
+function isLiteralConditionalLink(text: string): boolean {
+    return /^\s*{%\s*if\b[^%]*%}\s*[-*+]\s+\[\{#T\}\]\([^)]+\)\s*{%\s*endif\s*%}\s*$/.test(text);
+}
+
 /** Plan source deltas only; the model never decides which target spans may change. */
 export function planUpdate(snapshot: Snapshot): UpdatePlan {
     if (snapshot.sourceBefore === null || snapshot.targetBefore === null) {
@@ -95,18 +105,60 @@ export function planUpdate(snapshot: Snapshot): UpdatePlan {
                 'Container insertion must be complete and balanced',
                 'unsupported_structure',
             );
-        if (added.some((block) => block.kind === 'opaque' && /{%\s*if\b/.test(block.text)))
-            return conflict(
-                'Conditional insertion requires an audience-aware mapping',
-                'unsupported_structure',
-            );
+        const conditional = added.find(
+            (block) => block.kind === 'opaque' && /{%\s*if\b/.test(block.text),
+        );
+        if (conditional) {
+            if (added.length !== 1)
+                return conflict(
+                    'Conditional insertion must be a single block',
+                    'unsupported_structure',
+                );
+            const identity = conditionalIdentity(conditional.text);
+            if (identity && !before.some((block) => conditionalIdentity(block.text) === identity)) {
+                const candidates = target.flatMap((block, index) =>
+                    block.kind === 'opaque' && conditionalIdentity(block.text) === identity
+                        ? [index]
+                        : [],
+                );
+                const left =
+                    [...mapping]
+                        .filter(([old]) => old <= oldLeft)
+                        .sort((a, b) => b[0] - a[0])[0]?.[1] ?? -1;
+                const right =
+                    [...mapping]
+                        .filter(([old]) => old >= oldRight)
+                        .sort((a, b) => a[0] - b[0])[0]?.[1] ?? target.length;
+                if (candidates.length === 1 && left < candidates[0] && candidates[0] < right)
+                    return null;
+                if (candidates.length)
+                    return conflict('Conditional link has ambiguous target correspondence');
+            }
+            if (!isLiteralConditionalLink(conditional.text))
+                return conflict(
+                    'Conditional insertion requires an audience-aware mapping',
+                    'unsupported_structure',
+                );
+        }
         const previous = map(oldLeft),
             next = map(oldRight);
         const wholeSection = added[0].kind === 'heading' || /^\s*{%\s*cut\b/.test(added[0].text);
         if (previous < 0 && next < 0) return conflict('Insertion has no mapped boundary');
         if (previous >= 0 && next >= 0 && next !== previous + 1)
             return conflict('Insertion boundary contains target-only blocks');
-        if ((previous < 0 || next < 0) && !wholeSection && oldLeft >= 0 && oldRight < before.length)
+        const nextMapped = [...mapping]
+            .filter(([old]) => old >= oldRight)
+            .sort((a, b) => a[0] - b[0])[0]?.[1];
+        const omittedSourceBoundary = Boolean(
+            conditional && previous >= 0 && next < 0 && nextMapped === previous + 1,
+        );
+        if (
+            (previous < 0 || next < 0) &&
+            !wholeSection &&
+            !omittedSourceBoundary &&
+            oldLeft >= 0 &&
+            oldRight < before.length
+        )
             return conflict('Insertion boundary is missing');
         const side = next >= 0 ? 'before' : 'after';
         const start = next >= 0 ? target[next].start : target[previous].end;
@@ -123,6 +175,7 @@ export function planUpdate(snapshot: Snapshot): UpdatePlan {
             insertion: true,
             insertionSide: side,
             separator: added.every((b) => b.kind === 'table' || b.kind === 'list') ? '\n' : '\n\n',
+            literalOutput: conditional ? raw : undefined,
         });
         return null;
     };

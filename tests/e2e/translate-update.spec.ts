@@ -106,3 +106,71 @@ it.each([false, true])(
         }
     },
 );
+
+it('exits nonzero when a structural conflict prevents an update', {timeout: 60_000}, async () => {
+    const root = mkdtempSync(join(tmpdir(), 'translate-update-conflict-'));
+    const input = join(root, 'input');
+    const output = join(root, 'output');
+    mkdirSync(join(input, 'ru'), {recursive: true});
+    mkdirSync(join(input, 'en'));
+    mkdirSync(output);
+    const sourceAfter = '# A\n\nНовое.';
+    const target = '# A\n\nOld.\n\nHuman extra.';
+    writeFileSync(join(input, 'ru/a.md'), sourceAfter);
+    writeFileSync(join(input, 'en/a.md'), target);
+    writeFileSync(join(root, 'before.md'), '# A\n\nСтарое.');
+    writeFileSync(join(root, 'after.md'), sourceAfter);
+    writeFileSync(join(root, 'target.md'), target);
+    const manifest = join(root, 'manifest.json');
+    writeFileSync(
+        manifest,
+        JSON.stringify({
+            schemaVersion: 1,
+            files: [
+                {
+                    kind: 'update',
+                    sourcePath: 'ru/a.md',
+                    targetPath: 'en/a.md',
+                    sourceBeforePath: 'before.md',
+                    sourceAfterPath: 'after.md',
+                    targetBeforePath: 'target.md',
+                },
+            ],
+        }),
+    );
+    try {
+        const result = await runner.runRaw([
+            'translate',
+            '-i',
+            input,
+            '-o',
+            output,
+            '-sl',
+            'ru',
+            '-tl',
+            'en',
+            '--provider',
+            'openai',
+            '--model',
+            'mock',
+            '--auth',
+            'fake',
+            '--api-base',
+            'http://127.0.0.1:1/v1',
+            '--update-manifest',
+            manifest,
+            '--report',
+            join(root, 'report.json'),
+        ]);
+        expect(result.code, result.stderr).not.toBe(0);
+        expect(result.errors).toContain(
+            'ERR ru/a.md target_alignment_conflict: Source line 3: Changed block has no unique target correspondence',
+        );
+        expect(existsSync(join(output, 'en/a.md'))).toBe(false);
+        const report = JSON.parse(readFileSync(join(root, 'report.json'), 'utf8'));
+        expect(report.status).toBe('failed');
+        expect(report.updates).toMatchObject([{applied: 0, rejected: 1}]);
+    } finally {
+        rmSync(root, {recursive: true, force: true});
+    }
+});

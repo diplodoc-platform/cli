@@ -24,7 +24,9 @@ export function correspond(before: RawBlock[], target: RawBlock[]): Map<number, 
         target.filter((block) => /^# /.test(block.text)).length === 1;
     const identity = (source: RawBlock, translated: RawBlock) =>
         compatible(source, translated) &&
-        (source.anchors.some((anchor) => translated.anchors.includes(anchor)) ||
+        (source.anchors.some(
+            (anchor) => anchor !== 'id:T' && translated.anchors.includes(anchor),
+        ) ||
             (source.kind !== 'paragraph' && source.text === translated.text) ||
             (singleTitle && /^# /.test(source.text) && /^# /.test(translated.text)));
     for (const [index, block] of before.entries()) {
