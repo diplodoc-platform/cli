@@ -199,11 +199,28 @@ describe('Sitemap generation', () => {
         expect(xml).not.toContain('secret');
     });
 
-    it('drops leading pages excluded by yaml metadata', async () => {
+    it('drops leading pages excluded by the yaml meta section', async () => {
         const run = createMockRun({
             baseHref: 'https://example.com/docs/',
             entries: ['ru/index.md', 'ru/leading.yaml'],
-            files: {'ru/leading.yaml': 'noIndex: true\ntitle: Leading\n'},
+            files: {'ru/leading.yaml': 'title: Leading\nmeta:\n  noIndex: true\n'},
+        });
+
+        await afterRun()(run);
+
+        const xml = vi.mocked(run.write).mock.calls[0][1] as string;
+
+        expect(xml).toContain('<loc>https://example.com/docs/ru/index.html</loc>');
+        expect(xml).not.toContain('leading');
+    });
+
+    it('drops leading pages excluded by the yaml docs-viewer meta section', async () => {
+        const run = createMockRun({
+            baseHref: 'https://example.com/docs/',
+            entries: ['ru/index.md', 'ru/leading.yaml'],
+            files: {
+                'ru/leading.yaml': 'title: Leading\nmeta:\n  docs-viewer:\n    noIndex: true\n',
+            },
         });
 
         await afterRun()(run);

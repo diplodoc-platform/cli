@@ -18,8 +18,27 @@ describe('Sitemap', () => {
 
         expect(sitemap).toContain('<loc>https://example.com/docs/ru/index.html</loc>');
         expect(sitemap).toContain('<loc>https://example.com/docs/ru/guide.html</loc>');
-        // Pages with `noIndex` must not reach the sitemap.
+        // Pages with `noIndex` must not reach the sitemap: neither the `.md`
+        // front matter page nor the leading page with the `meta.noIndex` section.
         expect(sitemap).not.toContain('secret');
+        expect(sitemap).not.toContain('leading');
+    });
+
+    test('excludes leading pages with meta.noIndex when building with workers', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/sitemap/base');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: false,
+            md2html: true,
+            args: '--sitemap --base-href https://example.com/docs/ --jobs 2',
+        });
+
+        const sitemap = await readFile(join(outputPath, 'sitemap.xml'), 'utf-8');
+
+        expect(sitemap).toContain('<loc>https://example.com/docs/ru/index.html</loc>');
+        // With workers the page metadata never reaches the main thread MetaService,
+        // so the leading page must be filtered out by reading the source file.
+        expect(sitemap).not.toContain('leading');
     });
 
     test('does not generate sitemap.xml for md build', async () => {
