@@ -4,6 +4,8 @@ import {describe, expect, it} from 'vitest';
 
 import {planUpdate} from './plan';
 import {runUpdate} from './run';
+import {correspond} from './correspondence';
+import {extractRawBlocks} from './ranges';
 
 const snapshot = (sourceBefore: string, sourceAfter: string, targetBefore: string): Snapshot => ({
     entry: {
@@ -112,6 +114,15 @@ describe('structural incremental updates', () => {
                 ),
             ).ok,
         ).toBe(false);
+    });
+    it('does not match conditional links across different audiences', () => {
+        const source = extractRawBlocks(
+            '# A\n\n{% if audience == "internal" %}\n* [{#T}](chat.md)\n{% endif %}',
+        );
+        const target = extractRawBlocks(
+            '# A\n\n{% if audience == "external" %}\n* [{#T}](chat.md)\n{% endif %}',
+        );
+        expect(correspond(source, target).has(1)).toBe(false);
     });
     it('inserts a language-neutral conditional link at a mapped boundary', async () => {
         const before = '# Issue\n\n* [{#T}](old.md)\n\n[*key]: definition';

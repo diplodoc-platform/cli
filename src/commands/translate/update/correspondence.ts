@@ -3,6 +3,14 @@ import type {RawBlock} from './ranges';
 import {blockShape} from './ranges';
 
 function compatible(source: RawBlock, target: RawBlock): boolean {
+    const condition = /{%\s*(?:if|elif|else|endif)\b[^%]*%}/g;
+    const sourceConditions = source.text.match(condition) ?? [];
+    const targetConditions = target.text.match(condition) ?? [];
+    if (
+        (sourceConditions.length || targetConditions.length) &&
+        JSON.stringify(sourceConditions) !== JSON.stringify(targetConditions)
+    )
+        return false;
     const conflictingId = source.anchors.some(
         (anchor) =>
             /^(?:id:|cut:)/.test(anchor) &&
