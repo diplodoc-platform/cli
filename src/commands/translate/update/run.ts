@@ -29,7 +29,20 @@ function tokens(text: string): string[] {
 }
 function localize(change: PlannedChange): string {
     const before = tokens(change.sourceBefore);
-    const target = tokens(change.previousTranslation);
+    const rawTarget = tokens(change.previousTranslation);
+    const removableCode = rawTarget.filter((token) => {
+        if (tokenKind(token) !== 'code' || before.includes(token)) return false;
+        const name = token.replace(/^`+|`+$/g, '');
+        return (
+            name.length > 0 &&
+            change.sourceBefore.split(name).length === 2 &&
+            !change.sourceAfter.includes(name)
+        );
+    });
+    const target =
+        rawTarget.length === before.length + 1 && removableCode.length === 1
+            ? rawTarget.filter((token) => token !== removableCode[0])
+            : rawTarget;
     if (!change.sourceBefore || !change.sourceAfter) {
         return change.sourceAfter;
     }

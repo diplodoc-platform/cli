@@ -108,6 +108,44 @@ it('does not discard a target-only explanation inside a changed paragraph', asyn
     expect(calls).toBe(0);
 });
 
+it('removes a target-only code style when the source removes that name', async () => {
+    let calls = 0;
+    const result = await runUpdate(
+        snapshot(
+            '# Query {#query}\n\nПрагма yt.QueryCacheMode управляет результатами в {{product-name}}.',
+            '# Query {#query}\n\nПрагма управляет результатами в {{product-name}}.',
+            '# Query {#query}\n\nUse the `yt.QueryCacheMode` pragma to control results in {{product-name}}.',
+        ),
+        async (request) => {
+            calls++;
+            expect(request.sourceAfter).toBe('Прагма управляет результатами в {{product-name}}.');
+            return {text: 'The pragma controls results in {{product-name}}.', diagnostics: []};
+        },
+    );
+    expect(calls).toBe(1);
+    expect(result.output).toBe(
+        '# Query {#query}\n\nThe pragma controls results in {{product-name}}.',
+    );
+    expect(result.rejected).toBe(0);
+});
+
+it('keeps a target-only code token when the source still names it', async () => {
+    let calls = 0;
+    const result = await runUpdate(
+        snapshot(
+            '# Query {#query}\n\nПрагма yt.QueryCacheMode управляет результатами.',
+            '# Query {#query}\n\nПрагма yt.QueryCacheMode управляет кешем.',
+            '# Query {#query}\n\nThe `yt.QueryCacheMode` pragma controls results.',
+        ),
+        async () => {
+            calls++;
+            return {text: 'The pragma controls the cache.', diagnostics: []};
+        },
+    );
+    expect(calls).toBe(0);
+    expect(result.output).toBeNull();
+});
+
 it('rejects reordered localized token kinds before asking the model', async () => {
     let calls = 0;
     const result = await runUpdate(
