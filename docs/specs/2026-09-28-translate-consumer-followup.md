@@ -1,5 +1,9 @@
 # Consumer translation follow-up
 
+The [September 29 library follow-up](2026-09-29-translate-table-title.md)
+addresses the standalone title extraction defect recorded below. Historical
+measurements and unsuccessful outcomes in this report remain unchanged.
+
 This follows the [initial unsuccessful consumer comparison](2026-09-28-translate-consumers.md).
 Those measurements remain unchanged. Runtime revision under validation:
 `324491a599cd0f9e85ea37f2e123baec267f56e2`; baseline remains

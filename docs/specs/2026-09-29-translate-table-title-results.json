@@ -1,0 +1,3905 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-29",
+  "cliSourceRevision": "af61d3985d7b4009259272a60ac4c337a9183f31",
+  "cliRuntimeRevision": "324491a599cd0f9e85ea37f2e123baec267f56e2",
+  "cliBinarySha256": "4702fae97f38659e64abc97880b8bdfb243f2e00738843c20a2acacfb08b0dd2",
+  "libraryBeforeRevision": "875e8823f52b71bd9d2259624193a383e752504b",
+  "libraryAfterRevision": "55c1d76e154cc41b1b654e6c7c863d00dc17c2ec",
+  "libraryBeforeSha256": "67e9f788b3e5375ceb50d42425385b9c987ba0112a6d7f6d6b3862ad045d0473",
+  "libraryAfterSha256": "114a7ff3a6876a392c95bd6a38a4690cf52eec079fb8207b96e766abde4d2ea5",
+  "model": "deepseek-v4-flash",
+  "languages": "ru-RU -> en-US",
+  "temperature": 0,
+  "code": "adaptive",
+  "freshCachePerRun": true,
+  "settings": {
+    "diplodoc": {
+      "pages": 16,
+      "glossaryTerms": 6,
+      "maxBatchTokens": 8000,
+      "maxOutputTokens": 4000,
+      "maxConcurrency": 5
+    },
+    "ytsaurus": {
+      "pages": 3,
+      "glossaryTerms": 0,
+      "maxBatchTokens": 3000,
+      "maxOutputTokens": 16000,
+      "maxConcurrency": 5
+    },
+    "consumers": {
+      "pages": 12,
+      "glossaryTerms": 0,
+      "maxBatchTokens": 3000,
+      "maxOutputTokens": 16000,
+      "maxConcurrency": 3
+    }
+  },
+  "runs": [
+    {
+      "name": "diplodoc-before",
+      "repeat": 1,
+      "startedAt": "2026-09-29T08:44:25.338Z",
+      "finishedAt": "2026-09-29T08:45:08.581Z",
+      "status": "success",
+      "passed": true,
+      "failures": [],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 17,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 775,
+          "translated": 495,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 72362,
+          "translated": 58999,
+          "request": 48927
+        },
+        "tokens": {
+          "input": 20197,
+          "output": 12230
+        },
+        "requests": {
+          "total": 18,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 1,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 409,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "_includes/blank-lines-note.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "b1da24809e05bc02f7e068dfee83ea1b256cc06d22d5f1b1cf941a3d661928a9"
+        },
+        {
+          "page": "_includes/github-warning.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "bb3e2d965847e5ab1cd794bf9cc2d2d8c6cbed6152b81d3bfd2fa1421f660833"
+        },
+        {
+          "page": "_includes/not_var-info.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "52e93345196e886d965be5a633f1e339a23d306e34efa1aae96955479c6fe061"
+        },
+        {
+          "page": "_includes/popups_examples.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1580799aa2caeab5d2807d417dff36749918a664832489eaa3c3e44c517bee7f"
+        },
+        {
+          "page": "about.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "3fe0ab2b408599c7b965b2c2654c24e45c263affd7fe3c6a6d176c0bbf078211"
+        },
+        {
+          "page": "extensions/index.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d8458b9a4611755dfa7eb82d5cec697626c5d9aebe1149bbe0a19a875eb3f4a5"
+        },
+        {
+          "page": "project/minitoc.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2da965e95a0e8bda7902293b24598f8fd06dd4a706373d4aa32cf4fcc891f4a3"
+        },
+        {
+          "page": "quickstart.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "4892113090976c208af9b83bb64a462cfea55ced5cad561f8a52518556e6e37d"
+        },
+        {
+          "page": "syntax/code.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2ac4ccb88768200ba527f60cb570b78c7e8af368e6de12edd08587573ce52034"
+        },
+        {
+          "page": "syntax/links.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "c19d0225c9c02579f34bbbaf2e3b55488594e54656999bfea0975154cc2455c0"
+        },
+        {
+          "page": "syntax/lists.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8657eb7e55f90f30543e93852c4621f78e0aeae180a69a313deb76687513c525"
+        },
+        {
+          "page": "syntax/notes.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "360b301bc7e8a2b43e585bd62547878d9f63d51af15030dd40fab43dc794180c"
+        },
+        {
+          "page": "syntax/tables/gfm.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "c984d3ef841497692b7a002ed4a8b9ce98ea39fe397cf28e1f37d85ed3bf0ae2"
+        },
+        {
+          "page": "syntax/tables/multiline.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "abb872a529531fc60f4289c8435c66e08ab6beb872d7b54b77128d2f9aebdfa2"
+        },
+        {
+          "page": "syntax/term.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "a6d56c37992eb8867cfc55db93ea0a1c06c576658d0969a47fbb1de38381f85c"
+        },
+        {
+          "page": "syntax/vars.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "0d9f76d860d05e7cf6bb8c4295c9e162b6e6836829917b3af0aa5977b6b73d92"
+        }
+      ]
+    },
+    {
+      "name": "diplodoc-before",
+      "repeat": 2,
+      "startedAt": "2026-09-29T08:45:08.652Z",
+      "finishedAt": "2026-09-29T08:45:53.109Z",
+      "status": "success",
+      "passed": true,
+      "failures": [],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 17,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 775,
+          "translated": 495,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 72362,
+          "translated": 58972,
+          "request": 48879
+        },
+        "tokens": {
+          "input": 19859,
+          "output": 12224
+        },
+        "requests": {
+          "total": 17,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 409,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "_includes/blank-lines-note.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "b1da24809e05bc02f7e068dfee83ea1b256cc06d22d5f1b1cf941a3d661928a9"
+        },
+        {
+          "page": "_includes/github-warning.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "bb3e2d965847e5ab1cd794bf9cc2d2d8c6cbed6152b81d3bfd2fa1421f660833"
+        },
+        {
+          "page": "_includes/not_var-info.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "52e93345196e886d965be5a633f1e339a23d306e34efa1aae96955479c6fe061"
+        },
+        {
+          "page": "_includes/popups_examples.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1580799aa2caeab5d2807d417dff36749918a664832489eaa3c3e44c517bee7f"
+        },
+        {
+          "page": "about.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "b009ea13082ce64f1a722f735e916f197fd14a682a96117f7e5a9ee66afdfeee"
+        },
+        {
+          "page": "extensions/index.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d8458b9a4611755dfa7eb82d5cec697626c5d9aebe1149bbe0a19a875eb3f4a5"
+        },
+        {
+          "page": "project/minitoc.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8d0c4001cf49006b173b48113e95fd5e2a72c499411b0535fc63c3c295ff8428"
+        },
+        {
+          "page": "quickstart.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "cc123c56d48acc47825807c86f34ac7146bfe7e73c73bece2d6f0321cdfadf2e"
+        },
+        {
+          "page": "syntax/code.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "0541ad7de4c5a2e09adca09e6e8e1d4aa7e218f5c90bb9c1c9e51b86b3284e21"
+        },
+        {
+          "page": "syntax/links.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "c19d0225c9c02579f34bbbaf2e3b55488594e54656999bfea0975154cc2455c0"
+        },
+        {
+          "page": "syntax/lists.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "10ceb3385c311e0035a7b0053a42e253dfb428f94e56547863844a6b1997e657"
+        },
+        {
+          "page": "syntax/notes.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "6e0b27f985331b439e0c90c27dcb4ef3c8b12226c32f951d3629d14ce1affa7e"
+        },
+        {
+          "page": "syntax/tables/gfm.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1fd45ee249cc6dd54882446316d156cabe2b1141c46e9e5239d97e750bcb42ea"
+        },
+        {
+          "page": "syntax/tables/multiline.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "27c5439f43902c6feb027becf11bef237feb867766df3e3105439e2c1175fdc3"
+        },
+        {
+          "page": "syntax/term.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "3fca236e932cd21eb37cef0d07cbdb212d3274518fb7766e0ad47de3559da721"
+        },
+        {
+          "page": "syntax/vars.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "280f05166ef7f288c52a420474fbe349ef8f9ca4387be8763490054b37476ab6"
+        }
+      ]
+    },
+    {
+      "name": "diplodoc-before",
+      "repeat": 3,
+      "startedAt": "2026-09-29T08:45:53.163Z",
+      "finishedAt": "2026-09-29T08:46:41.186Z",
+      "status": "success",
+      "passed": true,
+      "failures": [],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 17,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 775,
+          "translated": 495,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 72362,
+          "translated": 58959,
+          "request": 49019
+        },
+        "tokens": {
+          "input": 20220,
+          "output": 12246
+        },
+        "requests": {
+          "total": 18,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 2,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 409,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "_includes/blank-lines-note.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "30de4800e5baf138b3532410f3b465116f87e2b381580d4bae960eb7bb1b33c7"
+        },
+        {
+          "page": "_includes/github-warning.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "bb3e2d965847e5ab1cd794bf9cc2d2d8c6cbed6152b81d3bfd2fa1421f660833"
+        },
+        {
+          "page": "_includes/not_var-info.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "52e93345196e886d965be5a633f1e339a23d306e34efa1aae96955479c6fe061"
+        },
+        {
+          "page": "_includes/popups_examples.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1580799aa2caeab5d2807d417dff36749918a664832489eaa3c3e44c517bee7f"
+        },
+        {
+          "page": "about.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "a484be052ac48fd1c16cbc94bf4991c9e4cf806a5554815377427441d951a835"
+        },
+        {
+          "page": "extensions/index.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d9aa1e494de2ef2b5121ae8b311b7f5b15eeda6596c7eef6bae1e793191b961d"
+        },
+        {
+          "page": "project/minitoc.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d38e69251bc0954311d59bda77fab5c58cb29e2fa66880b2e0b1ff09f9a3a8b5"
+        },
+        {
+          "page": "quickstart.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "9904fbeac05c17ece04a79cdb1c988dac3c69f3ed718eecef1a421bb44d6154c"
+        },
+        {
+          "page": "syntax/code.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "b95c9830ed61c6ada042e5e8a923c68e185d80cb7280f5a4dcc6d3cb6ce63c5f"
+        },
+        {
+          "page": "syntax/links.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "c54afecfa2f4793df4db54eed92dedc341fa333c94fe6c06f94a50700b688e60"
+        },
+        {
+          "page": "syntax/lists.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "0da13092a390f44a5cdbbd870feec6fbcff40d937c9aa96dc7d10f5894ba8d34"
+        },
+        {
+          "page": "syntax/notes.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "6e0b27f985331b439e0c90c27dcb4ef3c8b12226c32f951d3629d14ce1affa7e"
+        },
+        {
+          "page": "syntax/tables/gfm.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "5bd40b39c7e921883c72114fc8944054ecea25772b272e70da4cceec955ad45e"
+        },
+        {
+          "page": "syntax/tables/multiline.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "3c5db05fa7dc3c4f0227a840749b350d03bc8d4d268ca1b6c22d1300a70b944f"
+        },
+        {
+          "page": "syntax/term.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "a4bff1ab2df71488aaf0648d25f01705f5a365695d04a738fc4e288e18b2fedc"
+        },
+        {
+          "page": "syntax/vars.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "395680b06ed06fc26c1b4d48df7c39e7520f4251702681ce0bb11c03909bc08d"
+        }
+      ]
+    },
+    {
+      "name": "diplodoc-after",
+      "repeat": 1,
+      "startedAt": "2026-09-29T08:48:05.163Z",
+      "finishedAt": "2026-09-29T08:48:51.089Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["untranslated lines: 1 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 17,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 775,
+          "translated": 494,
+          "fromCache": 0,
+          "untranslated": 1,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 72329,
+          "translated": 58847,
+          "request": 48978
+        },
+        "tokens": {
+          "input": 20537,
+          "output": 12231
+        },
+        "requests": {
+          "total": 19,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 2,
+          "untranslatedKept": 1
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 408,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "_includes/blank-lines-note.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "b1da24809e05bc02f7e068dfee83ea1b256cc06d22d5f1b1cf941a3d661928a9"
+        },
+        {
+          "page": "_includes/github-warning.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "bb3e2d965847e5ab1cd794bf9cc2d2d8c6cbed6152b81d3bfd2fa1421f660833"
+        },
+        {
+          "page": "_includes/not_var-info.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "52e93345196e886d965be5a633f1e339a23d306e34efa1aae96955479c6fe061"
+        },
+        {
+          "page": "_includes/popups_examples.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1580799aa2caeab5d2807d417dff36749918a664832489eaa3c3e44c517bee7f"
+        },
+        {
+          "page": "about.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "a484be052ac48fd1c16cbc94bf4991c9e4cf806a5554815377427441d951a835"
+        },
+        {
+          "page": "extensions/index.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d8458b9a4611755dfa7eb82d5cec697626c5d9aebe1149bbe0a19a875eb3f4a5"
+        },
+        {
+          "page": "project/minitoc.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2da965e95a0e8bda7902293b24598f8fd06dd4a706373d4aa32cf4fcc891f4a3"
+        },
+        {
+          "page": "quickstart.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "088263f47780bf6c938adcc59d8eb7b0f5299d0e9c636222647b90eacecf1a4a"
+        },
+        {
+          "page": "syntax/code.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "631b3d6a6c8ad58924bda3e9497745c68625fcf0cee226019d7414e1d6b47dc6"
+        },
+        {
+          "page": "syntax/links.md",
+          "markup": [],
+          "untranslated": [
+            {
+              "line": 3,
+              "text": "Стандартная разметка для ссылки имеет вид:"
+            }
+          ],
+          "glossary": [],
+          "outputSha256": "8897ce63970472d77dc2ae3ff9bc9830382e532556b63bcfe868db03bb9450b3"
+        },
+        {
+          "page": "syntax/lists.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8657eb7e55f90f30543e93852c4621f78e0aeae180a69a313deb76687513c525"
+        },
+        {
+          "page": "syntax/notes.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "6e0b27f985331b439e0c90c27dcb4ef3c8b12226c32f951d3629d14ce1affa7e"
+        },
+        {
+          "page": "syntax/tables/gfm.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1fd45ee249cc6dd54882446316d156cabe2b1141c46e9e5239d97e750bcb42ea"
+        },
+        {
+          "page": "syntax/tables/multiline.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "27c5439f43902c6feb027becf11bef237feb867766df3e3105439e2c1175fdc3"
+        },
+        {
+          "page": "syntax/term.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "a6d56c37992eb8867cfc55db93ea0a1c06c576658d0969a47fbb1de38381f85c"
+        },
+        {
+          "page": "syntax/vars.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "183eeeae0db6e8c35159e3c08e02f06950c0ca40791423e5c23414b6fa721fe1"
+        }
+      ]
+    },
+    {
+      "name": "diplodoc-after",
+      "repeat": 2,
+      "startedAt": "2026-09-29T08:48:51.162Z",
+      "finishedAt": "2026-09-29T08:49:26.956Z",
+      "status": "success",
+      "passed": true,
+      "failures": [],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 17,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 775,
+          "translated": 495,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 72329,
+          "translated": 58927,
+          "request": 48846
+        },
+        "tokens": {
+          "input": 19851,
+          "output": 12205
+        },
+        "requests": {
+          "total": 17,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 409,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "_includes/blank-lines-note.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "b1da24809e05bc02f7e068dfee83ea1b256cc06d22d5f1b1cf941a3d661928a9"
+        },
+        {
+          "page": "_includes/github-warning.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "bb3e2d965847e5ab1cd794bf9cc2d2d8c6cbed6152b81d3bfd2fa1421f660833"
+        },
+        {
+          "page": "_includes/not_var-info.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "52e93345196e886d965be5a633f1e339a23d306e34efa1aae96955479c6fe061"
+        },
+        {
+          "page": "_includes/popups_examples.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1580799aa2caeab5d2807d417dff36749918a664832489eaa3c3e44c517bee7f"
+        },
+        {
+          "page": "about.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "a484be052ac48fd1c16cbc94bf4991c9e4cf806a5554815377427441d951a835"
+        },
+        {
+          "page": "extensions/index.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d8458b9a4611755dfa7eb82d5cec697626c5d9aebe1149bbe0a19a875eb3f4a5"
+        },
+        {
+          "page": "project/minitoc.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8d0c4001cf49006b173b48113e95fd5e2a72c499411b0535fc63c3c295ff8428"
+        },
+        {
+          "page": "quickstart.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "72c8578a492e12265c6dbf770987812f9ecb6642456dbc14735463bd7d0cf920"
+        },
+        {
+          "page": "syntax/code.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d8eeadbcfd9ef9c81b207391c44c62dbb8cb073a3af6450803edf2a4734fa7f3"
+        },
+        {
+          "page": "syntax/links.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "4b7f3469359e5423b1f41edca4fc81e569df88c22875bb41b3d5cb0a41a9c281"
+        },
+        {
+          "page": "syntax/lists.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8657eb7e55f90f30543e93852c4621f78e0aeae180a69a313deb76687513c525"
+        },
+        {
+          "page": "syntax/notes.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "360b301bc7e8a2b43e585bd62547878d9f63d51af15030dd40fab43dc794180c"
+        },
+        {
+          "page": "syntax/tables/gfm.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1e55a3e0d6413b77d93d1c986b01f78b33b416adab8c51828b4a396f966e086f"
+        },
+        {
+          "page": "syntax/tables/multiline.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "9655431566f4de51043981a27a08907992fcb132e23042d4ded9969387172e70"
+        },
+        {
+          "page": "syntax/term.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "10e6958dbcaf0d1493ba4c922dd9e16c954adea2ddc48d19b541b4ace0ca4ac7"
+        },
+        {
+          "page": "syntax/vars.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "963c18b080beafd3b9bf8a1abad006fb64e9dec085f6d19e53c96d2e3ceba0dc"
+        }
+      ]
+    },
+    {
+      "name": "diplodoc-after",
+      "repeat": 3,
+      "startedAt": "2026-09-29T08:49:27.015Z",
+      "finishedAt": "2026-09-29T08:50:05.823Z",
+      "status": "success",
+      "passed": true,
+      "failures": [],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 17,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 775,
+          "translated": 495,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 72329,
+          "translated": 58958,
+          "request": 49036
+        },
+        "tokens": {
+          "input": 20623,
+          "output": 12261
+        },
+        "requests": {
+          "total": 19,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 0,
+          "untranslatedRetried": 1,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 409,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "_includes/blank-lines-note.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "b1da24809e05bc02f7e068dfee83ea1b256cc06d22d5f1b1cf941a3d661928a9"
+        },
+        {
+          "page": "_includes/github-warning.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "bb3e2d965847e5ab1cd794bf9cc2d2d8c6cbed6152b81d3bfd2fa1421f660833"
+        },
+        {
+          "page": "_includes/not_var-info.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "52e93345196e886d965be5a633f1e339a23d306e34efa1aae96955479c6fe061"
+        },
+        {
+          "page": "_includes/popups_examples.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1580799aa2caeab5d2807d417dff36749918a664832489eaa3c3e44c517bee7f"
+        },
+        {
+          "page": "about.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "3fe0ab2b408599c7b965b2c2654c24e45c263affd7fe3c6a6d176c0bbf078211"
+        },
+        {
+          "page": "extensions/index.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d8458b9a4611755dfa7eb82d5cec697626c5d9aebe1149bbe0a19a875eb3f4a5"
+        },
+        {
+          "page": "project/minitoc.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2da965e95a0e8bda7902293b24598f8fd06dd4a706373d4aa32cf4fcc891f4a3"
+        },
+        {
+          "page": "quickstart.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2995dd9f0c7f5c721b72b3a8d1ec64290e1bfd52c4c7f446394fe4f9514aaf7f"
+        },
+        {
+          "page": "syntax/code.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8804612c955f0049db73e9ab9338313b7363477a751fecd800e70c4b9d2b9025"
+        },
+        {
+          "page": "syntax/links.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "4b7f3469359e5423b1f41edca4fc81e569df88c22875bb41b3d5cb0a41a9c281"
+        },
+        {
+          "page": "syntax/lists.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "10ceb3385c311e0035a7b0053a42e253dfb428f94e56547863844a6b1997e657"
+        },
+        {
+          "page": "syntax/notes.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "360b301bc7e8a2b43e585bd62547878d9f63d51af15030dd40fab43dc794180c"
+        },
+        {
+          "page": "syntax/tables/gfm.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1fd45ee249cc6dd54882446316d156cabe2b1141c46e9e5239d97e750bcb42ea"
+        },
+        {
+          "page": "syntax/tables/multiline.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "ec9d86db679b86996f9d48663c0f0e62b7365acd97497ec9e59a47b012c09b3b"
+        },
+        {
+          "page": "syntax/term.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "10e6958dbcaf0d1493ba4c922dd9e16c954adea2ddc48d19b541b4ace0ca4ac7"
+        },
+        {
+          "page": "syntax/vars.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "183eeeae0db6e8c35159e3c08e02f06950c0ca40791423e5c23414b6fa721fe1"
+        }
+      ]
+    },
+    {
+      "name": "yt-after",
+      "repeat": 1,
+      "startedAt": "2026-09-29T09:01:01.009Z",
+      "finishedAt": "2026-09-29T09:02:05.227Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["markup violations: 7 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 4,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 823,
+          "translated": 755,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 126012,
+          "translated": 122184,
+          "request": 103531
+        },
+        "tokens": {
+          "input": 34447,
+          "output": 24927
+        },
+        "requests": {
+          "total": 18,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 695,
+        "averageScore": 99.9,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "faq-dynamic-tables.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "bb3e79c2abf8461bd785e916c17884117b6380ee8660920544e7b1ced7a32711"
+        },
+        {
+          "page": "native-encryption.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"%%{init: {'theme':'base', 'themeVariables': { 'fontSize': '1...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"%%{init: {'theme':'base', 'themeVariables': { 'fontSize': '5...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"# Клиентская часть bus_client: encryption_mode: required ver...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"# Клиентская часть bus_client: encryption_mode: required ver...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #19 body changed: \"spec: # CA сертификат для проверки caBundle: kind: Secret na...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #20 body changed: \"# Настройки для серверной части bus_server: encryption_mode:...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "aebfaf916a49ef7cff64f148a672bbc8c5ae872224f999f86f6f6b1eeb65af99"
+        },
+        {
+          "page": "sorted-dynamic-tables.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"{ \"watermark\" = { \"column_name\" = \"<имя колонки>\"; \"watermar...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "0ded33a6cd7cd4c6ed8e10db40d5772b8cd5b3d041a3d5f151d8f9501f2bbf89"
+        }
+      ]
+    },
+    {
+      "name": "yt-after",
+      "repeat": 2,
+      "startedAt": "2026-09-29T09:02:05.330Z",
+      "finishedAt": "2026-09-29T09:03:09.440Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["markup violations: 7 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 4,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 823,
+          "translated": 755,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 126012,
+          "translated": 122244,
+          "request": 103531
+        },
+        "tokens": {
+          "input": 34447,
+          "output": 24933
+        },
+        "requests": {
+          "total": 18,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 695,
+        "averageScore": 99.9,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "faq-dynamic-tables.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "40daa9c1a1066fa4ce849f95bf60187c94667337134dac4a6abf7ae288e11651"
+        },
+        {
+          "page": "native-encryption.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"%%{init: {'theme':'base', 'themeVariables': { 'fontSize': '1...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"%%{init: {'theme':'base', 'themeVariables': { 'fontSize': '5...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"# Клиентская часть bus_client: encryption_mode: required ver...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"# Клиентская часть bus_client: encryption_mode: required ver...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #19 body changed: \"spec: # CA сертификат для проверки caBundle: kind: Secret na...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #20 body changed: \"# Настройки для серверной части bus_server: encryption_mode:...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d454b6118984f9e1158157d017baf31106e50592e38cb7ed016bd75a8d9e512d"
+        },
+        {
+          "page": "sorted-dynamic-tables.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"{ \"watermark\" = { \"column_name\" = \"<имя колонки>\"; \"watermar...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "e51176feec3a33af73eb4654c1f0d16ca67e7f67e07ee30b7585b2f9838cf9b8"
+        }
+      ]
+    },
+    {
+      "name": "yt-after",
+      "repeat": 3,
+      "startedAt": "2026-09-29T09:03:09.527Z",
+      "finishedAt": "2026-09-29T09:04:17.264Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["markup violations: 7 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 4,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 823,
+          "translated": 755,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 126012,
+          "translated": 122278,
+          "request": 103531
+        },
+        "tokens": {
+          "input": 34447,
+          "output": 24952
+        },
+        "requests": {
+          "total": 18,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 1,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 695,
+        "averageScore": 99.9,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "faq-dynamic-tables.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "f882fc889acc708e6cf344c757463196c063a34779fe85ec9d1e52e1f0831f82"
+        },
+        {
+          "page": "native-encryption.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"%%{init: {'theme':'base', 'themeVariables': { 'fontSize': '1...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"%%{init: {'theme':'base', 'themeVariables': { 'fontSize': '5...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"# Клиентская часть bus_client: encryption_mode: required ver...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"# Клиентская часть bus_client: encryption_mode: required ver...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #19 body changed: \"spec: # CA сертификат для проверки caBundle: kind: Secret na...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #20 body changed: \"# Настройки для серверной части bus_server: encryption_mode:...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "377adb2533f7c05b0936ce5af7db46b824166408696ba2453c71a710237f9332"
+        },
+        {
+          "page": "sorted-dynamic-tables.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"{ \"watermark\" = { \"column_name\" = \"<имя колонки>\"; \"watermar...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1fa9efeb6b3d6a6835deabb269382d8218f47aeaedda71f39a81d68ed969e351"
+        }
+      ]
+    },
+    {
+      "name": "consumers-full",
+      "repeat": 1,
+      "startedAt": "2026-09-29T08:50:49.746Z",
+      "finishedAt": "2026-09-29T08:52:47.673Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["markup violations: 9 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 1022,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177248,
+          "translated": 153755,
+          "request": 138670
+        },
+        "tokens": {
+          "input": 50880,
+          "output": 36864
+        },
+        "requests": {
+          "total": 29,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 945,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "forms/add-questions.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "6b371dc22f2cff94681eb6e22ac09381bddda25d4ad050e9c0f0c594f503cdc5"
+        },
+        {
+          "page": "forms/new-form.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "bd5f8f3c7330085d69583646df3d7f18f238f676c5db90e431cf1ebb59b84fa4"
+        },
+        {
+          "page": "forms/send-request.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "e3b21231ef2ade0ce32c15c6dbf424fafba813516d47a3d3660e688616567b4f"
+        },
+        {
+          "page": "games/sdk-sdk-player.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"<подпись>.<данные профиля>\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"const ysdk = await YaGames.init(); try { let player = await ...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #16 body changed: \"const ysdk = await YaGames.init(); // Инициализируем SDK. co...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "196938a6be0e0f8b57eba644d5a75eae34b45f60cc4d832cdd695621b52bb35a"
+        },
+        {
+          "page": "games/sdk-sdk-review.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2884b791fae7a75967b6bbf1385ba367bbb4cc53e4763c7af74894ec7aef389a"
+        },
+        {
+          "page": "games/sdk-sdk-server-time.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); // Возвращает время в мс,...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"YaGames.init() .then((ysdk) => { // Возвращает время в мс, с...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "a375121a525c403321bd062a6a8c5e44b89142f399b3250bc0cd3d44e3dd5a51"
+        },
+        {
+          "page": "tracker/user-create-ticket.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "ecc835651544ac05fbde18c27455d326549b2562431922a867f493d42edac4c3"
+        },
+        {
+          "page": "tracker/user-edit-ticket.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "5a82cdd0bf3bbf3d978ef5a50a4d4fa3a183c5bae6bce710ec18f2d05c0662ea"
+        },
+        {
+          "page": "tracker/user-notification-constructor.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "c8faa2b77a15a146b7c09dafdcddc810f506e9be5145a2fb423918757f9c0f65"
+        },
+        {
+          "page": "wiki/create-page.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "aa766d46bdb2e91abe9d9d98b1532a3cf0f1b737876839b4d2d32a8ffd39f0b8"
+        },
+        {
+          "page": "wiki/wysiwyg-tables-format.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "7c20bb32fee09c07680815207b1cde5167d6fd8f00588354f25e75de4d0fc22e"
+        },
+        {
+          "page": "wiki/wysiwyg-text-format.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "a646b6bd597d018720f284f527763e143d9d5c2c68e448fe1e137790ae5116eb"
+        }
+      ]
+    },
+    {
+      "name": "consumers-full",
+      "repeat": 2,
+      "startedAt": "2026-09-29T08:52:47.793Z",
+      "finishedAt": "2026-09-29T08:55:00.698Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["markup violations: 9 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 1022,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177248,
+          "translated": 153643,
+          "request": 135822
+        },
+        "tokens": {
+          "input": 49457,
+          "output": 36168
+        },
+        "requests": {
+          "total": 27,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 945,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "forms/add-questions.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "3c084542d9590bde0de4a8defff0880f119239d2f858bcba837f4c9fda145ae1"
+        },
+        {
+          "page": "forms/new-form.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "5b2a2f47f4ed9d600adde8fbc269b80351d6b3e4d482afacead6a3328d43d123"
+        },
+        {
+          "page": "forms/send-request.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "4b2ab356f2df8c22714be92ac1ac7947334cbcd60dc0c29c6143146c4260dc1c"
+        },
+        {
+          "page": "games/sdk-sdk-player.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"<подпись>.<данные профиля>\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"const ysdk = await YaGames.init(); try { let player = await ...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #16 body changed: \"const ysdk = await YaGames.init(); // Инициализируем SDK. co...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "c4746151515a077ef4aa4dfe2f5951a1373672dab44bc0a489430451810a8749"
+        },
+        {
+          "page": "games/sdk-sdk-review.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "10c9c8812d1b130587f5bcaf0fa2dfa6c398d967ba261bdc94b2f8f369ed540b"
+        },
+        {
+          "page": "games/sdk-sdk-server-time.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); // Возвращает время в мс,...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"YaGames.init() .then((ysdk) => { // Возвращает время в мс, с...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "a375121a525c403321bd062a6a8c5e44b89142f399b3250bc0cd3d44e3dd5a51"
+        },
+        {
+          "page": "tracker/user-create-ticket.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1b94a361bc27eaf9f5ca6422914e4aed9b6fba0a7749df8a55d071a07857b211"
+        },
+        {
+          "page": "tracker/user-edit-ticket.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "04b95a99c806b64fab0a6b0bfd22df6dff1d7fe382c5c05c10fd27e9c67ea425"
+        },
+        {
+          "page": "tracker/user-notification-constructor.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "9805f2ee46c323bbc09f6edd157829552980604b6a4be57f9f6471664cd50f01"
+        },
+        {
+          "page": "wiki/create-page.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "e8240fa06e3793f9b974f88ef7d9f26cc760d3d6299a9212eb8631b2deeefe70"
+        },
+        {
+          "page": "wiki/wysiwyg-tables-format.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "6c9a826346450e954f04d92c22700611abe043467d2280fd874c266cc3807ca9"
+        },
+        {
+          "page": "wiki/wysiwyg-text-format.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "f6c56eab3d5ea01315689599acaa9b890ae896c49167c0d809fc28497fc04a79"
+        }
+      ]
+    },
+    {
+      "name": "consumers-full",
+      "repeat": 3,
+      "startedAt": "2026-09-29T08:55:00.803Z",
+      "finishedAt": "2026-09-29T08:57:13.724Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["markup violations: 9 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 1022,
+          "fromCache": 0,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177248,
+          "translated": 153748,
+          "request": 135822
+        },
+        "tokens": {
+          "input": 49457,
+          "output": 36187
+        },
+        "requests": {
+          "total": 27,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": false,
+          "hits": 0,
+          "misses": 0,
+          "hitRate": null,
+          "hints": 0
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 0,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 945,
+        "averageScore": 100,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "forms/add-questions.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "12e5cee10cf00763208a8de5f46061d20fead7a887165669e3db3b67c18b08c9"
+        },
+        {
+          "page": "forms/new-form.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "f8fb2a4597139eb0c9182183b71532d940d06b36a783d9345d251554bfcf627f"
+        },
+        {
+          "page": "forms/send-request.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "be4f6ad885f6b8f14bf4462e9f7b92bfd0de15724357ee186e22ee17faaf0fc4"
+        },
+        {
+          "page": "games/sdk-sdk-player.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"<подпись>.<данные профиля>\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"const ysdk = await YaGames.init(); try { let player = await ...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #16 body changed: \"const ysdk = await YaGames.init(); // Инициализируем SDK. co...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "5c38f23142f7ab2dce8185c1e70239367496d4a6fe9c5bff9b0efac5afe70783"
+        },
+        {
+          "page": "games/sdk-sdk-review.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "f0ca3c5c49f8a4c74aa73e6275a963b20cefb2eda4e86d87445eb2984429450b"
+        },
+        {
+          "page": "games/sdk-sdk-server-time.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); // Возвращает время в мс,...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"YaGames.init() .then((ysdk) => { // Возвращает время в мс, с...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8f706823bb588e323a7f6115858b2a4b965ff909ad595b8bf948eda58f600846"
+        },
+        {
+          "page": "tracker/user-create-ticket.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "5d44f4f010dec6e704daa90235b5fff6403b19027d3ed3205e87ba037acf79b2"
+        },
+        {
+          "page": "tracker/user-edit-ticket.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "358f292c1bdb013ecff53b4b983a8ed1450a80e7808b39c41c39b3b0ee3eaed4"
+        },
+        {
+          "page": "tracker/user-notification-constructor.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "fcb8f10eed86b898904f5369edf4eca27e38df7236695f0d15190114519f1d26"
+        },
+        {
+          "page": "wiki/create-page.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "6defe319ea6399896219573de10c92ed8aaa8d1eb41dd614a436b4c9b37deb74"
+        },
+        {
+          "page": "wiki/wysiwyg-tables-format.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "5d226db6e9c647ee817a0994c7f72569f94af8e1caa46f1a12641ccb8f675e9f"
+        },
+        {
+          "page": "wiki/wysiwyg-text-format.md",
+          "markup": [],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d89696336521883c5687c3cb30657fe656b67af38d8899ed8ad051a7e655406c"
+        }
+      ]
+    },
+    {
+      "name": "consumers-seed",
+      "repeat": 1,
+      "startedAt": "2026-09-29T08:57:15.232Z",
+      "finishedAt": "2026-09-29T08:58:20.359Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["markup violations: 105 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 188,
+          "fromCache": 1008,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177464,
+          "translated": 34466,
+          "request": 28741
+        },
+        "tokens": {
+          "input": 15749,
+          "output": 8103
+        },
+        "requests": {
+          "total": 16,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": true,
+          "hits": 1008,
+          "misses": 216,
+          "hitRate": 0.8235,
+          "hints": 11
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 3,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 948,
+        "averageScore": 99.8,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "forms/add-questions.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/forms/ru/blocks-ref/blocks-referen...\" became \"https://yandex.ru/support/forms/en/blocks-ref/blocks-referen...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #31: \"https://yandex.ru/support/forms/ru/blocks-ref/short-text.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/short-text.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #32: \"https://yandex.ru/support/forms/ru/blocks-ref/long-text.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/long-text.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #33: \"https://yandex.ru/support/forms/ru/blocks-ref/no-question.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/no-question.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #34: \"https://yandex.ru/support/forms/ru/blocks-ref/tests.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/tests.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #35: \"https://yandex.ru/support/forms/ru/blocks-ref/integer.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/integer.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #36: \"https://yandex.ru/support/forms/ru/blocks-ref/number.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/number.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #37: \"https://yandex.ru/support/forms/ru/blocks-ref/date.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/date.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #38: \"https://yandex.ru/support/forms/ru/blocks-ref/email.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/email.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #39: \"https://yandex.ru/support/forms/ru/blocks-ref/phone.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/phone.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #40: \"https://yandex.ru/support/forms/ru/blocks-ref/link.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/link.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #41: \"https://yandex.ru/support/forms/ru/blocks-ref/file.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/file.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #42: \"https://yandex.ru/support/forms/ru/blocks-ref/cities.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/cities.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #43: \"https://yandex.ru/support/forms/ru/blocks-ref/inn.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/inn.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #45: \"https://yandex.ru/support/forms/ru/blocks-ref/dropdown.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/dropdown.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #46: \"https://yandex.ru/support/forms/ru/blocks-ref/radiobutton.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/radiobutton.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #47: \"https://yandex.ru/support/forms/ru/blocks-ref/multiple.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/multiple.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #48: \"https://yandex.ru/support/forms/ru/blocks-ref/rating.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/rating.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #49: \"https://yandex.ru/support/forms/ru/blocks-ref/yes-no.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/yes-no.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #50: \"https://yandex.ru/support/forms/ru/blocks-ref/series.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/series.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #51: \"https://yandex.ru/support/forms/ru/blocks-ref/people.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/people.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #52: \"https://yandex.ru/support/forms/ru/blocks-ref/departments.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/departments.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #53: \"https://yandex.ru/support/forms/ru/blocks-ref/teams.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/teams.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #54: \"https://yandex.ru/support/forms/ru/blocks-ref/tests.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/tests.md\""
+            },
+            {
+              "type": "formatting",
+              "detail": "formatting elements: 240 in source vs 242 in translation"
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "99527fad3b97c7ba812e13c187a67c21769ba40ac20c2348e07b5773e2d5aa6b"
+        },
+        {
+          "page": "forms/new-form.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #2: \"https://yandex.ru/support/forms/ru/go-to-forms.md\" became \"https://yandex.ru/support/forms/en/go-to-forms.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #3: \"https://yandex.ru/support/forms/ru/add-questions.md\" became \"https://yandex.ru/support/forms/en/add-questions.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #4: \"https://yandex.ru/support/forms/ru/appearance.md\" became \"https://yandex.ru/support/forms/en/appearance.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #6: \"https://yandex.ru/support/forms/ru/restrictions.md\" became \"https://yandex.ru/support/forms/en/restrictions.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #7: \"https://yandex.ru/support/forms/ru/publish.md\" became \"https://yandex.ru/support/forms/en/publish.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #8: \"https://yandex.ru/support/forms/ru/access.md\" became \"https://yandex.ru/support/forms/en/access.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #9: \"https://yandex.ru/support/forms/ru/go-to-forms.md\" became \"https://yandex.ru/support/forms/en/go-to-forms.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/forms/ru/go-to-forms.md\" became \"https://yandex.ru/support/forms/en/go-to-forms.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "25891393ab8b4f109e5977fa1c142173d946d200fe423c2d54b2b499194aab60"
+        },
+        {
+          "page": "forms/send-request.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/support/forms/ru/notifications.md#add-inte...\" became \"https://yandex.ru/support/forms/en/notifications.md#add-inte...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #4: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #5: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #6: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #10: \"https://yandex.ru/support/forms/ru/notifications-history.md#...\" became \"https://yandex.ru/support/forms/en/notifications-history.md#...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #13: \"https://yandex.ru/support/forms/ru/vars.md#var-filters\" became \"https://yandex.ru/support/forms/en/vars.md#var-filters\""
+            },
+            {
+              "type": "formatting",
+              "detail": "formatting elements: 187 in source vs 188 in translation"
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "de7e4132597337cc948775eb5acb68b8ed92babf9c87ae7740f1a297640192c8"
+        },
+        {
+          "page": "games/sdk-sdk-player.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"<подпись>.<данные профиля>\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"const ysdk = await YaGames.init(); try { let player = await ...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #16 body changed: \"const ysdk = await YaGames.init(); // Инициализируем SDK. co...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/dev/games/doc/ru/console/purchases.md\" became \"https://yandex.com/dev/games/doc/en/console/purchases.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #3: \"https://yandex.ru/games/user\" became \"https://yandex.com/games/user\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #4: \"https://yandex.ru/dev/games/doc/ru/sdk/sdk-purchases.md#key-...\" became \"https://yandex.com/dev/games/doc/en/sdk/sdk-purchases.md#key...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #5: \"https://yandex.ru/dev/games/doc/ru/console/purchases.md#conn...\" became \"https://yandex.com/dev/games/doc/en/console/purchases.md#con...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #6: \"https://yandex.ru/dev/games/doc/ru/sdk/sdk-purchases.md#sign...\" became \"https://yandex.com/dev/games/doc/en/sdk/sdk-purchases.md#sig...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #7: \"https://yandex.ru/dev/games/doc/ru/requirements/1/2.md#auth-...\" became \"https://yandex.com/dev/games/doc/en/requirements/1/2.md#auth...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #9: \"https://yandex.ru/dev/games/doc/ru/concepts/troubleshooting....\" became \"https://yandex.com/dev/games/doc/en/concepts/troubleshooting...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #19: \"https://yandex.ru/dev/games/doc/ru/requirements/1/9.md#save-...\" became \"https://yandex.com/dev/games/doc/en/requirements/1/9.md#save...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #22: \"https://yandex.ru/dev/games/doc/ru/console/debug-panel.md#cl...\" became \"https://yandex.com/dev/games/doc/en/console/debug-panel.md#c...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "541a4231675edd84764c7acb2f8016986b0dba542cd94e292d703ad52dd6a129"
+        },
+        {
+          "page": "games/sdk-sdk-review.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/dev/games/doc/ru/console/reviews.md\" became \"https://yandex.com/dev/games/doc/en/console/reviews.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d1d3c9a2bd1de4631460f3fe72be73d3973ff2a42048c205fbc50066162afbb3"
+        },
+        {
+          "page": "games/sdk-sdk-server-time.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); // Возвращает время в мс,...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"YaGames.init() .then((ysdk) => { // Возвращает время в мс, с...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/dev/games/doc/ru/sdk/sdk-player.md#ingame-...\" became \"https://yandex.com/dev/games/doc/en/sdk/sdk-player.md#ingame...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "931624347ab8cce8022616677f11d463a22ccf1115e9cc4089fb5a2897cece4f"
+        },
+        {
+          "page": "tracker/user-create-ticket.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #26: \"https://yandex.ru/support/tracker/ru/quick-start/work-on-iss...\" became \"https://yandex.ru/support/tracker/en/quick-start/work-on-iss...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "c2ed691dbbb9a21f051a62136a00e676713a3fdb88651056d34a6e4834f223ae"
+        },
+        {
+          "page": "tracker/user-edit-ticket.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #7: \"https://yandex.ru/support/tracker/ru/user/markup.md\" became \"https://yandex.ru/support/tracker/en/user/markup.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #8: \"https://yandex.ru/support/tracker/ru/user/attach-file.md\" became \"https://yandex.ru/support/tracker/en/user/attach-file.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #13: \"https://yandex.ru/support/tracker/ru/user/create-param.md##d...\" became \"https://yandex.ru/support/tracker/en/user/create-param.md##d...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #14: \"https://yandex.ru/support/tracker/ru/manager/bulk-change.md#...\" became \"https://yandex.ru/support/tracker/en/manager/bulk-change.md#...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/tracker/ru/manager/bulk-change.md#...\" became \"https://yandex.ru/support/tracker/en/manager/bulk-change.md#...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #19: \"https://yandex.ru/support/tracker/ru/user/personal.md\" became \"https://yandex.ru/support/tracker/en/user/personal.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #20: \"https://yandex.ru/support/tracker/ru/user/comments.md\" became \"https://yandex.ru/support/tracker/en/user/comments.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://yandex.ru/support/tracker/ru/user/checklist.md\" became \"https://yandex.ru/support/tracker/en/user/checklist.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #22: \"https://yandex.ru/support/tracker/ru/user/ticket-links.md\" became \"https://yandex.ru/support/tracker/en/user/ticket-links.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #23: \"https://yandex.ru/support/tracker/ru/user/attach-file.md\" became \"https://yandex.ru/support/tracker/en/user/attach-file.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #24: \"https://yandex.ru/support/tracker/ru/user/move-ticket.md\" became \"https://yandex.ru/support/tracker/en/user/move-ticket.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d6ad22d89d27afaefa9dde85dff562779bc07b65c494557bff12f0629925638f"
+        },
+        {
+          "page": "tracker/user-notification-constructor.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/tracker/ru/user/notification-webho...\" became \"https://yandex.ru/support/tracker/en/user/notification-webho...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #15: \"https://tracker.yandex.ru/settings/subscriptions\" became \"https://tracker.yandex.com/settings/subscriptions\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://tracker.yandex.ru/settings/subscriptions/new\" became \"https://tracker.yandex.com/settings/subscriptions/new\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #31: \"https://admin.yandex.ru\" became \"https://admin.yandex.com\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #32: \"https://admin.yandex.ru/bot-platform\" became \"https://admin.yandex.com/bot-platform\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #34: \"https://yandex.ru/support/yandex-360/business/admin/ru/messe...\" became \"https://yandex.com/support/yandex-360/business/admin/en/mess...\""
+            },
+            {
+              "type": "formatting",
+              "detail": "formatting elements: 252 in source vs 257 in translation"
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "54654fad1d14be9315bde87b5c51e539eb8538ad77235acec3fae7d768c23715"
+        },
+        {
+          "page": "wiki/create-page.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #5: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/wiki/ru/templates.md\" became \"https://yandex.ru/support/wiki/en/templates.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #18: \"https://yandex.ru/support/wiki/ru/pages-types.md#grid\" became \"https://yandex.ru/support/wiki/en/pages-types.md#grid\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #19: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #20: \"https://yandex.ru/support/wiki/ru/import-page.md#text\" became \"https://yandex.ru/support/wiki/en/import-page.md#text\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://yandex.ru/support/wiki/ru/import-page.md#table\" became \"https://yandex.ru/support/wiki/en/import-page.md#table\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #22: \"https://yandex.ru/support/wiki/ru/templates.md\" became \"https://yandex.ru/support/wiki/en/templates.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #24: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #25: \"https://yandex.ru/support/wiki/ru/import-page.md\" became \"https://yandex.ru/support/wiki/en/import-page.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #26: \"https://yandex.ru/support/wiki/ru/delete-page.md\" became \"https://yandex.ru/support/wiki/en/delete-page.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "f3c0236a564c4d363508433473092ad57601766281d7d36193df473a459adb72"
+        },
+        {
+          "page": "wiki/wysiwyg-tables-format.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"#| || **Столбец 1** | **Столбец 2** | **Столбец 3** | **Стол...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"| Заголовок 1 | Заголовок 2 | Заголовок 3 | | --- | --- | --...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"| По левому краю | По центру | По правому краю | | :--- | :-...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/wiki/ru/create-page.md\" became \"https://yandex.ru/support/wiki/en/create-page.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #28: \"https://yandex.ru/support/wiki/ru/wysiwyg/text-format.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/text-format.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #30: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8eadcc58196753fc2bedad0627b23f8be6fa4cef4facaf89b7980f50527c47ea"
+        },
+        {
+          "page": "wiki/wysiwyg-text-format.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #9 body changed: \"Верхний^индекс^ Верхний\\^индекс^\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #9: \"https://yandex.ru/support/wiki/ru/wysiwyg/links.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/links.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #15: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #27: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #31: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #34: \"https://yandex.ru/support/wiki/ru/wysiwyg/comment.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/comment.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "3264f3f7a0957ef05452a5f77f202989c67891d2f9c54f481383fb570dbb960e"
+        }
+      ]
+    },
+    {
+      "name": "consumers-seed",
+      "repeat": 2,
+      "startedAt": "2026-09-29T08:58:21.834Z",
+      "finishedAt": "2026-09-29T08:59:22.866Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["markup violations: 105 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 188,
+          "fromCache": 1006,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177464,
+          "translated": 34501,
+          "request": 28883
+        },
+        "tokens": {
+          "input": 16074,
+          "output": 8132
+        },
+        "requests": {
+          "total": 17,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": true,
+          "hits": 1006,
+          "misses": 218,
+          "hitRate": 0.8219,
+          "hints": 11
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 4,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 948,
+        "averageScore": 99.7,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "forms/add-questions.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/forms/ru/blocks-ref/blocks-referen...\" became \"https://yandex.ru/support/forms/en/blocks-ref/blocks-referen...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #31: \"https://yandex.ru/support/forms/ru/blocks-ref/short-text.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/short-text.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #32: \"https://yandex.ru/support/forms/ru/blocks-ref/long-text.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/long-text.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #33: \"https://yandex.ru/support/forms/ru/blocks-ref/no-question.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/no-question.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #34: \"https://yandex.ru/support/forms/ru/blocks-ref/tests.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/tests.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #35: \"https://yandex.ru/support/forms/ru/blocks-ref/integer.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/integer.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #36: \"https://yandex.ru/support/forms/ru/blocks-ref/number.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/number.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #37: \"https://yandex.ru/support/forms/ru/blocks-ref/date.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/date.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #38: \"https://yandex.ru/support/forms/ru/blocks-ref/email.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/email.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #39: \"https://yandex.ru/support/forms/ru/blocks-ref/phone.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/phone.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #40: \"https://yandex.ru/support/forms/ru/blocks-ref/link.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/link.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #41: \"https://yandex.ru/support/forms/ru/blocks-ref/file.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/file.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #42: \"https://yandex.ru/support/forms/ru/blocks-ref/cities.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/cities.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #43: \"https://yandex.ru/support/forms/ru/blocks-ref/inn.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/inn.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #45: \"https://yandex.ru/support/forms/ru/blocks-ref/dropdown.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/dropdown.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #46: \"https://yandex.ru/support/forms/ru/blocks-ref/radiobutton.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/radiobutton.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #47: \"https://yandex.ru/support/forms/ru/blocks-ref/multiple.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/multiple.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #48: \"https://yandex.ru/support/forms/ru/blocks-ref/rating.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/rating.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #49: \"https://yandex.ru/support/forms/ru/blocks-ref/yes-no.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/yes-no.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #50: \"https://yandex.ru/support/forms/ru/blocks-ref/series.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/series.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #51: \"https://yandex.ru/support/forms/ru/blocks-ref/people.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/people.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #52: \"https://yandex.ru/support/forms/ru/blocks-ref/departments.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/departments.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #53: \"https://yandex.ru/support/forms/ru/blocks-ref/teams.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/teams.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #54: \"https://yandex.ru/support/forms/ru/blocks-ref/tests.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/tests.md\""
+            },
+            {
+              "type": "formatting",
+              "detail": "formatting elements: 240 in source vs 242 in translation"
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "d0655c8bd772930f904fd51102af7e2458d0ddfdd3d406832360ab684c3ce6c1"
+        },
+        {
+          "page": "forms/new-form.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #2: \"https://yandex.ru/support/forms/ru/go-to-forms.md\" became \"https://yandex.ru/support/forms/en/go-to-forms.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #3: \"https://yandex.ru/support/forms/ru/add-questions.md\" became \"https://yandex.ru/support/forms/en/add-questions.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #4: \"https://yandex.ru/support/forms/ru/appearance.md\" became \"https://yandex.ru/support/forms/en/appearance.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #6: \"https://yandex.ru/support/forms/ru/restrictions.md\" became \"https://yandex.ru/support/forms/en/restrictions.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #7: \"https://yandex.ru/support/forms/ru/publish.md\" became \"https://yandex.ru/support/forms/en/publish.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #8: \"https://yandex.ru/support/forms/ru/access.md\" became \"https://yandex.ru/support/forms/en/access.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #9: \"https://yandex.ru/support/forms/ru/go-to-forms.md\" became \"https://yandex.ru/support/forms/en/go-to-forms.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/forms/ru/go-to-forms.md\" became \"https://yandex.ru/support/forms/en/go-to-forms.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2a3d73a9642aa73699566ded66f1ae2a009d1493929ddc5c88a72b02eb76b788"
+        },
+        {
+          "page": "forms/send-request.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/support/forms/ru/notifications.md#add-inte...\" became \"https://yandex.ru/support/forms/en/notifications.md#add-inte...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #4: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #5: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #6: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #10: \"https://yandex.ru/support/forms/ru/notifications-history.md#...\" became \"https://yandex.ru/support/forms/en/notifications-history.md#...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #13: \"https://yandex.ru/support/forms/ru/vars.md#var-filters\" became \"https://yandex.ru/support/forms/en/vars.md#var-filters\""
+            },
+            {
+              "type": "formatting",
+              "detail": "formatting elements: 187 in source vs 188 in translation"
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "de7e4132597337cc948775eb5acb68b8ed92babf9c87ae7740f1a297640192c8"
+        },
+        {
+          "page": "games/sdk-sdk-player.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"<подпись>.<данные профиля>\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"const ysdk = await YaGames.init(); try { let player = await ...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #16 body changed: \"const ysdk = await YaGames.init(); // Инициализируем SDK. co...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/dev/games/doc/ru/console/purchases.md\" became \"https://yandex.com/dev/games/doc/en/console/purchases.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #3: \"https://yandex.ru/games/user\" became \"https://yandex.com/games/user\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #4: \"https://yandex.ru/dev/games/doc/ru/sdk/sdk-purchases.md#key-...\" became \"https://yandex.com/dev/games/doc/en/sdk/sdk-purchases.md#key...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #5: \"https://yandex.ru/dev/games/doc/ru/console/purchases.md#conn...\" became \"https://yandex.com/dev/games/doc/en/console/purchases.md#con...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #6: \"https://yandex.ru/dev/games/doc/ru/sdk/sdk-purchases.md#sign...\" became \"https://yandex.com/dev/games/doc/en/sdk/sdk-purchases.md#sig...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #7: \"https://yandex.ru/dev/games/doc/ru/requirements/1/2.md#auth-...\" became \"https://yandex.com/dev/games/doc/en/requirements/1/2.md#auth...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #9: \"https://yandex.ru/dev/games/doc/ru/concepts/troubleshooting....\" became \"https://yandex.com/dev/games/doc/en/concepts/troubleshooting...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #19: \"https://yandex.ru/dev/games/doc/ru/requirements/1/9.md#save-...\" became \"https://yandex.com/dev/games/doc/en/requirements/1/9.md#save...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #22: \"https://yandex.ru/dev/games/doc/ru/console/debug-panel.md#cl...\" became \"https://yandex.com/dev/games/doc/en/console/debug-panel.md#c...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2f73d8d9fe90821d428b50a68b978dee038052d79ffd578717dd715139327097"
+        },
+        {
+          "page": "games/sdk-sdk-review.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/dev/games/doc/ru/console/reviews.md\" became \"https://yandex.com/dev/games/doc/en/console/reviews.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8e6c1f6b12cf68e5bf0fccb703dc916325434ed1bb1cf8816cebd8d2a3ee8df7"
+        },
+        {
+          "page": "games/sdk-sdk-server-time.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); // Возвращает время в мс,...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"YaGames.init() .then((ysdk) => { // Возвращает время в мс, с...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/dev/games/doc/ru/sdk/sdk-player.md#ingame-...\" became \"https://yandex.com/dev/games/doc/en/sdk/sdk-player.md#ingame...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "4ffcbd7570deec85834225bdcff37c54536dbc839cb1ff65e83ea26115d630e6"
+        },
+        {
+          "page": "tracker/user-create-ticket.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #26: \"https://yandex.ru/support/tracker/ru/quick-start/work-on-iss...\" became \"https://yandex.ru/support/tracker/en/quick-start/work-on-iss...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "34dddfba1e536a8dca8ca8d048a0ecd48ae7ab22f15206d0311a4203cadd5860"
+        },
+        {
+          "page": "tracker/user-edit-ticket.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #7: \"https://yandex.ru/support/tracker/ru/user/markup.md\" became \"https://yandex.ru/support/tracker/en/user/markup.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #8: \"https://yandex.ru/support/tracker/ru/user/attach-file.md\" became \"https://yandex.ru/support/tracker/en/user/attach-file.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #13: \"https://yandex.ru/support/tracker/ru/user/create-param.md##d...\" became \"https://yandex.ru/support/tracker/en/user/create-param.md##d...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #14: \"https://yandex.ru/support/tracker/ru/manager/bulk-change.md#...\" became \"https://yandex.ru/support/tracker/en/manager/bulk-change.md#...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/tracker/ru/manager/bulk-change.md#...\" became \"https://yandex.ru/support/tracker/en/manager/bulk-change.md#...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #19: \"https://yandex.ru/support/tracker/ru/user/personal.md\" became \"https://yandex.ru/support/tracker/en/user/personal.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #20: \"https://yandex.ru/support/tracker/ru/user/comments.md\" became \"https://yandex.ru/support/tracker/en/user/comments.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://yandex.ru/support/tracker/ru/user/checklist.md\" became \"https://yandex.ru/support/tracker/en/user/checklist.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #22: \"https://yandex.ru/support/tracker/ru/user/ticket-links.md\" became \"https://yandex.ru/support/tracker/en/user/ticket-links.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #23: \"https://yandex.ru/support/tracker/ru/user/attach-file.md\" became \"https://yandex.ru/support/tracker/en/user/attach-file.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #24: \"https://yandex.ru/support/tracker/ru/user/move-ticket.md\" became \"https://yandex.ru/support/tracker/en/user/move-ticket.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "040494341f051c3b1daa21e83111bb6db9a1bc6d10f4f87a7efad69f8b037c7e"
+        },
+        {
+          "page": "tracker/user-notification-constructor.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/tracker/ru/user/notification-webho...\" became \"https://yandex.ru/support/tracker/en/user/notification-webho...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #15: \"https://tracker.yandex.ru/settings/subscriptions\" became \"https://tracker.yandex.com/settings/subscriptions\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://tracker.yandex.ru/settings/subscriptions/new\" became \"https://tracker.yandex.com/settings/subscriptions/new\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #31: \"https://admin.yandex.ru\" became \"https://admin.yandex.com\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #32: \"https://admin.yandex.ru/bot-platform\" became \"https://admin.yandex.com/bot-platform\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #34: \"https://yandex.ru/support/yandex-360/business/admin/ru/messe...\" became \"https://yandex.com/support/yandex-360/business/admin/en/mess...\""
+            },
+            {
+              "type": "formatting",
+              "detail": "formatting elements: 252 in source vs 257 in translation"
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1a47f73c3e46c692125350f4e6b30d3615dcbb0ed570d12c27577a62321fb3d0"
+        },
+        {
+          "page": "wiki/create-page.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #5: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/wiki/ru/templates.md\" became \"https://yandex.ru/support/wiki/en/templates.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #18: \"https://yandex.ru/support/wiki/ru/pages-types.md#grid\" became \"https://yandex.ru/support/wiki/en/pages-types.md#grid\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #19: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #20: \"https://yandex.ru/support/wiki/ru/import-page.md#text\" became \"https://yandex.ru/support/wiki/en/import-page.md#text\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://yandex.ru/support/wiki/ru/import-page.md#table\" became \"https://yandex.ru/support/wiki/en/import-page.md#table\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #22: \"https://yandex.ru/support/wiki/ru/templates.md\" became \"https://yandex.ru/support/wiki/en/templates.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #24: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #25: \"https://yandex.ru/support/wiki/ru/import-page.md\" became \"https://yandex.ru/support/wiki/en/import-page.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #26: \"https://yandex.ru/support/wiki/ru/delete-page.md\" became \"https://yandex.ru/support/wiki/en/delete-page.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "48f639cf2b144cc120911ca4e166a5173473d772cd23f7066e5025d209cc4c05"
+        },
+        {
+          "page": "wiki/wysiwyg-tables-format.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"#| || **Столбец 1** | **Столбец 2** | **Столбец 3** | **Стол...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"| Заголовок 1 | Заголовок 2 | Заголовок 3 | | --- | --- | --...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"| По левому краю | По центру | По правому краю | | :--- | :-...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/wiki/ru/create-page.md\" became \"https://yandex.ru/support/wiki/en/create-page.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #28: \"https://yandex.ru/support/wiki/ru/wysiwyg/text-format.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/text-format.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #30: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8eadcc58196753fc2bedad0627b23f8be6fa4cef4facaf89b7980f50527c47ea"
+        },
+        {
+          "page": "wiki/wysiwyg-text-format.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #9 body changed: \"Верхний^индекс^ Верхний\\^индекс^\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #9: \"https://yandex.ru/support/wiki/ru/wysiwyg/links.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/links.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #15: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #27: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #31: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #34: \"https://yandex.ru/support/wiki/ru/wysiwyg/comment.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/comment.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "c4954870852eb56dce05ec7822707e8db7fb4f87ba4b2087c8d31596f13cb45b"
+        }
+      ]
+    },
+    {
+      "name": "consumers-seed",
+      "repeat": 3,
+      "startedAt": "2026-09-29T08:59:24.347Z",
+      "finishedAt": "2026-09-29T09:01:00.860Z",
+      "status": "success",
+      "passed": false,
+      "failures": ["markup violations: 105 (allowed: 0)"],
+      "thresholds": {
+        "maxMarkupViolations": 0,
+        "maxGlossaryViolations": 0,
+        "maxUntranslated": 0,
+        "minJudgeScore": 70,
+        "minSimilarity": 0
+      },
+      "totals": {
+        "files": {
+          "translated": 13,
+          "failed": 0,
+          "retried": 0,
+          "partial": 0
+        },
+        "units": {
+          "total": 1224,
+          "translated": 188,
+          "fromCache": 1011,
+          "untranslated": 0,
+          "oversized": 0
+        },
+        "chars": {
+          "source": 177464,
+          "translated": 34486,
+          "request": 28807
+        },
+        "tokens": {
+          "input": 16047,
+          "output": 8116
+        },
+        "requests": {
+          "total": 17,
+          "fallback": 0,
+          "retries": 0
+        },
+        "cache": {
+          "enabled": true,
+          "hits": 1011,
+          "misses": 213,
+          "hitRate": 0.826,
+          "hints": 11
+        },
+        "fixes": {
+          "markupStripped": 0,
+          "markupRetried": 0,
+          "markupDamaged": 0,
+          "untranslatedRetried": 4,
+          "untranslatedKept": 0
+        }
+      },
+      "judge": {
+        "model": "deepseek-v4-flash",
+        "threshold": 70,
+        "scored": 948,
+        "averageScore": 99.7,
+        "low": 0,
+        "skippedPairs": 0
+      },
+      "pages": [
+        {
+          "page": "forms/add-questions.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/forms/ru/blocks-ref/blocks-referen...\" became \"https://yandex.ru/support/forms/en/blocks-ref/blocks-referen...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #31: \"https://yandex.ru/support/forms/ru/blocks-ref/short-text.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/short-text.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #32: \"https://yandex.ru/support/forms/ru/blocks-ref/long-text.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/long-text.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #33: \"https://yandex.ru/support/forms/ru/blocks-ref/no-question.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/no-question.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #34: \"https://yandex.ru/support/forms/ru/blocks-ref/tests.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/tests.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #35: \"https://yandex.ru/support/forms/ru/blocks-ref/integer.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/integer.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #36: \"https://yandex.ru/support/forms/ru/blocks-ref/number.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/number.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #37: \"https://yandex.ru/support/forms/ru/blocks-ref/date.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/date.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #38: \"https://yandex.ru/support/forms/ru/blocks-ref/email.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/email.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #39: \"https://yandex.ru/support/forms/ru/blocks-ref/phone.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/phone.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #40: \"https://yandex.ru/support/forms/ru/blocks-ref/link.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/link.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #41: \"https://yandex.ru/support/forms/ru/blocks-ref/file.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/file.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #42: \"https://yandex.ru/support/forms/ru/blocks-ref/cities.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/cities.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #43: \"https://yandex.ru/support/forms/ru/blocks-ref/inn.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/inn.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #45: \"https://yandex.ru/support/forms/ru/blocks-ref/dropdown.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/dropdown.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #46: \"https://yandex.ru/support/forms/ru/blocks-ref/radiobutton.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/radiobutton.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #47: \"https://yandex.ru/support/forms/ru/blocks-ref/multiple.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/multiple.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #48: \"https://yandex.ru/support/forms/ru/blocks-ref/rating.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/rating.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #49: \"https://yandex.ru/support/forms/ru/blocks-ref/yes-no.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/yes-no.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #50: \"https://yandex.ru/support/forms/ru/blocks-ref/series.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/series.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #51: \"https://yandex.ru/support/forms/ru/blocks-ref/people.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/people.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #52: \"https://yandex.ru/support/forms/ru/blocks-ref/departments.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/departments.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #53: \"https://yandex.ru/support/forms/ru/blocks-ref/teams.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/teams.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #54: \"https://yandex.ru/support/forms/ru/blocks-ref/tests.md\" became \"https://yandex.ru/support/forms/en/blocks-ref/tests.md\""
+            },
+            {
+              "type": "formatting",
+              "detail": "formatting elements: 240 in source vs 242 in translation"
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "19c36b49a1913596f42d3fe15a62b7bf000314de46698f03ec8439170437b5de"
+        },
+        {
+          "page": "forms/new-form.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #2: \"https://yandex.ru/support/forms/ru/go-to-forms.md\" became \"https://yandex.ru/support/forms/en/go-to-forms.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #3: \"https://yandex.ru/support/forms/ru/add-questions.md\" became \"https://yandex.ru/support/forms/en/add-questions.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #4: \"https://yandex.ru/support/forms/ru/appearance.md\" became \"https://yandex.ru/support/forms/en/appearance.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #6: \"https://yandex.ru/support/forms/ru/restrictions.md\" became \"https://yandex.ru/support/forms/en/restrictions.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #7: \"https://yandex.ru/support/forms/ru/publish.md\" became \"https://yandex.ru/support/forms/en/publish.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #8: \"https://yandex.ru/support/forms/ru/access.md\" became \"https://yandex.ru/support/forms/en/access.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #9: \"https://yandex.ru/support/forms/ru/go-to-forms.md\" became \"https://yandex.ru/support/forms/en/go-to-forms.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/forms/ru/go-to-forms.md\" became \"https://yandex.ru/support/forms/en/go-to-forms.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2a3d73a9642aa73699566ded66f1ae2a009d1493929ddc5c88a72b02eb76b788"
+        },
+        {
+          "page": "forms/send-request.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/support/forms/ru/notifications.md#add-inte...\" became \"https://yandex.ru/support/forms/en/notifications.md#add-inte...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #4: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #5: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #6: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #10: \"https://yandex.ru/support/forms/ru/notifications-history.md#...\" became \"https://yandex.ru/support/forms/en/notifications-history.md#...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/forms/ru/vars.md\" became \"https://yandex.ru/support/forms/en/vars.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #13: \"https://yandex.ru/support/forms/ru/vars.md#var-filters\" became \"https://yandex.ru/support/forms/en/vars.md#var-filters\""
+            },
+            {
+              "type": "formatting",
+              "detail": "formatting elements: 187 in source vs 188 in translation"
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "2fbd82a94039d1051b3bea636286df148f2394f97fb55a45b67ccf847c28a450"
+        },
+        {
+          "page": "games/sdk-sdk-player.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"const ysdk = await YaGames.init(); try { const player = awai...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"<подпись>.<данные профиля>\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"const ysdk = await YaGames.init(); try { let player = await ...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #16 body changed: \"const ysdk = await YaGames.init(); // Инициализируем SDK. co...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/dev/games/doc/ru/console/purchases.md\" became \"https://yandex.com/dev/games/doc/en/console/purchases.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #3: \"https://yandex.ru/games/user\" became \"https://yandex.com/games/user\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #4: \"https://yandex.ru/dev/games/doc/ru/sdk/sdk-purchases.md#key-...\" became \"https://yandex.com/dev/games/doc/en/sdk/sdk-purchases.md#key...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #5: \"https://yandex.ru/dev/games/doc/ru/console/purchases.md#conn...\" became \"https://yandex.com/dev/games/doc/en/console/purchases.md#con...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #6: \"https://yandex.ru/dev/games/doc/ru/sdk/sdk-purchases.md#sign...\" became \"https://yandex.com/dev/games/doc/en/sdk/sdk-purchases.md#sig...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #7: \"https://yandex.ru/dev/games/doc/ru/requirements/1/2.md#auth-...\" became \"https://yandex.com/dev/games/doc/en/requirements/1/2.md#auth...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #9: \"https://yandex.ru/dev/games/doc/ru/concepts/troubleshooting....\" became \"https://yandex.com/dev/games/doc/en/concepts/troubleshooting...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #19: \"https://yandex.ru/dev/games/doc/ru/requirements/1/9.md#save-...\" became \"https://yandex.com/dev/games/doc/en/requirements/1/9.md#save...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #22: \"https://yandex.ru/dev/games/doc/ru/console/debug-panel.md#cl...\" became \"https://yandex.com/dev/games/doc/en/console/debug-panel.md#c...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "c604f3aaaba6dc16ec66eeea02c5781da7bda1842b0d72b7cff212cc93f8c89d"
+        },
+        {
+          "page": "games/sdk-sdk-review.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/dev/games/doc/ru/console/reviews.md\" became \"https://yandex.com/dev/games/doc/en/console/reviews.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "f5a39359541f8b7f766c86c413ffdb10cfe9d5e28b45babded79d6d8a696de2f"
+        },
+        {
+          "page": "games/sdk-sdk-server-time.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"const ysdk = await YaGames.init(); // Возвращает время в мс,...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #2 body changed: \"YaGames.init() .then((ysdk) => { // Возвращает время в мс, с...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"YaGames.init() .then(async (ysdk) => { // Инициализация игро...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/dev/games/doc/ru/sdk/sdk-player.md#ingame-...\" became \"https://yandex.com/dev/games/doc/en/sdk/sdk-player.md#ingame...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "ef4bc16eb312a5751075d7e7984d972a8795ad9aa60beb0231db35993e3ca289"
+        },
+        {
+          "page": "tracker/user-create-ticket.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #26: \"https://yandex.ru/support/tracker/ru/quick-start/work-on-iss...\" became \"https://yandex.ru/support/tracker/en/quick-start/work-on-iss...\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "cd4bd948f0466ce5f70414fe36596e006a6df73b118c4da807379293c613aab5"
+        },
+        {
+          "page": "tracker/user-edit-ticket.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #7: \"https://yandex.ru/support/tracker/ru/user/markup.md\" became \"https://yandex.ru/support/tracker/en/user/markup.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #8: \"https://yandex.ru/support/tracker/ru/user/attach-file.md\" became \"https://yandex.ru/support/tracker/en/user/attach-file.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #13: \"https://yandex.ru/support/tracker/ru/user/create-param.md##d...\" became \"https://yandex.ru/support/tracker/en/user/create-param.md##d...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #14: \"https://yandex.ru/support/tracker/ru/manager/bulk-change.md#...\" became \"https://yandex.ru/support/tracker/en/manager/bulk-change.md#...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/tracker/ru/manager/bulk-change.md#...\" became \"https://yandex.ru/support/tracker/en/manager/bulk-change.md#...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #19: \"https://yandex.ru/support/tracker/ru/user/personal.md\" became \"https://yandex.ru/support/tracker/en/user/personal.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #20: \"https://yandex.ru/support/tracker/ru/user/comments.md\" became \"https://yandex.ru/support/tracker/en/user/comments.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://yandex.ru/support/tracker/ru/user/checklist.md\" became \"https://yandex.ru/support/tracker/en/user/checklist.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #22: \"https://yandex.ru/support/tracker/ru/user/ticket-links.md\" became \"https://yandex.ru/support/tracker/en/user/ticket-links.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #23: \"https://yandex.ru/support/tracker/ru/user/attach-file.md\" became \"https://yandex.ru/support/tracker/en/user/attach-file.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #24: \"https://yandex.ru/support/tracker/ru/user/move-ticket.md\" became \"https://yandex.ru/support/tracker/en/user/move-ticket.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1bd9fc383f58b2c56aaeaa416ba85e36b3ea19f90e85088fcb88d819d63262bb"
+        },
+        {
+          "page": "tracker/user-notification-constructor.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/tracker/ru/user/notification-webho...\" became \"https://yandex.ru/support/tracker/en/user/notification-webho...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #15: \"https://tracker.yandex.ru/settings/subscriptions\" became \"https://tracker.yandex.com/settings/subscriptions\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://tracker.yandex.ru/settings/subscriptions/new\" became \"https://tracker.yandex.com/settings/subscriptions/new\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #31: \"https://admin.yandex.ru\" became \"https://admin.yandex.com\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #32: \"https://admin.yandex.ru/bot-platform\" became \"https://admin.yandex.com/bot-platform\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #34: \"https://yandex.ru/support/yandex-360/business/admin/ru/messe...\" became \"https://yandex.com/support/yandex-360/business/admin/en/mess...\""
+            },
+            {
+              "type": "formatting",
+              "detail": "formatting elements: 252 in source vs 257 in translation"
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "29db6408f8bf7e564dcd4f7ac618910b8d96e97a263f0ac411fb99bdb4fcb70d"
+        },
+        {
+          "page": "wiki/create-page.md",
+          "markup": [
+            {
+              "type": "links",
+              "detail": "link targets #5: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/wiki/ru/templates.md\" became \"https://yandex.ru/support/wiki/en/templates.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #18: \"https://yandex.ru/support/wiki/ru/pages-types.md#grid\" became \"https://yandex.ru/support/wiki/en/pages-types.md#grid\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #19: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #20: \"https://yandex.ru/support/wiki/ru/import-page.md#text\" became \"https://yandex.ru/support/wiki/en/import-page.md#text\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://yandex.ru/support/wiki/ru/import-page.md#table\" became \"https://yandex.ru/support/wiki/en/import-page.md#table\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #22: \"https://yandex.ru/support/wiki/ru/templates.md\" became \"https://yandex.ru/support/wiki/en/templates.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #24: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #25: \"https://yandex.ru/support/wiki/ru/import-page.md\" became \"https://yandex.ru/support/wiki/en/import-page.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #26: \"https://yandex.ru/support/wiki/ru/delete-page.md\" became \"https://yandex.ru/support/wiki/en/delete-page.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "f3c0236a564c4d363508433473092ad57601766281d7d36193df473a459adb72"
+        },
+        {
+          "page": "wiki/wysiwyg-tables-format.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #1 body changed: \"#| || **Столбец 1** | **Столбец 2** | **Столбец 3** | **Стол...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #3 body changed: \"| Заголовок 1 | Заголовок 2 | Заголовок 3 | | --- | --- | --...\""
+            },
+            {
+              "type": "fence-content",
+              "detail": "fence #4 body changed: \"| По левому краю | По центру | По правому краю | | :--- | :-...\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #1: \"https://yandex.ru/support/wiki/ru/wysiwyg/grid.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/grid.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #16: \"https://yandex.ru/support/wiki/ru/create-page.md\" became \"https://yandex.ru/support/wiki/en/create-page.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #28: \"https://yandex.ru/support/wiki/ru/wysiwyg/text-format.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/text-format.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #30: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "8eadcc58196753fc2bedad0627b23f8be6fa4cef4facaf89b7980f50527c47ea"
+        },
+        {
+          "page": "wiki/wysiwyg-text-format.md",
+          "markup": [
+            {
+              "type": "fence-content",
+              "detail": "fence #9 body changed: \"Верхний^индекс^ Верхний\\^индекс^\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #9: \"https://yandex.ru/support/wiki/ru/wysiwyg/links.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/links.md\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #12: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #15: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #21: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #27: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #31: \"https://yandex.ru/support/wiki/ru/edit-page.md#keyboard\" became \"https://yandex.ru/support/wiki/en/edit-page.md#keyboard\""
+            },
+            {
+              "type": "links",
+              "detail": "link targets #34: \"https://yandex.ru/support/wiki/ru/wysiwyg/comment.md\" became \"https://yandex.ru/support/wiki/en/wysiwyg/comment.md\""
+            }
+          ],
+          "untranslated": [],
+          "glossary": [],
+          "outputSha256": "1736e56b43deaca383c29625496cb70c7ffabae47ae255487085d0e71d597c4a"
+        }
+      ]
+    }
+  ],
+  "cliLockfileSha256": "5d7f87b47671ece7c2f54fbfbbd43d557ed7c83f4a18565cb64aec5302ae1934",
+  "finalLibrary": {
+    "revision": "3585254547bf3cbf7b54f291a58894e2274a349e",
+    "runtimeSha256": "fabb6e19e678edb50f1adedb395f5516ed4d09d98c139d121ee11e4faaec2756",
+    "liveRunsRepeatedAfterRefactor": false,
+    "scannerAndEscapingComparisons": 155236,
+    "documentsCompared": 263,
+    "compactModeExtractAndComposeComparisons": 526,
+    "differences": 0
+  },
+  "corpusEvidence": [
+    "2026-09-28-translate-consumer-corpus.json",
+    "2026-09-28-translate-markup-structure-results.json"
+  ],
+  "consumerClassifications": [
+    {
+      "name": "consumers-full",
+      "repeat": 1,
+      "approvedLinks": 0,
+      "unaccountedFormatting": 0,
+      "referenceFences": 3,
+      "commentOnlyFences": 6,
+      "manual": []
+    },
+    {
+      "name": "consumers-full",
+      "repeat": 2,
+      "approvedLinks": 0,
+      "unaccountedFormatting": 0,
+      "referenceFences": 3,
+      "commentOnlyFences": 6,
+      "manual": []
+    },
+    {
+      "name": "consumers-full",
+      "repeat": 3,
+      "approvedLinks": 0,
+      "unaccountedFormatting": 0,
+      "referenceFences": 3,
+      "commentOnlyFences": 6,
+      "manual": []
+    },
+    {
+      "name": "consumers-seed",
+      "repeat": 1,
+      "approvedLinks": 89,
+      "unaccountedFormatting": 0,
+      "referenceFences": 9,
+      "commentOnlyFences": 4,
+      "manual": []
+    },
+    {
+      "name": "consumers-seed",
+      "repeat": 2,
+      "approvedLinks": 89,
+      "unaccountedFormatting": 0,
+      "referenceFences": 9,
+      "commentOnlyFences": 4,
+      "manual": []
+    },
+    {
+      "name": "consumers-seed",
+      "repeat": 3,
+      "approvedLinks": 89,
+      "unaccountedFormatting": 0,
+      "referenceFences": 9,
+      "commentOnlyFences": 4,
+      "manual": []
+    }
+  ],
+  "ytsaurusClassification": {
+    "eachRepeat": {
+      "mermaidLabelChanges": 2,
+      "yamlCommentChanges": 4,
+      "ysonPlaceholderExampleChanges": 1
+    },
+    "limitation": "The YSON example comment remains Russian. Prose completeness excludes fenced code."
+  },
+  "limitations": [
+    "Unpublished local library package, not a CLI dependency bump.",
+    "Diplodoc candidate repeat 1 retains unrelated prose after a retry.",
+    "Fresh published-library title controls also succeed 3/3; no measured failure-rate reduction is claimed.",
+    "Consumer and YTsaurus raw markup verdicts remain FAIL; classifications do not rewrite verdicts.",
+    "Final scanner refactor is validated by deterministic comparisons and tests, not relabeled live runs."
+  ]
+}
