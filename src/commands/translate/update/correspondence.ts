@@ -30,6 +30,24 @@ export function correspond(before: RawBlock[], target: RawBlock[]): Map<number, 
     const singleTitle =
         before.filter((block) => /^# /.test(block.text)).length === 1 &&
         target.filter((block) => /^# /.test(block.text)).length === 1;
+    const noteEvidence = (source: RawBlock, translated: RawBlock) => {
+        const sourceChild = before[before.indexOf(source) + 1],
+            targetChild = target[target.indexOf(translated) + 1];
+        if (
+            !sourceChild ||
+            !targetChild ||
+            sourceChild.container.length !== source.container.length + 1 ||
+            targetChild.container.length !== translated.container.length + 1
+        )
+            return false;
+        return sourceChild.anchors.some(
+            (anchor) =>
+                /^(?:code|link):/.test(anchor) &&
+                targetChild.anchors.includes(anchor) &&
+                before.filter((block) => block.anchors.includes(anchor)).length === 1 &&
+                target.filter((block) => block.anchors.includes(anchor)).length === 1,
+        );
+    };
     const identity = (source: RawBlock, translated: RawBlock) =>
         compatible(source, translated) &&
         (source.anchors.some(
@@ -38,7 +56,8 @@ export function correspond(before: RawBlock[], target: RawBlock[]): Map<number, 
             (source.kind !== 'paragraph' && source.text === translated.text) ||
             (source.kind === 'marker' &&
                 /^{%\s*note\b/.test(source.text) &&
-                /^{%\s*note\b/.test(translated.text)) ||
+                /^{%\s*note\b/.test(translated.text) &&
+                noteEvidence(source, translated)) ||
             (singleTitle && /^# /.test(source.text) && /^# /.test(translated.text)));
     for (const [index, block] of before.entries()) {
         const candidates = target.flatMap((other, offset) =>

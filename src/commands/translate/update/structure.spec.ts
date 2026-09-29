@@ -74,13 +74,13 @@ describe('structural incremental updates', () => {
     });
     it('inserts before a unique note whose title was translated', async () => {
         const before =
-            '# Таблицы\n\nПосле создания они монтируются.\n\n{% note warning "Внимание" %}\n\nНе меняйте таблицы.\n\n{% endnote %}';
+            '# Таблицы\n\nПосле создания они монтируются.\n\n{% note warning "Внимание" %}\n\nНе меняйте таблицы через `yt flow show-logs`.\n\n{% endnote %}';
         const after = before.replace(
             '{% note warning "Внимание" %}',
             'Новый абзац.\n\n{% note warning "Внимание" %}',
         );
         const target =
-            '# Tables\n\nThey are mounted after creation.\n\n{% note warning "Attention" %}\n\nDo not change the tables.\n\n{% endnote %}';
+            '# Tables\n\nThey are mounted after creation.\n\n{% note warning "Attention" %}\n\nDo not change tables through `yt flow show-logs`.\n\n{% endnote %}';
         const result = await runUpdate(snapshot(before, after, target), async () => ({
             text: 'New paragraph.',
             diagnostics: [],
@@ -92,6 +92,17 @@ describe('structural incremental updates', () => {
             ),
         );
         expect(result.rejected).toBe(0);
+    });
+    it('does not identify a translated note by its type alone', () => {
+        const before =
+            '# A\n\nOld.\n\n{% note warning "Внимание" %}\n\nUse `source-command`.\n\n{% endnote %}';
+        const after = before.replace(
+            '{% note warning "Внимание" %}',
+            'New.\n\n{% note warning "Внимание" %}',
+        );
+        const target =
+            '# A\n\nOld.\n\n{% note warning "Attention" %}\n\nUse `different-command`.\n\n{% endnote %}';
+        expect(planUpdate(snapshot(before, after, target)).ok).toBe(false);
     });
     it('does not use an ambiguous repeated note as an insertion boundary', () => {
         const before =
