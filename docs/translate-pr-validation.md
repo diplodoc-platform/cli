@@ -5,9 +5,11 @@ both fresh translation and translation memory seeded from an existing locale.
 Keep the validator fixed while changing the CLI under test. A deterministic
 fixture suite and live model runs answer different questions; run both.
 
-A worked example, including failed iterations and an unresolved extraction
-defect, is available in the
+A worked example, including failed iterations and an extraction defect, is
+available in the
 [consumer comparison report](https://github.com/diplodoc-platform/cli/blob/af61d398/docs/specs/2026-09-28-translate-consumer-followup.md).
+Its [library follow-up](https://github.com/diplodoc-platform/translation/pull/293)
+illustrates extracting human-readable text separately from protected syntax.
 
 ## Prepare the binaries and artifacts
 
@@ -16,6 +18,12 @@ in separate, clean checkouts with `npm ci && npm run build`. Record the commit
 and lockfile hash for each. Keep the whole checkout, including `lib`, `build`,
 `package.json` and dependencies: copying only `build/index.js` is insufficient.
 Do not rebuild either checkout during a comparison.
+
+If testing a locally packed dependency, record its source revision and installed
+runtime hash as well: external dependencies can change behavior without changing
+the CLI binary or lockfile. Label unpublished packages explicitly, preserve the
+published dependency for restoration, and distinguish the combined experiment
+from what the CLI PR will deliver before a library release and dependency bump.
 
 Run the eval commands below from a third, fixed validator checkout, or from the
 candidate checkout without modifying it during the series. The validator needs
@@ -251,6 +259,11 @@ score does not detect untranslated fallback reliably. The validator's series
 thresholds apply to totals across repeats, not independently to each run.
 Record the exact thresholds. If acceptance requires zero missed translations,
 an existing allowance of one does not turn a one-miss run into evidence of zero.
+
+If fresh baseline and candidate repeats both avoid the target failure, do not
+claim a measured reduction in its frequency. Keep earlier reproductions and
+deterministic boundary tests as separate evidence. An unrelated failure in a
+candidate run still belongs in the result; rerunning until green is not a fix.
 
 Classify every finding. Matching a localized URL anywhere in a reference page
 establishes provenance, not correct placement. Matching formatting inventories
