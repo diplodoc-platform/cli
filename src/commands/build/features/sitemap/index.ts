@@ -2,6 +2,7 @@ import type {Command} from '~/core/config';
 import type {Build, Run} from '~/commands/build';
 
 import {join} from 'node:path';
+import {load} from 'js-yaml';
 import {extractFrontMatter} from '@diplodoc/liquid';
 
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -59,11 +60,13 @@ export class Sitemap {
 
                 const {baseHref} = run.config;
 
-                // Sitemap urls must be absolute and there is nothing to resolve
-                // page paths against without a publication root.
-                if (!baseHref) {
+                // Sitemap urls must be absolute. Without a publication root there is
+                // nothing to resolve page paths against, and a malformed one (e.g.
+                // `example.com/docs`) makes resolveAbsoluteHref silently keep page
+                // paths relative.
+                if (!baseHref || !URL.canParse(baseHref)) {
                     run.logger.warn(
-                        'Option "sitemap" requires "baseHref" to generate absolute page urls. Skip sitemap.xml generation.',
+                        'Option "sitemap" requires a valid absolute "baseHref" to generate absolute page urls. Skip sitemap.xml generation.',
                     );
 
                     return;
@@ -74,21 +77,37 @@ export class Sitemap {
                     resolveAbsoluteHref(setExt(entry, '.html'), baseHref),
                 );
 
+                // resolveAbsoluteHref keeps a path as is when it cannot be resolved:
+                // a relative loc would violate the absolute urls requirement, so the
+                // whole file is skipped instead of writing an invalid sitemap.
+                if (urls.some((url) => !URL.canParse(url))) {
+                    run.logger.warn(
+                        'Failed to resolve absolute page urls against "baseHref". Skip sitemap.xml generation.',
+                    );
+
+                    return;
+                }
+
                 await run.write(join(run.output, SITEMAP_FILENAME), generateSitemap(urls), true);
             });
     }
 
     /**
-     * Drops pages marked `noIndex` by a TOC reference or their front matter.
+     * Drops pages marked `noIndex` by a TOC reference or their source metadata.
      *
      * `noIndex` means "keep this page out of indexes" and a sitemap is exactly
      * an index for crawlers, so such pages must not reach sitemap.xml. This
      * mirrors the Llms feature behavior.
      *
-     * Front matter is read directly from the source file rather than from
-     * `run.meta.dump()`. When `--jobs` is enabled, `process()` runs in a worker
-     * thread with its own `MetaService` instance; the main thread's `MetaService`
-     * (where `AfterRun` hooks execute) never receives the front matter.
+     * Page metadata is always read from the source file rather than from
+     * `MetaService`: when `--jobs` is enabled, `process()` runs in a worker
+     * thread with its own `MetaService` instance, and page metadata processed
+     * there never reaches the main thread's instance (where `AfterRun` hooks
+     * execute). Only the first check (TOC restrictions collected by
+     * `toc.init()`) uses the main thread's `MetaService`.
+     *
+     * A page whose metadata cannot be read is kept: it must not silently vanish
+     * from the sitemap.
      */
     private async excludeNoIndex(run: Run, entries: NormalizedPath[]): Promise<NormalizedPath[]> {
         const keep = await Promise.all(
@@ -98,32 +117,25 @@ export class Sitemap {
                 }
 
                 try {
-                    // Only `.md` files have YAML front matter delimited by `---`.
-                    // Leading pages (`.yaml`) store their metadata differently, so
-                    // fall back to `run.meta.dump()` for them — leading pages are
-                    // never marked `noIndex` in practice.
-                    if (!entry.endsWith('.md')) {
-                        const meta = await run.meta.dump(entry);
-
-                        return !(
-                            meta?.noIndex === true ||
-                            (meta?.['docs-viewer'] as {noIndex?: boolean})?.noIndex === true
-                        );
-                    }
-
                     const source = join(run.input, entry);
                     const raw = await run.read(source as AbsolutePath);
-                    const [frontmatter] = extractFrontMatter(raw);
+
+                    // Only `.md` files have YAML front matter delimited by `---`;
+                    // for the rest the document itself is the metadata.
+                    const meta = entry.endsWith('.md')
+                        ? extractFrontMatter(raw)[0]
+                        : (load(raw) as {
+                              noIndex?: boolean;
+                              'docs-viewer'?: {noIndex?: boolean};
+                          } | null);
 
                     // `noIndex` can live at the meta root (standard YFM frontmatter)
                     // or under the `docs-viewer` namespace (viewer-specific config).
                     return !(
-                        frontmatter?.noIndex === true ||
-                        (frontmatter?.['docs-viewer'] as {noIndex?: boolean})?.noIndex === true
+                        meta?.noIndex === true ||
+                        (meta?.['docs-viewer'] as {noIndex?: boolean} | undefined)?.noIndex === true
                     );
                 } catch {
-                    // A page whose meta cannot be read is kept: it must not
-                    // silently vanish from the sitemap.
                     return true;
                 }
             }),
