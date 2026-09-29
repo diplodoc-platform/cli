@@ -16,6 +16,7 @@ import {LogLevel} from '~/core/logger';
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
 import {TranslateError, compose, languageRepath, loadTranslationUnits} from '../../utils';
+import {isTableTitleFallback, tableTitleFallback, tableTitleIssue} from '../../utils/table-title';
 import {TranslateLogger} from '../../logger';
 import {
     RunReport,
@@ -507,15 +508,22 @@ function makeProcessor(params: ProcessorParams) {
         const inputPath = join(inputRoot, path);
         const outputPath = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
 
-        const {content, units, skeleton, schemas, ajvOptions, warnings} =
-            await loadTranslationUnits({
-                inputPath,
-                path,
-                sourceLanguage,
-                targetLanguage,
-                vars: varsFor(path),
-                code,
-            });
+        const {
+            content,
+            units,
+            skeleton,
+            schemas,
+            ajvOptions,
+            warnings,
+            tableTitles = [],
+        } = await loadTranslationUnits({
+            inputPath,
+            path,
+            sourceLanguage,
+            targetLanguage,
+            vars: varsFor(path),
+            code,
+        });
 
         if (!content.data || !units.length) {
             await content.dump(outputPath);
@@ -527,6 +535,15 @@ function makeProcessor(params: ProcessorParams) {
         // cross-file reuse. Localization belongs to this file's composition.
         const localized = localizedUrls(store?.memory(path) || [], languages);
         const parts = translated.map((part) => restoreLocalizedUrls(part, localized));
+        for (const ids of tableTitles) {
+            if (ids.some((id) => isTableTitleFallback(parts[id]))) {
+                for (const id of ids) parts[id] = units[id];
+                const warning =
+                    'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
+                logger?.warn(path, warning);
+                warnings.push(warning);
+            }
+        }
 
         onTranslated?.(path, units, parts);
 
@@ -631,7 +648,7 @@ export function makeStore(
     const fingerprint = cacheFingerprint({
         // Old generated answers may contain copied edits or translated code.
         // Approved repository translations use the separately versioned seed.
-        validationPolicy: 2,
+        validationPolicy: 3,
         provider: client.name,
         model: config.model,
         source: sourceLanguage,
@@ -1055,6 +1072,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
             return (
                 !invalidLiterals.has(JSON.stringify([fragment, part])) &&
+                !tableTitleIssue(fragment, part) &&
                 keepsMarkup(source, text) &&
                 keepsPlaceholders(source, text) &&
                 !markupStructureIssue(source, text)
@@ -1080,7 +1098,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
             context,
             'Markup retry',
             indexes.map((index) => hints[index]),
-            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.',
+            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
+                (indexes.some((index) => tableTitleIssue(fragments[index], parts[index]))
+                    ? ' For a wide-table title, rephrase the translation without double quotes, literal closing braces or line breaks. Preserve variable placeholders exactly. Do not use backslash or HTML entity escaping.'
+                    : ''),
         );
 
         const result = [...parts];
@@ -1098,7 +1119,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             stat.markupDamaged++;
             damaged.add(fragments[index]);
             repairs.set(fragments[index], 0);
-            result[index] = fragments[index];
+            result[index] = tableTitleFallback(fragments[index]);
         });
 
         if (unfixed) {
@@ -1325,6 +1346,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 // characters were cached by older runs that stored untranslated
                 // responses. Treat them as misses so the unit gets another chance.
                 const refused =
+                    tableTitleIssue(text, healed) ||
                     (normalized === text && hasSourceProse(text, marker)) ||
                     (!seeded &&
                         Boolean(

@@ -7,8 +7,10 @@ import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'n
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
+import {extract} from '@diplodoc/translation';
 
 import {createTargetStat} from '../../report';
+import {markTableTitle} from '../../utils/table-title';
 
 import {
     Provider,
@@ -1140,6 +1142,50 @@ describe('translate ai provider', () => {
     });
 
     describe('makeTranslator', () => {
+        describe.skipIf(
+            !(
+                'tableTitles' in
+                extract('{wide-content title="Имя"}', {
+                    source: {language: 'ru', locale: 'RU'},
+                    target: {language: 'en', locale: 'US'},
+                })
+            ),
+        )('wide-table title cache validation', () => {
+            it.each([false, true])(
+                'rejects incompatible cached titles (seeded=%s)',
+                async (seeded) => {
+                    const dir = mkdtempSync(join(tmpdir(), 'yfm-title-cache-'));
+                    const source = markTableTitle(wrap('Имя'));
+                    const bad = markTableTitle(wrap('Example } details'));
+                    const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                    if (seeded) seeds.record('ru/a.md', [[source, bad]]);
+                    const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+                    if (!seeded) store.set(source, bad);
+                    const client = makeClient(() => ['Table title']);
+                    const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                    expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([
+                        markTableTitle(wrap('Table title')),
+                    ]);
+                    expect(stat.cached).toBe(0);
+                    expect(stat.requests).toBe(1);
+                },
+            );
+
+            it('does not reuse an ordinary prose answer for the same text in a title', async () => {
+                const client = makeClient((_, call) => [
+                    call === 0 ? 'Owner\'s "x" table' : 'Table title',
+                ]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+                const translate = makeTranslator(params);
+                expect(await translate('ru/a.md', [wrap('Имя')])).toEqual([
+                    wrap('Owner\'s "x" table'),
+                ]);
+                expect(await translate('ru/b.md', [markTableTitle(wrap('Имя'))])).toEqual([
+                    markTableTitle(wrap('Table title')),
+                ]);
+                expect(stat.requests).toBe(2);
+            });
+        });
         describe('memory hints', () => {
             const previous = 'Чтобы настроить колонкам по статусам:';
             const edited = 'Чтобы настроить колонки по статусам:';

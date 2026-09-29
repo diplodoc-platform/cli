@@ -5,6 +5,9 @@ import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync}
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {afterEach, describe, expect, it, vi} from 'vitest';
+import {extract} from '@diplodoc/translation';
+import transform from '@diplodoc/transform';
+import {parse} from 'node-html-parser';
 
 import {seedTranslations} from '../../commands/seed';
 
@@ -19,12 +22,21 @@ type Fixture = {
     expected: string;
     fallback?: string;
     seed?: {source: string; target: string};
+    title?: {translated: string; fallback?: string};
 };
 
 const fixtures: Fixture[] = JSON.parse(
     readFileSync(join(__dirname, '__fixtures__/markup-regressions.json'), 'utf8'),
 );
 const directories: string[] = [];
+// The paired library PR is not released yet. Keep these integration cases
+// visible as skipped on 1.10.0; they run against the locally packed candidate.
+const supportsTableTitles =
+    'tableTitles' in
+    extract('{wide-content title="Имя"}', {
+        source: {language: 'ru', locale: 'RU'},
+        target: {language: 'en', locale: 'US'},
+    });
 
 afterEach(() => {
     for (const dir of directories.splice(0)) {
@@ -76,13 +88,14 @@ async function translate(fixture: Fixture, persistent: boolean) {
         })),
     };
     const provider = new Provider(() => client, {} as never);
+    const warn = vi.fn();
     Object.assign(provider, {
         logger: {
             translate: vi.fn(),
             translated: vi.fn(),
             request: vi.fn(),
             stat: vi.fn(),
-            warn: vi.fn(),
+            warn,
             error: vi.fn(),
             info: vi.fn(),
         },
@@ -130,25 +143,39 @@ async function translate(fixture: Fixture, persistent: boolean) {
         firstCache,
         lastCache: cachedTranslations(),
         injected,
+        warn,
+        requests: vi.mocked(client.complete).mock.calls,
     };
 }
 
 describe('markup document regression fixtures', () => {
-    it.each(fixtures)('composes the expected document: $name', async (fixture) => {
-        const {markdown, first, injected} = await translate(fixture, false);
+    it.for(fixtures)('composes the expected document: $name', async (fixture, ctx) => {
+        if (fixture.title && !supportsTableTitles) ctx.skip();
+        const {markdown, first, injected, requests} = await translate(fixture, false);
         expect(markdown).toBe(fixture.expected);
         expect(injected).toBe(Boolean(fixture.fault));
         expect(first.totals.fixes.markupDamaged).toBe(0);
         expect(first.totals.fixes.markupRetried).toBe(fixture.fault ? 1 : 0);
+        if (fixture.title) {
+            expect(
+                parse(transform(markdown).result.html)
+                    .querySelector('table')
+                    ?.getAttribute('title'),
+            ).toBe(fixture.title.translated);
+            if (fixture.fault) {
+                expect(
+                    requests.some(([messages]) => messages[0].content.includes('wide-table title')),
+                ).toBe(true);
+            }
+        }
     });
 
-    it.each(fixtures.filter((fixture) => fixture.fault))(
+    it.for(fixtures.filter((fixture) => fixture.fault))(
         'keeps only the damaged unit as source and retries on the next run: $name',
-        async (fixture) => {
-            const {markdown, lastMarkdown, first, last, firstCache, lastCache} = await translate(
-                fixture,
-                true,
-            );
+        async (fixture, ctx) => {
+            if (fixture.title && !supportsTableTitles) ctx.skip();
+            const {markdown, lastMarkdown, first, last, firstCache, lastCache, warn} =
+                await translate(fixture, true);
             expect(markdown).toBe(fixture.fallback);
             expect(lastMarkdown).toBe(fixture.fallback);
             // All successful fixture translations are English. Russian text
@@ -163,6 +190,18 @@ describe('markup document regression fixtures', () => {
             expect(first.totals.fixes.markupDamaged).toBe(1);
             expect(last.totals.fixes.markupRetried).toBe(1);
             expect(last.totals.fixes.markupDamaged).toBe(1);
+            if (fixture.title) {
+                expect(
+                    parse(transform(markdown).result.html)
+                        .querySelector('table')
+                        ?.getAttribute('title'),
+                ).toBe(fixture.title.fallback);
+                expect(
+                    warn.mock.calls.some((call) =>
+                        String(call[1]).includes('original wide-table title'),
+                    ),
+                ).toBe(true);
+            }
         },
     );
 });

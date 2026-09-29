@@ -8,9 +8,12 @@ type Content = Parameters<typeof _extract>[0];
 
 export function extract(content: Content, options: ExtractOptions) {
     try {
-        const {xliff, units, skeleton, warnings = []} = _extract(content, options);
+        const result = _extract(content, options);
+        const {xliff, units, skeleton, warnings = []} = result;
+        // Optional until the paired translation-library release is installed.
+        const {tableTitles = []} = result as typeof result & {tableTitles?: number[][]};
 
-        return {xliff, units, skeleton, warnings};
+        return {xliff, units, skeleton, warnings, tableTitles};
     } catch (error: unknown) {
         throw new ExtractError(error as Error);
     }

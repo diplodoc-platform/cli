@@ -1,5 +1,48 @@
 [
   {
+    "name": "wide-table-title-retries-quotes",
+    "source": "Привет.\n\n| A |\n| --- |\n| B |\n\n{wide-content title=\"Имя\"}\n",
+    "translations": [
+      ["Привет.", "Hello."],
+      ["Имя", "Table title"]
+    ],
+    "fault": ["Table title", "Owner's \"x\" table"],
+    "expected": "Hello.\n\n| A |\n| --- |\n| B |\n\n{wide-content title=\"Table title\"}\n",
+    "fallback": "Hello.\n\n| A |\n| --- |\n| B |\n\n{wide-content title=\"Имя\"}\n",
+    "title": {"translated": "Table title", "fallback": "Имя"}
+  },
+  {
+    "name": "wide-table-title-retries-closing-braces",
+    "source": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Имя\"}\n",
+    "translations": [["Имя", "Table title"]],
+    "fault": ["Table title", "Example } details"],
+    "expected": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Table title\"}\n",
+    "fallback": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Имя\"}\n",
+    "title": {"translated": "Table title", "fallback": "Имя"}
+  },
+  {
+    "name": "wide-table-title-restores-whole-multisentence-title",
+    "source": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Первая фраза. Вторая фраза.\"}\n",
+    "translations": [
+      ["Первая фраза.", "First phrase."],
+      ["Вторая фраза.", "Second phrase."]
+    ],
+    "fault": ["Second phrase.", "Second } phrase."],
+    "expected": "| A |\n| --- |\n| B |\n\n{wide-content title=\"First phrase. Second phrase.\"}\n",
+    "fallback": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Первая фраза. Вторая фраза.\"}\n",
+    "title": {
+      "translated": "First phrase. Second phrase.",
+      "fallback": "Первая фраза. Вторая фраза."
+    }
+  },
+  {
+    "name": "wide-table-title-keeps-literal-backslash",
+    "source": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Путь\"}\n",
+    "translations": [["Путь", "Path \\"]],
+    "expected": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Path \\\"}\n",
+    "title": {"translated": "Path \\"}
+  },
+  {
     "name": "tracker-numbered-list-keeps-original-emphasis",
     "source": "1. Откройте карточку задачи.\n\n1. Проверьте **статус**.\n",
     "translations": [
