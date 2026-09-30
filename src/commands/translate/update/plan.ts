@@ -74,11 +74,18 @@ export function planUpdate(snapshot: Snapshot): UpdatePlan {
         if (before.filter((block) => block.text === old.text).length > 1 && !old.anchors.length)
             return conflict('Repeated changed source block has no unique identity');
         const block = target[mapped];
-        let literalOutput: string | undefined;
-        const links = updated ? patchLinks(old.text, updated.text, block.text) : null;
+        // A mapped table row may already contain the exact new source bytes.
+        let literalOutput =
+            updated && old.kind === 'table' && block.kind === 'table' && updated.text === block.text
+                ? block.text
+                : undefined;
+        const links =
+            updated && literalOutput === undefined
+                ? patchLinks(old.text, updated.text, block.text)
+                : null;
         if (links && links.output === undefined)
             return conflict('Changed link destination diverged in the target');
-        literalOutput = links?.output;
+        literalOutput ??= links?.output;
         if (
             updated &&
             old.kind === 'table' &&

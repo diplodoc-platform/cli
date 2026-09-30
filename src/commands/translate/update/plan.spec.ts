@@ -131,6 +131,19 @@ describe('source delta planner', () => {
             ],
         });
     });
+    it('keeps a uniquely mapped block that already equals the new source', () => {
+        const before = '| `Static Table` | &#65794; |';
+        const after = '| `Static Table` | &#10003; |';
+        expect(planUpdate(snapshot(before, after, after))).toMatchObject({
+            ok: true,
+            changes: [{expected: after, literalOutput: after}],
+        });
+        const divergent = '| `Static Table` | &#9711; |';
+        expect(planUpdate(snapshot(before, after, divergent))).toMatchObject({
+            ok: true,
+            changes: [{expected: divergent, literalOutput: undefined}],
+        });
+    });
     it('moves a uniform tab selection across repeated translated groups', () => {
         const group =
             '{% list tabs dropdown group=deploy %}\n\n- Docker {selected}\n\nТекст Docker.\n\n- Kind\n\nТекст Kind.\n\n{% endlist %}';
