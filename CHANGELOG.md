@@ -1,5 +1,32 @@
 # Changelog
 
+## [5.63.0](https://github.com/diplodoc-platform/cli/compare/v5.62.0...v5.63.0) (2026-09-29)
+
+
+### Features
+
+* **cli:** generate sitemap.xml in static builds #DOCSTOOLS-6563 ([e5d2b6a](https://github.com/diplodoc-platform/cli/commit/e5d2b6ab6c735073d0a80530ce990905220e2826))
+* **cli:** support local code directives #DOCSTOOLS-6666 ([50f1df7](https://github.com/diplodoc-platform/cli/commit/50f1df7e0c0d59924944580169532dff4169009a))
+* **toc:** support inherited noIndex #DOCSTOOLS-4902 ([3893fb3](https://github.com/diplodoc-platform/cli/commit/3893fb3f362c6d784e21134b1e6585a6fb4250da))
+* **translate:** apply vars presets from .yfm behind --presets ([#2297](https://github.com/diplodoc-platform/cli/issues/2297)) ([2b7a899](https://github.com/diplodoc-platform/cli/commit/2b7a8998c6a62c7696b24085e0f4f5c8af1381f7))
+* **translate:** code mode option for comments and mermaid labels DOCSTOOLS-6809 ([#2291](https://github.com/diplodoc-platform/cli/issues/2291)) ([a339f33](https://github.com/diplodoc-platform/cli/commit/a339f33ae370dd11845323c78e9af3d06af2f74d))
+* **translate:** translation memory hints for changed units ([#2296](https://github.com/diplodoc-platform/cli/issues/2296)) ([deb6ef0](https://github.com/diplodoc-platform/cli/commit/deb6ef0dafab06910b4f4a8169887d5a41b93049))
+
+
+### Bug Fixes
+
+* **build:** hide Markdown actions without companions #DOCSTOOLS-6851 ([ae732ca](https://github.com/diplodoc-platform/cli/commit/ae732cad50707cb1b93cc6295ca37727b8d43b4c))
+* **cli:** address sitemap review feedback #DOCSTOOLS-6563 ([6e981d6](https://github.com/diplodoc-platform/cli/commit/6e981d68b41d26a30de2f8834deb450cc27c1916))
+* **cli:** check the meta section of leading pages in sitemap noIndex filter #DOCSTOOLS-6563 ([96e3d87](https://github.com/diplodoc-platform/cli/commit/96e3d873e8a72a5b3e9be019faa101728a4caa9f))
+* **cli:** satisfy sonar S2871 and make sitemap specs windows-safe #DOCSTOOLS-6563 ([3fba63b](https://github.com/diplodoc-platform/cli/commit/3fba63b9bcb1a03f4e1004c02703cdeffa8977c8))
+* **translate:** escape literal NUL in markup source ([#2309](https://github.com/diplodoc-platform/cli/issues/2309)) ([402755a](https://github.com/diplodoc-platform/cli/commit/402755afb1bc188625e196c95768448be446a737))
+* **translate:** seed localized links, code blocks and identifiers, take link addresses from the source ([#2298](https://github.com/diplodoc-platform/cli/issues/2298)) ([5b043c6](https://github.com/diplodoc-platform/cli/commit/5b043c6024be60d6ce9c03e68296cc00857eb5cd))
+
+
+### Performance Improvements
+
+* **toc:** avoid repeated dependency traversal when filtering entries ([#2285](https://github.com/diplodoc-platform/cli/issues/2285)) ([ee76f76](https://github.com/diplodoc-platform/cli/commit/ee76f7628e1de490dd25e2ee3ef01886d687b498))
+
 ## [5.62.0](https://github.com/diplodoc-platform/cli/compare/v5.61.0...v5.62.0) (2026-09-21)
 
 
