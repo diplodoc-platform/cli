@@ -15,7 +15,10 @@ const id = (tag: string) => /\bid="literal-([^"]+)"/.exec(tag)?.[1];
 
 /** Identity and multiplicity must survive, including when code is reordered. */
 export function keepsLiteralCode(source: string, translation: string): boolean {
-    const inventory = (text: string) => Array.from(text.matchAll(MASK), ([tag]) => id(tag)).sort();
+    const inventory = (text: string) =>
+        Array.from(text.matchAll(MASK), ([tag]) => id(tag)).sort((left, right) =>
+            String(left).localeCompare(String(right)),
+        );
     return JSON.stringify(inventory(source)) === JSON.stringify(inventory(translation));
 }
 

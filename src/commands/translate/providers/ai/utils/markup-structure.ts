@@ -63,7 +63,7 @@ export function markupSignature(markdown: string): string[] {
             }
         }
     }
-    return result.sort();
+    return result.sort((left, right) => left.localeCompare(right));
 }
 
 /** Returns an actionable retry reason when a translation changes YFM structure. */

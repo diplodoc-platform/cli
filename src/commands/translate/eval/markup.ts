@@ -35,7 +35,7 @@ export function formattingInventory(markdown: string): string[] {
         }
     };
     visit(inlineParser.parse(markdown, {}));
-    return result.sort();
+    return result.sort((left, right) => left.localeCompare(right));
 }
 
 /**
