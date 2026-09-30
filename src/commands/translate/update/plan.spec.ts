@@ -131,6 +131,30 @@ describe('source delta planner', () => {
             ],
         });
     });
+    it('moves a uniform tab selection across repeated translated groups', () => {
+        const group =
+            '{% list tabs dropdown group=deploy %}\n\n- Docker {selected}\n\nТекст Docker.\n\n- Kind\n\nТекст Kind.\n\n{% endlist %}';
+        const before = '# A\n\n' + group + '\n\n## B\n\n' + group;
+        const after = before
+            .replace(/- Docker \{selected\}/g, '- Docker')
+            .replace(/- Kind/g, '- Kind {selected}');
+        const translated =
+            '# A\n\n' +
+            group.replace(/Текст/g, 'Text').replace(' group=deploy', '') +
+            '\n\n## B\n\n' +
+            group.replace(/Текст/g, 'Text');
+        const plan = planUpdate(snapshot(before, after, translated));
+        expect(plan.ok).toBe(true);
+        if (plan.ok) {
+            expect(plan.changes).toHaveLength(4);
+            expect(plan.changes.every((change) => change.literalOutput !== undefined)).toBe(true);
+        }
+        const independentlyChanged = translated.replace(
+            '- Docker {selected}\n\nText Docker.',
+            '- Docker\n\nText Docker.',
+        );
+        expect(planUpdate(snapshot(before, after, independentlyChanged)).ok).toBe(false);
+    });
     it('inserts at an adjacent pair of uniquely mapped boundaries', () => {
         expect(
             planUpdate(

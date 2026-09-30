@@ -6,6 +6,7 @@ import {normalizeProseWhitespace} from './protected';
 import {balancedContainers, blockShape, extractRawBlocks} from './ranges';
 import {patchInclude, patchLinks, patchLiteralLines, patchTableNumber} from './raw-patch';
 import {correspond, unchangedBlocks} from './correspondence';
+import {planTabSelections} from './tab-selection';
 export type PlannedChange = {
     target: RawRange;
     sourceLine: number;
@@ -46,6 +47,12 @@ export function planUpdate(snapshot: Snapshot): UpdatePlan {
     if (snapshot.sourceBefore === snapshot.sourceAfter) {
         return {ok: true, changes: []};
     }
+    const tabSelections = planTabSelections(
+        snapshot.sourceBefore,
+        snapshot.sourceAfter,
+        snapshot.targetBefore,
+    );
+    if (tabSelections) return {ok: true, changes: tabSelections};
     const before = extractRawBlocks(snapshot.sourceBefore);
     const after = extractRawBlocks(snapshot.sourceAfter);
     const target = extractRawBlocks(snapshot.targetBefore);
