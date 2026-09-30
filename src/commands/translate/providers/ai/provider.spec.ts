@@ -1207,6 +1207,46 @@ describe('translate ai provider', () => {
                 expect(stat.requests).toBe(0);
             });
 
+            it.each([
+                '**Connection setup** - details.',
+                '*Connection setup* - details.',
+                '- Connection setup - details.',
+                '# Connection setup - details.',
+            ])('retranslates formatting borrowed from another file: %s', async (answer) => {
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-cross-file-seed-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                const source = wrap('Установка соединения - подробности.');
+                seeds.record('ru/existing.md', [[source, wrap(answer)]]);
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+                const client = makeClient(() => ['Connection setup - details.']);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+                expect(await makeTranslator(params)('ru/new.md', [source])).toEqual([
+                    wrap('Connection setup - details.'),
+                ]);
+                expect(stat.cached).toBe(0);
+                expect(stat.requests).toBe(1);
+            });
+
+            it('reuses a cross-file seed with a localized link address', async () => {
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-cross-file-link-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                const source = wrap(`${LINK_OPEN}Документация</g>`);
+                const target = wrap(
+                    `${LINK_OPEN.split(COMMIT).join('https://example.com/en/guide')}Documentation</g>`,
+                );
+                seeds.record('ru/existing.md', [[source, target]]);
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+                const client = makeClient(() => {
+                    throw new Error('Valid seeded links must not be translated again');
+                });
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+                expect(await makeTranslator(params)('ru/new.md', [source])).toEqual([target]);
+                expect(stat.cached).toBe(1);
+                expect(stat.requests).toBe(0);
+            });
+
             function seededStore() {
                 const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-hints-'));
                 const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));

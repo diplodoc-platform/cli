@@ -226,13 +226,13 @@ export class TranslationStore {
 
     /** Existing repository translations are not generated model-cache answers. */
     isSeeded(file: string, text: string, translation: string): boolean {
-        return (
-            this.seeds?.get(text) === translation ||
-            Boolean(
-                this.seeds
-                    ?.memory(file)
-                    ?.some(([source, target]) => source === text && target === translation),
-            )
+        return this.seeds?.get(text) === translation || this.isFileSeeded(file, text, translation);
+    }
+
+    /** Only the same file's approved translation may preserve different formatting. */
+    isFileSeeded(file: string, text: string, translation: string): boolean {
+        return this.memory(file).some(
+            ([source, target]) => source === text && target === translation,
         );
     }
 

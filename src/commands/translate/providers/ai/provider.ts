@@ -1366,7 +1366,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 const refused =
                     tableTitleIssue(text, healed) ||
                     (normalized === text && hasSourceProse(text, marker)) ||
-                    (!seeded &&
+                    (!store?.isFileSeeded(path, text, stored) &&
                         Boolean(
                             markupIssueForUnit(
                                 text,
