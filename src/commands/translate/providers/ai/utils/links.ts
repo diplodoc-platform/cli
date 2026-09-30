@@ -1,4 +1,24 @@
-import {linkRelation, unitLinks} from './align';
+import {linkRelation, replaceLinkDestinations, unitLinks} from './align';
+
+/** Restore known localized destinations in placeholders, not literal prose/code. */
+export function restoreLocalizedUrls(unit: string, localized: Map<string, string>): string {
+    return unit.replace(/<[gx]\b[^>]*>/g, (tag) => {
+        if (!/ctype="(?:link|image)(?:_[^"]*)?"/.test(tag)) {
+            return tag;
+        }
+        const restore = (url: string) => {
+            const target = localized.get(url.replace(/&amp;/g, '&'));
+            return target === undefined ? url : target.replace(/&/g, '&amp;');
+        };
+        if (/ctype="link_autolink"/.test(tag)) {
+            return tag.replace(
+                /equiv-text="&lt;([^"]*?)&gt;"/,
+                (_, url: string) => `equiv-text="&lt;${restore(url)}&gt;"`,
+            );
+        }
+        return replaceLinkDestinations(tag, restore);
+    });
+}
 
 /**
  * Pairs every link of a source with a link of its translation, one to

@@ -47,9 +47,9 @@ type SeedFile = {
 /** The previous version of a changed unit: a source the file no longer contains and its translation. */
 export type SeedHint = {source: string; translation: string};
 
-// Version 3 keeps the source text in the per-file memory instead of its
-// hash, so that a changed unit can be compared with the previous sources.
-const SEED_VERSION = 3;
+// Version 4 rejects pairs from the earlier positional alignment policy.
+// Re-run seed against the existing locales to rebuild approved memory.
+const SEED_VERSION = 4;
 
 // A unit this close to an unused entry of the file memory is an edit of it;
 // below the threshold it is a new sentence. Measured on ru->en point edits:
@@ -222,6 +222,18 @@ export class TranslationStore {
 
     get(text: string): string | undefined {
         return this.seeds?.get(text) ?? this.translations[hash(text)];
+    }
+
+    /** Existing repository translations are not generated model-cache answers. */
+    isSeeded(file: string, text: string, translation: string): boolean {
+        return (
+            this.seeds?.get(text) === translation ||
+            Boolean(
+                this.seeds
+                    ?.memory(file)
+                    ?.some(([source, target]) => source === text && target === translation),
+            )
+        );
     }
 
     /** The seed pairs of a file, see `SeedStore.memory`. */

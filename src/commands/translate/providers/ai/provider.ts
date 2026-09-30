@@ -16,6 +16,13 @@ import {LogLevel} from '~/core/logger';
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
 import {TranslateError, compose, languageRepath, loadTranslationUnits} from '../../utils';
+import {
+    isTableTitleFallback,
+    isTableTitleUnit,
+    tableTitleFallback,
+    tableTitleIssue,
+} from '../../utils/table-title';
+import {isCodeUnit} from '../../utils/unit-context';
 import {TranslateLogger} from '../../logger';
 import {
     RunReport,
@@ -53,7 +60,10 @@ import {
     splitFragments,
 } from './prompts';
 import {untranslatedMarker} from './utils/script';
-import {localizedUrls, revertedUrls} from './utils/links';
+import {hasCopiedEdit, hasSourceProse} from './utils/edited-prose';
+import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
+import {markupStructureIssue} from './utils/markup-structure';
+import {localizedUrls, restoreLocalizedUrls, revertedUrls} from './utils/links';
 import {restoreFragments} from './utils/skeleton';
 import {judgeTranslations} from './judge';
 
@@ -428,6 +438,12 @@ export function unwrapUnit(unit: string): UnitWrapper {
     return {open: '', text: unit, close: ''};
 }
 
+function markupIssueForUnit(source: string, translation: string): string | undefined {
+    return isCodeUnit(source) || isTableTitleUnit(source)
+        ? undefined
+        : markupStructureIssue(unwrapUnit(source).text, unwrapUnit(translation).text);
+}
+
 /**
  * Extracts a human-readable document title to use as translation context:
  * the first H1 for markdown, the `title` field for yaml documents.
@@ -504,22 +520,42 @@ function makeProcessor(params: ProcessorParams) {
         const inputPath = join(inputRoot, path);
         const outputPath = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
 
-        const {content, units, skeleton, schemas, ajvOptions, warnings} =
-            await loadTranslationUnits({
-                inputPath,
-                path,
-                sourceLanguage,
-                targetLanguage,
-                vars: varsFor(path),
-                code,
-            });
+        const {
+            content,
+            units,
+            skeleton,
+            schemas,
+            ajvOptions,
+            warnings,
+            tableTitles = [],
+        } = await loadTranslationUnits({
+            inputPath,
+            path,
+            sourceLanguage,
+            targetLanguage,
+            vars: varsFor(path),
+            code,
+        });
 
         if (!content.data || !units.length) {
             await content.dump(outputPath);
             return warnings;
         }
 
-        const parts = await translate(path, units, {title: extractTitle(content.data)});
+        const translated = await translate(path, units, {title: extractTitle(content.data)});
+        // Model/cache answers retain source addresses for validation and
+        // cross-file reuse. Localization belongs to this file's composition.
+        const localized = localizedUrls(store?.memory(path) || [], languages);
+        const parts = translated.map((part) => restoreLocalizedUrls(part, localized));
+        for (const ids of tableTitles) {
+            if (ids.some((id) => isTableTitleFallback(parts[id]))) {
+                for (const id of ids) parts[id] = units[id];
+                const warning =
+                    'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
+                logger?.warn(path, warning);
+                warnings.push(warning);
+            }
+        }
 
         onTranslated?.(path, units, parts);
 
@@ -622,6 +658,9 @@ export function makeStore(
     // Built-in prompts are part of the fingerprint too: when a CLI update
     // changes them, stored translations are stale and must not be served.
     const fingerprint = cacheFingerprint({
+        // Old generated answers may contain copied edits or translated code.
+        // Approved repository translations use the separately versioned seed.
+        validationPolicy: 3,
         provider: client.name,
         model: config.model,
         source: sourceLanguage,
@@ -721,6 +760,9 @@ export type CachedRepair = MarkupRepair & {
  */
 export function healCached(unit: string, stored: string): CachedRepair {
     const normalized = normalizeCached(unit, stored);
+    if (isCodeUnit(unit) || isTableTitleUnit(unit)) {
+        return {text: normalized, normalized, stripped: 0};
+    }
     const {open, text, close} = unwrapUnit(normalized);
     const source = unwrapUnit(unit).text;
     const repair = stripAddedMarkup(source, text);
@@ -773,23 +815,40 @@ export function makeTranslator(params: TranslatorParams): Translate {
     // worth saying once per target, not once per request.
     let temperatureWarned = false;
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
+    const allowedSpellings = glossaryPairs.map((pair) => pair.translatedText);
+    const copiedEdit = (fragment: string, part: string, hint?: SeedHint) =>
+        hasCopiedEdit(fragment, part, hint, marker, allowedSpellings);
+    const refusedTranslation = (fragment: string, part: string | undefined, hint?: SeedHint) =>
+        part !== undefined &&
+        ((part === fragment && hasSourceProse(part, marker)) || copiedEdit(fragment, part, hint));
+    const cachedRepair = (text: string, stored: string, seeded: boolean): CachedRepair => {
+        if (!seeded) {
+            return healCached(text, stored);
+        }
+        const normalized = normalizeCached(text, stored);
+        return {text: normalized, normalized, stripped: 0};
+    };
     // Units the model kept returning with damaged markup: they fall back to
     // their source text and must stay out of the store, so the next run
     // gets another chance at them.
     const damaged = new Set<string>();
+    // Literal identities are stricter than formatting shape: replacing one
+    // code value with another must fail even if the delimiters still match.
+    const invalidLiterals = new Set<string>();
     // Markers cut from the answer currently held for a unit. A retry
     // overwrites the entry, so a repair on an answer that was thrown away
     // never reaches the report.
     const repairs = new Map<string, number>();
 
     // `hints` is parallel to `fragments`: the previous version of a
-    // fragment travels with it through every retry, so a re-request sends
-    // the same memory as the first attempt.
+    // fragment travels with it through formatting retries. A language retry
+    // can omit misleading memory when it caused source edits to be copied.
     async function translateBatch(
         path: string,
         fragments: string[],
         context: string,
         hints: (SeedHint | undefined)[] = [],
+        markupFeedback?: string,
     ): Promise<string[]> {
         if (!fragments.length) {
             return [];
@@ -799,7 +858,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // Link and image addresses stay out of the request, see
         // `maskAddresses`. The memory reads the same way as the fragments,
         // with the ids of the fragment it goes with.
-        const masked = wrappers.map((wrapper) => maskAddresses(wrapper.text));
+        const masked = wrappers.map((wrapper) => maskLiteralCode(maskAddresses(wrapper.text)));
         const sent = wrappers.map(({open, close}, index) => open + masked[index] + close);
         const messages = buildMessages(masked, {
             systemPrompt,
@@ -817,9 +876,22 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
                 const {source, translation} = renumberMemory(wrappers[index].text, hint);
 
-                return {source: maskAddresses(source), translation: maskAddresses(translation)};
+                const memory = {
+                    source: maskLiteralCode(maskAddresses(source)),
+                    translation: maskLiteralCode(maskAddresses(translation)),
+                };
+                // An older locale may intentionally use other code literals.
+                // It cannot supply opaque identities for the current source.
+                return keepsLiteralCode(masked[index], memory.source) &&
+                    keepsLiteralCode(masked[index], memory.translation)
+                    ? memory
+                    : undefined;
             }),
         });
+
+        if (markupFeedback) {
+            messages[0].content += '\n\nFormatting correction: ' + markupFeedback;
+        }
 
         if (dryRun) {
             const inputTokens = messages.reduce((sum, m) => sum + estimateTokens(m.content), 0);
@@ -917,14 +989,26 @@ export function makeTranslator(params: TranslatorParams): Translate {
         return parts.map((part, index) => {
             const {open, text, close} = wrappers[index];
             const answer = unwrapUnit(stripFence(part)).text;
-            const translation = answer ? unmaskAddresses(text, answer) : text;
-            const repair = stripAddedMarkup(text, translation);
+            const translation = answer
+                ? unmaskAddresses(text, unmaskLiteralCode(text, answer))
+                : text;
+            const repair =
+                isCodeUnit(fragments[index]) || isTableTitleUnit(fragments[index])
+                    ? {text: translation, stripped: 0}
+                    : stripAddedMarkup(text, translation);
 
             // Counted only once the answer is kept: a retry replaces both
             // the text and its repair.
             repairs.set(fragments[index], repair.stripped);
 
-            return open + repair.text + close;
+            const restored = open + repair.text + close;
+            const literalKey = JSON.stringify([fragments[index], restored]);
+            if (keepsLiteralCode(masked[index], answer)) {
+                invalidLiterals.delete(literalKey);
+            } else {
+                invalidLiterals.add(literalKey);
+            }
+            return restored;
         });
     }
 
@@ -942,9 +1026,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
         context: string,
         what: string,
         hints: (SeedHint | undefined)[] = [],
+        markupFeedback?: string,
     ): Promise<(string | undefined)[]> {
         try {
-            return await translateBatch(path, fragments, context, hints);
+            return await translateBatch(path, fragments, context, hints, markupFeedback);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             logger.warn(path, `${what} failed (${error.message}).`);
@@ -952,20 +1037,27 @@ export function makeTranslator(params: TranslatorParams): Translate {
             // Only a malformed answer is worth splitting; a rate limit or a
             // server error would meet every fragment the same way.
             if (!(error instanceof LLMResponseError) || fragments.length < 2) {
-                return [];
+                return fragments.map(() => undefined);
             }
         }
 
         const result: (string | undefined)[] = [];
 
-        for (const [index, fragment] of fragments.entries()) {
-            try {
-                result.push((await translateBatch(path, [fragment], context, [hints[index]]))[0]);
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (error: any) {
-                logger.warn(path, `${what} failed (${error.message}).`);
-                result.push(undefined);
-            }
+        const middle = Math.ceil(fragments.length / 2);
+        for (const [start, end] of [
+            [0, middle],
+            [middle, fragments.length],
+        ]) {
+            result.push(
+                ...(await retryFragments(
+                    path,
+                    fragments.slice(start, end),
+                    context,
+                    what,
+                    hints.slice(start, end),
+                    markupFeedback,
+                )),
+            );
         }
 
         return result;
@@ -996,7 +1088,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
             const source = unwrapUnit(fragment).text;
             const text = unwrapUnit(part).text;
 
-            return keepsMarkup(source, text) && keepsPlaceholders(source, text);
+            return (
+                !invalidLiterals.has(JSON.stringify([fragment, part])) &&
+                !tableTitleIssue(fragment, part) &&
+                keepsMarkup(source, text) &&
+                keepsPlaceholders(source, text) &&
+                !markupIssueForUnit(fragment, part)
+            );
         };
         const indexes = fragments
             .map((_, index) => index)
@@ -1018,6 +1116,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
             context,
             'Markup retry',
             indexes.map((index) => hints[index]),
+            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
+                (indexes.some((index) => tableTitleIssue(fragments[index], parts[index]))
+                    ? ' For a wide-table title, rephrase the translation without double quotes, literal closing braces or line breaks. Preserve variable placeholders exactly. Do not use backslash or HTML entity escaping.'
+                    : ''),
         );
 
         const result = [...parts];
@@ -1035,7 +1137,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             stat.markupDamaged++;
             damaged.add(fragments[index]);
             repairs.set(fragments[index], 0);
-            result[index] = fragments[index];
+            result[index] = tableTitleFallback(fragments[index]);
         });
 
         if (unfixed) {
@@ -1049,38 +1151,29 @@ export function makeTranslator(params: TranslatorParams): Translate {
     }
 
     /**
-     * Re-requests the fragments the model returned unchanged, in the
-     * source language. The same prompt in a request of its own is enough
+     * Re-requests fragments containing untranslated source edits or echoes.
+     * A request of its own, without memory that copied new prose, is enough
      * to fix most of them, and a request that mentions the failed attempt
      * is not: describing the echo to the model reproduces it - see
      * docs/specs/2026-09-16-translate-untranslated-units-design.md for the
      * numbers.
      *
-     * A fragment that comes back untranslated again keeps its source text
-     * and is counted by the caller.
+     * A fragment that still contains untranslated prose keeps its best answer
+     * and is counted by the caller without entering the persistent cache.
      */
     async function retryUntranslated(
         path: string,
         fragments: string[],
         parts: string[],
-        context: string,
         hints: (SeedHint | undefined)[] = [],
     ): Promise<string[]> {
         if (dryRun || marker === null) {
             return parts;
         }
 
-        // Bound after the guard, so the closures below need no narrowing
-        // of the captured `marker`. Named `sourceScript` (not `script`) to
-        // read clearly next to `scriptsOf()`.
-        const sourceScript: RegExp = marker;
-
-        const refused = (fragment: string, part: string | undefined) =>
-            part !== undefined && part === fragment && sourceScript.test(part);
-
         const indexes = fragments
             .map((_, index) => index)
-            .filter((index) => refused(fragments[index], parts[index]));
+            .filter((index) => refusedTranslation(fragments[index], parts[index], hints[index]));
 
         if (!indexes.length) {
             return parts;
@@ -1092,25 +1185,29 @@ export function makeTranslator(params: TranslatorParams): Translate {
         stat.untranslatedRetried += indexes.length;
         logger.warn(path, `${indexes.length} fragment(s) came back untranslated; retrying them.`);
 
+        // Retry isolated prose without the source-language document title:
+        // the exact same context can reproduce an echo, even without memory.
         const retried = await retryFragments(
             path,
             indexes.map((index) => fragments[index]),
-            context,
+            '',
             'Untranslated retry',
-            indexes.map((index) => hints[index]),
+            indexes.map((index) =>
+                copiedEdit(fragments[index], parts[index], hints[index]) ? undefined : hints[index],
+            ),
         );
 
         const result = [...parts];
 
-        // Acceptance mirrors the rule that triggered the retry: anything
-        // but the same echo counts as a translation. A stricter rule -
-        // rejecting any answer that still carries source-script text -
-        // would throw away legitimate translations of pages that quote the
-        // source language on purpose, and ship their source text instead.
+        // Reject echoes and copied new prose, not every source-script word:
+        // existing localized names and literal code can legitimately survive.
         indexes.forEach((index, position) => {
             const candidate = retried[position];
 
-            if (candidate !== undefined && !refused(fragments[index], candidate)) {
+            if (
+                candidate !== undefined &&
+                !refusedTranslation(fragments[index], candidate, hints[index])
+            ) {
                 result[index] = candidate;
             }
         });
@@ -1126,7 +1223,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
     ): Promise<string[]> {
         try {
             const parts = await translateBatch(path, fragments, context, hints);
-            const retried = await retryUntranslated(path, fragments, parts, context, hints);
+            const retried = await retryUntranslated(path, fragments, parts, hints);
 
             return await repairDamaged(path, fragments, retried, context, hints);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1134,21 +1231,22 @@ export function makeTranslator(params: TranslatorParams): Translate {
             if (error instanceof LLMResponseError && fragments.length > 1) {
                 logger.warn(
                     path,
-                    `Batch of ${fragments.length} fragments failed (${error.message}); retrying one-by-one.`,
+                    `Batch of ${fragments.length} fragments failed (${error.message}); retrying smaller batches.`,
                 );
                 const result: string[] = [];
-                for (const [index, fragment] of fragments.entries()) {
-                    const hint = [hints[index]];
-                    const single = await translateBatch(path, [fragment], context, hint);
-                    const retried = await retryUntranslated(
-                        path,
-                        [fragment],
-                        single,
-                        context,
-                        hint,
+                const middle = Math.ceil(fragments.length / 2);
+                for (const [start, end] of [
+                    [0, middle],
+                    [middle, fragments.length],
+                ]) {
+                    result.push(
+                        ...(await translateWithSplit(
+                            path,
+                            fragments.slice(start, end),
+                            context,
+                            hints.slice(start, end),
+                        )),
                     );
-                    const repaired = await repairDamaged(path, [fragment], retried, context, hint);
-                    result.push(repaired[0]);
                 }
                 return result;
             }
@@ -1205,7 +1303,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                                 cache.get(batch[i])?.resolve(text);
                                 return;
                             }
-                            if (!dryRun && text === batch[i] && marker?.test(text)) {
+                            if (!dryRun && refusedTranslation(batch[i], text, batchHints[i])) {
                                 // The model returned source-script text unchanged
                                 // and the retry did not fix it. Keep it out of the
                                 // store so the next run tries again, and surface
@@ -1260,11 +1358,24 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
             const stored = resolved[index];
             if (stored !== undefined) {
-                const {text: healed, normalized, stripped} = healCached(text, stored);
+                const seeded = Boolean(store?.isSeeded(path, text, stored));
+                const {text: healed, normalized, stripped} = cachedRepair(text, stored, seeded);
                 // Identity entries for units that still contain source-script
                 // characters were cached by older runs that stored untranslated
                 // responses. Treat them as misses so the unit gets another chance.
-                const refused = normalized === text && marker !== null && marker.test(text);
+                const refused =
+                    tableTitleIssue(text, healed) ||
+                    (normalized === text && hasSourceProse(text, marker)) ||
+                    (!seeded &&
+                        Boolean(
+                            markupIssueForUnit(
+                                text,
+                                // Seeded translations may legitimately localize URLs.
+                                // Check their shape with the source addresses, without
+                                // changing the cached translation used for composition.
+                                unmaskAddresses(text, maskAddresses(healed)),
+                            ),
+                        ));
                 if (!refused) {
                     if (normalized !== stored && !dryRun) {
                         // Heal wrapper noise cached by older runs. A dry run

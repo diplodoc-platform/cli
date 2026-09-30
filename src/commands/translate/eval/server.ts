@@ -103,10 +103,21 @@ export type CaptureServer = BaseServer & {
 export async function startCaptureServer(): Promise<CaptureServer> {
     const units = new Map<string, string[]>();
     const previous = new Map<string, Set<string>>();
+    let lastFragments = new Set<string>();
 
     const server = await startChatServer((messages) => {
         const user = messages[messages.length - 1].content;
         const request = parseCaptureRequest(user);
+
+        // Language retries intentionally omit document context. Capture is
+        // sequential, so only a subset of the preceding batch is valid here.
+        if (!request.file) {
+            if (!request.fragments.every((fragment) => lastFragments.has(fragment))) {
+                throw new Error('Capture request without context is not a known retry');
+            }
+            return request.fragments.join(`\n${FRAGMENT_SEPARATOR}\n`);
+        }
+        lastFragments = new Set(request.fragments);
 
         const skip = previous.get(request.file);
         const fresh = skip

@@ -1,0 +1,135 @@
+[
+  {
+    "name": "wide-table-title-retries-quotes",
+    "source": "Привет.\n\n| A |\n| --- |\n| B |\n\n{wide-content title=\"Имя\"}\n",
+    "translations": [
+      ["Привет.", "Hello."],
+      ["Имя", "Table title"]
+    ],
+    "fault": ["Table title", "Owner's \"x\" table"],
+    "expected": "Hello.\n\n| A |\n| --- |\n| B |\n\n{wide-content title=\"Table title\"}\n",
+    "fallback": "Hello.\n\n| A |\n| --- |\n| B |\n\n{wide-content title=\"Имя\"}\n",
+    "title": {"translated": "Table title", "fallback": "Имя"}
+  },
+  {
+    "name": "wide-table-title-retries-closing-braces",
+    "source": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Имя\"}\n",
+    "translations": [["Имя", "Table title"]],
+    "fault": ["Table title", "Example } details"],
+    "expected": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Table title\"}\n",
+    "fallback": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Имя\"}\n",
+    "title": {"translated": "Table title", "fallback": "Имя"}
+  },
+  {
+    "name": "wide-table-title-restores-whole-multisentence-title",
+    "source": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Первая фраза. Вторая фраза.\"}\n",
+    "translations": [
+      ["Первая фраза.", "First phrase."],
+      ["Вторая фраза.", "Second phrase."]
+    ],
+    "fault": ["Second phrase.", "Second } phrase."],
+    "expected": "| A |\n| --- |\n| B |\n\n{wide-content title=\"First phrase. Second phrase.\"}\n",
+    "fallback": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Первая фраза. Вторая фраза.\"}\n",
+    "title": {
+      "translated": "First phrase. Second phrase.",
+      "fallback": "Первая фраза. Вторая фраза."
+    }
+  },
+  {
+    "name": "wide-table-title-keeps-literal-backslash",
+    "source": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Путь\"}\n",
+    "translations": [["Путь", "Path \\"]],
+    "expected": "| A |\n| --- |\n| B |\n\n{wide-content title=\"Path \\\"}\n",
+    "title": {"translated": "Path \\"}
+  },
+  {
+    "name": "tracker-numbered-list-keeps-original-emphasis",
+    "source": "1. Откройте карточку задачи.\n\n1. Проверьте **статус**.\n",
+    "translations": [
+      ["Откройте карточку задачи.", "Open the issue card."],
+      ["Проверьте", "Check"],
+      ["статус", "status"]
+    ],
+    "fault": ["Open the issue card.", "- Open the issue card."],
+    "expected": "1. Open the issue card.\n\n1. Check **status**.\n",
+    "fallback": "1. Откройте карточку задачи.\n\n1. Check **status**.\n"
+  },
+  {
+    "name": "forms-note-rejects-invented-link",
+    "source": "{% note info %}\n\nОтправьте форму после проверки ответа.\n\n{% endnote %}\n",
+    "translations": [
+      ["Отправьте форму после проверки ответа.", "Submit the form after checking the answer."]
+    ],
+    "fault": ["the form", "[the form](https://example.com/invented)"],
+    "expected": "{% note info %}\n\nSubmit the form after checking the answer.\n\n{% endnote %}\n",
+    "fallback": "{% note info %}\n\nОтправьте форму после проверки ответа.\n\n{% endnote %}\n"
+  },
+  {
+    "name": "wiki-rejects-invented-paragraph",
+    "source": "Сначала создайте страницу и затем добавьте таблицу.\n",
+    "translations": [
+      [
+        "Сначала создайте страницу и затем добавьте таблицу.",
+        "First create a page and then add a table."
+      ]
+    ],
+    "fault": ["a page and then", "a page.\n\nThen"],
+    "expected": "First create a page and then add a table.\n",
+    "fallback": "Сначала создайте страницу и затем добавьте таблицу.\n"
+  },
+  {
+    "name": "games-rejects-second-code-span",
+    "source": "Используйте `ysdk.serverTime()` для проверки времени.\n",
+    "translations": [
+      ["Используйте", "Use"],
+      ["для проверки времени.", "for time checks."]
+    ],
+    "fault": ["for time checks.", "for `ysdk.serverTime()` time checks."],
+    "expected": "Use `ysdk.serverTime()` for time checks.\n",
+    "fallback": "Используйте `ysdk.serverTime()` для проверки времени.\n"
+  },
+  {
+    "name": "ytsaurus-live-duplicate-code-span-reproducer",
+    "source": "При удалении используется `$ttl` для этой колонки.\n",
+    "translations": [
+      ["При удалении используется", "Deletion uses"],
+      ["для этой колонки.", "for this column."]
+    ],
+    "fault": ["this column", "the `$ttl` column"],
+    "expected": "Deletion uses `$ttl` for this column.\n",
+    "fallback": "При удалении используется `$ttl` для этой колонки.\n"
+  },
+  {
+    "name": "wiki-inline-code-keeps-literal-while-prose-translates",
+    "source": "Добавьте `код-цвета` в ячейку.\n",
+    "translations": [
+      ["Добавьте", "Add"],
+      ["в ячейку.", "to the cell."],
+      ["код-цвета", "color-code"]
+    ],
+    "expected": "Add `код-цвета` to the cell.\n"
+  },
+  {
+    "name": "seeded-link-localization-survives-changed-prose",
+    "source": "Теперь откройте [инструкцию](https://example.com/ru/help).\n",
+    "seed": {
+      "source": "Откройте [инструкцию](https://example.com/ru/help).\n",
+      "target": "Open [the guide](https://example.com/en/help).\n"
+    },
+    "translations": [
+      ["Теперь откройте", "Now open"],
+      ["инструкцию", "the guide"]
+    ],
+    "expected": "Now open [the guide](https://example.com/en/help).\n"
+  },
+  {
+    "name": "literal-markers-and-code-are-not-formatting-additions",
+    "source": "Для foo__bar__baz используйте `**/path/**` и вычислите 2 * 3.\n",
+    "translations": [
+      ["Для", "For"],
+      ["используйте", "use"],
+      ["и вычислите", "and calculate"]
+    ],
+    "expected": "For foo__bar__baz use `**/path/**` and calculate 2 * 3.\n"
+  }
+]

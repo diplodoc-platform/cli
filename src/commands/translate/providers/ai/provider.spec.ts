@@ -7,8 +7,10 @@ import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'n
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
+import {extract} from '@diplodoc/translation';
 
 import {createTargetStat} from '../../report';
+import {markTableTitle} from '../../utils/table-title';
 
 import {
     Provider,
@@ -20,7 +22,12 @@ import {
     untranslatedMarker,
     unwrapUnit,
 } from './provider';
-import {FRAGMENT_SEPARATOR, splitFragments} from './prompts';
+import {
+    DEFAULT_SYSTEM_PROMPT,
+    DEFAULT_USER_PROMPT,
+    FRAGMENT_SEPARATOR,
+    splitFragments,
+} from './prompts';
 import {
     LLMAuthError,
     LLMRateLimitError,
@@ -105,6 +112,8 @@ const CODE_OPEN = '<x ctype="code_open" equiv-text="`" id="x-1"/>';
 const CODE_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-2"/>';
 
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
+const codeWrap = (text: string) =>
+    `<source data-yfm-context="code" xml:space="preserve">${text}</source>`;
 
 // Links as `extract` leaves them in a unit: contained in the fragment, and
 // crossing its edge, where `]`, `(`, the address and `)` stand side by side.
@@ -864,6 +873,35 @@ describe('translate ai provider', () => {
     });
 
     describe('makeStore', () => {
+        it('does not reuse model answers from before literal and edited-prose validation', () => {
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-old-policy-'));
+            const client = makeClient(translated);
+            const config = {
+                cacheDir: dir,
+                model: 'model',
+                promptMode: 'append',
+                glossaryPairs: [],
+            } as unknown as AITranslationConfig;
+            const old = new TranslationStore(
+                join(dir, 'fake.model.ru-en.json'),
+                cacheFingerprint({
+                    provider: 'fake',
+                    model: 'model',
+                    source: 'ru',
+                    target: 'en',
+                    promptMode: 'append',
+                    defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT,
+                    defaultUserPrompt: DEFAULT_USER_PROMPT,
+                    glossaryPairs: [],
+                }),
+            );
+            old.set('Важное уточнение: Текст.', 'Важное уточнение: Text.');
+            old.flush();
+            const current = makeStore(client, config, 'ru', 'en');
+            current?.load();
+            expect(current?.get('Важное уточнение: Текст.')).toBeUndefined();
+        });
+
         it('should return undefined without cacheDir', () => {
             const client = makeClient(translated);
 
@@ -1106,9 +1144,68 @@ describe('translate ai provider', () => {
     });
 
     describe('makeTranslator', () => {
+        describe.skipIf(
+            !(
+                'tableTitles' in
+                extract('{wide-content title="Имя"}', {
+                    source: {language: 'ru', locale: 'RU'},
+                    target: {language: 'en', locale: 'US'},
+                })
+            ),
+        )('wide-table title cache validation', () => {
+            it.each([false, true])(
+                'rejects incompatible cached titles (seeded=%s)',
+                async (seeded) => {
+                    const dir = mkdtempSync(join(tmpdir(), 'yfm-title-cache-'));
+                    const source = markTableTitle(wrap('Имя'));
+                    const bad = markTableTitle(wrap('Example } details'));
+                    const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                    if (seeded) seeds.record('ru/a.md', [[source, bad]]);
+                    const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+                    if (!seeded) store.set(source, bad);
+                    const client = makeClient(() => ['Table title']);
+                    const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                    expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([
+                        markTableTitle(wrap('Table title')),
+                    ]);
+                    expect(stat.cached).toBe(0);
+                    expect(stat.requests).toBe(1);
+                },
+            );
+
+            it('does not reuse an ordinary prose answer for the same text in a title', async () => {
+                const client = makeClient((_, call) => [
+                    call === 0 ? 'Owner\'s "x" table' : 'Table title',
+                ]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+                const translate = makeTranslator(params);
+                expect(await translate('ru/a.md', [wrap('Имя')])).toEqual([
+                    wrap('Owner\'s "x" table'),
+                ]);
+                expect(await translate('ru/b.md', [markTableTitle(wrap('Имя'))])).toEqual([
+                    markTableTitle(wrap('Table title')),
+                ]);
+                expect(stat.requests).toBe(2);
+            });
+        });
         describe('memory hints', () => {
             const previous = 'Чтобы настроить колонкам по статусам:';
             const edited = 'Чтобы настроить колонки по статусам:';
+
+            it('preserves approved seed formatting without retranslating an unchanged unit', async () => {
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-approved-seed-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+                const source = wrap('Выберите другое значение.');
+                const approved = wrap('Select **another value**.');
+                seeds.record('ru/a.md', [[source, approved]]);
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+                const client = makeClient(() => ['Select another value.']);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+                expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([approved]);
+                expect(stat.cached).toBe(1);
+                expect(stat.requests).toBe(0);
+            });
 
             function seededStore() {
                 const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-hints-'));
@@ -1163,7 +1260,7 @@ describe('translate ai provider', () => {
                 expect(stat.memoryHints).toBe(1);
             });
 
-            it('should resend the memory when retrying an untranslated fragment', async () => {
+            it('retries an echoed edit without the memory that failed to translate it', async () => {
                 const client = answering([[edited], ['To set up the columns by status:']]);
                 const {params} = makeParams(client, {}, seededStore());
                 const translate = makeTranslator(params);
@@ -1173,7 +1270,41 @@ describe('translate ai provider', () => {
                 expect(result).toEqual(['To set up the columns by status:']);
                 expect(client.complete).toHaveBeenCalledTimes(2);
                 expect(userMessage(client, 0)).toContain('Translation memory.');
-                expect(userMessage(client, 1)).toContain('Translation memory.');
+                expect(userMessage(client, 1)).not.toContain('Translation memory.');
+            });
+
+            it('retries an untranslated inserted phrase without the misleading memory', async () => {
+                const source = 'Важное уточнение: ' + previous;
+                const complete = 'Important clarification: To set up columns by status:';
+                const client = answering([
+                    ['Важное уточнение: To set up columns by status:'],
+                    [complete],
+                ]);
+                const store = seededStore();
+                const {params, stat} = makeParams(
+                    client,
+                    {maxBatchTokens: 500, userPrompt: DEFAULT_USER_PROMPT},
+                    store,
+                );
+
+                expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([complete]);
+                expect(stat.untranslatedRetried).toBe(1);
+                expect(store.get(source)).toBe(complete);
+                expect(userMessage(client, 0)).toContain('Document context:');
+                expect(userMessage(client, 1)).not.toContain('Translation memory.');
+                expect(userMessage(client, 1)).not.toContain('Document context:');
+            });
+
+            it('does not persist a partial translation that keeps an inserted source phrase', async () => {
+                const source = 'Важное уточнение: ' + previous;
+                const partial = 'Важное уточнение: To set up columns by status:';
+                const client = answering([[partial], [partial]]);
+                const store = seededStore();
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+                expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([partial]);
+                expect(store.get(source)).toBeUndefined();
+                expect(stat.untranslatedKept).toBe(1);
             });
 
             it('should send no memory when disabled', async () => {
@@ -1371,21 +1502,28 @@ describe('translate ai provider', () => {
             expect(client.complete).not.toHaveBeenCalled();
         });
 
-        it('should accept a code span the model wrote with its own backticks', async () => {
-            // Both placeholders are inside the unit, so the skeleton
-            // restores nothing: the backticks are the only markup left and
-            // the fragment composes exactly like the source.
+        it('retries guessed code instead of trusting a lost literal placeholder', async () => {
             const unit = wrap(`Run ${CODE_OPEN}yfm build${CODE_CLOSE} in the project root`);
-            const client = makeClient(() => ['В корне проекта выполните `yfm build`']);
+            const client = makeClient((fragments, call) =>
+                call === 0
+                    ? [`Выполните ${CODE_OPEN}yfm build${CODE_CLOSE} в корне проекта`]
+                    : fragments.map((text) =>
+                          text
+                              .replace('Run ', 'Выполните ')
+                              .replace(' in the project root', ' в корне проекта'),
+                      ),
+            );
             const {params, stat} = makeParams(client, {maxBatchTokens: 500});
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
 
-            expect(result).toEqual([wrap('В корне проекта выполните `yfm build`')]);
+            expect(result).toEqual([
+                wrap(`Выполните ${CODE_OPEN}yfm build${CODE_CLOSE} в корне проекта`),
+            ]);
             expect(stat.markupStripped).toBe(0);
-            expect(stat.markupRetried).toBe(0);
-            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.markupRetried).toBe(1);
+            expect(client.complete).toHaveBeenCalledTimes(2);
         });
 
         it('should retry a fragment whose markup the model damaged', async () => {
@@ -1407,6 +1545,163 @@ describe('translate ai provider', () => {
             expect(stat.markupDamaged).toBe(0);
             expect(client.complete).toHaveBeenCalledTimes(2);
             expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('damaged markup'));
+        });
+
+        it.each([
+            '**Connection setup** - details.',
+            '*Connection setup* - details.',
+            '[Connection setup](https://example.com) - details.',
+            '- Connection setup - details.',
+        ])('should retry invented formatting with feedback: %s', async (answer) => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) => [
+                call === 0 ? answer : 'Connection setup - details.',
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap('Connection setup - details.'),
+            ]);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(vi.mocked(client.complete).mock.calls[1][0][0].content).toContain(
+                'Formatting correction:',
+            );
+        });
+
+        it('should not cache a translation that keeps inventing formatting', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'markup-retry-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient(() => ['*Connection setup* - details.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('rejects duplicate literal identities even when the formatting shape is unchanged', async () => {
+            const source = wrap(
+                `Используйте ${CODE_OPEN}A${CODE_CLOSE} вместо ${CODE_OPEN.replace('x-1', 'x-3')}B${CODE_CLOSE.replace('x-2', 'x-4')}.`,
+            );
+            const client = makeClient((fragments) =>
+                fragments.map((fragment) => {
+                    const literals = fragment.match(/<x ctype="code_literal"[^>]*\/>/g) || [];
+                    expect(literals).toHaveLength(2);
+                    if (!literals[0] || !literals[1]) {
+                        throw new Error('Expected two protected code literals');
+                    }
+                    return fragment
+                        .replace('Используйте', 'Use')
+                        .replace('вместо', 'instead of')
+                        .replace(literals[1], literals[0]);
+                }),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            expect(await makeTranslator(params)('file.md', [source])).toEqual([source]);
+            expect(stat.markupDamaged).toBe(1);
+        });
+
+        it('should retranslate cached invented formatting', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'markup-cache-')), 'cache.json'),
+                'fp',
+            );
+            store.set(unit, wrap('*Connection setup* - details.'));
+            const client = makeClient(() => ['Connection setup - details.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap('Connection setup - details.'),
+            ]);
+            expect(stat.cached).toBe(0);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it('accepts angle-bracket text translated inside a code comment', async () => {
+            const unit = codeWrap('export TOKEN=&lt;старый токен&gt;');
+            const answer = codeWrap('export TOKEN=&lt;old token&gt;');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'code-context-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient(() => ['export TOKEN=&lt;old token&gt;']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([answer]);
+            expect(stat.markupRetried).toBe(0);
+            expect(store.get(unit)).toBe(answer);
+        });
+
+        it('reuses a code-comment translation from persistent cache', async () => {
+            const unit = codeWrap('export TOKEN=&lt;старый токен&gt;');
+            const answer = codeWrap('export TOKEN=&lt;old token&gt;');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'code-cache-')), 'cache.json'),
+                'fp',
+            );
+            store.set(unit, answer);
+            const client = makeClient(() => {
+                throw new Error('Cached code translation must not be requested again');
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([answer]);
+            expect(stat.cached).toBe(1);
+        });
+
+        it('accepts literal angle-bracket text in a wide-table title', async () => {
+            const unit = markTableTitle(wrap('Название &lt;старый токен&gt;'));
+            const answer = markTableTitle(wrap('Title &lt;old token&gt;'));
+            const client = makeClient(() => ['Title &lt;old token&gt;']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([answer]);
+            expect(stat.markupRetried).toBe(0);
+        });
+
+        it('rejects the same invented HTML in ordinary prose', async () => {
+            const unit = wrap('export TOKEN=&lt;старый токен&gt;');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'plain-cache-')), 'cache.json'),
+                'fp',
+            );
+            store.set(
+                codeWrap('export TOKEN=&lt;старый токен&gt;'),
+                codeWrap('export TOKEN=&lt;old token&gt;'),
+            );
+            const client = makeClient(() => ['export TOKEN=&lt;old token&gt;']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(stat.markupRetried).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('preserves literal asterisks in a code comment', async () => {
+            const unit = codeWrap('# *старое*');
+            const answer = codeWrap('# *old*');
+            const client = makeClient(() => ['# *old*']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([answer]);
+            expect(stat.markupRetried).toBe(0);
+        });
+
+        it('still retries a missing placeholder inside a code comment', async () => {
+            const marker = '<x ctype="link" equiv-text="[link]" id="x-1"/>';
+            const unit = codeWrap(`# Значение ${marker}`);
+            const client = makeClient((_, call) =>
+                call === 0 ? ['# Value'] : [`# Value ${marker}`],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                codeWrap(`# Value ${marker}`),
+            ]);
+            expect(stat.markupRetried).toBe(1);
         });
 
         it('should retry a fragment the repair could not make composable', async () => {
@@ -1670,6 +1965,22 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(1);
         });
 
+        it.each([
+            `${CODE_OPEN}код-цвета${CODE_CLOSE}`,
+            '<x ctype="liquid_Attributes" equiv-text="{wide-content title=&quot;Название таблицы&quot;}" id="x-1"/>',
+        ])(
+            'does not count protected literals or attributes as untranslated prose: %s',
+            async (literal) => {
+                const unit = wrap(literal);
+                const client = makeClient((fragments) => fragments);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(stat.untranslatedRetried).toBe(0);
+                expect(stat.untranslatedKept).toBe(0);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+            },
+        );
+
         it('should not retry untranslated units in a dry run', async () => {
             const unit = '<source xml:space="preserve">Исходный текст</source>';
             const client = makeClient((fragments) => fragments);
@@ -1826,7 +2137,7 @@ describe('translate ai provider', () => {
             expect(stat.fallbackRequests).toBe(0);
         });
 
-        it('should retry one-by-one when fragment count mismatches', async () => {
+        it('bisects a malformed batch without guessing which fragment was dropped', async () => {
             const client = makeClient((fragments, call) => {
                 // First (batched) response merges everything into one fragment.
                 if (call === 0) {
@@ -1834,14 +2145,63 @@ describe('translate ai provider', () => {
                 }
                 return translated(fragments);
             });
-            const {params, warn} = makeParams(client);
+            const {params, warn} = makeParams(client, {maxBatchTokens: 500});
             const translate = makeTranslator(params);
 
-            const result = await translate('file.md', ['One', 'Two']);
+            const result = await translate('file.md', [
+                'One',
+                'Two',
+                'Three',
+                'Four',
+                'Five',
+                'Six',
+            ]);
 
-            expect(result).toEqual(['T:One', 'T:Two']);
+            expect(result).toEqual(['T:One', 'T:Two', 'T:Three', 'T:Four', 'T:Five', 'T:Six']);
             expect(client.complete).toHaveBeenCalledTimes(3);
-            expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('one-by-one'));
+            expect(warn).toHaveBeenCalledWith(
+                'file.md',
+                expect.stringContaining('smaller batches'),
+            );
+        });
+
+        it('drops automatic document context when retrying an unseeded echo', async () => {
+            const unit = wrap('Задайте условие показа вопроса:');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? fragments : ['Set the question display condition:'],
+            );
+            const {params} = makeParams(client, {maxBatchTokens: 500, systemPrompt: '{{context}}'});
+            expect(await makeTranslator(params)('ru/page.md', [unit])).toEqual([
+                wrap('Set the question display condition:'),
+            ]);
+            expect(vi.mocked(client.complete).mock.calls[0][0][0].content).toContain(
+                'Document context:',
+            );
+            expect(vi.mocked(client.complete).mock.calls[1][0][0].content).not.toContain(
+                'Document context:',
+            );
+        });
+
+        it('keeps repair positions when a bisected retry half fails', async () => {
+            const units = ['Первый текст', 'Второй текст', 'Третий текст', 'Четвертый текст'].map(
+                wrap,
+            );
+            const client = makeClient((_, call) => {
+                if (call === 0)
+                    return ['- First text', '- Second text', '- Third text', '- Fourth text'];
+                if (call === 1) return ['merged'];
+                if (call === 2) return new LLMAuthError('denied');
+                return ['Third text', 'Fourth text'];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            expect(await makeTranslator(params)('file.md', units)).toEqual([
+                units[0],
+                units[1],
+                wrap('Third text'),
+                wrap('Fourth text'),
+            ]);
+            expect(stat.markupDamaged).toBe(2);
+            expect(client.complete).toHaveBeenCalledTimes(4);
         });
 
         it('should reject and evict cached defers when the batch fails', async () => {
@@ -1951,20 +2311,21 @@ describe('translate ai provider', () => {
         });
 
         it('should strip the xliff wrapper before prompting and restore it after', async () => {
-            const unit = '<source xml:space="preserve">Привет, <g id="g-1">мир</g></source>';
+            const unit =
+                '<source xml:space="preserve">Привет, <g ctype="bold" x-begin="**" x-end="**" id="g-1">мир</g></source>';
             const client = makeClient(translated);
-            const {params} = makeParams(client);
+            const {params} = makeParams(client, {maxBatchTokens: 500});
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
 
             expect(result).toEqual([
-                '<source xml:space="preserve">T:Привет, <g id="g-1">мир</g></source>',
+                '<source xml:space="preserve">T:Привет, <g ctype="bold" x-begin="**" x-end="**" id="g-1">мир</g></source>',
             ]);
 
             const [messages] = vi.mocked(client.complete).mock.calls[0];
             expect(messages[1].content).not.toContain('<source');
-            expect(messages[1].content).toContain('Привет, <g id="g-1">мир</g>');
+            expect(messages[1].content).toContain('Привет, <g ctype="bold"');
         });
 
         it('should tolerate a stray trailing delimiter in the response', async () => {

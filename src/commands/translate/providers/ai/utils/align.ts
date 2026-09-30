@@ -676,15 +676,32 @@ function makeBlock(
  */
 function markdownBlocks(skeleton: string, units: string[], languages: string[]): Block[] {
     const blocks: Block[] = [];
+    let fence: {marker: string; length: number} | undefined;
 
     skeleton.split('\n').forEach((line, index) => {
+        const delimiter = /^\s*(`{3,}|~{3,})(.*)$/.exec(line);
+        if (delimiter) {
+            if (!fence) {
+                fence = {marker: delimiter[1][0], length: delimiter[1].length};
+            } else if (
+                delimiter[1][0] === fence.marker &&
+                delimiter[1].length >= fence.length &&
+                !delimiter[2].trim()
+            ) {
+                fence = undefined;
+            }
+            return;
+        }
         const ids = Array.from(line.matchAll(PLACEHOLDER), (match) => Number(match[1]));
         if (!ids.length) {
             return;
         }
 
         const raw = (LEADING_INDENT.exec(line) as RegExpExecArray)[0];
-        const indent = raw.replace(/\t/g, '    ');
+        // Code examples can be reindented between locales. Their comment
+        // positions must not shift to another same-number comment because
+        // it happens to have the old indentation.
+        const indent = fence ? '' : raw.replace(/\t/g, '    ');
         const {body: text, anchors} = lineAnchors(line);
         const body = replaceLinkDestinations(text.slice(raw.length), (url) =>
             linkPath(url, languages),
@@ -940,7 +957,38 @@ export function alignBlocks(
         }
     }
 
-    return pairs;
+    return stableProsePairs(source, target, pairs);
+}
+
+/** Plain prose has no identity evidence when its surrounding section diverges. */
+function stableProsePairs(source: Block[], target: Block[], pairs: BlockPair[]): BlockPair[] {
+    const pins: BlockPair[] = [
+        [-1, -1],
+        ...pairs.filter(([i, j]) => source[i].anchors.length && target[j].anchors.length),
+        [source.length, target.length],
+    ];
+    const compatible = new Map<number, boolean>();
+    let pin = 0;
+    return pairs.filter(([i, j]) => {
+        while (pins[pin + 1][0] < i) {
+            pin++;
+        }
+        if (source[i].anchors.length || source[i].structure.trim() !== '%%%') {
+            return true;
+        }
+        const [before, after] = [pins[pin], pins[pin + 1]];
+        if (j <= before[1] || j >= after[1]) {
+            // An anchored moved section has its own run-by-run recovery.
+            // A monotone gap comparison cannot assess that neighbourhood.
+            return true;
+        }
+        if (!compatible.has(pin)) {
+            const left = source.slice(before[0] + 1, after[0]).map((block) => block.structure);
+            const right = target.slice(before[1] + 1, after[1]).map((block) => block.structure);
+            compatible.set(pin, JSON.stringify(left) === JSON.stringify(right));
+        }
+        return compatible.get(pin) === true;
+    });
 }
 
 type Matching = {

@@ -67,19 +67,20 @@ describe('translate eval mock servers', () => {
         const firstText = await complete(server.apiBase, firstMessages);
 
         // The retry re-requests the fragments the model appears to have
-        // refused, using the same file context, so it repeats a fragment
+        // refused, without automatic document context, so it repeats a fragment
         // already captured for ru/a.md.
         const retryMessages = buildMessages(['Первый юнит.'], {
             promptMode: 'append',
             sourceLanguage: 'ru-RU',
             targetLanguage: 'en-US',
             glossaryPairs: [],
-            context,
+            context: '',
             userPrompt: CAPTURE_USER_PROMPT,
         });
         const retryText = await complete(server.apiBase, retryMessages);
 
         expect(server.units.get('ru/a.md')).toEqual(fragments);
+        expect(server.units.has('')).toBe(false);
         expect(firstText).toContain('Первый юнит.');
         expect(firstText).toContain('Второй юнит.');
         expect(retryText).toContain('Первый юнит.');

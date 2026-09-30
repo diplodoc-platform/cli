@@ -27,6 +27,44 @@ function file(content: string, name = 'article.md') {
 
 describe('translate units loader', () => {
     describe('loadTranslationUnits', () => {
+        it('keeps fenced code context on extracted comments and placeholders', async () => {
+            const inputPath = file(
+                'Ordinary prose.\n\n```sh\n# export TOKEN=<старый токен>\n```\n\n~~~mermaid\nflowchart LR\nA[Подпись]\n~~~\n',
+            );
+
+            const {units} = await loadTranslationUnits({
+                inputPath,
+                path: 'ru/article.md',
+                sourceLanguage: 'ru',
+                targetLanguage: 'en',
+                vars: {},
+                code: 'precise',
+            });
+
+            expect(units.find((unit) => unit.includes('Ordinary prose.'))).not.toContain(
+                'data-yfm-context="code"',
+            );
+            expect(units.find((unit) => unit.includes('старый токен'))).toContain(
+                'data-yfm-context="code"',
+            );
+        });
+
+        it('does not confuse literal placeholder text in code with a prose unit', async () => {
+            const inputPath = file('Обычный текст.\n\n```txt\n%%%0%%%\n```\n');
+
+            const {units} = await loadTranslationUnits({
+                inputPath,
+                path: 'ru/article.md',
+                sourceLanguage: 'ru',
+                targetLanguage: 'en',
+                vars: {},
+                code: 'no',
+            });
+
+            expect(units).toHaveLength(1);
+            expect(units[0]).not.toContain('data-yfm-context="code"');
+        });
+
         it('should extract translation units from a markdown file', async () => {
             const inputPath = file('# Заголовок\n\nПервое предложение. Второе предложение.\n');
 

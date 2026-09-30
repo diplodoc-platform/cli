@@ -2,6 +2,7 @@ import {compose, extract} from '@diplodoc/translation';
 import {describe, expect, it} from 'vitest';
 
 import {keepsMarkup, restoreHoistedMarkers, stripAddedMarkup} from './markup';
+import {markupStructureIssue} from './markup-structure';
 
 // Units below are real `extract` output: the markers of markup that
 // starts (or ends) outside the fragment live in the skeleton, and only a
@@ -86,6 +87,55 @@ describe('stripAddedMarkup', () => {
         expect(stripAddedMarkup('Plain sentence.', '**Обычное предложение.**')).toEqual({
             text: 'Обычное предложение.',
             stripped: 2,
+        });
+    });
+
+    it('should leave invented internal emphasis for structural validation', () => {
+        expect(
+            stripAddedMarkup(
+                'TCP connection setup - the client and server establish a connection.',
+                '**Установка TCP-соединения** - клиент и сервер устанавливают соединение.',
+            ),
+        ).toEqual({
+            text: '**Установка TCP-соединения** - клиент и сервер устанавливают соединение.',
+            stripped: 0,
+        });
+    });
+
+    it('should leave invented internal underscore emphasis for structural validation', () => {
+        expect(stripAddedMarkup('Plain label - details.', '__Обычная метка__ - детали.')).toEqual({
+            text: '__Обычная метка__ - детали.',
+            stripped: 0,
+        });
+    });
+
+    it('should keep double underscores inside an identifier', () => {
+        expect(
+            stripAddedMarkup('Use an identifier here.', 'Используйте foo__bar__baz здесь.'),
+        ).toEqual({
+            text: 'Используйте foo__bar__baz здесь.',
+            stripped: 0,
+        });
+    });
+
+    it('should not treat Unicode symbols as CommonMark punctuation', () => {
+        expect(stripAddedMarkup('Plain source.', 'Цена €__price__€ здесь.')).toEqual({
+            text: 'Цена €__price__€ здесь.',
+            stripped: 0,
+        });
+    });
+
+    it('should keep strong-looking markers inside inline code', () => {
+        expect(stripAddedMarkup('Use a path here.', 'Используйте `**/foo/**` здесь.')).toEqual({
+            text: 'Используйте `**/foo/**` здесь.',
+            stripped: 0,
+        });
+    });
+
+    it('should leave nested emphasis for structural validation', () => {
+        expect(stripAddedMarkup('Plain source.', '**outer **inner** tail**')).toEqual({
+            text: '**outer **inner** tail**',
+            stripped: 0,
         });
     });
 
@@ -466,6 +516,16 @@ describe('stripAddedMarkup over real extract and compose', () => {
 
         expect(dirty).toContain('****');
         expect(repaired).toBe(doc);
+    });
+
+    it('should detect invented emphasis in a numbered item after edge repair', () => {
+        const doc = '1. TCP connection setup - the client and server establish a connection.\n';
+        const {dirty, repaired} = repair(doc, (text) =>
+            text.replace('TCP connection setup', '**TCP connection setup**'),
+        );
+
+        expect(dirty).toContain('1. **TCP connection setup**');
+        expect(markupStructureIssue(doc, repaired)).toBeDefined();
     });
 
     it('should compose exactly like the source when the model adds backticks', () => {
