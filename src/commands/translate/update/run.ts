@@ -1,5 +1,6 @@
 import type {Snapshot, UpdateDiagnostic} from './types';
 import type {PlannedChange} from './plan';
+import type {ExtractOptions} from '@diplodoc/translation';
 
 import {extract} from '../utils/translate';
 
@@ -82,10 +83,13 @@ function withInsertionSeparator(
 export async function runUpdate(
     snapshot: Snapshot,
     translate: FragmentTranslator,
+    extraction?: Pick<ExtractOptions, 'source' | 'target' | 'code'>,
 ): Promise<UpdateResult> {
     const plan = planUpdate(snapshot);
     if (!plan.ok) {
-        return {output: null, planned: 0, applied: 0, rejected: 1, diagnostics: [plan.diagnostic]};
+        const diagnostics = plan.diagnostics ?? [plan.diagnostic];
+        const rejected = plan.rejected ?? diagnostics.length;
+        return {output: null, planned: rejected, applied: 0, rejected, diagnostics};
     }
     const count = plan.changes.length + (plan.rejected ?? 0);
     const diagnostics = [...(plan.diagnostics ?? [])];
@@ -110,8 +114,15 @@ export async function runUpdate(
                 const options = {
                     compact: true,
                     unitLocalIds: true,
-                    source: {language: snapshot.entry.sourcePath.split('/')[0], locale: 'RU'},
-                    target: {language: snapshot.entry.targetPath.split('/')[0], locale: 'US'},
+                    code: extraction?.code,
+                    source: extraction?.source ?? {
+                        language: snapshot.entry.sourcePath.split('/')[0],
+                        locale: 'RU',
+                    },
+                    target: extraction?.target ?? {
+                        language: snapshot.entry.targetPath.split('/')[0],
+                        locale: 'US',
+                    },
                 };
                 const before = extract(change.sourceBefore, options),
                     target = extract(change.previousTranslation, options);

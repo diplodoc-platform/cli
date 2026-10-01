@@ -342,7 +342,7 @@ describe('translate ai provider', () => {
 
             const report = JSON.parse(readFileSync(reportPath, 'utf8'));
 
-            expect(report.schemaVersion).toBe(2);
+            expect(report.schemaVersion).toBe(1);
             expect(report.status).toBe('success');
             expect(report.provider).toBe('openai');
             expect(report.model).toBe('test-model');
@@ -2073,7 +2073,7 @@ describe('incremental manifest provider', () => {
         expect(report.updates).toMatchObject([
             {path: 'ru/a.md', planned: 1, applied: 1, rejected: 0},
         ]);
-        expect(report.schemaVersion).toBe(2);
+        expect(report.schemaVersion).toBe(1);
     });
 });
 

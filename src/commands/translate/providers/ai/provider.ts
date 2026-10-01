@@ -155,6 +155,11 @@ export class Provider {
                 diagnostics: [],
             }),
             async (snapshot) => fragment(snapshot.entry.sourcePath, snapshot.sourceAfter),
+            {
+                code: config.code,
+                source: {language: config.source.language, locale: config.source.locale || 'RU'},
+                target: {language: target.language, locale: target.locale || 'US'},
+            },
         );
         report.setUpdates(results);
         for (const result of results) {

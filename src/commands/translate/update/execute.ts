@@ -1,5 +1,6 @@
 import type {Snapshot} from './types';
 import type {FragmentTranslator, UpdateResult} from './run';
+import type {ExtractOptions} from '@diplodoc/translation';
 
 import {readFileSync, renameSync} from 'node:fs';
 import {link, mkdir, mkdtemp, rm, writeFile} from 'node:fs/promises';
@@ -33,6 +34,7 @@ export async function executeUpdates(
     dryRun: boolean,
     translate: FragmentTranslator,
     create?: (snapshot: Snapshot) => Promise<string>,
+    extraction?: Pick<ExtractOptions, 'source' | 'target' | 'code'>,
 ): Promise<FileUpdateResult[]> {
     const results: FileUpdateResult[] = [];
     for (const snapshot of snapshots) {
@@ -56,13 +58,17 @@ export async function executeUpdates(
                 const plan = planUpdate(snapshot);
                 result = {
                     output: null,
-                    planned: plan.ok ? plan.changes.length + (plan.rejected ?? 0) : 0,
+                    planned: plan.ok
+                        ? plan.changes.length + (plan.rejected ?? 0)
+                        : (plan.rejected ?? 1),
                     applied: 0,
-                    rejected: plan.ok ? (plan.rejected ?? 0) : 1,
-                    diagnostics: plan.ok ? (plan.diagnostics ?? []) : [plan.diagnostic],
+                    rejected: plan.ok ? (plan.rejected ?? 0) : (plan.rejected ?? 1),
+                    diagnostics: plan.ok
+                        ? (plan.diagnostics ?? [])
+                        : (plan.diagnostics ?? [plan.diagnostic]),
                 };
             } else {
-                result = await runUpdate(snapshot, translate);
+                result = await runUpdate(snapshot, translate, extraction);
             }
             if (result.output !== null && !dryRun) {
                 const output = await checkOutputPath(outputRoot, snapshot.entry.targetPath);

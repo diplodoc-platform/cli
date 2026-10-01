@@ -12,7 +12,7 @@ import {TranslateError} from './utils';
  * report shape, so consumers (analytics pipelines, dashboards) can detect
  * incompatible reports instead of silently misreading them.
  */
-export const TRANSLATE_REPORT_SCHEMA_VERSION = 2;
+export const TRANSLATE_REPORT_SCHEMA_VERSION = 1;
 
 export type TranslateReportStatus = 'success' | 'partial' | 'failed';
 

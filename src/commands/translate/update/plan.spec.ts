@@ -85,7 +85,7 @@ describe('source delta planner', () => {
                     'Удалить `old`.\n\nОставить `new`.',
                 ),
             ),
-        ).toMatchObject({ok: true, changes: [{expected: 'Удалить `old`.', sourceAfter: ''}]});
+        ).toMatchObject({ok: true, changes: [{expected: 'Удалить `old`.\n\n', sourceAfter: ''}]});
     });
     it('deletes an opaque block only when the target has the exact same bytes', () => {
         const before = '# A\n\n> Shared note.\n\nKeep.';
@@ -94,7 +94,7 @@ describe('source delta planner', () => {
             planUpdate(snapshot(before, after, '# A\n\n> Shared note.\n\nRetain.')),
         ).toMatchObject({
             ok: true,
-            changes: [{expected: '> Shared note.', literalOutput: '', sourceAfter: ''}],
+            changes: [{expected: '\n\n> Shared note.', literalOutput: '', sourceAfter: ''}],
         });
         expect(
             planUpdate(snapshot(before, after, '# A\n\n> Human note.\n\nRetain.')),

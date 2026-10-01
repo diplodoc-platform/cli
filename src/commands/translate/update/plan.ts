@@ -23,7 +23,12 @@ export type PlannedChange = {
 };
 export type UpdatePlan =
     | {ok: true; changes: PlannedChange[]; diagnostics?: UpdateDiagnostic[]; rejected?: number}
-    | {ok: false; diagnostic: UpdateDiagnostic};
+    | {
+          ok: false;
+          diagnostic: UpdateDiagnostic;
+          diagnostics?: UpdateDiagnostic[];
+          rejected?: number;
+      };
 const conflict = (
     message: string,
     code: UpdateDiagnostic['code'] = 'target_alignment_conflict',
@@ -111,10 +116,28 @@ export function planUpdate(snapshot: Snapshot): UpdatePlan {
             return conflict('Target container cannot be replaced safely', 'unsupported_structure');
         if (updated && blockShape(old) !== blockShape(updated))
             return conflict('Changed block structure requires explicit correspondence');
+        let start = block.start,
+            end = block.end;
+        if (!updated) {
+            const preceding = target[mapped - 1];
+            const following = target[mapped + 1];
+            const beforeSeparator =
+                preceding &&
+                snapshot
+                    .targetBefore!.slice(preceding.end, start)
+                    .match(/(?:\r\n|\n|\r){1,2}$/)?.[0];
+            const afterSeparator =
+                following &&
+                snapshot
+                    .targetBefore!.slice(end, following.start)
+                    .match(/^(?:\r\n|\n|\r){1,2}/)?.[0];
+            if (beforeSeparator) start -= beforeSeparator.length;
+            else if (afterSeparator) end += afterSeparator.length;
+        }
         changes.push({
-            target: {start: block.start, end: block.end},
+            target: {start, end},
             sourceLine: snapshot.sourceBefore!.slice(0, old.start).split(/\r?\n/).length,
-            expected: block.text,
+            expected: snapshot.targetBefore!.slice(start, end),
             sourceBefore: old.text,
             sourceAfter: updated?.text ?? '',
             previousTranslation: block.text,
@@ -257,6 +280,7 @@ export function planUpdate(snapshot: Snapshot): UpdatePlan {
     ) {
         return conflict('Planned target ranges overlap');
     }
-    if (!changes.length && diagnostics.length) return {ok: false, diagnostic: diagnostics[0]};
+    if (!changes.length && diagnostics.length)
+        return {ok: false, diagnostic: diagnostics[0], diagnostics, rejected};
     return diagnostics.length ? {ok: true, changes, diagnostics, rejected} : {ok: true, changes};
 }

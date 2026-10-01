@@ -17,6 +17,50 @@ const snapshot = (before: string, after: string, target: string): Snapshot => ({
     targetBefore: target,
 });
 describe('independent incremental edits', () => {
+    it('reports every independent planning conflict and keeps counters consistent', async () => {
+        const result = await runUpdate(
+            snapshot(
+                '# A\n\n[One](old-a).\n\n# B\n\n[Two](old-b).',
+                '# A\n\n[One](new-a).\n\n# B\n\n[Two](new-b).',
+                '# A\n\n[One](human-a).\n\n# B\n\n[Two](human-b).',
+            ),
+            async () => {
+                throw new Error('No fragment should be sent');
+            },
+        );
+        expect(result.output).toBeNull();
+        expect(result.diagnostics).toHaveLength(2);
+        expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
+            'target_alignment_conflict',
+            'target_alignment_conflict',
+        ]);
+        expect(result.planned).toBe(2);
+        expect(result.applied).toBe(0);
+        expect(result.rejected).toBe(2);
+    });
+    it.each(['\n', '\r\n'])('removes one separator with %j line endings', async (newline) => {
+        const before = ['# A', 'Delete `old`.', 'Keep `new`.'].join(newline + newline);
+        const after = ['# A', 'Keep `new`.'].join(newline + newline);
+        const target = ['# A', 'Удалить `old`.', 'Оставить `new`.'].join(newline + newline);
+        const result = await runUpdate(snapshot(before, after, target), async () => ({
+            text: '',
+            diagnostics: [],
+        }));
+        expect(result.output).toBe(['# A', 'Оставить `new`.'].join(newline + newline));
+        expect(result).toMatchObject({planned: 1, applied: 1, rejected: 0});
+    });
+    it('removes consecutive paragraphs without leaving extra blank lines', async () => {
+        const result = await runUpdate(
+            snapshot(
+                '# A\n\nDelete `one`.\n\nDelete `two`.\n\nKeep `three`.',
+                '# A\n\nKeep `three`.',
+                '# A\n\nУдалить `one`.\n\nУдалить `two`.\n\nОставить `three`.',
+            ),
+            async () => ({text: '', diagnostics: []}),
+        );
+        expect(result.output).toBe('# A\n\nОставить `three`.');
+        expect(result).toMatchObject({planned: 2, applied: 2, rejected: 0});
+    });
     it('requests only the changed heading and preserves unrelated text', async () => {
         const requests: string[] = [];
         const result = await runUpdate(

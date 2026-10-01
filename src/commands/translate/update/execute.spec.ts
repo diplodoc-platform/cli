@@ -69,6 +69,35 @@ it('dry-run plans without calling a provider or writing files', async () => {
     await expect(fs.readFile(resolve(root, 'en/a.md'), 'utf8')).rejects.toThrow();
 });
 
+it('dry-run reports every rejected edit in one file', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'update-dry-conflicts-'));
+    roots.push(root);
+    const result = await executeUpdates(
+        [
+            {
+                entry: {
+                    kind: 'update',
+                    sourcePath: 'ru/a.md',
+                    targetPath: 'en/a.md',
+                    sourceBeforePath: 'b',
+                    sourceAfterPath: 'a',
+                    targetBeforePath: 't',
+                },
+                sourceBefore: '# A\n\n[One](old-a).\n\n# B\n\n[Two](old-b).',
+                sourceAfter: '# A\n\n[One](new-a).\n\n# B\n\n[Two](new-b).',
+                targetBefore: '# A\n\n[One](human-a).\n\n# B\n\n[Two](human-b).',
+            },
+        ],
+        root,
+        true,
+        async () => {
+            throw new Error('Dry run must not translate');
+        },
+    );
+    expect(result[0]).toMatchObject({planned: 2, applied: 0, rejected: 2});
+    expect(result[0].diagnostics).toHaveLength(2);
+});
+
 it.each(['update', 'create'] as const)(
     'does not overwrite a %s destination changed during translation',
     async (kind) => {
