@@ -1,9 +1,38 @@
-/** Apply literal edits only at the same line in an otherwise equally sized block. */
+/** Accept one complete fence, without an earlier close or text after its closing line. */
+function completeCodeFence(text: string): boolean {
+    const lines = text.split(/\r?\n/);
+    const opening = lines[0].match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (!opening || lines.length < 2) {
+        return false;
+    }
+    const fence = opening[1];
+    // Backticks in the info string make this an inline span or an invalid opening fence.
+    if (fence[0] === '`' && opening[2].includes('`')) {
+        return false;
+    }
+    const closing = new RegExp(`^ {0,3}${fence[0]}{${fence.length},}[ \t]*$`);
+    return (
+        closing.test(lines[lines.length - 1]) &&
+        !lines.slice(1, -1).some((line) => closing.test(line))
+    );
+}
+
+/** Copy exact complete code blocks; otherwise edit only matching lines of equally sized blocks. */
 export function patchLiteralLines(
     before: string,
     after: string,
     target: string,
 ): string | undefined {
+    // Correspondence and repeated-block guards belong to the caller. Here both snapshots
+    // must be complete code fences, and the mapped target must match one byte for byte.
+    if (completeCodeFence(before) && completeCodeFence(after)) {
+        if (target === after) {
+            return target;
+        }
+        if (target === before) {
+            return after;
+        }
+    }
     const oldLines = before.split(/\r?\n/);
     const newLines = after.split(/\r?\n/);
     const targetLines = target.split('\n');
