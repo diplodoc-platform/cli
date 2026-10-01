@@ -198,6 +198,74 @@ describe('Links plugin', () => {
             expect(linkToken?.attrGet('YFM002')).toBe('anchor-not-found');
         });
 
+        it.each([
+            [
+                'page.md?version=v25.1#historical-anchor',
+                'page.html?version=v25.1#historical-anchor',
+            ],
+            [
+                'page.md?mode=compact&version=v25.1#historical-anchor',
+                'page.html?mode=compact&version=v25.1#historical-anchor',
+            ],
+            [
+                'page.md?%76ersion=v25.1#historical-anchor',
+                'page.html?version=v25.1#historical-anchor',
+            ],
+            ['?version=v25.1#historical-anchor', 'index.html?version=v25.1#historical-anchor'],
+        ])('should not validate an anchor from another version: %s', (href, expectedHref) => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([
+                    ['index.md' as NormalizedPath, new Set(['current-anchor'])],
+                    ['page.md' as NormalizedPath, new Set(['current-anchor'])],
+                ]),
+            );
+
+            const tokens = md.parse(`[Link](${href})`, {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM002')).toBeNull();
+            expect(linkToken?.attrGet('YFM003')).toBeNull();
+            expect(linkToken?.attrGet('href')).toBe(expectedHref);
+        });
+
+        it('should not validate a reference link to another version', () => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([['page.md' as NormalizedPath, new Set(['current-anchor'])]]),
+            );
+
+            const tokens = md.parse(
+                '[Link][historical]\n\n[historical]: page.md?version=v25.1#historical-anchor',
+                {},
+            );
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM002')).toBeNull();
+            expect(linkToken?.attrGet('href')).toBe('page.html?version=v25.1#historical-anchor');
+        });
+
+        it.each(['?mode=compact', '?version=', '?versions=v25.1', '?note=version%3Dv25.1'])(
+            'should validate a missing anchor in the current version: %s',
+            (search) => {
+                const md = createMarkdownIt(
+                    ['index.md', 'page.md'],
+                    new Map([['page.md' as NormalizedPath, new Set(['current-anchor'])]]),
+                );
+
+                const tokens = md.parse(`[Link](page.md${search}#missing-anchor)`, {});
+                const linkToken = tokens
+                    .find((token) => token.type === 'inline')
+                    ?.children?.find((token) => token.type === 'link_open');
+
+                expect(linkToken?.attrGet('YFM002')).toBe('anchor-not-found');
+            },
+        );
+
         it('should validate same-page anchors', () => {
             const md = createMarkdownIt(
                 ['index.md'],
@@ -212,17 +280,20 @@ describe('Links plugin', () => {
             expect(linkToken?.attrGet('YFM002')).toBe('anchor-not-found');
         });
 
-        it('should report only YFM003 when the target file is missing', () => {
-            const md = createMarkdownIt(['index.md'], new Map());
+        it.each(['missing.md#missing-anchor', 'missing.md?version=v25.1#missing-anchor'])(
+            'should report only YFM003 when the target file is missing: %s',
+            (href) => {
+                const md = createMarkdownIt(['index.md'], new Map());
 
-            const tokens = md.parse('[Link](missing.md#missing-anchor)', {});
-            const linkToken = tokens
-                .find((token) => token.type === 'inline')
-                ?.children?.find((token) => token.type === 'link_open');
+                const tokens = md.parse(`[Link](${href})`, {});
+                const linkToken = tokens
+                    .find((token) => token.type === 'inline')
+                    ?.children?.find((token) => token.type === 'link_open');
 
-            expect(linkToken?.attrGet('YFM003')).toBe('missing-in-toc');
-            expect(linkToken?.attrGet('YFM002')).toBeNull();
-        });
+                expect(linkToken?.attrGet('YFM003')).toBe('missing-in-toc');
+                expect(linkToken?.attrGet('YFM002')).toBeNull();
+            },
+        );
 
         it('should report only YFM003 when the target file is missing from toc', () => {
             const md = createMarkdownIt(

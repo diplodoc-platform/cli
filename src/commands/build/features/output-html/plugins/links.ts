@@ -9,6 +9,7 @@ import {bold} from 'chalk';
 import {dirname, isAbsolute, join} from 'node:path';
 
 import {isExternalHref, normalizePath} from '~/core/utils';
+import {isVersionedQuery} from '~/commands/build/services/anchors';
 
 import {decodeAnchor, walkLinks} from '../utils';
 
@@ -82,11 +83,14 @@ export default ((md, opts) => {
                     }
                 }
 
-                validateAnchor(link, file, parsed.hash, {
-                    entries,
-                    anchorIndex,
-                    resolveAnchorPage,
-                });
+                // The selected version may have different anchors from the local page.
+                if (!isVersionedQuery(parsed.search)) {
+                    validateAnchor(link, file, parsed.hash, {
+                        entries,
+                        anchorIndex,
+                        resolveAnchorPage,
+                    });
+                }
 
                 link.attrSet(
                     'href',

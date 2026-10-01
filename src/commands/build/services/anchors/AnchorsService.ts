@@ -8,6 +8,8 @@ import {join} from 'node:path';
 import {bounded} from '~/core/utils';
 import {resolveMarkdownPage} from '~/core/markdown';
 
+import {isVersionedQuery} from './utils';
+
 type CacheItem = {
     signature: string;
     value: Promise<ReadonlySet<string>>;
@@ -29,6 +31,7 @@ export class AnchorsService {
             if (
                 !asset.hash ||
                 asset.hash === '#' ||
+                isVersionedQuery(asset.search) ||
                 (asset.type !== 'link' && asset.type !== 'def')
             ) {
                 continue;

@@ -29,6 +29,40 @@ describe('AnchorsService', () => {
         expect(service.resolve('page.yaml' as NormalizedPath)).toBeNull();
     });
 
+    it.each(['link', 'def'] as const)(
+        'does not index another version of a %s target',
+        async (type) => {
+            const graph = vi.fn(async () => ({
+                path: 'page.md' as NormalizedPath,
+                content: '# Current heading',
+                deps: [],
+                assets: [],
+            }));
+            const run = {
+                input,
+                exists: (path: string) => path === join(input, 'page.md'),
+                toc: {entries: ['page.md']},
+                markdown: {graph},
+                transform: vi.fn(async () => ['', {}] as const),
+            } as unknown as Run;
+            const service = new AnchorsService(run);
+            const asset: AssetInfo = {
+                path: 'page.md' as NormalizedPath,
+                type,
+                title: 'Historical page',
+                autotitle: false,
+                location: [0, 1],
+                hash: '#historical-anchor',
+                search: '?version=v25.1',
+            };
+
+            const index = await service.index('index.md' as NormalizedPath, [asset]);
+
+            expect(index.size).toBe(0);
+            expect(graph).not.toHaveBeenCalled();
+        },
+    );
+
     it('reuses unchanged anchors and refreshes changed pages and includes', async () => {
         const graph: EntryGraph = {
             path: 'page.md' as NormalizedPath,
@@ -81,6 +115,13 @@ describe('AnchorsService', () => {
 
         expect(first.get('page.md' as NormalizedPath)).toEqual(new Set(['page', 'included']));
         expect(second.get('page.md' as NormalizedPath)).toEqual(new Set(['page', 'included']));
+        expect(transform).toHaveBeenCalledTimes(1);
+
+        const mixed = await service.index('index.md' as NormalizedPath, [
+            {...asset, search: '?version=v25.1'},
+            {...asset, search: '?mode=compact'},
+        ]);
+        expect(mixed.get('page.md' as NormalizedPath)).toEqual(new Set(['page', 'included']));
         expect(transform).toHaveBeenCalledTimes(1);
 
         graph.content = '# Updated';

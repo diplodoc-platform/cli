@@ -17,3 +17,10 @@
 ## Local heading
 
 [valid unquoted raw HTML ID](architecture.md#raw/slash-anchor)
+
+[historical page](architecture.md?version=v25.1#historical-heading)
+[historical same-page](?version=v25.1#historical-local-heading)
+[historical reference][historical]
+[valid query](architecture.md?mode=compact#automatic-heading)
+
+[historical]: architecture.md?version=v25.1#historical-reference-heading
