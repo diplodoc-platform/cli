@@ -205,6 +205,41 @@ function spacingFragments(
     insideTarget: Set<number>,
 ): SkeletonFragment[] {
     const fragments: SkeletonFragment[] = [];
+    pairLiteralLines(sourceLines, targetLines, linePairs, insideSource, insideTarget);
+
+    const spacingOccurrences = new Map<string, number>();
+    const gaps = whitespaceGaps(sourceLines, insideSource);
+    const totals = spacingTotals(sourceLines, units, gaps);
+    for (const gap of gaps) {
+        if (insideSource.has(gap.start)) {
+            continue;
+        }
+        const key = spacingKey(sourceLines, units, gap);
+        const identity = spacingIdentity(key);
+        const occurrence = count(spacingOccurrences, identity);
+        const target = translatedSpacing(sourceLines, targetLines, linePairs, gap);
+        if (!target) {
+            continue;
+        }
+        fragments.push({
+            kind: 'spacing',
+            source: key,
+            occurrence,
+            total: totals.get(identity),
+            target: JSON.stringify(target),
+        });
+    }
+
+    return fragments;
+}
+
+function pairLiteralLines(
+    sourceLines: string[],
+    targetLines: string[],
+    linePairs: Map<number, number>,
+    insideSource: Set<number>,
+    insideTarget: Set<number>,
+): void {
     // Literal directives between aligned text/code anchors also delimit gaps.
     const anchors = [[-1, -1], ...linePairs, [sourceLines.length, targetLines.length]].sort(
         ([a], [b]) => a - b,
@@ -231,42 +266,32 @@ function spacingFragments(
             from.forEach(({index}, n) => linePairs.set(index, to[n].index));
         }
     }
+}
 
-    const spacingOccurrences = new Map<string, number>();
-    const gaps = whitespaceGaps(sourceLines, insideSource);
-    const totals = spacingTotals(sourceLines, units, gaps);
-    for (const gap of gaps) {
-        if (insideSource.has(gap.start)) {
-            continue;
-        }
-        const key = spacingKey(sourceLines, units, gap);
-        const identity = spacingIdentity(key);
-        const occurrence = count(spacingOccurrences, identity);
-        const before = gap.start === 0 ? -1 : linePairs.get(gap.start - 1);
-        const after = gap.end === sourceLines.length ? targetLines.length : linePairs.get(gap.end);
-        if (before === undefined || after === undefined || before >= after) {
-            continue;
-        }
-        const target = targetLines.slice(before + 1, after);
-        const trailing = before < 0 ? undefined : trailingSpace(targetLines[before]);
-        const originalTrailing =
-            gap.start === 0 ? undefined : trailingSpace(sourceLines[gap.start - 1]);
-        if (
-            target.some((line) => line.trim()) ||
-            (JSON.stringify(target) === JSON.stringify(gap.lines) && trailing === originalTrailing)
-        ) {
-            continue;
-        }
-        fragments.push({
-            kind: 'spacing',
-            source: key,
-            occurrence,
-            total: totals.get(identity),
-            target: JSON.stringify({lines: target, trailing}),
-        });
+type TranslatedSpacing = {lines: string[]; trailing?: string};
+
+function translatedSpacing(
+    sourceLines: string[],
+    targetLines: string[],
+    linePairs: Map<number, number>,
+    gap: WhitespaceGap,
+): TranslatedSpacing | undefined {
+    const before = gap.start === 0 ? -1 : linePairs.get(gap.start - 1);
+    const after = gap.end === sourceLines.length ? targetLines.length : linePairs.get(gap.end);
+    if (before === undefined || after === undefined || before >= after) {
+        return undefined;
     }
-
-    return fragments;
+    const lines = targetLines.slice(before + 1, after);
+    const trailing = before < 0 ? undefined : trailingSpace(targetLines[before]);
+    const originalTrailing =
+        gap.start === 0 ? undefined : trailingSpace(sourceLines[gap.start - 1]);
+    if (
+        lines.some((line) => line.trim()) ||
+        (JSON.stringify(lines) === JSON.stringify(gap.lines) && trailing === originalTrailing)
+    ) {
+        return undefined;
+    }
+    return {lines, trailing};
 }
 
 /**
@@ -308,8 +333,6 @@ export function restoreFragments(
     const used = new Set<SkeletonFragment>();
     const occurrences = new Map<string, number>();
     const replacements = new Map<number, {end: number; lines: string[]}>();
-    const spacing = new Map<number, {end: number; lines: string[]}>();
-    const trailing = new Map<number, string>();
 
     const apply = (kind: SkeletonFragment['kind'], text: string, start: number, end: number) => {
         const occurrence = count(occurrences, JSON.stringify([kind, text]));
@@ -349,26 +372,11 @@ export function restoreFragments(
         }
     });
 
-    const gaps = whitespaceGaps(lines, inside);
-    const totals = spacingTotals(lines, units, gaps);
-    for (const gap of gaps) {
-        if (inside.has(gap.start)) {
-            continue;
-        }
-        const source = spacingKey(lines, units, gap);
-        const identity = spacingIdentity(source);
-        const occurrence = count(occurrences, JSON.stringify(['spacing', identity]));
-        const fragment = byKey.get(fragmentKey({kind: 'spacing', source, occurrence}));
-        if (fragment && fragment.total === totals.get(identity)) {
-            const target = JSON.parse(fragment.target) as {lines: string[]; trailing?: string};
-            spacing.set(gap.start, {end: gap.end, lines: target.lines});
-            if (gap.start > 0 && target.trailing !== undefined) {
-                trailing.set(gap.start - 1, target.trailing);
-            }
-            used.add(fragment);
-            result.restored++;
-        }
+    const {spacing, trailing, restored} = restoreSpacingFragments(lines, units, inside, byKey);
+    for (const fragment of restored) {
+        used.add(fragment);
     }
+    result.restored += restored.length;
 
     for (const fragment of fragments) {
         if (!used.has(fragment)) {
@@ -383,6 +391,38 @@ export function restoreFragments(
     result.skeleton = assembleSkeleton(lines, replacements, spacing, trailing);
 
     return result;
+}
+
+function restoreSpacingFragments(
+    lines: string[],
+    units: string[],
+    inside: Set<number>,
+    byKey: Map<string, SkeletonFragment>,
+) {
+    const spacing = new Map<number, {end: number; lines: string[]}>();
+    const trailing = new Map<number, string>();
+    const restored: SkeletonFragment[] = [];
+    const occurrences = new Map<string, number>();
+    const gaps = whitespaceGaps(lines, inside);
+    const totals = spacingTotals(lines, units, gaps);
+    for (const gap of gaps) {
+        if (inside.has(gap.start)) {
+            continue;
+        }
+        const source = spacingKey(lines, units, gap);
+        const identity = spacingIdentity(source);
+        const occurrence = count(occurrences, JSON.stringify(['spacing', identity]));
+        const fragment = byKey.get(fragmentKey({kind: 'spacing', source, occurrence}));
+        if (fragment && fragment.total === totals.get(identity)) {
+            const target = JSON.parse(fragment.target) as TranslatedSpacing;
+            spacing.set(gap.start, {end: gap.end, lines: target.lines});
+            if (gap.start > 0 && target.trailing !== undefined) {
+                trailing.set(gap.start - 1, target.trailing);
+            }
+            restored.push(fragment);
+        }
+    }
+    return {spacing, trailing, restored};
 }
 
 function assembleSkeleton(
@@ -493,7 +533,7 @@ function whitespaceGaps(lines: string[], inside: Set<number>): WhitespaceGap[] {
                     cuts.pop();
                     headings.length = 0;
                 } else if (/^ {0,3}#{1,6}\s/.test(line)) {
-                    const level = (line.trimStart().match(/^#+/) as RegExpMatchArray)[0].length;
+                    const level = (/^#+/.exec(line.trimStart()) as RegExpExecArray)[0].length;
                     headings.length = level;
                     headings[level - 1] = line;
                 }
