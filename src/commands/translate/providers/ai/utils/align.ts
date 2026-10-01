@@ -22,6 +22,8 @@ export type Block = {
     links: string[];
     /** Index of the skeleton line carrying the block, markdown only. */
     line?: number;
+    /** A root heading or label introducing cuts closes the preceding section. */
+    sectionBoundary?: boolean;
 };
 
 /** Source block index paired with a target block index. */
@@ -44,7 +46,7 @@ const SOURCE_WRAPPER = /^\s*<source(?:\s[^>]*)?>([\s\S]*)<\/source>\s*$/;
 const TAG = /<[^<>]+>/g;
 const ENTITY = /&#?\w+;/g;
 // A link destination, `<...>` and a title allowed: `](url &quot;title&quot;)`.
-const LINK_DESTINATION = /\]\(<?([^\s)<>]+)>?(?:\s[^)]*)?\)/g;
+const LINK_DESTINATION = /\]\([ \t]*<?([^\s)<>]+)>?(?:\s[^)]*)?\)/g;
 // An autolink placeholder keeps its url in `equiv-text="&lt;url&gt;"`.
 const AUTOLINK = /<x\b[^>]*\bctype="link_autolink"[^>]*>/g;
 // A link reference definition extracted as text: `[ref]: url`, the url
@@ -677,8 +679,10 @@ function makeBlock(
 function markdownBlocks(skeleton: string, units: string[], languages: string[]): Block[] {
     const blocks: Block[] = [];
     let fence: {marker: string; length: number} | undefined;
+    const containers: string[] = [];
+    const lines = skeleton.split('\n');
 
-    skeleton.split('\n').forEach((line, index) => {
+    lines.forEach((line, index) => {
         const delimiter = /^\s*(`{3,}|~{3,})(.*)$/.exec(line);
         if (delimiter) {
             if (!fence) {
@@ -691,6 +695,16 @@ function markdownBlocks(skeleton: string, units: string[], languages: string[]):
                 fence = undefined;
             }
             return;
+        }
+        if (!fence) {
+            const directive = /^\s*{%\s*(end)?(cut|note|list)\b/.exec(line);
+            if (directive?.[1]) {
+                if (containers.at(-1) === directive[2]) {
+                    containers.pop();
+                }
+            } else if (directive) {
+                containers.push(directive[2]);
+            }
         }
         const ids = Array.from(line.matchAll(PLACEHOLDER), (match) => Number(match[1]));
         if (!ids.length) {
@@ -717,8 +731,18 @@ function markdownBlocks(skeleton: string, units: string[], languages: string[]):
         const structure = indent + body.replace(PLACEHOLDER_RUN, '%%%');
 
         const own = anchors.map(({id}) => 'id:' + id);
+        const label =
+            /^\*\*%%%\d+%%%\*\*$/.test(text.trim()) &&
+            ids.length === 1 &&
+            unitProse(units[ids[0]]).trim().endsWith(':') &&
+            /^\s*{%\s*cut\b/.test(lines.slice(index + 1).find((next) => next.trim()) || '');
 
-        blocks.push({...makeBlock(ids, signature, structure, own, units, languages), line: index});
+        blocks.push({
+            ...makeBlock(ids, signature, structure, own, units, languages),
+            line: index,
+            sectionBoundary:
+                !fence && !containers.length && !indent && (/^#{1,6} /.test(body) || label),
+        });
     });
 
     return blocks;
@@ -962,9 +986,25 @@ export function alignBlocks(
 
 /** Plain prose has no identity evidence when its surrounding section diverges. */
 function stableProsePairs(source: Block[], target: Block[], pairs: BlockPair[]): BlockPair[] {
+    // A moved heading must not split a monotone gap or bypass its divergence check.
+    const following = new Int32Array(pairs.length);
+    let next = target.length;
+    for (let index = pairs.length - 1; index >= 0; index--) {
+        following[index] = next;
+        next = Math.min(next, pairs[index][1]);
+    }
+    let previous = -1;
     const pins: BlockPair[] = [
         [-1, -1],
-        ...pairs.filter(([i, j]) => source[i].anchors.length && target[j].anchors.length),
+        ...pairs.filter(([i, j], index) => {
+            const boundary =
+                source[i].sectionBoundary &&
+                target[j].sectionBoundary &&
+                previous < j &&
+                j < following[index];
+            previous = Math.max(previous, j);
+            return (source[i].anchors.length && target[j].anchors.length) || boundary;
+        }),
         [source.length, target.length],
     ];
     const compatible = new Map<number, boolean>();
