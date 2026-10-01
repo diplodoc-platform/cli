@@ -8,8 +8,8 @@ import type {SeedHint} from './utils/cache';
 import type {JudgePair} from './judge';
 import type {TargetStat, TranslateReportJudge} from '../../report';
 
-import {writeFile} from 'node:fs/promises';
-import {extname, join, resolve} from 'node:path';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {dirname, extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
 
 import {LogLevel} from '~/core/logger';
@@ -63,6 +63,7 @@ import {untranslatedMarker} from './utils/script';
 import {hasCopiedEdit, hasSourceProse} from './utils/edited-prose';
 import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
+import {documentFingerprint} from './utils/cache';
 import {localizedUrls, restoreLocalizedUrls, revertedUrls} from './utils/links';
 import {restoreFragments} from './utils/skeleton';
 import {judgeTranslations} from './judge';
@@ -520,6 +521,23 @@ function makeProcessor(params: ProcessorParams) {
         const inputPath = join(inputRoot, path);
         const outputPath = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
 
+        const vars = varsFor(path);
+        if (store && ext === '.md') {
+            const fingerprint = documentFingerprint(await readFile(inputPath, 'utf8'), vars, code);
+            const approved = store.copiedDocument(path, fingerprint);
+            if (approved) {
+                const destination = outputPath(inputPath);
+                await mkdir(dirname(destination), {recursive: true});
+                await writeFile(destination, approved.target);
+                if (stat) {
+                    stat.cached += approved.units;
+                    stat.unitsTotal += approved.units;
+                    stat.sourceChars += approved.sourceChars;
+                }
+                return [];
+            }
+        }
+
         const {
             content,
             units,
@@ -533,7 +551,7 @@ function makeProcessor(params: ProcessorParams) {
             path,
             sourceLanguage,
             targetLanguage,
-            vars: varsFor(path),
+            vars,
             code,
         });
 

@@ -55,6 +55,16 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    this padding only when occurrences of the same URL agree; ambiguous padding
    remains unsupported. `seed_partial` does not imply `PARTIAL`: newly translated
    units can succeed while changing previously approved wording.
+   Exact Markdown copies to new paths use `SeedStore` document snapshots: a raw
+   source fingerprint includes vars and code mode, and matching approved targets
+   must agree byte for byte. This preserves occurrence-specific wording even when
+   the same source phrase has different translations in one file; the shared
+   dictionary alone picks a single wording. Snapshots are recorded independently
+   of unit alignment, including merged target prose and files without units.
+   Existing paths and edited copies continue through unit translation and markup
+   checks. Verify both branches with the real provider, including copied-file
+   counters; a preservation run that makes zero model requests is not a quality
+   check of newly translated text.
 
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
