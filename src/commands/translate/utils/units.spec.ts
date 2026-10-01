@@ -3,7 +3,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it} from 'vitest';
 import {escapeRegExp} from 'lodash';
-import {extract} from '@diplodoc/translation';
+import {compose, extract} from '@diplodoc/translation';
 
 import {loadTranslationUnits} from './units';
 
@@ -27,6 +27,22 @@ function file(content: string, name = 'article.md') {
 
 describe('translate units loader', () => {
     describe('loadTranslationUnits', () => {
+        it.each([
+            '- Исправление обработчика, [abc123]( https://example.com/commit/abc123).\n',
+            'Read [docs](  https://example.com/search?a=1&b=2 "Title").\n',
+            "Read [docs]( https://example.com/O'Brien).\n",
+        ])('keeps original padding in %j through composition', async (approved) => {
+            const loaded = await loadTranslationUnits({
+                inputPath: file(approved),
+                path: 'ru/article.md',
+                sourceLanguage: 'ru',
+                targetLanguage: 'en',
+                vars: {},
+            });
+
+            expect(compose(loaded.skeleton, loaded.units, {useSource: true})).toBe(approved);
+        });
+
         it('keeps fenced code context on extracted comments and placeholders', async () => {
             const inputPath = file(
                 'Ordinary prose.\n\n```sh\n# export TOKEN=<старый токен>\n```\n\n~~~mermaid\nflowchart LR\nA[Подпись]\n~~~\n',

@@ -366,6 +366,105 @@ describe('translate seed alignment', () => {
             ]);
         });
 
+        it('keeps introduction pairs when releases change in the next heading section', () => {
+            const source = blocksOf([
+                '## [[Server]]',
+                '[[Existing introduction.]]',
+                '**[[Releases:]]**',
+                ...section('2.11.1', ['New feature']),
+                ...section('2.11.0', ['Old feature']),
+            ]);
+            const target = blocksOf([
+                '## [[Сервер]]',
+                '[[Готовое вступление.]]',
+                '**[[Релизы:]]**',
+                ...section('2.11.0', ['Старая возможность']),
+            ]);
+
+            const pairs = alignBlocks(source, target);
+
+            expect(pairs).toContainEqual([1, 1]);
+            for (let index = 3; index < 8; index++) {
+                expect(pairs.some(([from]) => from === index)).toBe(false);
+            }
+        });
+
+        it('still rejects introduction pairs when their own section gains a list', () => {
+            const source = blocksOf([
+                '## [[Server]]',
+                '[[Existing introduction.]]',
+                '- [[Added item]]',
+                '## [[Releases]]',
+                ...section('2.11.0', ['Old feature']),
+            ]);
+            const target = blocksOf([
+                '## [[Сервер]]',
+                '[[Другое вступление.]]',
+                '## [[Релизы]]',
+                ...section('2.11.0', ['Старая возможность']),
+            ]);
+
+            expect(alignBlocks(source, target)).not.toContainEqual([1, 1]);
+        });
+
+        it('keeps moved-section recovery without pairing prose across a crossed heading', () => {
+            const source = blocksOf(['# [[B 2]]', '[[P]]', '## [[D]]', '[[Q]]']);
+            const target = blocksOf(['## [[D]]', '[[R]]', '# [[B 2]]', '[[S]]', '- [[L]]']);
+
+            expect(alignBlocks(source, target)).toEqual([
+                [0, 2],
+                [2, 0],
+                [3, 1],
+            ]);
+        });
+
+        it('does not use a bold list lead-in to certify unrelated preceding prose', () => {
+            const source = blocksOf([
+                '# [[Access]] {#intro}',
+                '[[Editors can edit.]] [[Access can be restricted:]]',
+                '**[[Restrictions:]]**',
+                '- [[Restrictions]]',
+                '## [[Name]] {#name}',
+            ]);
+            const target = blocksOf([
+                '# [[Редактирование]] {#intro}',
+                '[[Обновления видны сразу.]] [[Вы получите уведомление.]]',
+                '**[[Обновления:]]**',
+                '## [[Имя]] {#name}',
+            ]);
+
+            expect(alignBlocks(source, target)).toEqual([
+                [0, 0],
+                [4, 3],
+            ]);
+        });
+
+        it.each(['cut "1.0"', 'note info', 'list tabs'])(
+            'does not split a diverged %s container at its nested headings',
+            (directive) => {
+                const end = directive.split(' ')[0];
+                const source = blocksOf([
+                    `{% ${directive} %}`,
+                    '## [[Title]]',
+                    '[[Old paragraph.]]',
+                    '## [[Details]]',
+                    '- [[Added item]]',
+                    `{% end${end} %}`,
+                    '## [[End]] {#end}',
+                ]);
+                const target = blocksOf([
+                    `{% ${directive} %}`,
+                    '## [[Заголовок]]',
+                    '[[Другое содержимое.]]',
+                    '## [[Подробности]]',
+                    `{% end${end} %}`,
+                    '## [[Конец]] {#end}',
+                ]);
+
+                expect(alignBlocks(source, target)).not.toContainEqual([1, 1]);
+            },
+        );
+
         it('pairs code comments after reindentation without shifting duplicate numeric anchors', () => {
             const source = blocksOf([
                 '```js',

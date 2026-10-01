@@ -41,6 +41,21 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
 3. **translate** — translating documentation
    - Location: `src/commands/translate/`
 
+   Seed reuse is not limited to lines changed in the source PR. `stableProsePairs` in
+   `providers/ai/utils/align.ts` rejects unanchored prose when its enclosing section
+   diverges. Matched root headings and bold labels ending in a colon immediately before cuts
+   delimit sections only when their pairing is monotone; headings inside cut/note/tab
+   containers do not. A release label can be `**Releases:**`, not an ATX heading.
+   When verifying preservation, compare every unchanged region with the approved
+   target, including the introduction before the first release cut. Checking only
+   the old release suffix misses this case. Check copied files against their old
+   counterparts too: a same-path diff represents the new include as entirely added.
+   Run `translate seed` offline to inspect per-file pairs, then exercise composition:
+   extraction can normalize padding before link destinations. The loader restores
+   this padding only when occurrences of the same URL agree; ambiguous padding
+   remains unsupported. `seed_partial` does not imply `PARTIAL`: newly translated
+   units can succeed while changing previously approved wording.
+
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).
