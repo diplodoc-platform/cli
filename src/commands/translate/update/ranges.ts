@@ -1,4 +1,6 @@
 import type {RawRange} from './apply';
+
+import MarkdownIt from 'markdown-it';
 export type RawBlock = RawRange & {
     text: string;
     kind: 'heading' | 'paragraph' | 'opaque' | 'marker' | 'list' | 'table';
@@ -6,9 +8,23 @@ export type RawBlock = RawRange & {
     container: string[];
 };
 
+const fenceParser = new MarkdownIt({html: true});
+
 /** Preserve raw offsets, including structural delimiters and untranslated code. */
 export function extractRawBlocks(text: string): RawBlock[] {
     const lines = [...text.matchAll(/[^\r\n]*(?:\r\n|\n|\r|$)/g)].filter((match) => match[0]);
+    // Use the existing Markdown parser's relative list indentation and fence rules.
+    // Only its line maps are used: never render or normalize the original bytes.
+    const fences = new Map<number, number>();
+    for (const token of fenceParser.parse(text, {})) {
+        if (token.type === 'fence' && token.map) {
+            const [start, end] = token.map;
+            // Leave list markers and blockquotes to the existing raw block handling.
+            if (/^[ \t]*(`{3,}|~{3,})/.test(lines[start]?.[0] ?? '')) {
+                fences.set(start, end);
+            }
+        }
+    }
     const blocks: RawBlock[] = [];
     const content = (index: number) => lines[index][0].replace(/[\r\n]+$/, '');
     const stack: string[] = [];
@@ -23,21 +39,13 @@ export function extractRawBlocks(text: string): RawBlock[] {
         const first = index;
         const line = content(index);
         let kind: RawBlock['kind'] = 'paragraph';
-        const fence = line.match(/^ {0,3}(`{3,}|~{3,})/);
+        const fenceEnd = fences.get(index);
         const directive = line.trim().match(/^{%\s*(\w+)(.*?)%}$/);
         let open: string | undefined;
         let close = false;
-        if (fence) {
+        if (fenceEnd !== undefined) {
             kind = 'opaque';
-            index++;
-            while (index < lines.length) {
-                const closing = content(index++).trim();
-                if (
-                    closing.length >= fence[1].length &&
-                    [...closing].every((c) => c === fence[1][0])
-                )
-                    break;
-            }
+            index = fenceEnd;
         } else if (first === 0 && line === '---') {
             kind = 'opaque';
             index++;
