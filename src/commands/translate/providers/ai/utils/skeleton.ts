@@ -9,14 +9,15 @@ import {untranslatedMarker} from './script';
 /**
  * A piece of a translated file that lives in the skeleton, not in the
  * units, and that the translator changed: a fenced code block with
- * localized text, or a line with heading ids of its own or with localized
+ * localized text, a line with heading ids of its own or with localized
  * link destinations (a list item that is a link as a whole keeps its
  * destination in the skeleton). A translate run composes the output from
  * the source skeleton, so without the fragment these changes would come
- * back from the source.
+ * back from the source. Approved trailing whitespace and blank-line gaps
+ * are kept too, when the source and both neighbors still match the seed.
  */
 export type SkeletonFragment = {
-    kind: 'code' | 'line';
+    kind: 'code' | 'line' | 'spacing';
     /**
      * The source piece as the seed saw it, placeholders numbered from 0 in
      * order. A line carries the texts of its units too: its ids belong to
@@ -25,7 +26,9 @@ export type SkeletonFragment = {
     source: string;
     /** Which occurrence of `source` in the file the fragment is, from 0. */
     occurrence: number;
-    /** What the output takes instead, placeholders numbered as in `source`. */
+    /** Spacing is reused only while the number of equivalent boundaries is unchanged. */
+    total?: number;
+    /** Replacement with relative placeholders; spacing stores JSON blank lines and trailing space. */
     target: string;
 };
 
@@ -94,6 +97,14 @@ export function skeletonFragments(
     const paired = new Map(blocks.pairs);
     const localized = localizedLine(languages);
     const fragments: SkeletonFragment[] = [];
+    const linePairs = new Map<number, number>();
+    for (const [i, j] of blocks.pairs) {
+        const from = blocks.source[i].line;
+        const to = blocks.target[j].line;
+        if (from !== undefined && to !== undefined) {
+            linePairs.set(from, to);
+        }
+    }
 
     const byPosition = new Map<string, {fence: Fence; next: number}>();
     positions(targetFences, blocks.target).forEach(({key, next}, k) => {
@@ -124,8 +135,13 @@ export function skeletonFragments(
         const target = relative(
             targetLines.slice(other.fence.start, other.fence.end + 1).join('\n'),
         );
-        if (target !== text && localizedCode(text.split('\n'), target.split('\n'), localized)) {
-            fragments.push({kind: 'code', source: text, occurrence, target});
+        if (target === text || localizedCode(text.split('\n'), target.split('\n'), localized)) {
+            for (let n = 0; n <= fence.end - fence.start; n++) {
+                linePairs.set(fence.start + n, other.fence.start + n);
+            }
+            if (target !== text) {
+                fragments.push({kind: 'code', source: text, occurrence, target});
+            }
         }
     });
 
@@ -165,6 +181,91 @@ export function skeletonFragments(
         }
     }
 
+    fragments.push(
+        ...spacingFragments(
+            sourceLines,
+            source.units,
+            targetLines,
+            linePairs,
+            insideSource,
+            insideTarget,
+        ),
+    );
+
+    return fragments;
+}
+
+/** Keeps only blank-line gaps whose original source boundaries still match. */
+function spacingFragments(
+    sourceLines: string[],
+    units: string[],
+    targetLines: string[],
+    linePairs: Map<number, number>,
+    insideSource: Set<number>,
+    insideTarget: Set<number>,
+): SkeletonFragment[] {
+    const fragments: SkeletonFragment[] = [];
+    // Literal directives between aligned text/code anchors also delimit gaps.
+    const anchors = [[-1, -1], ...linePairs, [sourceLines.length, targetLines.length]].sort(
+        ([a], [b]) => a - b,
+    );
+    const literals = (lines: string[], start: number, end: number, inside: Set<number>) => {
+        const result: {index: number; line: string}[] = [];
+        for (let index = start + 1; index < end; index++) {
+            const line = lines[index];
+            if (line.trim() && !/%%%\d+%%%/.test(line) && !inside.has(index)) {
+                result.push({index, line});
+            }
+        }
+        return result;
+    };
+    for (let k = 1; k < anchors.length; k++) {
+        const [start, targetStart] = anchors[k - 1];
+        const [end, targetEnd] = anchors[k];
+        if (targetStart >= targetEnd) {
+            continue;
+        }
+        const from = literals(sourceLines, start, end, insideSource);
+        const to = literals(targetLines, targetStart, targetEnd, insideTarget);
+        if (from.length === to.length && from.every(({line}, n) => line === to[n].line)) {
+            from.forEach(({index}, n) => linePairs.set(index, to[n].index));
+        }
+    }
+
+    const spacingOccurrences = new Map<string, number>();
+    const gaps = whitespaceGaps(sourceLines, insideSource);
+    const totals = spacingTotals(sourceLines, units, gaps);
+    for (const gap of gaps) {
+        if (insideSource.has(gap.start)) {
+            continue;
+        }
+        const key = spacingKey(sourceLines, units, gap);
+        const identity = spacingIdentity(key);
+        const occurrence = count(spacingOccurrences, identity);
+        const before = gap.start === 0 ? -1 : linePairs.get(gap.start - 1);
+        const after = gap.end === sourceLines.length ? targetLines.length : linePairs.get(gap.end);
+        if (before === undefined || after === undefined || before >= after) {
+            continue;
+        }
+        const target = targetLines.slice(before + 1, after);
+        const trailing = before < 0 ? undefined : trailingSpace(targetLines[before]);
+        const originalTrailing =
+            gap.start === 0 ? undefined : trailingSpace(sourceLines[gap.start - 1]);
+        if (
+            target.some((line) => line.trim()) ||
+            (JSON.stringify(target) === JSON.stringify(gap.lines) && trailing === originalTrailing)
+        ) {
+            continue;
+        }
+        fragments.push({
+            kind: 'spacing',
+            source: key,
+            occurrence,
+            total: totals.get(identity),
+            target: JSON.stringify({lines: target, trailing}),
+        });
+    }
+
     return fragments;
 }
 
@@ -184,7 +285,11 @@ export function restoreFragments(
     units: string[],
     fragments: SkeletonFragment[],
 ): RestoredSkeleton {
-    const result: RestoredSkeleton = {skeleton, restored: 0, dropped: {code: 0, line: 0}};
+    const result: RestoredSkeleton = {
+        skeleton,
+        restored: 0,
+        dropped: {code: 0, line: 0, spacing: 0},
+    };
     if (!fragments.length) {
         return result;
     }
@@ -203,6 +308,8 @@ export function restoreFragments(
     const used = new Set<SkeletonFragment>();
     const occurrences = new Map<string, number>();
     const replacements = new Map<number, {end: number; lines: string[]}>();
+    const spacing = new Map<number, {end: number; lines: string[]}>();
+    const trailing = new Map<number, string>();
 
     const apply = (kind: SkeletonFragment['kind'], text: string, start: number, end: number) => {
         const occurrence = count(occurrences, JSON.stringify([kind, text]));
@@ -242,31 +349,76 @@ export function restoreFragments(
         }
     });
 
+    const gaps = whitespaceGaps(lines, inside);
+    const totals = spacingTotals(lines, units, gaps);
+    for (const gap of gaps) {
+        if (inside.has(gap.start)) {
+            continue;
+        }
+        const source = spacingKey(lines, units, gap);
+        const identity = spacingIdentity(source);
+        const occurrence = count(occurrences, JSON.stringify(['spacing', identity]));
+        const fragment = byKey.get(fragmentKey({kind: 'spacing', source, occurrence}));
+        if (fragment && fragment.total === totals.get(identity)) {
+            const target = JSON.parse(fragment.target) as {lines: string[]; trailing?: string};
+            spacing.set(gap.start, {end: gap.end, lines: target.lines});
+            if (gap.start > 0 && target.trailing !== undefined) {
+                trailing.set(gap.start - 1, target.trailing);
+            }
+            used.add(fragment);
+            result.restored++;
+        }
+    }
+
     for (const fragment of fragments) {
         if (!used.has(fragment)) {
             result.dropped[fragment.kind]++;
         }
     }
 
-    if (!replacements.size) {
+    if (!replacements.size && !spacing.size) {
         return result;
     }
 
+    result.skeleton = assembleSkeleton(lines, replacements, spacing, trailing);
+
+    return result;
+}
+
+function assembleSkeleton(
+    lines: string[],
+    replacements: Map<number, {end: number; lines: string[]}>,
+    spacing: Map<number, {end: number; lines: string[]}>,
+    trailing: Map<number, string>,
+): string {
     const output: string[] = [];
     let index = 0;
-    while (index < lines.length) {
+    while (index <= lines.length) {
+        const gap = spacing.get(index);
+        if (gap) {
+            output.push(...gap.lines);
+            index = gap.end;
+        }
+        if (index === lines.length) {
+            break;
+        }
         const replacement = replacements.get(index);
         if (replacement) {
-            output.push(...replacement.lines);
+            const restored = [...replacement.lines];
+            if (trailing.has(replacement.end)) {
+                const last = restored.length - 1;
+                restored[last] = restored[last].trimEnd() + trailing.get(replacement.end);
+            }
+            output.push(...restored);
             index = replacement.end + 1;
         } else {
-            output.push(lines[index]);
+            output.push(
+                trailing.has(index) ? lines[index].trimEnd() + trailing.get(index) : lines[index],
+            );
             index++;
         }
     }
-    result.skeleton = output.join('\n');
-
-    return result;
+    return output.join('\n');
 }
 
 function fragmentKey({kind, source, occurrence}: Omit<SkeletonFragment, 'target'>): string {
@@ -298,6 +450,108 @@ function localizeLine(line: string, other: string, languages: string[]): string 
     }
 
     return result;
+}
+
+type WhitespaceGap = {
+    start: number;
+    end: number;
+    lines: string[];
+    context: string[];
+    before?: string[];
+    after?: string[];
+};
+
+/** Gaps between nonblank lines, including empty gaps and the file boundaries. */
+function whitespaceGaps(lines: string[], inside: Set<number>): WhitespaceGap[] {
+    const gaps: WhitespaceGap[] = [];
+    let start = 0;
+    const headings: string[] = [];
+    const cuts: string[] = [];
+    const boundaries = new Map<number, string[]>();
+    for (const fence of fencedBlocks(lines)) {
+        const block = lines.slice(fence.start, fence.end + 1);
+        boundaries.set(fence.start, block);
+        boundaries.set(fence.end, block);
+    }
+    for (let index = 0; index <= lines.length; index++) {
+        if (index === lines.length || lines[index].trim()) {
+            gaps.push({
+                start,
+                end: index,
+                lines: lines.slice(start, index),
+                context: [...cuts, ...headings.filter(Boolean)],
+                before: boundaries.get(start - 1),
+                after: boundaries.get(index),
+            });
+            start = index + 1;
+            if (index < lines.length && !inside.has(index)) {
+                const line = lines[index];
+                if (/^\s*{%\s*cut\b/.test(line)) {
+                    cuts.push(line);
+                    headings.length = 0;
+                } else if (/^\s*{%\s*endcut\b/.test(line)) {
+                    cuts.pop();
+                    headings.length = 0;
+                } else if (/^ {0,3}#{1,6}\s/.test(line)) {
+                    const level = (line.trimStart().match(/^#+/) as RegExpMatchArray)[0].length;
+                    headings.length = level;
+                    headings[level - 1] = line;
+                }
+            }
+        }
+    }
+    return gaps;
+}
+
+/** Both unchanged neighbors and the original gap must match before spacing is reused. */
+function spacingKey(lines: string[], units: string[], gap: WhitespaceGap): string {
+    const key = (index: number, block?: string[]) => {
+        if (index < 0 || index >= lines.length) {
+            return null;
+        }
+        const line = block ? block.join('\n') : lines[index];
+        const ids = Array.from(line.matchAll(PLACEHOLDER), (match) => Number(match[1]));
+        return lineKey(line, ids, units);
+    };
+    const context = gap.context.map((line) => {
+        const ids = Array.from(line.matchAll(PLACEHOLDER), (match) => Number(match[1]));
+        return lineKey(line, ids, units);
+    });
+    return JSON.stringify([
+        key(gap.start - 1, gap.before),
+        gap.lines,
+        key(gap.end, gap.after),
+        context,
+    ]);
+}
+
+/** A boundary keeps its occurrence identity even when its gap is edited. */
+function spacingIdentity(key: string): string {
+    const [before, , after, context] = JSON.parse(key);
+    const boundary = (key: string | null) => {
+        if (key === null) {
+            return null;
+        }
+        const [line, ...units] = JSON.parse(key);
+        return [line.trimEnd(), ...units];
+    };
+    return JSON.stringify([boundary(before), boundary(after), context.map(boundary)]);
+}
+
+function trailingSpace(line: string): string {
+    return line.slice(line.trimEnd().length);
+}
+
+function spacingTotals(
+    lines: string[],
+    units: string[],
+    gaps: WhitespaceGap[],
+): Map<string, number> {
+    const totals = new Map<string, number>();
+    for (const gap of gaps) {
+        count(totals, spacingIdentity(spacingKey(lines, units, gap)));
+    }
+    return totals;
 }
 
 function lineKey(line: string, ids: number[], units: string[]): string {
