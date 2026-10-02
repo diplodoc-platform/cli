@@ -2393,3 +2393,80 @@ describe('translate ai provider', () => {
         });
     });
 });
+
+describe('incremental manifest provider', () => {
+    it('translates a changed heading and reports applied edits', async () => {
+        const directory = mkdtempSync(join(tmpdir(), 'ai-update-'));
+        const client = makeClient(() => ['New title']);
+        const config = {
+            ...makeParams(client).params.config,
+            input: directory,
+            output: directory,
+            source: {language: 'ru', locale: 'RU'},
+            target: [{language: 'en', locale: 'US'}],
+            vars: {},
+            provider: 'openai',
+            report: join(directory, 'report.json'),
+        } as AITranslationConfig;
+        const provider = new Provider(() => client, config);
+        await provider.update(
+            [
+                {
+                    entry: {
+                        kind: 'update',
+                        sourcePath: 'ru/a.md',
+                        targetPath: 'en/a.md',
+                        sourceBeforePath: 'b',
+                        sourceAfterPath: 'a',
+                        targetBeforePath: 't',
+                    },
+                    sourceBefore: '# Старое\n\nИстория',
+                    sourceAfter: '# Новое\n\nИстория',
+                    targetBefore: '# Previous\n\nHuman-only text',
+                },
+            ],
+            config,
+        );
+        expect(readFileSync(join(directory, 'en/a.md'), 'utf8')).toBe(
+            '# New title\n\nHuman-only text',
+        );
+        const report = JSON.parse(readFileSync(config.report!, 'utf8'));
+        expect(report.updates).toMatchObject([
+            {path: 'ru/a.md', planned: 1, applied: 1, rejected: 0},
+        ]);
+        expect(report.schemaVersion).toBe(1);
+    });
+});
+
+it('does not share translated units between distinct incremental contexts', async () => {
+    const directory = mkdtempSync(join(tmpdir(), 'ai-update-context-'));
+    const client = makeClient((_fragments, call) => [call === 0 ? 'First title' : 'Second title']);
+    const config = {
+        ...makeParams(client).params.config,
+        input: directory,
+        output: directory,
+        source: {language: 'ru', locale: 'RU'},
+        target: [{language: 'en', locale: 'US'}],
+        vars: {},
+        provider: 'openai',
+    } as AITranslationConfig;
+    const provider = new Provider(() => client, config);
+    await provider.update(
+        ['a', 'b'].map((name) => ({
+            entry: {
+                kind: 'update' as const,
+                sourcePath: `ru/${name}.md`,
+                targetPath: `en/${name}.md`,
+                sourceBeforePath: 'b',
+                sourceAfterPath: 'a',
+                targetBeforePath: 't',
+            },
+            sourceBefore: `# Старое ${name}`,
+            sourceAfter: '# Новое',
+            targetBefore: `# Previous ${name}`,
+        })),
+        config,
+    );
+    expect(readFileSync(join(directory, 'en/a.md'), 'utf8')).toBe('# First title');
+    expect(readFileSync(join(directory, 'en/b.md'), 'utf8')).toBe('# Second title');
+});

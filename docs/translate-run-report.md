@@ -59,6 +59,15 @@ Top-level fields:
 | `totals`          | counters | Counters aggregated across all targets (see below).                                           |
 | `targets`         | target[] | Per-target-language counters, plus `judge` stats when `--judge` is enabled.                   |
 | `errors`          | error[]  | Every recorded error: `target?`, `path?`, stable `code`, `message`.                           |
+| `updates`         | update[]?| Present for `--update-manifest` runs. Each file has `path`, `planned`, `applied`, `rejected`, and `diagnostics`. |
+
+For each update, `planned` is the number of proposed edits, including rejected
+ones, so `applied + rejected = planned` after execution. A diagnostic contains
+the stable `code` and a human-readable `message`. Independent rejected edits
+are reported separately. A file with no applied edits and one or more
+diagnostics has no output file; a partly applied file retains the rejected
+ranges from its previous translation. The optional `updates` field does not
+change the report schema version.
 
 A part of a file the engine left untranslated, such as a `page-constructor` block whose YAML cannot be parsed, is recorded in `errors` with the code `EXTRACT_WARNING`. The file is still written and counted in `files.translated` and `files.partial`, and the run is `partial`.
 
