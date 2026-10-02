@@ -65,6 +65,42 @@ describe('Build search feature', () => {
                     search: {
                         enabled: true,
                         provider: 'local',
+                        hiddenPolicy: false,
+                    },
+                },
+            );
+
+            test(
+                'should handle hiddenPolicy',
+                '',
+                {
+                    search: {
+                        provider: 'local',
+                        hiddenPolicy: true,
+                    },
+                },
+                {
+                    search: {
+                        enabled: true,
+                        provider: 'local',
+                        hiddenPolicy: true,
+                    },
+                },
+            );
+
+            test(
+                'should keep hiddenPolicy with disabled search',
+                '',
+                {
+                    search: {
+                        enabled: false,
+                        hiddenPolicy: true,
+                    },
+                },
+                {
+                    search: {
+                        enabled: false,
+                        hiddenPolicy: true,
                     },
                 },
             );

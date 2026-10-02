@@ -1,0 +1,3 @@
+# Hidden page
+
+Hidden content.

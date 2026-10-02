@@ -1,0 +1,6 @@
+allowHtml: true
+langs: ['en']
+
+search:
+  provider: local
+  hiddenPolicy: true
