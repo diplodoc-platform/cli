@@ -1218,6 +1218,41 @@ describe('Build watch feature', () => {
             expect(processEntry).toBeCalledTimes(2);
         });
 
+        it.each([
+            ['inline', '[Link](target.md#old)'],
+            ['reference-style', '[Link][target]\n\n[target]: target.md#old'],
+        ])('rebuilds a page with a %s fragment link when its target changes', async (_, link) => {
+            await register('./index.md', link);
+            await register('./target.md', '## Old');
+            await create(
+                './toc.yaml',
+                'href: index.md\nitems:\n  - name: Target\n    href: target.md',
+            );
+
+            depends('entry', 'index.md', 'target.md');
+            processEntry.mockClear();
+
+            await change('./target.md', '## New');
+
+            expect(processEntry).toHaveBeenCalledWith('index.md');
+            depends('entry', 'index.md', 'target.md');
+
+            await change('./index.md', 'No link');
+            depends('entry', 'index.md', 'target.md', false);
+            processEntry.mockClear();
+
+            await change('./target.md', '## Newer');
+            expect(processEntry).not.toHaveBeenCalledWith('index.md');
+        });
+
+        it('does not treat a reference image definition as a Markdown source', async () => {
+            await register('./index.md', '![Image][asset]\n\n[asset]: image.png');
+            await register('./image.png', 'image-data');
+            await create('./toc.yaml', 'href: index.md');
+
+            expect(run(build).entry.isSource(normalizePath('image.png'))).toBe(false);
+        });
+
         it('should handle entry include update', async () => {
             expect(processEntry).not.toBeCalled();
 
