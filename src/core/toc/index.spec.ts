@@ -492,6 +492,152 @@ describe('toc-loader', () => {
             expect(run.meta.get('_includes/flat/page.md' as NormalizedPath).noIndex).toBe(true);
             expect(run.meta.get('_includes/local/page.md' as NormalizedPath).noIndex).toBe(true);
         });
+
+        describe('search.hiddenPolicy', () => {
+            const content = dedent`
+                items:
+                  - name: Public page
+                    href: public.md
+                  - name: Hidden page
+                    href: hidden.md
+                    hidden: true
+                  - name: Hidden section
+                    href: section.md
+                    hidden: true
+                    items:
+                      - name: Nested page
+                        href: nested.md
+            `;
+
+            it('does not restrict hidden items by default', async () => {
+                const {run, toc} = setupService();
+
+                mockData(run, content, {}, {}, []);
+                await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+                expect(run.meta.get('public.md' as NormalizedPath).noIndex).toBeUndefined();
+                expect(run.meta.get('hidden.md' as NormalizedPath).noIndex).toBeUndefined();
+                expect(run.meta.get('section.md' as NormalizedPath).noIndex).toBeUndefined();
+                expect(run.meta.get('nested.md' as NormalizedPath).noIndex).toBeUndefined();
+            });
+
+            it('restricts hidden items and their descendants when enabled', async () => {
+                const {run, toc} = setupService({search: {hiddenPolicy: true}});
+
+                mockData(run, content, {}, {}, []);
+                await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+                expect(run.meta.get('public.md' as NormalizedPath).noIndex).toBeUndefined();
+                expect(run.meta.get('hidden.md' as NormalizedPath).noIndex).toBe(true);
+                expect(run.meta.get('section.md' as NormalizedPath).noIndex).toBe(true);
+                expect(run.meta.get('nested.md' as NormalizedPath).noIndex).toBe(true);
+            });
+
+            it('keeps hidden items with explicit noIndex: false indexable', async () => {
+                const {run, toc} = setupService({search: {hiddenPolicy: true}});
+                const warn = vi.spyOn(run.logger, 'warn');
+                const content = dedent`
+                    items:
+                      - name: Hidden page
+                        href: hidden.md
+                        hidden: true
+                        noIndex: false
+                      - name: Hidden section
+                        href: section.md
+                        hidden: true
+                        noIndex: false
+                        items:
+                          - name: Nested page
+                            href: nested.md
+                          - name: Nested private page
+                            href: nested-private.md
+                            noIndex: true
+                      - name: Indexed section
+                        href: indexed.md
+                        noIndex: false
+                        items:
+                          - name: Hidden child
+                            href: hidden-child.md
+                            hidden: true
+                `;
+
+                mockData(run, content, {}, {}, []);
+                await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+                expect(run.meta.get('hidden.md' as NormalizedPath).noIndex).toBeUndefined();
+                expect(run.meta.get('section.md' as NormalizedPath).noIndex).toBeUndefined();
+                expect(run.meta.get('nested.md' as NormalizedPath).noIndex).toBeUndefined();
+                expect(run.meta.get('nested-private.md' as NormalizedPath).noIndex).toBe(true);
+                expect(run.meta.get('indexed.md' as NormalizedPath).noIndex).toBeUndefined();
+                expect(run.meta.get('hidden-child.md' as NormalizedPath).noIndex).toBeUndefined();
+                expect(warn).not.toHaveBeenCalled();
+            });
+
+            it('does not let noIndex: false override an inherited noIndex: true', async () => {
+                const {run, toc} = setupService({search: {hiddenPolicy: true}});
+                const content = dedent`
+                    items:
+                      - name: Private section
+                        href: private.md
+                        noIndex: true
+                        items:
+                          - name: Hidden child
+                            href: hidden-child.md
+                            hidden: true
+                            noIndex: false
+                `;
+
+                mockData(run, content, {}, {}, []);
+                await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+                expect(run.meta.get('private.md' as NormalizedPath).noIndex).toBe(true);
+                expect(run.meta.get('hidden-child.md' as NormalizedPath).noIndex).toBe(true);
+            });
+
+            it('restricts hidden items inside named includes', async () => {
+                const {run, toc} = setupService({search: {hiddenPolicy: true}});
+                const content = dedent`
+                    items:
+                      - name: Hidden include
+                        hidden: true
+                        include:
+                          path: _includes/hidden/toc.yaml
+                          mode: link
+                      - name: Visible include
+                        include:
+                          path: _includes/visible/toc.yaml
+                          mode: link
+                `;
+                const files = {
+                    '_includes/hidden/toc.yaml': dedent`
+                        items:
+                          - name: Included page
+                            href: page.md
+                    `,
+                    '_includes/visible/toc.yaml': dedent`
+                        items:
+                          - name: Included page
+                            href: page.md
+                          - name: Included hidden page
+                            href: hidden.md
+                            hidden: true
+                    `,
+                };
+
+                mockData(run, content, {}, files, []);
+                await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+                expect(run.meta.get('_includes/hidden/page.md' as NormalizedPath).noIndex).toBe(
+                    true,
+                );
+                expect(
+                    run.meta.get('_includes/visible/page.md' as NormalizedPath).noIndex,
+                ).toBeUndefined();
+                expect(run.meta.get('_includes/visible/hidden.md' as NormalizedPath).noIndex).toBe(
+                    true,
+                );
+            });
+        });
     });
 
     describe('includes', () => {
