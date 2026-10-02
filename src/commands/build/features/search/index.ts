@@ -23,6 +23,7 @@ export type SearchConfig = {
 type Config = {
     enabled: boolean;
     provider: string;
+    hiddenPolicy: boolean;
 } & {
     [prop: string]: unknown;
 };
@@ -38,6 +39,7 @@ export class Search {
             let search: Config | boolean = {
                 enabled: false,
                 provider: 'local',
+                hiddenPolicy: false,
             };
 
             if (valuable(config.search)) {
@@ -48,6 +50,7 @@ export class Search {
                 search = {
                     enabled: search,
                     provider: 'local',
+                    hiddenPolicy: false,
                 };
             }
 
@@ -56,6 +59,7 @@ export class Search {
             }
 
             search.enabled = search.enabled !== false && Boolean(search.provider);
+            search.hiddenPolicy = search.hiddenPolicy === true;
             config.search = search;
 
             return config;

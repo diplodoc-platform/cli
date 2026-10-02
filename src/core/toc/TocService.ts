@@ -52,6 +52,9 @@ export type TocServiceConfig = {
     };
     removeHiddenTocItems: boolean;
     removeEmptyTocItems: boolean;
+    search?: {
+        hiddenPolicy?: boolean;
+    };
 } & Partial<WatchConfig>;
 
 type WalkStepResult<I> = I | I[] | null | undefined;
@@ -64,6 +67,8 @@ type RestrictedAccessContext = WalkStepContext<{
 
 type NoIndexContext = WalkStepContext<{
     noIndex?: boolean;
+    hidden?: boolean;
+    indexHidden?: boolean;
 }>;
 
 type WalkOptions<T> = {
@@ -511,11 +516,24 @@ export class TocService {
         return toc;
     }
 
+    /**
+     * Marks entries as `noIndex` in meta.
+     *
+     * Explicit `noIndex: true` is inherited by descendants and cannot be overridden.
+     * With `search.hiddenPolicy` enabled, hidden items and their descendants are also
+     * marked, unless the item or one of its ancestors explicitly sets `noIndex: false`.
+     */
     private async applyNoIndex(path: NormalizedPath, toc: Toc) {
+        const hiddenPolicy = this.config.search?.hiddenPolicy === true;
+
         await this.walkItems([toc as unknown as RawTocItem], (item, context: NoIndexContext) => {
             context.noIndex = resolveNoIndex(item, context.noIndex === true, path, this.logger);
+            context.hidden = context.hidden === true || item.hidden === true;
+            context.indexHidden = context.indexHidden === true || item.noIndex === false;
 
-            if (context.noIndex && isEntryItem(item)) {
+            const noIndexHidden = hiddenPolicy && context.hidden && !context.indexHidden;
+
+            if ((context.noIndex || noIndexHidden) && isEntryItem(item)) {
                 const href = normalizePath(join(dirname(path), item.href));
                 this.meta.add(href, {noIndex: true});
             }

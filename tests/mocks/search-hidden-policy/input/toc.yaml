@@ -1,0 +1,18 @@
+title: Hidden policy
+href: index.md
+items:
+  - name: Public page
+    href: public.md
+  - name: Hidden page
+    href: hidden.md
+    hidden: true
+  - name: Hidden section
+    href: section.md
+    hidden: true
+    items:
+      - name: Nested page
+        href: nested.md
+  - name: Hidden indexed page
+    href: indexed.md
+    hidden: true
+    noIndex: false
