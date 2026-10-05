@@ -161,6 +161,13 @@ const noCache = option({
     desc: 'Disable the persistent translation cache for this run.',
 });
 
+const reuseFormatting = option({
+    flags: '--reuse-formatting <policy>',
+    desc: 'Formatting of reused translations: target keeps approved formatting; source keeps source formatting and refuses unsafe alignment.',
+    choices: ['target', 'source'],
+    defaultInfo: 'target',
+});
+
 const noMemoryHints = option({
     flags: '--no-memory-hints',
     desc: `
@@ -286,6 +293,7 @@ export const options = {
     cacheDir,
     noCache,
     noMemoryHints,
+    reuseFormatting,
     temperature,
     maxOutputTokens,
     maxBatchTokens,

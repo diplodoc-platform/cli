@@ -1,7 +1,7 @@
 import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
 
-import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
 import {afterEach, describe, expect, it, vi} from 'vitest';
@@ -122,6 +122,8 @@ async function translateCopy(
         oldTarget?: string;
         code?: 'no' | 'adaptive';
         ambiguous?: boolean;
+        reuseFormatting?: 'source' | 'target';
+        existing?: boolean;
         seedVars?: Hash;
         vars?: Hash;
     } = {},
@@ -155,7 +157,14 @@ async function translateCopy(
     });
     writeFileSync(join(input, 'ru/copied.md'), options.source || options.oldSource || copiedSource);
     // A move must work after the original file has disappeared from the input.
-    rmSync(join(input, 'ru/old.md'));
+    if (options.existing) {
+        writeFileSync(
+            join(input, 'ru/old.md'),
+            options.source || options.oldSource || copiedSource,
+        );
+    } else {
+        rmSync(join(input, 'ru/old.md'));
+    }
     const client: LLMClient = {
         name: 'copy-fixture',
         complete: vi.fn(async (messages) => ({
@@ -177,7 +186,7 @@ async function translateCopy(
             ]),
         ),
     });
-    await provider.translate(['ru/copied.md'], {
+    await provider.translate([options.existing ? 'ru/old.md' : 'ru/copied.md'], {
         input,
         output,
         cacheDir,
@@ -185,6 +194,7 @@ async function translateCopy(
         source: {language: 'ru', locale: 'RU'},
         target: [{language: 'en', locale: 'US'}],
         vars: options.vars || {},
+        reuseFormatting: options.reuseFormatting,
         code: options.code,
         dryRun: false,
         model: 'fixture',
@@ -199,7 +209,9 @@ async function translateCopy(
         memoryHints: false,
     } as unknown as AITranslationConfig);
     return {
-        text: readFileSync(join(output, 'en/copied.md'), 'utf8'),
+        text: existsSync(join(output, options.existing ? 'en/old.md' : 'en/copied.md'))
+            ? readFileSync(join(output, options.existing ? 'en/old.md' : 'en/copied.md'), 'utf8')
+            : undefined,
         requests: vi.mocked(client.complete).mock.calls,
         report: JSON.parse(readFileSync(join(directory, 'report.json'), 'utf8')),
     };
@@ -264,5 +276,86 @@ describe('exact copied translation preservation', () => {
         expect(result.report.totals.units.fromCache).toBe(3);
         expect(result.report.totals.chars.source).toBeGreaterThan(0);
         expect(result.report.totals.requests.total).toBe(0);
+    });
+});
+
+describe('source formatting policy', () => {
+    const source = '## Шаги\n\n1. Первый шаг.\n1. Второй шаг с `key` и {{product}}.\n';
+    const target =
+        '# Steps\n\n\n1. **First step.**\n2. *Second step with `key` and {{product}}.*  \n';
+    const expected = '## Steps\n\n1. First step.\n1. Second step with `key` and {{product}}.\n';
+    it('preserves approved formatting by default', async () => {
+        expect((await translateCopy({oldSource: source, oldTarget: target})).text).toBe(target);
+    });
+    it('keeps source headings, markers, whitespace and approved words on a copied file', async () => {
+        const result = await translateCopy({
+            oldSource: source,
+            oldTarget: target,
+            reuseFormatting: 'source',
+        });
+        expect(result.text).toBe(expected);
+        expect(result.requests).toHaveLength(0);
+    });
+    it('applies the same policy to fragments of an existing file with added prose', async () => {
+        const result = await translateCopy({
+            oldSource: source,
+            oldTarget: target,
+            source: source + '\nНовое описание.\n',
+            existing: true,
+            reuseFormatting: 'source',
+        });
+        expect(result.text).toBe(expected + '\nNew description.\n');
+        expect(result.requests).toHaveLength(1);
+    });
+    it('preserves localized destinations, extra anchors and protected examples', async () => {
+        const oldSource =
+            '# Заголовок {#source}\n\n[Ссылка](https://example.com/ru/page)\n\n```text\nПример\n```\n';
+        const oldTarget =
+            '# Heading {#source} {#localized}\n\n[Link]( https://example.com/en/page)\n\n```text\nExample\n```\n';
+        const result = await translateCopy({
+            oldSource,
+            oldTarget,
+            code: 'no',
+            reuseFormatting: 'source',
+        });
+        expect(result.text, JSON.stringify(result.report.errors)).toBe(
+            '# Heading {#source} {#localized}\n\n[Link](https://example.com/en/page)\n\n```text\nExample\n```\n',
+        );
+        expect(result.requests).toHaveLength(0);
+    });
+    it.each([
+        ['merged prose', 'Первое. Второе.\n', '**Approved merged translation.**\n'],
+        ['unsafe example', 'Текст.\n\n```sh\nrm file\n````\n', 'Text.\n\n```sh\nrm other\n````\n'],
+    ])(
+        'refuses %s in an existing seeded file before any model request',
+        async (_name, oldSource, oldTarget) => {
+            const result = await translateCopy({
+                oldSource,
+                oldTarget,
+                existing: true,
+                reuseFormatting: 'source',
+            });
+            expect(result.text).toBeUndefined();
+            expect(
+                result.report.errors.some(
+                    (error: {code: string}) => error.code === 'REUSE_FORMATTING_UNSAFE',
+                ),
+            ).toBe(true);
+            expect(result.requests).toHaveLength(0);
+        },
+    );
+    it('refuses a copied translation whose sentences cannot align instead of publishing or retranslating it', async () => {
+        const result = await translateCopy({
+            oldSource: 'Первое. Второе.\n',
+            oldTarget: '**Approved merged translation.**\n',
+            reuseFormatting: 'source',
+        });
+        expect(result.text).toBeUndefined();
+        expect(
+            result.report.errors.some(
+                (error: {code: string}) => error.code === 'REUSE_FORMATTING_UNSAFE',
+            ),
+        ).toBe(true);
+        expect(result.requests).toHaveLength(0);
     });
 });

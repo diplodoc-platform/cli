@@ -259,6 +259,19 @@ Main build logic is located in:
 - `src/commands/build/run.ts` — command execution
 - `src/commands/build/features/` — various build features
 
+### Source formatting reuse
+
+`reuseFormatting: source` must validate both copied documents and per-file seed
+memory before model work. Checking only the whole-document copy branch leaves
+existing files able to regenerate approved text or revert unsafe examples.
+Alignment traversal order is not extraction order: link-title units may precede
+the prose containing their link. Compose by explicit source unit indexes, never
+by pair traversal or `indexOf(sourceText)`; duplicate units can have different
+approved translations. Protect fence content inside containers through Markdown
+parsing as well as skeleton fragments. Confirm target-only code styling with
+`codesMatch` before stripping tags; substring matches hide changed identifiers.
+Regressions live in `reuse-formatting.spec.ts` and `approved-preservation.spec.ts`.
+
 ### llms.txt OpenAPI companions
 
 `src/commands/build/features/llms/` collects entries from the resolved TOC recursively while

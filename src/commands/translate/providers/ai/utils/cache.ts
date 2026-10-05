@@ -1,10 +1,16 @@
-import type {SeedPair} from './seed';
+import type {SeedPair, TranslationSide} from './seed';
+import type {ReuseFormatting} from './reuse-formatting';
 import type {SkeletonFragment} from './skeleton';
 
 import {createHash} from 'node:crypto';
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 
+import {
+    sourceFormattedDocument,
+    sourceFormattingMemory,
+    unsafeFormatting,
+} from './reuse-formatting';
 import {lcs} from './align';
 import {bag, bagSimilarity} from './diff';
 
@@ -51,6 +57,11 @@ export type SeedDocument = {
     target: string;
     units: number;
     sourceChars: number;
+    sides?: {
+        source: TranslationSide;
+        target: TranslationSide;
+        languages: {source: string; target: string};
+    };
 };
 
 /** Whole-file equality must include the conditions and extraction mode of the run. */
@@ -103,8 +114,13 @@ export class SeedStore {
 
     private readonly counts = new Map<string, Map<string, number>>();
 
-    constructor(file: string) {
+    private formattingErrors: Record<string, string> = {};
+
+    private readonly formatting: ReuseFormatting;
+
+    constructor(file: string, formatting: ReuseFormatting = 'target') {
         this.file = file;
+        this.formatting = formatting;
     }
 
     load() {
@@ -119,9 +135,18 @@ export class SeedStore {
                 this.files = data.files || {};
                 this.skeletons = data.skeletons || {};
                 this.documents = data.documents || {};
+                if (this.formatting === 'source') {
+                    this.projectFormatting();
+                }
             }
         } catch {
             // A corrupted seed file is not fatal - start from scratch.
+        }
+    }
+
+    checkFormatting(file: string) {
+        if (this.formattingErrors[file]) {
+            unsafeFormatting(this.formattingErrors[file]);
         }
     }
 
@@ -179,9 +204,25 @@ export class SeedStore {
         }
         let found: SeedDocument | undefined;
         for (const document of Object.values(this.documents)) {
-            if (document.fingerprint !== fingerprint) continue;
-            if (found && found.target !== document.target) return undefined;
+            if (document.fingerprint !== fingerprint) {
+                continue;
+            }
+            if (found && found.target !== document.target) {
+                if (this.formatting === 'source') {
+                    unsafeFormatting(
+                        'Copied source matches different approved translations; cannot select wording safely.',
+                    );
+                }
+                return undefined;
+            }
             found = document;
+        }
+        if (found && this.formatting === 'source') {
+            if (!found.sides) {
+                unsafeFormatting('Seed lacks source formatting data; run translate seed again.');
+            }
+            const {source, target, languages} = found.sides;
+            return {...found, target: sourceFormattedDocument(source, target, languages)};
         }
         return found;
     }
@@ -208,6 +249,44 @@ export class SeedStore {
                 documents: this.documents,
             }),
         );
+    }
+    private projectFormatting() {
+        const files = this.files;
+        this.files = {};
+        this.translations = {};
+        this.skeletons = {};
+        for (const [file, pairs] of Object.entries(files)) {
+            if (!file.endsWith('.md')) {
+                this.record(file, pairs);
+            }
+        }
+        for (const [file, document] of Object.entries(this.documents)) {
+            try {
+                if (!document.sides) {
+                    unsafeFormatting(
+                        'Seed lacks source formatting data; run translate seed again.',
+                    );
+                }
+                const {source, target, languages} = document.sides;
+                const aligned = sourceFormattingMemory(source, target, languages);
+                const ordered = aligned.pairs
+                    .map((pair, index) => ({pair, id: aligned.unitIds[index]}))
+                    .sort((left, right) => left.id - right.id);
+                this.record(
+                    file,
+                    ordered.map(({pair}) => pair),
+                    aligned.fragments,
+                );
+            } catch (error) {
+                this.formattingErrors[file] = String((error as Error).message);
+            }
+        }
+        for (const file of Object.keys(files)) {
+            if (file.endsWith('.md') && !this.documents[file]) {
+                this.formattingErrors[file] =
+                    'Seed lacks source formatting data; run translate seed again.';
+            }
+        }
     }
 }
 
@@ -281,6 +360,10 @@ export class TranslationStore {
     /** The localized skeleton fragments of a file, see `SeedStore.fragments`. */
     fragments(file: string): SkeletonFragment[] {
         return this.seeds?.fragments(file) || [];
+    }
+
+    checkFormatting(file: string) {
+        this.seeds?.checkFormatting(file);
     }
 
     copiedDocument(file: string, fingerprint: string): SeedDocument | undefined {

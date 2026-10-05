@@ -518,6 +518,7 @@ function makeProcessor(params: ProcessorParams) {
             return [];
         }
 
+        store?.checkFormatting(path);
         const inputPath = join(inputRoot, path);
         const outputPath = languageRepath({inputRoot, outputRoot, sourceLanguage, targetLanguage});
 
@@ -567,7 +568,9 @@ function makeProcessor(params: ProcessorParams) {
         const parts = translated.map((part) => restoreLocalizedUrls(part, localized));
         for (const ids of tableTitles) {
             if (ids.some((id) => isTableTitleFallback(parts[id]))) {
-                for (const id of ids) parts[id] = units[id];
+                for (const id of ids) {
+                    parts[id] = units[id];
+                }
                 const warning =
                     'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
                 logger?.warn(path, warning);
@@ -679,6 +682,7 @@ export function makeStore(
         // Old generated answers may contain copied edits or translated code.
         // Approved repository translations use the separately versioned seed.
         validationPolicy: 3,
+        ...(config.reuseFormatting === 'source' ? {reuseFormatting: 'source'} : {}),
         provider: client.name,
         model: config.model,
         source: sourceLanguage,
@@ -695,7 +699,10 @@ export function makeStore(
 
     // Seeds derived from existing target files (see `yfm translate seed`)
     // are provider-agnostic and survive fingerprint changes by design.
-    const seeds = new SeedStore(seedFilePath(config.cacheDir, sourceLanguage, targetLanguage));
+    const seeds = new SeedStore(
+        seedFilePath(config.cacheDir, sourceLanguage, targetLanguage),
+        config.reuseFormatting,
+    );
     seeds.load();
 
     return new TranslationStore(file, fingerprint, seeds);

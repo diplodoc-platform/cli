@@ -1,3 +1,4 @@
+import type {ReuseFormatting} from './utils/reuse-formatting';
 import type {BaseProgram} from '~/core/program';
 import type {Config as ResolvedConfig} from '~/core/config';
 import type {Translate, TranslateArgs, TranslateConfig} from '~/commands/translate';
@@ -20,6 +21,7 @@ import {resolveContextValue, resolvePromptValue} from './prompts';
 import {YandexGptClient} from './clients/yandexgpt';
 import {AnthropicClient} from './clients/anthropic';
 import {createOpenAIClient, createOpenRouterClient} from './clients/openai';
+import {resolveReuseFormatting} from './utils/reuse-formatting';
 
 const PROVIDER_NAMES = ['yandexgpt', 'openai', 'openrouter', 'anthropic'] as const;
 type ProviderName = (typeof PROVIDER_NAMES)[number];
@@ -78,6 +80,7 @@ type Args = {
     cacheDir?: string;
     cache?: boolean;
     memoryHints?: boolean;
+    reuseFormatting?: ReuseFormatting;
     temperature?: number;
     maxOutputTokens?: number;
     maxBatchTokens?: number;
@@ -107,6 +110,7 @@ type Config = {
     cacheDir?: AbsolutePath;
     /** Send changed units with their previous version from the seed memory. */
     memoryHints: boolean;
+    reuseFormatting: ReuseFormatting;
     temperature?: number;
     maxOutputTokens: number;
     maxBatchTokens: number;
@@ -289,6 +293,7 @@ export class Extension {
                         .addOption(options.cacheDir)
                         .addOption(options.noCache)
                         .addOption(options.noMemoryHints)
+                        .addOption(options.reuseFormatting)
                         .addOption(options.temperature)
                         .addOption(options.maxOutputTokens)
                         .addOption(options.maxBatchTokens)
@@ -388,6 +393,9 @@ export class Extension {
                         (defined('judgeModel', args, config) as string | undefined) || undefined;
                     config.judgeThreshold = intOr(defined('judgeThreshold', args, config), 70);
                     config.memoryHints = resolveMemoryHints(args, config);
+                    config.reuseFormatting = resolveReuseFormatting(
+                        defined('reuseFormatting', args, config),
+                    );
 
                     config.temperature = resolveTemperature(defined('temperature', args, config));
                     config.maxOutputTokens = intOr(defined('maxOutputTokens', args, config), 4000);

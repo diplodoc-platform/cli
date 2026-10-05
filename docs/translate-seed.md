@@ -24,6 +24,9 @@ of the LLM providers. A project that translates with the yandex provider,
 where the default is `precise`, or passes `--code` on the command line has to
 pass the same value to the seed.
 
+See [Formatting of reused translations](translate-reuse-formatting.md) for the
+independent `target`/`source` policy and its explicit refusal contract.
+
 ## How files are aligned
 
 For every source file with an existing translation both files are split

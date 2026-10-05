@@ -82,6 +82,21 @@ describe('translate ai cache', () => {
             expect(second.get('Другое')).toBeUndefined();
         });
 
+        it('requests reseeding of legacy Markdown metadata only in source mode', () => {
+            const file = tmp();
+            const old = new SeedStore(file);
+            old.record('ru/page.md', [['Текст.', '**Approved.**']]);
+            old.flush();
+            const target = new SeedStore(file);
+            target.load();
+            expect(() => target.checkFormatting('ru/page.md')).not.toThrow();
+            expect(target.get('Текст.')).toBe('**Approved.**');
+            const source = new SeedStore(file, 'source');
+            source.load();
+            expect(() => source.checkFormatting('ru/page.md')).toThrow(/run translate seed again/);
+            expect(source.get('Текст.')).toBeUndefined();
+        });
+
         it('should survive a corrupted seed file', () => {
             const file = join(tmpDir(), 'seed.ru-en.json');
             writeFileSync(file, 'not a json');

@@ -902,6 +902,33 @@ describe('translate ai provider', () => {
             expect(current?.get('Важное уточнение: Текст.')).toBeUndefined();
         });
 
+        it('separates source formatting answers from the default target cache', () => {
+            const client = makeClient(translated);
+            const config = {
+                cacheDir: mkdtempSync(join(tmpdir(), 'yfm-format-policy-')),
+                model: 'model',
+                promptMode: 'append',
+                glossaryPairs: [],
+            } as unknown as AITranslationConfig;
+            const target = makeStore(client, config, 'ru', 'en');
+            target?.load();
+            target?.set('Текст.', '**Approved.**');
+            target?.flush();
+            const source = makeStore(client, {...config, reuseFormatting: 'source'}, 'ru', 'en');
+            source?.load();
+            expect(source?.get('Текст.')).toBeUndefined();
+            source?.set('Текст.', 'Approved.');
+            source?.flush();
+            const targetAgain = makeStore(
+                client,
+                {...config, reuseFormatting: 'target'},
+                'ru',
+                'en',
+            );
+            targetAgain?.load();
+            expect(targetAgain?.get('Текст.')).toBeUndefined();
+        });
+
         it('should return undefined without cacheDir', () => {
             const client = makeClient(translated);
 

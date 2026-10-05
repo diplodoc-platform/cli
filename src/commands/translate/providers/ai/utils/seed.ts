@@ -27,6 +27,8 @@ export type SeedPair = [source: string, target: string, doubtful?: true];
 
 export type AlignedUnits = {
     pairs: SeedPair[];
+    /** Source unit index for each pair, including out-of-order title units. */
+    unitIds: number[];
     /** Identity pairs that still look untranslated: left for the model. */
     skipped: number;
     /** Source units without a counterpart in the translation. */
@@ -71,15 +73,26 @@ export function alignTranslationUnits(
     source: TranslationSide,
     target: TranslationSide,
     languages: AlignLanguages,
+    project?: (source: string, target: string) => string,
 ): AlignedUnits {
     const marker = untranslatedMarker(languages.source, languages.target);
     const doubtful = doubtfulPair(languages);
     const linkLanguages = [languages.source, languages.target];
-    const sourceBlocks = parseBlocks(source.skeleton, source.units, linkLanguages);
-    const targetBlocks = parseBlocks(target.skeleton, target.units, linkLanguages);
+    const roles = (side: TranslationSide) =>
+        project && typeof side.skeleton === 'string'
+            ? side.skeleton
+                  .replace(/^[ \t]+(?=.*%%%\d+%%%)/gm, '')
+                  .replace(/^(\s*)#{1,6}([ \t]+)/gm, '$1#$2')
+                  .replace(/^(\s*)(?:\d+[.)]|[*+-])([ \t]+)/gm, '$1-$2')
+                  .replace(/(?:[ \t]+\{\s*#[^{}]+\})+[ \t]*$/gm, '')
+                  .replace(/\]\([ \t]+/g, '](')
+            : side.skeleton;
+    const sourceBlocks = parseBlocks(roles(source), source.units, linkLanguages);
+    const targetBlocks = parseBlocks(roles(target), target.units, linkLanguages);
     const blockPairs = alignBlocks(sourceBlocks, targetBlocks, linkLanguages);
     const result: AlignedUnits = {
         pairs: [],
+        unitIds: [],
         skipped: 0,
         unseeded: 0,
         doubtful: 0,
@@ -102,6 +115,7 @@ export function alignTranslationUnits(
             source.units,
             target.units,
             linkLanguages,
+            project,
         )) {
             const sourceUnit = source.units[s];
 
@@ -112,6 +126,7 @@ export function alignTranslationUnits(
                 continue;
             }
 
+            result.unitIds.push(s);
             if (doubtful(sourceUnit, targetUnit)) {
                 result.doubtful++;
                 result.pairs.push([sourceUnit, targetUnit, true]);
@@ -137,6 +152,7 @@ function pairBlockUnits(
     sourceUnits: string[],
     targetUnits: string[],
     languages: string[],
+    project?: (source: string, target: string) => string,
 ): [number, string][] {
     const candidates: [number, number][] = [];
 
@@ -155,7 +171,12 @@ function pairBlockUnits(
     }
 
     return candidates
-        .map(([s, t]): [number, string] => [s, reusableTarget(sourceUnits[s], targetUnits[t])])
+        .map(([s, t]): [number, string] => [
+            s,
+            project
+                ? project(sourceUnits[s], targetUnits[t])
+                : reusableTarget(sourceUnits[s], targetUnits[t]),
+        ])
         .filter(([s, target]) => compatibleUnits(sourceUnits[s], target, languages));
 }
 
@@ -210,7 +231,7 @@ export function compatibleUnits(source: string, target: string, languages: strin
  * of its own left: `getUser` in code for `getuser` in code is another
  * identifier, whatever plain text is around.
  */
-function codesMatch(source: string, target: string): boolean {
+export function codesMatch(source: string, target: string): boolean {
     const sourceCodes = new Set(codeTexts(source));
     const targetCodes = new Set(codeTexts(target));
     // An identifier in code on both sides is paired however many times each

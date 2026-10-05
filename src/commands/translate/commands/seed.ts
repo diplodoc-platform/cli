@@ -234,6 +234,11 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             ? {
                   fingerprint: documentFingerprint(await readFile(inputPath, 'utf8'), vars, code),
                   target: await readFile(targetPath, 'utf8'),
+                  sides: {
+                      source: {units: source.units, skeleton: source.skeleton},
+                      target: {units: target.units, skeleton: target.skeleton},
+                      languages,
+                  },
                   units: source.units.length,
                   sourceChars: source.units.reduce((sum, unit) => sum + unit.length, 0),
               }

@@ -672,6 +672,17 @@ describe('Translate command', () => {
                     cacheDir: undefined,
                 });
 
+                test('should retain target formatting by default', '', {reuseFormatting: 'target'});
+                test('should select source formatting by argument', '--reuse-formatting source', {
+                    reuseFormatting: 'source',
+                });
+                test(
+                    'should select source formatting from config',
+                    '',
+                    {reuseFormatting: 'source'},
+                    {reuseFormatting: 'source'},
+                );
+
                 test('should send memory hints by default', '', {
                     memoryHints: true,
                 });
