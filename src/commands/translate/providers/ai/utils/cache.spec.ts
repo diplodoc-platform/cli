@@ -94,7 +94,7 @@ describe('translate ai cache', () => {
             const source = new SeedStore(file, 'source');
             source.load();
             expect(() => source.checkFormatting('ru/page.md')).toThrow(/run translate seed again/);
-            expect(source.get('Текст.')).toBeUndefined();
+            expect(() => source.get('Текст.')).toThrow(/run translate seed again/);
         });
 
         it('should survive a corrupted seed file', () => {

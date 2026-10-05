@@ -344,6 +344,21 @@ describe('source formatting policy', () => {
             expect(result.requests).toHaveLength(0);
         },
     );
+    it('refuses a partial copy from an unsafe seed before model fallback', async () => {
+        const result = await translateCopy({
+            oldSource: 'Первое. Второе.\n',
+            oldTarget: '**Approved merged translation.**\n',
+            source: 'Первое.\n\nНовое описание.\n',
+            reuseFormatting: 'source',
+        });
+        expect(result.text).toBeUndefined();
+        expect(
+            result.report.errors.some(
+                (error: {code: string}) => error.code === 'REUSE_FORMATTING_UNSAFE',
+            ),
+        ).toBe(true);
+        expect(result.requests).toHaveLength(0);
+    });
     it('refuses a copied translation whose sentences cannot align instead of publishing or retranslating it', async () => {
         const result = await translateCopy({
             oldSource: 'Первое. Второе.\n',

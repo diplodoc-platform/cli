@@ -116,6 +116,8 @@ export class SeedStore {
 
     private formattingErrors: Record<string, string> = {};
 
+    private formattingUnitErrors: Record<string, string> = {};
+
     private readonly formatting: ReuseFormatting;
 
     constructor(file: string, formatting: ReuseFormatting = 'target') {
@@ -151,7 +153,11 @@ export class SeedStore {
     }
 
     get(text: string): string | undefined {
-        return this.translations[hash(text)];
+        const key = hash(text);
+        if (this.translations[key] === undefined && this.formattingUnitErrors[key]) {
+            unsafeFormatting(this.formattingUnitErrors[key]);
+        }
+        return this.translations[key];
     }
 
     /**
@@ -278,13 +284,24 @@ export class SeedStore {
                     aligned.fragments,
                 );
             } catch (error) {
-                this.formattingErrors[file] = String((error as Error).message);
+                const message = String((error as Error).message);
+                this.formattingErrors[file] = message;
+                // A partial copy must not silently regenerate approved prose from
+                // a document rejected by the source formatting safety checks.
+                for (const unit of document.sides?.source.units ||
+                    files[file]?.map(([unit]) => unit) ||
+                    []) {
+                    this.formattingUnitErrors[hash(unit)] = message;
+                }
             }
         }
         for (const file of Object.keys(files)) {
             if (file.endsWith('.md') && !this.documents[file]) {
-                this.formattingErrors[file] =
-                    'Seed lacks source formatting data; run translate seed again.';
+                const message = 'Seed lacks source formatting data; run translate seed again.';
+                this.formattingErrors[file] = message;
+                for (const [unit] of files[file]) {
+                    this.formattingUnitErrors[hash(unit)] = message;
+                }
             }
         }
     }

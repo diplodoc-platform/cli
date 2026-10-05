@@ -75,6 +75,16 @@ describe('source formatting projection', () => {
             ),
         ).toBe('Text [link](https://example.com/en/page "Approved tooltip") next.\n');
     });
+    it('keeps occurrence-specific wording for identical source units with translated titles', () => {
+        expect(
+            project(
+                'Текст [ссылка](https://example.com/ru/page "Подсказка").\n\nТекст [ссылка](https://example.com/ru/page "Подсказка").\n',
+                'First [link](https://example.com/en/page "Tooltip one").\n\nSecond [link](https://example.com/en/page "Tooltip two").\n',
+            ),
+        ).toBe(
+            'First [link](https://example.com/en/page "Tooltip one").\n\nSecond [link](https://example.com/en/page "Tooltip two").\n',
+        );
+    });
     it.each([
         ['uuid', 'id'],
         ['row_cache_size', 'row_cache'],
