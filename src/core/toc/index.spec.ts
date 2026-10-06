@@ -637,6 +637,94 @@ describe('toc-loader', () => {
                     true,
                 );
             });
+
+            it.each(['Named include', ''])(
+                'keeps noIndex: false from an included toc root: %s',
+                async (name) => {
+                    const {run, toc} = setupService({search: {hiddenPolicy: true}});
+                    const content = dedent`
+                        items:
+                          - name: '${name}'
+                            include:
+                              path: child/toc.yaml
+                              mode: link
+                    `;
+                    const files = {
+                        'child/toc.yaml': dedent`
+                            noIndex: false
+                            items:
+                              - name: Hidden page
+                                href: hidden.md
+                                hidden: true
+                              - name: Hidden private page
+                                href: private.md
+                                hidden: true
+                                noIndex: true
+                        `,
+                    };
+
+                    mockData(run, content, {}, files, []);
+                    await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+                    expect(
+                        run.meta.get('child/hidden.md' as NormalizedPath).noIndex,
+                    ).toBeUndefined();
+                    expect(run.meta.get('child/private.md' as NormalizedPath).noIndex).toBe(true);
+                },
+            );
+
+            it('keeps noIndex: false from an unnamed include inside a hidden section', async () => {
+                const {run, toc} = setupService({search: {hiddenPolicy: true}});
+                const content = dedent`
+                    items:
+                      - name: Hidden section
+                        href: section.md
+                        hidden: true
+                        items:
+                          - noIndex: false
+                            include:
+                              path: child/toc.yaml
+                              mode: link
+                `;
+                const files = {
+                    'child/toc.yaml': dedent`
+                        items:
+                          - name: Included page
+                            href: page.md
+                    `,
+                };
+
+                mockData(run, content, {}, files, []);
+                await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+                expect(run.meta.get('section.md' as NormalizedPath).noIndex).toBe(true);
+                expect(run.meta.get('child/page.md' as NormalizedPath).noIndex).toBeUndefined();
+            });
+
+            it('does not let an included noIndex: false override noIndex: true', async () => {
+                const {run, toc} = setupService({search: {hiddenPolicy: true}});
+                const content = dedent`
+                    items:
+                      - name: Private include
+                        noIndex: true
+                        include:
+                          path: child/toc.yaml
+                          mode: link
+                `;
+                const files = {
+                    'child/toc.yaml': dedent`
+                        noIndex: false
+                        items:
+                          - name: Included page
+                            href: page.md
+                    `,
+                };
+
+                mockData(run, content, {}, files, []);
+                await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+                expect(run.meta.get('child/page.md' as NormalizedPath).noIndex).toBe(true);
+            });
         });
     });
 
