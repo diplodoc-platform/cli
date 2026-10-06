@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.63.1](https://github.com/diplodoc-platform/cli/compare/v5.63.0...v5.63.1) (2026-10-06)
+
+
+### Bug Fixes
+
+* avoid duplicate static page HTML ([#2299](https://github.com/diplodoc-platform/cli/issues/2299)) ([a89e3d7](https://github.com/diplodoc-platform/cli/commit/a89e3d71309e5125ec3df98b4562a839961e2025))
+* **deps:** Update @diplodoc/ajv@0.10.0 ([bf3a74d](https://github.com/diplodoc-platform/cli/commit/bf3a74da6e01f92e7e7cc3d84d6c60375f88b381))
+* **deps:** Update @diplodoc/client@5.14.4 ([#2318](https://github.com/diplodoc-platform/cli/issues/2318)) ([cd1315f](https://github.com/diplodoc-platform/cli/commit/cd1315f4a407cac9049ca4f3297bf24214279df9))
+* **deps:** Update @diplodoc/client@5.14.7 ([#2323](https://github.com/diplodoc-platform/cli/issues/2323)) ([4b0c9dc](https://github.com/diplodoc-platform/cli/commit/4b0c9dc266d5cd929c6b99ed969baab4dd7af115))
+* **deps:** Update @diplodoc/transform@4.78.3, @diplodoc/client@5.14.6 ([#2322](https://github.com/diplodoc-platform/cli/issues/2322)) ([25bbaf4](https://github.com/diplodoc-platform/cli/commit/25bbaf400ec9bdbc7a6541e56c326e2667dc722f))
+* **search:** exclude hidden pages from search with hiddenPolicy #DOCSTOOLS-6799 ([924c353](https://github.com/diplodoc-platform/cli/commit/924c35302a237e9f153b3321bafc35f4ec8491e9))
+* **toc:** keep noIndex: false from includes #DOCSTOOLS-6799 ([fc9ed2e](https://github.com/diplodoc-platform/cli/commit/fc9ed2e5a0097cdc251c914284e8dcf68fcd2040))
+* **translate:** preserve source markup structure ([#2308](https://github.com/diplodoc-platform/cli/issues/2308)) ([06e47ac](https://github.com/diplodoc-platform/cli/commit/06e47acf446ffbc3d979c79213480890c7083df5))
+
 ## [5.63.0](https://github.com/diplodoc-platform/cli/compare/v5.62.0...v5.63.0) (2026-09-29)
 
 
