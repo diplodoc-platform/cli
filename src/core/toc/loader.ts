@@ -413,7 +413,14 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     return toc;
 }
 
-/** Merges an included TOC into a named item or expands its children inline. */
+/**
+ * Merges an included TOC into a named item or expands its children inline.
+ *
+ * Explicit `noIndex: true` is inherited by included items.
+ * Explicit `noIndex: false` from the included TOC root (or from an unnamed include item,
+ * which is dropped on expansion) is moved to included items without their own value,
+ * so it is not lost before noIndex resolution.
+ */
 function mergeIncludedItems(
     this: LoaderContext,
     item: RawTocItem,
@@ -426,6 +433,8 @@ function mergeIncludedItems(
     if (item.name) {
         if (noIndex) {
             item.noIndex = true;
+        } else if (toc.noIndex === false) {
+            allowIndex(toc.items);
         }
         item.items = (item.items || []).concat(toc.items || []);
 
@@ -436,9 +445,19 @@ function mergeIncludedItems(
         toc.items?.forEach((includedItem) => {
             includedItem.noIndex = resolveNoIndex(includedItem, true, includedPath, this.logger);
         });
+    } else if (item.noIndex === false || toc.noIndex === false) {
+        allowIndex(toc.items);
     }
 
     return toc.items;
+}
+
+function allowIndex(items: RawTocItem[] | undefined) {
+    items?.forEach((item) => {
+        if (item.noIndex === undefined) {
+            item.noIndex = false;
+        }
+    });
 }
 
 /**
