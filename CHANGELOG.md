@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.63.2](https://github.com/diplodoc-platform/cli/compare/v5.63.1...v5.63.2) (2026-10-07)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/transform@4.78.4 ([db74afc](https://github.com/diplodoc-platform/cli/commit/db74afc128d1b63894568b4f1ac7f04891ea2005))
+
 ## [5.63.1](https://github.com/diplodoc-platform/cli/compare/v5.63.0...v5.63.1) (2026-10-06)
 
 
