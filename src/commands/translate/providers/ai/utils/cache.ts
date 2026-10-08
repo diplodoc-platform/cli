@@ -42,7 +42,21 @@ type SeedFile = {
     files: Record<string, [string, string][]>;
     /** Absent in seeds written before skeleton fragments: nothing to restore then. */
     skeletons?: Record<string, SkeletonFragment[]>;
+    /** Raw approved Markdown for exact copies to a new path. */
+    documents?: Record<string, SeedDocument>;
 };
+
+export type SeedDocument = {
+    fingerprint: string;
+    target: string;
+    units: number;
+    sourceChars: number;
+};
+
+/** Whole-file equality must include the conditions and extraction mode of the run. */
+export function documentFingerprint(source: string, vars: Hash, code = 'adaptive'): string {
+    return cacheFingerprint({source, vars, code});
+}
 
 /** The previous version of a changed unit: a source the file no longer contains and its translation. */
 export type SeedHint = {source: string; translation: string};
@@ -85,6 +99,8 @@ export class SeedStore {
 
     private skeletons: Record<string, SkeletonFragment[]> = {};
 
+    private documents: Record<string, SeedDocument> = {};
+
     private readonly counts = new Map<string, Map<string, number>>();
 
     constructor(file: string) {
@@ -102,6 +118,7 @@ export class SeedStore {
                 this.translations = data.translations;
                 this.files = data.files || {};
                 this.skeletons = data.skeletons || {};
+                this.documents = data.documents || {};
             }
         } catch {
             // A corrupted seed file is not fatal - start from scratch.
@@ -150,6 +167,25 @@ export class SeedStore {
         }
     }
 
+    recordDocument(file: string, document: SeedDocument) {
+        this.documents[file] = document;
+    }
+
+    /** An exact copy can keep the old target only when all matching targets agree. */
+    copiedDocument(file: string, fingerprint: string): SeedDocument | undefined {
+        // Existing paths continue through unit alignment, including partial translations.
+        if (this.documents[file]) {
+            return undefined;
+        }
+        let found: SeedDocument | undefined;
+        for (const document of Object.values(this.documents)) {
+            if (document.fingerprint !== fingerprint) continue;
+            if (found && found.target !== document.target) return undefined;
+            found = document;
+        }
+        return found;
+    }
+
     /** Source/translation pairs recorded for a file, in document order. */
     memory(file: string): [string, string][] | undefined {
         return this.files[file];
@@ -169,6 +205,7 @@ export class SeedStore {
                 translations: this.translations,
                 files: this.files,
                 skeletons: this.skeletons,
+                documents: this.documents,
             }),
         );
     }
@@ -226,13 +263,13 @@ export class TranslationStore {
 
     /** Existing repository translations are not generated model-cache answers. */
     isSeeded(file: string, text: string, translation: string): boolean {
-        return (
-            this.seeds?.get(text) === translation ||
-            Boolean(
-                this.seeds
-                    ?.memory(file)
-                    ?.some(([source, target]) => source === text && target === translation),
-            )
+        return this.seeds?.get(text) === translation || this.isFileSeeded(file, text, translation);
+    }
+
+    /** Only the same file's approved translation may preserve different formatting. */
+    isFileSeeded(file: string, text: string, translation: string): boolean {
+        return this.memory(file).some(
+            ([source, target]) => source === text && target === translation,
         );
     }
 
@@ -244,6 +281,10 @@ export class TranslationStore {
     /** The localized skeleton fragments of a file, see `SeedStore.fragments`. */
     fragments(file: string): SkeletonFragment[] {
         return this.seeds?.fragments(file) || [];
+    }
+
+    copiedDocument(file: string, fingerprint: string): SeedDocument | undefined {
+        return this.seeds?.copiedDocument(file, fingerprint);
     }
 
     /**

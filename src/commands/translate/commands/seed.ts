@@ -3,8 +3,10 @@ import type {Config} from '~/core/config';
 import type {CodeMode, Locale, VarsResolver} from '../utils';
 import type {ConfigDefaults} from '../utils/config';
 import type {AlignedUnits} from '../providers/ai/utils';
+import type {SeedDocument} from '../providers/ai/utils/cache';
 
 import {existsSync} from 'node:fs';
+import {readFile} from 'node:fs/promises';
 import {join, relative, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
@@ -23,6 +25,7 @@ import {options} from '../config';
 import {TranslateLogger} from '../logger';
 import {TranslateError, languageRepath, loadTranslationUnits, resolveCodeMode} from '../utils';
 import {SeedStore, alignTranslationUnits, seedFilePath} from '../providers/ai/utils';
+import {documentFingerprint} from '../providers/ai/utils/cache';
 import {options as aiOptions} from '../providers/ai/config';
 import {Run} from '../run';
 import {
@@ -127,7 +130,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         failed: [],
     };
 
-    const aligned = new Map<string, AlignedUnits & {units: number}>();
+    const aligned = new Map<string, AlignedUnits & {units: number; document?: SeedDocument}>();
 
     await eachLimit(
         files,
@@ -166,6 +169,13 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             continue;
         }
 
+        if (result.document) {
+            seeds.recordDocument(file, result.document);
+        }
+        if (!result.units) {
+            continue;
+        }
+
         if (!result.pairs.length && result.unseeded) {
             stats.mismatched.push(file);
             continue;
@@ -193,7 +203,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         file: string,
         inputPath: AbsolutePath,
         targetPath: AbsolutePath,
-    ): Promise<(AlignedUnits & {units: number}) | undefined> {
+    ): Promise<(AlignedUnits & {units: number; document?: SeedDocument}) | undefined> {
         // Both sides take the vars the translate run gives the source file,
         // the presets of its translation: a different set on either side
         // would keep or drop other conditional blocks and misalign the units.
@@ -207,7 +217,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             code,
         });
 
-        if (!source.units.length) {
+        if (!source.units.length && !inputPath.endsWith('.md')) {
             return undefined;
         }
 
@@ -220,7 +230,19 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
             code,
         });
 
-        return {...alignTranslationUnits(source, target, languages), units: source.units.length};
+        const document = inputPath.endsWith('.md')
+            ? {
+                  fingerprint: documentFingerprint(await readFile(inputPath, 'utf8'), vars, code),
+                  target: await readFile(targetPath, 'utf8'),
+                  units: source.units.length,
+                  sourceChars: source.units.reduce((sum, unit) => sum + unit.length, 0),
+              }
+            : undefined;
+        return {
+            ...alignTranslationUnits(source, target, languages),
+            units: source.units.length,
+            document,
+        };
     }
 }
 

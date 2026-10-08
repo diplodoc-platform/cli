@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {extract} from '@diplodoc/translation';
+import {compose, extract} from '@diplodoc/translation';
 
 import {alignTranslationUnits} from './seed';
 import {restoreFragments} from './skeleton';
@@ -27,6 +27,162 @@ const MENU_RU = ['[[Откройте меню:]]', '', '```', 'Настройк�
 const MENU_EN = ['[[Open the menu:]]', '', '```', 'Settings - Debugging', '```'];
 
 describe('translate seed skeleton fragments', () => {
+    describe('approved whitespace', () => {
+        const options = {
+            compact: true,
+            unitLocalIds: true,
+            source: {language: 'en', locale: 'US'},
+            target: {language: 'ru', locale: 'RU'},
+        };
+        const source =
+            '#### Proxy\nFeatures: \n- Support OAuth authorization.\n\n\n#### Tables\nFeatures:\n- Read data.\n\n';
+        const target =
+            '#### Прокси\n\nВозможности:\n- Поддержка OAuth-авторизации.\n\n#### Таблицы\n\nВозможности:\n- Чтение данных.\n';
+        const from = extract(source, options);
+        const to = extract(target, options);
+        const recorded = alignTranslationUnits(from, to, {source: 'en', target: 'ru'}).fragments;
+
+        it('keeps the approved spacing of old releases when a release is inserted above them', () => {
+            const prefix = '#### New release\n\nNew feature.\n\n';
+            const changed = extract(prefix + source, options);
+            const restored = restoreFragments(changed.skeleton as string, changed.units, recorded);
+            const parts = [...extract(prefix, options).units, ...to.units];
+
+            expect(compose(restored.skeleton, parts, {useSource: true})).toBe(prefix + target);
+        });
+
+        it('uses an explicitly edited source gap instead of the old approved gap', () => {
+            const changed = extract(source.replace('#### Proxy\n', '#### Proxy\n\n\n'), options);
+            const restored = restoreFragments(changed.skeleton as string, changed.units, recorded);
+
+            expect(compose(restored.skeleton, to.units, {useSource: true})).toBe(
+                target.replace('#### Прокси\n\n', '#### Прокси\n\n\n'),
+            );
+        });
+
+        it('does not attach an old gap to an inserted paragraph between the same headings', () => {
+            const changed = extract(
+                source.replace('Features: ', 'New paragraph.\nFeatures: '),
+                options,
+            );
+            const restored = restoreFragments(changed.skeleton as string, changed.units, recorded);
+
+            expect((restored.skeleton as string).startsWith('#### %%%0%%%\n%%%1%%%\n')).toBe(true);
+        });
+
+        it('keeps gaps around literal cut directives and the final newline', () => {
+            const original = '{% cut "**1.0**" %}\n\nFeature.\n\n\n{% endcut %}\n\n';
+            const approved = '{% cut "**1.0**" %}\n\nВозможность.\n\n{% endcut %}\n';
+            const from = extract(original, options);
+            const to = extract(approved, options);
+            const recorded = alignTranslationUnits(from, to, {
+                source: 'en',
+                target: 'ru',
+            }).fragments;
+            const restored = restoreFragments(from.skeleton as string, from.units, recorded);
+
+            expect(compose(restored.skeleton, to.units, {useSource: true})).toBe(approved);
+        });
+
+        it('does not shift repeated boundary occurrences when the first gap is edited', () => {
+            const original = 'A.\n\nB.\n\nA.\n\nB.\n';
+            const approved = 'А.\n\n\nБ.\n\nА.\n\nБ.\n';
+            const from = extract(original, options);
+            const to = extract(approved, options);
+            const recorded = alignTranslationUnits(from, to, {
+                source: 'en',
+                target: 'ru',
+            }).fragments;
+            const changed = extract(original.replace('A.\n\nB.', 'A.\n\n\nB.'), options);
+            const restored = restoreFragments(changed.skeleton as string, changed.units, recorded);
+
+            expect(compose(restored.skeleton, to.units, {useSource: true})).toBe(approved);
+        });
+
+        it('keeps spacing with its release when a new release has the same adjacent text', () => {
+            const original = '{% cut "1.0" %}\n\nFeatures:\n- Support OAuth.\n\n{% endcut %}\n\n';
+            const approved =
+                '{% cut "1.0" %}\n\nВозможности:\n\n- Поддержка OAuth.\n\n{% endcut %}\n\n';
+            const prefix = original.replace('1.0', '2.0');
+            const from = extract(original, options);
+            const to = extract(approved, options);
+            const recorded = alignTranslationUnits(from, to, {
+                source: 'en',
+                target: 'ru',
+            }).fragments;
+            const changed = extract(prefix + original, options);
+            const restored = restoreFragments(changed.skeleton as string, changed.units, recorded);
+            const parts = [...extract(prefix, options).units, ...to.units];
+
+            expect(compose(restored.skeleton, parts, {useSource: true})).toBe(prefix + approved);
+        });
+
+        it('drops ambiguous spacing if an identical unscoped boundary is inserted', () => {
+            const original = 'Features:\n- Support OAuth.\n';
+            const approved = 'Возможности:\n\n- Поддержка OAuth.\n';
+            const from = extract(original, options);
+            const to = extract(approved, options);
+            const recorded = alignTranslationUnits(from, to, {
+                source: 'en',
+                target: 'ru',
+            }).fragments;
+            const changed = extract(original + original, options);
+            const restored = restoreFragments(changed.skeleton as string, changed.units, recorded);
+
+            expect(restored.skeleton).toBe(changed.skeleton);
+        });
+
+        it('distinguishes equal subsections by their enclosing release heading', () => {
+            const original = '## Release 1.0\n\n#### Proxy\nFeatures:\n- Support OAuth.\n\n';
+            const approved = '## Релиз 1.0\n\n#### Прокси\nВозможности:\n\n- Поддержка OAuth.\n\n';
+            const prefix = original.replace('1.0', '2.0');
+            const from = extract(original, options);
+            const to = extract(approved, options);
+            const recorded = alignTranslationUnits(from, to, {
+                source: 'en',
+                target: 'ru',
+            }).fragments;
+            const changed = extract(prefix + original, options);
+            const restored = restoreFragments(changed.skeleton as string, changed.units, recorded);
+            const parts = [...extract(prefix, options).units, ...to.units];
+
+            expect(compose(restored.skeleton, parts, {useSource: true})).toBe(prefix + approved);
+        });
+
+        it('does not restore the old gap around a code block whose contents changed', () => {
+            const original = 'Before.\n\n```sh\necho hello\n```\n\n\nAfter.\n';
+            const approved = 'До.\n\n```sh\necho hello\n```\n\nПосле.\n';
+            const from = extract(original, options);
+            const to = extract(approved, options);
+            const recorded = alignTranslationUnits(from, to, {
+                source: 'en',
+                target: 'ru',
+            }).fragments;
+            const changed = extract(original.replace('echo hello', 'echo other'), options);
+            const restored = restoreFragments(changed.skeleton as string, changed.units, recorded);
+
+            expect(restored.skeleton).toBe(changed.skeleton);
+        });
+
+        it('keeps an approved hard break but applies an explicitly edited source hard break', () => {
+            const from = extract('Feature.\nNext feature.\n', options);
+            const to = extract('Возможность.  \nСледующая возможность.\n', options);
+            const recorded = alignTranslationUnits(from, to, {
+                source: 'en',
+                target: 'ru',
+            }).fragments;
+            const unchanged = restoreFragments(from.skeleton as string, from.units, recorded);
+            expect(compose(unchanged.skeleton, to.units, {useSource: true})).toBe(
+                'Возможность.  \nСледующая возможность.\n',
+            );
+            const changed = extract('Feature.   \nNext feature.\n', options);
+            const restored = restoreFragments(changed.skeleton as string, changed.units, recorded);
+            expect(compose(restored.skeleton, to.units, {useSource: true})).toBe(
+                'Возможность.   \nСледующая возможность.\n',
+            );
+        });
+    });
+
     describe('skeletonFragments', () => {
         it('should keep a code block with localized text', () => {
             expect(fragments(MENU_RU, MENU_EN)).toEqual([
@@ -467,7 +623,7 @@ describe('translate seed skeleton fragments', () => {
             const result = restoreFragments(skeleton, units, recorded);
 
             expect(result.restored).toBe(3);
-            expect(result.dropped).toEqual({code: 0, line: 0});
+            expect(result.dropped).toEqual({code: 0, line: 0, spacing: 0});
             expect(result.skeleton.split('\n')).toEqual([
                 '%%%0%%%',
                 '## %%%1%%% {#section}',
@@ -500,7 +656,7 @@ describe('translate seed skeleton fragments', () => {
             const result = restoreFragments(skeleton, units, recorded);
 
             expect(result.restored).toBe(1);
-            expect(result.dropped).toEqual({code: 1, line: 1});
+            expect(result.dropped).toEqual({code: 1, line: 1, spacing: 0});
             expect(result.skeleton).toContain('Настройки - Другое');
             expect(result.skeleton).not.toContain('{#section}');
         });
@@ -541,7 +697,7 @@ describe('translate seed skeleton fragments', () => {
             const result = restoreFragments(skeleton, units, recordedMenu);
 
             expect(result.restored).toBe(2);
-            expect(result.dropped).toEqual({code: 0, line: 0});
+            expect(result.dropped).toEqual({code: 0, line: 0, spacing: 0});
             expect(result.skeleton).not.toContain('Настройки');
         });
 
@@ -569,7 +725,7 @@ describe('translate seed skeleton fragments', () => {
             expect(restoreFragments(skeleton, units, [])).toEqual({
                 skeleton,
                 restored: 0,
-                dropped: {code: 0, line: 0},
+                dropped: {code: 0, line: 0, spacing: 0},
             });
         });
     });

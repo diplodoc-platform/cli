@@ -110,5 +110,31 @@ export async function loadTranslationUnits(
         if (titleIds.has(index)) return markTableTitle(unit);
         return codeIds.has(index) ? markCodeUnit(unit) : unit;
     });
-    return {content, units: contextualUnits, skeleton, schemas, ajvOptions, warnings, tableTitles};
+    const paddedUnits =
+        typeof content.data === 'string'
+            ? preserveLinkPadding(content.data, contextualUnits)
+            : contextualUnits;
+    return {content, units: paddedUnits, skeleton, schemas, ajvOptions, warnings, tableTitles};
+}
+
+/** The extractor normalizes link padding; keep it in the original placeholder attributes. */
+function preserveLinkPadding(markdown: string, units: string[]): string[] {
+    const padding = new Map<string, string | undefined>();
+    for (const [, spaces, url] of markdown.matchAll(/\]\(([ \t]*)<?([^\s)<>]+)>?/g)) {
+        const key = url.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        if (!padding.has(key)) {
+            padding.set(key, spaces);
+        } else if (padding.get(key) !== spaces) {
+            // The same URL with different formatting cannot be identified by URL alone.
+            padding.set(key, undefined);
+        }
+    }
+    return units.map((unit) =>
+        unit.replace(/<g\b[^>]*\bctype="link"[^>]*>/g, (tag) =>
+            tag.replace(/\]\([ \t]*(<?)([^\s)<>]+)/g, (match, angle, url) => {
+                const original = padding.get(url);
+                return original ? '](' + original + angle + url : match;
+            }),
+        ),
+    );
 }
