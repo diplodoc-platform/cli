@@ -5,6 +5,9 @@ reference corpus and produces a scorecard. Run it before changing the
 translation prompts or models and before rolling the translation
 tooling out.
 
+For a baseline/candidate comparison on consumer documentation, including seeded
+incremental runs, see [Validate a translation PR](translate-pr-validation.md).
+
 ## Quick start (no credentials required)
 
 ```bash
