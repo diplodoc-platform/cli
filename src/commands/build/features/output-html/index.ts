@@ -16,11 +16,12 @@ import {
     isMediaLink,
     normalizePath,
     own,
+    resolveAbsoluteHref,
     setExt,
     zip,
 } from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getTocHooks, resolveLlmsConfig} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getMetaHooks} from '~/core/meta';
@@ -77,14 +78,23 @@ export class OutputHtml {
                     // Include files (_includes/) are not part of any toc, so skip them.
                     if (!file.includes('/_includes/') && !file.startsWith('_includes/')) {
                         try {
-                            const tocDir = dirname(run.toc.for(file).path) as NormalizedPath;
+                            const toc = run.toc.for(file);
+                            const tocDir = dirname(toc.path) as NormalizedPath;
+                            const llmsConfig = resolveLlmsConfig(run.config.llms, toc);
                             const llmsAlternate = buildLlmsAlternate(
-                                run.config.llms,
+                                llmsConfig,
                                 file,
                                 tocDir,
                                 run.config.baseHref,
                             );
                             if (llmsAlternate) {
+                                // HTML <base> points to the publication root; Markdown uses the page directory.
+                                if (!llmsConfig.url) {
+                                    llmsAlternate.href = resolveAbsoluteHref(
+                                        normalizePath(join(tocDir, 'llms.txt')),
+                                        run.config.baseHref,
+                                    );
+                                }
                                 meta.alternate = [...(meta.alternate || []), llmsAlternate];
                             }
                         } catch {
