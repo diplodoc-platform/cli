@@ -23,9 +23,16 @@ export type WithItems<Item> = {
     items?: Item[];
 };
 
+export type TocLlmsConfig = {
+    description?: string;
+    details?: string;
+    url?: string;
+};
+
 export type RawToc = {
     path: NormalizedPath;
     noIndex?: boolean;
+    llms?: TocLlmsConfig;
     pdf?: {
         startPages?: string[];
         endPages?: string[];
@@ -118,6 +125,7 @@ export type IncludeInfo = {
 export type Toc = {
     path: NormalizedPath;
     noIndex?: boolean;
+    llms?: TocLlmsConfig;
     pdf?: {
         startPages?: string[];
         endPages?: string[];

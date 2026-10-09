@@ -1,6 +1,6 @@
 import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type * as CoreUtils from '~/core/utils';
-import type {Toc} from '~/core/toc';
+import type {Toc, TocLlmsConfig} from '~/core/toc';
 import type {LlmsConfig} from './index';
 import type {MarkdownCollector} from '../output-md/collect';
 
@@ -124,7 +124,13 @@ type TestableLlms = {
     collectEntries(toc: Toc, tocDir: string): unknown[];
     excludeNoIndex(run: Run, entries: unknown[]): Promise<unknown[]>;
     generate(run: Run, toc: Toc): Promise<void>;
-    renderIndex(run: Run, title: string, entries: unknown[], tocDir: string): Promise<string>;
+    renderIndex(
+        run: Run,
+        title: string,
+        entries: unknown[],
+        tocDir: string,
+        config?: TocLlmsConfig,
+    ): Promise<string>;
     renderFull(
         run: Run,
         title: string,
@@ -573,6 +579,31 @@ describe('LLMs Plugin Architecture', () => {
     });
 
     describe('renderIndex logic', () => {
+        it('places localized optional details between the summary and link sections', async () => {
+            const result = await llmsInstance.renderIndex(createMockRun(), 'Docs', [], 'en', {
+                description: 'English summary',
+                details: 'Read the guides first.\n\n- Examples use the latest release.',
+            });
+
+            expect(result).toContain(
+                '# Docs\n\n> English summary\n\n' +
+                    'Read the guides first.\n\n- Examples use the latest release.\n\n' +
+                    '## Documentation',
+            );
+            expect(result).not.toContain('AI Assistant Context Description');
+            expect(result).not.toContain('## Optional');
+        });
+
+        it('omits explicitly cleared description and details', async () => {
+            const result = await llmsInstance.renderIndex(createMockRun(), 'Docs', [], 'en', {
+                description: '',
+                details: '',
+            });
+
+            expect(result).toContain('# Docs\n\n## Documentation');
+            expect(result).not.toContain('AI Assistant Context Description');
+        });
+
         it('should correctly format llms.txt index with title and description', async () => {
             const run = createMockRun({outputFormat: OutputFormat.html});
             const entries = [

@@ -1,6 +1,6 @@
 import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {Toc} from '~/core/toc';
+import type {Toc, TocLlmsConfig} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 import {extractFrontMatter} from '@diplodoc/liquid';
@@ -10,6 +10,7 @@ import {
 } from '@diplodoc/transform/lib/plugins/visibility';
 
 import {defined} from '~/core/config';
+import {resolveLlmsConfig} from '~/core/toc';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
@@ -34,9 +35,8 @@ export type LlmsArgs = {
 };
 
 export type LlmsConfig = {
-    llms: {
+    llms: TocLlmsConfig & {
         enabled: boolean;
-        description?: string;
         llmsFullMaxSize: number;
         /**
          * Override URL for `llms.txt` used in md companion AI hints.
@@ -148,7 +148,13 @@ export class Llms {
 
         const title = toc.title || '';
 
-        const index = await this.renderIndex(run, title, entries, tocDir);
+        const index = await this.renderIndex(
+            run,
+            title,
+            entries,
+            tocDir,
+            resolveLlmsConfig(run.config.llms, toc),
+        );
         const audienceSpecificContent = new Set<ContentAudience>();
         const full = await this.renderFull(
             run,
@@ -272,7 +278,13 @@ export class Llms {
         return entries;
     }
 
-    private async renderIndex(run: Run, title: string, entries: LlmsEntry[], tocDir: string) {
+    private async renderIndex(
+        run: Run,
+        title: string,
+        entries: LlmsEntry[],
+        tocDir: string,
+        config: TocLlmsConfig = run.config.llms,
+    ) {
         const html = run.config.outputFormat === OutputFormat.html;
         const lines: string[] = [];
 
@@ -280,10 +292,14 @@ export class Llms {
             lines.push(`# ${title}`, '');
         }
 
-        const description = run.config.llms?.description || '';
+        const description = config.description || '';
 
         if (description) {
             lines.push(`> ${description}`, '');
+        }
+
+        if (config.details) {
+            lines.push(config.details.trimEnd(), '');
         }
 
         lines.push('## Documentation', '');
