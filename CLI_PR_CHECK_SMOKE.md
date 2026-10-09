@@ -10,3 +10,5 @@ Keep this PR unmerged. Close it after the smoke test is complete.
 
 Repeat the fork check after the Temporal and docs-api fixes deployed on 2026-10-09.
 This documentation update supplies a new head SHA for the smoke test.
+
+Repeat the smoke after merging the numeric Sandbox resource TTL fix (PR 16320380).
