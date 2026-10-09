@@ -355,12 +355,16 @@ export class Watch {
             const sources = [file, ...deps].filter(state.isEntrySource);
             const oldResources = [file, ...deps].filter(state.isEntryResource);
 
+            // A referring page may be rebuilt before its target. Release every include context
+            // first so its anchor lookup cannot observe the target's previous include content.
             for (const entry of entries) {
                 for (const file of sources) {
                     // Release all includes relative to target entry
                     state.run.entry.release(file, entry);
                 }
+            }
 
+            for (const entry of entries) {
                 const isRemovedEntry = file === entry && !hasNewContent;
                 if (!isRemovedEntry) {
                     await state.processEntry(entry);
