@@ -4,6 +4,19 @@ import {describe, expect, test} from 'vitest';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
+async function readHtmlPage(directory: string, page: string) {
+    const html = await readFile(join(directory, `${page}.html`), 'utf8');
+    const state = html.match(
+        /<script type="application\/json" id="diplodoc-state">([\s\S]*?)<\/script>/,
+    );
+    if (!state) {
+        throw new Error(`Expected diplodoc-state in ${page}.html`);
+    }
+    const serialized = state[1].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    const data = JSON.parse(serialized) as {data: {html: string; title: string}};
+    return data.data;
+}
+
 describe('llms.txt', () => {
     // Builds the same fixture in both md and html with `--llms` (variant B):
     //   - md  output -> `${outputPath}`      (llms-full.txt has includes merged)
@@ -130,21 +143,32 @@ describe('llms.txt', () => {
             expect(index).toContain(
                 `- [Literal {#literal .literal key="value"}](literal-attributes.${extension})`,
             );
+            expect(index).toContain(`- [Human article H1](visibility.${extension})`);
+            expect(index).toContain(`- [Included Sample H1](include.${extension})`);
+            expect(index).toContain(`- [Selected article H1](include-hash.${extension})`);
+            expect(index).toContain(`- [Notitle article H1](include-notitle.${extension})`);
+            expect(index).toContain(`- [Agent-only TOC](agent-only.${extension})`);
+            expect(index).not.toContain('Agent-only H1');
+            expect(index).not.toContain('Agent include H1');
+            expect(index).not.toContain('Hidden agent H1');
+            expect(index).not.toContain('Unselected H1');
             expect(index).not.toContain('.doc-title');
             if (extension === 'html') {
-                const html = await readFile(join(directory, 'attributes.html'), 'utf8');
-                const state = html.match(
-                    /<script type="application\/json" id="diplodoc-state">([\s\S]*?)<\/script>/,
+                expect((await readHtmlPage(directory, 'attributes')).html).toContain(
+                    'Attribute H1</h1>',
                 );
-                if (!state) {
-                    throw new Error('Expected diplodoc-state in attributes.html');
+                // The renderer retains inline attributes in its extracted title;
+                // the index assertions above check the visible label separately.
+                for (const [page, title] of [
+                    ['visibility', 'Human article H1'],
+                    ['include', 'Included Sample H1 {#included .doc-title}'],
+                    ['include-hash', 'Selected article H1'],
+                ]) {
+                    expect((await readHtmlPage(directory, page)).title).toBe(title);
                 }
-                const serialized = state[1]
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/&amp;/g, '&');
-                const data = JSON.parse(serialized) as {data: {html: string}};
-                expect(data.data.html).toContain('Attribute H1</h1>');
+                expect((await readHtmlPage(directory, 'include-notitle')).html).toContain(
+                    'Notitle article H1</h1>',
+                );
             }
             expect(index).not.toContain('Inactive H1');
             expect(index).not.toContain('Metadata TOC');

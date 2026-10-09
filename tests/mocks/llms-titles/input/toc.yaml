@@ -20,3 +20,13 @@ items:
     href: attributes.md
   - name: Literal attribute TOC
     href: literal-attributes.md
+  - name: Visibility TOC
+    href: visibility.md
+  - name: Include TOC
+    href: include.md
+  - name: Hash include TOC
+    href: include-hash.md
+  - name: Notitle include TOC
+    href: include-notitle.md
+  - name: Agent-only TOC
+    href: agent-only.md

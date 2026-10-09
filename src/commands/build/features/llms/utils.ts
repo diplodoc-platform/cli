@@ -124,7 +124,7 @@ const titleParser = new MarkdownIt({html: true}).use(attrs, {
     rightDelimiter: '}',
 });
 
-/** Returns the visible text of the first H1 in already resolved Markdown. */
+/** Returns the visible text of the first H1 in fully assembled human Markdown. */
 export function getArticleTitle(markdown: string): string {
     const tokens = titleParser.parse(markdown, {});
     const index = tokens.findIndex((token) => token.type === 'heading_open' && token.tag === 'h1');

@@ -63,7 +63,10 @@ A compact index following the llmstxt.org spec:
 Link labels prefer the article's `meta.title`, then its first H1, then the TOC
 item name. H1 text excludes YFM heading attributes (IDs, classes, and key/value
 pairs) using the same attribute parser as the renderer; literal inline code
-remains visible. Empty or whitespace-only titles are skipped. A leading YAML page's
+remains visible. The H1 is selected from the assembled human document: includes
+are resolved with their hash and `notitle` semantics, and agent-only visibility
+blocks are excluded just as in static HTML and the canonical corpus.
+Empty or whitespace-only titles are skipped. A leading YAML page's
 `title` is its H1 equivalent. If none are available, the existing description
 and href fallbacks remain. Titles and metadata are loaded through the source
 services before rendering the index, including in worker builds, so Liquid

@@ -48,8 +48,8 @@ vi.mock('~/commands/config', () => ({
 vi.mock('../output-md/collect', () => {
     return {
         SELF_CONTAINED: 'self-contained',
-        MarkdownCollector: vi.fn().mockImplementation(() => ({
-            collect: vi.fn().mockResolvedValue('Collected Markdown Content'),
+        MarkdownCollector: vi.fn().mockImplementation((run: Run) => ({
+            collect: vi.fn((path: NormalizedPath) => run.markdown.load(path)),
             collectWithInfo: vi.fn().mockResolvedValue({
                 content: 'Collected Markdown Content',
                 audienceSpecificContent: [],
