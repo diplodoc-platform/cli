@@ -28,8 +28,40 @@ export class Graph<Data = {type: string}> extends DepGraph<Data> {
     // dependency-graph exposes this map at runtime but omits it from its TypeScript declarations.
     declare private readonly nodes: Map<string, Data>;
 
+    private _revision = 0;
+
+    /** Cache invalidation token. Update node data through setNodeData, not in place. */
+    get revision() {
+        return this._revision;
+    }
+
     constructor() {
         super({circular: true});
+    }
+
+    override addNode(...args: Parameters<DepGraph<Data>['addNode']>) {
+        super.addNode(...args);
+        this._revision++;
+    }
+
+    override setNodeData(...args: Parameters<DepGraph<Data>['setNodeData']>) {
+        super.setNodeData(...args);
+        this._revision++;
+    }
+
+    override removeNode(...args: Parameters<DepGraph<Data>['removeNode']>) {
+        super.removeNode(...args);
+        this._revision++;
+    }
+
+    override addDependency(...args: Parameters<DepGraph<Data>['addDependency']>) {
+        this._revision++;
+        return super.addDependency(...args);
+    }
+
+    override removeDependency(...args: Parameters<DepGraph<Data>['removeDependency']>) {
+        super.removeDependency(...args);
+        this._revision++;
     }
 
     /**

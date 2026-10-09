@@ -97,19 +97,30 @@ export class TocService {
     }
 
     get entries() {
-        const paths = this.relations.overallOrder() as NormalizedPath[];
-        const allEntries = paths.filter(this.isEntry);
+        return [...this.entrySet];
+    }
 
-        if (!paths.some(this.isToc)) {
-            return allEntries;
+    /** Reachable entries shared by link validators until the TOC graph changes. */
+    get entrySet(): ReadonlySet<NormalizedPath> {
+        if (this.entryIndex?.revision === this.relations.revision) {
+            return this.entryIndex.value;
         }
 
-        return allEntries.filter((entry) => {
-            const dependents = this.relations.dependantsOf(entry) as NormalizedPath[];
+        const paths = this.relations.overallOrder() as NormalizedPath[];
+        const allEntries = paths.filter(this.isEntry);
+        const entries = paths.some(this.isToc)
+            ? allEntries.filter((entry) => {
+                  const dependents = this.relations.dependantsOf(entry) as NormalizedPath[];
 
-            return dependents.some(this.isToc);
-        });
+                  return dependents.some(this.isToc);
+              })
+            : allEntries;
+
+        this.entryIndex = {revision: this.relations.revision, value: new Set(entries)};
+        return this.entryIndex.value;
     }
+
+    private entryIndex?: {revision: number; value: ReadonlySet<NormalizedPath>};
 
     private run: Run;
 

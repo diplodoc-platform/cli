@@ -110,6 +110,36 @@ describe('Errors', () => {
         ]);
     });
 
+    test('mocks/errors/anchor-validation', ({html}: TestResult) => {
+        expectWarnings(html, [
+            'WARN index.md: 1: YFM024 / missing-local-anchor Local link anchor is missing in the target document [Context: "[invalid explicit](architecture.md#over-plutonium09128129387192837)"]',
+            'WARN index.md: 4: YFM024 / missing-local-anchor Local link anchor is missing in the target document [Context: "[invalid automatic](architecture.md#missing-automatic)"]',
+            'WARN index.md: 7: YFM024 / missing-local-anchor Local link anchor is missing in the target document [Context: "[invalid same-page](#missing-local)"]',
+            'WARN index.md: 10: YFM024 / missing-local-anchor Local link anchor is missing in the target document [Context: "[{#T}](architecture.md#missing-autotitle)"]',
+            'WARN index.md: 12: YFM024 / missing-local-anchor Local link anchor is missing in the target document [Context: "index.md:12 → _includes/source-links.md:1 ↛ architecture.html#missing-from-include"]',
+        ]);
+
+        expect(html.code).toBe(0);
+        expect(html.warns.filter((warning) => warning.includes('YFM024'))).toHaveLength(5);
+        expect(html.errors).toEqual([]);
+        expect(html.warns.filter((warning) => warning.includes('YFM010'))).toEqual([]);
+        expect(html.errors.filter((error) => error.includes('YFM003'))).toEqual([]);
+    });
+
+    it('fails on missing local anchor warnings when strict mode is enabled', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/errors/anchor-validation');
+        const html = await TestAdapter.build.run(inputPath, outputPath + '-strict', [
+            '-j2',
+            '-f',
+            'html',
+            '--strict',
+        ]);
+
+        expect(html.code).toBe(1);
+        expect(html.warns.filter((warning) => warning.includes('YFM024'))).toHaveLength(5);
+        expect(html.errors).toEqual([]);
+    });
+
     it('translate extract with filtered links', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
 
@@ -154,8 +184,9 @@ describe('Include chain errors', () => {
 describe('Warnings', () => {
     test('mocks/warning/unreachable-autotitle', ({html}: TestResult) => {
         expectWarnings(html, [
-            'WARN index.md: 1: YFM010 / unreachable-autotitle-anchor Auto title anchor is unreachable [Context: "Unreachable autotitle anchor: "link.html#unknown_yfm010"; Line: 1"]',
+            'WARN index.md: 1: YFM024 / missing-local-anchor Local link anchor is missing in the target document [Context: "[{#T}](./link.md#unknown_yfm010)"]',
         ]);
+        expect(html.warns.filter((warning) => warning.includes('YFM010'))).toEqual([]);
     });
 });
 

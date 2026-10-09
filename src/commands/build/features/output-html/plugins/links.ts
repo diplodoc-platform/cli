@@ -1,14 +1,17 @@
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
+import type Token from 'markdown-it/lib/token';
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
 import type {Logger} from '~/core/logger';
+import type {AnchorIndex, ResolveAnchorPage} from '~/commands/build/services/anchors';
 
 import {formatHref, parseHref} from '@diplodoc/utils';
 import {bold} from 'chalk';
 import {dirname, isAbsolute, join} from 'node:path';
 
 import {isExternalHref, normalizePath} from '~/core/utils';
+import {isVersionedQuery} from '~/commands/build/services/anchors';
 
-import {walkLinks} from '../utils';
+import {decodeAnchor, walkLinks} from '../utils';
 
 const PAGE_LINK_REGEXP = /\.(md|ya?ml)$/i;
 const DOC_ASSETS_FOLDER = '_assets';
@@ -16,12 +19,15 @@ const DOC_ASSETS_FOLDER = '_assets';
 type Options = {
     path: NormalizedPath;
     log: Logger;
-    titles: Record<NormalizedPath, Hash<string>>;
     entries: NormalizedPath[];
+    entrySet?: ReadonlySet<NormalizedPath>;
     existsInProject: (path: NormalizedPath) => boolean;
+    anchorIndex?: AnchorIndex;
+    resolveAnchorPage: ResolveAnchorPage;
 };
 
 export default ((md, opts) => {
+    const entries = opts.entrySet || new Set(opts.entries);
     const plugin = (state: StateCore) => {
         walkLinks(state, (link, href) => {
             // Skip already processed links to avoid double-resolution
@@ -32,7 +38,7 @@ export default ((md, opts) => {
                 return;
             }
 
-            const {path, log, entries, existsInProject} = opts;
+            const {path, log, existsInProject, anchorIndex, resolveAnchorPage} = opts;
 
             if (!href) {
                 log.error(`Empty link in ${bold(path)}`);
@@ -72,11 +78,20 @@ export default ((md, opts) => {
 
                 if (pathname && PAGE_LINK_REGEXP.test(pathname)) {
                     const fileMissingInProject = !existsInProject(file);
-                    const fileMissingInToc = !entries.includes(file);
+                    const fileMissingInToc = !entries.has(file);
 
                     if (fileMissingInProject || fileMissingInToc) {
                         link.attrSet('YFM003', 'missing-in-toc');
                     }
+                }
+
+                // The selected version may have different anchors from the local page.
+                if (!isVersionedQuery(parsed.search)) {
+                    validateAnchor(link, file, parsed.hash, {
+                        entries,
+                        anchorIndex,
+                        resolveAnchorPage,
+                    });
                 }
 
                 link.attrSet(
@@ -99,3 +114,22 @@ export default ((md, opts) => {
         md.core.ruler.push('links', plugin);
     }
 }) as MarkdownItPluginCb<Options>;
+
+function validateAnchor(
+    link: Token,
+    file: NormalizedPath,
+    hash: string | null,
+    options: Pick<Options, 'anchorIndex' | 'resolveAnchorPage'> & {
+        entries: ReadonlySet<NormalizedPath>;
+    },
+) {
+    const {entries, anchorIndex, resolveAnchorPage} = options;
+    const target = resolveAnchorPage(file);
+    const anchor = decodeAnchor(hash);
+    const targetAnchors = target ? anchorIndex?.get(target) : undefined;
+    const targetIsReachable = target && entries.has(target) && link.attrGet('YFM003') === null;
+
+    if (anchor && targetIsReachable && targetAnchors && !targetAnchors.has(anchor)) {
+        link.attrSet('YFM024', 'anchor-not-found');
+    }
+}

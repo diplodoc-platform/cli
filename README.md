@@ -149,6 +149,21 @@ Presets (`presets.yaml`), includes and variables are resolved relative to a proj
 | `--id-generator <strategy>`              | `random`  | Element id strategy: `random`, `deterministic`, etc.      |
 | `-s, --strict`                           | `false`   | Exit with a non-zero code on warnings                     |
 
+### Local anchor diagnostics
+
+HTML builds report a missing local link anchor as `YFM024 / missing-local-anchor`. It is a
+warning by default, including when an existing `.yfmlint` config sets `YFM002` to `error`.
+Missing or unreachable target documents still produce `YFM003` errors.
+
+Configure the new rule independently in `.yfmlint`:
+
+```yaml
+YFM024: warn
+```
+
+Use `YFM024: error` to fail builds on missing local anchors or `YFM024: false` to disable
+the check. `--strict` continues to fail builds on warnings.
+
 ## Source files
 
 ### Preparation

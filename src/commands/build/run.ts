@@ -6,7 +6,6 @@ import type {Lang} from '@diplodoc/transform/lib/typings';
 import {dirname, join, resolve} from 'node:path';
 import {uniq} from 'lodash';
 import transformer from '@diplodoc/transform/lib/md';
-import {yfmlint} from '@diplodoc/yfmlint';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {createIDGeneratorByStrategy} from '@diplodoc/utils';
 
@@ -24,12 +23,16 @@ import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} fr
 import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
+import {AnchorsService, collectAnchorIds} from './services/anchors';
 import {extractIncludedBlocks} from './extract-included';
+import {lintWithLocalAnchors} from './lint';
 import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
 
 type TransformOptions = {
     deps: IncludeInfo[];
     assets: AssetInfo[];
+    anchorIds?: Set<string>;
+    reportErrors?: boolean;
 };
 
 type Manifest = Hash<{
@@ -73,6 +76,10 @@ export class Run extends BaseRun<BuildConfig> {
 
     readonly redirects: RedirectsService;
 
+    private readonly anchors: AnchorsService;
+
+    private entriesCache?: {index: ReadonlySet<NormalizedPath>; paths: NormalizedPath[]};
+
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
     }
@@ -114,20 +121,23 @@ export class Run extends BaseRun<BuildConfig> {
         this.vcs = new VcsService(this);
         this.leading = new LeadingService(this);
         this.markdown = new MarkdownService(this);
+        this.anchors = new AnchorsService(this);
         this.search = new SearchService(this);
         this.redirects = new RedirectsService(this);
     }
 
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
-        const {deps, assets} = options;
+        const {deps, assets, anchorIds, reportErrors = true} = options;
 
         const {
             content: cleanMarkdown,
             files: includedFiles,
             errors,
         } = extractIncludedBlocks(markdown, file);
-        for (const error of errors) {
-            this.logger.error(error);
+        if (reportErrors) {
+            for (const error of errors) {
+                this.logger.error(error);
+            }
         }
 
         const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
@@ -154,8 +164,10 @@ export class Run extends BaseRun<BuildConfig> {
             assets: assetsRemap,
         });
 
-        const tokens = parse(cleanMarkdown);
-        const result = compile(tokens);
+        const result = compile(parse(cleanMarkdown));
+        if (anchorIds) {
+            collectAnchorIds(result, anchorIds);
+        }
 
         return [result, env] as const;
     }
@@ -199,10 +211,11 @@ export class Run extends BaseRun<BuildConfig> {
             plugins,
             files: {...depFiles, ...includedFiles},
             titles: await remap(titles, this.titles),
+            anchorIndex: await this.anchors.index(file, assets),
             assets: assetsRemap,
         };
 
-        return yfmlint(cleanMarkdown, file, {
+        return lintWithLocalAnchors(cleanMarkdown, file, {
             lintConfig: this.config.lint.config,
             pluginOptions,
             plugins,
@@ -238,7 +251,9 @@ export class Run extends BaseRun<BuildConfig> {
             extractTitle: true,
             log: this.logger,
             entries: this.getEntries(),
+            entrySet: this.toc.entrySet,
             existsInProject: this.existsInProject,
+            resolveAnchorPage: this.anchors.resolve,
             svgInline: {
                 enabled: this.config.content.maxInlineSvgSize !== 0,
                 maxFileSize: this.config.content.maxInlineSvgSize,
@@ -262,9 +277,12 @@ export class Run extends BaseRun<BuildConfig> {
         };
     }
 
-    @memoize()
     private getEntries() {
-        return this.toc.entries;
+        const index = this.toc.entrySet;
+        if (this.entriesCache?.index !== index) {
+            this.entriesCache = {index, paths: [...index]};
+        }
+        return this.entriesCache.paths;
     }
 
     @memoize()
