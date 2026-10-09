@@ -1,0 +1,18 @@
+title: Title priority
+items:
+  - name: Metadata TOC
+    href: meta.md
+  - name: H1 TOC
+    href: h1.md
+  - name: TOC fallback
+    href: toc.md
+  - name: Empty metadata TOC
+    href: empty-meta.md
+  - name: Setext TOC
+    href: setext.md
+  - name: Leading TOC
+    href: leading.yaml
+  - name: Leading metadata TOC
+    href: leading-meta.yaml
+  - name: Escaped TOC
+    href: escaped.md

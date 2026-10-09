@@ -17,7 +17,7 @@ import {OutputFormat} from '~/commands/build/config';
 import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
 import {resolveAbsolutePaths} from '../output-md/plugins/merge-includes';
 
-import {stripHtmlTags} from './utils';
+import {getArticleTitle, stripHtmlTags} from './utils';
 import {options, resolveLlmsFullMaxSize} from './config';
 
 export const LLMS_INDEX_FILENAME = 'llms.txt';
@@ -292,12 +292,15 @@ export class Llms {
         for (const entry of entries) {
             this.appendOpenapiCompanions(run, entry, tocDir, lines, seenOpenapiCompanions);
 
+            const pageTitle = await this.loadPageTitle(run, entry.path);
             const meta = await run.meta.dump(entry.path);
             const description = typeof meta.description === 'string' ? meta.description : '';
-            // Prefer the toc name; fall back to the page title (e.g. the root
-            // entry has no toc item name), then description, then the href.
-            const pageTitle = typeof meta.title === 'string' ? meta.title : '';
-            const name = entry.name || pageTitle || description || entry.href;
+            const metaTitle = typeof meta.title === 'string' ? meta.title : '';
+            const name =
+                [metaTitle, pageTitle, entry.name, description, entry.href]
+                    .map((value) => value.replace(/\s+/g, ' ').trim())
+                    .find(Boolean) || entry.href;
+            const label = name.replace(/[\\[\]]/g, '\\$&');
             const suffix = description ? `: ${description}` : '';
             // Link to the artifact that readers can fetch directly. Static HTML
             // builds use source-format companions when enabled; otherwise they
@@ -305,7 +308,7 @@ export class Llms {
             const relativeHref = resolveEntryHref(run, entry.href, html);
             const href = resolveAbsoluteHref(relativeHref, run.config.baseHref, tocDir);
 
-            lines.push(`- [${name}](${href})${suffix}`);
+            lines.push(`- [${label}](${href})${suffix}`);
         }
 
         const fullHref = run.config.baseHref
@@ -320,6 +323,25 @@ export class Llms {
         );
 
         return lines.join('\n') + '\n';
+    }
+
+    private async loadPageTitle(run: Run, path: NormalizedPath): Promise<string> {
+        // Load through the source services before dumping metadata: worker builds
+        // do not populate the main thread's MetaService. This also resolves Liquid
+        // consistently and keeps author metadata separate from the article H1.
+        try {
+            if (path.endsWith('.md')) {
+                return getArticleTitle(await run.markdown.load(path));
+            }
+
+            if (path.endsWith('.yaml') || path.endsWith('.yml')) {
+                return (await run.leading.load(path)).title || '';
+            }
+        } catch (error) {
+            run.logger.warn(`llms.txt: unable to read title for ${path}: ${error}`);
+        }
+
+        return '';
     }
 
     /**

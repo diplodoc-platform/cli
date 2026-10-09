@@ -97,6 +97,42 @@ describe('llms.txt', () => {
         },
     );
 
+    test.each([
+        {mode: 'plain', args: ''},
+        {mode: 'workers', args: ' --jobs 2'},
+    ])('article title priority and Liquid work in md and html ($mode)', async ({mode, args}) => {
+        const {inputPath, outputPath} = getTestPaths('mocks/llms-titles');
+        const modeOutputPath = `${outputPath}-${mode}`;
+
+        await TestAdapter.testBuildPass(inputPath, modeOutputPath, {
+            md2md: true,
+            md2html: true,
+            args: `--llms${args}`,
+        });
+
+        for (const {directory, extension, leadingExtension} of [
+            {directory: modeOutputPath, extension: 'md', leadingExtension: 'yaml'},
+            {directory: `${modeOutputPath}-html`, extension: 'html', leadingExtension: 'html'},
+        ]) {
+            const index = await readFile(join(directory, 'llms.txt'), 'utf8');
+
+            expect(index).toContain(`- [Sample metadata](meta.${extension}): Original description`);
+            expect(index).toContain(`- [Sample article H1](h1.${extension})`);
+            expect(index).toContain(`- [TOC fallback](toc.${extension})`);
+            expect(index).toContain(`- [Empty metadata H1](empty-meta.${extension})`);
+            expect(index).toContain(`- [Setext article H1](setext.${extension})`);
+            expect(index).toContain(`- [Sample leading H1](leading.${leadingExtension})`);
+            expect(index).toContain(
+                `- [Sample leading metadata](leading-meta.${leadingExtension}): Leading description`,
+            );
+            expect(index).toContain(`- [Array \\[x\\] \\\\ path](escaped.${extension})`);
+            expect(index).not.toContain('Inactive H1');
+            expect(index).not.toContain('Metadata TOC');
+            expect(index).not.toContain('H1 TOC');
+            expect(index).not.toContain('{{ product }}');
+        }
+    });
+
     test('llms-full.txt respects --llms-full-max-size limit', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/llms');
 

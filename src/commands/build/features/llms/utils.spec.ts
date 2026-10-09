@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {stripHtmlTags} from './utils';
+import {getArticleTitle, stripHtmlTags} from './utils';
 
 describe('stripHtmlTags', () => {
     describe('basic removal', () => {
@@ -428,5 +428,27 @@ describe('stripHtmlTags', () => {
             expect(result).toContain('{% cut "Web application source code" %}');
             expect(result).toContain('{% endcut %}');
         });
+    });
+});
+
+describe('getArticleTitle', () => {
+    it.each([
+        {markdown: '# Article H1\n', expected: 'Article H1'},
+        {markdown: 'Article H1\n==========\n', expected: 'Article H1'},
+        {markdown: 'Second level\n------------\n', expected: ''},
+        {markdown: '## Second level\n', expected: ''},
+        {markdown: '# First H1\n\n# Second H1\n', expected: 'First H1'},
+        {markdown: '```md\n# Example H1\n```\n\n# Actual H1\n', expected: 'Actual H1'},
+        {markdown: '<!--\n# Commented H1\n-->\n\n# Actual H1\n', expected: 'Actual H1'},
+        {
+            markdown: '# **Bold** [link](article.md) `code` &amp; text {#id}\n',
+            expected: 'Bold link code & text',
+        },
+        {
+            markdown: '# A <strong>title</strong> with ![image](image.png)\n',
+            expected: 'A title with image',
+        },
+    ])('extracts $expected from $markdown', ({markdown, expected}) => {
+        expect(getArticleTitle(markdown)).toBe(expected);
     });
 });
