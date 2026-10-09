@@ -16,3 +16,7 @@ items:
     href: leading-meta.yaml
   - name: Escaped TOC
     href: escaped.md
+  - name: Attribute TOC
+    href: attributes.md
+  - name: Literal attribute TOC
+    href: literal-attributes.md

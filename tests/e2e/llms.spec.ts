@@ -126,6 +126,26 @@ describe('llms.txt', () => {
                 `- [Sample leading metadata](leading-meta.${leadingExtension}): Leading description`,
             );
             expect(index).toContain(`- [Array \\[x\\] \\\\ path](escaped.${extension})`);
+            expect(index).toContain(`- [Attribute H1](attributes.${extension})`);
+            expect(index).toContain(
+                `- [Literal {#literal .literal key="value"}](literal-attributes.${extension})`,
+            );
+            expect(index).not.toContain('.doc-title');
+            if (extension === 'html') {
+                const html = await readFile(join(directory, 'attributes.html'), 'utf8');
+                const state = html.match(
+                    /<script type="application\/json" id="diplodoc-state">([\s\S]*?)<\/script>/,
+                );
+                if (!state) {
+                    throw new Error('Expected diplodoc-state in attributes.html');
+                }
+                const serialized = state[1]
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&amp;/g, '&');
+                const data = JSON.parse(serialized) as {data: {html: string}};
+                expect(data.data.html).toContain('Attribute H1</h1>');
+            }
             expect(index).not.toContain('Inactive H1');
             expect(index).not.toContain('Metadata TOC');
             expect(index).not.toContain('H1 TOC');

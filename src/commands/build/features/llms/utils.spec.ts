@@ -438,6 +438,14 @@ describe('getArticleTitle', () => {
         {markdown: 'Second level\n------------\n', expected: ''},
         {markdown: '## Second level\n', expected: ''},
         {markdown: '# First H1\n\n# Second H1\n', expected: 'First H1'},
+        {markdown: '# Article {.class key="value"}\n', expected: 'Article'},
+        {markdown: '# Article {#id .class key="a b"}\n', expected: 'Article'},
+        {markdown: '# Article {#id}\n', expected: 'Article'},
+        {
+            markdown: '# Article `{#id .class key="value"}`\n',
+            expected: 'Article {#id .class key="value"}',
+        },
+        {markdown: '# Article \\{#literal\\}\n', expected: 'Article {#literal}'},
         {markdown: '```md\n# Example H1\n```\n\n# Actual H1\n', expected: 'Actual H1'},
         {markdown: '<!--\n# Commented H1\n-->\n\n# Actual H1\n', expected: 'Actual H1'},
         {
