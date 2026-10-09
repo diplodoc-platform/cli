@@ -1,0 +1,8 @@
+title: Included docs
+llms:
+  description: Included summary must not replace English summary.
+  details: Included details must not replace project details.
+  url: https://example.com/included/llms.txt
+items:
+  - name: Included
+    href: _includes/extra.md

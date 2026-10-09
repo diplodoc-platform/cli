@@ -97,6 +97,98 @@ describe('llms.txt', () => {
         },
     );
 
+    test.each([
+        {mode: 'plain', args: '', baseHref: ''},
+        {mode: 'workers', args: ' --jobs 2', baseHref: ''},
+        {
+            mode: 'publication-root',
+            args: ' --base-href https://example.com/docs/ --skip-html-extension',
+            baseHref: 'https://example.com/docs/',
+        },
+    ])(
+        'resolves LLMS metadata per language and nearest TOC ($mode)',
+        async ({mode, args, baseHref}) => {
+            const {inputPath, outputPath} = getTestPaths('mocks/llms-toc');
+            const modeOutputPath = `${outputPath}-${mode}`;
+            await TestAdapter.testBuildPass(inputPath, modeOutputPath, {
+                args: `--llms${args}`,
+            });
+
+            for (const directory of [modeOutputPath, `${modeOutputPath}-html`]) {
+                const [english, russian, nested, full] = await Promise.all([
+                    readFile(join(directory, 'en/llms.txt'), 'utf8'),
+                    readFile(join(directory, 'ru/llms.txt'), 'utf8'),
+                    readFile(join(directory, 'en/nested/llms.txt'), 'utf8'),
+                    readFile(join(directory, 'en/llms-full.txt'), 'utf8'),
+                ]);
+
+                expect(english).toContain('> English summary.\n\nProject details.');
+                expect(english).toContain('- Shared guidance.\n\n## Documentation');
+                expect(english).toContain('Included');
+                expect(english).not.toContain('Included summary');
+                expect(english).not.toContain('Included details');
+                expect(russian).toContain('> Project summary.\n\nRussian details.');
+                expect(russian).not.toContain('Project details.');
+                expect(nested).toContain('# Nested docs\n\n## Documentation');
+                expect(nested).not.toContain('Project summary.');
+                expect(nested).not.toContain('Project details.');
+                expect(full).not.toContain('Shared guidance.');
+            }
+
+            for (const {page, url, markdownUrl = url} of [
+                {page: 'en/index', url: 'https://example.com/en/llms.txt'},
+                {page: 'ru/index', url: 'https://example.com/root/llms.txt'},
+                {
+                    page: 'en/nested/page',
+                    url: `${baseHref}en/nested/llms.txt`,
+                    markdownUrl: baseHref ? `${baseHref}en/nested/llms.txt` : 'llms.txt',
+                },
+            ]) {
+                const markdown = await readFile(join(modeOutputPath, `${page}.md`), 'utf8');
+                const companion = await readFile(
+                    join(`${modeOutputPath}-html`, `${page}.md`),
+                    'utf8',
+                );
+                const html = await readFile(join(`${modeOutputPath}-html`, `${page}.html`), 'utf8');
+                for (const content of [markdown, companion]) {
+                    expect(content).toContain(`href: ${markdownUrl}\n    rel: describedby`);
+                }
+                const describedby = html.match(/<link\b[^>]*rel="describedby"[^>]*>/)?.[0];
+                expect(describedby).toContain(`href="${url}"`);
+            }
+        },
+    );
+
+    test('TOC URL overrides remain active with project generation disabled', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/llms-toc');
+        const disabledOutputPath = `${outputPath}-disabled`;
+        await TestAdapter.testBuildPass(inputPath, disabledOutputPath, {
+            args: `-c ${join(inputPath, 'disabled.yfm')}`,
+        });
+
+        for (const directory of [disabledOutputPath, `${disabledOutputPath}-html`]) {
+            await expect(access(join(directory, 'en/llms.txt'))).rejects.toThrow();
+            const english = await readFile(join(directory, 'en/index.md'), 'utf8');
+            const russian = await readFile(join(directory, 'ru/index.md'), 'utf8');
+            const nested = await readFile(join(directory, 'en/nested/page.md'), 'utf8');
+            expect(english).toContain('href: https://example.com/en/llms.txt');
+            expect(russian).toContain('href: https://example.com/root/llms.txt');
+            expect(nested).not.toContain('rel: describedby');
+            if (directory.endsWith('-html')) {
+                const englishHtml = await readFile(join(directory, 'en/index.html'), 'utf8');
+                const russianHtml = await readFile(join(directory, 'ru/index.html'), 'utf8');
+                const nestedHtml = await readFile(join(directory, 'en/nested/page.html'), 'utf8');
+                expect(englishHtml).toContain(
+                    'rel="describedby" href="https://example.com/en/llms.txt"',
+                );
+                expect(russianHtml).toContain(
+                    'rel="describedby" href="https://example.com/root/llms.txt"',
+                );
+                expect(nestedHtml).not.toContain('rel="describedby"');
+            }
+        }
+    });
+
     test('llms-full.txt respects --llms-full-max-size limit', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/llms');
 

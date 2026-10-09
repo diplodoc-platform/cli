@@ -57,6 +57,7 @@ A compact index following the llmstxt.org spec:
 
 - Title (`# {toc.title}`)
 - Optional description (`> {llms.description}`)
+- Optional details (`llms.details`) before the documentation links
 - `## Documentation` section with links to each page
 - Footer linking to `llms-full.txt`
 
@@ -78,6 +79,8 @@ index above.
 llms:
   enabled: true # or 'md' (only for md output)
   description: '...' # optional, shown in llms.txt header
+  details: '...' # optional Markdown details before the link sections
+  url: https://example.com/llms.txt # optional describedby link override
   llmsFullMaxSize: 4M # max size of llms-full.txt (default 4M)
 ```
 
@@ -87,6 +90,38 @@ The `enabled` flag accepts `true`, `false`, or `'md'` (enable only for md
 output). When the `--llms` CLI flag is explicitly passed, it overrides the
 config value. When not passed, the config value is used; if no config section
 exists, `md` output defaults to enabled and `html` to disabled.
+
+### Per-TOC metadata
+
+A `toc.yaml` can override `llms.description`, `llms.details`, and `llms.url`
+independently, for example to localize the description for each language:
+
+```yaml
+title: My product
+llms:
+  description: English documentation for my product.
+  details: |
+    Read the guides before the API reference.
+
+    - Examples assume the latest stable release.
+  url: https://example.com/en/llms.txt
+items:
+  - name: Introduction
+    href: index.md
+```
+
+An absent field falls back to the corresponding `.yfm` value. An empty string
+clears that default: description/details are omitted, and URL uses the generated
+`llms.txt` when generation is enabled. Each TOC resolves against `.yfm`, without
+inheriting another TOC's metadata. Includes contribute entries to the containing
+TOC, without overriding its metadata. Page links use the same nearest TOC
+selection as navigation, including Markdown companions and static HTML
+`rel="describedby"` links. A URL override works even when LLMS generation is
+explicitly disabled; `enabled` and `llmsFullMaxSize` remain project settings.
+
+Details belong only to the compact index; `llms-full.txt` remains the article
+corpus. Details are free-form Markdown paragraphs/lists before H2 link sections,
+not the separate `## Optional` list of secondary links.
 
 ### llmsFullMaxSize and YFM022
 

@@ -10,6 +10,7 @@ import {flow} from 'lodash';
 
 import {THEME_ASSETS_PATH} from '~/constants';
 import {getPublicMeta} from '~/core/meta';
+import {resolveLlmsConfig} from '~/core/toc';
 import {all, get, isMediaLink, resolveAbsoluteHref, shortLink} from '~/core/utils';
 
 import {MarkdownCollector} from './collect';
@@ -38,8 +39,14 @@ export function prepareMarkdownMeta(run: Run, meta: Meta, file: NormalizedPath):
     }
 
     try {
-        const tocDir = dirname(run.toc.for(file).path) as NormalizedPath;
-        const entries = buildAlternateEntries(file, tocDir, run.config.llms, run.config.baseHref);
+        const toc = run.toc.for(file);
+        const tocDir = dirname(toc.path) as NormalizedPath;
+        const entries = buildAlternateEntries(
+            file,
+            tocDir,
+            resolveLlmsConfig(run.config.llms, toc),
+            run.config.baseHref,
+        );
         if (entries.length) {
             meta.alternate = [...(meta.alternate || []), ...entries];
         }
