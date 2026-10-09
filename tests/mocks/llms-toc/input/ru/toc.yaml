@@ -1,0 +1,6 @@
+title: Russian docs
+llms:
+  details: Russian details.
+items:
+  - name: Introduction
+    href: index.md
