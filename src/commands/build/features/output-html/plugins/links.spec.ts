@@ -1,3 +1,5 @@
+import type {AnchorIndex} from '~/commands/build/services/anchors';
+
 import {describe, expect, it} from 'vitest';
 import MarkdownIt from 'markdown-it';
 import file from '@diplodoc/transform/lib/plugins/file';
@@ -5,15 +7,23 @@ import file from '@diplodoc/transform/lib/plugins/file';
 import linksPlugin from './links';
 
 describe('Links plugin', () => {
-    function createMarkdownIt(entries: string[] = []) {
+    function createMarkdownIt(
+        entries: string[] = [],
+        anchorIndex?: AnchorIndex,
+        projectFiles = entries,
+    ) {
         const md = new MarkdownIt({html: true});
         md.use(file);
         md.use(linksPlugin, {
             path: 'index.md',
             root: '',
             directoryPath: '',
-            existsInProject: (path: string) => entries.includes(path),
+            existsInProject: (path: string) => projectFiles.includes(path),
             entries,
+            anchorIndex,
+            resolveAnchorPage: (path: NormalizedPath) => {
+                return path.endsWith('.md') && projectFiles.includes(path) ? path : null;
+            },
         });
         return md;
     }
@@ -158,6 +168,165 @@ describe('Links plugin', () => {
 
             expect(html).toContain('href="https://example.com/file.md"');
             expect(html).not.toContain('.html');
+        });
+
+        it.each([
+            ['existing-anchor', 'existing-anchor'],
+            ['раздел', '%D1%80%D0%B0%D0%B7%D0%B4%D0%B5%D0%BB'],
+            ['раздел', 'раздел'],
+        ])('should not set YFM024 for an existing anchor: %s linked as %s', (anchor, hash) => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([['page.md' as NormalizedPath, new Set([anchor])]]),
+            );
+
+            const tokens = md.parse(`[Link](page.md#${hash})`, {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM024')).toBeNull();
+        });
+
+        it('should set YFM024 for a missing anchor', () => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([['page.md' as NormalizedPath, new Set(['existing-anchor'])]]),
+            );
+
+            const tokens = md.parse('[Link](page.md#missing-anchor)', {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM024')).toBe('anchor-not-found');
+        });
+
+        it.each([
+            [
+                'page.md?version=v25.1#historical-anchor',
+                'page.html?version=v25.1#historical-anchor',
+            ],
+            [
+                'page.md?mode=compact&version=v25.1#historical-anchor',
+                'page.html?mode=compact&version=v25.1#historical-anchor',
+            ],
+            [
+                'page.md?%76ersion=v25.1#historical-anchor',
+                'page.html?version=v25.1#historical-anchor',
+            ],
+            ['?version=v25.1#historical-anchor', 'index.html?version=v25.1#historical-anchor'],
+        ])('should not validate an anchor from another version: %s', (href, expectedHref) => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([
+                    ['index.md' as NormalizedPath, new Set(['current-anchor'])],
+                    ['page.md' as NormalizedPath, new Set(['current-anchor'])],
+                ]),
+            );
+
+            const tokens = md.parse(`[Link](${href})`, {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM024')).toBeNull();
+            expect(linkToken?.attrGet('YFM003')).toBeNull();
+            expect(linkToken?.attrGet('href')).toBe(expectedHref);
+        });
+
+        it('should not validate a reference link to another version', () => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([['page.md' as NormalizedPath, new Set(['current-anchor'])]]),
+            );
+
+            const tokens = md.parse(
+                '[Link][historical]\n\n[historical]: page.md?version=v25.1#historical-anchor',
+                {},
+            );
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM024')).toBeNull();
+            expect(linkToken?.attrGet('href')).toBe('page.html?version=v25.1#historical-anchor');
+        });
+
+        it.each(['?mode=compact', '?version=', '?versions=v25.1', '?note=version%3Dv25.1'])(
+            'should validate a missing anchor in the current version: %s',
+            (search) => {
+                const md = createMarkdownIt(
+                    ['index.md', 'page.md'],
+                    new Map([['page.md' as NormalizedPath, new Set(['current-anchor'])]]),
+                );
+
+                const tokens = md.parse(`[Link](page.md${search}#missing-anchor)`, {});
+                const linkToken = tokens
+                    .find((token) => token.type === 'inline')
+                    ?.children?.find((token) => token.type === 'link_open');
+
+                expect(linkToken?.attrGet('YFM024')).toBe('anchor-not-found');
+            },
+        );
+
+        it('should validate same-page anchors', () => {
+            const md = createMarkdownIt(
+                ['index.md'],
+                new Map([['index.md' as NormalizedPath, new Set(['existing-anchor'])]]),
+            );
+
+            const tokens = md.parse('[Link](#missing-anchor)', {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM024')).toBe('anchor-not-found');
+        });
+
+        it.each(['missing.md#missing-anchor', 'missing.md?version=v25.1#missing-anchor'])(
+            'should report only YFM003 when the target file is missing: %s',
+            (href) => {
+                const md = createMarkdownIt(['index.md'], new Map());
+
+                const tokens = md.parse(`[Link](${href})`, {});
+                const linkToken = tokens
+                    .find((token) => token.type === 'inline')
+                    ?.children?.find((token) => token.type === 'link_open');
+
+                expect(linkToken?.attrGet('YFM003')).toBe('missing-in-toc');
+                expect(linkToken?.attrGet('YFM024')).toBeNull();
+            },
+        );
+
+        it('should report only YFM003 when the target file is missing from toc', () => {
+            const md = createMarkdownIt(
+                ['index.md'],
+                new Map([['page.md' as NormalizedPath, new Set<string>()]]),
+                ['index.md', 'page.md'],
+            );
+
+            const tokens = md.parse('[Link](page.md#missing-anchor)', {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM003')).toBe('missing-in-toc');
+            expect(linkToken?.attrGet('YFM024')).toBeNull();
+        });
+
+        it('should set YFM024 for a missing non-ASCII anchor', () => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([['page.md' as NormalizedPath, new Set(['раздел'])]]),
+            );
+
+            const tokens = md.parse('[Link](page.md#глава)', {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM024')).toBe('anchor-not-found');
         });
     });
 

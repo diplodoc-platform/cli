@@ -117,17 +117,24 @@ describe('Build watch feature', () => {
     }
 
     async function register(path: RelativePath, content: string | Error) {
-        const origin = normalizePath(join(run(build).originalInput, path)) as AbsolutePath;
-        const input = normalizePath(join(run(build).input, path)) as AbsolutePath;
+        const origin = join(run(build).originalInput, path) as AbsolutePath;
+        const input = join(run(build).input, path) as AbsolutePath;
+
+        // Like the real filesystem, accept native and normalized spellings of the same path.
+        for (const file of new Set([origin, input, normalizePath(origin), normalizePath(input)])) {
+            when(run(build).exists)
+                .calledWith(file as AbsolutePath)
+                .thenReturn(!(content instanceof Error));
+        }
 
         if (content instanceof Error) {
-            when(run(build).exists).calledWith(origin).thenReturn(false);
-            when(run(build).exists).calledWith(input).thenReturn(false);
-            when(run(build).read).calledWith(input).thenReject(content);
+            when(run(build).read)
+                .calledWith(normalizePath(input) as AbsolutePath)
+                .thenReject(content);
         } else {
-            when(run(build).exists).calledWith(origin).thenReturn(true);
-            when(run(build).exists).calledWith(input).thenReturn(true);
-            when(run(build).read).calledWith(input).thenResolve(content);
+            when(run(build).read)
+                .calledWith(normalizePath(input) as AbsolutePath)
+                .thenResolve(content);
         }
     }
 
@@ -1207,6 +1214,92 @@ describe('Build watch feature', () => {
     });
 
     describe('entry', () => {
+        it.each(['page', 'include', 'preset'] as const)(
+            'refreshes cached anchor diagnostics after a %s changes',
+            async (source) => {
+                const warnings = vi.spyOn(run(build).logger, 'warn');
+                const errors = vi.spyOn(run(build).logger, 'error');
+                const link = '[Link](target.md#old)';
+                await register('./index.md', link);
+                let changedFile: RelativePath = './target.md';
+                let original = '## Old';
+                let updated = '## New';
+
+                if (source === 'include') {
+                    changedFile = './heading.md';
+                    await register('./heading.md', original);
+                    await register('./target.md', '{% include [heading](./heading.md) %}');
+                } else if (source === 'preset') {
+                    changedFile = './presets.yaml';
+                    original = 'default:\n  heading: Old';
+                    updated = 'default:\n  heading: New';
+                    await create(changedFile, original);
+                    await register('./target.md', '## {{ heading }}');
+                } else {
+                    await register(changedFile, original);
+                }
+
+                await create(
+                    './toc.yaml',
+                    'href: index.md\nitems:\n  - name: Target\n    href: target.md',
+                );
+                expect(errors).not.toHaveBeenCalled();
+                expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+                warnings.mockClear();
+
+                await change(changedFile, updated);
+                expect(errors).not.toHaveBeenCalled();
+                expect(warnings).toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+                warnings.mockClear();
+
+                await change(changedFile, original);
+                expect(errors).not.toHaveBeenCalled();
+                expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+            },
+        );
+
+        it('refreshes link reachability after TOC removal and restoration', async () => {
+            const errors = vi.spyOn(run(build).logger, 'error');
+            const toc = 'href: index.md\nitems:\n  - name: Target\n    href: target.md';
+            await register('./index.md', '[Link](target.md#old)');
+            await register('./target.md', '## Old');
+            await create('./toc.yaml', toc);
+            expect(errors).not.toHaveBeenCalled();
+
+            await change('./toc.yaml', 'href: index.md');
+            await change('./index.md', '[Updated link](target.md#old)');
+            expect(errors).toHaveBeenCalledWith(expect.stringContaining('YFM003'));
+            errors.mockClear();
+
+            await change('./toc.yaml', toc);
+            await change('./index.md', '[Restored link](target.md#old)');
+            expect(errors).not.toHaveBeenCalled();
+        });
+
+        it('reports missing target files until they are restored', async () => {
+            const errors = vi.spyOn(run(build).logger, 'error');
+            const warnings = vi.spyOn(run(build).logger, 'warn');
+            await register('./index.md', '[Link](target.md#old)');
+            await register('./target.md', '## Old');
+            await create(
+                './toc.yaml',
+                'href: index.md\nitems:\n  - name: Target\n    href: target.md',
+            );
+            expect(errors).not.toHaveBeenCalled();
+            expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+
+            await remove('./target.md');
+            await change('./index.md', '[Missing link](target.md#old)');
+            expect(errors).toHaveBeenCalledWith(expect.stringContaining('YFM003'));
+            expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+            errors.mockClear();
+
+            await create('./target.md', '## Old');
+            await change('./index.md', '[Restored link](target.md#old)');
+            expect(errors).not.toHaveBeenCalled();
+            expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+        });
+
         it('should handle entry update', async () => {
             expect(processEntry).not.toBeCalled();
 
@@ -1216,6 +1309,41 @@ describe('Build watch feature', () => {
 
             await change('./index.md', 'Title 2');
             expect(processEntry).toBeCalledTimes(2);
+        });
+
+        it.each([
+            ['inline', '[Link](target.md#old)'],
+            ['reference-style', '[Link][target]\n\n[target]: target.md#old'],
+        ])('rebuilds a page with a %s fragment link when its target changes', async (_, link) => {
+            await register('./index.md', link);
+            await register('./target.md', '## Old');
+            await create(
+                './toc.yaml',
+                'href: index.md\nitems:\n  - name: Target\n    href: target.md',
+            );
+
+            depends('entry', 'index.md', 'target.md');
+            processEntry.mockClear();
+
+            await change('./target.md', '## New');
+
+            expect(processEntry).toHaveBeenCalledWith('index.md');
+            depends('entry', 'index.md', 'target.md');
+
+            await change('./index.md', 'No link');
+            depends('entry', 'index.md', 'target.md', false);
+            processEntry.mockClear();
+
+            await change('./target.md', '## Newer');
+            expect(processEntry).not.toHaveBeenCalledWith('index.md');
+        });
+
+        it('does not treat a reference image definition as a Markdown source', async () => {
+            await register('./index.md', '![Image][asset]\n\n[asset]: image.png');
+            await register('./image.png', 'image-data');
+            await create('./toc.yaml', 'href: index.md');
+
+            expect(run(build).entry.isSource(normalizePath('image.png'))).toBe(false);
         });
 
         it('should handle entry include update', async () => {

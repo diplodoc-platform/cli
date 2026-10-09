@@ -1,6 +1,6 @@
 import type {RunSpy} from '~/commands/build/__tests__';
 import type {BuildConfig} from '~/commands/build/types';
-import type {RawToc} from './types';
+import type {RawToc, Toc} from './types';
 import type {TocServiceConfig} from './TocService';
 import type {Preset} from '~/core/vars';
 
@@ -88,6 +88,55 @@ function test(
 }
 
 describe('toc-loader', () => {
+    describe('entry index', () => {
+        it('shares the reachable entry set and keeps the array API independent', () => {
+            const {toc} = setupService();
+            const graph = toc.relations;
+            graph.addNode('toc.yaml', {type: 'toc', data: {} as Toc});
+            graph.addNode('page.md', {type: 'entry', data: undefined});
+            graph.addNode('detached.md', {type: 'entry', data: undefined});
+            graph.addDependency('toc.yaml', 'page.md');
+            const order = vi.spyOn(graph, 'overallOrder');
+
+            const entries = toc.entrySet;
+            expect(entries).toEqual(new Set(['page.md']));
+            expect(toc.entrySet).toBe(entries);
+            toc.entries.pop();
+            expect(toc.entries).toEqual(['page.md']);
+            expect(order).toHaveBeenCalledTimes(1);
+
+            graph.addDependency('toc.yaml', 'detached.md');
+            expect(toc.entrySet).toEqual(new Set(['page.md', 'detached.md']));
+            graph.removeDependency('toc.yaml', 'page.md');
+            expect(toc.entrySet).toEqual(new Set(['detached.md']));
+            graph.removeNode('detached.md');
+            expect(toc.entrySet.size).toBe(0);
+            expect(order).toHaveBeenCalledTimes(4);
+        });
+
+        it('refreshes after worker synchronization, metadata changes and graph release', () => {
+            const {toc} = setupService();
+            expect(toc.entrySet.size).toBe(0);
+            toc.relations.consume({
+                nodes: [
+                    {name: 'toc.yaml', data: {type: 'toc', data: undefined}},
+                    {name: 'page.md', data: {type: 'entry', data: undefined}},
+                    {name: 'detached.md', data: {type: 'entry', data: undefined}},
+                ],
+                dependencies: [{from: 'toc.yaml', to: 'page.md'}],
+            });
+            expect(toc.entrySet).toEqual(new Set(['page.md', 'detached.md']));
+
+            toc.relations.setNodeData('toc.yaml', {type: 'toc', data: {} as Toc});
+            expect(toc.entrySet).toEqual(new Set(['page.md']));
+            toc.relations.setNodeData('page.md', {type: 'source', data: undefined});
+            expect(toc.entrySet.size).toBe(0);
+
+            toc.relations.release('toc.yaml');
+            expect(toc.entrySet).toEqual(new Set(['detached.md']));
+        });
+    });
+
     it(
         'should handle simple title',
         test(dedent`
