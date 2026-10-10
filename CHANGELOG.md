@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.63.3](https://github.com/diplodoc-platform/cli/compare/v5.63.2...v5.63.3) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.14.8 ([1c2b0f2](https://github.com/diplodoc-platform/cli/commit/1c2b0f2ad112bba119a48ea786953e82b48ae4d7))
+* **translate:** preserve approved formatting and validate shared translation seeds ([#2321](https://github.com/diplodoc-platform/cli/issues/2321)) ([b020375](https://github.com/diplodoc-platform/cli/commit/b020375d034437b2e08296148a717ea1759e7e77))
+
 ## [5.63.2](https://github.com/diplodoc-platform/cli/compare/v5.63.1...v5.63.2) (2026-10-07)
 
 
