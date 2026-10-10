@@ -1,0 +1,32 @@
+title: Title priority
+items:
+  - name: Metadata TOC
+    href: meta.md
+  - name: H1 TOC
+    href: h1.md
+  - name: TOC fallback
+    href: toc.md
+  - name: Empty metadata TOC
+    href: empty-meta.md
+  - name: Setext TOC
+    href: setext.md
+  - name: Leading TOC
+    href: leading.yaml
+  - name: Leading metadata TOC
+    href: leading-meta.yaml
+  - name: Escaped TOC
+    href: escaped.md
+  - name: Attribute TOC
+    href: attributes.md
+  - name: Literal attribute TOC
+    href: literal-attributes.md
+  - name: Visibility TOC
+    href: visibility.md
+  - name: Include TOC
+    href: include.md
+  - name: Hash include TOC
+    href: include-hash.md
+  - name: Notitle include TOC
+    href: include-notitle.md
+  - name: Agent-only TOC
+    href: agent-only.md

@@ -4,6 +4,19 @@ import {describe, expect, test} from 'vitest';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
+async function readHtmlPage(directory: string, page: string) {
+    const html = await readFile(join(directory, `${page}.html`), 'utf8');
+    const state = html.match(
+        /<script type="application\/json" id="diplodoc-state">([\s\S]*?)<\/script>/,
+    );
+    if (!state) {
+        throw new Error(`Expected diplodoc-state in ${page}.html`);
+    }
+    const serialized = state[1].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    const data = JSON.parse(serialized) as {data: {html: string; title: string}};
+    return data.data;
+}
+
 describe('llms.txt', () => {
     // Builds the same fixture in both md and html with `--llms` (variant B):
     //   - md  output -> `${outputPath}`      (llms-full.txt has includes merged)
@@ -96,6 +109,73 @@ describe('llms.txt', () => {
             }
         },
     );
+
+    test.each([
+        {mode: 'plain', args: ''},
+        {mode: 'workers', args: ' --jobs 2'},
+    ])('article title priority and Liquid work in md and html ($mode)', async ({mode, args}) => {
+        const {inputPath, outputPath} = getTestPaths('mocks/llms-titles');
+        const modeOutputPath = `${outputPath}-${mode}`;
+
+        await TestAdapter.testBuildPass(inputPath, modeOutputPath, {
+            md2md: true,
+            md2html: true,
+            args: `--llms${args}`,
+        });
+
+        for (const {directory, extension, leadingExtension} of [
+            {directory: modeOutputPath, extension: 'md', leadingExtension: 'yaml'},
+            {directory: `${modeOutputPath}-html`, extension: 'html', leadingExtension: 'html'},
+        ]) {
+            const index = await readFile(join(directory, 'llms.txt'), 'utf8');
+
+            expect(index).toContain(`- [Sample metadata](meta.${extension}): Original description`);
+            expect(index).toContain(`- [Sample article H1](h1.${extension})`);
+            expect(index).toContain(`- [TOC fallback](toc.${extension})`);
+            expect(index).toContain(`- [Empty metadata H1](empty-meta.${extension})`);
+            expect(index).toContain(`- [Setext article H1](setext.${extension})`);
+            expect(index).toContain(`- [Sample leading H1](leading.${leadingExtension})`);
+            expect(index).toContain(
+                `- [Sample leading metadata](leading-meta.${leadingExtension}): Leading description`,
+            );
+            expect(index).toContain(`- [Array \\[x\\] \\\\ path](escaped.${extension})`);
+            expect(index).toContain(`- [Attribute H1](attributes.${extension})`);
+            expect(index).toContain(
+                `- [Literal {#literal .literal key="value"}](literal-attributes.${extension})`,
+            );
+            expect(index).toContain(`- [Human article H1](visibility.${extension})`);
+            expect(index).toContain(`- [Included Sample H1](include.${extension})`);
+            expect(index).toContain(`- [Selected article H1](include-hash.${extension})`);
+            expect(index).toContain(`- [Notitle article H1](include-notitle.${extension})`);
+            expect(index).toContain(`- [Agent-only TOC](agent-only.${extension})`);
+            expect(index).not.toContain('Agent-only H1');
+            expect(index).not.toContain('Agent include H1');
+            expect(index).not.toContain('Hidden agent H1');
+            expect(index).not.toContain('Unselected H1');
+            expect(index).not.toContain('.doc-title');
+            if (extension === 'html') {
+                expect((await readHtmlPage(directory, 'attributes')).html).toContain(
+                    'Attribute H1</h1>',
+                );
+                // The renderer retains inline attributes in its extracted title;
+                // the index assertions above check the visible label separately.
+                for (const [page, title] of [
+                    ['visibility', 'Human article H1'],
+                    ['include', 'Included Sample H1 {#included .doc-title}'],
+                    ['include-hash', 'Selected article H1'],
+                ]) {
+                    expect((await readHtmlPage(directory, page)).title).toBe(title);
+                }
+                expect((await readHtmlPage(directory, 'include-notitle')).html).toContain(
+                    'Notitle article H1</h1>',
+                );
+            }
+            expect(index).not.toContain('Inactive H1');
+            expect(index).not.toContain('Metadata TOC');
+            expect(index).not.toContain('H1 TOC');
+            expect(index).not.toContain('{{ product }}');
+        }
+    });
 
     test('llms-full.txt respects --llms-full-max-size limit', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/llms');

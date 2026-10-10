@@ -1,3 +1,8 @@
+import type Token from 'markdown-it/lib/token';
+
+import MarkdownIt from 'markdown-it';
+import attrs from 'markdown-it-attrs';
+
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
 /**
@@ -112,4 +117,33 @@ export function stripHtmlTags(content: string, tags: string[]): string {
     result = result.replace(restoreRegex, (_, i) => placeholders[Number(i)]);
 
     return result.trim();
+}
+
+const titleParser = new MarkdownIt({html: true}).use(attrs, {
+    leftDelimiter: '{',
+    rightDelimiter: '}',
+});
+
+/** Returns the visible text of the first H1 in fully assembled human Markdown. */
+export function getArticleTitle(markdown: string): string {
+    const tokens = titleParser.parse(markdown, {});
+    const index = tokens.findIndex((token) => token.type === 'heading_open' && token.tag === 'h1');
+
+    return index < 0 ? '' : getInlineText(tokens[index + 1].children || []).trim();
+}
+
+function getInlineText(tokens: Token[]): string {
+    return tokens
+        .map((token) => {
+            if (token.children) {
+                return getInlineText(token.children);
+            }
+
+            if (token.type === 'text' || token.type === 'code_inline') {
+                return token.content;
+            }
+
+            return token.type === 'softbreak' || token.type === 'hardbreak' ? ' ' : '';
+        })
+        .join('');
 }
