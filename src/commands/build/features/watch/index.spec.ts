@@ -1244,17 +1244,17 @@ describe('Build watch feature', () => {
                     'href: index.md\nitems:\n  - name: Target\n    href: target.md',
                 );
                 expect(errors).not.toHaveBeenCalled();
-                expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+                expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM025'));
                 warnings.mockClear();
 
                 await change(changedFile, updated);
                 expect(errors).not.toHaveBeenCalled();
-                expect(warnings).toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+                expect(warnings).toHaveBeenCalledWith(expect.stringContaining('YFM025'));
                 warnings.mockClear();
 
                 await change(changedFile, original);
                 expect(errors).not.toHaveBeenCalled();
-                expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+                expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM025'));
             },
         );
 
@@ -1286,18 +1286,18 @@ describe('Build watch feature', () => {
                 'href: index.md\nitems:\n  - name: Target\n    href: target.md',
             );
             expect(errors).not.toHaveBeenCalled();
-            expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+            expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM025'));
 
             await remove('./target.md');
             await change('./index.md', '[Missing link](target.md#old)');
             expect(errors).toHaveBeenCalledWith(expect.stringContaining('YFM003'));
-            expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+            expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM025'));
             errors.mockClear();
 
             await create('./target.md', '## Old');
             await change('./index.md', '[Restored link](target.md#old)');
             expect(errors).not.toHaveBeenCalled();
-            expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM024'));
+            expect(warnings).not.toHaveBeenCalledWith(expect.stringContaining('YFM025'));
         });
 
         it('should handle entry update', async () => {

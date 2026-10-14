@@ -3,12 +3,12 @@ import type MarkdownIt from 'markdown-it';
 import Token from 'markdown-it/lib/token';
 import {LogLevels, normalizeConfig, yfmlint} from '@diplodoc/yfmlint';
 
-const ANCHOR_RULE = 'YFM024';
+const ANCHOR_RULE = 'YFM025';
 const ANCHOR_ALIAS = 'missing-local-anchor';
 
 /**
  * Reports CLI anchor diagnostics independently of the legacy YFM002 rule.
- * yfmlint 1.10.0 cannot accept custom rules, so reuse its link rule on a copy of
+ * yfmlint does not accept CLI-specific rules, so reuse its link rule on a copy of
  * the parsed tokens. This preserves include contexts and inline suppression
  * without parsing the document or running transform plugins a second time.
  */
@@ -104,7 +104,7 @@ function remapAnchorDirectives(content: string) {
             const directive = part
                 .slice(0, end)
                 .replace(/\b(YFM002|no-header-found-for-link)\b/gi, 'legacy-$1')
-                .replace(/\b(YFM024|missing-local-anchor)\b/gi, 'YFM002');
+                .replace(/\b(YFM025|missing-local-anchor)\b/gi, 'YFM002');
             return directive + part.slice(end);
         })
         .join('<!--');

@@ -3,6 +3,7 @@ import type {RawLintConfig} from '@diplodoc/yfmlint';
 
 import {describe, expect, it, vi} from 'vitest';
 import {LogLevels} from '@diplodoc/yfmlint';
+import anchors from '@diplodoc/transform/lib/plugins/anchors';
 
 import {lintWithLocalAnchors} from './lint';
 
@@ -16,7 +17,7 @@ function markerPlugin(md: MarkdownIt) {
                     continue;
                 }
                 const rule = {
-                    '#missing': 'YFM024',
+                    '#missing': 'YFM025',
                     '#legacy': 'YFM002',
                     '#unreachable': 'YFM003',
                 }[link.attrGet('href') || ''];
@@ -33,16 +34,78 @@ function lint(content = CONTENT, lintConfig: RawLintConfig = {}) {
 }
 
 describe('CLI local anchor diagnostics', () => {
-    it('warns with YFM024 when the legacy rule is configured as an error', async () => {
+    describe('independence from empty heading IDs', () => {
+        const source = '## Empty {# broken}\n\n' + CONTENT;
+
+        it.each([
+            [
+                'default levels',
+                {},
+                [
+                    ['YFM024', LogLevels.WARN],
+                    ['YFM025', LogLevels.WARN],
+                ],
+            ],
+            ['disabled heading rule', {YFM024: false}, [['YFM025', LogLevels.WARN]]],
+            ['disabled link rule', {YFM025: false}, [['YFM024', LogLevels.WARN]]],
+            [
+                'heading error',
+                {YFM024: LogLevels.ERROR},
+                [
+                    ['YFM024', LogLevels.ERROR],
+                    ['YFM025', LogLevels.WARN],
+                ],
+            ],
+            [
+                'link error',
+                {YFM025: LogLevels.ERROR},
+                [
+                    ['YFM024', LogLevels.WARN],
+                    ['YFM025', LogLevels.ERROR],
+                ],
+            ],
+            [
+                'disabled heading alias',
+                {'empty-custom-heading-anchor': false},
+                [['YFM025', LogLevels.WARN]],
+            ],
+            ['disabled link alias', {'missing-local-anchor': false}, [['YFM024', LogLevels.WARN]]],
+        ] as const)(
+            'keeps both diagnostic configurations independent: %s',
+            async (_name, lintConfig, expected) => {
+                const diagnostics = await lintWithLocalAnchors(source, 'index.md', {
+                    plugins: [anchors, markerPlugin],
+                    lintConfig,
+                });
+                expect(diagnostics?.map(({ruleNames, level}) => [ruleNames[0], level])).toEqual(
+                    expected,
+                );
+            },
+        );
+
+        it.each([
+            ['YFM024', 'YFM025'],
+            ['YFM025', 'YFM024'],
+        ])('suppresses only %s with an inline directive', async (disabled, remaining) => {
+            const diagnostics = await lintWithLocalAnchors(
+                `<!-- markdownlint-disable ${disabled} -->\n` + source,
+                'index.md',
+                {plugins: [anchors, markerPlugin]},
+            );
+            expect(diagnostics?.map(({ruleNames}) => ruleNames[0])).toEqual([remaining]);
+        });
+    });
+
+    it('warns with YFM025 when the legacy rule is configured as an error', async () => {
         const diagnostics = await lint(CONTENT, {YFM002: LogLevels.ERROR});
         expect(diagnostics).toHaveLength(1);
         expect(diagnostics?.[0]).toMatchObject({
             level: LogLevels.WARN,
             lineNumber: 1,
-            ruleNames: ['YFM024', 'missing-local-anchor'],
+            ruleNames: ['YFM025', 'missing-local-anchor'],
         });
         expect(String(diagnostics?.[0])).toBe(
-            'index.md: 1: YFM024 / missing-local-anchor Local link anchor is missing in the target document [Context: "[anchor](#missing)"]',
+            'index.md: 1: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "[anchor](#missing)"]',
         );
     });
 
@@ -52,20 +115,20 @@ describe('CLI local anchor diagnostics', () => {
         });
         expect(diagnostics?.map(({ruleNames, level}) => [ruleNames[0], level])).toEqual([
             ['YFM002', LogLevels.ERROR],
-            ['YFM024', LogLevels.WARN],
+            ['YFM025', LogLevels.WARN],
         ]);
     });
 
     it('does not re-enable disabled legacy diagnostics', async () => {
         const diagnostics = await lint('[legacy](#legacy) [anchor](#missing)', {YFM002: false});
-        expect(diagnostics?.map(({ruleNames}) => ruleNames[0])).toEqual(['YFM024']);
+        expect(diagnostics?.map(({ruleNames}) => ruleNames[0])).toEqual(['YFM025']);
     });
 
     it.each([
-        ['YFM024', LogLevels.ERROR, LogLevels.ERROR],
-        ['YFM024', LogLevels.INFO, LogLevels.INFO],
-        ['YFM024', {level: LogLevels.ERROR}, LogLevels.ERROR],
-        ['YFM024', {loglevel: LogLevels.ERROR}, LogLevels.ERROR],
+        ['YFM025', LogLevels.ERROR, LogLevels.ERROR],
+        ['YFM025', LogLevels.INFO, LogLevels.INFO],
+        ['YFM025', {level: LogLevels.ERROR}, LogLevels.ERROR],
+        ['YFM025', {loglevel: LogLevels.ERROR}, LogLevels.ERROR],
         ['missing-local-anchor', LogLevels.ERROR, LogLevels.ERROR],
     ] as const)('supports %s configured as %s', async (name, config, level) => {
         const diagnostics = await lint(CONTENT, {[name]: config});
@@ -74,24 +137,24 @@ describe('CLI local anchor diagnostics', () => {
     });
 
     it.each([
-        ['YFM024', false],
-        ['YFM024', LogLevels.DISABLED],
+        ['YFM025', false],
+        ['YFM025', LogLevels.DISABLED],
         ['missing-local-anchor', false],
     ] as const)('supports disabling %s using %s', async (name, config) => {
         expect(await lint(CONTENT, {[name]: config})).toEqual([]);
     });
 
     it.each([
-        ['<!-- markdownlint-disable YFM024 -->\n', 0],
+        ['<!-- markdownlint-disable YFM025 -->\n', 0],
         ['<!-- markdownlint-disable missing-local-anchor -->\n', 0],
-        ['<!-- markdownlint-disable-file YFM024 -->\n', 0],
-        ['<!-- markdownlint-disable-next-line YFM024 -->\n', 0],
+        ['<!-- markdownlint-disable-file YFM025 -->\n', 0],
+        ['<!-- markdownlint-disable-next-line YFM025 -->\n', 0],
         ['<!-- markdownlint-disable YFM002 -->\n', 1],
         ['<!-- markdownlint-disable no-header-found-for-link -->\n', 1],
         ['<!-- markdownlint-disable -->\n', 0],
         ['<!-- markdownlint-disable links -->\n', 0],
-        ['<!-- markdownlint-disable YFM024 -->\n<!-- markdownlint-enable YFM024 -->\n', 1],
-        ['<!-- markdownlint-configure-file {"YFM024":false} -->\n', 0],
+        ['<!-- markdownlint-disable YFM025 -->\n<!-- markdownlint-enable YFM025 -->\n', 1],
+        ['<!-- markdownlint-configure-file {"YFM025":false} -->\n', 0],
     ])('honors inline directives: %s', async (prefix, expected) => {
         expect(await lint(prefix + CONTENT)).toHaveLength(expected);
     });
@@ -99,8 +162,8 @@ describe('CLI local anchor diagnostics', () => {
     it('honors disable-line and capture/restore without suppressing later diagnostics', async () => {
         const diagnostics = await lint(
             CONTENT +
-                ' <!-- markdownlint-disable-line YFM024 -->\n\n' +
-                '<!-- markdownlint-capture -->\n<!-- markdownlint-disable YFM024 -->\n' +
+                ' <!-- markdownlint-disable-line YFM025 -->\n\n' +
+                '<!-- markdownlint-capture -->\n<!-- markdownlint-disable YFM025 -->\n' +
                 CONTENT +
                 '\n\n<!-- markdownlint-restore -->\n' +
                 CONTENT,
@@ -110,15 +173,15 @@ describe('CLI local anchor diagnostics', () => {
     });
 
     it('does not rewrite rule names in the link context', async () => {
-        const diagnostics = await lint('[YFM024 missing-local-anchor](#missing)');
-        expect(diagnostics?.[0].errorContext).toBe('[YFM024 missing-local-anchor](#missing)');
+        const diagnostics = await lint('[YFM025 missing-local-anchor](#missing)');
+        expect(diagnostics?.[0].errorContext).toBe('[YFM025 missing-local-anchor](#missing)');
     });
 
     it('leaves ordinary and unfinished HTML comments unchanged', async () => {
         const diagnostics = await lint(
-            '<!-- YFM024 missing-local-anchor -->\n\n' +
+            '<!-- YFM025 missing-local-anchor -->\n\n' +
                 CONTENT +
-                '\n\n<!-- markdownlint-disable YFM024',
+                '\n\n<!-- markdownlint-disable YFM025',
         );
         expect(diagnostics).toHaveLength(1);
         expect(diagnostics?.[0].lineNumber).toBe(3);
@@ -164,7 +227,7 @@ describe('CLI local anchor diagnostics', () => {
 
     it('works when all existing rules and legacy inline diagnostics are disabled', async () => {
         const lintConfig: RawLintConfig = {default: false};
-        for (let index = 1; index < 24; index++) {
+        for (let index = 1; index < 25; index++) {
             lintConfig[`YFM${String(index).padStart(3, '0')}`] = false;
         }
         const diagnostics = await lint(
@@ -172,7 +235,7 @@ describe('CLI local anchor diagnostics', () => {
             lintConfig,
         );
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics?.[0].ruleNames[0]).toBe('YFM024');
+        expect(diagnostics?.[0].ruleNames[0]).toBe('YFM025');
     });
 
     it('preserves unrelated diagnostics when no anchor is missing', async () => {

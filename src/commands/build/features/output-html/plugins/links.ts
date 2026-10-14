@@ -130,6 +130,6 @@ function validateAnchor(
     const targetIsReachable = target && entries.has(target) && link.attrGet('YFM003') === null;
 
     if (anchor && targetIsReachable && targetAnchors && !targetAnchors.has(anchor)) {
-        link.attrSet('YFM024', 'anchor-not-found');
+        link.attrSet('YFM025', 'anchor-not-found');
     }
 }
