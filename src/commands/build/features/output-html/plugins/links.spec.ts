@@ -174,7 +174,7 @@ describe('Links plugin', () => {
             ['existing-anchor', 'existing-anchor'],
             ['раздел', '%D1%80%D0%B0%D0%B7%D0%B4%D0%B5%D0%BB'],
             ['раздел', 'раздел'],
-        ])('should not set YFM024 for an existing anchor: %s linked as %s', (anchor, hash) => {
+        ])('should not set YFM025 for an existing anchor: %s linked as %s', (anchor, hash) => {
             const md = createMarkdownIt(
                 ['index.md', 'page.md'],
                 new Map([['page.md' as NormalizedPath, new Set([anchor])]]),
@@ -185,10 +185,10 @@ describe('Links plugin', () => {
                 .find((token) => token.type === 'inline')
                 ?.children?.find((token) => token.type === 'link_open');
 
-            expect(linkToken?.attrGet('YFM024')).toBeNull();
+            expect(linkToken?.attrGet('YFM025')).toBeNull();
         });
 
-        it('should set YFM024 for a missing anchor', () => {
+        it('should set YFM025 for a missing anchor', () => {
             const md = createMarkdownIt(
                 ['index.md', 'page.md'],
                 new Map([['page.md' as NormalizedPath, new Set(['existing-anchor'])]]),
@@ -199,7 +199,7 @@ describe('Links plugin', () => {
                 .find((token) => token.type === 'inline')
                 ?.children?.find((token) => token.type === 'link_open');
 
-            expect(linkToken?.attrGet('YFM024')).toBe('anchor-not-found');
+            expect(linkToken?.attrGet('YFM025')).toBe('anchor-not-found');
         });
 
         it.each([
@@ -230,7 +230,7 @@ describe('Links plugin', () => {
                 .find((token) => token.type === 'inline')
                 ?.children?.find((token) => token.type === 'link_open');
 
-            expect(linkToken?.attrGet('YFM024')).toBeNull();
+            expect(linkToken?.attrGet('YFM025')).toBeNull();
             expect(linkToken?.attrGet('YFM003')).toBeNull();
             expect(linkToken?.attrGet('href')).toBe(expectedHref);
         });
@@ -249,7 +249,7 @@ describe('Links plugin', () => {
                 .find((token) => token.type === 'inline')
                 ?.children?.find((token) => token.type === 'link_open');
 
-            expect(linkToken?.attrGet('YFM024')).toBeNull();
+            expect(linkToken?.attrGet('YFM025')).toBeNull();
             expect(linkToken?.attrGet('href')).toBe('page.html?version=v25.1#historical-anchor');
         });
 
@@ -266,7 +266,7 @@ describe('Links plugin', () => {
                     .find((token) => token.type === 'inline')
                     ?.children?.find((token) => token.type === 'link_open');
 
-                expect(linkToken?.attrGet('YFM024')).toBe('anchor-not-found');
+                expect(linkToken?.attrGet('YFM025')).toBe('anchor-not-found');
             },
         );
 
@@ -281,7 +281,7 @@ describe('Links plugin', () => {
                 .find((token) => token.type === 'inline')
                 ?.children?.find((token) => token.type === 'link_open');
 
-            expect(linkToken?.attrGet('YFM024')).toBe('anchor-not-found');
+            expect(linkToken?.attrGet('YFM025')).toBe('anchor-not-found');
         });
 
         it.each(['missing.md#missing-anchor', 'missing.md?version=v25.1#missing-anchor'])(
@@ -295,7 +295,7 @@ describe('Links plugin', () => {
                     ?.children?.find((token) => token.type === 'link_open');
 
                 expect(linkToken?.attrGet('YFM003')).toBe('missing-in-toc');
-                expect(linkToken?.attrGet('YFM024')).toBeNull();
+                expect(linkToken?.attrGet('YFM025')).toBeNull();
             },
         );
 
@@ -312,10 +312,10 @@ describe('Links plugin', () => {
                 ?.children?.find((token) => token.type === 'link_open');
 
             expect(linkToken?.attrGet('YFM003')).toBe('missing-in-toc');
-            expect(linkToken?.attrGet('YFM024')).toBeNull();
+            expect(linkToken?.attrGet('YFM025')).toBeNull();
         });
 
-        it('should set YFM024 for a missing non-ASCII anchor', () => {
+        it('should set YFM025 for a missing non-ASCII anchor', () => {
             const md = createMarkdownIt(
                 ['index.md', 'page.md'],
                 new Map([['page.md' as NormalizedPath, new Set(['раздел'])]]),
@@ -326,7 +326,7 @@ describe('Links plugin', () => {
                 .find((token) => token.type === 'inline')
                 ?.children?.find((token) => token.type === 'link_open');
 
-            expect(linkToken?.attrGet('YFM024')).toBe('anchor-not-found');
+            expect(linkToken?.attrGet('YFM025')).toBe('anchor-not-found');
         });
     });
 

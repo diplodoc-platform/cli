@@ -151,18 +151,24 @@ Presets (`presets.yaml`), includes and variables are resolved relative to a proj
 
 ### Local anchor diagnostics
 
-HTML builds report a missing local link anchor as `YFM024 / missing-local-anchor`. It is a
+HTML builds report a missing local link anchor as `YFM025 / missing-local-anchor`. It is a
 warning by default, including when an existing `.yfmlint` config sets `YFM002` to `error`.
 Missing or unreachable target documents still produce `YFM003` errors.
 
 Configure the new rule independently in `.yfmlint`:
 
 ```yaml
-YFM024: warn
+YFM025: warn
 ```
 
-Use `YFM024: error` to fail builds on missing local anchors or `YFM024: false` to disable
+Use `YFM025: error` to fail builds on missing local anchors or `YFM025: false` to disable
 the check. `--strict` continues to fail builds on warnings.
+
+`YFM024 / empty-custom-heading-anchor` belongs to yfmlint and reports an empty
+shorthand heading ID, for example `{# section-id}`. It is independent of the
+CLI-only `YFM025` check: severity settings and inline suppression apply separately.
+If a configuration adopted the temporary CLI-master `YFM024` local-anchor check,
+use `YFM025` or the unchanged `missing-local-anchor` alias for that check instead.
 
 ## Source files
 

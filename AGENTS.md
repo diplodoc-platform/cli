@@ -223,6 +223,10 @@ The same rules apply to `core/` as to commands:
 
 ### Testing
 
+CLI diagnostics share the YFM numbering namespace with yfmlint. YFM024 is the
+published empty-heading-ID rule; YFM025 is the CLI-only missing-local-anchor rule.
+Check both registries before assigning a number and keep their configuration independent.
+
 1. **Unit tests**:
    - Uses Vitest
    - Tests are next to code or in `__tests__/`
