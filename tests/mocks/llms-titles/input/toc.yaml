@@ -30,3 +30,9 @@ items:
     href: include-notitle.md
   - name: Agent-only TOC
     href: agent-only.md
+  - name: Alpha TOC
+    href: alpha/page.md
+  - name: Beta TOC
+    href: beta/page.md
+  - name: Literal markup TOC
+    href: literal-markup.md

@@ -1,6 +1,7 @@
 import {access, readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {describe, expect, test} from 'vitest';
+import MarkdownIt from 'markdown-it';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
@@ -141,13 +142,18 @@ describe('llms.txt', () => {
             expect(index).toContain(`- [Array \\[x\\] \\\\ path](escaped.${extension})`);
             expect(index).toContain(`- [Attribute H1](attributes.${extension})`);
             expect(index).toContain(
-                `- [Literal {#literal .literal key="value"}](literal-attributes.${extension})`,
+                `- [Literal \\{#literal .literal key="value"\\}](literal-attributes.${extension})`,
             );
             expect(index).toContain(`- [Human article H1](visibility.${extension})`);
             expect(index).toContain(`- [Included Sample H1](include.${extension})`);
             expect(index).toContain(`- [Selected article H1](include-hash.${extension})`);
             expect(index).toContain(`- [Notitle article H1](include-notitle.${extension})`);
             expect(index).toContain(`- [Agent-only TOC](agent-only.${extension})`);
+            expect(index).toContain(`- [Alpha article H1](alpha/page.${extension})`);
+            expect(index).toContain(`- [Beta article H1](beta/page.${extension})`);
+            expect(new MarkdownIt({html: true}).render(index)).toContain(
+                `<a href="literal-markup.${extension}">Literal &lt;T&gt; *required* &amp;copy;</a>`,
+            );
             expect(index).not.toContain('Agent-only H1');
             expect(index).not.toContain('Agent include H1');
             expect(index).not.toContain('Hidden agent H1');
@@ -163,6 +169,8 @@ describe('llms.txt', () => {
                     ['visibility', 'Human article H1'],
                     ['include', 'Included Sample H1 {#included .doc-title}'],
                     ['include-hash', 'Selected article H1'],
+                    ['alpha/page', 'Alpha article H1'],
+                    ['beta/page', 'Beta article H1'],
                 ]) {
                     expect((await readHtmlPage(directory, page)).title).toBe(title);
                 }

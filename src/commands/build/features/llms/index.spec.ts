@@ -5,6 +5,7 @@ import type {LlmsConfig} from './index';
 import type {MarkdownCollector} from '../output-md/collect';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+import MarkdownIt from 'markdown-it';
 
 import {OutputFormat} from '~/commands/build/config';
 
@@ -767,6 +768,35 @@ describe('LLMs Plugin Architecture', () => {
 
             expect(result).toContain('- [Array \\[x\\] \\\\ path next](article.html)');
         });
+
+        it.each(['meta', 'heading', 'toc'])(
+            'preserves literal markup in the rendered link label from %s',
+            async (source) => {
+                const title = 'Literal <T> *required* _value_ &copy; `code`';
+                const run = createMockRun();
+                vi.mocked(run.meta.dump).mockResolvedValue({
+                    title: source === 'meta' ? title : '',
+                });
+                vi.mocked(run.markdown.load).mockResolvedValue(
+                    source === 'heading'
+                        ? '# Literal `<T>` `*required*` `_value_` `&copy;` `` `code` ``\n'
+                        : '',
+                );
+                const entries = [
+                    {
+                        href: normalizedPath('article.md'),
+                        path: normalizedPath('article.md'),
+                        name: source === 'toc' ? title : 'TOC',
+                    },
+                ];
+
+                const result = await llmsInstance.renderIndex(run, '', entries, '.');
+
+                expect(new MarkdownIt({html: true}).render(result)).toContain(
+                    '<a href="article.html">Literal &lt;T&gt; *required* _value_ &amp;copy; `code`</a>',
+                );
+            },
+        );
 
         it('keeps the TOC fallback when a source title cannot be loaded', async () => {
             const run = createMockRun();

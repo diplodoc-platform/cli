@@ -288,12 +288,11 @@ export class Llms {
 
         lines.push('## Documentation', '');
 
-        const collector = new MarkdownCollector(run, SELF_CONTAINED, {audience: 'human'});
         const seenOpenapiCompanions = new Set<string>();
         for (const entry of entries) {
             this.appendOpenapiCompanions(run, entry, tocDir, lines, seenOpenapiCompanions);
 
-            const pageTitle = await this.loadPageTitle(run, entry.path, collector);
+            const pageTitle = await this.loadPageTitle(run, entry.path);
             const meta = await run.meta.dump(entry.path);
             const description = typeof meta.description === 'string' ? meta.description : '';
             const metaTitle = typeof meta.title === 'string' ? meta.title : '';
@@ -301,7 +300,9 @@ export class Llms {
                 [metaTitle, pageTitle, entry.name, description, entry.href]
                     .map((value) => value.replace(/\s+/g, ' ').trim())
                     .find(Boolean) || entry.href;
-            const label = name.replace(/[\\[\]]/g, '\\$&');
+            // The extracted title is plain text, including literal inline code.
+            // Keep Markdown syntax, HTML tags, and entities literal in the label.
+            const label = name.replace(/[\\[\]`*_<>&{}~^$]/g, '\\$&');
             const suffix = description ? `: ${description}` : '';
             // Link to the artifact that readers can fetch directly. Static HTML
             // builds use source-format companions when enabled; otherwise they
@@ -326,16 +327,15 @@ export class Llms {
         return lines.join('\n') + '\n';
     }
 
-    private async loadPageTitle(
-        run: Run,
-        path: NormalizedPath,
-        collector: MarkdownCollector,
-    ): Promise<string> {
+    private async loadPageTitle(run: Run, path: NormalizedPath): Promise<string> {
         // Load through the source services before dumping metadata: worker builds
         // do not populate the main thread's MetaService. This also resolves Liquid
         // consistently and keeps author metadata separate from the article H1.
         try {
             if (path.endsWith('.md')) {
+                // Includes are cached by path, but their variables depend on the
+                // article. Keep this collector scoped to one article's context.
+                const collector = new MarkdownCollector(run, SELF_CONTAINED, {audience: 'human'});
                 // Match the human document and canonical corpus: resolve includes
                 // (including hash/notitle) and filter visibility before selecting H1.
                 return getArticleTitle(await collector.collect(path));
