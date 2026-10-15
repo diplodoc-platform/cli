@@ -5,6 +5,7 @@ import type {LlmsConfig} from './index';
 import type {MarkdownCollector} from '../output-md/collect';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+import MarkdownIt from 'markdown-it';
 
 import {OutputFormat} from '~/commands/build/config';
 
@@ -48,8 +49,8 @@ vi.mock('~/commands/config', () => ({
 vi.mock('../output-md/collect', () => {
     return {
         SELF_CONTAINED: 'self-contained',
-        MarkdownCollector: vi.fn().mockImplementation(() => ({
-            collect: vi.fn().mockResolvedValue('Collected Markdown Content'),
+        MarkdownCollector: vi.fn().mockImplementation((run: Run) => ({
+            collect: vi.fn((path: NormalizedPath) => run.markdown.load(path)),
             collectWithInfo: vi.fn().mockResolvedValue({
                 content: 'Collected Markdown Content',
                 audienceSpecificContent: [],
@@ -88,11 +89,14 @@ function createMockRun(
         meta: {
             get: vi.fn().mockReturnValue({}),
             dump: vi.fn().mockResolvedValue({
-                title: 'Meta Title Target',
                 description: 'Detailed meta description text',
             }),
         },
+        leading: {
+            load: vi.fn().mockResolvedValue({title: ''}),
+        },
         markdown: {
+            load: vi.fn().mockResolvedValue(''),
             graph: vi.fn().mockResolvedValue({
                 path: normalizedPath('docs/page.md'),
                 content: 'Collected Markdown Content',
@@ -675,8 +679,9 @@ describe('LLMs Plugin Architecture', () => {
             expect(result).toContain('[llms-full.txt](https://example.com/docs/en/llms-full.txt)');
         });
 
-        it('should fallback to meta title if entry name is missing', async () => {
+        it('should use meta title if entry name is missing', async () => {
             const run = createMockRun();
+            vi.mocked(run.meta.dump).mockResolvedValue({title: 'Meta Title Target'});
             const entries = [
                 {
                     href: normalizedPath('root.md'),
@@ -688,6 +693,128 @@ describe('LLMs Plugin Architecture', () => {
             const result = await llmsInstance.renderIndex(run, 'Fallback Title', entries, 'docs');
 
             expect(result).toContain('- [Meta Title Target](root.html)');
+        });
+    });
+
+    describe('renderIndex article titles', () => {
+        it.each([
+            {meta: 'Metadata', heading: 'Heading', toc: 'TOC', expected: 'Metadata'},
+            {meta: '', heading: 'Heading', toc: 'TOC', expected: 'Heading'},
+            {meta: '   ', heading: 'Heading', toc: 'TOC', expected: 'Heading'},
+            {meta: '', heading: '', toc: 'TOC', expected: 'TOC'},
+            {meta: '', heading: '', toc: '', expected: 'Description'},
+            {meta: '', heading: '', toc: '', description: '', expected: 'article.md'},
+            {meta: 123, heading: 'Heading', toc: 'TOC', expected: 'Heading'},
+        ])('selects $expected for meta=$meta, H1=$heading and TOC=$toc', async (scenario) => {
+            const run = createMockRun({outputFormat: OutputFormat.md});
+            vi.mocked(run.meta.dump).mockResolvedValue({
+                title: scenario.meta,
+                description: scenario.description ?? 'Description',
+            } as unknown as Awaited<ReturnType<Run['meta']['dump']>>);
+            vi.mocked(run.markdown.load).mockResolvedValue(
+                scenario.heading ? `# ${scenario.heading}\n` : '',
+            );
+            const entries = [
+                {
+                    href: normalizedPath('article.md'),
+                    path: normalizedPath('docs/article.md'),
+                    name: scenario.toc,
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+            expect(result).toContain(`- [${scenario.expected}](article.md)`);
+            if (scenario.description !== '') {
+                expect(result).toContain(': Description');
+            }
+        });
+
+        it.each(['yaml', 'yml'])(
+            'loads a leading .%s title and its metadata first',
+            async (ext) => {
+                const run = createMockRun();
+                vi.mocked(run.leading.load).mockImplementation(async () => {
+                    vi.mocked(run.meta.dump).mockResolvedValue({title: 'Leading metadata'});
+                    return {title: 'Leading H1', links: []};
+                });
+                const entries = [
+                    {
+                        href: normalizedPath(`index.${ext}`),
+                        path: normalizedPath(`docs/index.${ext}`),
+                        name: 'TOC',
+                    },
+                ];
+
+                const result = await llmsInstance.renderIndex(run, 'Docs', entries, 'docs');
+
+                expect(result).toContain('- [Leading metadata](index.html)');
+                expect(run.markdown.load).not.toHaveBeenCalled();
+            },
+        );
+
+        it('escapes brackets and backslashes while keeping one index line per page', async () => {
+            const run = createMockRun();
+            vi.mocked(run.meta.dump).mockResolvedValue({title: '  Array [x] \\ path\nnext  '});
+            const entries = [
+                {
+                    href: normalizedPath('article.md'),
+                    path: normalizedPath('article.md'),
+                    name: 'TOC',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, '', entries, '.');
+
+            expect(result).toContain('- [Array \\[x\\] \\\\ path next](article.html)');
+        });
+
+        it.each(['meta', 'heading', 'toc'])(
+            'preserves literal markup in the rendered link label from %s',
+            async (source) => {
+                const title = 'Literal <T> *required* _value_ &copy; `code`';
+                const run = createMockRun();
+                vi.mocked(run.meta.dump).mockResolvedValue({
+                    title: source === 'meta' ? title : '',
+                });
+                vi.mocked(run.markdown.load).mockResolvedValue(
+                    source === 'heading'
+                        ? '# Literal `<T>` `*required*` `_value_` `&copy;` `` `code` ``\n'
+                        : '',
+                );
+                const entries = [
+                    {
+                        href: normalizedPath('article.md'),
+                        path: normalizedPath('article.md'),
+                        name: source === 'toc' ? title : 'TOC',
+                    },
+                ];
+
+                const result = await llmsInstance.renderIndex(run, '', entries, '.');
+
+                expect(new MarkdownIt({html: true}).render(result)).toContain(
+                    '<a href="article.html">Literal &lt;T&gt; *required* _value_ &amp;copy; `code`</a>',
+                );
+            },
+        );
+
+        it('keeps the TOC fallback when a source title cannot be loaded', async () => {
+            const run = createMockRun();
+            vi.mocked(run.leading.load).mockRejectedValue(new Error('Missing file'));
+            const entries = [
+                {
+                    href: normalizedPath('article.yaml'),
+                    path: normalizedPath('article.yaml'),
+                    name: 'TOC',
+                },
+            ];
+
+            const result = await llmsInstance.renderIndex(run, '', entries, '.');
+
+            expect(result).toContain('- [TOC](article.html)');
+            expect(run.logger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('unable to read title'),
+            );
         });
     });
 
