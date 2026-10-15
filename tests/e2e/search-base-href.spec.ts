@@ -83,7 +83,14 @@ describe('Local search publication paths', () => {
             );
 
             const page = await readFile(join(output, 'docs/page.html'), 'utf8');
-            expect(page).toContain(`"link":"_search/en/${skipHtmlExtension ? '' : 'index.html'}"`);
+            const state = page.match(
+                /<script[^>]+id="diplodoc-state"[^>]*>([\s\S]*?)<\/script>/,
+            )?.[1];
+            expect(state).toBeDefined();
+            const {search} = JSON.parse(state || '{}') as {search: {link: string}};
+            expect(new URL(search.link, root).href).toBe(
+                new URL(`_search/en/${skipHtmlExtension ? '' : 'index.html'}`, root).href,
+            );
         },
     );
 });

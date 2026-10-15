@@ -1,5 +1,6 @@
 import type {Run} from '~/commands/build';
 
+import {join} from 'node:path';
 import {describe, expect, it} from 'vitest';
 
 import {SearchService} from './SearchService';
@@ -7,7 +8,11 @@ import {getHooks} from './hooks';
 
 async function renderPage(lang: string, baseHref?: string, withResources = true) {
     const service = new SearchService({
-        config: {outputFormat: 'html', search: {enabled: true, provider: 'local'}},
+        config: {
+            outputFormat: 'html',
+            search: {enabled: true, provider: 'local'},
+            interface: {'favicon-src': '_assets/favicon.ico'},
+        },
         output: '/output',
         manifest: {
             search: {
@@ -15,7 +20,7 @@ async function renderPage(lang: string, baseHref?: string, withResources = true)
                 js: ['vendor.js', 'search.js'],
             },
         },
-        exists: () => false,
+        exists: () => true,
     } as unknown as Run);
 
     getHooks(service)
@@ -25,7 +30,7 @@ async function renderPage(lang: string, baseHref?: string, withResources = true)
             release: async () => {},
             config: () => ({enabled: true}),
             ...(withResources && {
-                resourcesLink: (locale: string) => `_search/${locale}/resources.js`,
+                resourcesLink: (locale: string) => join('_search', locale, 'resources.js'),
             }),
         }));
     getHooks(service).Page.tap('Test.BaseHref', (template) => {
@@ -68,15 +73,26 @@ describe('SearchService page resources', () => {
                 new URL('_bundle/search.js', root).href,
             ]);
             expect(styles).toEqual([
+                new URL('_assets/favicon.ico', root).href,
                 new URL(`_bundle/search${lang === 'ar' ? '.rtl' : ''}.css`, root).href,
+                new URL('_assets/style/theme.css', root).href,
             ]);
         });
     }
 
     it('supports providers without a resources script', async () => {
         const html = await renderPage('en', undefined, false);
+        const pageUrl = 'https://example.com/help/docs/_search/en/index.html';
+        const baseHref = html.match(/<base href="([^"]+)"/)?.[1];
+        expect(baseHref).toBeDefined();
+        const base = new URL(baseHref || '', pageUrl);
+        const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(
+            (match) => new URL(match[1], base).href,
+        );
 
-        expect(html).not.toContain('resources.js');
-        expect(html).toContain('src="_bundle/search.js"');
+        expect(scripts).toEqual([
+            'https://example.com/help/docs/_bundle/vendor.js',
+            'https://example.com/help/docs/_bundle/search.js',
+        ]);
     });
 });
