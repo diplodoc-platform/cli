@@ -586,6 +586,53 @@ describe('Build command', () => {
             });
         });
 
+        describe('svgMaxEntityCount', () => {
+            test('leaves the limit unset by default', '', {
+                content: {svgMaxEntityCount: undefined},
+            });
+            test('accepts the flag', '--svg-max-entity-count 1024', {
+                content: {svgMaxEntityCount: 1024},
+            });
+            test(
+                'accepts config',
+                '',
+                {
+                    content: {svgMaxEntityCount: 2048},
+                },
+                {
+                    content: {svgMaxEntityCount: 2048},
+                },
+            );
+            test(
+                'gives the flag precedence over config',
+                '--svg-max-entity-count 1024',
+                {
+                    content: {svgMaxEntityCount: 2048},
+                },
+                {
+                    content: {svgMaxEntityCount: 1024},
+                },
+            );
+            test(
+                'rejects fractional config',
+                '',
+                {
+                    content: {svgMaxEntityCount: 1.5},
+                },
+                new Error('svgMaxEntityCount must be a non-negative safe integer'),
+            );
+            test('preserves an explicit zero', '--svg-max-entity-count 0', {
+                content: {svgMaxEntityCount: 0},
+            });
+            for (const value of ['-1', '1.5', 'Infinity', 'invalid', '9007199254740992']) {
+                test(
+                    `rejects ${value}`,
+                    `--svg-max-entity-count ${value}`,
+                    new Error('svgMaxEntityCount must be a non-negative safe integer'),
+                );
+            }
+        });
+
         describe('maxInlineSvgSize', () => {
             test('should handle default', '', {
                 content: {

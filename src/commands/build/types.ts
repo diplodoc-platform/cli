@@ -50,6 +50,8 @@ export type Langs = (string | ExtendedLang)[];
 
 export type ContentConfig = {
     maxInlineSvgSize: number;
+    /** Override SVGO's XML entity limit. Omit to use its default. */
+    svgMaxEntityCount?: number;
     maxHtmlSize: number;
     maxAssetSize: number;
     maxOpenapiIncludeSize: number;

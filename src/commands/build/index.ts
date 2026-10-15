@@ -150,6 +150,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.pdfDebug,
         options.disableCsp,
         options.maxInlineSvgSize,
+        options.svgMaxEntityCount,
         options.maxHtmlSize,
         options.maxAssetSize,
         options.maxOpenapiIncludeSize,

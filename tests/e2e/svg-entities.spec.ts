@@ -18,7 +18,7 @@ describe('SVG metadata with many counted XML entities', () => {
             join(input, 'index.md'),
             '# Diagram\n\n![Branches](branches.svg){inline=true}\n',
         );
-        // Match the counted numeric references in draw.io metadata (DOCSTOOLS-6096).
+        // Match the counted numeric references in draw.io metadata.
         await writeFile(
             join(input, 'branches.svg'),
             `<svg xmlns="http://www.w3.org/2000/svg" content="${'&#10;'.repeat(800)}" viewBox="0 0 10 10"><path d="M0 0h10"/></svg>`,
@@ -29,14 +29,22 @@ describe('SVG metadata with many counted XML entities', () => {
         await rm(temporaryRoot, {recursive: true, force: true});
     });
 
-    test.each(['html', 'md'])('preserves the diagram in %s output', async (format) => {
-        const output = join(temporaryRoot, format);
+    test.each([
+        ['html', 'flag'],
+        ['md', 'flag'],
+        ['html', 'config'],
+        ['md', 'config'],
+    ])('preserves the diagram in %s output with an explicit %s limit', async (format, source) => {
+        const output = join(temporaryRoot, `${format}-${source}`);
+        const config = join(temporaryRoot, 'entities.yfm');
+        await writeFile(config, 'content:\n  svgMaxEntityCount: 1024\n');
         const report = await TestAdapter.build.run(input, output, [
             '-f',
             format,
             '--merge-svg',
             '--no-vcs',
             '--no-search',
+            ...(source === 'flag' ? ['--svg-max-entity-count', '1024'] : ['--config', config]),
         ]);
 
         expect(report.code).toBe(0);

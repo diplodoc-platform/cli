@@ -254,6 +254,9 @@ export class Run extends BaseRun<BuildConfig> {
             entrySet: this.toc.entrySet,
             existsInProject: this.existsInProject,
             resolveAnchorPage: this.anchors.resolve,
+            ...(this.config.content.svgMaxEntityCount === undefined
+                ? {}
+                : {svgMaxEntityCount: this.config.content.svgMaxEntityCount}),
             svgInline: {
                 enabled: this.config.content.maxInlineSvgSize !== 0,
                 maxFileSize: this.config.content.maxInlineSvgSize,
