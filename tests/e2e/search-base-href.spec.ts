@@ -4,6 +4,7 @@ import {join} from 'node:path';
 import {afterAll, beforeAll, describe, expect, it} from 'vitest';
 
 import {TestAdapter} from '../fixtures';
+import {resolvePageResources} from '../fixtures/html';
 
 describe('Local search publication paths', () => {
     let workspace: string;
@@ -59,27 +60,20 @@ describe('Local search publication paths', () => {
 
             const searchPath = `_search/en/${skipHtmlExtension ? '' : 'index.html'}`;
             const html = await readFile(join(output, '_search/en/index.html'), 'utf8');
-            const baseHref = html.match(/<base href="([^"]+)"/)?.[1];
-            expect(baseHref).toBeDefined();
-            const base = new URL(baseHref || '', new URL(searchPath, root));
-            const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(
-                (match) => match[1],
-            );
-            const styles = [...html.matchAll(/<link[^>]+href="([^"]+)"/g)].map((match) => match[1]);
+            const {scripts, links} = resolvePageResources(html, new URL(searchPath, root));
 
             expect(scripts.length).toBeGreaterThan(0);
-            expect(styles.length).toBeGreaterThan(0);
+            expect(links.length).toBeGreaterThan(0);
 
-            for (const resource of [...scripts, ...styles]) {
-                const url = new URL(resource, base);
+            for (const url of [...scripts, ...links]) {
                 expect(url.href.startsWith(root), url.href).toBe(true);
                 await access(join(output, url.pathname.slice(new URL(root).pathname.length)));
             }
 
-            const resources = scripts.filter((script) => script.endsWith('-resources.js'));
+            const resources = scripts.filter((url) => url.pathname.endsWith('-resources.js'));
             expect(resources).toHaveLength(1);
             expect(scripts.indexOf(resources[0])).toBeLessThan(
-                scripts.findIndex((script) => new URL(script, base).pathname.includes('/_bundle/')),
+                scripts.findIndex((url) => url.pathname.includes('/_bundle/')),
             );
 
             const page = await readFile(join(output, 'docs/page.html'), 'utf8');
