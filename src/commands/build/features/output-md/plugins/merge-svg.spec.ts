@@ -30,6 +30,8 @@ describe('Markdown SVG entity limit forwarding', () => {
             const assets: AssetInfo[] = [
                 {
                     type: 'image',
+                    hash: null,
+                    search: null,
                     path: 'diagram.svg' as NormalizedPath,
                     title: 'Diagram',
                     autotitle: false,
