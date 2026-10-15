@@ -11,6 +11,7 @@ import {BUNDLE_FOLDER, THEME_ASSETS_PATH} from '~/constants';
 import {getHooks, withHooks} from './hooks';
 import {DefaultSearchProvider} from './provider';
 
+// Template's <base> already resolves relative resources from the documentation root.
 const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
 export type SearchServiceConfig = {
