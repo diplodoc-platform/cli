@@ -19,6 +19,7 @@ export class Extension implements IExtension {
                             state.search = provider.config(state.lang, false);
                         });
 
+                        // Only entry pages need resource injection here; SearchService handles search pages.
                         getEntryHooks(run.entry).Page.tap('LocalSearch', (template) => {
                             template.addCsp({
                                 'worker-src': ["'self'"],

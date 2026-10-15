@@ -3,6 +3,8 @@ import type {Run} from '~/commands/build';
 import {join} from 'node:path';
 import {describe, expect, it} from 'vitest';
 
+import {resolvePageResources} from '../../../../../tests/fixtures/html';
+
 import {SearchService} from './SearchService';
 import {getHooks} from './hooks';
 
@@ -57,22 +59,14 @@ describe('SearchService page resources', () => {
             const root = deployment.root || 'https://example.com/help/docs/';
             const html = await renderPage(lang, deployment.baseHref);
             const pageUrl = new URL(`_search/${lang}/index.html`, root);
-            const baseHref = html.match(/<base href="([^"]+)"/)?.[1];
-            expect(baseHref).toBeDefined();
-            const base = new URL(baseHref || '', pageUrl);
-            const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(
-                (match) => new URL(match[1], base).href,
-            );
-            const styles = [...html.matchAll(/<link[^>]+href="([^"]+)"/g)].map(
-                (match) => new URL(match[1], base).href,
-            );
+            const {scripts, links} = resolvePageResources(html, pageUrl);
 
-            expect(scripts).toEqual([
+            expect(scripts.map((url) => url.href)).toEqual([
                 new URL(`_search/${lang}/resources.js`, root).href,
                 new URL('_bundle/vendor.js', root).href,
                 new URL('_bundle/search.js', root).href,
             ]);
-            expect(styles).toEqual([
+            expect(links.map((url) => url.href)).toEqual([
                 new URL('_assets/favicon.ico', root).href,
                 new URL(`_bundle/search${lang === 'ar' ? '.rtl' : ''}.css`, root).href,
                 new URL('_assets/style/theme.css', root).href,
@@ -83,14 +77,9 @@ describe('SearchService page resources', () => {
     it('supports providers without a resources script', async () => {
         const html = await renderPage('en', undefined, false);
         const pageUrl = 'https://example.com/help/docs/_search/en/index.html';
-        const baseHref = html.match(/<base href="([^"]+)"/)?.[1];
-        expect(baseHref).toBeDefined();
-        const base = new URL(baseHref || '', pageUrl);
-        const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(
-            (match) => new URL(match[1], base).href,
-        );
+        const {scripts} = resolvePageResources(html, pageUrl);
 
-        expect(scripts).toEqual([
+        expect(scripts.map((url) => url.href)).toEqual([
             'https://example.com/help/docs/_bundle/vendor.js',
             'https://example.com/help/docs/_bundle/search.js',
         ]);
