@@ -1,7 +1,7 @@
 import type {EntryInfo, OutputFormat, Run} from '~/commands/build';
 import type {SearchProvider} from './types';
 
-import {basename, join} from 'node:path';
+import {join} from 'node:path';
 import dedent from 'ts-dedent';
 
 import {bounded, normalizePath} from '~/core/utils';
@@ -11,9 +11,7 @@ import {BUNDLE_FOLDER, THEME_ASSETS_PATH} from '~/constants';
 import {getHooks, withHooks} from './hooks';
 import {DefaultSearchProvider} from './provider';
 
-const SEARCH_PAGE_DEPTH = 2;
-
-const rebase = (url: string) => join('../'.repeat(SEARCH_PAGE_DEPTH), BUNDLE_FOLDER, url);
+const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
 export type SearchServiceConfig = {
     outputFormat: `${OutputFormat}`;
@@ -152,9 +150,7 @@ export class SearchService implements SearchProvider<RelativePath> {
         const resourcesLink = this.provider.resourcesLink?.(lang);
 
         if (resourcesLink) {
-            const resourcesLinkBase = basename(resourcesLink);
-
-            template.addScript(resourcesLinkBase);
+            template.addScript(resourcesLink, {position: 'state'});
         }
 
         await getHooks(this).Page.promise(template);
