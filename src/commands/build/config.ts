@@ -278,6 +278,25 @@ const aiOpenapiCompanions = option({
     `,
 });
 
+const svgMaxEntityCount = option({
+    flags: '--svg-max-entity-count <number>',
+    desc: `Maximum number of XML entities parsed when inlining SVGs.
+        Omit to use SVGO's default. Applies to HTML and Markdown with --merge-svg.`,
+    parser: (value) => {
+        if (value === undefined) {
+            return undefined;
+        }
+        const count = Number(value);
+        ok(
+            (typeof value === 'number' || (typeof value === 'string' && value.trim() !== '')) &&
+                Number.isSafeInteger(count) &&
+                count >= 0,
+            'svgMaxEntityCount must be a non-negative safe integer',
+        );
+        return count;
+    },
+});
+
 const maxInlineSvgSize = option({
     flags: '--max-inline-svg-size <value>',
     desc: `
@@ -524,6 +543,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
         'content',
         [
             'maxInlineSvgSize',
+            'svgMaxEntityCount',
             'maxHtmlSize',
             'maxAssetSize',
             'maxOpenapiIncludeSize',
@@ -532,6 +552,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
         ],
         {
             maxInlineSvgSize,
+            svgMaxEntityCount,
             maxHtmlSize,
             maxAssetSize,
             maxOpenapiIncludeSize,
@@ -592,6 +613,7 @@ export const options = {
     pdfDebug,
     disableCsp,
     maxInlineSvgSize,
+    svgMaxEntityCount,
     maxHtmlSize,
     maxAssetSize,
     multilineTermDefinitions,

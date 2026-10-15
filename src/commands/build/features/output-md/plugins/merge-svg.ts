@@ -63,7 +63,12 @@ export function mergeSvg(run: Run, svgList: Map<string, string>, assets: AssetIn
 
         const actor = async function (content: string, {image}: StepContext): Promise<string> {
             let imgPath = image.path;
-            const options = image.options as ImageOptions;
+            const options = {
+                ...(image.options as ImageOptions),
+                ...(run.config.content.svgMaxEntityCount === undefined
+                    ? {}
+                    : {svgMaxEntityCount: run.config.content.svgMaxEntityCount}),
+            };
             const {location, title, subtype, code} = image;
             // replace deps
             if (subtype === 'reference') {

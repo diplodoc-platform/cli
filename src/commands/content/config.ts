@@ -73,6 +73,7 @@ export const options = {
     multilineTermDefinitions: buildOptions.multilineTermDefinitions,
     idGenerator: buildOptions.idGenerator,
     maxInlineSvgSize: buildOptions.maxInlineSvgSize,
+    svgMaxEntityCount: buildOptions.svgMaxEntityCount,
     maxOpenapiIncludeSize: buildOptions.maxOpenapiIncludeSize,
     maxOpenapiIncludeInlineSize: buildOptions.maxOpenapiIncludeInlineSize,
     langs: buildOptions.langs,

@@ -70,6 +70,7 @@ export class Content extends BaseProgram<ContentConfig, ContentArgs> {
         options.multilineTermDefinitions,
         options.idGenerator,
         options.maxInlineSvgSize,
+        options.svgMaxEntityCount,
         options.maxOpenapiIncludeSize,
         options.maxOpenapiIncludeInlineSize,
         options.langs,
