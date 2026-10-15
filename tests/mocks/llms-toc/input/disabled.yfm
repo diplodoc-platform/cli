@@ -1,0 +1,6 @@
+langs: [en, ru]
+llms:
+  enabled: false
+  url: https://example.com/root/llms.txt
+ai:
+  mdCompanions: true
