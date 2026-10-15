@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.63.4](https://github.com/diplodoc-platform/cli/compare/v5.63.3...v5.63.4) (2026-10-15)
+
+
+### Bug Fixes
+
+* **cli:** make search regression checks portable ([67fe4c7](https://github.com/diplodoc-platform/cli/commit/67fe4c7f724559062dbab1a6431f7f0ebb251db7))
+* **cli:** preserve search resource paths #DOCSTOOLS-6964 ([897022b](https://github.com/diplodoc-platform/cli/commit/897022b33168b6deb1766d721c2abf371c4fb66c))
+* **cli:** separate heading and local-anchor diagnostics ([b4e88e5](https://github.com/diplodoc-platform/cli/commit/b4e88e5d674f2dc1679a25a889b6973ba9895ddd))
+* **cli:** validate local anchor links #DOCSTOOLS-6419 ([19a0ee0](https://github.com/diplodoc-platform/cli/commit/19a0ee08edf32cc25bef20ea3e05a38a7b1d8562))
+* **deps:** require transform 4.78.7 ([a5c0ba4](https://github.com/diplodoc-platform/cli/commit/a5c0ba4895a8e15b6f489a68148bc061479bbf3c))
+
 ## [5.63.3](https://github.com/diplodoc-platform/cli/compare/v5.63.2...v5.63.3) (2026-10-10)
 
 
