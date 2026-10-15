@@ -32,9 +32,6 @@ export class Extension implements IExtension {
                             template.addCsp({
                                 'worker-src': ["'self'"],
                             });
-                            template.addScript(provider.resourcesLink(template.lang), {
-                                position: 'state',
-                            });
                         });
 
                         return provider;
