@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.64.0](https://github.com/diplodoc-platform/cli/compare/v5.63.4...v5.64.0) (2026-10-16)
+
+
+### Features
+
+* **svg:** forward optional parser entity limit ([066ccd6](https://github.com/diplodoc-platform/cli/commit/066ccd6083f2bc0e64d3502905f3848b96dd3b01))
+
+
+### Bug Fixes
+
+* **deps:** require transform 4.78.9 ([2c0346d](https://github.com/diplodoc-platform/cli/commit/2c0346d19aec247f53137d1340df896d05a5fd28))
+* **svg:** complete asset metadata in forwarding fixture ([ee02c71](https://github.com/diplodoc-platform/cli/commit/ee02c71963b2753bb5f46c8ad653bfdb0eef76ba))
+* **svg:** retain Markdown images on entity limit errors ([e43db46](https://github.com/diplodoc-platform/cli/commit/e43db461fb16bd4bea746ab5dd52dd5f6b868054))
+* **svg:** use shared fallback and warning handling ([3fca2af](https://github.com/diplodoc-platform/cli/commit/3fca2af74a6c0320237e7feefb2f918aba058f93))
+
 ## [5.63.4](https://github.com/diplodoc-platform/cli/compare/v5.63.3...v5.63.4) (2026-10-15)
 
 
