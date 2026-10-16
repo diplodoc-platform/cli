@@ -83,11 +83,11 @@
     ]
   },
   "dependencies": {
-    "@diplodoc/ajv": "^0.10.0",
+    "@diplodoc/ajv": "^0.11.0",
     "@diplodoc/client": "^5.14.8",
     "@diplodoc/color-extension": "^1.0.0",
     "@diplodoc/liquid": "^1.5.3",
-    "@diplodoc/transform": "^4.78.7",
+    "@diplodoc/transform": "^4.78.8",
     "@diplodoc/translation": "^1.10.1",
     "@diplodoc/utils": "^2.3.6",
     "@gravity-ui/uikit-themer": "^1.7.0",
