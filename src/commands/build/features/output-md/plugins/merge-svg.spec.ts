@@ -53,21 +53,15 @@ describe('Markdown SVG entity limit forwarding', () => {
             }
         },
     );
-    it.each([true, false])('only handles entity-limit parser errors: %s', async (entityLimit) => {
-        const error = new Error(
-            entityLimit ? 'Parsed entity count exceeds max entity count' : 'Unexpected closing tag',
-        );
-        error.name = 'SvgoParserError';
-        vi.mocked(replaceSvgContent).mockImplementation(() => {
-            throw error;
-        });
-        const warn = vi.fn();
+    it('retains the original image when the shared helper cannot inline it', async () => {
+        vi.mocked(replaceSvgContent).mockReturnValue('');
+        const logger = {info: vi.fn(), warn: vi.fn(), error: vi.fn()};
         const run = {
             input: '/input',
             config: {idGenerator: 'constant', content: {maxInlineSvgSize: 1024}},
             realpath: async (path: string) => path,
             read: async () => '<svg/>',
-            logger: {warn},
+            logger,
         } as unknown as Run;
         const assets: AssetInfo[] = [
             {
@@ -84,12 +78,12 @@ describe('Markdown SVG entity limit forwarding', () => {
         const scheduler = new Scheduler([mergeSvg(run, new Map(), assets)]);
         await scheduler.schedule('index.md' as NormalizedPath);
         const content = '![Diagram](diagram.svg)';
-        if (entityLimit) {
-            await expect(scheduler.process(content)).resolves.toBe(content);
-            expect(warn).toHaveBeenCalledWith(expect.stringContaining('--svg-max-entity-count'));
-        } else {
-            await expect(scheduler.process(content)).rejects.toThrow(error);
-            expect(warn).not.toHaveBeenCalled();
-        }
+        await expect(scheduler.process(content)).resolves.toBe(content);
+        expect(replaceSvgContent).toHaveBeenCalledWith(
+            '<svg/>',
+            expect.objectContaining({path: 'diagram.svg', log: logger}),
+            expect.any(Function),
+        );
+        expect(logger.warn).not.toHaveBeenCalled();
     });
 });

@@ -16,7 +16,7 @@ describe('SVG metadata with many counted XML entities', () => {
         await writeFile(join(input, 'toc.yaml'), 'items:\n  - name: Diagram\n    href: index.md\n');
         await writeFile(
             join(input, 'index.md'),
-            '# Diagram\n\n![Branches](branches.svg){inline=true}\n',
+            '# Diagram\n\n![Branches](branches.svg){inline=true}\n\n![Again](branches.svg){inline=true}\n',
         );
         // Match the counted numeric references in draw.io metadata.
         await writeFile(
@@ -73,7 +73,11 @@ describe('SVG metadata with many counted XML entities', () => {
                 expect(content).toContain('viewBox');
                 expect(report.warns.join(' ')).not.toContain('SVG entity limit reached');
             } else {
-                expect(report.warns.join(' ')).toContain('--svg-max-entity-count');
+                const entityWarnings = report.warns.filter((warning) =>
+                    warning.includes('SVG entity limit reached'),
+                );
+                expect(entityWarnings).toHaveLength(1);
+                expect(entityWarnings[0]).toContain('--svg-max-entity-count');
                 if (format === 'html') {
                     expect(content).toMatch(/(?:<|&lt;)img\b/);
                     expect(content).toContain('branches.svg');
