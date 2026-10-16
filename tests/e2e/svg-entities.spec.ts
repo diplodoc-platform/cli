@@ -53,4 +53,36 @@ describe('SVG metadata with many counted XML entities', () => {
         expect(content).toMatch(/(?:<|&lt;)svg\b/);
         expect(content).toContain('viewBox');
     });
+    test.each(['html', 'md'])(
+        'preserves the diagram with the parser default in %s',
+        async (format) => {
+            const output = join(temporaryRoot, `${format}-default`);
+            const report = await TestAdapter.build.run(input, output, [
+                '-f',
+                format,
+                '--merge-svg',
+                '--no-vcs',
+                '--no-search',
+            ]);
+            expect(report.code).toBe(0);
+            expect(report.errors).toEqual([]);
+            const content = await readFile(join(output, `index.${format}`), 'utf8');
+            // Older supported Transform releases accept this fixture without an entity guard.
+            // A guarded parser must preserve the original image and report the fallback.
+            if (content.match(/(?:<|&lt;)svg\b/)) {
+                expect(content).toContain('viewBox');
+                expect(report.warns.join(' ')).not.toContain('SVG entity limit reached');
+            } else {
+                expect(report.warns.join(' ')).toContain('--svg-max-entity-count');
+                if (format === 'html') {
+                    expect(content).toMatch(/(?:<|&lt;)img\b/);
+                    expect(content).toContain('branches.svg');
+                } else {
+                    expect(content).toContain('![Branches](branches.svg)');
+                    expect(content).not.toContain('<!-- diplodoc:svg');
+                }
+            }
+            expect(await readFile(join(output, 'branches.svg'), 'utf8')).toContain('&#10;');
+        },
+    );
 });

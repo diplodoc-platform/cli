@@ -111,6 +111,23 @@ export function mergeSvg(run: Run, svgList: Map<string, string>, assets: AssetIn
                 ];
             }
 
+            let inlinedSvg;
+            try {
+                inlinedSvg = replaceSvgContent(svgContent, options, generateID);
+            } catch (error) {
+                if (
+                    !(error instanceof Error) ||
+                    error.name !== 'SvgoParserError' ||
+                    !error.message.includes('Parsed entity count exceeds max entity count')
+                ) {
+                    throw error;
+                }
+                run.logger.warn(
+                    `SVG entity limit reached: ${imgPath} in ${entry}. Keeping the image reference. To inline this SVG, set content.svgMaxEntityCount or --svg-max-entity-count.`,
+                );
+                return content;
+            }
+
             // Capture the original markdown image markup (including title,
             // sizes, and options) before replacing it with inline SVG.
             const start = location[0] - 2 - title.length;
@@ -119,7 +136,7 @@ export function mergeSvg(run: Run, svgList: Map<string, string>, assets: AssetIn
             return (
                 content.substring(0, start) +
                 `<!-- ${SVG_COMMENT_MARKER} ${originalMarkup} -->` +
-                replaceSvgContent(svgContent, options, generateID) +
+                inlinedSvg +
                 content.substring(end)
             );
         };
