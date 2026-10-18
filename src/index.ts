@@ -1,6 +1,7 @@
 import {isMainThread} from 'node:worker_threads';
 import {red} from 'chalk';
 import dedent from 'ts-dedent';
+import {readPilotProof} from '@diplodoc/transform/lib/dependency-pilot-proof';
 
 // eslint-disable-next-line import/order
 import './require';
@@ -45,6 +46,11 @@ export const run = async (argv: string[]) => {
 };
 
 if (isMainThread && require.main === module) {
+    if (process.argv.includes('--dependency-pilot-proof')) {
+        process.stdout.write(JSON.stringify(readPilotProof()) + '\n');
+        process.exit(0);
+    }
+
     (async () => {
         const silent = isRawContentRun(process.argv);
 

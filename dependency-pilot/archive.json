@@ -1,0 +1,15 @@
+{
+  "sourceRepository": "diplodoc-platform/transform",
+  "sourceSha": "cfd828dc7a491cc7e0e847a41ce9c615b27cc95b",
+  "sourceVersion": "4.78.9",
+  "originalCompiledRuntimeFiles": 286,
+  "originalCompiledRuntimeSha256": "30394f3bcf61a35042c80ce8a66170fcc6ecffe4a94d8773475cb4b429b9d02e",
+  "archiveSha256": "366f5d16a2c2fccfff8f85641747d0e2c4d52d515771b7b61692cbbf2836843f",
+  "archiveIntegrity": "sha512-hCUpSWfHbwuWDZm4XpJMTheuiyZZRhxka17u2HjdQCrbCJdKoxQ2+/t7WLpZsvatGKy4fCzyqIV0ZmHGMLXf2A==",
+  "yamlVersionInTransformContext": "4.3.2",
+  "pilotOnlyChanges": [
+    "package.json dependencyPilot identity metadata",
+    "package.json dependencies.js-yaml exact pin 4.3.2",
+    "lib/dependency-pilot-proof.js and .d.ts (reviewable source beside this manifest)"
+  ]
+}
