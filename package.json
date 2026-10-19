@@ -46,6 +46,7 @@
     "lib",
     "build",
     "assets",
+    "dependency-pilot",
     "tests",
     "!tests/e2e/translate-eval.spec.ts",
     "!tests/eval",
@@ -84,7 +85,7 @@
   },
   "dependencies": {
     "@diplodoc/ajv": "^0.11.0",
-    "@diplodoc/client": "^5.14.8",
+    "@diplodoc/client": "file:dependency-pilot/client-dompurify-3.4.17.tgz",
     "@diplodoc/color-extension": "^1.0.0",
     "@diplodoc/liquid": "^1.5.3",
     "@diplodoc/transform": "^4.78.9",

@@ -1,0 +1,27 @@
+{
+  "cliBaseline": "002038417db8308bbacbf088c9c456a38130aa0e",
+  "cliVersion": "5.64.0",
+  "metapackageSha": "fd01403975f244d4b9c82a735efa7b1f5119f3fe",
+  "componentsSourceSha": "471b0452324f0e3963f465e3fa9a2f526cd679a5",
+  "componentsVersion": "5.24.1",
+  "clientSourceSha": "db7d41b1ab8db599c1e57ab21c17b7bdbad508a7",
+  "clientVersion": "5.14.8",
+  "componentsContextDomPurifyVersion": "3.4.17",
+  "unmodifiedComponentsBuildFiles": 1606,
+  "componentsBuildProvenanceSha256": "55248789f6ef123906892ea3d79b4098e0aa4f2be1bdcf855346e93faf922bd5",
+  "archives": [
+    {
+      "file": "components-471b045.tgz",
+      "role": "components build provenance with diagnostic export",
+      "sha256": "75082752af54c07ce39819c0b52f6dcafb675acbb33dbf2a2b556511a0f09f31"
+    },
+    {
+      "file": "client-dompurify-3.4.17.tgz",
+      "role": "active CLI dependency with rebuilt components and diagnostic SSR export",
+      "sha256": "23ff998f27ccac54857f59c3a2c20fbb843e1c113e9c529fd473c17d714c5eb1"
+    }
+  ],
+  "runtimeVersionProof": "readDependencyPilotProof from the real client SSR module",
+  "sourceMarkersAreBuildProvenanceNotRuntimeBytecodeHashes": true,
+  "npmPublication": false
+}
