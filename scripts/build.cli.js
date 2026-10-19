@@ -100,6 +100,9 @@ const copy = async (from, to) => {
 
 const builds = [['src/index.ts', 'index']];
 
+builds.push(['src/commands/prepare/trace.ts', 'prepare-trace']);
+builds.push(['src/commands/prepare/driver.ts', 'prepare-driver']);
+
 const extensions = [
     ['src/extensions/mdit-plugins/index.ts', 'mdit-plugins'],
     ['src/extensions/github-vcs/index.ts', 'github-vcs'],

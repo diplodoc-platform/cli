@@ -1,6 +1,7 @@
 import {isMainThread} from 'node:worker_threads';
 import {red} from 'chalk';
 import dedent from 'ts-dedent';
+import {Command} from 'commander';
 
 // eslint-disable-next-line import/order
 import './require';
@@ -8,6 +9,7 @@ import './require';
 import * as threads from '~/commands/threads';
 import {Program, parse} from '~/commands';
 import {isRawContentRun} from '~/commands/content';
+import {assertPrepareWrites, installWriteGuard} from '~/commands/prepare/write-guard';
 import {MAIN_TIMER_ID} from '~/constants';
 import {stats} from '~/core/logger';
 import {console, noop} from '~/core/utils';
@@ -18,12 +20,19 @@ export * from '~/commands';
 
 export const run = async (argv: string[]) => {
     const program = new Program();
+    let restoreWrites = noop;
 
     try {
         const args = parse(argv);
+        const detector = new Command().allowUnknownOption(true);
+        for (const option of program.options) detector.addOption(option);
+        if (detector.parseOptions(argv.slice(2)).operands[0] === 'prepare') {
+            restoreWrites = installWriteGuard();
+        }
         await threads.init(program, argv);
         await program.init(args);
         await program.parse(argv);
+        assertPrepareWrites();
 
         const stat = stats(program.logger);
 
@@ -39,6 +48,7 @@ export const run = async (argv: string[]) => {
         program.report.code = 1;
     } finally {
         await threads.terminate(true).catch(noop);
+        restoreWrites();
     }
 
     return program.report;

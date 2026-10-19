@@ -87,6 +87,31 @@ For multilingual projects (`--langs en,ru`) content is placed in per-language su
     └── index.md
 ```
 
+## `yfm prepare`
+
+Collect the source files needed by a documentation build into a portable artifact.
+The artifact preserves original files and relative paths so it can be moved and built later.
+
+### Usage
+
+```bash
+yfm prepare -i ./docs -o ./prepared -f html --vars-preset public
+yfm build -i ./prepared -o ./site -f html --vars-preset public
+```
+
+### Options
+
+Accepts the input, configuration, and build options of `yfm build`.
+Pass `--dry-run` to validate collection without creating the artifact.
+
+The output directory must be new and must not overlap the input.
+Reuse the same build options, presets, and environment when building the artifact.
+If configuration or local extensions are outside the input, use the relocated paths
+printed by `prepare`.
+
+See the [prepare reference](docs/prepare.md) for supported resources, extension behavior,
+and portability limitations.
+
 ## `yfm content`
 
 Process a **single** Markdown file and print the result to stdout (or write it to a file).

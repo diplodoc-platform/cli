@@ -8,6 +8,7 @@ import {Build} from './build';
 import {Content} from './content';
 import {Init} from './init';
 import {Publish} from './publish';
+import {createPrepare} from './prepare';
 import {Translate} from './translate';
 import {NAME, USAGE, options} from './config';
 
@@ -25,6 +26,7 @@ export {Publish, Run as PublishRun, getHooks as getPublishHooks} from './publish
 export {Translate, getHooks as getTranslateHooks} from './translate';
 export {Content} from './content';
 export {Init} from './init';
+export {createPrepare} from './prepare';
 
 @withConfigDefaults(() => ({
     extensions: [] as ExtensionInfo[],
@@ -46,6 +48,8 @@ export class Program extends BaseProgram {
 
     readonly publish = new Publish();
 
+    readonly prepare = createPrepare();
+
     readonly translate = new Translate();
 
     readonly options = [
@@ -65,6 +69,7 @@ export class Program extends BaseProgram {
         this.content,
         this.initProject,
         this.publish,
+        this.prepare,
         this.translate,
     ];
 }
