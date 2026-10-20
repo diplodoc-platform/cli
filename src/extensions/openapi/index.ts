@@ -9,6 +9,8 @@ import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
 import {normalizePath} from '@diplodoc/cli/lib/utils';
 
+import {prepareOpenapiSources} from './sources';
+
 type Run = BaseRun & {
     toc?: TocService;
     // The runtime instance is the build `Run`, which exposes the final output dir.
@@ -72,8 +74,15 @@ export class Extension implements IExtension {
                     // TODO: We need to add this node in TocService only
                     service.relations.addNode(rawtoc.path, {type: 'source', data: undefined});
                     service.relations.addDependency(rawtoc.path, input);
+                    const selectSources = run.sources.active
+                        ? await prepareOpenapiSources(
+                              run,
+                              options as unknown as Parameters<typeof prepareOpenapiSources>[1],
+                          )
+                        : undefined;
                     // @ts-ignore
                     const {toc, files} = await includer(run, options, from);
+                    await selectSources?.(toc as RawToc, files);
 
                     const root = join(run.input, dirname(options.path));
                     // The companion is a passthrough artifact (not a TOC entry, not a media asset),

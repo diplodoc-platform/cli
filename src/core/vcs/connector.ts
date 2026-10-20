@@ -30,7 +30,7 @@ export class DefaultVcsConnector implements VcsConnector {
     }
 
     async getModifiedTimeByPath(path: RelativePath) {
-        const stat = await this.run.fs.stat(join(this.run.originalInput, path));
+        const stat = await this.run.stat(join(this.run.originalInput, path));
 
         return Math.round(stat.mtimeMs / 1000);
     }

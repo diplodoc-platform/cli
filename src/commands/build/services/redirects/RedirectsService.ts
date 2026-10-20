@@ -7,7 +7,7 @@ import {difference} from 'lodash';
 import {dump} from 'js-yaml';
 
 import {Template} from '~/core/template';
-import {resolveConfig} from '~/core/config';
+import {configPath, resolveConfig} from '~/core/config';
 import {langFromPath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
@@ -59,6 +59,10 @@ export class RedirectsService {
                     fallback: {},
                 },
             );
+
+            if (redirects[configPath]) {
+                await this.run.depend(redirects[configPath]);
+            }
 
             this.validate(redirects);
 

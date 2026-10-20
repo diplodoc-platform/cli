@@ -109,8 +109,13 @@ Reuse the same build options, presets, and environment when building the artifac
 If configuration or local extensions are outside the input, use the relocated paths
 printed by `prepare`.
 
-See the [prepare reference](docs/prepare.md) for supported resources, extension behavior,
-and portability limitations.
+Collection runs the native build for the selected options and validates the relocated
+sources. Keep a compatible CLI and extensions available; remote resources are not downloaded.
+
+Extensions must read build inputs through the `Run` IO methods or declare dependencies
+with `run.depend(path)`. Use `program.depend(path)` for helper modules and data read before
+a Run exists. Declaring a directory includes its eligible subtree. Arbitrary Node.js file
+reads are not automatically tracked, and hardcoded paths to the original project are not portable.
 
 ## `yfm content`
 

@@ -3,7 +3,7 @@ import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
 import type {Lang} from '@diplodoc/transform/lib/typings';
 
-import {dirname, join, resolve} from 'node:path';
+import {dirname, join, relative, resolve} from 'node:path';
 import {uniq} from 'lodash';
 import transformer from '@diplodoc/transform/lib/md';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
@@ -16,14 +16,25 @@ import {VarsService} from '~/core/vars';
 import {MetaService} from '~/core/meta';
 import {TocService} from '~/core/toc';
 import {VcsService} from '~/core/vcs';
-import {LeadingService} from '~/core/leading';
+import {LeadingService, getHooks as getLeadingHooks} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
-import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} from '~/core/utils';
+import {
+    all,
+    bounded,
+    get,
+    isSubPath,
+    langFromPath,
+    memoize,
+    normalizePath,
+    setExt,
+    zip,
+} from '~/core/utils';
 
 import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
 import {AnchorsService, collectAnchorIds} from './services/anchors';
+import {HtmlResources} from './services/html-resources';
 import {extractIncludedBlocks} from './extract-included';
 import {lintWithLocalAnchors} from './lint';
 import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
@@ -80,6 +91,8 @@ export class Run extends BaseRun<BuildConfig> {
 
     private entriesCache?: {index: ReadonlySet<NormalizedPath>; paths: NormalizedPath[]};
 
+    private htmlResources?: HtmlResources;
+
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
     }
@@ -96,7 +109,7 @@ export class Run extends BaseRun<BuildConfig> {
         return require(join(__dirname, 'manifest.json')) as Manifest;
     }
 
-    constructor(config: BuildConfig) {
+    constructor(config: BuildConfig, options: {selective?: boolean} = {}) {
         super(config);
 
         this.originalInput = this.realpathSync(config.input);
@@ -105,6 +118,17 @@ export class Run extends BaseRun<BuildConfig> {
         this.input = config.originAsInput
             ? this.originalInput
             : resolve(this.output, TMP_INPUT_FOLDER);
+
+        if (options.selective) {
+            if (this.input === this.originalInput) {
+                throw new Error('Selective source processing requires a separate build workspace');
+            }
+            const ignore = ['node_modules/**', '*/node_modules/**'];
+            if (isSubPath(this.originalInput, this.output)) {
+                ignore.push(`${relative(this.originalInput, this.output)}/**`);
+            }
+            this.sources.configure(this.originalInput, this.input, ignore);
+        }
 
         // Sequence is important for scopes.
         // Otherwise logger will replace originalOutput instead of output.
@@ -124,6 +148,22 @@ export class Run extends BaseRun<BuildConfig> {
         this.anchors = new AnchorsService(this);
         this.search = new SearchService(this);
         this.redirects = new RedirectsService(this);
+        if (this.sources.active && this.config.outputFormat === 'html') {
+            this.htmlResources = new HtmlResources(this, this.collectResource, (message) => {
+                throw new Error(message);
+            });
+            getLeadingHooks(this.leading).Loaded.tapPromise(
+                {name: 'HtmlSourceResources', stage: Infinity},
+                async (leading, _meta, path) => {
+                    if (leading.blocks) {
+                        return;
+                    }
+                    for (const value of [leading.title].concat(leading.description || [])) {
+                        await this.htmlResources?.collect(value, path);
+                    }
+                },
+            );
+        }
     }
 
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
@@ -165,11 +205,41 @@ export class Run extends BaseRun<BuildConfig> {
         });
 
         const result = compile(parse(cleanMarkdown));
+        await this.htmlResources?.collect(result, file);
         if (anchorIds) {
             collectAnchorIds(result, anchorIds);
         }
 
         return [result, env] as const;
+    }
+
+    /** Collect selected native assets after services and output hooks have resolved their graphs. */
+    async collectDependencies() {
+        if (!this.sources.active) {
+            return;
+        }
+        for (const path of this.toc.entries) {
+            // A copied page keeps its native source metadata after a hook replaces its content.
+            const source = this.toc.sourceDependency(path);
+            if (source) {
+                await this.depend(source);
+            }
+            const service = path.endsWith('.md') ? this.markdown : this.leading;
+            const graph = await service.relations(path);
+            for (const node of graph.overallOrder()) {
+                if (
+                    graph.getNodeData(node)?.type === 'resource' &&
+                    !/^(?:[a-z]+:|\/\/|#)/i.test(node)
+                ) {
+                    await this.collectResource(join(this.input, node));
+                }
+            }
+            for (const asset of await service.assets(path)) {
+                if (asset.path && !/^(?:[a-z]+:|\/\/|#)/i.test(asset.path)) {
+                    await this.collectResource(join(this.input, asset.path));
+                }
+            }
+        }
     }
 
     async lint(
@@ -305,6 +375,18 @@ export class Run extends BaseRun<BuildConfig> {
         }
 
         return map;
+    }
+
+    @bounded private async collectResource(path: string) {
+        if (!this.sources.isWorkspacePath(path)) {
+            return;
+        }
+        if (!this.exists(path as AbsolutePath) || !this.statSync(path as AbsolutePath).isFile()) {
+            return;
+        }
+        if (this.config.outputFormat === 'html' && !/\.(?:md|ya?ml)$/i.test(path)) {
+            await this.copy(path as AbsolutePath, join(this.output, relative(this.input, path)));
+        }
     }
 
     @bounded

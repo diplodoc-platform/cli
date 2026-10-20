@@ -5,6 +5,7 @@ import type {Scope} from './utils';
 import {dirname, join} from 'node:path';
 import {isEmpty} from 'lodash';
 import {dump, load} from 'js-yaml';
+import {minimatch} from 'minimatch';
 
 import {Graph, all, bounded, normalizePath, own} from '~/core/utils';
 
@@ -33,6 +34,8 @@ export class VarsService {
 
     private presets: Hash<Preset> = {};
 
+    private pendingPresets = new Map<NormalizedPath, Promise<Hash>>();
+
     private usePresets = true;
 
     private storeDeps = true;
@@ -49,6 +52,10 @@ export class VarsService {
             return [];
         }
 
+        if (this.run.sources.active && !presets) {
+            return [];
+        }
+
         presets =
             presets ||
             (await this.run.glob('**/presets.yaml', {
@@ -56,7 +63,35 @@ export class VarsService {
                 ignore: this.run.config.ignore,
             }));
 
-        return all(presets.map(this.load));
+        return all(presets.map((path) => this.load(path)));
+    }
+
+    /** Load original ancestor presets before creating a selective build's variable snapshot. */
+    async ensure(path: RelativePath): Promise<void> {
+        if (!this.usePresets || !this.run.sources.active) {
+            return;
+        }
+
+        let directory = normalizePath(path);
+        for (;;) {
+            const file = normalizePath(join(directory, 'presets.yaml'));
+            if (!this.config.ignore.some((pattern) => minimatch(file, pattern, {dot: true}))) {
+                const source = this.run.sources.original(join(this.run.input, file));
+                if (this.run.exists(source as AbsolutePath)) {
+                    let pending = this.pendingPresets.get(file);
+                    if (!pending) {
+                        pending = this.load(file, true);
+                        this.pendingPresets.set(file, pending);
+                    }
+                    await pending;
+                }
+            }
+            const parent = normalizePath(dirname(directory));
+            if (parent === directory) {
+                break;
+            }
+            directory = parent;
+        }
     }
 
     /**
@@ -217,14 +252,15 @@ export class VarsService {
     }
 
     @bounded
-    private async load(path: RelativePath): Promise<Hash> {
+    private async load(path: RelativePath, original = false): Promise<Hash> {
         const file = normalizePath(path);
 
         this.logger.proc(file);
 
         this.relations.addNode(file);
 
-        const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
+        const input = normalizePath(join(this.run.input, file)) as AbsolutePath;
+        const source = original ? (this.run.sources.original(input) as AbsolutePath) : input;
         const data = await getHooks(this).PresetsLoaded.promise(
             load((await this.run.read(source)) || '{}') as Presets,
             file,

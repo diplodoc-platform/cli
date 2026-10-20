@@ -1,8 +1,6 @@
 import type {LoaderContext} from '../loader';
 import type {AssetInfo} from '../types';
 
-import {join} from 'node:path';
-
 import {fs, normalizePath, rebasePath} from '~/core/utils';
 
 import {
@@ -24,7 +22,7 @@ function fixUnreachableLink(path: RelativePath, loaderContext: LoaderContext) {
     for (let i = 0; i <= relativePartsCount; i++) {
         try {
             includedFilePath = normalizePath(
-                join(loaderContext.input, pathnameParts.slice(i).join('/')),
+                loaderContext.fullPath(pathnameParts.slice(i).join('/') as RelativePath),
             );
             fs.realpathSync(includedFilePath);
             if (i > 0) {

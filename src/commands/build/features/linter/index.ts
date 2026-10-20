@@ -87,6 +87,9 @@ export class Lint {
 
                 config.lint.config = lintConfig;
                 resolvedPath = lintConfig[configPath];
+                if (resolvedPath) {
+                    program.depend(resolvedPath);
+                }
             }
 
             config.lint.config = config.lint.config || {};

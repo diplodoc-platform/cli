@@ -2,7 +2,8 @@ import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable, Report} from './typ
 import type {Command, Config, ExtendedOption} from '~/core/config';
 import type {HookMeta} from '~/core/utils';
 
-import {isAbsolute, resolve} from 'node:path';
+import {isAbsolute, join, resolve} from 'node:path';
+import {readFileSync, realpathSync, statSync} from 'node:fs';
 import {merge, omit, once, pick} from 'lodash';
 
 import {
@@ -81,6 +82,17 @@ export class BaseProgram<
         return this.parent ? this.parent.report : this._report;
     }
 
+    /** Files declared during extension initialization or configuration, including parent modules. */
+    get dependencies(): readonly AbsolutePath[] {
+        return [
+            ...(this.parent?.dependencies || []),
+            ...this.declaredDependencies,
+            ...[...this.localEntries].flatMap(([name, entry]) =>
+                this.localEntryDependencies(name, entry),
+            ),
+        ];
+    }
+
     protected modules: ICallable[] = [];
 
     protected extensions: (string | ExtensionInfo)[] = [];
@@ -90,6 +102,10 @@ export class BaseProgram<
     private parent: BaseProgram | null = null;
 
     private behavior: Behavior = {};
+
+    private declaredDependencies = new Set<AbsolutePath>();
+
+    private localEntries = new Map<string, string>();
 
     constructor(config?: BaseConfig & TConfig, behavior: Behavior = {}) {
         this.behavior = behavior;
@@ -171,6 +187,15 @@ export class BaseProgram<
 
     addModule(module: ICallable) {
         this.modules.push(module);
+    }
+
+    /**
+     * Declare a local helper or data path used before a Run exists.
+     * Local extension entry points are automatic; their imported helpers and data are explicit.
+     * Prepare resolves declarations through Run.depend, including declared directory subtrees.
+     */
+    depend(path: AbsolutePath): void {
+        this.declaredDependencies.add(resolve(path) as AbsolutePath);
     }
 
     private async resolveConfig(args: TArgs) {
@@ -265,6 +290,11 @@ export class BaseProgram<
         const initialize = async ({name, options}: ExtensionConfig) => {
             try {
                 const ExtensionModule = requireExtension(name);
+                if (isRelative(name) || isAbsolute(name)) {
+                    const entry = require.resolve(name);
+                    this.depend(entry as AbsolutePath);
+                    this.localEntries.set(name, entry);
+                }
                 const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
                 return new Extension(options);
@@ -277,5 +307,47 @@ export class BaseProgram<
         };
 
         return Promise.all(extensions.map(initialize));
+    }
+
+    /** Preserve local entry lookup inputs without declaring imported helpers or a directory tree. */
+    private localEntryDependencies(name: string, entry: string): AbsolutePath[] {
+        const paths: AbsolutePath[] = [];
+        const file = (path: string) => {
+            try {
+                if (statSync(path).isFile() && realpathSync(path) === entry) {
+                    paths.push(path as AbsolutePath);
+                    return true;
+                }
+            } catch (error) {
+                if (!['ENOENT', 'ENOTDIR'].includes((error as NodeJS.ErrnoException).code || '')) {
+                    throw error;
+                }
+            }
+            return false;
+        };
+        const extensions = (path: string) =>
+            [path, `${path}.js`, `${path}.json`, `${path}.node`].some(file);
+        const index = (path: string) => extensions(join(path, 'index'));
+        if (extensions(name)) {
+            return paths;
+        }
+
+        const manifest = join(name, 'package.json');
+        try {
+            const info = JSON.parse(readFileSync(manifest, 'utf8')) as {main?: string};
+            paths.push(manifest as AbsolutePath);
+            if (typeof info.main === 'string') {
+                const main = resolve(name, info.main);
+                if (extensions(main) || index(main)) {
+                    return paths;
+                }
+            }
+        } catch (error) {
+            if (!['ENOENT', 'ENOTDIR'].includes((error as NodeJS.ErrnoException).code || '')) {
+                throw error;
+            }
+        }
+        index(name);
+        return paths;
     }
 }

@@ -1,11 +1,9 @@
 import type {Run} from '~/core/run';
 import type {HTMLElement} from 'node-html-parser';
 
-import {extname, join, sep} from 'node:path';
+import {extname, isAbsolute, join, relative, sep} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import parse from 'node-html-parser';
-
-import {inside} from '../overlay';
 
 const attributes = [
     ['iframe', 'src'],
@@ -27,13 +25,13 @@ export class HtmlResources {
 
     private readonly run: Pick<Run, 'input' | 'exists' | 'read'>;
 
-    private readonly probe: (path: string) => void;
+    private readonly probe: (path: string) => void | Promise<void>;
 
     private readonly unsupported: (message: string) => never;
 
     constructor(
         run: Pick<Run, 'input' | 'exists' | 'read'>,
-        probe: (path: string) => void,
+        probe: (path: string) => void | Promise<void>,
         unsupported: (message: string) => never,
     ) {
         this.run = run;
@@ -48,23 +46,32 @@ export class HtmlResources {
             .querySelectorAll('base[href]')
             .find((element) => !element.closest('template'))
             ?.getAttribute('href');
-        if (baseHref) base = this.url(baseHref, base) || base;
+        if (baseHref) {
+            base = this.url(baseHref, base) || base;
+        }
         this.assertSupported(root, page);
         const files = new Map<string, boolean>();
         for (const [tag, attribute] of attributes) {
             for (const element of root.querySelectorAll(`${tag}[${attribute}]`)) {
-                if (element.closest('template')) continue;
+                if (element.closest('template')) {
+                    continue;
+                }
                 if (
                     tag === 'link' &&
                     !/(?:^|\s)(?:stylesheet|icon|preload|modulepreload)(?:\s|$)/i.test(
                         element.getAttribute('rel') || '',
                     )
-                )
+                ) {
                     continue;
+                }
                 const href = element.getAttribute(attribute)?.trim();
-                if (!href || href.startsWith('#')) continue;
+                if (!href || href.startsWith('#')) {
+                    continue;
+                }
                 const url = this.url(href, base);
-                if (!url || url.protocol !== 'file:') continue;
+                if (!url || url.protocol !== 'file:') {
+                    continue;
+                }
                 const file = fileURLToPath(url);
                 if (!inside(this.run.input, file)) {
                     throw new Error(
@@ -75,11 +82,15 @@ export class HtmlResources {
             }
         }
         for (const [file, document] of files) {
-            this.probe(file);
-            if (!document || !/\.html?$/i.test(extname(file)) || this.visited.has(file)) continue;
+            await this.probe(file);
+            if (!document || !/\.html?$/i.test(extname(file)) || this.visited.has(file)) {
+                continue;
+            }
             this.visited.add(file);
             // Native builds may retain missing resource URLs; preserve that behavior.
-            if (!this.run.exists(file as AbsolutePath)) continue;
+            if (!this.run.exists(file as AbsolutePath)) {
+                continue;
+            }
             const content = await this.run.read(file as AbsolutePath);
             await this.collect(content, file.slice(this.run.input.length + 1));
         }
@@ -89,7 +100,9 @@ export class HtmlResources {
         for (const element of root.querySelectorAll(
             'img[srcset], source[srcset], link[imagesrcset]',
         )) {
-            if (element.closest('template')) continue;
+            if (element.closest('template')) {
+                continue;
+            }
             if ((element.getAttribute('srcset') || element.getAttribute('imagesrcset'))?.trim()) {
                 this.unsupported(
                     `Prepare does not support HTML srcset or imagesrcset resource declarations in ${page}; use explicit resource URLs`,
@@ -114,4 +127,9 @@ export class HtmlResources {
             return undefined;
         }
     }
+}
+
+function inside(root: string, path: string) {
+    const part = relative(root, path);
+    return part === '' || (!isAbsolute(part) && part !== '..' && !part.startsWith(`..${sep}`));
 }

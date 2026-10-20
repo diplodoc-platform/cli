@@ -122,6 +122,8 @@ export class TocService {
 
     private entryIndex?: {revision: number; value: ReadonlySet<NormalizedPath>};
 
+    private metadataSources = new Map<NormalizedPath, AbsolutePath>();
+
     private run: Run;
 
     private logger: Run['logger'];
@@ -148,6 +150,11 @@ export class TocService {
             pdfDebug: false,
             ...options,
         };
+    }
+
+    /** Original file whose presence produced an entry's copied metadata, independent of display paths. */
+    sourceDependency(path: NormalizedPath) {
+        return this.metadataSources.get(path);
     }
 
     async init(paths: NormalizedPath[]) {
@@ -306,6 +313,7 @@ export class TocService {
             }
         });
 
+        await this.vars.ensure(file);
         const context: LoaderContext = this.loaderContext(file);
         const content = await read(this.run, file);
 
@@ -378,6 +386,7 @@ export class TocService {
 
         this.logger.proc(file);
 
+        await this.vars.ensure(include.base || file);
         const context: LoaderContext = this.loaderContext(file, include);
         const content = include.content || (await read(this.run, file, include.from));
 
@@ -405,6 +414,15 @@ export class TocService {
                 );
                 const {sourcePath, vcsPath} = this.meta.get(from);
                 this.meta.add(to, {sourcePath: vcsPath || sourcePath || from});
+                if (this.run.sources.active) {
+                    const source =
+                        this.metadataSources.get(from) || this.run.sources.copiedSource(pair[1]);
+                    if (source) {
+                        this.metadataSources.set(to, source);
+                    } else {
+                        this.metadataSources.delete(to);
+                    }
+                }
                 this.logger.copy(pair[0], pair[1]);
             }
         }

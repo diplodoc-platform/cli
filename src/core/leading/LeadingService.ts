@@ -87,6 +87,7 @@ export class LeadingService {
         this.cache[file] = defer.promise;
 
         try {
+            await this.run.vars.ensure(file);
             const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
             const raw = await this.run.read(source);
             const vars = this.run.vars.for(path);

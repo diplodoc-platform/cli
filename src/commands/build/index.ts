@@ -214,7 +214,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     async action() {
         const {outputFormat} = this.config;
 
-        this.run = new Run(this.config);
+        this.run = this.createRun();
 
         this.run.logger.pipe(this.logger);
 
@@ -299,6 +299,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await getHooks(this).AfterRun.for(outputFormat).promise(this.run);
         await getBaseHooks(this).AfterAnyRun.promise(this.run);
 
+        await this.run.collectDependencies();
+
         console.log('Cleanup build results');
         await this.cleanup();
     }
@@ -357,9 +359,19 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         };
     }
 
+    /** Create an isolated runtime; source-collection commands can select native source tracking. */
+    protected createRun(): Run {
+        return new Run(this.config);
+    }
+
     private async prepareInput() {
         const {originalInput, input, output} = this.run;
         await this.cleanup();
+        if (this.run.sources.active) {
+            this.run.sources.resetWorkspace();
+            await this.run.fs.mkdir(input, {recursive: true});
+            return;
+        }
         const ignore = ['node_modules/**', '*/node_modules/**'];
         if (isSubPath(originalInput, output)) {
             ignore.push(`${relative(originalInput, output)}/**`);

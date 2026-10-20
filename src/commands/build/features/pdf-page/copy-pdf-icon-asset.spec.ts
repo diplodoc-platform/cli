@@ -40,7 +40,7 @@ function makeRun(options: {
         } as Run['config'],
         exists: existsFn,
         copy,
-        fs: {statSync},
+        statSync,
         logger,
     } as unknown as Run;
 }
@@ -102,7 +102,7 @@ describe('copyPdfIconAsset', () => {
         const from = join('/project/input', '_assets/icon.svg');
         const to = join('/project/output', '_assets/icon.svg');
 
-        expect(run.fs.statSync).toHaveBeenCalledWith(from);
+        expect(run.statSync).toHaveBeenCalledWith(from);
         expect(run.logger.copy).toHaveBeenCalledWith(from, to);
         expect(run.copy).toHaveBeenCalledWith(from, to);
         expect(run.logger.error).not.toHaveBeenCalled();

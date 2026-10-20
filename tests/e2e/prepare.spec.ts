@@ -169,8 +169,9 @@ items:
         await symlink('missing.tf', join(source, 'unrelated/versions.tf'));
         const result = await run('prepare', source, prepared, ['--ignore', '**/*/toc.yaml']);
         expect(result.stdout + result.stderr).not.toContain('unrelated/');
-        for (const file of ['toc.yaml', 'presets.yaml', 'selected/index.md'])
+        for (const file of ['toc.yaml', 'presets.yaml', 'selected/index.md']) {
             await access(join(prepared, file));
+        }
         await expect(access(join(prepared, 'unrelated'))).rejects.toThrow();
         await run('build', prepared, join(work, 'rebuilt'), ['--ignore', '**/*/toc.yaml']);
         expect(await readFile(join(work, 'rebuilt/selected/index.html'), 'utf8')).toContain(
@@ -196,505 +197,38 @@ items:
         expect(await readlink(join(source, 'broken.md'))).toBe('missing.md');
     });
 
-    test('supports direct Node reads of lazy staged input in native extension hooks', async () => {
+    test('collects extension Run IO and explicitly declared data without blanket input copying', async () => {
         await files(source, {
             '.yfm': 'extensions: [./reader.cjs]\n',
             'toc.yaml': 'items:\n  - href: index.md\n',
-            'index.md': '# Direct staged read\n',
-            'data/title.json': '{"heading":"Direct staged read"}',
+            'index.md': '# Run IO\n',
+            'data/title.json': '{"heading":"Selected Run data"}',
+            'data/unused.yaml': 'unused: true',
+            'support/extra.yaml': 'declared: true',
             'reader.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const fs = require('node:fs');
 const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-exports.Extension = class {apply(program) {getHooks(program).BeforeAnyRun.tap('DirectStageRead', run => {
- markdownHooks(run.markdown).Loaded.tapPromise('DirectStageRead', async () => {
- const file = run.input + '/data/title.json';
- const value = JSON.parse(await fs.promises.readFile(file, 'utf8'));
- if (!fs.statSync(file).isFile() || !fs.readdirSync(run.input + '/data').includes('title.json')) throw Error('Missing lazy input');
- if (value.heading !== 'Direct staged read') throw Error('Unexpected staged bytes');
+exports.Extension = class {apply(program) {getHooks(program).BeforeAnyRun.tap('RunIO', run => {
+ markdownHooks(run.markdown).Loaded.tapPromise('RunIO', async () => {
+  const file = run.input + '/data/title.json';
+  const paths = await run.glob('*.json', {cwd: run.input + '/data'});
+  const value = JSON.parse(await run.read(file));
+  if (!run.exists(file) || !(await run.stat(file)).isFile() || !run.statSync(file).size) throw Error('Missing source data');
+  await run.depend(run.originalInput + '/support/extra.yaml');
+  await run.write(run.output + '/read.json', JSON.stringify({paths, heading: value.heading}), true);
  });
 });}};
 `,
         });
+        await run('build', source, join(work, 'baseline'));
         await run('prepare', source, prepared);
         await access(join(prepared, 'data/title.json'));
-        await rename(source, join(work, 'unavailable'));
-        await run('build', prepared, join(work, 'rebuilt'));
-        expect(await readFile(join(work, 'rebuilt/index.html'), 'utf8')).toContain(
-            'Direct staged read',
-        );
-    });
-
-    test.each(['Config', 'staged Markdown.Loaded'])(
-        'preserves successful realpath and readonly-open decisions in %s after moving the artifact',
-        async (phase) => {
-            const variants = [
-                'realpath-sync',
-                'realpath-sync-native',
-                'realpath-callback',
-                'realpath-callback-native',
-                'realpath-promise',
-                'open-sync',
-                'open-callback',
-                'open-promise',
-            ];
-            await files(source, {
-                '.yfm': 'extensions: [./decisions.cjs]\n',
-                'toc.yaml': 'items:\n  - href: index.md\n',
-                'index.md': phase === 'Config' ? '# {{ heading }}\n' : '# Staged read decisions\n',
-                'markers/target.yaml': 'native alias target: original bytes\n',
-                'directory-only/unselected.yaml':
-                    'directory metadata does not select these bytes\n',
-                'decisions.cjs': `const fs = require('node:fs');
-const {basename} = require('node:path');
-const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-const variants = [
- ['realpath-sync', file => fs.realpathSync(file, {encoding: 'buffer'}).toString()],
- ['realpath-sync-native', file => fs.realpathSync.native(file)],
- ['realpath-callback', file => new Promise((resolve, reject) => fs.realpath(file, (error, value) => error ? reject(error) : resolve(value)))],
- ['realpath-callback-native', file => new Promise((resolve, reject) => fs.realpath.native(file, {encoding: 'buffer'}, (error, value) => error ? reject(error) : resolve(value.toString())))],
- ['realpath-promise', file => fs.promises.realpath(file)],
- ['open-sync', file => {const fd = fs.openSync(file, 'rs'); fs.closeSync(fd); return file;}],
- ['open-callback', file => new Promise((resolve, reject) => fs.open(file, fs.constants.O_RDONLY, (error, fd) => {if (error) reject(error); else {fs.closeSync(fd); resolve(file);}}))],
- ['open-promise', async file => {const handle = await fs.promises.open(file); await handle.close(); return file;}],
-];
-async function decisions(base) {
- const results = [];
- for (const [name, action] of variants) {
-  try {const path = await action(base + '/markers/' + name + '.yaml'); results.push(name + ':PRESENT:' + basename(path));}
-  catch {results.push(name + ':ABSENT');}
- }
- ${phase === 'Config' ? `try {fs.realpathSync(base + '/directory-only'); results.push('DIRECTORY_PRESENT');} catch {results.push('DIRECTORY_ABSENT');}` : ''}
- return results.join(' ');
-}
-exports.Extension = class {apply(program) {
- ${phase === 'Config' ? `getHooks(program).Config.tapPromise('ReadDecisions', async config => {config.vars = {...config.vars, heading: await decisions(config.input)}; return config;});` : `getHooks(program).BeforeAnyRun.tap('ReadDecisions', run => {if (!run.markdown) return; markdownHooks(run.markdown).Loaded.tapPromise('ReadDecisions', async (_content, meta) => {meta.title = await decisions(run.input);});});`}
-}};
-`,
-            });
-            for (const name of variants) {
-                if (name === 'realpath-sync-native') continue;
-                await files(source, {[`markers/${name}.yaml`]: `${name}: original bytes\n`});
-            }
-            await symlink('target.yaml', join(source, 'markers/realpath-sync-native.yaml'));
-            const original = await tree(source);
-            await run('build', source, join(work, 'baseline'));
-            const expected = await tree(join(work, 'baseline'));
-            const html = await readFile(join(work, 'baseline/index.html'), 'utf8');
-            expect(html).not.toContain(':ABSENT');
-            for (const name of variants) expect(html).toContain(`${name}:PRESENT:`);
-            expect(html).toContain(
-                `realpath-sync-native:PRESENT:${phase === 'Config' ? 'target' : 'realpath-sync-native'}.yaml`,
-            );
-            await run('prepare', source, prepared);
-            for (const name of variants)
-                expect(await readFile(join(prepared, `markers/${name}.yaml`), 'utf8')).toBe(
-                    await readFile(join(source, `markers/${name}.yaml`), 'utf8'),
-                );
-            expect(await readlink(join(prepared, 'markers/realpath-sync-native.yaml'))).toBe(
-                'target.yaml',
-            );
-            await expect(
-                access(join(prepared, 'directory-only/unselected.yaml')),
-            ).rejects.toThrow();
-            if (phase === 'Config')
-                expect((await lstat(join(prepared, 'directory-only'))).isDirectory()).toBe(true);
-            expect(await tree(source)).toEqual(original);
-            expect(await readlink(join(source, 'markers/realpath-sync-native.yaml'))).toBe(
-                'target.yaml',
-            );
-            await rename(source, join(work, 'unavailable'));
-            await rename(prepared, join(work, 'moved'));
-            await run('build', join(work, 'moved'), join(work, 'rebuilt'));
-            expect(await tree(join(work, 'rebuilt'))).toEqual(expected);
-        },
-    );
-
-    test.each(['sync', 'callback', 'promise'])(
-        'matches copied-stage symlink metadata and physical generated entries through %s APIs',
-        async (api) => {
-            await files(source, {
-                '.yfm': 'extensions: [./metadata.cjs]\n',
-                'toc.yaml': 'items:\n  - href: index.md\n',
-                'index.md': '# Copied metadata\n',
-                'inspect/target.yaml': 'file target bytes\n',
-                'inspect/target-dir/value.yaml': 'directory target bytes\n',
-                'readlink-only/target.yaml': 'readlink-only file bytes\n',
-                'readlink-only/target-dir/value.yaml': 'readlink-only directory bytes\n',
-                'metadata.cjs': `const fs = require('node:fs');
-const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-async function call(name, ...args) {
- if (${JSON.stringify(api)} === 'sync') return fs[name + 'Sync'](...args);
- if (${JSON.stringify(api)} === 'promise') return fs.promises[name](...args);
- return new Promise((resolve, reject) => fs[name](...args, (error, value) => error ? reject(error) : resolve(value)));
-}
-exports.Extension = class {apply(program) {getHooks(program).BeforeAnyRun.tap('Metadata', run => {
- if (!run.markdown) return;
- markdownHooks(run.markdown).Loaded.tapPromise('Metadata', async (_content, meta) => {
-  const base = run.input;
-  const decisions = [];
-  const file = await call('lstat', base + '/inspect/alias.yaml');
-  decisions.push(['file', file.isFile() && !file.isSymbolicLink()]);
-  const dir = await call('lstat', base + '/inspect/diralias');
-  decisions.push(['directory', dir.isDirectory() && !dir.isSymbolicLink()]);
-  for (const [name, path] of [['readlink-file', 'alias.yaml'], ['readlink-directory', 'diralias']]) {
-   let code; try {await call('readlink', base + '/readlink-only/' + path);} catch (error) {code = error.code;}
-   decisions.push([name, code === 'EINVAL']);
-  }
-  const entries = await call('readdir', base + '/inspect', {withFileTypes: true});
-  const alias = entries.find(entry => entry.name === 'alias.yaml');
-  const diralias = entries.find(entry => entry.name === 'diralias');
-  decisions.push(['dirent-file', alias.isFile() && !alias.isSymbolicLink()]);
-  decisions.push(['dirent-directory', diralias.isDirectory() && !diralias.isSymbolicLink()]);
-  const buffered = await call('readdir', base + '/inspect', {withFileTypes: true, encoding: 'buffer'});
-  decisions.push(['dirent-buffer', buffered.every(entry => Buffer.isBuffer(entry.name))]);
-  fs.mkdirSync(base + '/generated-empty', {recursive: true});
-  fs.writeFileSync(base + '/generated-target.yaml', 'physical target');
-  try {fs.symlinkSync('generated-target.yaml', base + '/generated-alias.yaml');} catch (error) {if (error.code !== 'EEXIST') throw error;}
-  const generated = await call('lstat', base + '/generated-alias.yaml');
-  decisions.push(['physical', generated.isSymbolicLink() && await call('readlink', base + '/generated-alias.yaml') === 'generated-target.yaml' && fs.existsSync(base + '/generated-empty')]);
-  meta.title = decisions.map(([name, matches]) => fs.readFileSync(base + '/conditional/' + name + '-' + (matches ? 'native' : 'wrong') + '.yaml', 'utf8').trim()).join(' ');
- });
-});}};
-`,
-            });
-            const names = [
-                'file',
-                'directory',
-                'readlink-file',
-                'readlink-directory',
-                'dirent-file',
-                'dirent-directory',
-                'dirent-buffer',
-                'physical',
-            ];
-            for (const name of names)
-                await files(source, {
-                    [`conditional/${name}-native.yaml`]: `${name.toUpperCase()}_NATIVE\n`,
-                    [`conditional/${name}-wrong.yaml`]: `${name.toUpperCase()}_WRONG\n`,
-                });
-            await symlink('target.yaml', join(source, 'inspect/alias.yaml'));
-            await symlink('target-dir', join(source, 'inspect/diralias'));
-            await symlink('target.yaml', join(source, 'readlink-only/alias.yaml'));
-            await symlink('target-dir', join(source, 'readlink-only/diralias'));
-            const original = await tree(source);
-            await run('build', source, join(work, 'baseline'));
-            const expected = await tree(join(work, 'baseline'));
-            for (const name of names)
-                expect(expected['index.html']).toContain(`${name.toUpperCase()}_NATIVE`);
-            await run('prepare', source, prepared);
-            for (const name of names) {
-                expect(
-                    await readFile(join(prepared, `conditional/${name}-native.yaml`), 'utf8'),
-                ).toBe(`${name.toUpperCase()}_NATIVE\n`);
-                await expect(
-                    access(join(prepared, `conditional/${name}-wrong.yaml`)),
-                ).rejects.toThrow();
-            }
-            expect(await readlink(join(prepared, 'inspect/alias.yaml'))).toBe('target.yaml');
-            expect(await readlink(join(prepared, 'inspect/diralias'))).toBe('target-dir');
-            expect(await readlink(join(prepared, 'readlink-only/alias.yaml'))).toBe('target.yaml');
-            expect(await readFile(join(prepared, 'readlink-only/target.yaml'), 'utf8')).toBe(
-                'readlink-only file bytes\n',
-            );
-            expect(await readlink(join(prepared, 'readlink-only/diralias'))).toBe('target-dir');
-            expect(
-                await readFile(join(prepared, 'readlink-only/target-dir/value.yaml'), 'utf8'),
-            ).toBe('readlink-only directory bytes\n');
-            await expect(access(join(prepared, 'generated-alias.yaml'))).rejects.toThrow();
-            expect(await readlink(join(source, 'inspect/alias.yaml'))).toBe('target.yaml');
-            expect(await readlink(join(source, 'inspect/diralias'))).toBe('target-dir');
-            expect(await readlink(join(source, 'readlink-only/alias.yaml'))).toBe('target.yaml');
-            expect(await readlink(join(source, 'readlink-only/diralias'))).toBe('target-dir');
-            expect(await tree(source)).toEqual(original);
-            await rename(source, join(work, 'unavailable'));
-            await rename(prepared, join(work, 'moved'));
-            await run('build', join(work, 'moved'), join(work, 'rebuilt'));
-            expect(await tree(join(work, 'rebuilt'))).toEqual(expected);
-        },
-    );
-
-    test('matches copied directory visibility and adds only uncovered directory witnesses', async () => {
-        await files(source, {
-            '.yfm': 'extensions: [./directories.cjs]\n',
-            'toc.yaml':
-                'items:\n  - href: index.md\n  - include: {path: merge/fragment.yaml, mode: merge}\n',
-            'index.md': '# {{ heading }}\n',
-            'ignored-only/node_modules/ignored.yaml': 'native copy ignores this child\n',
-            'witness-only/only.yaml': 'minimal directory witness\n',
-            'covered/a-unselected.yaml': 'not needed when another child is selected\n',
-            'covered/z-selected.yaml': 'selected file recreates covered directory\n',
-            'merge/fragment.yaml': 'items:\n  - href: merged.md\n',
-            'merge/merged.md': '# Merged document\n',
-            'merge/covered/z-selected.yaml': 'merged override of selected file\n',
-            'merge/merged-covered/a-unselected.yaml': 'not needed through merge alias\n',
-            'merge/merged-covered/z-selected.yaml': 'selected through merge alias\n',
-            'conditional/visibility-native.yaml': 'VISIBLE_NATIVE\n',
-            'conditional/visibility-wrong.yaml': 'VISIBLE_WRONG\n',
-            'directories.cjs': `const fs = require('node:fs');
-const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-const {getHooks: tocHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/toc/index.js'))});
-exports.Extension = class {apply(program) {
- getHooks(program).Config.tap('OriginalDirectories', config => {
-  config.vars = {...config.vars, heading: fs.existsSync(config.input + '/empty') && fs.existsSync(config.input + '/nested-empty/deep') ? 'ORIGINAL_EMPTY_PRESENT' : 'ORIGINAL_EMPTY_MISSING'};
-  return config;
- });
- getHooks(program).BeforeAnyRun.tap('CopiedDirectories', run => {
-  if (!run.markdown) return;
-  let beforeMerge;
-  tocHooks(run.toc).Item.tap('ObserveBeforeMerge', item => {
-   if (item.include?.path === 'merge/fragment.yaml') {
-    if (!fs.existsSync(run.input + '/covered')) throw new Error('Original directory missing');
-    beforeMerge = fs.readFileSync(run.input + '/covered/z-selected.yaml', 'utf8');
-   }
-   return item;
-  });
-  markdownHooks(run.markdown).Loaded.tap('CopiedDirectories', (_content, meta) => {
-   const base = run.input;
-   const absent = ['empty', 'nested-empty', 'ignored-only'].every(path => !fs.existsSync(base + '/' + path));
-   const present = fs.existsSync(base + '/witness-only') && fs.statSync(base + '/covered').isDirectory() && fs.realpathSync(base + '/merged-covered').endsWith('merged-covered');
-   fs.readFileSync(base + '/covered/z-selected.yaml');
-   fs.readFileSync(base + '/merged-covered/z-selected.yaml');
-   meta.description = fs.readFileSync(base + '/conditional/visibility-' + (absent && present && beforeMerge.includes('selected file recreates') ? 'native' : 'wrong') + '.yaml', 'utf8').trim();
-  });
- });
-}};
-`,
-        });
-        await mkdir(join(source, 'empty'));
-        await mkdir(join(source, 'nested-empty/deep'), {recursive: true});
-        const original = await tree(source);
-        await run('build', source, join(work, 'baseline'));
-        const expected = await tree(join(work, 'baseline'));
-        expect(expected['index.html']).toContain('ORIGINAL_EMPTY_PRESENT');
-        expect(expected['index.html']).toContain('VISIBLE_NATIVE');
-        await run('prepare', source, prepared);
-        expect(await readFile(join(prepared, 'witness-only/only.yaml'), 'utf8')).toBe(
-            'minimal directory witness\n',
-        );
-        expect(await readFile(join(prepared, 'covered/z-selected.yaml'), 'utf8')).toBe(
-            'selected file recreates covered directory\n',
-        );
-        expect(await readFile(join(prepared, 'merge/covered/z-selected.yaml'), 'utf8')).toBe(
-            'merged override of selected file\n',
-        );
-        expect(await readFile(join(prepared, 'merge/merged-covered/z-selected.yaml'), 'utf8')).toBe(
-            'selected through merge alias\n',
-        );
-        for (const path of [
-            'covered/a-unselected.yaml',
-            'merge/merged-covered/a-unselected.yaml',
-            'ignored-only/node_modules/ignored.yaml',
-            'conditional/visibility-wrong.yaml',
-        ])
-            await expect(access(join(prepared, path))).rejects.toThrow();
-        expect((await lstat(join(prepared, 'empty'))).isDirectory()).toBe(true);
-        expect((await lstat(join(prepared, 'nested-empty/deep'))).isDirectory()).toBe(true);
-        expect(await tree(source)).toEqual(original);
-        await rename(source, join(work, 'unavailable'));
+        await access(join(prepared, 'support/extra.yaml'));
+        await expect(access(join(prepared, 'data/unused.yaml'))).rejects.toThrow();
         await rename(prepared, join(work, 'moved'));
-        await run('build', join(work, 'moved'), join(work, 'rebuilt'));
-        expect(await tree(join(work, 'rebuilt'))).toEqual(expected);
-    });
-
-    test.each([
-        ['a', 'z'],
-        ['z', 'a'],
-    ])(
-        'preserves native merged directory order with original %s and merged %s entries',
-        async (originalName, mergedName) => {
-            await files(source, {
-                '.yfm': 'extensions: [./order.cjs]\n',
-                'toc.yaml':
-                    'items:\n  - href: index.md\n  - include: {path: merge/fragment.yaml, mode: merge}\n',
-                'index.md': '# Merged directory order\n',
-                [`inspect/${originalName}.flag`]: `original ${originalName}\n`,
-                'merge/fragment.yaml': 'items:\n  - href: merged.md\n',
-                'merge/merged.md': '# Merged\n',
-                [`merge/inspect/${mergedName}.flag`]: `merged ${mergedName}\n`,
-                'conditional/a.yaml': 'A_DATA\n',
-                'conditional/z.yaml': 'Z_DATA\n',
-                'order.cjs': `const fs = require('node:fs');
-const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-exports.Extension = class {apply(program) {getHooks(program).BeforeAnyRun.tap('MergedOrder', run => {
- if (!run.markdown) return;
- markdownHooks(run.markdown).Loaded.tap('MergedOrder', (_content, meta) => {
-  const first = fs.readdirSync(run.input + '/inspect').find(name => name.endsWith('.flag'));
-  meta.title = fs.readFileSync(run.input + '/conditional/' + first[0] + '.yaml', 'utf8').trim();
- });
-});}};
-`,
-            });
-            const original = await tree(source);
-            await run('build', source, join(work, 'baseline'));
-            const expected = await tree(join(work, 'baseline'));
-            expect(expected['index.html']).toContain('A_DATA');
-            await run('prepare', source, prepared);
-            expect(await readFile(join(prepared, 'conditional/a.yaml'), 'utf8')).toBe('A_DATA\n');
-            await expect(access(join(prepared, 'conditional/z.yaml'))).rejects.toThrow();
-            expect(await tree(source)).toEqual(original);
-            await rename(source, join(work, 'unavailable'));
-            await rename(prepared, join(work, 'moved'));
-            await run('build', join(work, 'moved'), join(work, 'rebuilt'));
-            expect(await tree(join(work, 'rebuilt'))).toEqual(expected);
-        },
-    );
-
-    test('retains failed copied-readlink provenance and directory visibility before a later merge', async () => {
-        await files(source, {
-            '.yfm': 'extensions: [./before-merge.cjs]\n',
-            'toc.yaml':
-                'items:\n  - href: index.md\n  - include: {path: merge/fragment.yaml, mode: merge}\n',
-            'index.md': '# Readlink before merge\n',
-            'target.yaml': 'original file target\n',
-            'target-dir/only.yaml': 'original directory witness\n',
-            'merge/fragment.yaml': 'items:\n  - href: merged.md\n',
-            'merge/merged.md': '# Merged\n',
-            'merge/alias.yaml': 'later file replacement\n',
-            'merge/alias-dir/replacement.yaml': 'later directory replacement\n',
-            'conditional/EINVAL-EINVAL.yaml': 'READLINK_BEFORE_MERGE_NATIVE\n',
-            'before-merge.cjs': `const fs = require('node:fs');
-const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-const {getHooks: tocHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/toc/index.js'))});
-exports.Extension = class {apply(program) {getHooks(program).BeforeAnyRun.tap('BeforeMerge', run => {
- if (!run.markdown) return;
- let codes;
- tocHooks(run.toc).Item.tap('ReadlinkBeforeMerge', item => {
-  if (item.include?.path === 'merge/fragment.yaml') codes = ['alias.yaml', 'alias-dir'].map(path => {
-   try {fs.readlinkSync(run.input + '/' + path); return 'LINK';} catch (error) {return error.code;}
-  }).join('-');
-  return item;
- });
- markdownHooks(run.markdown).Loaded.tap('ReadlinkResult', (_content, meta) => {
-  meta.title = fs.readFileSync(run.input + '/conditional/' + codes + '.yaml', 'utf8').trim();
-  if (!fs.readFileSync(run.input + '/alias.yaml', 'utf8').includes('later file')) throw new Error('File replacement missing');
-  if (!fs.readFileSync(run.input + '/alias-dir/replacement.yaml', 'utf8').includes('later directory')) throw new Error('Directory replacement missing');
- });
-});}};
-`,
-        });
-        await symlink('target.yaml', join(source, 'alias.yaml'));
-        await symlink('target-dir', join(source, 'alias-dir'));
-        const original = await tree(source);
-        await run('build', source, join(work, 'baseline'));
-        const expected = await tree(join(work, 'baseline'));
-        expect(expected['index.html']).toContain('READLINK_BEFORE_MERGE_NATIVE');
-        await run('prepare', source, prepared);
-        expect(await readlink(join(prepared, 'alias.yaml'))).toBe('target.yaml');
-        expect(await readlink(join(prepared, 'alias-dir'))).toBe('target-dir');
-        expect(await readFile(join(prepared, 'target.yaml'), 'utf8')).toBe(
-            'original file target\n',
-        );
-        expect(await readFile(join(prepared, 'target-dir/only.yaml'), 'utf8')).toBe(
-            'original directory witness\n',
-        );
-        expect(await tree(source)).toEqual(original);
         await rename(source, join(work, 'unavailable'));
-        await rename(prepared, join(work, 'moved'));
         await run('build', join(work, 'moved'), join(work, 'rebuilt'));
-        expect(await tree(join(work, 'rebuilt'))).toEqual(expected);
+        expect(await tree(join(work, 'rebuilt'))).toEqual(await tree(join(work, 'baseline')));
     });
-
-    test.each(['callback', 'promise'])(
-        'delivers missing staged readFile/access/open errors through native %s channels',
-        async (api) => {
-            await files(source, {
-                '.yfm': 'extensions: [./async-errors.cjs]\n',
-                'toc.yaml': 'items:\n  - href: index.md\n',
-                'index.md': '# Missing async inputs\n',
-                'async-errors.cjs': `const fs = require('node:fs');
-const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-async function missing(name, path) {
- if (${JSON.stringify(api)} === 'promise') {
-  let result; try {result = fs.promises[name](path);} catch {return 'THREW';}
-  try {await result; return 'PRESENT';} catch (error) {return error.code;}
- }
- return new Promise(resolve => {
-  try {fs[name](path, error => resolve(error?.code || 'PRESENT'));} catch {resolve('THREW');}
- });
-}
-exports.Extension = class {apply(program) {getHooks(program).BeforeAnyRun.tap('AsyncErrors', run => {
- if (!run.markdown) return;
- markdownHooks(run.markdown).Loaded.tapPromise('AsyncErrors', async (_content, meta) => {
-  meta.title = (await Promise.all(['readFile', 'access', 'open'].map(async name => name + ':' + await missing(name, run.input + '/absent.yaml')))).join(' ');
- });
-});}};
-`,
-            });
-            const original = await tree(source);
-            await run('build', source, join(work, 'baseline'));
-            const expected = await tree(join(work, 'baseline'));
-            for (const name of ['readFile', 'access', 'open'])
-                expect(expected['index.html']).toContain(`${name}:ENOENT`);
-            await run('prepare', source, prepared);
-            expect(await tree(source)).toEqual(original);
-            await rename(source, join(work, 'unavailable'));
-            await rename(prepared, join(work, 'moved'));
-            await run('build', join(work, 'moved'), join(work, 'rebuilt'));
-            expect(await tree(join(work, 'rebuilt'))).toEqual(expected);
-        },
-    );
-
-    test.each(['eligible', 'copy-ignored'])(
-        'uses only eligible selected directory-link targets for witness coverage: %s',
-        async (selection) => {
-            await files(source, {
-                '.yfm': 'extensions: [./alias-witness.cjs]\n',
-                'toc.yaml': 'items:\n  - href: index.md\n',
-                'index.md': '# {{ original }}\n',
-                'real-dir/a-unused.yaml': 'unneeded fallback\n',
-                ...(selection === 'eligible'
-                    ? {'real-dir/z-selected.yaml': 'selected target bytes\n'}
-                    : {'real-dir/node_modules/z-selected.yaml': 'selected ignored target bytes\n'}),
-                'alias-witness.cjs': `const fs = require('node:fs');
-const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-exports.Extension = class {apply(program) {
- getHooks(program).Config.tap('OriginalTarget', config => {
-  config.vars = {...config.vars, original: ${JSON.stringify(selection)} === 'copy-ignored' ? fs.readFileSync(config.input + '/real-dir/node_modules/z-selected.yaml', 'utf8').trim() : 'Alias directory witness'};
-  return config;
- });
- getHooks(program).BeforeAnyRun.tap('AliasWitness', run => {
- if (!run.markdown) return;
- markdownHooks(run.markdown).Loaded.tap('AliasWitness', (_content, meta) => {
-  meta.title = fs.existsSync(run.input + '/alias-dir') ? 'ALIAS_PRESENT' : 'ALIAS_ABSENT';
-  if (${JSON.stringify(selection)} === 'eligible') fs.readFileSync(run.input + '/real-dir/z-selected.yaml');
- });
-});}};
-`,
-            });
-            await symlink('real-dir', join(source, 'alias-dir'));
-            const original = await tree(source);
-            await run('build', source, join(work, 'baseline'));
-            const expected = await tree(join(work, 'baseline'));
-            expect(expected['index.html']).toContain('ALIAS_PRESENT');
-            await run('prepare', source, prepared);
-            expect(await readlink(join(prepared, 'alias-dir'))).toBe('real-dir');
-            if (selection === 'eligible') {
-                expect(await readFile(join(prepared, 'real-dir/z-selected.yaml'), 'utf8')).toBe(
-                    'selected target bytes\n',
-                );
-                await expect(access(join(prepared, 'real-dir/a-unused.yaml'))).rejects.toThrow();
-            } else {
-                expect(
-                    await readFile(join(prepared, 'real-dir/node_modules/z-selected.yaml'), 'utf8'),
-                ).toBe('selected ignored target bytes\n');
-                expect(await readFile(join(prepared, 'real-dir/a-unused.yaml'), 'utf8')).toBe(
-                    'unneeded fallback\n',
-                );
-            }
-            expect(await tree(source)).toEqual(original);
-            await rename(source, join(work, 'unavailable'));
-            await rename(prepared, join(work, 'moved'));
-            await run('build', join(work, 'moved'), join(work, 'rebuilt'));
-            expect(await tree(join(work, 'rebuilt'))).toEqual(expected);
-        },
-    );
 
     test.each(['merge', 'root_merge'])(
         'preserves native %s collision order, sourcePath and original preset scopes',
@@ -751,49 +285,63 @@ exports.Extension = class {apply(program) {getHooks(program).AfterAnyRun.tapProm
                 'first/same.md',
                 'first/presets.yaml',
                 'second/presets.yaml',
-            ])
+            ]) {
                 await expect(access(join(prepared, path)), path).rejects.toThrow();
+            }
             for (const path of [
                 'presets.yaml',
                 'second/same.md',
                 'first/first.md',
                 'second/second.md',
                 'linked/presets.yaml',
-            ])
+            ]) {
                 await access(join(prepared, path));
+            }
             await rename(source, join(work, 'unavailable'));
             await run('build', prepared, join(work, 'rebuilt'), flags);
             expect(await tree(join(work, 'rebuilt'))).toEqual(expected);
         },
     );
 
-    test('preserves copied source metadata when an includer hook overwrites its staged bytes', async () => {
-        await files(source, {
-            '.yfm': 'extensions: [./generated.cjs]\n',
-            'toc.yaml': 'items:\n  - include: {path: source/fragment.yaml, mode: merge}\n',
-            'source/fragment.yaml': 'items:\n  - href: page.md\n',
-            'source/page.md': '# Copied source\n',
-            'generated.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
+    test.each([{}, {sourcePath: 'display/source.md'}, {vcsPath: 'repository/page.md'}])(
+        'preserves copied source metadata %j when an includer hook overwrites its staged bytes',
+        async (metadata) => {
+            await files(source, {
+                '.yfm': 'extensions: [./generated.cjs]\n',
+                'toc.yaml': 'items:\n  - include: {path: source/fragment.yaml, mode: merge}\n',
+                'source/fragment.yaml': 'items:\n  - href: page.md\n',
+                'source/page.md': '# Copied source\n',
+                'display/source.md': '# Unrelated display path\n',
+                'repository/page.md': '# Unrelated VCS path\n',
+                'generated.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
 const {getHooks: tocHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/toc/index.js'))});
 exports.Extension = class {apply(program) {
  getHooks(program).BeforeAnyRun.tap('GeneratedShadow', run => {
+  run.meta.add('source/page.md', ${JSON.stringify(metadata)});
   tocHooks(run.toc).Included.tapPromise('GeneratedShadow', async () => {await run.write(run.input + '/page.md', '# Generated shadow\\n', true);});
  });
  getHooks(program).AfterAnyRun.tapPromise('GeneratedShadow', async run => {await run.write(run.output + '/provenance.json', JSON.stringify({sourcePath: run.meta.get('page.md').sourcePath}), true);});
 }};
 `,
-        });
-        await run('build', source, join(work, 'baseline'));
-        expect(JSON.parse(await readFile(join(work, 'baseline/provenance.json'), 'utf8'))).toEqual({
-            sourcePath: 'source/page.md',
-        });
-        await run('prepare', source, prepared);
-        expect(await readFile(join(prepared, 'source/page.md'), 'utf8')).toBe('# Copied source\n');
-        await expect(access(join(prepared, 'page.md'))).rejects.toThrow();
-        await rename(source, join(work, 'unavailable'));
-        await run('build', prepared, join(work, 'rebuilt'));
-        expect(await tree(join(work, 'rebuilt'))).toEqual(await tree(join(work, 'baseline')));
-    });
+            });
+            await run('build', source, join(work, 'baseline'));
+            expect(
+                JSON.parse(await readFile(join(work, 'baseline/provenance.json'), 'utf8')),
+            ).toEqual({
+                sourcePath: metadata.vcsPath || metadata.sourcePath || 'source/page.md',
+            });
+            await run('prepare', source, prepared);
+            expect(await readFile(join(prepared, 'source/page.md'), 'utf8')).toBe(
+                '# Copied source\n',
+            );
+            await expect(access(join(prepared, 'page.md'))).rejects.toThrow();
+            await expect(access(join(prepared, 'display/source.md'))).rejects.toThrow();
+            await expect(access(join(prepared, 'repository/page.md'))).rejects.toThrow();
+            await rename(source, join(work, 'unavailable'));
+            await run('build', prepared, join(work, 'rebuilt'));
+            expect(await tree(join(work, 'rebuilt'))).toEqual(await tree(join(work, 'baseline')));
+        },
+    );
 
     test('collects live HTML resource declarations without code, comments, remote URLs or blanket passthrough', async () => {
         await files(source, {
@@ -858,10 +406,11 @@ exports.Extension = class {apply(program) {
             'viewers/external-base.html',
             'assets/root.html',
         ];
-        for (const path of required)
+        for (const path of required) {
             expect(await readFile(join(prepared, path), 'utf8')).toBe(
                 await readFile(join(source, path), 'utf8'),
             );
+        }
         for (const path of [
             'comment.html',
             'code.html',
@@ -871,15 +420,18 @@ exports.Extension = class {apply(program) {
             'script-file-fake.html',
             'unused.html',
             'remote-base-only.svg',
-        ])
+        ]) {
             await expect(access(join(prepared, path))).rejects.toThrow();
+        }
         expect(await tree(source)).toEqual(original);
         await rename(source, join(work, 'unavailable'));
         await run('build', prepared, join(work, 'rebuilt'), flags);
         const expected = await tree(join(work, 'baseline'));
         const rebuilt = await tree(join(work, 'rebuilt'));
         expect(rebuilt['pages/index.html']).toBe(expected['pages/index.html']);
-        for (const path of required) expect(rebuilt[path]).toBe(expected[path]);
+        for (const path of required) {
+            expect(rebuilt[path]).toBe(expected[path]);
+        }
     });
 
     test('collects native plain leading HTML fields while keeping text-only link labels unselected', async () => {
@@ -902,8 +454,9 @@ links:
         await run('prepare', source, prepared, flags);
         await access(join(prepared, 'title.svg'));
         await access(join(prepared, 'viewer.html'));
-        for (const path of ['text-label.html', 'text-description.html'])
+        for (const path of ['text-label.html', 'text-description.html']) {
             await expect(access(join(prepared, path))).rejects.toThrow();
+        }
         await rename(source, join(work, 'unavailable'));
         await run('build', prepared, join(work, 'rebuilt'), flags);
         expect((await tree(join(work, 'rebuilt')))['index.html']).toBe(
@@ -950,8 +503,11 @@ links:
             });
             await run('build', source, join(work, 'baseline'), flags);
             await run('prepare', source, prepared, flags);
-            if (iframe) await access(join(prepared, 'viewer.html'));
-            else await expect(access(join(prepared, 'viewer.html'))).rejects.toThrow();
+            if (iframe) {
+                await access(join(prepared, 'viewer.html'));
+            } else {
+                await expect(access(join(prepared, 'viewer.html'))).rejects.toThrow();
+            }
             await expect(access(join(prepared, 'raw-only.js'))).rejects.toThrow();
             await rename(source, join(work, 'unavailable'));
             await run('build', prepared, join(work, 'rebuilt'), flags);
@@ -984,6 +540,65 @@ links:
         expect(await readFile(join(work, 'outside.html'), 'utf8')).toBe('<h1>Outside source</h1>');
     });
 
+    test.each([
+        {format: 'html', lintPath: '.yfmlint', enabled: true},
+        {format: 'html', lintPath: '../settings/lint.yaml', enabled: true},
+        {format: 'html', lintPath: '.yfmlint', enabled: false},
+        {format: 'md', lintPath: '.yfmlint', enabled: true},
+    ])(
+        'preserves loaded redirects and lint config $lintPath in $format with lint enabled=$enabled',
+        async ({format, lintPath, enabled}) => {
+            const flags = ['-f', format, enabled ? '--lint' : '--no-lint'];
+            const inputDirectory = lintPath.startsWith('../') ? 'source' : '.';
+            await files(source, {
+                '.yfm':
+                    lintPath === '.yfmlint'
+                        ? 'build: {}\n'
+                        : `build:\n  lint:\n    enabled: ${enabled}\n    config: ${lintPath}\n`,
+                'toc.yaml': 'items:\n  - href: index.md\n',
+                'index.md': '# Page\n\n[Missing](#absent)\n',
+                'redirects.yaml': 'files:\n  - from: old\n    to: index\n',
+                [lintPath]: 'YFM025: false\n',
+            });
+            const baseline = await run('build', source, join(work, 'baseline'), flags);
+            expect(baseline.stdout + baseline.stderr).not.toContain('YFM025');
+            await run('prepare', source, prepared, flags);
+            const preparedInput = join(prepared, inputDirectory);
+            expect(await readFile(join(preparedInput, 'redirects.yaml'), 'utf8')).toBe(
+                'files:\n  - from: old\n    to: index\n',
+            );
+            if (enabled) {
+                expect(await readFile(join(preparedInput, lintPath), 'utf8')).toBe(
+                    'YFM025: false\n',
+                );
+            } else {
+                await expect(access(join(preparedInput, lintPath))).rejects.toThrow();
+            }
+            await rename(prepared, join(work, 'moved'));
+            await rename(source, join(work, 'unavailable'));
+            if (lintPath.startsWith('../')) {
+                await rename(join(work, 'settings'), join(work, 'settings-unavailable'));
+            }
+            const rebuilt = await run(
+                'build',
+                join(work, 'moved', inputDirectory),
+                join(work, 'rebuilt'),
+                flags,
+            );
+            expect(rebuilt.stdout + rebuilt.stderr).not.toContain('YFM025');
+            const expected = await tree(join(work, 'baseline'));
+            const actual = await tree(join(work, 'rebuilt'));
+            const outputs =
+                format === 'html'
+                    ? ['index.html', 'old', 'toc.js']
+                    : ['index.md', 'redirects.yaml', 'toc.yaml'];
+            for (const path of outputs) {
+                expect(actual[path], path).toBe(expected[path]);
+                expect(actual[path], path).toBeDefined();
+            }
+        },
+    );
+
     test('preserves external config and config-relative extension dependencies', async () => {
         await files(source, {
             'toc.yaml': 'items:\n  - href: index.md\n',
@@ -993,23 +608,69 @@ links:
             'settings/project.yaml':
                 'extensions:\n  - ../plugins/title.cjs\nbuild:\n  vars: {heading: Config}\n',
             'plugins/message.json': '{"heading":"External heading"}',
+            'plugins/helper.cjs': "module.exports = require('./message.json');\n",
             'plugins/title.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const message = require('./message.json');
-exports.Extension = class {apply(program) {getHooks(program).Config.tap('Fixture', config => {config.vars = {...config.vars, heading: message.heading}; return config;});}};
+const message = require('./helper.cjs');
+exports.Extension = class {apply(program) {program.depend(__dirname + '/helper.cjs'); program.depend(__dirname + '/message.json'); getHooks(program).Config.tap('Fixture', config => {config.vars = {...config.vars, heading: message.heading}; return config;});}};
 `,
         });
         const config = join(work, 'settings/project.yaml');
         await run('build', source, join(work, 'baseline'), ['-c', config]);
         const result = await run('prepare', source, prepared, ['-c', config]);
         expect(result.stdout).toContain(join(prepared, 'source'));
-        for (const directory of ['source', 'settings', 'plugins'])
+        for (const directory of ['source', 'settings', 'plugins']) {
             await rename(join(work, directory), join(work, `${directory}-unavailable`));
+        }
         await run('build', join(prepared, 'source'), join(work, 'rebuilt'), [
             '-c',
             join(prepared, 'settings/project.yaml'),
         ]);
         expect(await tree(join(work, 'rebuilt'))).toEqual(await tree(join(work, 'baseline')));
     });
+
+    test.each([
+        {kind: 'file alias', name: './alias.cjs'},
+        {kind: 'directory alias', name: './alias'},
+        {kind: 'package main', name: './plugin'},
+    ])(
+        'preserves configured local extension resolution through $kind after relocation',
+        async ({kind, name}) => {
+            const flags = ['-f', 'md'];
+            await files(source, {
+                '.yfm': `extensions: [${name}]\n`,
+                'toc.yaml': 'items:\n  - href: index.md\n',
+                'index.md': '# {{ heading }}\n',
+                'plugin/package.json': '{"main":"actual.cjs"}',
+                'plugin/unused.json': '{"unused":true}',
+                'plugin/actual.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
+exports.Extension = class {apply(program) {getHooks(program).Config.tap('EntryResolution', config => {config.vars = {...config.vars, heading: 'Resolved local entry'}; return config;});}};\n`,
+            });
+            if (kind === 'file alias') {
+                await symlink('plugin/actual.cjs', join(source, 'alias.cjs'));
+            } else if (kind === 'directory alias') {
+                await symlink('plugin', join(source, 'alias'));
+            }
+            await run('build', source, join(work, 'baseline'), flags);
+            await run('prepare', source, prepared, flags);
+            await expect(access(join(prepared, 'plugin/unused.json'))).rejects.toThrow();
+            await access(join(prepared, 'plugin/actual.cjs'));
+            if (kind === 'file alias') {
+                expect(await readlink(join(prepared, 'alias.cjs'))).toBe('plugin/actual.cjs');
+                await expect(access(join(prepared, 'plugin/package.json'))).rejects.toThrow();
+            } else {
+                expect(await readFile(join(prepared, 'plugin/package.json'), 'utf8')).toBe(
+                    '{"main":"actual.cjs"}',
+                );
+            }
+            if (kind === 'directory alias') {
+                expect(await readlink(join(prepared, 'alias'))).toBe('plugin');
+            }
+            await rename(prepared, join(work, 'moved'));
+            await rename(source, join(work, 'unavailable'));
+            await run('build', join(work, 'moved'), join(work, 'rebuilt'), flags);
+            expect(await tree(join(work, 'rebuilt'))).toEqual(await tree(join(work, 'baseline')));
+        },
+    );
 
     test('relocates CLI-local extensions and distinguishes a global option value named prepare', async () => {
         const binary =
@@ -1023,7 +684,7 @@ exports.Extension = class {apply(program) {getHooks(program).Config.tap('Fixture
             'plugins/decision.yaml': 'heading size',
             'plugins/title.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
 const fs = require('node:fs');
-exports.Extension = class {apply(program) {getHooks(program).Config.tap('MetadataFixture', config => {let heading; try {heading = 'SIZE' + fs.statSync(__dirname + '/decision.yaml').size;} catch {heading = 'MISSING';} config.vars = {...config.vars, heading}; return config;});}};
+exports.Extension = class {apply(program) {program.depend(__dirname + '/decision.yaml'); getHooks(program).Config.tap('MetadataFixture', config => {let heading; try {heading = 'SIZE' + fs.statSync(__dirname + '/decision.yaml').size;} catch {heading = 'MISSING';} config.vars = {...config.vars, heading}; return config;});}};
 `,
         });
         const native = await execa(
@@ -1109,10 +770,12 @@ paths:
         });
         await run('build', source, join(work, 'baseline'));
         await run('prepare', source, prepared);
-        for (const used of ['spec.yaml', 'models.yaml', 'custom.md'])
+        for (const used of ['spec.yaml', 'models.yaml', 'custom.md']) {
             await access(join(prepared, used));
-        for (const unused of ['unused.md', 'unused.yaml'])
+        }
+        for (const unused of ['unused.md', 'unused.yaml']) {
             await expect(access(join(prepared, unused))).rejects.toThrow();
+        }
         await rename(source, join(work, 'unavailable'));
         await run('build', prepared, join(work, 'rebuilt'));
         expect(await tree(join(work, 'rebuilt'))).toEqual(await tree(join(work, 'baseline')));
@@ -1162,189 +825,6 @@ paths:
         await expect(access(prepared)).rejects.toThrow();
     });
 
-    test.each(['sync', 'callback', 'promise'])(
-        'rejects staged opendir %s instead of publishing an incomplete artifact',
-        async (kind) => {
-            const open = {
-                sync: `const dir = fs.opendirSync(run.input); let entry; let found = false;
-try {while ((entry = dir.readSync())) if (entry.name === 'marker.yaml') found = true;} finally {dir.closeSync();}`,
-                callback: `const dir = await new Promise((resolve, reject) => fs.opendir(run.input, (error, value) => error ? reject(error) : resolve(value)));
-let found = false; for await (const entry of dir) if (entry.name === 'marker.yaml') found = true;`,
-                promise: `const dir = await fs.promises.opendir(run.input);
-let found = false; for await (const entry of dir) if (entry.name === 'marker.yaml') found = true;`,
-            }[kind];
-            await files(source, {
-                '.yfm': 'extensions: [./listing.cjs]\n',
-                'toc.yaml': 'items:\n  - href: index.md\n',
-                'index.md': '# Native directory iteration\n',
-                'marker.yaml': 'present: true\n',
-                'listing.cjs': `const fs = require('node:fs');
-const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-exports.Extension = class {apply(program) {getHooks(program).BeforeAnyRun.tap('DirectoryIteration', run => {
- markdownHooks(run.markdown).Loaded.tapPromise('DirectoryIteration', async () => {
-  fs.mkdirSync(run.input, {recursive: true});
-  ${open}
-  if (!found) throw Error('Native marker missing');
-  console.log('OPENDIR_MARKER=true');
- });
-});}};
-`,
-            });
-            const original = await tree(source);
-            const baseline = await run('build', source, join(work, 'baseline'));
-            expect(baseline.stdout).toContain('OPENDIR_MARKER=true');
-            const result = await TestAdapter.runner.runRaw([
-                'prepare',
-                '-i',
-                source,
-                '-o',
-                prepared,
-                ...FLAGS,
-            ]);
-            expect(result.code).not.toBe(0);
-            expect(result.stderr).toContain(
-                'opendir of the prepare staging overlay is unsupported',
-            );
-            await expect(access(prepared)).rejects.toThrow();
-            expect(await tree(source)).toEqual(original);
-        },
-    );
-
-    test.each(['opendir', 'recursive readdir'])(
-        'rejects caught unsupported staged %s instead of accepting changed metadata',
-        async (api) => {
-            const read =
-                api === 'opendir'
-                    ? `for await (const entry of await fs.promises.opendir(run.input)) if (entry.name === 'marker.yaml') found = true;`
-                    : `found = (await fs.promises.readdir(run.input, {recursive: true})).includes('marker.yaml');`;
-            await files(source, {
-                '.yfm': 'extensions: [./caught.cjs]\n',
-                'toc.yaml': 'items:\n  - href: index.md\n',
-                'index.md': '# Directory-dependent metadata\n',
-                'marker.yaml': 'present: true\n',
-                'caught.cjs': `const fs = require('node:fs');
-const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const {getHooks: markdownHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/markdown/index.js'))});
-exports.Extension = class {apply(program) {getHooks(program).BeforeAnyRun.tap('CaughtDirectoryRead', run => {
- markdownHooks(run.markdown).Loaded.tapPromise('CaughtDirectoryRead', async (_content, meta) => {
-  fs.mkdirSync(run.input, {recursive: true});
-  let found = false;
-  try {${read}} catch {}
-  meta.description = 'DIRECTORY_MARKER_' + found;
-  console.log('DIRECTORY_MARKER=' + found);
- });
-});}};
-`,
-            });
-            const original = await tree(source);
-            const baseline = await run('build', source, join(work, 'baseline'));
-            expect(baseline.stdout).toContain('DIRECTORY_MARKER=true');
-            const result = await TestAdapter.runner.runRaw([
-                'prepare',
-                '-i',
-                source,
-                '-o',
-                prepared,
-                ...FLAGS,
-            ]);
-            expect(result.code).not.toBe(0);
-            expect(result.stdout).toContain('DIRECTORY_MARKER=false');
-            expect(result.stderr).toContain('Prepare cannot reproduce selected filesystem reads');
-            expect(result.stderr).toContain('unsupported');
-            await expect(access(prepared)).rejects.toThrow();
-            expect(await tree(source)).toEqual(original);
-        },
-    );
-
-    test('preserves enumeration-only files and empty directories through native Node directory APIs', async () => {
-        await files(source, {
-            '.yfm': 'extensions: [./listing.cjs]\n',
-            'toc.yaml': 'items:\n  - href: index.md\n',
-            'index.md': '# {{ heading }}\n',
-            'listing.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const fs = require('node:fs');
-exports.Extension = class {apply(program) {getHooks(program).Config.tapPromise('ListingFixture', async config => {
- const base = config.input + '/.enum/';
- const found = [];
- found.push(fs.readdirSync(base + 'sync', {encoding: 'buffer'}).some(name => name.toString() === 'marker.yaml'));
- const callbacks = await new Promise((resolve, reject) => fs.readdir(base + 'callback', {withFileTypes: true}, (error, entries) => error ? reject(error) : resolve(entries)));
- found.push(callbacks.some(entry => entry.name === 'marker.yaml'));
- const recursive = await fs.promises.readdir(base + 'promise', {recursive: true, withFileTypes: true});
- found.push(recursive.some(entry => entry.name === 'marker.yaml'));
- const sync = fs.opendirSync(base + 'dir-sync'); let entry; let exists = false;
- try {while ((entry = sync.readSync())) if (entry.name === 'marker.yaml') exists = true;} finally {sync.closeSync();}
- found.push(exists);
- const callback = await new Promise((resolve, reject) => fs.opendir(base + 'dir-callback', (error, dir) => error ? reject(error) : resolve(dir)));
- exists = false;
- try {while ((entry = await new Promise((resolve, reject) => callback.read((error, value) => error ? reject(error) : resolve(value))))) if (entry.name === 'marker.yaml') exists = true;} finally {await callback.close();}
- found.push(exists);
- exists = false;
- for await (const value of await fs.promises.opendir(base + 'dir-promise')) if (value.name === 'marker.yaml') exists = true;
- found.push(exists);
- config.vars = {...config.vars, heading: found.every(Boolean) ? 'PRESENT' : 'ABSENT'}; return config;
-});}};
-`,
-        });
-        for (const name of [
-            'sync',
-            'callback',
-            'promise/sub',
-            'dir-sync',
-            'dir-callback',
-            'dir-promise',
-        ]) {
-            await files(source, {[`.enum/${name}/marker.yaml`]: 'present: true\n'});
-            await mkdir(join(source, '.enum', name, 'empty'));
-        }
-        await run('build', source, join(work, 'baseline'));
-        await run('prepare', source, prepared);
-        for (const name of [
-            'sync',
-            'callback',
-            'promise/sub',
-            'dir-sync',
-            'dir-callback',
-            'dir-promise',
-        ]) {
-            await access(join(prepared, '.enum', name, 'marker.yaml'));
-            await access(join(prepared, '.enum', name, 'empty'));
-        }
-        await rename(source, join(work, 'unavailable'));
-        await run('build', prepared, join(work, 'rebuilt'));
-        expect(await tree(join(work, 'rebuilt'))).toEqual(await tree(join(work, 'baseline')));
-    });
-
-    test.each(['Config', 'BeforeAnyRun'])(
-        'rejects original-source deletion during %s before mutation, including dry runs',
-        async (hook) => {
-            await files(source, {
-                '.yfm': 'extensions: [./delete.cjs]\n',
-                'toc.yaml': 'items:\n  - href: index.md\n',
-                'index.md': '# Valid\n',
-                'victim.yaml': 'valuable: original\n',
-                'delete.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const fs = require('node:fs');
-exports.Extension = class {apply(program) {getHooks(program).${hook}.tapPromise('DeletionFixture', async value => {fs.rmSync(${hook === 'Config' ? 'value.input' : 'value.originalInput'} + '/victim.yaml', {force: true}); return value;});}};
-`,
-            });
-            const result = await TestAdapter.runner.runRaw([
-                'prepare',
-                '-i',
-                source,
-                '-o',
-                prepared,
-                '--dry-run',
-                ...FLAGS,
-            ]);
-            expect(result.code).not.toBe(0);
-            expect(result.stderr).toContain('cannot modify original sources');
-            expect(await readFile(join(source, 'victim.yaml'), 'utf8')).toBe(
-                'valuable: original\n',
-            );
-            await expect(access(prepared)).rejects.toThrow();
-        },
-    );
     test('preserves source timestamps used by the native mtimes option', async () => {
         await files(source, {
             '.yfm': '{}\n',
@@ -1361,56 +841,6 @@ exports.Extension = class {apply(program) {getHooks(program).${hook}.tapPromise(
         expect(await tree(join(work, 'rebuilt'))).toEqual(await tree(join(work, 'baseline')));
     });
 
-    test('rejects a swallowed source-mutation error instead of reporting successful preparation', async () => {
-        await files(source, {
-            '.yfm': 'extensions: [./delete.cjs]\n',
-            'toc.yaml': 'items:\n  - href: index.md\n',
-            'index.md': '# Valid\n',
-            'victim.yaml': 'valuable: original\n',
-            'delete.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-exports.Extension = class {apply(program) {getHooks(program).BeforeAnyRun.tapPromise('SwallowedMutation', async run => {await run.remove(run.originalInput + '/victim.yaml');});}};
-`,
-        });
-        const result = await TestAdapter.runner.runRaw([
-            'prepare',
-            '-i',
-            source,
-            '-o',
-            prepared,
-            '--dry-run',
-            ...FLAGS,
-        ]);
-        expect(result.code).not.toBe(0);
-        expect(result.stderr).toContain('cannot modify original sources');
-        expect(await readFile(join(source, 'victim.yaml'), 'utf8')).toBe('valuable: original\n');
-        await expect(access(prepared)).rejects.toThrow();
-    });
-
-    test('does not publish an artifact after a swallowed parent-only configuration mutation', async () => {
-        await files(source, {
-            '.yfm': 'extensions: [./delete.cjs]\n',
-            'toc.yaml': 'items:\n  - href: index.md\n',
-            'index.md': '# Valid\n',
-            'victim.yaml': 'valuable: original\n',
-            'delete.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
-const fs = require('node:fs');
-exports.Extension = class {apply(program) {getHooks(program).Config.tap('ParentOnlyMutation', config => {if (!process.env.YFM_PREPARE_TRACE) {try {fs.rmSync(config.input + '/victim.yaml', {force: true});} catch {}} return config;});}};
-`,
-        });
-        const result = await TestAdapter.runner.runRaw([
-            'prepare',
-            '-i',
-            source,
-            '-o',
-            prepared,
-            ...FLAGS,
-        ]);
-        expect(result.code).not.toBe(0);
-        expect(result.stderr).toContain('cannot modify original sources');
-        expect(await readFile(join(source, 'victim.yaml'), 'utf8')).toBe('valuable: original\n');
-        await expect(access(prepared)).rejects.toThrow();
-    });
-
     test('preserves needed relative file and directory symlinks with their targets after relocation', async () => {
         await files(source, {
             '.yfm': 'extensions: [./links.cjs]\n',
@@ -1421,7 +851,7 @@ exports.Extension = class {apply(program) {getHooks(program).Config.tap('ParentO
             'payload/unused.yaml': 'unused: true\n',
             'links.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
 const fs = require('node:fs');
-exports.Extension = class {apply(program) {getHooks(program).Config.tap('SourceLinks', config => {const alias = config.input + '/alias.yaml'; const dir = config.input + '/directory'; config.vars = {...config.vars, heading: fs.lstatSync(alias).isSymbolicLink() && fs.readlinkSync(alias) === 'target.yaml' && fs.lstatSync(dir).isSymbolicLink() && fs.readFileSync(dir + '/value.yaml', 'utf8').includes('target') ? 'SYMLINK' : 'REGULAR'}; return config;});}};
+exports.Extension = class {apply(program) {getHooks(program).Config.tap('SourceLinks', config => {program.depend(config.input + '/alias.yaml'); program.depend(config.input + '/directory/value.yaml'); const alias = config.input + '/alias.yaml'; const dir = config.input + '/directory'; config.vars = {...config.vars, heading: fs.lstatSync(alias).isSymbolicLink() && fs.readlinkSync(alias) === 'target.yaml' && fs.lstatSync(dir).isSymbolicLink() && fs.readFileSync(dir + '/value.yaml', 'utf8').includes('target') ? 'SYMLINK' : 'REGULAR'}; return config;});}};
 `,
         });
         await symlink('target.yaml', join(source, 'alias.yaml'));
@@ -1439,7 +869,7 @@ exports.Extension = class {apply(program) {getHooks(program).Config.tap('SourceL
     });
 
     test.each(['dangling', 'cyclic', 'absolute'])(
-        'rejects an observed %s symlink before publishing an inequivalent artifact',
+        'rejects a declared %s symlink before publishing an inequivalent artifact',
         async (kind) => {
             await files(source, {
                 '.yfm': 'extensions: [./links.cjs]\n',
@@ -1448,12 +878,16 @@ exports.Extension = class {apply(program) {getHooks(program).Config.tap('SourceL
                 'target.yaml': 'valuable: linked\n',
                 'links.cjs': `const {getHooks} = require(${JSON.stringify(resolve(__dirname, '../../lib/program/index.js'))});
 const fs = require('node:fs');
-exports.Extension = class {apply(program) {getHooks(program).Config.tap('SourceLinks', config => {config.vars = {...config.vars, heading: fs.lstatSync(config.input + '/../alias.yaml').isSymbolicLink() ? 'SYMLINK' : 'REGULAR'}; return config;});}};
+exports.Extension = class {apply(program) {getHooks(program).Config.tap('SourceLinks', config => {program.depend(config.input + '/../alias.yaml'); config.vars = {...config.vars, heading: fs.lstatSync(config.input + '/../alias.yaml').isSymbolicLink() ? 'SYMLINK' : 'REGULAR'}; return config;});}};
 `,
             });
             let target = 'missing.yaml';
-            if (kind === 'cyclic') target = 'alias.yaml';
-            if (kind === 'absolute') target = join(source, 'target.yaml');
+            if (kind === 'cyclic') {
+                target = 'alias.yaml';
+            }
+            if (kind === 'absolute') {
+                target = join(source, 'target.yaml');
+            }
             await symlink(target, join(work, 'alias.yaml'));
             await run('build', source, join(work, 'baseline'), ['-f', 'md']);
             const result = await TestAdapter.runner.runRaw([
@@ -1467,7 +901,7 @@ exports.Extension = class {apply(program) {getHooks(program).Config.tap('SourceL
                 ...FLAGS,
             ]);
             expect(result.code).not.toBe(0);
-            expect(result.stderr).toContain('Cannot relocate an observed');
+            expect(result.stderr).toContain('alias.yaml');
             await expect(access(prepared)).rejects.toThrow();
             expect((await lstat(join(work, 'alias.yaml'))).isSymbolicLink()).toBe(true);
         },

@@ -147,6 +147,7 @@ export class MarkdownService {
         this.cache[key] = defer.promise;
 
         try {
+            await this.run.vars.ensure(from || file);
             const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
             const raw = await this.run.read(source);
             const vars = this.run.vars.for(file, from);
@@ -480,7 +481,7 @@ export class MarkdownService {
                 const rootPath = fullPath(file, path);
                 await this.run.write(join(this.run.input, rootPath), content, true);
             },
-            fullPath: (path: RelativePath) => join(this.run.input, path),
+            fullPath: (path: RelativePath) => this.run.sources.resolve(join(this.run.input, path)),
             input: this.run.input,
             api: new LoaderAPI(api),
             collects: this.collects,

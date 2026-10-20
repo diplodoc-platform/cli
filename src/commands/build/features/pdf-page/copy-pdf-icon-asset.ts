@@ -24,7 +24,7 @@ export async function copyPdfIconAsset(run: Run) {
     }
 
     try {
-        const size = run.fs.statSync(from).size;
+        const size = run.statSync(from).size;
         if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
             run.logger.error(
                 'YFM013',

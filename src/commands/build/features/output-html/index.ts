@@ -200,10 +200,7 @@ export class OutputHtml {
                 });
 
                 getLeadingHooks(run.leading).Dump.tapPromise('Html', async (vfile) => {
-                    vfile.data = await run.leading.walkLinks(
-                        vfile.data,
-                        getHref(run.input, vfile.path),
-                    );
+                    vfile.data = await run.leading.walkLinks(vfile.data, getHref(run, vfile.path));
                 });
 
                 // Transform markdown to html
@@ -247,7 +244,9 @@ export class OutputHtml {
             .tapPromise('Html', async (run) => {
                 // TODO: we copy all files. Required to copy only used files.
                 // Look at the same copy process in output-md feature.
-                await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
+                if (!run.sources.active) {
+                    await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
+                }
                 // `highlight-styles/**` are build-time inputs for theme.css generation only;
                 // they must not be shipped into every doc's `_bundle` (mirrors `search-extension/**`).
                 await run.copy(ASSETS_FOLDER, run.bundlePath, [
@@ -256,7 +255,7 @@ export class OutputHtml {
                 ]);
 
                 const assetsPath = join(run.input, '_assets');
-                if (run.exists(assetsPath)) {
+                if (!run.sources.active && run.exists(assetsPath)) {
                     await run.copy(assetsPath, join(run.output, '_assets'));
                 }
             });
@@ -342,7 +341,7 @@ function getStateData(entry: EntryData): PageData {
     }
 }
 
-function getHref(root: AbsolutePath, path: NormalizedPath) {
+function getHref(run: Run, path: NormalizedPath) {
     return function (href: string) {
         if (isExternalHref(href)) {
             return href;
@@ -352,9 +351,9 @@ function getHref(root: AbsolutePath, path: NormalizedPath) {
             href = normalizePath(join(dirname(path), href));
         }
 
-        const filePath = join(root, href);
+        const filePath = join(run.input, href);
 
-        if (isFileExists(filePath)) {
+        if (run.sources.active ? run.exists(filePath) : isFileExists(filePath)) {
             href = href.replace(/\.(md|ya?ml)$/gi, '.html');
         } else if (!/.+\.\w+$/gi.test(href)) {
             // TODO: isFileExists index.md or index.yaml
