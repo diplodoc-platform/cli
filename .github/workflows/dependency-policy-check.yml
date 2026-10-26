@@ -1,0 +1,56 @@
+# Dependency policy code and registry are loaded from an approved immutable infra revision.
+# Update the trusted-infra SHA deliberately after reviewing new policy tooling.
+name: Dependency Policy Check
+'on':
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - master
+      - main
+permissions:
+  contents: read
+jobs:
+  dependency-policy-check:
+    name: Dependency Policy Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Setup Node.js and npm
+        uses: diplodoc-platform/setup-node-action@v1
+        with:
+          node-version: ${{ vars.NODE_VERSION || '24' }}
+          cache: ''
+          run-install: 'false'
+      - name: Checkout trusted dependency policy tooling
+        uses: actions/checkout@v5
+        with:
+          repository: diplodoc-platform/infra
+          ref: eb3a8c662deabc01345d5258ace6fcb0fcae67cd
+          path: trusted-infra
+          persist-credentials: false
+      - name: Install locked dependencies safely
+        run: npm ci --ignore-scripts
+        working-directory: trusted-infra
+      - name: Use only trusted policy tooling
+        id: infra
+        run: echo "path=trusted-infra" >> "$GITHUB_OUTPUT"
+      - name: Run exact-pin enforcement
+        env:
+          POLICY_REPOSITORY: ${{ github.event.repository.name }}
+        run: >
+          git show "${{ github.event.pull_request.base.sha || github.event.before }}:package.json" >
+          /tmp/base-package.json 2>/dev/null || echo '{}' > /tmp/base-package.json
+
+          node "${{ steps.infra.outputs.path || 'node_modules/@diplodoc/infra'
+          }}/scripts/enforce-exact-pin.js" \
+            --base-package /tmp/base-package.json \
+            --repo "$POLICY_REPOSITORY" \
+            --package ./package.json \
+            --registry "${{ steps.infra.outputs.path || 'node_modules/@diplodoc/infra' }}/dependency-policy.yml"
+    timeout-minutes: 15

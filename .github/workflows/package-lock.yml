@@ -10,16 +10,40 @@ on:
     branches: ['**']
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  update-package-lock:
-    name: Update package-lock.json
+  verify-dependabot-lock:
+    name: Verify Dependabot lockfile
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
-    # Skip for PRs from forks: the bot token isn't available in fork context
-    # (actions/checkout fails with "Input required: token"), and we couldn't
-    # push back into the fork's branch anyway.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout dependency update
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Setup Node.js without installing candidate scripts
+        uses: diplodoc-platform/setup-node-action@v1
+        with:
+          node-version: ${{ vars.NODE_VERSION || '24' }}
+          cache: ''
+          run-install: 'false'
+      - name: Validate the existing lockfile
+        run: npm ci --no-workspaces --ignore-scripts
+      - name: Summary
+        run: echo 'Dependabot owns this lockfile. npm ci validated it without lifecycle scripts; no bot token or write-back is used.' >> "$GITHUB_STEP_SUMMARY"
+
+  update-package-lock:
+    name: Regenerate package-lock.json
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    # Dependabot maintains its own lockfile and must not receive the writer token.
+    # Use the PR author, not only the actor, to preserve this boundary on reruns.
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -68,3 +92,16 @@ jobs:
             git commit -m "chore: Update package-lock.json" --no-verify
             git push origin "HEAD:${BRANCH_NAME}"
           fi
+
+  package-lock-result:
+    name: Update package-lock.json
+    needs: [verify-dependabot-lock, update-package-lock]
+    if: always() && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the applicable lockfile check to succeed
+        env:
+          LOCK_RESULT: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && needs.verify-dependabot-lock.result || needs.update-package-lock.result }}
+        run: |
+          echo "Applicable lockfile check: $LOCK_RESULT" >> "$GITHUB_STEP_SUMMARY"
+          test "$LOCK_RESULT" = success

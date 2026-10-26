@@ -1,41 +1,59 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# Diplodoc Dependabot configuration
+# https://docs.github.com/code-security/dependabot/working-with-dependabot/dependabot-options-reference
+#
+# Native cooldown settings enforce release age. Schedule cadence is not a
+# substitute for cooldown. Security updates are evaluated independently and
+# are not delayed by these version-update cooldowns.
+#
+# Development-tool patch/minor updates may be grouped. Runtime dependencies and
+# major updates stay in individual pull requests for isolated review/rollback.
+# Ignore entries are generated from dependency-policy.yml.
 
 version: 2
 updates:
-  # npm dependencies
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'weekly'
       day: 'monday'
       time: '09:00'
-    open-pull-requests-limit: 10
+      timezone: 'Europe/Moscow'
+    cooldown:
+      semver-patch-days: 3
+      semver-minor-days: 7
+      semver-major-days: 30
+    open-pull-requests-limit: 5
     labels:
       - 'dependencies'
       - 'dependabot'
     commit-message:
       prefix: 'chore'
       include: 'scope'
-    # Group updates for minor and patch versions
     groups:
-      production-dependencies:
-        dependency-type: 'production'
-        update-types:
-          - 'minor'
-          - 'patch'
-      development-dependencies:
+      eslint-prettier:
         dependency-type: 'development'
-        update-types:
-          - 'minor'
-          - 'patch'
-    # Ignore major version updates (require manual review)
-    ignore:
-      - dependency-name: '*'
-        update-types:
-          - 'version-update:semver-major'
-  # Note: Dependabot security updates are enabled automatically by GitHub
-  # when dependabot.yml exists. Security updates create PRs for vulnerabilities
-  # independently of the regular update schedule above.
+        patterns: ['eslint', 'eslint-*', 'prettier', 'prettier-*']
+        update-types: ['minor', 'patch']
+      vitest-coverage:
+        dependency-type: 'development'
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+          - '@istanbuljs/*'
+          - 'nyc'
+          - 'istanbul-lib-*'
+          - 'istanbul-reports'
+        update-types: ['minor', 'patch']
+      typescript-types:
+        dependency-type: 'development'
+        patterns: ['typescript', '@types/*']
+        update-types: ['minor', 'patch']
+      storybook:
+        dependency-type: 'development'
+        patterns: ['storybook', '@storybook/*']
+        update-types: ['minor', 'patch']
+      playwright:
+        dependency-type: 'development'
+        patterns: ['playwright', 'playwright-core', '@playwright/*']
+        update-types: ['minor', 'patch']
+    # (no registry-based ignores for this repo)
