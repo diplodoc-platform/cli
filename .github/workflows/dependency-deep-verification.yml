@@ -1,0 +1,97 @@
+# Dependency policy code and registry are loaded from an approved immutable infra revision.
+# Update the trusted-infra SHA deliberately after reviewing new policy tooling.
+name: Dependency Deep Verification
+'on':
+  pull_request:
+    paths:
+      - package.json
+      - package-lock.json
+permissions:
+  contents: read
+jobs:
+  classify-dependency-diff:
+    name: Classify Dependency Diff
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    outputs:
+      has-dependency-changes: ${{ steps.decision.outputs.has-dependency-changes }}
+      profile: ${{ steps.decision.outputs.profile }}
+      risk: ${{ steps.decision.outputs.risk }}
+      run-deep: ${{ steps.decision.outputs.run-deep }}
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Node.js and npm
+        uses: diplodoc-platform/setup-node-action@v1
+        with:
+          node-version: ${{ vars.NODE_VERSION || '24' }}
+          cache: ''
+          run-install: 'false'
+      - name: Checkout trusted dependency policy tooling
+        uses: actions/checkout@v5
+        with:
+          repository: diplodoc-platform/infra
+          ref: eb3a8c662deabc01345d5258ace6fcb0fcae67cd
+          path: trusted-infra
+          persist-credentials: false
+      - name: Install locked dependencies safely
+        run: npm ci --ignore-scripts
+        working-directory: trusted-infra
+      - name: Use only trusted policy tooling
+        id: infra
+        run: echo "path=trusted-infra" >> "$GITHUB_OUTPUT"
+      - name: Extract base and head dependency manifests
+        run: >
+          git show "${{ github.event.pull_request.base.sha }}:package.json" > /tmp/before-pkg.json
+          2>/dev/null || echo '{}' > /tmp/before-pkg.json
+
+          git show "${{ github.event.pull_request.head.sha }}:package.json" > /tmp/after-pkg.json
+
+          git show "${{ github.event.pull_request.base.sha }}:package-lock.json" >
+          /tmp/before-lock.json 2>/dev/null || echo '{}' > /tmp/before-lock.json
+
+          git show "${{ github.event.pull_request.head.sha }}:package-lock.json" >
+          /tmp/after-lock.json 2>/dev/null || echo '{}' > /tmp/after-lock.json
+      - name: Classify dependency changes
+        env:
+          INFRA_PATH: ${{ steps.infra.outputs.path }}
+        run: |
+          mkdir -p artifacts/dependency-deep-verification
+          node "${INFRA_PATH}/scripts/dependency-policy-review.js" \
+            --registry "${INFRA_PATH}/dependency-policy.yml" \
+            --before-pkg /tmp/before-pkg.json \
+            --after-pkg /tmp/after-pkg.json \
+            --before-lock /tmp/before-lock.json \
+            --after-lock /tmp/after-lock.json \
+            --repo "${{ github.event.repository.name }}" \
+            --head-sha "${{ github.event.pull_request.head.sha }}" \
+            --comment artifacts/dependency-deep-verification/assessment.md \
+            --json artifacts/dependency-deep-verification/assessment.json \
+            --quiet
+      - name: Export verification decision
+        id: decision
+        run: node trusted-infra/scripts/dependency-verification-decision.js artifacts/dependency-deep-verification/assessment.json
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+      - name: Upload verification decision
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-deep-decision-${{ github.event.pull_request.number }}
+          path: artifacts/dependency-deep-verification/
+          if-no-files-found: error
+          retention-days: 7
+    timeout-minutes: 15
+  deep-verification:
+    name: Run Selected Deep Profile
+    needs: classify-dependency-diff
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && needs.classify-dependency-diff.outputs.run-deep == 'true'
+    uses: diplodoc-platform/testpack/.github/workflows/downstream-check.yml@master
+    with:
+      package: ${{ github.event.repository.name }}
+      pr-sha: ${{ github.event.pull_request.head.sha }}
+      pr-number: ${{ github.event.pull_request.number }}
+      profile: ${{ needs.classify-dependency-diff.outputs.profile }}

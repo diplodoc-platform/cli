@@ -1,0 +1,98 @@
+# Dependency policy code and registry are loaded from an approved immutable infra revision.
+# Update the trusted-infra SHA deliberately after reviewing new policy tooling.
+name: Dependency Risk Assessment
+'on':
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - package.json
+      - package-lock.json
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  dependency-risk-assessment:
+    name: Dependency Risk Assessment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Node.js and npm
+        uses: diplodoc-platform/setup-node-action@v1
+        with:
+          node-version: ${{ vars.NODE_VERSION || '24' }}
+          cache: ''
+          run-install: 'false'
+      - name: Checkout trusted dependency policy tooling
+        uses: actions/checkout@v5
+        with:
+          repository: diplodoc-platform/infra
+          ref: eb3a8c662deabc01345d5258ace6fcb0fcae67cd
+          path: trusted-infra
+          persist-credentials: false
+      - name: Install locked dependencies safely
+        run: npm ci --ignore-scripts
+        working-directory: trusted-infra
+      - name: Use only trusted policy tooling
+        id: infra
+        run: echo "path=trusted-infra" >> "$GITHUB_OUTPUT"
+      - name: Extract base and head package.json / lockfile
+        id: files
+        run: >
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          INFRA_PATH="${{ steps.infra.outputs.path || 'node_modules/@diplodoc/infra' }}"
+
+
+          git show "${BASE_SHA}:package.json" > /tmp/before-pkg.json 2>/dev/null || echo '{}' >
+          /tmp/before-pkg.json
+
+          git show "${HEAD_SHA}:package.json" > /tmp/after-pkg.json
+
+
+          git show "${BASE_SHA}:package-lock.json" > /tmp/before-lock.json 2>/dev/null || echo '{}'
+          > /tmp/before-lock.json
+
+          git show "${HEAD_SHA}:package-lock.json" > /tmp/after-lock.json 2>/dev/null || echo '{}' >
+          /tmp/after-lock.json
+
+
+          echo "infra-path=${INFRA_PATH}" >> "$GITHUB_OUTPUT"
+      - name: Run dependency risk assessment
+        run: |
+          mkdir -p artifacts/dependency-risk
+          node "${{ steps.files.outputs.infra-path }}/scripts/dependency-policy-review.js" \
+            --registry "${{ steps.files.outputs.infra-path }}/dependency-policy.yml" \
+            --before-pkg /tmp/before-pkg.json \
+            --after-pkg /tmp/after-pkg.json \
+            --before-lock /tmp/before-lock.json \
+            --after-lock /tmp/after-lock.json \
+            --head-sha ${{ github.event.pull_request.head.sha }} \
+            --pr ${{ github.event.pull_request.number }} \
+            --comment artifacts/dependency-risk/comment.md \
+            --json artifacts/dependency-risk/assessment.json
+          printf '{"pr":%s,"headSha":"%s"}\n' \
+            '${{ github.event.pull_request.number }}' \
+            '${{ github.event.pull_request.head.sha }}' \
+            > artifacts/dependency-risk/metadata.json
+      - name: Write job summary
+        if: always()
+        run: |
+          if [ -f artifacts/dependency-risk/comment.md ]; then
+            cat artifacts/dependency-risk/comment.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload risk assessment for trusted comment workflow
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-risk-${{ github.event.pull_request.number }}
+          path: artifacts/dependency-risk/
+          if-no-files-found: error
+          retention-days: 7
+    timeout-minutes: 15

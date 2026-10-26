@@ -1,0 +1,59 @@
+# ============================================================================
+# Per-repository dependency policy (AUTO-GENERATED — do not edit)
+# Source of truth: @diplodoc/infra/dependency-policy.yml
+# Regenerated on every infra init/update/sync. Manual edits will be lost.
+# ============================================================================
+
+schema-version: '1.0'
+registry-owner: diplodoc-platform/infra
+generated-for: cli
+generated-from: central dependency-policy.yml
+entries:
+  - id: DEP-0003
+    dependency: '@diplodoc/infra'
+    pin-policy: managed-infra
+    repositories:
+      - cli
+      - client
+      - components
+      - directive
+      - liquid
+      - sentenizer
+      - transform
+      - translation
+      - utils
+      - yfmlint
+      - vsc
+      - ajv
+      - algolia-extension
+      - color-extension
+      - cut-extension
+      - file-extension
+      - folding-headings-extension
+      - html-extension
+      - latex-extension
+      - mermaid-extension
+      - openapi-extension
+      - page-constructor-extension
+      - quote-link-extension
+      - search-extension
+      - tabs-extension
+      - package-template
+      - testpack
+    ignored-versions: []
+    risk: high
+    category: tooling-distribution
+    verification-profile: document-transform
+    reason: >-
+      Distribution freezes the infra release and scaffolding together; devDependencies only, stable or infra rc release
+      versions.
+    evidence:
+      pilot: https://github.com/diplodoc-platform/tabs-extension/pull/161
+      distribution: https://github.com/diplodoc-platform/infra/actions/runs/37463691539
+    owner: diplodoc-platform/team
+    introduced-at: 2026-10-06T00:00:00.000Z
+    review-after: 2026-12-01T00:00:00.000Z
+    expires-at: 2026-12-01T00:00:00.000Z
+    exit-criteria:
+      - Reassess the managed dev-tool pin contract after stabilization
+      - Keep distribution review-only until hosted pilots pass

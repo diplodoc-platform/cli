@@ -1,0 +1,47 @@
+name: Dependency Risk Comment
+'on':
+  workflow_run:
+    workflows:
+      - Dependency Risk Assessment
+    types:
+      - completed
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+jobs:
+  comment:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion !=
+      'cancelled' && github.event.workflow_run.pull_requests[0].number != null
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout trusted comment publisher
+        uses: actions/checkout@v5
+        with:
+          repository: diplodoc-platform/infra
+          ref: 73f63f0107b70917238f8a3b92efa98fb9a449fe
+          path: trusted-infra
+          persist-credentials: false
+      - name: Download assessment artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: dependency-risk-${{ github.event.workflow_run.pull_requests[0].number }}
+          path: artifacts/dependency-risk
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Post only current assessment to its own marked comment
+        uses: actions/github-script@v7
+        env:
+          EXPECTED_PR: ${{ github.event.workflow_run.pull_requests[0].number }}
+          EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const publish = require('./trusted-infra/scripts/publish-dependency-risk-comment.js');
+            await publish({github, context, core});
+    timeout-minutes: 10
+concurrency:
+  group: dependency-risk-comment-${{ github.event.workflow_run.pull_requests[0].number }}
+  cancel-in-progress: false

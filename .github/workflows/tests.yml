@@ -46,3 +46,7 @@ jobs:
 
       - name: Run build
         run: npm run build
+
+      - name: Verify npm package
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: npm run test:package --if-present
