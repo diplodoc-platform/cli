@@ -8,6 +8,8 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {resolveConfig, valuable} from '~/core/config';
 
+import {getHooks as getEntryHooks} from '../../services/entry';
+
 import {options} from './config';
 
 type FileDescriptor = {
@@ -31,12 +33,22 @@ type FileTrieEntryPoint = {
 
 type RestrictedAccessMap = Record<string, string[][]>;
 
+type PageMetadata = {
+    restrictedAccess: RestrictedAccessMap;
+    pageModifiedTimes?: Record<string, string>;
+};
+
+type ManifestEntryInfo = {
+    pageModifiedTime?: string;
+};
+
 type BuildManifestFormat = {
     fileTrie: FileTrieEntryPoint;
     yfmConfig: unknown;
     redirects: Redirects;
     openapiCompanions?: OpenapiCompanionEntry[];
     restrictedAccess: RestrictedAccessMap;
+    pageModifiedTimes?: Record<string, string>;
 };
 
 const MANIFEST_FILENAME = 'yfm-build-manifest.json';
@@ -52,6 +64,11 @@ export type BuildManifestConfig = {
 export class BuildManifest {
     private lastTocId = 0;
 
+    private readonly modificationTimes = new WeakMap<
+        Run,
+        Map<NormalizedPath, string | undefined>
+    >();
+
     apply(program: Build) {
         getBaseHooks(program).Command.tap('BuildManifest', (command: Command) => {
             command.addOption(options.buildManifest);
@@ -64,6 +81,33 @@ export class BuildManifest {
         });
 
         getBuildHooks(program)
+            .BeforeRun.for('md')
+            .tap('BuildManifest', (run) => {
+                if (!run.config.buildManifest || !run.config.mtimes.enabled) {
+                    return;
+                }
+
+                this.modificationTimes.set(run, new Map());
+                getEntryHooks(run.entry).Dump.tap(
+                    {name: 'BuildManifest', stage: Infinity},
+                    (entry) => {
+                        // Entry info crosses the worker boundary; reuse the metadata already
+                        // finalized for output instead of reading or dumping the page again.
+                        (entry.info as ManifestEntryInfo).pageModifiedTime =
+                            entry.data.meta.updatedAt;
+                    },
+                );
+            });
+
+        getBuildHooks(program)
+            .Entry.for('md')
+            .tap('BuildManifest', (run, entry, info) => {
+                this.modificationTimes
+                    .get(run)
+                    ?.set(entry, (info as ManifestEntryInfo).pageModifiedTime);
+            });
+
+        getBuildHooks(program)
             .AfterRun.for('md')
             .tapPromise('BuildManifest', async (run: Run) => {
                 if (!run.config.buildManifest) {
@@ -74,13 +118,13 @@ export class BuildManifest {
                 const fileTrie = this.buildFileTrie(run);
                 const yfmConfig = await this.readYfmConfig(run);
                 const openapiCompanions = this.collectOpenapiCompanions(run);
-                const restrictedAccess = await this.collectRestrictedAccess(run);
+                const pageMetadata = await this.collectPageMetadata(run);
 
                 const manifest: BuildManifestFormat = {
                     redirects,
                     fileTrie,
                     yfmConfig,
-                    restrictedAccess,
+                    ...pageMetadata,
                     ...(openapiCompanions.length ? {openapiCompanions} : {}),
                 };
 
@@ -134,26 +178,62 @@ export class BuildManifest {
     }
 
     /**
-     * Collects per-page restricted-access rules from the finalized metadata store.
+     * Collects access rules and VCS modification dates in one metadata traversal.
      * Uses the same `meta.dump()` output that md2md writes into page frontmatter.
      */
-    private async collectRestrictedAccess(run: Run): Promise<RestrictedAccessMap> {
+    private async collectPageMetadata(run: Run): Promise<PageMetadata> {
         const entries: [string, string[][]][] = [];
+        const pageModifiedTimes: Record<string, string> = Object.create(null);
+        const selectedExtensions = new Map<string, string>();
+        const modificationTimes = this.modificationTimes.get(run);
 
         for (const path of run.toc.entries) {
             const meta = await run.meta.dump(path);
             const access = meta['restricted-access'];
 
-            if (!access?.length) {
-                continue;
+            if (access?.length) {
+                entries.push([path.replace(/\..+$/, ''), access]);
             }
 
-            entries.push([path.replace(/\..+$/, ''), access]);
+            if (run.config.mtimes.enabled) {
+                this.collectPageModifiedTime(
+                    path,
+                    modificationTimes?.has(path) ? modificationTimes.get(path) : meta.updatedAt,
+                    selectedExtensions,
+                    pageModifiedTimes,
+                );
+            }
         }
 
         entries.sort(([left], [right]) => left.localeCompare(right));
 
-        return Object.fromEntries(entries);
+        return {
+            restrictedAccess: Object.fromEntries(entries),
+            ...(run.config.mtimes.enabled && {pageModifiedTimes}),
+        };
+    }
+
+    private collectPageModifiedTime(
+        path: string,
+        updatedAt: unknown,
+        selectedExtensions: Map<string, string>,
+        pageModifiedTimes: Record<string, string>,
+    ): void {
+        const {ext} = parse(path);
+        const page = path.slice(0, path.length - ext.length);
+        const selected = selectedExtensions.get(page);
+
+        // Match the file trie when several source formats share one URL.
+        if (selected !== undefined && !this.shouldReplaceFile(selected, ext)) {
+            return;
+        }
+
+        selectedExtensions.set(page, ext);
+        delete pageModifiedTimes[page];
+        const modificationDate = typeof updatedAt === 'string' ? new Date(updatedAt) : undefined;
+        if (modificationDate && Number.isFinite(modificationDate.getTime())) {
+            pageModifiedTimes[page] = modificationDate.toISOString();
+        }
     }
 
     private async readYfmConfig(run: Run): Promise<unknown> {

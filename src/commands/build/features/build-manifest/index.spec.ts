@@ -1,4 +1,12 @@
-import {describe, expect, it} from 'vitest';
+import type {BuildConfig, EntryData, EntryInfo} from '~/commands/build';
+
+import {describe, expect, it, vi} from 'vitest';
+
+import {Build, getHooks as getBuildHooks} from '~/commands/build';
+import {VFile, normalizePath} from '~/core/utils';
+
+import {setupRun} from '../../__tests__';
+import {getHooks as getEntryHooks} from '../../services/entry';
 
 import {BuildManifest} from './index';
 
@@ -7,6 +15,61 @@ type TestableBuildManifest = {
 };
 
 describe('Build manifest feature', () => {
+    describe('worker modification timestamps', () => {
+        it.each([
+            ['2026-03-20T12:00:00.000Z', {guide: '2026-03-20T12:00:00.000Z'}],
+            [undefined, {}],
+            ['invalid', {}],
+        ] as const)(
+            'uses the finalized worker timestamp %s instead of stale main-thread metadata',
+            async (updatedAt, expected) => {
+                const main = new Build();
+                const worker = new Build();
+                const feature = new BuildManifest();
+                feature.apply(main);
+                new BuildManifest().apply(worker);
+                const config = {buildManifest: true, mtimes: {enabled: true}};
+                const mainRun = setupRun(config as BuildConfig);
+                const workerRun = setupRun(config as BuildConfig);
+                const path = normalizePath('guide.md');
+                vi.spyOn(mainRun.toc, 'entries', 'get').mockReturnValue([path]);
+                const dump = vi.spyOn(mainRun.meta, 'dump').mockResolvedValue({
+                    updatedAt: '2026-01-10T12:00:00.000Z',
+                    'restricted-access': [['admin']],
+                });
+
+                await getBuildHooks(main).BeforeRun.for('md').promise(mainRun);
+                await getBuildHooks(worker).BeforeRun.for('md').promise(workerRun);
+                const entry = new VFile<EntryData>(path, {meta: {updatedAt}} as EntryData);
+                await getEntryHooks(workerRun.entry).Dump.promise(entry);
+                const transferred = structuredClone(entry.info);
+                expect(transferred).toEqual({pageModifiedTime: updatedAt});
+                await getBuildHooks(main)
+                    .Entry.for('md')
+                    .promise(mainRun, path, transferred as EntryInfo);
+
+                // @ts-ignore - accessing private method for testing
+                const result = await feature.collectPageMetadata(mainRun);
+                expect(result.pageModifiedTimes).toEqual(expected);
+                expect(result.restrictedAccess).toEqual({guide: [['admin']]});
+                expect(dump).toHaveBeenCalledExactlyOnceWith(path);
+            },
+        );
+
+        it.each([
+            {buildManifest: false, mtimes: {enabled: true}},
+            {buildManifest: true, mtimes: {enabled: false}},
+        ])('does not transfer timestamps when disabled: %j', async (config) => {
+            const build = new Build();
+            new BuildManifest().apply(build);
+            const run = setupRun(config as BuildConfig);
+
+            await getBuildHooks(build).BeforeRun.for('md').promise(run);
+
+            expect(getEntryHooks(run.entry).Dump.taps).toHaveLength(0);
+        });
+    });
+
     describe('resolveEnabled method', () => {
         const resolveEnabled = (configValue?: boolean, argumentValue?: boolean) =>
             (new BuildManifest() as unknown as TestableBuildManifest).resolveEnabled(
@@ -105,7 +168,7 @@ describe('Build manifest feature', () => {
         });
     });
 
-    describe('collectRestrictedAccess method', () => {
+    describe('collectPageMetadata access rules', () => {
         const collect = async (
             entries: string[],
             dumpByPath: Record<string, Record<string, unknown>>,
@@ -113,13 +176,14 @@ describe('Build manifest feature', () => {
             const buildManifest = new BuildManifest();
             const run = {
                 toc: {entries},
+                config: {mtimes: {enabled: false}},
                 meta: {
                     dump: async (path: string) => dumpByPath[path] ?? {},
                 },
             };
 
             // @ts-ignore - accessing private method for testing
-            return buildManifest.collectRestrictedAccess(run);
+            return (await buildManifest.collectPageMetadata(run)).restrictedAccess;
         };
 
         it('returns an empty map when no entries have restricted-access', async () => {
@@ -156,6 +220,79 @@ describe('Build manifest feature', () => {
             });
 
             expect(result).toEqual({});
+        });
+    });
+
+    describe('page modification dates', () => {
+        const collect = async (
+            enabled: boolean,
+            metadata: Record<string, Record<string, unknown>>,
+        ) => {
+            const dump = vi.fn(async (path: string) => metadata[path]);
+            const run = {
+                config: {mtimes: {enabled}},
+                toc: {entries: Object.keys(metadata)},
+                meta: {dump},
+            };
+            // @ts-ignore - accessing private method for testing
+            const result = await new BuildManifest().collectPageMetadata(run);
+            return {result, dump};
+        };
+
+        it('collects dates and access rules with one metadata read per entry', async () => {
+            const {result, dump} = await collect(true, {
+                'ru/v1.0/index.md': {
+                    updatedAt: '2026-10-20T12:00:00+03:00',
+                },
+                'en/landing.yaml': {
+                    updatedAt: '2026-10-21T00:00:00Z',
+                    'restricted-access': [['admin']],
+                },
+                'undated.md': {},
+                'invalid.md': {updatedAt: 'invalid'},
+            });
+
+            expect(result.pageModifiedTimes).toEqual({
+                'ru/v1.0/index': '2026-10-20T09:00:00.000Z',
+                'en/landing': '2026-10-21T00:00:00.000Z',
+            });
+            expect(result.restrictedAccess).toEqual({'en/landing': [['admin']]});
+            expect(dump).toHaveBeenCalledTimes(4);
+        });
+
+        it('omits the date map when mtimes is disabled, even for authored metadata', async () => {
+            const {result} = await collect(false, {
+                'index.md': {updatedAt: '2026-10-20T00:00:00Z'},
+            });
+            expect(result).not.toHaveProperty('pageModifiedTimes');
+        });
+
+        it('emits an empty date map when mtimes is enabled but no dates are available', async () => {
+            const {result} = await collect(true, {'index.md': {}});
+            expect(result.pageModifiedTimes).toEqual({});
+        });
+
+        it.each([false, true])(
+            'follows the trie source priority (reversed=%s)',
+            async (reversed) => {
+                const entries = [
+                    ['index.yaml', {updatedAt: '2026-10-21T00:00:00Z'}],
+                    ['index.md', {updatedAt: '2026-10-20T00:00:00Z'}],
+                ];
+                const {result} = await collect(
+                    true,
+                    Object.fromEntries(reversed ? entries.reverse() : entries),
+                );
+                expect(result.pageModifiedTimes).toEqual({index: '2026-10-20T00:00:00.000Z'});
+            },
+        );
+
+        it('does not reuse the lower-priority source date when the selected source is undated', async () => {
+            const {result} = await collect(true, {
+                'index.yaml': {updatedAt: '2026-10-21T00:00:00Z'},
+                'index.md': {},
+            });
+            expect(result.pageModifiedTimes).toEqual({});
         });
     });
 
