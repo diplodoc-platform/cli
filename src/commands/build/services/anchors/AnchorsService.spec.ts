@@ -47,7 +47,7 @@ describe('AnchorsService', () => {
         };
         const index = (file = 'index.md') => service.index(file as NormalizedPath, [asset]);
 
-        return {content, graph, markdown, transform, index};
+        return {asset, service, content, graph, markdown, transform, index};
     }
 
     it('shares graph construction, hashing and rendering across concurrent source pages', async () => {
@@ -164,6 +164,21 @@ describe('AnchorsService', () => {
             expect(graph).not.toHaveBeenCalled();
         },
     );
+
+    it.each([
+        ['link', '#:~:text=selected'],
+        ['link', '#missing:~:text=selected'],
+        ['def', '#:~:text=selected'],
+        ['def', '#missing:~:text=selected'],
+    ] as const)('does not index a %s target with fragment directive %s', async (type, hash) => {
+        const {asset, service, markdown, transform} = setupCachedService();
+
+        const index = await service.index('index.md' as NormalizedPath, [{...asset, type, hash}]);
+
+        expect(index.size).toBe(0);
+        expect(markdown.graph).not.toHaveBeenCalled();
+        expect(transform).not.toHaveBeenCalled();
+    });
 
     it('reuses unchanged anchors and refreshes changed pages and includes', async () => {
         const graph: EntryGraph = {

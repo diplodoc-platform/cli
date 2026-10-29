@@ -174,6 +174,7 @@ describe('Links plugin', () => {
             ['existing-anchor', 'existing-anchor'],
             ['раздел', '%D1%80%D0%B0%D0%B7%D0%B4%D0%B5%D0%BB'],
             ['раздел', 'раздел'],
+            ['literal:~:text=present', 'literal%3A~%3Atext%3Dpresent'],
         ])('should not set YFM025 for an existing anchor: %s linked as %s', (anchor, hash) => {
             const md = createMarkdownIt(
                 ['index.md', 'page.md'],
@@ -188,18 +189,60 @@ describe('Links plugin', () => {
             expect(linkToken?.attrGet('YFM025')).toBeNull();
         });
 
-        it('should set YFM025 for a missing anchor', () => {
+        it.each(['missing-anchor', 'literal%3A~%3Atext%3Dmissing'])(
+            'should set YFM025 for a missing anchor: %s',
+            (hash) => {
+                const md = createMarkdownIt(
+                    ['index.md', 'page.md'],
+                    new Map([['page.md' as NormalizedPath, new Set(['existing-anchor'])]]),
+                );
+
+                const tokens = md.parse(`[Link](page.md#${hash})`, {});
+                const linkToken = tokens
+                    .find((token) => token.type === 'inline')
+                    ?.children?.find((token) => token.type === 'link_open');
+
+                expect(linkToken?.attrGet('YFM025')).toBe('anchor-not-found');
+            },
+        );
+
+        it.each([
+            ['page.md#:~:text=selected', 'page.html#:~:text=selected'],
+            ['page.md#missing:~:text=selected', 'page.html#missing:~:text=selected'],
+            ['#:~:text=selected', 'index.html#:~:text=selected'],
+            ['#missing:~:text=selected', 'index.html#missing:~:text=selected'],
+            ['page.md?mode=compact#:~:text=selected', 'page.html?mode=compact#:~:text=selected'],
+        ])('should not validate a browser fragment directive: %s', (href, expectedHref) => {
             const md = createMarkdownIt(
                 ['index.md', 'page.md'],
-                new Map([['page.md' as NormalizedPath, new Set(['existing-anchor'])]]),
+                new Map([
+                    ['index.md' as NormalizedPath, new Set(['current-anchor'])],
+                    ['page.md' as NormalizedPath, new Set(['current-anchor'])],
+                ]),
             );
 
-            const tokens = md.parse('[Link](page.md#missing-anchor)', {});
+            const tokens = md.parse(`[Link](${href})`, {});
             const linkToken = tokens
                 .find((token) => token.type === 'inline')
                 ?.children?.find((token) => token.type === 'link_open');
 
-            expect(linkToken?.attrGet('YFM025')).toBe('anchor-not-found');
+            expect(linkToken?.attrGet('YFM025')).toBeNull();
+            expect(linkToken?.attrGet('YFM003')).toBeNull();
+            expect(linkToken?.attrGet('href')).toBe(expectedHref);
+        });
+
+        it('should not validate a reference link with a browser fragment directive', () => {
+            const md = createMarkdownIt(
+                ['index.md', 'page.md'],
+                new Map([['page.md' as NormalizedPath, new Set(['current-anchor'])]]),
+            );
+            const tokens = md.parse('[Link][text]\n\n[text]: page.md#missing:~:text=selected', {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
+
+            expect(linkToken?.attrGet('YFM025')).toBeNull();
+            expect(linkToken?.attrGet('href')).toBe('page.html#missing:~:text=selected');
         });
 
         it.each([
@@ -284,20 +327,22 @@ describe('Links plugin', () => {
             expect(linkToken?.attrGet('YFM025')).toBe('anchor-not-found');
         });
 
-        it.each(['missing.md#missing-anchor', 'missing.md?version=v25.1#missing-anchor'])(
-            'should report only YFM003 when the target file is missing: %s',
-            (href) => {
-                const md = createMarkdownIt(['index.md'], new Map());
+        it.each([
+            'missing.md#missing-anchor',
+            'missing.md?version=v25.1#missing-anchor',
+            'missing.md#:~:text=selected',
+            'missing.md#missing:~:text=selected',
+        ])('should report only YFM003 when the target file is missing: %s', (href) => {
+            const md = createMarkdownIt(['index.md'], new Map());
 
-                const tokens = md.parse(`[Link](${href})`, {});
-                const linkToken = tokens
-                    .find((token) => token.type === 'inline')
-                    ?.children?.find((token) => token.type === 'link_open');
+            const tokens = md.parse(`[Link](${href})`, {});
+            const linkToken = tokens
+                .find((token) => token.type === 'inline')
+                ?.children?.find((token) => token.type === 'link_open');
 
-                expect(linkToken?.attrGet('YFM003')).toBe('missing-in-toc');
-                expect(linkToken?.attrGet('YFM025')).toBeNull();
-            },
-        );
+            expect(linkToken?.attrGet('YFM003')).toBe('missing-in-toc');
+            expect(linkToken?.attrGet('YFM025')).toBeNull();
+        });
 
         it('should report only YFM003 when the target file is missing from toc', () => {
             const md = createMarkdownIt(

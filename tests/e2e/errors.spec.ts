@@ -149,6 +149,20 @@ describe('Errors', () => {
         expect(html.errors).toEqual([]);
     });
 
+    it('accepts browser fragment directives in strict HTML builds', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/errors/text-fragments');
+        const html = await TestAdapter.build.run(inputPath, outputPath, [
+            '-j2',
+            '-f',
+            'html',
+            '--strict',
+        ]);
+
+        expect(html.code).toBe(0);
+        expect(html.warns).toEqual([]);
+        expect(html.errors).toEqual([]);
+    });
+
     it('translate extract with filtered links', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
 

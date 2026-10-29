@@ -8,7 +8,7 @@ import {join} from 'node:path';
 import {bounded} from '~/core/utils';
 import {resolveMarkdownPage} from '~/core/markdown';
 
-import {isVersionedQuery} from './utils';
+import {hasFragmentDirective, isVersionedQuery} from './utils';
 
 type CacheItem = {
     signature: string;
@@ -35,6 +35,7 @@ export class AnchorsService {
             if (
                 !asset.hash ||
                 asset.hash === '#' ||
+                hasFragmentDirective(asset.hash) ||
                 isVersionedQuery(asset.search) ||
                 (asset.type !== 'link' && asset.type !== 'def')
             ) {

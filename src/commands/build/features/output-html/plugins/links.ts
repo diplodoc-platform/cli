@@ -9,7 +9,7 @@ import {bold} from 'chalk';
 import {dirname, isAbsolute, join} from 'node:path';
 
 import {isExternalHref, normalizePath} from '~/core/utils';
-import {isVersionedQuery} from '~/commands/build/services/anchors';
+import {hasFragmentDirective, isVersionedQuery} from '~/commands/build/services/anchors';
 
 import {decodeAnchor, walkLinks} from '../utils';
 
@@ -123,6 +123,10 @@ function validateAnchor(
         entries: ReadonlySet<NormalizedPath>;
     },
 ) {
+    if (hasFragmentDirective(hash)) {
+        return;
+    }
+
     const {entries, anchorIndex, resolveAnchorPage} = options;
     const target = resolveAnchorPage(file);
     const anchor = decodeAnchor(hash);
