@@ -155,6 +155,11 @@ HTML builds report a missing local link anchor as `YFM025 / missing-local-anchor
 warning by default, including when an existing `.yfmlint` config sets `YFM002` to `error`.
 Missing or unreachable target documents still produce `YFM003` errors.
 
+Literal browser fragment directives such as `#:~:text=Selected%20text` and
+`#section:~:text=Selected%20text` are excluded from local-anchor validation. The
+target document is still checked. Percent-encoded literal IDs remain subject to
+ordinary anchor validation.
+
 Configure the new rule independently in `.yfmlint`:
 
 ```yaml
