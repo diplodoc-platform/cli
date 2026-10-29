@@ -60,6 +60,53 @@ A compact index following the llmstxt.org spec:
 - `## Documentation` section with links to each page
 - Footer linking to `llms-full.txt`
 
+Link labels prefer the article's `meta.title`, then its first H1, then the TOC
+item name. The first H1 can be a Markdown heading or a raw HTML `<h1>` in
+document order. Raw HTML headings and inline HTML are interpreted only when
+`allowHtml` is enabled. Otherwise, HTML markup remains literal text, as in the
+article renderer. In both Markdown and raw HTML headings, `<br>` separates
+words, image alternative text is retained, entities are decoded, and whitespace
+is collapsed. Content inside scripts, styles, and templates is excluded when
+HTML is enabled. Headings inside code examples and, when HTML is enabled,
+HTML comments, scripts, styles, and templates are ignored.
+Markdown H1 text excludes YFM heading attributes (IDs, classes, and key/value
+pairs) using the same attribute parser as the renderer; literal inline code
+remains visible. The title parser also reuses the renderer's YFM monospace
+(`##text##`) and superscript (`^text^`) plugins, so their formatting markers
+do not appear in link labels. Raw HTML blocks still retain these markers as
+literal text, matching the article renderer.
+The H1 is selected from the assembled human document: includes
+are resolved with their hash and `notitle` semantics, and agent-only visibility
+blocks are excluded just as in static HTML and the canonical corpus.
+Empty or whitespace-only titles are skipped. A leading YAML page's
+`title` is its H1 equivalent. If none are available, the existing description
+and href fallbacks remain. Titles and metadata are loaded through the source
+services before rendering the index, including in worker builds, so Liquid
+substitutions and conditions match the built documentation. Index entries are
+resolved sequentially because loading another article's includes can replace
+shared page metadata; each entry must restore its own metadata before the
+next entry starts. Collectors are
+scoped to one article in both human and agent corpora so a shared include retains
+that article's variables. Human corpus collection also provides index titles;
+only the extracted titles are retained for the index. Pages beyond the corpus
+size limit still have their titles resolved, and a non-empty `meta.title` avoids
+unnecessary include collection and H1 parsing for the index.
+H1 extraction keeps the complete structural token stream and reference
+definitions, but parses inline content only for the first Markdown H1 and
+possible HTML headings before it. HTML fragments are collected until the first
+H1 closes (or the document ends) and parsed once with the existing HTML parser;
+ordinary paragraphs after the selected heading are not parsed inline. Candidate
+inline tokens are inspected for actual HTML without rendering code examples.
+Markdown H1s containing inline HTML reuse the same HTML text extraction after
+rendering only that heading; headings without inline HTML keep the token-only
+path. HTML-enabled and HTML-disabled parsers are reused independently.
+Raw HTML blocks retain literal Markdown, as in the renderer. This preserves
+late link definitions and the surrounding context needed by heading attributes
+without parsing inline markup in every paragraph. The structural pass still
+scales with the complete assembled document.
+Link labels escape Markdown syntax, HTML tags, and entity markers to preserve
+literal text, and collapse whitespace to stay on one line.
+
 Links point to the actual output files: original href in `md`, rendered `.html`
 in `html` builds.
 
