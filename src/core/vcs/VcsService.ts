@@ -98,6 +98,11 @@ export class VcsService implements VcsConnector {
     }
 
     async getModifiedTimeByPath(path: RelativePath) {
+        // Filesystem fallback must stat the copied file, not its repository origin.
+        if (this.connector instanceof DefaultVcsConnector) {
+            return this.connector.getModifiedTimeByPath(path);
+        }
+
         return this.connector.getModifiedTimeByPath(await this.realpath(path));
     }
 

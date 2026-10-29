@@ -1,4 +1,4 @@
-import type {ExtensionInfo} from '~/core/program';
+import type {BaseArgs, ExtensionInfo} from '~/core/program';
 
 import {Command} from '~/core/config';
 import {VERSION, YFM_CONFIG_FILENAME} from '~/constants';
@@ -10,6 +10,7 @@ import {Init} from './init';
 import {Publish} from './publish';
 import {Translate} from './translate';
 import {NAME, USAGE, options} from './config';
+import {applyInternalBuildDefaults} from './utils/internal-build';
 
 export type {EntryInfo, SearchProvider, SearchServiceConfig} from './build';
 
@@ -58,6 +59,7 @@ export class Program extends BaseProgram {
         options.workerMaxOldSpace,
         options.copyOnWrite,
         options.originAsInput,
+        options.internalBuild,
     ];
 
     protected readonly modules = [
@@ -67,4 +69,10 @@ export class Program extends BaseProgram {
         this.publish,
         this.translate,
     ];
+
+    protected prepareConfig(config: Hash, args: BaseArgs) {
+        applyInternalBuildDefaults(config, args);
+
+        return config;
+    }
 }

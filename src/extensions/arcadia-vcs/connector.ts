@@ -28,7 +28,8 @@ export class ArcadiaVcsConnector implements VcsConnector {
     constructor(run: Run<Config>) {
         this.run = run;
         this.config = run.config;
-        this.arc = new ArcClient(run.config, dirname(run.config[configPath] as AbsolutePath));
+        const path = run.config[configPath];
+        this.arc = new ArcClient(run.config, path ? dirname(path) : run.originalInput);
     }
 
     async init() {

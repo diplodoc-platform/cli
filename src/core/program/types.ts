@@ -18,6 +18,7 @@ export type BaseArgs = {
     extensions?: string[];
     copyOnWrite: boolean;
     originAsInput: boolean;
+    internalBuild?: boolean;
 };
 
 export type BaseConfig = {

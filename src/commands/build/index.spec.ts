@@ -375,6 +375,19 @@ describe('Build command', () => {
         });
 
         describe('vcs', () => {
+            for (const enabled of [true, false]) {
+                test(
+                    `should preserve VCS options with --${enabled ? '' : 'no-'}vcs`,
+                    enabled ? '--vcs' : '--no-vcs',
+                    {
+                        vcs: {enabled: !enabled, scopes: ['shared/docs'], initialCommit: 'abcdef'},
+                    },
+                    {
+                        vcs: {enabled, scopes: ['shared/docs'], initialCommit: 'abcdef'},
+                    },
+                );
+            }
+
             test('should handle default', '', {
                 vcs: {enabled: false},
                 vcsPath: {enabled: true},

@@ -112,5 +112,51 @@ describe('config utils', () => {
             expect(resultWithoutUtils).toEqual(mockFallback);
             expect(readFile).toHaveBeenCalledWith(mockConfigPath, 'utf8');
         });
+
+        it('prepares the complete config before selecting a scope', async () => {
+            const source = {external: true, build: {option: 'value'}};
+            vi.mocked(readFile).mockResolvedValue(JSON.stringify(source));
+            const prepare = vi.fn((config: Hash) => ({
+                ...config,
+                build: {...config.build, enabled: !config.external},
+            }));
+
+            const result = await resolveConfig('/config.yaml' as AbsolutePath, {
+                prepare,
+                filter: (config) => config.build,
+            });
+
+            expect(prepare).toHaveBeenCalledExactlyOnceWith(source);
+            expect({...result}).toEqual({option: 'value', enabled: false});
+        });
+
+        it('prepares missing-config defaults without mutating them', async () => {
+            vi.mocked(readFile).mockRejectedValue(
+                Object.assign(new Error('Missing'), {code: 'ENOENT'}),
+            );
+            const fallback = {enabled: false};
+
+            const result = await resolveConfig('/missing.yaml' as AbsolutePath, {
+                fallback,
+                prepare: (config) => {
+                    config.enabled = true;
+
+                    return config;
+                },
+            });
+
+            expect({...result}).toEqual({enabled: true});
+            expect(fallback).toEqual({enabled: false});
+        });
+
+        it('prepares an empty object for empty YAML content', async () => {
+            vi.mocked(readFile).mockResolvedValue('null');
+            const prepare = vi.fn((config: Hash) => ({...config, enabled: true}));
+
+            const result = await resolveConfig('/empty.yaml' as AbsolutePath, {prepare});
+
+            expect(prepare).toHaveBeenCalledExactlyOnceWith({});
+            expect({...result}).toEqual({enabled: true});
+        });
     });
 });

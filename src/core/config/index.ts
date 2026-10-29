@@ -200,17 +200,19 @@ export async function resolveConfig<T extends Hash = {}>(
         defaults,
         fallback,
         filter = identity,
+        prepare = identity,
     }: {
         filter?: (data: Hash) => T;
+        prepare?: (data: Hash) => Hash;
         defaults?: T;
         fallback?: T | null;
     } = {},
 ): Promise<Config<T>> {
     try {
         const content = (await readFile(path, 'utf8')) || '{}';
-        const data = load(content) as Hash;
+        const data = (load(content) || {}) as Hash;
 
-        return withConfigUtils(path, merge({}, defaults, filter(data)));
+        return withConfigUtils(path, merge({}, defaults, filter(prepare(data))));
         // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (error: any) {
         switch (error.code) {
@@ -223,7 +225,7 @@ export async function resolveConfig<T extends Hash = {}>(
             case 'ENOENT':
             case 'ENOTDIR':
                 if (fallback) {
-                    return withConfigUtils(null, fallback);
+                    return withConfigUtils(null, prepare(merge({}, fallback)) as T);
                 } else {
                     throw error;
                 }

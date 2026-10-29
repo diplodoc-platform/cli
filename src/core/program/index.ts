@@ -173,6 +173,11 @@ export class BaseProgram<
         this.modules.push(module);
     }
 
+    /** Prepare the complete parsed config before selecting the command scope. */
+    protected prepareConfig(config: Hash, _args: TArgs): Hash {
+        return config;
+    }
+
     private async resolveConfig(args: TArgs) {
         const defaults = getConfigDefaults(this);
         const {scope, strictScope} = getConfigScope(this);
@@ -185,6 +190,7 @@ export class BaseProgram<
             (strictScope && strictScopeConfig(strictScope)) || (scope && scopeConfig(scope));
 
         const config = await resolveConfig(configPath, {
+            prepare: (data) => this.prepareConfig(data, args),
             filter: filter || undefined,
             defaults: defaults,
             fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,

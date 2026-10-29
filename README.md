@@ -206,3 +206,24 @@ npm ci && npm run build
 ## License
 
 MIT
+
+### Internal Arcadia build defaults
+
+Internal CI launchers can pass `--internal-build` to enable missing `vcs` and
+`mtimes` settings and load the builtin `arcadia-vcs` extension. Defaults are applied
+in memory to the selected `--config` before selecting its `build` section and
+discovering extensions. External viewer flags at the root or in `build` exclude
+the configuration from these defaults, even when the other section has its own
+viewer settings. Root and `build` extensions are combined in that order; scoped
+options override an extension with the same name without loading it twice. Explicit values,
+including `false`, `{enabled: false}`, YAML merge values, existing extensions and
+`vcs.scopes`, are preserved. Explicit CLI flags such as `--vcs` and `--no-vcs`
+override the configuration before the connector is selected.
+
+Without a `.yfm` file, the connector reads history relative to the input directory.
+With a configuration file, it uses the configuration's directory as before.
+
+For articles copied from outside the config's repository directory, keep their
+original `vcsPath` metadata and list source directories in `vcs.scopes`. The flag
+does not infer additional scopes. Disabling `vcs` retains file modification times;
+disabling `mtimes` hides dates. The source configuration is never rewritten.
