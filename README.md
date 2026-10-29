@@ -34,6 +34,20 @@ npm i @diplodoc/cli -g
 npm run start -- -i ./input-folder -o ./output-folder -v "{\"name\":\"Alice\"}"
 ```
 
+## Article dates in build manifests
+
+Markdown builds emit `yfm-build-manifest.json` by default. With `mtimes` enabled,
+the manifest includes `pageModifiedTimes`, a map from source page paths without
+their final extension to UTC ISO modification timestamps. Dates use finalized
+page metadata, including changes to included content. Keys retain forward slashes
+on every platform. Sequential builds and builds using `--jobs` export the same
+dates; worker results carry the already finalized timestamps to the manifest.
+
+The map is absent when `mtimes` is disabled. An empty map means no article dates
+are available. Consumers must omit dates for missing entries instead of assigning
+the project revision date. A compatible documentation viewer uses this map to
+populate article `<lastmod>` tags in `sitemap.xml`.
+
 ## `yfm init`
 
 Initialize a new Diplodoc documentation project.
