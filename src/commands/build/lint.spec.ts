@@ -18,6 +18,7 @@ function markerPlugin(md: MarkdownIt) {
                 }
                 const rule = {
                     '#missing': 'YFM025',
+                    '#other': 'YFM025',
                     '#legacy': 'YFM002',
                     '#unreachable': 'YFM003',
                 }[link.attrGet('href') || ''];
@@ -105,7 +106,7 @@ describe('CLI local anchor diagnostics', () => {
             ruleNames: ['YFM025', 'missing-local-anchor'],
         });
         expect(String(diagnostics?.[0])).toBe(
-            'index.md: 1: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "[anchor](#missing)"]',
+            'index.md: 1: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "#missing"]',
         );
     });
 
@@ -117,6 +118,15 @@ describe('CLI local anchor diagnostics', () => {
             ['YFM002', LogLevels.ERROR],
             ['YFM025', LogLevels.WARN],
         ]);
+    });
+
+    it('reports each failing destination without a long paragraph or link labels', async () => {
+        const diagnostics = await lint(
+            'Long paragraph '.repeat(10000) + '[first](#missing) and [second](#other)',
+        );
+
+        expect(diagnostics?.map(({errorContext}) => errorContext)).toEqual(['#missing', '#other']);
+        expect(diagnostics?.every(({lineNumber}) => lineNumber === 1)).toBe(true);
     });
 
     it('does not re-enable disabled legacy diagnostics', async () => {
@@ -172,9 +182,9 @@ describe('CLI local anchor diagnostics', () => {
         expect(diagnostics?.[0].lineNumber).toBe(8);
     });
 
-    it('does not rewrite rule names in the link context', async () => {
+    it('does not include the link label in the context', async () => {
         const diagnostics = await lint('[YFM025 missing-local-anchor](#missing)');
-        expect(diagnostics?.[0].errorContext).toBe('[YFM025 missing-local-anchor](#missing)');
+        expect(diagnostics?.[0].errorContext).toBe('#missing');
     });
 
     it('leaves ordinary and unfinished HTML comments unchanged', async () => {
@@ -185,16 +195,16 @@ describe('CLI local anchor diagnostics', () => {
         );
         expect(diagnostics).toHaveLength(1);
         expect(diagnostics?.[0].lineNumber).toBe(3);
-        expect(diagnostics?.[0].errorContext).toBe(CONTENT);
+        expect(diagnostics?.[0].errorContext).toBe('#missing');
     });
 
     it('preserves line numbers in multiline paragraphs', async () => {
         const diagnostics = await lint('Paragraph\n' + CONTENT);
         expect(diagnostics?.[0].lineNumber).toBe(2);
-        expect(diagnostics?.[0].errorContext).toBe(CONTENT);
+        expect(diagnostics?.[0].errorContext).toBe('#missing');
     });
 
-    it('preserves include source metadata', async () => {
+    it('keeps the include line number and reports only the target', async () => {
         const include = (md: MarkdownIt) => {
             md.core.ruler.push('test-include-metadata', (state) => {
                 for (const token of state.tokens.filter((token) => token.type === 'inline')) {
@@ -209,9 +219,7 @@ describe('CLI local anchor diagnostics', () => {
             plugins: [markerPlugin, include],
         });
         expect(diagnostics?.[0].lineNumber).toBe(3);
-        expect(diagnostics?.[0].errorContext).toBe(
-            'index.md:3 → _includes/chapter.md:3 ↛ #missing',
-        );
+        expect(diagnostics?.[0].errorContext).toBe('#missing');
     });
 
     it('runs transform plugins and parses the source only once', async () => {
