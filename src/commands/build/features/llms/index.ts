@@ -1,4 +1,4 @@
-import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
+import type {Build, BuildArgs, EntryInfo, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {Toc} from '~/core/toc';
 
@@ -15,10 +15,12 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
 
-import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
+import {getHooks as getEntryHooks} from '../../services/entry/hooks';
+import {getHooks as getBuildHooks} from '../../hooks';
+import {CollectedContentCache, MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
 import {resolveAbsolutePaths} from '../output-md/plugins/merge-includes';
 
-import {getArticleTitle, stripHtmlTags} from './utils';
+import {getArticleTitle, getPreparedArticleTitle, stripHtmlTags} from './utils';
 import {options, resolveLlmsFullMaxSize} from './config';
 
 export const LLMS_INDEX_FILENAME = 'llms.txt';
@@ -93,6 +95,13 @@ type CollectionOptions = {
  * rendered `.html` in `html`.
  */
 export class Llms {
+    private readonly pages = new WeakMap<
+        Run,
+        Map<NormalizedPath, NonNullable<EntryInfo['llms']>>
+    >();
+
+    private readonly collections = new WeakMap<Run, CollectedContentCache>();
+
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Llms', (command: Command) => {
             command.addOption(options.llms);
@@ -117,6 +126,54 @@ export class Llms {
             return config;
         });
 
+        getBuildHooks(program)
+            .BeforeRun.for('md')
+            .tap('Llms', (run) => {
+                if (!run.config.llms?.enabled) {
+                    return;
+                }
+                getEntryHooks(run.entry).Dump.tap('Llms', (vfile) => {
+                    const {meta, content, type} = vfile.data;
+                    const title = typeof meta.title === 'string' ? meta.title : '';
+                    const description =
+                        typeof meta.description === 'string' ? meta.description : '';
+                    const page: NonNullable<EntryInfo['llms']> = {
+                        title,
+                        description,
+                    };
+                    const preprocess = run.config.preprocess;
+                    if (title.trim()) {
+                        page.h1 = '';
+                    } else if (type === 'yaml') {
+                        page.h1 = content.data.title || '';
+                    } else {
+                        const [, markdown] = extractFrontMatter(content.toString());
+                        page.h1 = getPreparedArticleTitle(
+                            markdown,
+                            run.config.allowHtml,
+                            Boolean(
+                                preprocess.mergeIncludes &&
+                                    preprocess.mergeAutotitles &&
+                                    !preprocess.mergeIncludesSourceMaps,
+                            ),
+                        );
+                    }
+                    Object.assign(vfile.info, {llms: page});
+                });
+            });
+        getBuildHooks(program)
+            .Entry.for('md')
+            .tap('Llms', (run, path, info) => {
+                if (info.llms) {
+                    let pages = this.pages.get(run);
+                    if (!pages) {
+                        pages = new Map();
+                        this.pages.set(run, pages);
+                    }
+                    pages.set(path, info.llms);
+                }
+            });
+
         getBaseHooks<Run>(program).AfterAnyRun.tapPromise('Llms', async (run) => {
             if (!run.config.llms?.enabled) {
                 return;
@@ -130,6 +187,15 @@ export class Llms {
                 }
             }
         });
+    }
+
+    private collectionCache(run: Run) {
+        let cache = this.collections.get(run);
+        if (!cache) {
+            cache = new CollectedContentCache();
+            this.collections.set(run, cache);
+        }
+        return cache;
     }
 
     private resolveLlmsEnabled(
@@ -306,14 +372,17 @@ export class Llms {
         await eachSeries(entries, async (entry) => {
             this.appendOpenapiCompanions(run, entry, tocDir, lines, seenOpenapiCompanions);
 
+            const prepared = this.pages.get(run)?.get(entry.path);
             const pageTitle =
-                pageTitles?.get(entry.path) ?? (await this.loadPageTitle(run, entry.path));
-            if (pageTitles?.has(entry.path) && entry.path.endsWith('.md')) {
+                prepared?.h1 ??
+                pageTitles?.get(entry.path) ??
+                (await this.loadPageTitle(run, entry.path));
+            if (!prepared && pageTitles?.has(entry.path) && entry.path.endsWith('.md')) {
                 // A later article may have included this page with different
                 // variables. Restore its own metadata before using the cached H1.
                 await run.markdown.load(entry.path);
             }
-            const meta = await run.meta.dump(entry.path);
+            const meta = prepared || (await run.meta.dump(entry.path));
             const description = typeof meta.description === 'string' ? meta.description : '';
             const metaTitle = typeof meta.title === 'string' ? meta.title : '';
             const name =
@@ -355,10 +424,16 @@ export class Llms {
         // Load through the source services before dumping metadata: worker builds
         // do not populate the main thread's MetaService. This also resolves Liquid
         // consistently and keeps author metadata separate from the article H1.
+        const prepared = this.pages.get(run)?.get(path);
+        if (prepared?.h1 !== undefined) {
+            return prepared.h1;
+        }
         try {
             if (path.endsWith('.md')) {
-                await run.markdown.load(path);
-                const meta = await run.meta.dump(path);
+                if (!prepared) {
+                    await run.markdown.load(path);
+                }
+                const meta = prepared || (await run.meta.dump(path));
                 if (typeof meta.title === 'string' && meta.title.trim()) {
                     return '';
                 }
@@ -369,7 +444,10 @@ export class Llms {
 
                 // Includes are cached by path, but their variables depend on the
                 // article. Keep this collector scoped to one article's context.
-                const collector = new MarkdownCollector(run, SELF_CONTAINED, {audience: 'human'});
+                const collector = new MarkdownCollector(run, SELF_CONTAINED, {
+                    audience: 'human',
+                    processedContent: this.collectionCache(run),
+                });
                 // Match the human document and canonical corpus: resolve includes
                 // (including hash/notitle) and filter visibility before selecting H1.
                 return getArticleTitle(await collector.collect(path), run.config.allowHtml);
@@ -442,6 +520,7 @@ export class Llms {
         options: CollectionOptions,
     ) {
         const {audience, fileName} = options;
+        const processedContent = this.collectionCache(run);
         const parts: string[] = [];
 
         if (title) {
@@ -463,7 +542,10 @@ export class Llms {
 
             // The same include can resolve differently in each article's preset
             // context. Never share its path-based collection cache across entries.
-            const collector = new MarkdownCollector(run, SELF_CONTAINED, {audience});
+            const collector = new MarkdownCollector(run, SELF_CONTAINED, {
+                audience,
+                processedContent,
+            });
             const body = await this.collectBody(run, collector, entry.path, options);
 
             if (!body) {

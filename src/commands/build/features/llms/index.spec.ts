@@ -1,7 +1,8 @@
-import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
+import type {Build, BuildArgs, EntryInfo, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type * as CoreUtils from '~/core/utils';
 import type {Toc} from '~/core/toc';
 import type {LlmsConfig} from './index';
+import type * as Collection from '../output-md/collect';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import MarkdownIt from 'markdown-it';
@@ -47,8 +48,10 @@ vi.mock('~/commands/config', () => ({
     options: {},
 }));
 
-vi.mock('../output-md/collect', () => {
+vi.mock('../output-md/collect', async (importOriginal) => {
+    const actual = await importOriginal<typeof Collection>();
     return {
+        ...actual,
         SELF_CONTAINED: 'self-contained',
         MarkdownCollector: vi.fn().mockImplementation((run: Run) => ({
             collect: vi.fn((path: NormalizedPath) => run.markdown.load(path)),
@@ -121,6 +124,7 @@ const makeLlmsArgs = (llms: boolean | null) => ({llms}) as unknown as BuildArgs;
  * Avoids `any` while allowing access to private members.
  */
 type TestableLlms = {
+    pages: WeakMap<Run, Map<NormalizedPath, NonNullable<EntryInfo['llms']>>>;
     resolveLlmsEnabled(
         args: BuildArgs,
         config: Partial<LlmsConfig['llms']> | undefined,
@@ -403,6 +407,60 @@ describe('LLMs Plugin Architecture', () => {
             it('disables generation for html when config object exists but has no enabled key', () => {
                 expect(llmsInstance.resolveLlmsEnabled(makeLlmsArgs(null), {}, false)).toBe(false);
             });
+        });
+    });
+
+    describe('prepared worker metadata', () => {
+        it('uses the same page snapshot in multiple indexes without source reloads', async () => {
+            const run = createMockRun();
+            const path = normalizedPath('article.md');
+            llmsInstance.pages.set(
+                run,
+                new Map([
+                    [
+                        path,
+                        {
+                            title: '',
+                            description: 'Own description',
+                            h1: 'Own H1',
+                        },
+                    ],
+                ]),
+            );
+            const entries = [{path, href: path, name: 'TOC name', parentName: ''}];
+            for (let index = 0; index < 2; index++) {
+                const output = await llmsInstance.renderIndex(run, '', entries, '');
+                expect(output).toContain('[Own H1](article.html): Own description');
+            }
+            expect(run.markdown.load).not.toHaveBeenCalled();
+            expect(run.meta.dump).not.toHaveBeenCalled();
+        });
+
+        it('caches the absence of an H1 without confusing it with a cache miss', async () => {
+            const run = createMockRun();
+            const path = normalizedPath('article.md');
+            llmsInstance.pages.set(
+                run,
+                new Map([
+                    [
+                        path,
+                        {
+                            title: '',
+                            description: '',
+                            h1: '',
+                        },
+                    ],
+                ]),
+            );
+            const output = await llmsInstance.renderIndex(
+                run,
+                '',
+                [{path, href: path, name: 'TOC name', parentName: ''}],
+                '',
+            );
+            expect(output).toContain('[TOC name](article.html)');
+            expect(run.markdown.load).not.toHaveBeenCalled();
+            expect(run.meta.dump).not.toHaveBeenCalled();
         });
     });
 

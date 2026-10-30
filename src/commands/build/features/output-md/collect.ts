@@ -9,6 +9,7 @@ import type {
 } from '@diplodoc/transform/lib/plugins/visibility';
 
 import {join} from 'node:path';
+import {createHash} from 'node:crypto';
 import {filterAudienceContent} from '@diplodoc/transform/lib/plugins/visibility';
 
 import {all, get} from '~/core/utils';
@@ -39,9 +40,11 @@ type CollectorOptions = {
     copiedIncludes?: Set<string>;
     resolveMeta?: (path: NormalizedPath) => Promise<Meta>;
     audience?: ContentAudience;
+    processedContent?: CollectedContentCache;
 };
 
 type CollectedDependency = HashedGraphNode & {
+    cacheKey?: string;
     assets: EntryGraph['assets'];
     audienceResults: AudienceFilterResult[];
 };
@@ -50,7 +53,26 @@ type CollectedGraphNode = Omit<EntryGraph, 'deps'> & {
     deps: CollectedDependency[];
     hash: string;
     audienceResults: AudienceFilterResult[];
+    cacheKey?: string;
 };
+
+/** Bounded, run-local cache for canonical self-contained LLMS collection. */
+export class CollectedContentCache {
+    private readonly entries = new Map<string, CollectedGraphNode>();
+    private bytes = 0;
+
+    get(key: string) {
+        return this.entries.get(key);
+    }
+
+    set(key: string, value: CollectedGraphNode) {
+        const bytes = Buffer.byteLength(value.content, 'utf8');
+        if (this.entries.size < 2048 && this.bytes + bytes <= 64 * 1024 ** 2) {
+            this.entries.set(key, value);
+            this.bytes += bytes;
+        }
+    }
+}
 
 const LOCATION_MARKER_START = '\uE000DIPLODOC_LOCATION_';
 const LOCATION_MARKER_END = '\uE001';
@@ -186,6 +208,7 @@ export class MarkdownCollector {
     private readonly resolveMeta: (path: NormalizedPath) => Promise<Meta>;
 
     private readonly audience?: ContentAudience;
+    private readonly processedContent?: CollectedContentCache;
 
     constructor(
         run: Run,
@@ -194,6 +217,7 @@ export class MarkdownCollector {
             copiedIncludes = new Set(),
             resolveMeta = (path) => run.meta.dump(path),
             audience,
+            processedContent,
         }: CollectorOptions = {},
     ) {
         this.run = run;
@@ -201,6 +225,15 @@ export class MarkdownCollector {
         this.copiedIncludes = copiedIncludes;
         this.resolveMeta = resolveMeta;
         this.audience = audience;
+        // Sharing is safe only for the canonical, non-writing configuration.
+        if (
+            config.mergeIncludes &&
+            !config.mergeSvg &&
+            !config.hashIncludes &&
+            !config.mergeIncludesSourceMaps
+        ) {
+            this.processedContent = processedContent;
+        }
     }
 
     /**
@@ -239,6 +272,36 @@ export class MarkdownCollector {
         };
     };
 
+    private contentKey(source: EntryGraph, deps: CollectedDependency[], write: boolean) {
+        // Autotitles consult other pages outside this subtree. Until those
+        // dependencies are fingerprinted too, keep them on the isolated path.
+        return this.processedContent &&
+            !source.assets.some((asset) => asset.autotitle) &&
+            deps.every((dep) => dep.cacheKey !== undefined)
+            ? createHash('sha256')
+                  .update(
+                      JSON.stringify([
+                          this.audience,
+                          write,
+                          this.config.mergeAutotitles,
+                          this.run.config.content?.multilineTermDefinitions ??
+                              this.run.config.multilineTermDefinitions,
+                          source.path,
+                          source.content,
+                          source.assets,
+                          deps.map((dep) => [
+                              dep.cacheKey,
+                              dep.search,
+                              dep.link,
+                              dep.match,
+                              dep.location,
+                          ]),
+                      ]),
+                  )
+                  .digest('hex')
+            : undefined;
+    }
+
     private async dump(graph: EntryGraph, write = false): Promise<CollectedGraphNode> {
         const {run, config, processed, titles, svgList, copiedIncludes} = this;
 
@@ -250,6 +313,14 @@ export class MarkdownCollector {
         const filtered = this.audience ? filterGraphAudience(graph, this.audience) : null;
         const source = filtered?.graph || graph;
         const deps = await all(source.deps.map(this.dumpDep));
+        const cacheKey = this.contentKey(graph, deps, write);
+        if (cacheKey) {
+            const shared = this.processedContent?.get(cacheKey);
+            if (shared) {
+                processed.set(source.path, shared);
+                return shared;
+            }
+        }
         const scheduler = new Scheduler([
             config.hashIncludes && !config.mergeIncludes && rehashIncludes(run, deps),
             config.mergeIncludes &&
@@ -266,6 +337,7 @@ export class MarkdownCollector {
         const link = signlink(source.path, hash);
         const hashed: CollectedGraphNode = {
             ...source,
+            cacheKey,
             deps,
             content,
             hash,
@@ -276,6 +348,9 @@ export class MarkdownCollector {
         };
 
         processed.set(source.path, hashed);
+        if (cacheKey) {
+            this.processedContent?.set(cacheKey, hashed);
+        }
 
         if (copiedIncludes.has(link) || !write || config.mergeIncludes) {
             return hashed;

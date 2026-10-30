@@ -82,15 +82,31 @@ Empty or whitespace-only titles are skipped. A leading YAML page's
 `title` is its H1 equivalent. If none are available, the existing description
 and href fallbacks remain. Titles and metadata are loaded through the source
 services before rendering the index, including in worker builds, so Liquid
-substitutions and conditions match the built documentation. Index entries are
-resolved sequentially because loading another article's includes can replace
-shared page metadata; each entry must restore its own metadata before the
-next entry starts. Collectors are
+substitutions and conditions match the built documentation. Index entries retain TOC order. Entries without a prepared worker snapshot
+are resolved sequentially because loading another article's includes can replace
+shared page metadata. Prepared strings are independent of these later loads. Collectors are
 scoped to one article in both human and agent corpora so a shared include retains
 that article's variables. Human corpus collection also provides index titles;
 only the extracted titles are retained for the index. Pages beyond the corpus
 size limit still have their titles resolved, and a non-empty `meta.title` avoids
 unnecessary include collection and H1 parsing for the index.
+Markdown builds transfer a compact per-page title/description snapshot from the
+worker that processed the page. The snapshot includes intentional front-matter
+propagation from a sole include and is saved before another article is processed.
+For a leading ATX H1 without links or attributes, only that heading is parsed. Otherwise, already merged Markdown is
+reused when source-map comments are disabled and it has neither audience
+directives nor embedded SVG; ambiguous and unmerged documents retain canonical human collection. The snapshot is scoped to
+the current run and retains strings only, including an explicitly empty H1.
+
+Canonical corpus collection also shares a bounded content cache within each
+build run (including canonical title fallbacks): at most 2,048 nodes and 64 MiB
+of assembled content. Keys include the
+resolved node text before audience filtering, path, assets, audience, and recursive dependency fingerprints
+with their include directives/locations. Different Liquid results therefore do
+not share an entry. Nodes with external autotitle dependencies (and their
+ancestors) remain isolated. This cache does not persist between builds and is
+not used by ordinary Markdown output or configurations that copy include files.
+
 H1 extraction keeps the complete structural token stream and reference
 definitions, but parses inline content only for the first Markdown H1 and
 possible HTML headings before it. HTML fragments are collected until the first

@@ -20,6 +20,41 @@ async function readHtmlPage(directory: string, page: string) {
 }
 
 describe('llms.txt', () => {
+    test.each([false, true])(
+        'keeps setext headings formed across an include (source maps=%s)',
+        async (maps) => {
+            const root = await realpath(await mkdtemp(join(tmpdir(), 'llms-setext-include-')));
+            const input = join(root, 'input');
+            const output = join(root, 'output');
+            try {
+                await mkdir(join(input, '_includes'), {recursive: true});
+                await writeFile(
+                    join(input, 'toc.yaml'),
+                    'title: Heading probe\nitems:\n  - name: Fallback\n    href: index.md\n',
+                );
+                await writeFile(
+                    join(input, 'index.md'),
+                    'A real title\n{% include [underline](_includes/underline.md) %}\n',
+                );
+                await writeFile(join(input, '_includes/underline.md'), '=======\n');
+                await writeFile(
+                    join(input, '.yfm'),
+                    `preprocess:\n  mergeIncludes: true\n  mergeIncludesSourceMaps: ${maps}\n`,
+                );
+                await TestAdapter.testBuildPass(input, output, {
+                    md2md: true,
+                    md2html: false,
+                    args: '--llms --llms-full-max-size 1 --jobs 2',
+                });
+                expect(await readFile(join(output, 'llms.txt'), 'utf8')).toContain(
+                    '[A real title](index.md)',
+                );
+            } finally {
+                await rm(root, {recursive: true, force: true});
+            }
+        },
+    );
+
     // Builds the same fixture in both md and html with `--llms` (variant B):
     //   - md  output -> `${outputPath}`      (llms-full.txt has includes merged)
     //   - html output -> `${outputPath}-html` (llms-full.txt keeps include directives)

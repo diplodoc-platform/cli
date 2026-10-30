@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {getArticleTitle, stripHtmlTags} from './utils';
+import {getArticleTitle, getPreparedArticleTitle, stripHtmlTags} from './utils';
 
 describe('stripHtmlTags', () => {
     describe('basic removal', () => {
@@ -598,4 +598,52 @@ describe('getArticleTitle', () => {
         expect(getArticleTitle(markdown, true)).toBe('HTML title');
         expect(getArticleTitle(markdown, false)).toBe('Markdown title');
     });
+});
+
+describe('getPreparedArticleTitle', () => {
+    it('falls back when source map comments interrupt setext heading formation', () => {
+        const mapped =
+            'A title\n<!-- source: underline.md -->\n=======\n<!-- endsource: underline.md -->';
+        expect(getPreparedArticleTitle(mapped, true, true)).toBeUndefined();
+        expect(getArticleTitle('A title\n=======\n')).toBe('A title');
+    });
+
+    it.each([
+        ['# First **title**\n\n{% include [large](large.md) %}', 'First title'],
+        ['[//]: # (comment)\n\n# First\n\n{% include [large](large.md) %}', 'First'],
+        ['\n # Literal `*text*` #\n', 'Literal *text*'],
+        ['# First\n\n:::visibility agent\n# Hidden\n:::', 'First'],
+    ])('reuses independent leading headings: %s', (markdown, expected) => {
+        expect(getPreparedArticleTitle(markdown, true, false)).toBe(expected);
+    });
+
+    it.each([
+        '{% include [before](before.md) %}\n\n# Later',
+        '# [Reference][id]\n\n{% include [definitions](defs.md) %}',
+        '# Hidden {.hidden}\n',
+        ':::visibility agent\n# Hidden\n:::\n\n# Human',
+    ])('keeps canonical collection for dependent unmerged headings: %s', (markdown) => {
+        expect(getPreparedArticleTitle(markdown, true, false)).toBeUndefined();
+    });
+
+    it.each([
+        'Introduction\n\nHeading\n=======\n',
+        '```md\n# Example\n```\n\n# Actual',
+        '# [Reference][id]\n\n[id]: /destination',
+        '<h1>HTML <em>title</em></h1>',
+        'No heading',
+    ])('matches the canonical parser on safe merged content: %s', (markdown) => {
+        for (const html of [false, true]) {
+            expect(getPreparedArticleTitle(markdown, html, true)).toBe(
+                getArticleTitle(markdown, html),
+            );
+        }
+    });
+
+    it.each([':::visibility agent\n# Hidden\n:::', '<svg><h1>Embedded</h1></svg>'])(
+        'does not assume merged audience or SVG semantics: %s',
+        (markdown) => {
+            expect(getPreparedArticleTitle(markdown, true, true)).toBeUndefined();
+        },
+    );
 });

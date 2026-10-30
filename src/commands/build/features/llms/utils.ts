@@ -430,3 +430,30 @@ function getInlineText(tokens: Token[]): string {
         })
         .join('');
 }
+
+/**
+ * Extracts H1 from existing md output only when it is equivalent to the human
+ * collection. Undefined requests the canonical collector; an empty string is
+ * a successfully established absence of H1.
+ */
+export function getPreparedArticleTitle(
+    markdown: string,
+    allowHtml: boolean,
+    merged: boolean,
+): string | undefined {
+    // Leading ATX headings without links cannot depend on includes or reference
+    // definitions later in the page. Attribute-bearing headings use the full path.
+    const leading =
+        /^(?:[ \t]*\n| {0,3}\[\/\/\]:[ \t]+#[ \t]+\([^\n()]*\)[ \t]*\n)*( {0,3}# [^\n]*(?:\n|$))/.exec(
+            markdown,
+        );
+    if (leading && !/[[{]/.test(leading[1])) {
+        return getArticleTitle(leading[0], allowHtml);
+    }
+    // Filtering audience blocks after merging can change their scope. Inlined
+    // SVG can introduce HTML headings absent from the canonical corpus.
+    if (merged && !/visibility|<svg\b|<!-- (?:end)?source:/i.test(markdown)) {
+        return getArticleTitle(markdown, allowHtml);
+    }
+    return undefined;
+}
