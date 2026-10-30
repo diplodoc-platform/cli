@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.64.2](https://github.com/diplodoc-platform/cli/compare/v5.64.1...v5.64.2) (2026-10-30)
+
+
+### Bug Fixes
+
+* **cli:** expect compact missing-anchor context DOCSTOOLS-7022 ([188c01e](https://github.com/diplodoc-platform/cli/commit/188c01e4033e278915379e353844b8d906430ca0))
+* **cli:** skip anchor validation for browser fragment directives #DOCSTOOLS-6419 ([cbbf8e7](https://github.com/diplodoc-platform/cli/commit/cbbf8e78fb194ba267894b68ec5852c5cd5fa096))
+
 ## [5.64.1](https://github.com/diplodoc-platform/cli/compare/v5.64.0...v5.64.1) (2026-10-28)
 
 
