@@ -1,0 +1,11 @@
+langs: [en, ru]
+llms:
+  enabled: true
+  description: Project summary.
+  details: |
+    Project details.
+
+    - Shared guidance.
+  url: https://example.com/root/llms.txt
+ai:
+  mdCompanions: true
