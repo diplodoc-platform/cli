@@ -113,7 +113,7 @@ describe('Errors', () => {
     test('mocks/errors/independent-anchor-rules', ({html}: TestResult) => {
         expectWarnings(html, [
             'WARN index.md: 3: YFM024 / empty-custom-heading-anchor Custom shorthand heading anchor is empty [Specify a nonempty ID, for example {#section-id}; an empty ID falls back to an automatic anchor] [Context: "## Empty heading ID {# broken}"]',
-            'WARN index.md: 5: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "[Missing local anchor](#does-not-exist)"]',
+            'WARN index.md: 5: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "index.html#does-not-exist"]',
         ]);
         expect(html.code).toBe(0);
         expect(html.errors).toEqual([]);
@@ -121,11 +121,11 @@ describe('Errors', () => {
 
     test('mocks/errors/anchor-validation', ({html}: TestResult) => {
         expectWarnings(html, [
-            'WARN index.md: 1: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "[invalid explicit](architecture.md#over-plutonium09128129387192837)"]',
-            'WARN index.md: 4: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "[invalid automatic](architecture.md#missing-automatic)"]',
-            'WARN index.md: 7: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "[invalid same-page](#missing-local)"]',
-            'WARN index.md: 10: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "[{#T}](architecture.md#missing-autotitle)"]',
-            'WARN index.md: 12: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "index.md:12 → _includes/source-links.md:1 ↛ architecture.html#missing-from-include"]',
+            'WARN index.md: 1: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "architecture.html#over-plutonium09128129387192837"]',
+            'WARN index.md: 4: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "architecture.html#missing-automatic"]',
+            'WARN index.md: 7: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "index.html#missing-local"]',
+            'WARN index.md: 10: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "architecture.html#missing-autotitle"]',
+            'WARN index.md: 12: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "architecture.html#missing-from-include"]',
         ]);
 
         expect(html.code).toBe(0);
@@ -207,7 +207,7 @@ describe('Include chain errors', () => {
 describe('Warnings', () => {
     test('mocks/warning/unreachable-autotitle', ({html}: TestResult) => {
         expectWarnings(html, [
-            'WARN index.md: 1: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "[{#T}](./link.md#unknown_yfm010)"]',
+            'WARN index.md: 1: YFM025 / missing-local-anchor Local link anchor is missing in the target document [Context: "link.html#unknown_yfm010"]',
         ]);
         expect(html.warns.filter((warning) => warning.includes('YFM010'))).toEqual([]);
     });
