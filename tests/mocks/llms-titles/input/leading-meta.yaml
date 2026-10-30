@@ -1,0 +1,5 @@
+title: Leading H1
+meta:
+  title: '{{ product }} leading metadata'
+  description: Leading description
+links: []

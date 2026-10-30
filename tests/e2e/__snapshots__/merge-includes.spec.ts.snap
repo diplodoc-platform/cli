@@ -53,8 +53,8 @@ exports[`Merge includes (md2md) > basic: simple include is inlined 3`] = `
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -146,8 +146,8 @@ exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only i
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md): How to import and export Excel tables
+- [Index](index.md)
+- [Excel import and export](main.md): How to import and export Excel tables
 
 ---
 
@@ -238,8 +238,8 @@ exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Excel import and export](main.md)
 
 ---
 
@@ -336,8 +336,8 @@ exports[`Merge includes (md2md) > hash-section: includes with hash extract secti
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Hash Fallback Test](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -447,8 +447,8 @@ exports[`Merge includes (md2md) > hash-section-html: hash-section include in lis
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -582,7 +582,7 @@ exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML c
 
 ## Documentation
 
-- [index.md](index.md)
+- [Index](index.md)
 - [Main](main.md)
 
 ---
@@ -720,8 +720,8 @@ exports[`Merge includes (md2md) > html-in-list: include with <style> in list (an
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -834,7 +834,7 @@ exports[`Merge includes (md2md) > include-after-fence: include placed right afte
 
 ## Documentation
 
-- [index.md](index.md)
+- [Index](index.md)
 - [Main](main.md)
 
 ---
@@ -953,7 +953,7 @@ exports[`Merge includes (md2md) > include-in-code-block: include shown as code e
 
 ## Documentation
 
-- [index.md](index.md)
+- [Index](index.md)
 - [Main](main.md)
 
 ---
@@ -1078,8 +1078,8 @@ exports[`Merge includes (md2md) > indent-paragraph: include under indent with in
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -1217,8 +1217,8 @@ exports[`Merge includes (md2md) > inline-context: non-standalone includes use fa
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Document with inline includes](main.md)
 
 ---
 
@@ -1350,8 +1350,8 @@ exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 3`] =
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -1457,8 +1457,8 @@ exports[`Merge includes (md2md) > relative-paths: inlined content has rebased pa
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -1558,8 +1558,8 @@ exports[`Merge includes (md2md) > term-extract: dep with terms → terms extract
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [API Docs](main.md)
 
 ---
 
@@ -1683,8 +1683,8 @@ exports[`Merge includes (md2md) > term-inline: includes inside term defs use fal
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [API Reference](main.md)
 
 ---
 
@@ -1814,8 +1814,8 @@ exports[`Merge includes (md2md) > without flag: includes are NOT merged 4`] = `
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -1915,8 +1915,8 @@ exports[`Merge includes (md2md) > yfm-table: include ending with HTML block plac
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -2027,8 +2027,8 @@ exports[`Merge includes (md2md) > yfm-table: include followed by || separator is
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 
@@ -2146,8 +2146,8 @@ exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code f
 
 ## Documentation
 
-- [index.md](index.md)
-- [Main](main.md)
+- [Index](index.md)
+- [Main Document](main.md)
 
 ---
 

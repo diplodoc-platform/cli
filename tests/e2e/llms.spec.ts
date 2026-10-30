@@ -1,10 +1,60 @@
-import {access, readFile} from 'node:fs/promises';
+import {access, mkdir, mkdtemp, readFile, realpath, rm, writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, test} from 'vitest';
+import MarkdownIt from 'markdown-it';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
+async function readHtmlPage(directory: string, page: string) {
+    const html = await readFile(join(directory, `${page}.html`), 'utf8');
+    const state = html.match(
+        /<script type="application\/json" id="diplodoc-state">([\s\S]*?)<\/script>/,
+    );
+    if (!state) {
+        throw new Error(`Expected diplodoc-state in ${page}.html`);
+    }
+    const serialized = state[1].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    const data = JSON.parse(serialized) as {data: {html: string; title: string}};
+    return data.data;
+}
+
 describe('llms.txt', () => {
+    test.each([false, true])(
+        'keeps setext headings formed across an include (source maps=%s)',
+        async (maps) => {
+            const root = await realpath(await mkdtemp(join(tmpdir(), 'llms-setext-include-')));
+            const input = join(root, 'input');
+            const output = join(root, 'output');
+            try {
+                await mkdir(join(input, '_includes'), {recursive: true});
+                await writeFile(
+                    join(input, 'toc.yaml'),
+                    'title: Heading probe\nitems:\n  - name: Fallback\n    href: index.md\n',
+                );
+                await writeFile(
+                    join(input, 'index.md'),
+                    'A real title\n{% include [underline](_includes/underline.md) %}\n',
+                );
+                await writeFile(join(input, '_includes/underline.md'), '=======\n');
+                await writeFile(
+                    join(input, '.yfm'),
+                    `preprocess:\n  mergeIncludes: true\n  mergeIncludesSourceMaps: ${maps}\n`,
+                );
+                await TestAdapter.testBuildPass(input, output, {
+                    md2md: true,
+                    md2html: false,
+                    args: '--llms --llms-full-max-size 1 --jobs 2',
+                });
+                expect(await readFile(join(output, 'llms.txt'), 'utf8')).toContain(
+                    '[A real title](index.md)',
+                );
+            } finally {
+                await rm(root, {recursive: true, force: true});
+            }
+        },
+    );
+
     // Builds the same fixture in both md and html with `--llms` (variant B):
     //   - md  output -> `${outputPath}`      (llms-full.txt has includes merged)
     //   - html output -> `${outputPath}-html` (llms-full.txt keeps include directives)
@@ -93,6 +143,188 @@ describe('llms.txt', () => {
                 expect(full).not.toContain('Hidden content');
                 expect(privatePage).toContain(noIndex);
                 expect(hiddenPage).not.toContain(noIndex);
+            }
+        },
+    );
+
+    test.each([
+        {mode: 'plain', args: ''},
+        {mode: 'workers', args: ' --jobs 2'},
+    ])('article title priority and Liquid work in md and html ($mode)', async ({mode, args}) => {
+        const {inputPath, outputPath} = getTestPaths('mocks/llms-titles');
+        const modeOutputPath = `${outputPath}-${mode}`;
+
+        await TestAdapter.testBuildPass(inputPath, modeOutputPath, {
+            md2md: true,
+            md2html: true,
+            args: `--llms${args}`,
+        });
+
+        for (const {directory, extension, leadingExtension} of [
+            {directory: modeOutputPath, extension: 'md', leadingExtension: 'yaml'},
+            {directory: `${modeOutputPath}-html`, extension: 'html', leadingExtension: 'html'},
+        ]) {
+            const index = await readFile(join(directory, 'llms.txt'), 'utf8');
+            const full = await readFile(join(directory, 'llms-full.txt'), 'utf8');
+
+            expect(full).toContain('# Alpha article H1');
+            expect(full).toContain('# Beta article H1');
+            if (extension === 'md') {
+                const agentFull = await readFile(join(directory, 'llms-full-agent.txt'), 'utf8');
+                expect(agentFull).toContain('# Alpha article H1');
+                expect(agentFull).toContain('# Beta article H1');
+            }
+
+            expect(index).toContain(`- [Sample metadata](meta.${extension}): Original description`);
+            expect(index).toContain(`- [Sample article H1](h1.${extension})`);
+            expect(index).toContain(`- [TOC fallback](toc.${extension})`);
+            expect(index).toContain(`- [Empty metadata H1](empty-meta.${extension})`);
+            expect(index).toContain(`- [Setext article H1](setext.${extension})`);
+            expect(index).toContain(`- [Sample leading H1](leading.${leadingExtension})`);
+            expect(index).toContain(
+                `- [Sample leading metadata](leading-meta.${leadingExtension}): Leading description`,
+            );
+            expect(index).toContain(`- [Array \\[x\\] \\\\ path](escaped.${extension})`);
+            expect(index).toContain(`- [Attribute H1](attributes.${extension})`);
+            expect(index).toContain(
+                `- [Literal \\{#literal .literal key="value"\\}](literal-attributes.${extension})`,
+            );
+            expect(index).toContain(`- [Human article H1](visibility.${extension})`);
+            expect(index).toContain(`- [Included Sample H1](include.${extension})`);
+            expect(index).toContain(`- [Selected article H1](include-hash.${extension})`);
+            expect(index).toContain(`- [Notitle article H1](include-notitle.${extension})`);
+            expect(index).toContain(`- [Agent-only TOC](agent-only.${extension})`);
+            expect(index).toContain(`- [Alpha article H1](alpha/page.${extension})`);
+            expect(index).toContain(`- [Beta article H1](beta/page.${extension})`);
+            expect(index).toContain(`- [Sample HTML \\& SDK](html.${extension})`);
+            expect(index).toContain(`- [Sample HTML metadata](html-meta.${extension})`);
+            expect(index).toContain(`- [First Markdown H1](html-after-markdown.${extension})`);
+            expect(index).toContain(`- [Included Sample HTML H1](html-include.${extension})`);
+            expect(index).toContain(`- [Actual HTML H1](html-code.${extension})`);
+            expect(index).toContain(`- [Inline HTML API](html-inline.${extension})`);
+            expect(index).toContain(`- [Use command with x2](yfm-inline.${extension})`);
+            expect(index).not.toContain('Agent HTML H1');
+            expect(index).not.toContain('Code example H1');
+            expect(index).not.toContain('Commented HTML H1');
+            expect(full).toContain('<h1 class="title">Sample <em>HTML</em> &amp; SDK</h1>');
+            expect(new MarkdownIt({html: true}).render(index)).toContain(
+                `<a href="literal-markup.${extension}">Literal &lt;T&gt; *required* &amp;copy;</a>`,
+            );
+            expect(index).not.toContain('Agent-only H1');
+            expect(index).not.toContain('Agent include H1');
+            expect(index).not.toContain('Hidden agent H1');
+            expect(index).not.toContain('Unselected H1');
+            expect(index).not.toContain('.doc-title');
+            if (extension === 'html') {
+                const yfmPage = await readHtmlPage(directory, 'yfm-inline');
+                expect(yfmPage.title).toBe('Use <samp>command</samp> with x<sup>2</sup>');
+                expect((await readHtmlPage(directory, 'attributes')).html).toContain(
+                    'Attribute H1</h1>',
+                );
+                // The renderer retains inline attributes in its extracted title;
+                // the index assertions above check the visible label separately.
+                for (const [page, title] of [
+                    ['visibility', 'Human article H1'],
+                    ['include', 'Included Sample H1 {#included .doc-title}'],
+                    ['include-hash', 'Selected article H1'],
+                    ['alpha/page', 'Alpha article H1'],
+                    ['beta/page', 'Beta article H1'],
+                ]) {
+                    expect((await readHtmlPage(directory, page)).title).toBe(title);
+                }
+                expect((await readHtmlPage(directory, 'include-notitle')).html).toContain(
+                    'Notitle article H1</h1>',
+                );
+            }
+            expect(index).not.toContain('Inactive H1');
+            expect(index).not.toContain('Metadata TOC');
+            expect(index).not.toContain('H1 TOC');
+            expect(index).not.toContain('{{ product }}');
+        }
+    });
+
+    test('keeps all article titles after the full corpus reaches its size limit', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/llms-titles');
+        const limitedOutputPath = `${outputPath}-limited`;
+
+        await TestAdapter.testBuildPass(inputPath, limitedOutputPath, {
+            md2md: true,
+            md2html: true,
+            args: '--llms --llms-full-max-size 1 --jobs 2',
+        });
+
+        for (const {directory, extension} of [
+            {directory: limitedOutputPath, extension: 'md'},
+            {directory: `${limitedOutputPath}-html`, extension: 'html'},
+        ]) {
+            const index = await readFile(join(directory, 'llms.txt'), 'utf8');
+            const full = await readFile(join(directory, 'llms-full.txt'), 'utf8');
+
+            expect(index).toContain(`- [Sample metadata](meta.${extension})`);
+            expect(index).toContain(`- [Sample article H1](h1.${extension})`);
+            expect(index).toContain(`- [Alpha article H1](alpha/page.${extension})`);
+            expect(index).toContain(`- [Beta article H1](beta/page.${extension})`);
+            expect(index).toContain(`- [Sample HTML \\& SDK](html.${extension})`);
+            expect(index).toContain(`- [Included Sample HTML H1](html-include.${extension})`);
+            expect(full).not.toContain('# Alpha article H1');
+            expect(full).not.toContain('# Beta article H1');
+        }
+    });
+
+    test.each([
+        {allowHtml: false, limited: false},
+        {allowHtml: false, limited: true},
+        {allowHtml: true, limited: false},
+        {allowHtml: true, limited: true},
+    ])(
+        'article H1 respects HTML settings and inline elements (allowHtml=$allowHtml, limited=$limited)',
+        async ({allowHtml, limited}) => {
+            const tempPath = await realpath(await mkdtemp(join(tmpdir(), 'llms-html-titles-')));
+            const inputPath = join(tempPath, 'input');
+            const outputPath = join(tempPath, 'output');
+            const article = allowHtml
+                ? '# Before<br>After <img src="https://example.com/x.svg" alt="SDK">\n'
+                : '<h1>Literal example</h1>\n\n# Actual H1\n';
+            const title = allowHtml ? 'Before After SDK' : 'Actual H1';
+
+            try {
+                await mkdir(inputPath);
+                await Promise.all([
+                    writeFile(
+                        join(inputPath, 'toc.yaml'),
+                        'title: Documentation\nitems:\n  - name: TOC fallback\n    href: article.md\n',
+                    ),
+                    writeFile(join(inputPath, 'article.md'), article),
+                ]);
+
+                await TestAdapter.testBuildPass(inputPath, outputPath, {
+                    md2md: true,
+                    md2html: true,
+                    args: [
+                        '--llms',
+                        '--no-lint',
+                        allowHtml ? '--allow-html' : '--no-allow-html',
+                        limited ? '--llms-full-max-size 1 --jobs 2' : '',
+                    ].join(' '),
+                });
+
+                for (const {directory, extension} of [
+                    {directory: outputPath, extension: 'md'},
+                    {directory: `${outputPath}-html`, extension: 'html'},
+                ]) {
+                    const index = await readFile(join(directory, 'llms.txt'), 'utf8');
+                    const full = await readFile(join(directory, 'llms-full.txt'), 'utf8');
+
+                    expect(index).toContain(`- [${title}](article.${extension})`);
+                    expect(index).not.toContain('Literal example');
+                    if (limited) {
+                        expect(full).not.toContain(article.trim());
+                    } else {
+                        expect(full).toContain(article.trim());
+                    }
+                }
+            } finally {
+                await rm(tempPath, {recursive: true, force: true});
             }
         },
     );

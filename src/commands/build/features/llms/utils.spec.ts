@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {stripHtmlTags} from './utils';
+import {getArticleTitle, getPreparedArticleTitle, stripHtmlTags} from './utils';
 
 describe('stripHtmlTags', () => {
     describe('basic removal', () => {
@@ -429,4 +429,221 @@ describe('stripHtmlTags', () => {
             expect(result).toContain('{% endcut %}');
         });
     });
+});
+
+describe('getArticleTitle', () => {
+    it.each([true, false])('extracts YFM inline text with allowHtml=%s', (allowHtml) => {
+        for (const [markdown, expected] of [
+            ['# Use ##command## here', 'Use command here'],
+            ['# x^2^ function', 'x2 function'],
+            ['Use ##command## with x^2^\n===========================', 'Use command with x2'],
+            ['# **Use ##command##** with x^2^ {#id}', 'Use command with x2'],
+            ['# `##literal##` and `x^2^`', '##literal## and x^2^'],
+        ]) {
+            expect(getArticleTitle(markdown, allowHtml)).toBe(expected);
+        }
+    });
+
+    it('extracts YFM text from inline HTML without interpreting raw HTML blocks', () => {
+        expect(getArticleTitle('Intro <h1>Use ##command## with x^2^</h1>')).toBe(
+            'Use command with x2',
+        );
+        expect(getArticleTitle('<h1>Use ##command## with x^2^</h1>')).toBe(
+            'Use ##command## with x^2^',
+        );
+    });
+
+    it.each([
+        {markdown: '<h1>HTML title</h1>\n', expected: 'HTML title'},
+        {markdown: '<H1 class="title">Uppercase title</H1>\n', expected: 'Uppercase title'},
+        {
+            markdown: '<h1>API <em>v2</em> &amp; SDK</h1>\n\n# Later Markdown\n',
+            expected: 'API v2 & SDK',
+        },
+        {markdown: '# First Markdown\n\n<h1>Later HTML</h1>\n', expected: 'First Markdown'},
+        {
+            markdown: '<div><h1>First HTML</h1><h1>Second HTML</h1></div>\n',
+            expected: 'First HTML',
+        },
+        {
+            markdown: 'Intro <h1>Inline <em>HTML</em></h1> tail\n',
+            expected: 'Inline HTML',
+        },
+        {
+            markdown: 'Intro <h1>**Inline**{.class} [API][ref]</h1>\n\n[ref]: /api\n',
+            expected: 'Inline API',
+        },
+        {
+            markdown: '<h1>Raw **markup** [API][ref]</h1>\n\n[ref]: /api\n',
+            expected: 'Raw **markup** [API][ref]',
+        },
+        {markdown: '<h1>\nFirst\n\ncontinued\n</h1>\n', expected: 'First continued'},
+        {
+            markdown: '<h1\n class="title">\nMultiline attributes\n</h1>\n',
+            expected: 'Multiline attributes',
+        },
+        {markdown: '<h1>Unclosed HTML title\n', expected: 'Unclosed HTML title'},
+        {markdown: '<h1></h1>\n\n# Later Markdown\n', expected: ''},
+        {markdown: '<h2>Second level</h2>\n', expected: ''},
+        {markdown: '<h1>First<br>second</h1>\n', expected: 'First second'},
+        {
+            markdown: '<h1>Image <img src="x.svg" alt="literal &amp;copy; &lt;T&gt;"></h1>\n',
+            expected: 'Image literal &copy; <T>',
+        },
+        {
+            markdown: '<h1>Visible <script>hidden</script><style>hidden</style>text</h1>\n',
+            expected: 'Visible text',
+        },
+        {
+            markdown: '<!-- <h1>Commented</h1> --><h1>Actual</h1>\n',
+            expected: 'Actual',
+        },
+        {markdown: '<!-- <h1>Unclosed comment</h1>\n\n# Hidden\n', expected: ''},
+        {
+            markdown: '<script>const fake = "<h1>Hidden</h1>";</script>\n\n# Actual\n',
+            expected: 'Actual',
+        },
+        {
+            markdown: '<template>\n\n# Hidden\n\n</template>\n\n# Actual\n',
+            expected: 'Actual',
+        },
+        {
+            markdown:
+                '<template><template>Hidden</template><h1>Also hidden</h1></template>\n\n# Actual\n',
+            expected: 'Actual',
+        },
+        {markdown: '<pre><code><h1>Example</h1></code></pre>\n\n# Actual\n', expected: 'Actual'},
+        {markdown: '```html\n<h1>Example</h1>\n```\n\n# Actual\n', expected: 'Actual'},
+        {markdown: '    <h1>Indented code</h1>\n\n# Actual\n', expected: 'Actual'},
+        {markdown: '`<h1>Inline code</h1>`\n\n# Actual\n', expected: 'Actual'},
+        {markdown: '\\<h1>Escaped\\</h1>\n\n# Actual\n', expected: 'Actual'},
+        {
+            markdown: 'Example `<h1>Code</h1>` then <h1>Actual</h1>\n',
+            expected: 'Actual',
+        },
+        {
+            markdown: '<div data-example="<h1>Fake</h1>">Text</div>\n\n# Actual\n',
+            expected: 'Actual',
+        },
+        {markdown: '# Article H1\n', expected: 'Article H1'},
+        {markdown: '# Before<br>After<br />SDK\n', expected: 'Before After SDK'},
+        {
+            markdown: '# Image <img src="x.svg" alt="literal &amp;copy; &lt;T&gt;">\n',
+            expected: 'Image literal &copy; <T>',
+        },
+        {
+            markdown:
+                '# Visible<script>hidden</script><style>hidden</style><template>hidden</template> text\n',
+            expected: 'Visible text',
+        },
+        {markdown: '# Before<!-- hidden -->After\n', expected: 'BeforeAfter'},
+        {
+            markdown: '# `<br>`<br>SDK `&amp;` &amp;copy;\n',
+            expected: '<br> SDK &amp; &copy;',
+        },
+        {markdown: '- # Article {.first}{.second}\n', expected: 'Article'},
+        {markdown: '> - # Article {.first}{.second}\n', expected: 'Article'},
+        {
+            markdown:
+                '# [Article][ref] {#id}\n\nBody with **formatting**.\n\n[ref]: https://example.com\n',
+            expected: 'Article',
+        },
+        {markdown: 'Text [ref].\n\n[ref]: https://example.com\n', expected: ''},
+        {markdown: '# {#id}\n\n# Later H1\n', expected: ''},
+        {markdown: 'Article H1\n==========\n', expected: 'Article H1'},
+        {markdown: 'Second level\n------------\n', expected: ''},
+        {markdown: '## Second level\n', expected: ''},
+        {markdown: '# First H1\n\n# Second H1\n', expected: 'First H1'},
+        {markdown: '# [Article][ref]\n\n[ref]: https://example.com\n', expected: 'Article'},
+        {markdown: '# Article {.class key="value"}\n', expected: 'Article'},
+        {markdown: '# Article {#id .class key="a b"}\n', expected: 'Article'},
+        {markdown: '# Article {#id}\n', expected: 'Article'},
+        {
+            markdown: '# Article `{#id .class key="value"}`\n',
+            expected: 'Article {#id .class key="value"}',
+        },
+        {markdown: '# Article \\{#literal\\}\n', expected: 'Article {#literal}'},
+        {markdown: '```md\n# Example H1\n```\n\n# Actual H1\n', expected: 'Actual H1'},
+        {markdown: '<!--\n# Commented H1\n-->\n\n# Actual H1\n', expected: 'Actual H1'},
+        {
+            markdown: '# **Bold** [link](article.md) `code` &amp; text {#id}\n',
+            expected: 'Bold link code & text',
+        },
+        {
+            markdown: '# A <strong>title</strong> with ![image](image.png)\n',
+            expected: 'A title with image',
+        },
+    ])('extracts $expected from $markdown', ({markdown, expected}) => {
+        expect(getArticleTitle(markdown)).toBe(expected);
+    });
+
+    it.each([
+        {
+            markdown: '<h1>Literal example</h1>\n\n# Actual H1\n',
+            expected: 'Actual H1',
+        },
+        {markdown: '<h1>Literal example</h1>\n', expected: ''},
+        {
+            markdown: '# Before<br>After <img src="x.svg" alt="SDK">\n',
+            expected: 'Before<br>After <img src="x.svg" alt="SDK">',
+        },
+    ])('honors disabled HTML for $markdown', ({markdown, expected}) => {
+        expect(getArticleTitle(markdown, false)).toBe(expected);
+    });
+
+    it('keeps HTML settings isolated between consecutive extractions', () => {
+        const markdown = '<h1>HTML title</h1>\n\n# Markdown title\n';
+
+        expect(getArticleTitle(markdown, false)).toBe('Markdown title');
+        expect(getArticleTitle(markdown, true)).toBe('HTML title');
+        expect(getArticleTitle(markdown, false)).toBe('Markdown title');
+    });
+});
+
+describe('getPreparedArticleTitle', () => {
+    it('falls back when source map comments interrupt setext heading formation', () => {
+        const mapped =
+            'A title\n<!-- source: underline.md -->\n=======\n<!-- endsource: underline.md -->';
+        expect(getPreparedArticleTitle(mapped, true, true)).toBeUndefined();
+        expect(getArticleTitle('A title\n=======\n')).toBe('A title');
+    });
+
+    it.each([
+        ['# First **title**\n\n{% include [large](large.md) %}', 'First title'],
+        ['[//]: # (comment)\n\n# First\n\n{% include [large](large.md) %}', 'First'],
+        ['\n # Literal `*text*` #\n', 'Literal *text*'],
+        ['# First\n\n:::visibility agent\n# Hidden\n:::', 'First'],
+    ])('reuses independent leading headings: %s', (markdown, expected) => {
+        expect(getPreparedArticleTitle(markdown, true, false)).toBe(expected);
+    });
+
+    it.each([
+        '{% include [before](before.md) %}\n\n# Later',
+        '# [Reference][id]\n\n{% include [definitions](defs.md) %}',
+        '# Hidden {.hidden}\n',
+        ':::visibility agent\n# Hidden\n:::\n\n# Human',
+    ])('keeps canonical collection for dependent unmerged headings: %s', (markdown) => {
+        expect(getPreparedArticleTitle(markdown, true, false)).toBeUndefined();
+    });
+
+    it.each([
+        'Introduction\n\nHeading\n=======\n',
+        '```md\n# Example\n```\n\n# Actual',
+        '# [Reference][id]\n\n[id]: /destination',
+        '<h1>HTML <em>title</em></h1>',
+        'No heading',
+    ])('matches the canonical parser on safe merged content: %s', (markdown) => {
+        for (const html of [false, true]) {
+            expect(getPreparedArticleTitle(markdown, html, true)).toBe(
+                getArticleTitle(markdown, html),
+            );
+        }
+    });
+
+    it.each([':::visibility agent\n# Hidden\n:::', '<svg><h1>Embedded</h1></svg>'])(
+        'does not assume merged audience or SVG semantics: %s',
+        (markdown) => {
+            expect(getPreparedArticleTitle(markdown, true, true)).toBeUndefined();
+        },
+    );
 });
