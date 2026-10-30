@@ -4,6 +4,7 @@ import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
 import {NAME, options} from './config';
+import {options as buildOptions} from './build/config';
 
 /**
  * Base parser, which handles {BaseArgs}
@@ -19,6 +20,8 @@ export const parse = (argv: string[], name = NAME): BaseArgs => {
         .addOption(options.extensions)
         .addOption(options.copyOnWrite)
         .addOption(options.originAsInput)
+        .addOption(options.internalBuild)
+        .addOption(buildOptions.vcs)
         .helpOption(false)
         .allowUnknownOption(true);
 

@@ -6,6 +6,7 @@ import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {basename, dirname, join, relative} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
+import {omit} from 'lodash';
 import pmap from 'p-map';
 
 import {bounded, console, isSubPath, normalizePath, own, setExt} from '~/core/utils';
@@ -22,6 +23,8 @@ import {
     withConfigDefaults,
     withConfigScope,
 } from '~/core/program';
+
+import {applyInternalBuildDefaults} from '../utils/internal-build';
 
 import {getHooks, withHooks} from './hooks';
 import {buildConfigDefaults, normalize, options, validate} from './config';
@@ -204,6 +207,11 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
      */
     private run!: Run;
 
+    args(args: Hash): BuildArgs {
+        // The VCS normalizer reads the original args; merging this boolean would discard scopes.
+        return super.args(omit(args, ['vcs']));
+    }
+
     apply(program?: BaseProgram) {
         getBaseHooks(this).RawConfig.tap('Build', validate);
         getBaseHooks(this).Config.tap({name: 'Build', stage: -1}, normalize);
@@ -355,6 +363,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             entryGraph: result.info.entryGraph,
             varsGraph: result.info.varsGraph,
         };
+    }
+
+    protected prepareConfig(config: Hash, args: BuildArgs) {
+        applyInternalBuildDefaults(config, args);
+
+        return config;
     }
 
     private async prepareInput() {

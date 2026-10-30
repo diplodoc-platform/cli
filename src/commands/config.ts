@@ -127,6 +127,12 @@ const originAsInput = option({
     defaultInfo: false,
 });
 
+const internalBuild = option({
+    flags: '--internal-build',
+    desc: 'Enable missing VCS and modification-date settings for internal Arcadia builds.',
+    hidden: true,
+});
+
 export const options = {
     quiet,
     strict,
@@ -138,4 +144,5 @@ export const options = {
     output,
     copyOnWrite,
     originAsInput,
+    internalBuild,
 };
