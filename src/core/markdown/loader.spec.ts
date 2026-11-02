@@ -9,7 +9,8 @@ import {SourceMap} from '@diplodoc/liquid';
 
 import {Logger} from '~/core/logger';
 
-import {loader} from './loader';
+import {inspectMarkdown, loader} from './loader';
+import {extractIncludedBlocks} from './included';
 
 vi.mock('~/core/logger');
 vi.mock('~/core/utils', async (importOriginal) => {
@@ -75,6 +76,46 @@ function loaderContext(
 }
 
 describe('Markdown loader', () => {
+    it('indexes SVG assets relative to their embedded colon-chain source', () => {
+        const content = [
+            '{% included (_includes/outer.md:deep/button.md) %}',
+            '![Plus](../../_assets/plus.svg)',
+            '{% endincluded %}',
+        ].join('\n');
+        const {files} = extractIncludedBlocks(content, 'ru/page.md' as NormalizedPath);
+        const [path, body] = Object.entries(files)[0];
+        const context = loaderContext(body, {options: {mergeContentParts: false}});
+        context.path = path as NormalizedPath;
+
+        const {assets} = inspectMarkdown.call(context, body);
+
+        expect(path).toBe('ru/_includes/deep/button.md');
+        expect(assets.map(({path}) => path)).toEqual(['ru/_assets/plus.svg']);
+    });
+
+    it('does not inspect SVG examples in embedded code and comments or replay templates', () => {
+        const content = [
+            '![Real](../_assets/real.svg)',
+            '`![Inline](../_assets/missing-inline.svg)`',
+            '```md',
+            '![Fenced](../_assets/missing-fenced.svg)',
+            '```',
+            '<!-- ![Comment](../_assets/missing-comment.svg) -->',
+            'Literal {{ variable }}.',
+        ].join('\n');
+        const collect = vi.fn(() => 'Changed by collect');
+        const context = loaderContext(content, {
+            options: {mergeContentParts: false},
+            collects: [collect],
+        });
+        context.path = '_includes/button.md' as NormalizedPath;
+
+        const {assets} = inspectMarkdown.call(context, content);
+
+        expect(assets.map(({path}) => path)).toEqual(['_assets/real.svg']);
+        expect(collect).not.toHaveBeenCalled();
+    });
+
     it('should process simple text', async () => {
         const content = dedent`
             Simple text

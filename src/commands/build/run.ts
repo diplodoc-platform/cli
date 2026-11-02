@@ -127,7 +127,8 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
-        const {deps, assets, anchorIds, reportErrors = true} = options;
+        const {deps, anchorIds, reportErrors = true} = options;
+        const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
 
         const {
             content: cleanMarkdown,
@@ -178,7 +179,8 @@ export class Run extends BaseRun<BuildConfig> {
         options: TransformOptions,
         plugins = this.markdown.plugins,
     ) {
-        const {deps, assets} = options;
+        const {deps} = options;
+        const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
 
         const {
             content: cleanMarkdown,
