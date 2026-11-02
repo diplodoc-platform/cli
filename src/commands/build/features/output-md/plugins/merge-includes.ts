@@ -1082,7 +1082,13 @@ export function prepareInlinedContent(
     }
 
     if (termsCollector) {
+        const references = hashIndex >= 0 ? findTermReferences(depContent) : undefined;
+
         for (const term of terms) {
+            if (references && !references.has(term.key)) {
+                continue;
+            }
+
             const rebasedBlock = rebaseRelativePaths(term.block, dep.path, entry);
             const normalized = normalizeTermBlockForCompare(rebasedBlock);
             const duplicate = termsCollector.find(
@@ -1182,6 +1188,35 @@ function makeUniqueTermKey(
         candidate = `${baseKey}__${stem}-${counter++}`;
     }
     return candidate;
+}
+
+/**
+ * Collects term keys used outside fenced and inline code in a selected section.
+ */
+function findTermReferences(content: string): Set<string> {
+    const references = new Set<string>();
+    const fence = newFenceState();
+
+    for (const line of content.split('\n')) {
+        if (processCodeFence(stripBlockquoteMarkers(line), fence)) {
+            continue;
+        }
+
+        rewriteLinksInLine(line, (url) => {
+            if (url.startsWith('*')) {
+                references.add(url.slice(1));
+            }
+
+            return null;
+        });
+
+        const plain = line.replace(/(`+).*?\1/g, '');
+        for (const match of plain.matchAll(/\[\*([^[\]]+)\](?!:)/g)) {
+            references.add(match[1]);
+        }
+    }
+
+    return references;
 }
 
 /**
