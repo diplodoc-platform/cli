@@ -81,6 +81,25 @@ export async function loader(this: LoaderContext, content: string) {
     return content;
 }
 
+/** Inspects already processed Markdown without applying templates or collect plugins again. */
+export function inspectMarkdown(
+    this: LoaderContext,
+    content: string,
+): {deps: IncludeInfo[]; assets: AssetInfo[]} {
+    const context = {
+        ...this,
+        api: new LoaderAPI(),
+        options: {...this.options, mergeContentParts: true},
+    };
+
+    resolveBlockCodes.call(context, content);
+    resolveComments.call(context, content);
+    resolveDependencies.call(context, content);
+    resolveAssets.call(context, content);
+
+    return {deps: context.api.deps.get(), assets: context.api.assets.get()};
+}
+
 async function applyCollectPlugins(this: LoaderContext, content: string) {
     let meta = {};
 
