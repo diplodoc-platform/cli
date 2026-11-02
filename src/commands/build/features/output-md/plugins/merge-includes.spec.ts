@@ -1202,6 +1202,62 @@ describe('extractSection', () => {
 });
 
 describe('collectFallbackDepsForInlined', () => {
+    it('should retain a live fallback inside an inlined dependency term', () => {
+        const detailDirective = '{% include [details](details.md) %}';
+        const detail = makeDep({
+            path: '_includes/details.md' as NormalizedPath,
+            link: 'details.md',
+            match: detailDirective,
+            content: '- **Required**: Nested term detail.',
+            deps: [],
+        });
+        const term = makeDep({
+            path: '_includes/term.md' as NormalizedPath,
+            link: 'term.md',
+            match: '{% include [term](term.md) %}',
+            content: `Choose [Web App](*web).\n\n[*web]: ${detailDirective}`,
+            deps: [detail],
+        });
+        const result = collectFallbackDepsForInlined(
+            [term],
+            '_includes/guide.md' as NormalizedPath,
+            'index.md' as NormalizedPath,
+            new Set(),
+            `Choose [Web App](*web).\n\nFinish.\n\n[*web]: ${detailDirective}`,
+        );
+
+        expect(result).toEqual([
+            {key: '_includes/details.md', content: '- **Required**: Nested term detail.'},
+        ]);
+    });
+
+    it('should not materialize descendants whose directives were fully inlined', () => {
+        const detail = makeDep({
+            path: '_includes/details.md' as NormalizedPath,
+            link: 'details.md',
+            match: '{% include [details](details.md) %}',
+            content: 'Already inlined detail.',
+            deps: [],
+        });
+        const term = makeDep({
+            path: '_includes/term.md' as NormalizedPath,
+            link: 'term.md',
+            match: '{% include [term](term.md) %}',
+            content: 'Choose [Web App](*web).\n\n[*web]: Already inlined detail.',
+            deps: [detail],
+        });
+
+        expect(
+            collectFallbackDepsForInlined(
+                [term],
+                '_includes/guide.md' as NormalizedPath,
+                'index.md' as NormalizedPath,
+                new Set(),
+                'Choose [Web App](*web).\n\nFinish.\n\n[*web]: Already inlined detail.',
+            ),
+        ).toEqual([]);
+    });
+
     it('should collect rebased entries from flat deps list', () => {
         const deps: HashedGraphNode[] = [
             makeDep({
@@ -1355,6 +1411,48 @@ describe('collectFallbackDepsWithChain', () => {
 });
 
 describe('prepareInlinedContent', () => {
+    it('should retain hoisted terms outside a selected include section', () => {
+        const parentContent = '{% include [guide](_includes/guide.md#selected) %}';
+        const dep = makeDep({
+            path: '_includes/guide.md' as NormalizedPath,
+            link: '_includes/guide.md#selected',
+            match: parentContent,
+            location: [0, parentContent.length],
+            content: [
+                '# Selected {#selected}',
+                '',
+                'Choose [App](*app).',
+                '',
+                '# Omitted',
+                '',
+                'Unselected instructions.',
+                '',
+                '[*app]: Read [details](./details.md).',
+            ].join('\n'),
+            deps: [],
+        });
+        const terms: {key: string; block: string; sourcePath: string}[] = [];
+
+        const result = prepareInlinedContent(
+            dep,
+            'main.md' as NormalizedPath,
+            parentContent,
+            false,
+            terms,
+        );
+
+        expect(result).toContain('Choose [App](*app).');
+        expect(result).not.toContain('Unselected instructions.');
+        expect(result).not.toContain('[*app]:');
+        expect(terms).toEqual([
+            {
+                key: 'app',
+                block: '[*app]: Read [details](_includes/details.md).',
+                sourcePath: '_includes/guide.md',
+            },
+        ]);
+    });
+
     it('should strip frontmatter and rebase paths', () => {
         const parentContent = '{% include [ch](_includes/chapter.md) %}';
         const dep = makeDep({
@@ -1829,8 +1927,9 @@ describe('mergeIncludes', () => {
         parentContent: string,
         entry: NormalizedPath,
         run = mockRun,
+        rootMode = true,
     ): Promise<string> {
-        const step = mergeIncludes(run, deps, parentContent);
+        const step = mergeIncludes(run, deps, parentContent, true, rootMode);
         const scheduler = new Scheduler([step]);
         await scheduler.schedule(entry);
         return scheduler.process(parentContent);
@@ -1971,6 +2070,109 @@ describe('mergeIncludes', () => {
         expect(result).toContain('Content B.');
         expect(result).not.toContain('{% included');
         expect(result).toContain('[*term]: Definition');
+    });
+
+    it('should hoist leaf terms before an intermediate include is merged into its parent', async () => {
+        const directive = '{% include [term](../shared/term.md) %}';
+        const parentContent = [
+            '# Guide',
+            '',
+            '{% list tabs %}',
+            '',
+            '- UI',
+            '',
+            `    1. ${directive}`,
+            '    1. After the include.',
+            '',
+            '- CLI',
+            '',
+            '  CLI instructions.',
+            '',
+            '{% endlist %}',
+            '',
+            '## Finish',
+            '',
+            'Final instructions.',
+        ].join('\n');
+        const location = parentContent.indexOf(directive);
+        const dep = makeDep({
+            path: 'shared/term.md' as NormalizedPath,
+            link: '../shared/term.md',
+            match: directive,
+            location: [location, location + directive.length],
+            content: 'Choose [App](*app).\n\n[*app]: Read [details](./details.md).',
+            deps: [],
+        });
+
+        const result = await runMerge(
+            [dep],
+            parentContent,
+            '_includes/guide.md' as NormalizedPath,
+            mockRun,
+            false,
+        );
+
+        expect(result).toContain('Choose [App](*app).');
+        expect(result).toContain('    1. After the include.');
+        expect(result).toContain('{% endlist %}');
+        expect(result).toContain('Final instructions.');
+        expect(result.indexOf('[*app]:')).toBeGreaterThan(result.indexOf('Final instructions.'));
+        expect(result.trimEnd()).toMatch(
+            /\n\[\*app\]: Read \[details\]\(\.\.\/shared\/details\.md\)\.$/,
+        );
+        expect(result).not.toContain('{% included');
+    });
+
+    it('should keep YFM references bound to conflicting leaf definitions during nested merging', async () => {
+        const directives = ['{% include [first](first.md) %}', '{% include [second](second.md) %}'];
+        const parentContent = directives.join('\n\n');
+        const deps = directives.map((directive, index) => {
+            const name = index === 0 ? 'first' : 'second';
+            const location = parentContent.indexOf(directive);
+            const body = [`Choose [${name}](*app).`];
+
+            if (index === 1) {
+                body.push(
+                    '',
+                    'Use [Actual](*app).',
+                    '',
+                    'Inline example: `[Example](*app)`.',
+                    '',
+                    '```md',
+                    '[Example](*app)',
+                    '```',
+                );
+            }
+            body.push('', `[*app]: ${name} definition.`);
+
+            return makeDep({
+                path: `_includes/${name}.md` as NormalizedPath,
+                link: `${name}.md`,
+                match: directive,
+                location: [location, location + directive.length],
+                content: body.join('\n'),
+                deps: [],
+            });
+        });
+
+        const result = await runMerge(
+            deps,
+            parentContent,
+            '_includes/guide.md' as NormalizedPath,
+            mockRun,
+            false,
+        );
+        const secondKey = result.match(/Choose \[second\]\(\*([^)]+)\)/)?.[1];
+
+        expect(result).toContain('Choose [first](*app).');
+        expect(secondKey).toBeDefined();
+        expect(secondKey).not.toBe('app');
+        expect(result).toContain(`Use [Actual](*${secondKey}).`);
+        expect(result).toContain('Inline example: `[Example](*app)`.');
+        expect(result).toContain('```md\n[Example](*app)\n```');
+        expect(result).toContain('[*app]: first definition.');
+        expect(result).toContain(`[*${secondKey}]: second definition.`);
+        expect(result.match(/^\[\*[^\]]+\]:/gm)).toHaveLength(2);
     });
 
     it('should inline dep with terms and collect sub-deps as fallback (Step 4)', async () => {

@@ -930,20 +930,28 @@ export function collectFallbackDepsForInlined(
     const toDir = dirname(rootPath);
 
     for (const subDep of deps) {
-        if (parentProcessedContent && !parentProcessedContent.includes(subDep.match)) {
-            continue;
+        if (parentProcessedContent === undefined || parentProcessedContent.includes(subDep.match)) {
+            const rebasedLink = rebaseUrl(stripHash(subDep.link), fromDir, toDir);
+            const key = rebasedLink || stripHash(subDep.link);
+
+            if (!seen.has(key)) {
+                seen.add(key);
+                result.push({key, content: contentWithoutFrontmatter(subDep.content)});
+            }
         }
 
-        const rebasedLink = rebaseUrl(stripHash(subDep.link), fromDir, toDir);
-        const key = rebasedLink || stripHash(subDep.link);
-
-        if (!seen.has(key)) {
-            seen.add(key);
-            result.push({key, content: contentWithoutFrontmatter(subDep.content)});
-        }
-
+        // Inlining a parent removes its directive, but unresolved descendants
+        // can still occur in the merged body or in its hoisted term section.
         if (subDep.deps.length > 0) {
-            result.push(...collectFallbackDepsForInlined(subDep.deps, subDep.path, rootPath, seen));
+            result.push(
+                ...collectFallbackDepsForInlined(
+                    subDep.deps,
+                    subDep.path,
+                    rootPath,
+                    seen,
+                    parentProcessedContent === undefined ? undefined : subDep.content,
+                ),
+            );
         }
     }
 
@@ -1056,6 +1064,14 @@ export function prepareInlinedContent(
 ): string {
     let depContent = contentWithoutFrontmatter(dep.content);
 
+    // Extract while definitions still form the dependency's trailing section.
+    // A selected heading can exclude that section, but its term references
+    // still need the definitions from the full dependency.
+    const {cleanContent, terms} = termsCollector
+        ? extractTermDefinitions(depContent)
+        : {cleanContent: depContent, terms: []};
+    depContent = cleanContent;
+
     const hashIndex = dep.link.indexOf('#');
     if (hashIndex >= 0) {
         depContent = extractSection(depContent, dep.link.slice(hashIndex + 1));
@@ -1066,8 +1082,6 @@ export function prepareInlinedContent(
     }
 
     if (termsCollector) {
-        const {cleanContent, terms} = extractTermDefinitions(depContent);
-        depContent = cleanContent;
         for (const term of terms) {
             const rebasedBlock = rebaseRelativePaths(term.block, dep.path, entry);
             const normalized = normalizeTermBlockForCompare(rebasedBlock);
@@ -1171,12 +1185,28 @@ function makeUniqueTermKey(
 }
 
 /**
- * Renames term references `[*oldKey]` → `[*newKey]` in content.
- * Only matches references (not definitions, which have `:` after `]`).
+ * Renames both `[label](*key)` and shorthand `[*key]` term references.
+ * Definition labels are left unchanged.
  */
 function renameTermReferences(content: string, oldKey: string, newKey: string): string {
-    const re = new RegExp(String.raw`\[\*${escapeRegExp(oldKey)}\](?!:)`, 'g');
-    return content.replace(re, `[*${newKey}]`);
+    const shorthandRe = new RegExp(
+        String.raw`(\x60+).*?\1|\[\*${escapeRegExp(oldKey)}\](?!:)`,
+        'g',
+    );
+    const fence = newFenceState();
+
+    return content
+        .split('\n')
+        .map((line) => {
+            if (processCodeFence(stripBlockquoteMarkers(line), fence)) {
+                return line;
+            }
+
+            return rewriteLinksInLine(line, (url) =>
+                url === `*${oldKey}` ? `*${newKey}` : null,
+            ).replace(shorthandRe, (match) => (match.startsWith('`') ? match : `[*${newKey}]`));
+        })
+        .join('\n');
 }
 
 /**
@@ -1470,9 +1500,9 @@ function buildRootAppendix(
  *     (term definitions are left as-is).
  * - Non-standalone includes always use {% included %} fallback blocks.
  *
- * @param rootMode - When true (entry file), adds fallback blocks and term
- *   sections at the end.  When false (dep files), only inlines standalone
- *   includes so that nested include chains are resolved bottom-up.
+ * @param rootMode - When true (entry file), adds fallback blocks at the end.
+ *   Term definitions are hoisted at every level before the collected dependency
+ *   is inlined into its parent, preserving the boundary of each term section.
  */
 export function mergeIncludes(
     run: Run,
@@ -1486,9 +1516,8 @@ export function mergeIncludes(
             return;
         }
 
-        const multilineTerm = rootMode
-            ? (run.config.content.multilineTermDefinitions ?? run.config.multilineTermDefinitions)
-            : false;
+        const multilineTerm =
+            run.config.content.multilineTermDefinitions ?? run.config.multilineTermDefinitions;
         const fallbackEntries: FallbackEntry[] = [];
         const seen = new Set<string>();
         const allTerms: TermWithSource[] = [];
@@ -1551,16 +1580,14 @@ export function mergeIncludes(
             }
         }
 
-        if (rootMode) {
-            const appendix = buildRootAppendix(
-                allTerms,
-                fallbackEntries,
-                multilineTerm,
-                run.logger,
-            );
-            if (appendix) {
-                scheduler.add([0, 0], async (content) => content + appendix, {});
-            }
+        const appendix = buildRootAppendix(
+            allTerms,
+            rootMode ? fallbackEntries : [],
+            multilineTerm,
+            run.logger,
+        );
+        if (appendix) {
+            scheduler.add([0, 0], async (content) => content + appendix, {});
         }
     } as StepFunction;
 }
