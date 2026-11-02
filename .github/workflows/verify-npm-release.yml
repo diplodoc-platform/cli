@@ -1,0 +1,102 @@
+name: Verify published CLI
+
+on:
+  workflow_run:
+    workflows: ['Release Package to npm']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Exact stable CLI version to recheck (for example 5.64.1)'
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  verify:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      source: ${{ steps.release.outputs.source }}
+      started: ${{ steps.release.outputs.started }}
+    steps:
+      # Use the verifier's revision, never code from the publishing branch.
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Resolve published version
+        id: release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {resolveRelease} = require('./scripts/npm-release.cjs');
+            const release = await resolveRelease({github, context});
+            if (!release) {
+              core.info('No successful stable npm publication; skipping verification.');
+              return;
+            }
+            core.setOutput('version', release.version);
+            core.setOutput('source', release.source);
+            core.setOutput('started', Date.now());
+            core.notice(`Checking @diplodoc/cli@${release.version}`);
+
+      - uses: actions/setup-node@v4
+        if: steps.release.outputs.version != ''
+        with:
+          node-version: '24'
+
+      - name: Install and start published CLI
+        if: steps.release.outputs.version != ''
+        env:
+          CLI_VERSION: ${{ steps.release.outputs.version }}
+        run: node scripts/npm-release.cjs "$CLI_VERSION"
+
+  report:
+    needs: verify
+    if: >-
+      always() && needs.verify.outputs.version != '' &&
+      (needs.verify.result == 'success' || needs.verify.result == 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Serialize issue updates for a version, including manual rechecks.
+    concurrency:
+      group: npm-release-issue-${{ needs.verify.outputs.version }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Update release verification issue
+        uses: actions/github-script@v7
+        env:
+          CLI_VERSION: ${{ needs.verify.outputs.version }}
+          RELEASE_SOURCE: ${{ needs.verify.outputs.source }}
+          VERIFY_STARTED: ${{ needs.verify.outputs.started }}
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        with:
+          script: |
+            const {reportRelease} = require('./scripts/npm-release.cjs');
+            await reportRelease({
+              github,
+              context,
+              version: process.env.CLI_VERSION,
+              source: process.env.RELEASE_SOURCE,
+              result: process.env.VERIFY_RESULT,
+              started: Number(process.env.VERIFY_STARTED),
+              attempt: Number(process.env.GITHUB_RUN_ATTEMPT),
+            });
