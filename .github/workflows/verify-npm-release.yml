@@ -1,30 +1,46 @@
 name: Verify published CLI
-run-name: 'Verify published CLI: ${{ inputs.version }}'
+run-name: 'Verify published CLI: ${{ github.event.workflow_run.head_branch }}'
 
-# Dispatched by Release only after a successful stable npm publish.
-# workflow_dispatch also permits rechecking an existing stable version.
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Exact published stable CLI version'
-        required: true
-        type: string
+  workflow_run:
+    workflows: ['Release Package to npm']
+    types: [completed]
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   verify:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Resolve published stable version
+        id: release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = context.payload.workflow_run.head_branch;
+            const {data: release} = await github.rest.repos.getReleaseByTag({
+              ...context.repo,
+              tag,
+            });
+            const version = tag.replace(/^v/, '');
+            if (release.draft || release.prerelease || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
+              core.info('Skipping a non-stable release.');
+              return;
+            }
+            core.setOutput('version', version);
+
       - uses: actions/setup-node@v4
+        if: steps.release.outputs.version != ''
         with:
           node-version: '24'
 
       - name: Install and start published CLI
+        if: steps.release.outputs.version != ''
         env:
-          CLI_VERSION: ${{ inputs.version }}
+          CLI_VERSION: ${{ steps.release.outputs.version }}
           NPM_CONFIG_CACHE: ${{ runner.temp }}/cli-install-cache
           NPM_CONFIG_USERCONFIG: /dev/null
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org

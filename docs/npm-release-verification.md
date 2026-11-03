@@ -1,16 +1,20 @@
 # Published CLI verification
 
-After a successful stable `npm publish`, Release dispatches `Verify published CLI`
-on the default branch with the exact version. Prerelease, deprecation and failed
-publication never dispatch it. Release does not wait for verification to finish.
-The CLI release workflow is excluded from infra distribution in `.infrarc.yml`;
-shared release-template changes must be incorporated when updating it.
+`Verify published CLI` listens for completion of `Release Package to npm` through
+`workflow_run`. Its job runs only when the source workflow succeeded and was
+triggered by a GitHub `release` event. The shared release workflow is unchanged.
+Manual runs (including prerelease, deprecation and manual stable publication) are
+ignored without allocating a runner; GitHub may show a skipped verification run.
+
+The exact version comes from the source run's release tag. The check reads the
+GitHub release and skips drafts, prereleases and tags without a stable version.
+The existing Release workflow validates that the package version matches its tag
+before publishing to npm.
 
 The check runs on Ubuntu / Node.js 24 without checkout, build or tests. It installs
 from public npm in a fresh directory, retries installation at most three times,
-and runs the installed `yfm --version`. Its timeout is ten minutes.
-Use **Actions → Verify published CLI → Run workflow** on the default branch to
-recheck an exact stable version without publishing again.
+and runs the installed `yfm --version`. Its timeout is ten minutes. Use **Re-run
+jobs** on an existing verification run to check that release again.
 
 No issues, chat credentials or PAT are used. The existing signed docs-api webhook
 handles `workflow_run.completed` failures for this workflow and starts a short
