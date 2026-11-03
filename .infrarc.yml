@@ -1,2 +1,3 @@
 auto_merge: true
-exclude: []
+exclude:
+  - .github/workflows/release.yml
