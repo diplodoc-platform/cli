@@ -1,5 +1,5 @@
 name: Verify published CLI
-run-name: 'Verify published CLI: ${{ github.event.workflow_run.head_branch }}'
+run-name: 'Verify published CLI: release run #${{ github.event.workflow_run.id }}'
 
 on:
   workflow_run:
@@ -8,10 +8,16 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   verify:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'release'
+    name: Verify published CLI installation
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.event == 'release' ||
+       (github.event.workflow_run.event == 'workflow_dispatch' &&
+        github.event.workflow_run.display_title == 'Release Package to npm'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -20,14 +26,39 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const tag = context.payload.workflow_run.head_branch;
-            const {data: release} = await github.rest.repos.getReleaseByTag({
-              ...context.repo,
-              tag,
-            });
-            const version = tag.replace(/^v/, '');
-            if (release.draft || release.prerelease || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
-              core.info('Skipping a non-stable release.');
+            const run = context.payload.workflow_run;
+            let version;
+            if (run.event === 'workflow_dispatch') {
+              const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRunAttempt, {
+                ...context.repo,
+                run_id: run.id,
+                attempt_number: run.run_attempt,
+                per_page: 100,
+              });
+              if (!jobs.some(job => job.name === 'Publish to npm' &&
+                job.steps.some(step => step.name === 'Publish stable to npm' && step.conclusion === 'success'))) {
+                core.info('No successful stable publication in this attempt.');
+                return;
+              }
+              const {data: file} = await github.rest.repos.getContent({
+                ...context.repo,
+                path: 'package.json',
+                ref: run.head_sha,
+              });
+              version = JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')).version;
+            } else {
+              const {data: release} = await github.rest.repos.getReleaseByTag({
+                ...context.repo,
+                tag: run.head_branch,
+              });
+              if (release.draft || release.prerelease) {
+                core.info('Skipping a non-stable release.');
+                return;
+              }
+              version = run.head_branch.replace(/^v/, '');
+            }
+            if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
+              core.setFailed('Expected an exact stable CLI version.');
               return;
             }
             core.setOutput('version', version);
