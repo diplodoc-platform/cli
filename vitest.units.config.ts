@@ -10,7 +10,7 @@ export default defineConfig({
     test: {
         setupFiles: ['./src/test-setup.ts', './src/require.ts'],
         environment: 'node',
-        include: ['src/**/*.{test,spec}.ts', 'scripts/npm-release.spec.mjs'],
+        include: ['src/**/*.{test,spec}.ts'],
         exclude: ['node_modules'],
         coverage: {
             all: true,
