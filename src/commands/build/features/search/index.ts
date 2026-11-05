@@ -3,17 +3,23 @@ import type {Command} from '~/core/config';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
-import {valuable} from '~/core/config';
 import {langFromPath} from '~/core/utils';
 
-import {options} from './config';
+import {ExternalSearchProvider} from '../../services/search/external';
+import {getHooks as getSearchHooks} from '../../services/search';
+import {getHooks as getEntryHooks} from '../../services/entry';
+
+import {normalizeSearch, options} from './config';
 
 export type SearchArgs = {
     search: boolean;
+    searchProvider: string;
+    searchEndpoint: string;
+    searchOptions: Record<string, string | number | boolean>;
 };
 
 export type SearchRawConfig = {
-    search: boolean | Config;
+    search: boolean | Partial<Config>;
 };
 
 export type SearchConfig = {
@@ -24,46 +30,47 @@ type Config = {
     enabled: boolean;
     provider: string;
     hiddenPolicy: boolean;
+    endpoint?: string;
+    options?: Record<string, string | number | boolean>;
 } & {
     [prop: string]: unknown;
 };
 
 export class Search {
     apply(program: Build) {
-        getBaseHooks(program).Command.tap('Search', (command: Command) => {
-            command.addOption(options.search);
+        getBaseHooks(program).Command.tap({name: 'Search', stage: Infinity}, (command: Command) => {
+            for (const option of Object.values(options)) {
+                if (!command.options.some((registered) => registered.long === option.long)) {
+                    command.addOption(option);
+                }
+            }
         });
 
         // Normalize search config
         getBaseHooks(program).Config.tap('Search', (config, args) => {
-            let search: Config | boolean = {
-                enabled: false,
-                provider: 'local',
-                hiddenPolicy: false,
-            };
-
-            if (valuable(config.search)) {
-                search = config.search;
-            }
-
-            if (typeof search === 'boolean') {
-                search = {
-                    enabled: search,
-                    provider: 'local',
-                    hiddenPolicy: false,
-                };
-            }
-
-            if (valuable(args.search)) {
-                search.enabled = Boolean(args.search);
-            }
-
-            search.enabled = search.enabled !== false && Boolean(search.provider);
-            search.hiddenPolicy = search.hiddenPolicy === true;
-            config.search = search;
+            config.search = normalizeSearch(config.search, args);
 
             return config;
         });
+
+        getBuildHooks(program)
+            .BeforeRun.for('html')
+            .tap('ExternalSearch', (run) => {
+                getSearchHooks(run.search)
+                    .Provider.for('external')
+                    .tap('ExternalSearch', () => {
+                        const provider = new ExternalSearchProvider(run);
+                        getEntryHooks(run.entry).State.tap('ExternalSearch', (state) => {
+                            state.search = provider.config(state.lang);
+                        });
+                        getEntryHooks(run.entry).Page.tap('ExternalSearch', provider.configurePage);
+                        getSearchHooks(run.search).Page.tap(
+                            'ExternalSearch',
+                            provider.configurePage,
+                        );
+                        return provider;
+                    });
+            });
 
         // Add entry result to search index
         getBuildHooks(program)
