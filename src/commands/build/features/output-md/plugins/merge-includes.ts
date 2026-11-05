@@ -1,7 +1,9 @@
+import type Token from 'markdown-it/lib/token';
 import type {Run} from '../../..';
 import type {HashedGraphNode, Scheduler, StepFunction} from '../utils';
 
 import {basename, dirname, join, relative} from 'node:path';
+import MarkdownIt from 'markdown-it';
 import slugify from 'slugify';
 
 import {
@@ -41,7 +43,7 @@ const TERM_DEF_LINE_RE = /^(?:>\s*)*\s*\[\*([^[\]]+)\]:/;
 const TERM_REFERENCE_PATTERN = String.raw`\[(?:\\[\s\S]|[^\[\]\\])+\]\(\*([^\r\n)]+)\)|\[\*([^\[\]\r\n]+)\](?!:)`;
 const TERM_REFERENCE_RE = new RegExp(TERM_REFERENCE_PATTERN, 'g');
 const FENCED_TERM_REFERENCE_RE =
-    /\[(?:\\[^\r\n]|[^\[\]\\\r\n])+\]\(\*([^\r\n)]+)\)|\[\*([^\[\]\r\n]+)\](?!:)/g;
+    /\[(?:\\[^\r\n]|[^[\]\\\r\n])+\]\(\*([^\r\n)]+)\)|\[\*([^[\]\r\n]+)\](?!:)/g;
 const TERM_OR_CODE_SPAN_RE = new RegExp(
     String.raw`(\x60+)[^\n]*?\1|${TERM_REFERENCE_PATTERN}`,
     'g',
@@ -905,6 +907,7 @@ function selectSection(
     const ctx = {start: -1, level: 0};
     const fence = newFenceState();
     let definitionsBeforeSection = false;
+    let headingLines: Set<number> | undefined;
 
     for (let i = 0; i < lines.length; i++) {
         const trimmed = lines[i].trim();
@@ -918,6 +921,18 @@ function selectSection(
 
         const heading = parseHeading(trimmed);
         if (heading) {
+            if (/^(?: {4}| {0,3}\t)/.test(lines[i])) {
+                // Deep indentation may be a paragraph continuation or code,
+                // but it can also introduce a real heading inside a list.
+                headingLines ??= new Set(
+                    parseMarkdownBlocks(lines).tokens.flatMap((token) =>
+                        token.type === 'heading_open' && token.map ? [token.map[0]] : [],
+                    ),
+                );
+                if (!headingLines.has(i)) {
+                    continue;
+                }
+            }
             const result = processHeadingForSection(heading, hash, ctx, lines, i);
             if (result !== null) {
                 return {content: result, includesAllDefinitions: false};
@@ -1282,89 +1297,103 @@ function rewriteTermReferences(
     content: string,
     resolve: (key: string) => string | undefined,
 ): string {
-    return mapTermReferenceBlocks(content, (block, fenced) =>
-        fenced
-            ? block.replace(FENCED_TERM_REFERENCE_RE, (match, key, shorthandKey) =>
-                  rewriteTermReference(match, key, shorthandKey, resolve),
-              )
-            : rewriteProseTermReferences(block, resolve),
-    );
+    return mapTermReferenceBlocks(content, (block, kind) => {
+        if (kind === 'code') {
+            return block;
+        }
+        if (kind === 'fence') {
+            return block.replace(FENCED_TERM_REFERENCE_RE, (match, key, shorthandKey) =>
+                rewriteTermReference(match, key, shorthandKey, resolve),
+            );
+        }
+        return rewriteProseTermReferences(block, resolve);
+    });
+}
+
+type TermReferenceBlockKind = 'prose' | 'fence' | 'code';
+
+let markdownBlockParser: MarkdownIt | undefined;
+
+/** Parses source blocks only; YFM term definitions must not become link definitions. */
+function parseMarkdownBlocks(lines: string[]): {tokens: Token[]; parserLines: string[]} {
+    const parserLines = normalizeTermReferenceFences(lines);
+    const parser = (markdownBlockParser ??= new MarkdownIt({html: true}).disable('reference'));
+    const tokens: Token[] = [];
+    parser.block.parse(parserLines.join('\n'), parser, {}, tokens);
+
+    return {tokens, parserLines};
 }
 
 /**
- * Keeps wrapped prose references within their paragraph and out of fence
- * delimiters. Fence bodies are separate blocks: raw references there can retain
- * definitions, but only single-line references are rendered interactively.
+ * Lets the Markdown block parser distinguish wrapped paragraph text from block
+ * boundaries. Its maps address the original lines, so prefixes and line endings
+ * survive unchanged. Inline parsing and rendering are not run.
  */
 function mapTermReferenceBlocks(
     content: string,
-    visit: (block: string, fenced: boolean) => string,
+    visit: (block: string, kind: TermReferenceBlockKind) => string,
 ): string {
-    if (!content.includes('\n')) {
-        return visit(content, false);
+    if (content.search(TERM_REFERENCE_RE) < 0) {
+        return content;
     }
 
-    const fence = newFenceState();
+    const lines = content.split('\n');
+    const {tokens, parserLines} = parseMarkdownBlocks(lines);
+
     const result: string[] = [];
-    let block: string[] = [];
-    let fenced = false;
-    let quoteDepth = 0;
-    const flush = () => {
-        if (block.length > 0) {
-            result.push(visit(block.join('\n'), fenced));
-            block = [];
-        }
-    };
-
-    for (const line of content.split('\n')) {
-        let plain = line.trimStart();
-        let depth = 0;
-        while (plain.startsWith('>')) {
-            depth++;
-            plain = plain.slice(1).trimStart();
-        }
-
-        const wasFenced = fence.active;
-        const inFence = processCodeFence(plain, fence);
-        if (inFence && (!wasFenced || !fence.active)) {
-            flush();
-            result.push(line);
-            fenced = fence.active;
-            quoteDepth = depth;
+    let nextLine = 0;
+    for (const token of tokens) {
+        if (!token.map) {
             continue;
         }
-        if (inFence) {
-            block.push(line);
+        let [start, end] = token.map;
+        let kind: TermReferenceBlockKind;
+        if (token.type === 'inline' || token.type === 'tr_open') {
+            // Table cell inline tokens lack maps; their mapped row is visited once.
+            kind = 'prose';
+        } else if (token.type === 'code_block') {
+            kind = 'code';
+        } else if (token.type === 'fence') {
+            kind = 'fence';
+            start++;
+            if (
+                end > start &&
+                fenceCloseTail(stripBlockquoteMarkers(parserLines[end - 1]), token.markup) === ''
+            ) {
+                end--;
+            }
+        } else {
             continue;
         }
-
-        // A plain continuation line can remain in the current blockquote.
-        // Only a deeper quote starts a new block before a paragraph boundary.
-        if (depth > quoteDepth) {
-            flush();
-        }
-        if (block.length === 0) {
-            quoteDepth = depth;
-        }
-        if (!plain.trim()) {
-            flush();
-            result.push(line);
+        if (start < nextLine || end <= start) {
             continue;
         }
-
-        const heading = /^#{1,6}(?:\s|$)/.test(plain);
-        const separator = /^(?:[-*_]\s*){3,}$|^[-=]+\s*$/.test(plain);
-        if (heading || separator || /^(?:[-+*]|\d+[.)])\s/.test(plain)) {
-            flush();
+        if (start > nextLine) {
+            result.push(lines.slice(nextLine, start).join('\n'));
         }
-        block.push(line);
-        if (heading || separator) {
-            flush();
-        }
+        result.push(visit(lines.slice(start, end).join('\n'), kind));
+        nextLine = end;
     }
-    flush();
+    if (nextLine < lines.length) {
+        result.push(lines.slice(nextLine).join('\n'));
+    }
 
     return result.join('\n');
+}
+
+/** Accepts YFM fence closers glued to a table separator only in the parser copy. */
+function normalizeTermReferenceFences(lines: string[]): string[] {
+    const fence = newFenceState();
+    return lines.map((line) => {
+        const normalized = line.endsWith('\r') ? line.slice(0, -1) : line;
+        const plain = stripBlockquoteMarkers(normalized);
+        const tail = fence.active ? fenceCloseTail(plain, fence.markup) : null;
+        processCodeFence(plain, fence);
+        if (tail?.startsWith('||')) {
+            return normalized.slice(0, normalized.indexOf('||', normalized.length - plain.length));
+        }
+        return normalized;
+    });
 }
 
 /** Rewrites prose references while preserving single- and multi-line code spans. */

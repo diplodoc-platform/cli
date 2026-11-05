@@ -383,11 +383,21 @@ describe('Merge includes (md2md)', () => {
                     label: 'Control spaced API',
                     definition: 'Renderer control spaced definition.',
                 },
+                {
+                    page: 'renderer-control',
+                    label: 'Part 2. name',
+                    definition: 'Renderer ordered continuation definition.',
+                },
                 {page: 'index', label: 'Wrapped API', definition: 'Definition of the wrapped API.'},
                 {
                     page: 'index',
                     label: 'Wrapped spaced API',
                     definition: 'Definition of the wrapped spaced key.',
+                },
+                {
+                    page: 'index',
+                    label: 'Part 2. name',
+                    definition: 'Hoisted ordered continuation definition.',
                 },
                 {page: 'conflicts', label: 'Root API', definition: 'Root API definition.'},
                 {page: 'conflicts', label: 'Child API', definition: 'Child API definition.'},
@@ -400,6 +410,16 @@ describe('Merge includes (md2md)', () => {
                     page: 'conflicts',
                     label: 'Child spaced API',
                     definition: 'Child spaced definition.',
+                },
+                {
+                    page: 'conflicts',
+                    label: 'Root ordered',
+                    definition: 'Root ordered definition.',
+                },
+                {
+                    page: 'conflicts',
+                    label: 'Part 2. name',
+                    definition: 'Child ordered definition.',
                 },
                 {page: 'code-literals', label: 'Root API', definition: 'Root code definition.'},
                 {page: 'code-literals', label: 'Child API', definition: 'Child code definition.'},
@@ -472,9 +492,9 @@ describe('Merge includes (md2md)', () => {
                 }
 
                 for (const [page, definitions] of [
-                    ['renderer-control', 2],
-                    ['index', 2],
-                    ['conflicts', 4],
+                    ['renderer-control', 3],
+                    ['index', 3],
+                    ['conflicts', 6],
                     ['code-literals', 2],
                     ['key-newline', 2],
                 ] as const) {
