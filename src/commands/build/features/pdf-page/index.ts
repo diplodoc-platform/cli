@@ -274,6 +274,7 @@ export class PdfPage {
                                 content: pdfEndPagesContent,
                                 pageCount: pdfEndPages.length,
                             },
+                            showAbsoluteUrls: run.config.pdf.showAbsoluteUrls,
                             cssLink: run.manifest.app.css.map((file: string) =>
                                 join(BUNDLE_FOLDER, file),
                             ),
