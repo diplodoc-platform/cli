@@ -1439,6 +1439,168 @@ describe('prepareInlinedContent', () => {
         return {result, terms};
     }
 
+    function prepareReferenceSection(
+        body: string,
+        {key = 'api', conflict = false, hoisted = true, eol = '\n'} = {},
+    ) {
+        const content = [
+            '# Selected {#selected}',
+            '',
+            body,
+            '',
+            ...(hoisted ? ['# Omitted', '', 'Unselected instructions.', ''] : []),
+            `[*${key}]: Dependency description.`,
+        ]
+            .join('\n')
+            .replace(/\n/g, eol);
+        const initialTerms = conflict
+            ? [{key, block: `[*${key}]: Parent description.`, sourcePath: 'main.md'}]
+            : [];
+        const {result, terms} = prepareSelectedSection(content, '', initialTerms);
+
+        return {result: result.replace(/\r\n/g, '\n'), terms};
+    }
+
+    const wrappedReferenceCases = [
+        {name: 'LF', eol: '\n', key: 'api'},
+        {name: 'CRLF', eol: '\r\n', key: 'api'},
+        {name: 'LF', eol: '\n', key: 'api key'},
+        {name: 'CRLF', eol: '\r\n', key: 'api key'},
+    ];
+
+    it.each(wrappedReferenceCases)(
+        'should retain a hoisted definition for a wrapped label ($name, $key)',
+        ({key, eol}) => {
+            const body = `Use [API\nname](*${key}).`;
+            const {result, terms} = prepareReferenceSection(body, {key, eol});
+
+            expect(result).toBe(`# Selected {#selected}\n\n${body}`);
+            expect(terms).toEqual([
+                {
+                    key,
+                    block: `[*${key}]: Dependency description.`,
+                    sourcePath: '_includes/guide.md',
+                },
+            ]);
+        },
+    );
+
+    it.each(wrappedReferenceCases)(
+        'should rename a wrapped label reference to its conflicting definition ($name, $key)',
+        ({key, eol}) => {
+            const {result, terms} = prepareReferenceSection(`Use [API\nname](*${key}).`, {
+                key,
+                eol,
+                conflict: true,
+            });
+
+            expect(result).toBe(`# Selected {#selected}\n\nUse [API\nname](*${key}__guide).`);
+            expect(terms).toEqual([
+                {key, block: `[*${key}]: Parent description.`, sourcePath: 'main.md'},
+                {
+                    key: `${key}__guide`,
+                    block: `[*${key}__guide]: Dependency description.`,
+                    sourcePath: '_includes/guide.md',
+                },
+            ]);
+        },
+    );
+
+    it('should preserve escaped label brackets while renaming a wrapped reference', () => {
+        const {result, terms} = prepareReferenceSection('Use [API\\]\nname](*api).', {
+            conflict: true,
+        });
+
+        expect(result).toBe('# Selected {#selected}\n\nUse [API\\]\nname](*api__guide).');
+        expect(terms.map((term) => term.key)).toEqual(['api', 'api__guide']);
+    });
+
+    it.each([
+        {name: 'a blockquote', body: '> Use [API\n> name](*api).'},
+        {name: 'a lazy blockquote continuation', body: '> Use [API\nname](*api).'},
+        {name: 'a label containing backticks', body: 'Use [API `code`\nname](*api).'},
+    ])('should rename a wrapped reference in $name', ({body}) => {
+        const {result, terms} = prepareReferenceSection(body, {conflict: true});
+
+        expect(result).toBe(`# Selected {#selected}\n\n${body.replace('(*api)', '(*api__guide)')}`);
+        expect(terms.map((term) => term.key)).toEqual(['api', 'api__guide']);
+    });
+
+    it.each(['`', '``'])(
+        'should preserve wrapped references inside %s code spans while renaming prose',
+        (marker) => {
+            const literal = `${marker}[API\nname](*api)${marker}`;
+            const {result, terms} = prepareReferenceSection(
+                `Use [API](*api).\n\nInline: ${literal}.`,
+                {conflict: true},
+            );
+
+            expect(result).toBe(
+                `# Selected {#selected}\n\nUse [API](*api__guide).\n\nInline: ${literal}.`,
+            );
+            expect(terms.map((term) => term.key)).toEqual(['api', 'api__guide']);
+        },
+    );
+
+    it('should retain a definition used only by a literal wrapped reference in fenced code', () => {
+        const body = '```text\n[API\nname](*api)\n```';
+        const {result, terms} = prepareReferenceSection(body);
+
+        expect(result).toBe(`# Selected {#selected}\n\n${body}`);
+        expect(terms).toEqual([
+            {
+                key: 'api',
+                block: '[*api]: Dependency description.',
+                sourcePath: '_includes/guide.md',
+            },
+        ]);
+    });
+
+    it('should rename single-line fenced references while preserving wrapped fenced literals', () => {
+        const {result, terms} = prepareReferenceSection(
+            '```text\n[API\nname](*api)\n[Single](*api)\n```',
+            {conflict: true},
+        );
+
+        expect(result).toBe(
+            '# Selected {#selected}\n\n```text\n[API\nname](*api)\n[Single](*api__guide)\n```',
+        );
+        expect(terms.map((term) => term.key)).toEqual(['api', 'api__guide']);
+    });
+
+    const disconnectedReferences = [
+        {name: 'paragraphs', body: '[API\n\nname](*api)', key: 'api'},
+        {name: 'a fence', body: '[API\n```text\nexample\n```\nname](*api)', key: 'api'},
+        {name: 'a key newline', body: '[API](*api\nkey)', key: 'api key'},
+        {name: 'a heading', body: '[API\n## Heading\nname](*api)', key: 'api'},
+        {name: 'a list item', body: '[API\n- name](*api)', key: 'api'},
+        {name: 'a nested blockquote', body: '> [API\n>> name](*api)', key: 'api'},
+    ];
+
+    it.each(disconnectedReferences)(
+        'should not import a definition for a reference split by $name',
+        ({body, key}) => {
+            const {result, terms} = prepareReferenceSection(body, {key});
+
+            expect(result).toBe(`# Selected {#selected}\n\n${body}`);
+            expect(terms).toEqual([]);
+        },
+    );
+
+    it.each(disconnectedReferences)(
+        'should not rename a literal reference split by $name',
+        ({body, key}) => {
+            const {result, terms} = prepareReferenceSection(body, {
+                key,
+                conflict: true,
+                hoisted: false,
+            });
+
+            expect(result).toBe(`# Selected {#selected}\n\n${body}`);
+            expect(terms.map((term) => term.key)).toEqual([key, `${key}__guide`]);
+        },
+    );
+
     it('should retain hoisted terms outside a selected include section', () => {
         const {result, terms} = prepareSelectedSection(
             [
