@@ -1411,20 +1411,43 @@ describe('collectFallbackDepsWithChain', () => {
 });
 
 describe('prepareInlinedContent', () => {
-    it('should retain hoisted terms outside a selected include section', () => {
-        const parentContent = '{% include [guide](_includes/guide.md#selected) %}';
+    function prepareSelectedSection(
+        content: string,
+        beforeInclude = '',
+        initialTerms: {key: string; block: string; sourcePath: string}[] = [],
+    ) {
+        const directive = '{% include [guide](_includes/guide.md#selected) %}';
+        const parentContent = beforeInclude ? `${beforeInclude}\n\n${directive}` : directive;
+        const location = parentContent.indexOf(directive);
         const dep = makeDep({
             path: '_includes/guide.md' as NormalizedPath,
             link: '_includes/guide.md#selected',
-            match: parentContent,
-            location: [0, parentContent.length],
-            content: [
+            match: directive,
+            location: [location, location + directive.length],
+            content,
+            deps: [],
+        });
+        const terms = [...initialTerms];
+        const result = prepareInlinedContent(
+            dep,
+            'main.md' as NormalizedPath,
+            parentContent,
+            false,
+            terms,
+        );
+
+        return {result, terms};
+    }
+
+    it('should retain hoisted terms outside a selected include section', () => {
+        const {result, terms} = prepareSelectedSection(
+            [
                 '# Selected {#selected}',
                 '',
                 'Choose [App](*app).',
-                'Example: `[Unused](*unused)`.',
+                'Example: `[Inline](*inline)`.',
                 '```md',
-                '[Unused](*unused)',
+                '[Code](*code)',
                 '```',
                 '',
                 '# Omitted',
@@ -1432,18 +1455,10 @@ describe('prepareInlinedContent', () => {
                 'Unselected instructions.',
                 '',
                 '[*app]: Read [details](./details.md).',
+                '[*inline]: Definition referenced in inline code.',
+                '[*code]: Definition referenced in fenced code.',
                 '[*unused]: Definition belonging to the omitted section.',
             ].join('\n'),
-            deps: [],
-        });
-        const terms: {key: string; block: string; sourcePath: string}[] = [];
-
-        const result = prepareInlinedContent(
-            dep,
-            'main.md' as NormalizedPath,
-            parentContent,
-            false,
-            terms,
         );
 
         expect(result).toContain('Choose [App](*app).');
@@ -1453,6 +1468,172 @@ describe('prepareInlinedContent', () => {
             {
                 key: 'app',
                 block: '[*app]: Read [details](_includes/details.md).',
+                sourcePath: '_includes/guide.md',
+            },
+            {
+                key: 'inline',
+                block: '[*inline]: Definition referenced in inline code.',
+                sourcePath: '_includes/guide.md',
+            },
+            {
+                key: 'code',
+                block: '[*code]: Definition referenced in fenced code.',
+                sourcePath: '_includes/guide.md',
+            },
+        ]);
+    });
+
+    it('should preserve a selected definition referenced only by the parent', () => {
+        const {result, terms} = prepareSelectedSection(
+            '# Selected {#selected}\n\nGlossary.\n\n[*api]: API description.',
+            '[API](*api)',
+        );
+
+        expect(result).toBe('# Selected {#selected}\n\nGlossary.');
+        expect(terms).toEqual([
+            {
+                key: 'api',
+                block: '[*api]: API description.',
+                sourcePath: '_includes/guide.md',
+            },
+        ]);
+    });
+
+    it.each([
+        {name: 'fenced code', body: '```text\n[API](*api)\n```', key: 'api'},
+        {name: 'inline code', body: '`[API](*api)`', key: 'api'},
+        {name: 'a key containing spaces', body: '[API](*api key)', key: 'api key'},
+    ])('should retain a hoisted definition referenced by $name', ({body, key}) => {
+        const {result, terms} = prepareSelectedSection(
+            [
+                '# Selected {#selected}',
+                '',
+                body,
+                '',
+                '# Omitted',
+                '',
+                'Unselected instructions.',
+                '',
+                `[*${key}]: API description.`,
+                '[*unused]: Unused definition.',
+            ].join('\n'),
+        );
+
+        expect(result).toBe(`# Selected {#selected}\n\n${body}`);
+        expect(terms).toEqual([
+            {
+                key,
+                block: `[*${key}]: API description.`,
+                sourcePath: '_includes/guide.md',
+            },
+        ]);
+    });
+
+    it.each([
+        {name: 'a reference chain', sdkDescription: 'SDK description.'},
+        {name: 'a reference cycle', sdkDescription: 'Related [API](*api).'},
+    ])('should retain only reachable hoisted definitions with $name', ({sdkDescription}) => {
+        const {result, terms} = prepareSelectedSection(
+            [
+                '# Selected {#selected}',
+                '',
+                'Use [API](*api).',
+                '',
+                '# Omitted',
+                '',
+                'Unselected instructions.',
+                '',
+                '[*unused]: Unused definition mentioning [API](*api).',
+                '[*api]: Related [SDK](*sdk).',
+                `[*sdk]: ${sdkDescription}`,
+            ].join('\n'),
+        );
+
+        expect(result).toBe('# Selected {#selected}\n\nUse [API](*api).');
+        expect(terms).toEqual([
+            {
+                key: 'api',
+                block: '[*api]: Related [SDK](*sdk).',
+                sourcePath: '_includes/guide.md',
+            },
+            {
+                key: 'sdk',
+                block: `[*sdk]: ${sdkDescription}`,
+                sourcePath: '_includes/guide.md',
+            },
+        ]);
+    });
+
+    it('should bind a hoisted definition to its renamed conflicting dependency', () => {
+        const parentSdk = {key: 'sdk', block: '[*sdk]: Parent SDK.', sourcePath: 'main.md'};
+        const {result, terms} = prepareSelectedSection(
+            [
+                '# Selected {#selected}',
+                '',
+                'Use [API](*api).',
+                '',
+                '# Omitted',
+                '',
+                '[*api]: Related [SDK](*sdk).',
+                '[*sdk]: Dependency SDK.',
+            ].join('\n'),
+            'Parent [SDK](*sdk).',
+            [parentSdk],
+        );
+
+        expect(result).toBe('# Selected {#selected}\n\nUse [API](*api).');
+        expect(parentSdk.block).toBe('[*sdk]: Parent SDK.');
+        expect(terms).toEqual([
+            parentSdk,
+            {
+                key: 'api',
+                block: '[*api]: Related [SDK](*sdk__guide).',
+                sourcePath: '_includes/guide.md',
+            },
+            {
+                key: 'sdk__guide',
+                block: '[*sdk__guide]: Dependency SDK.',
+                sourcePath: '_includes/guide.md',
+            },
+        ]);
+    });
+
+    it('should separate identical definitions when their cyclic dependencies resolve differently', () => {
+        const parentApi = {
+            key: 'api',
+            block: '[*api]: Related [SDK](*sdk).',
+            sourcePath: 'main.md',
+        };
+        const parentSdk = {key: 'sdk', block: '[*sdk]: Parent SDK.', sourcePath: 'main.md'};
+        const {result, terms} = prepareSelectedSection(
+            [
+                '# Selected {#selected}',
+                '',
+                'Use [API](*api).',
+                '',
+                '# Omitted',
+                '',
+                '[*api]: Related [SDK](*sdk).',
+                '[*sdk]: Dependency SDK. Related [API](*api).',
+            ].join('\n'),
+            'Parent [API](*api).',
+            [parentApi, parentSdk],
+        );
+
+        expect(result).toBe('# Selected {#selected}\n\nUse [API](*api__guide).');
+        expect(parentApi.block).toBe('[*api]: Related [SDK](*sdk).');
+        expect(parentSdk.block).toBe('[*sdk]: Parent SDK.');
+        expect(terms).toEqual([
+            parentApi,
+            parentSdk,
+            {
+                key: 'api__guide',
+                block: '[*api__guide]: Related [SDK](*sdk__guide).',
+                sourcePath: '_includes/guide.md',
+            },
+            {
+                key: 'sdk__guide',
+                block: '[*sdk__guide]: Dependency SDK. Related [API](*api__guide).',
                 sourcePath: '_includes/guide.md',
             },
         ]);
@@ -1978,6 +2159,42 @@ describe('mergeIncludes', () => {
         );
     });
 
+    it('should not collect a conflicting definition from an omitted section for a parent reference', async () => {
+        const directive = '{% include [guide](_includes/guide.md#selected) %}';
+        const parentContent = ['[API](*api)', '', directive, '', '[*api]: Parent definition.'].join(
+            '\n',
+        );
+        const location = parentContent.indexOf(directive);
+        const dep = makeDep({
+            path: '_includes/guide.md' as NormalizedPath,
+            link: '_includes/guide.md#selected',
+            match: directive,
+            location: [location, location + directive.length],
+            content: [
+                '# Selected {#selected}',
+                '',
+                'Selected instructions.',
+                '',
+                '# Omitted',
+                '',
+                '[API](*api)',
+                '',
+                '[*api]: Conflicting omitted definition.',
+            ].join('\n'),
+            deps: [],
+        });
+
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+
+        expect(result).toContain('Selected instructions.');
+        expect(result).toContain('[API](*api)');
+        expect(result).toContain('[*api]: Parent definition.');
+        expect(result).not.toContain('# Omitted');
+        expect(result).not.toContain('Conflicting omitted definition.');
+        expect(result).not.toContain('api__guide');
+        expect(result.match(/^\[\*[^\]]+\]:/gm)).toHaveLength(1);
+    });
+
     it('should inline indented include with addIndent (Step 2)', async () => {
         const parentContent = 'Text before\n  {% include [label](_includes/indented.md) %}';
         const dep = makeDep({
@@ -2128,57 +2345,63 @@ describe('mergeIncludes', () => {
         expect(result).not.toContain('{% included');
     });
 
-    it('should keep YFM references bound to conflicting leaf definitions during nested merging', async () => {
-        const directives = ['{% include [first](first.md) %}', '{% include [second](second.md) %}'];
-        const parentContent = directives.join('\n\n');
-        const deps = directives.map((directive, index) => {
-            const name = index === 0 ? 'first' : 'second';
-            const location = parentContent.indexOf(directive);
-            const body = [`Choose [${name}](*app).`];
+    it.each(['app', 'app key'])(
+        'should keep YFM references bound to conflicting leaf definitions during nested merging (%s)',
+        async (key) => {
+            const directives = [
+                '{% include [first](first.md) %}',
+                '{% include [second](second.md) %}',
+            ];
+            const parentContent = directives.join('\n\n');
+            const deps = directives.map((directive, index) => {
+                const name = index === 0 ? 'first' : 'second';
+                const location = parentContent.indexOf(directive);
+                const body = [`Choose [${name}](*${key}).`];
 
-            if (index === 1) {
-                body.push(
-                    '',
-                    'Use [Actual](*app).',
-                    '',
-                    'Inline example: `[Example](*app)`.',
-                    '',
-                    '```md',
-                    '[Example](*app)',
-                    '```',
-                );
-            }
-            body.push('', `[*app]: ${name} definition.`);
+                if (index === 1) {
+                    body.push(
+                        '',
+                        `Use [Actual](*${key}).`,
+                        '',
+                        `Inline example: \`[Example](*${key})\`.`,
+                        '',
+                        '```md',
+                        `[Example](*${key})`,
+                        '```',
+                    );
+                }
+                body.push('', `[*${key}]: ${name} definition.`);
 
-            return makeDep({
-                path: `_includes/${name}.md` as NormalizedPath,
-                link: `${name}.md`,
-                match: directive,
-                location: [location, location + directive.length],
-                content: body.join('\n'),
-                deps: [],
+                return makeDep({
+                    path: `_includes/${name}.md` as NormalizedPath,
+                    link: `${name}.md`,
+                    match: directive,
+                    location: [location, location + directive.length],
+                    content: body.join('\n'),
+                    deps: [],
+                });
             });
-        });
 
-        const result = await runMerge(
-            deps,
-            parentContent,
-            '_includes/guide.md' as NormalizedPath,
-            mockRun,
-            false,
-        );
-        const secondKey = result.match(/Choose \[second\]\(\*([^)]+)\)/)?.[1];
+            const result = await runMerge(
+                deps,
+                parentContent,
+                '_includes/guide.md' as NormalizedPath,
+                mockRun,
+                false,
+            );
+            const secondKey = result.match(/Choose \[second\]\(\*([^)]+)\)/)?.[1];
 
-        expect(result).toContain('Choose [first](*app).');
-        expect(secondKey).toBeDefined();
-        expect(secondKey).not.toBe('app');
-        expect(result).toContain(`Use [Actual](*${secondKey}).`);
-        expect(result).toContain('Inline example: `[Example](*app)`.');
-        expect(result).toContain('```md\n[Example](*app)\n```');
-        expect(result).toContain('[*app]: first definition.');
-        expect(result).toContain(`[*${secondKey}]: second definition.`);
-        expect(result.match(/^\[\*[^\]]+\]:/gm)).toHaveLength(2);
-    });
+            expect(result).toContain(`Choose [first](*${key}).`);
+            expect(secondKey).toBeDefined();
+            expect(secondKey).not.toBe(key);
+            expect(result).toContain(`Use [Actual](*${secondKey}).`);
+            expect(result).toContain(`Inline example: \`[Example](*${key})\`.`);
+            expect(result).toContain(`\`\`\`md\n[Example](*${secondKey})\n\`\`\``);
+            expect(result).toContain(`[*${key}]: first definition.`);
+            expect(result).toContain(`[*${secondKey}]: second definition.`);
+            expect(result.match(/^\[\*[^\]]+\]:/gm)).toHaveLength(2);
+        },
+    );
 
     it('should inline dep with terms and collect sub-deps as fallback (Step 4)', async () => {
         const parentContent = '{% include [a](_includes/a.md) %}';

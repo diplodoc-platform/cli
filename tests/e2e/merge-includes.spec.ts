@@ -186,6 +186,183 @@ describe('Merge includes (md2md)', () => {
         expect(finalHeading?.closest('dfn')).toBeNull();
     });
 
+    test.each([true, false])(
+        'section terms: preserve references and definition scopes through md2md → md2html (source maps: %s)',
+        async (sourceMaps) => {
+            const paths = getTestPaths('mocks/merge-includes/section-term-references');
+            const outputPath = `${paths.outputPath}-${sourceMaps ? 'source-maps' : 'plain'}`;
+            const args = [
+                '--merge-includes',
+                '--multiline-term-definitions',
+                sourceMaps ? '--merge-includes-source-maps' : '--no-merge-includes-source-maps',
+            ];
+
+            await TestAdapter.testBuildPass(paths.inputPath, outputPath, {
+                md2md: true,
+                md2html: false,
+                args: args.join(' '),
+            });
+
+            const htmlReport = await TestAdapter.build.run(outputPath, `${outputPath}-html`, [
+                ...args,
+                '-f',
+                'html',
+                '--static-content',
+            ]);
+
+            expect(htmlReport.code).toBe(0);
+            expect(htmlReport.errors).toEqual([]);
+            // Nested terms render correctly, but the linter discourages definitions
+            // that reference another term. Keep these diagnostics fixture-specific.
+            expect(
+                htmlReport.warns
+                    .map((warning) =>
+                        warning.replace(
+                            /^WARN chained-conflict\.md: \d+: /,
+                            'WARN chained-conflict.md: ',
+                        ),
+                    )
+                    .sort(),
+            ).toEqual([
+                'WARN chained-conflict.md: YFM007 / term-used-without-definition ' +
+                    'Term used without definition [Context: "[*api]: Related [SDK](*sdk)."]',
+                'WARN chained-conflict.md: YFM008 / term-inside-definition-not-allowed ' +
+                    'Term inside definition not allowed',
+            ]);
+
+            const readHtml = (page: string) =>
+                parse(readFileSync(join(`${outputPath}-html`, `${page}.html`), 'utf8'), {
+                    // Parse code children so interactive terms inside fences are checked too.
+                    blockTextElements: {script: true, style: true, noscript: true},
+                });
+
+            for (const {page, key, definition, insideCode} of [
+                {
+                    page: 'index',
+                    key: 'api',
+                    definition: 'Definition used by the parent page.',
+                    insideCode: false,
+                },
+                {
+                    page: 'fenced',
+                    key: 'api',
+                    definition: 'Definition used only inside a code block.',
+                    insideCode: true,
+                },
+                {
+                    page: 'spaces',
+                    key: 'api key',
+                    definition: 'Definition with a space in its key.',
+                    insideCode: false,
+                },
+            ]) {
+                const markdown = readFileSync(join(outputPath, `${page}.md`), 'utf8');
+                expect(markdown).toContain(`[*${key}]: ${definition}`);
+                expect(markdown).not.toContain('OMITTED INSTRUCTIONS.');
+
+                const html = readHtml(page);
+                const titles = html.querySelectorAll('.yfm-term_title');
+                const definitions = html.querySelectorAll('dfn');
+                expect(titles).toHaveLength(1);
+                expect(definitions).toHaveLength(1);
+                expect(titles[0].getAttribute('term-key')).toBe(`:${key}`);
+                expect(definitions[0].getAttribute('id')).toBe(`:${key}_element`);
+                expect(definitions[0].textContent.trim()).toBe(definition);
+                expect(titles[0].closest('code') !== null).toBe(insideCode);
+            }
+
+            const excludedMarkdown = readFileSync(join(outputPath, 'excluded.md'), 'utf8');
+            expect(excludedMarkdown.match(/^\[\*[^\]]+\]:/gm)).toEqual(['[*api]:']);
+            expect(excludedMarkdown).not.toContain('Excluded definition must not leak.');
+
+            const excludedHtml = readHtml('excluded');
+            expect(excludedHtml.querySelectorAll('dfn')).toHaveLength(1);
+            expect(excludedHtml.querySelector('dfn')?.textContent.trim()).toBe(
+                'Definition owned by the root page.',
+            );
+            expect(excludedHtml.querySelector('.yfm-term_title')?.getAttribute('term-key')).toBe(
+                ':api',
+            );
+
+            const conflictsHtml = readHtml('conflicts');
+            const definitions = conflictsHtml.querySelectorAll('dfn');
+            expect(definitions).toHaveLength(2);
+
+            for (const {label, definition, insideCode} of [
+                {
+                    label: 'First API',
+                    definition: 'Definition from the first include.',
+                    insideCode: false,
+                },
+                {
+                    label: 'Second API',
+                    definition: 'Definition from the second include.',
+                    insideCode: false,
+                },
+                {
+                    label: 'Second code API',
+                    definition: 'Definition from the second include.',
+                    insideCode: true,
+                },
+            ]) {
+                const title = conflictsHtml
+                    .querySelectorAll('.yfm-term_title')
+                    .find((candidate) => candidate.textContent === label);
+                const matchingDefinition = definitions.find(
+                    (candidate) => candidate.textContent.trim() === definition,
+                );
+
+                expect(title).toBeDefined();
+                expect(matchingDefinition).toBeDefined();
+                expect(matchingDefinition?.getAttribute('id')).toBe(
+                    `${title?.getAttribute('term-key')}_element`,
+                );
+                expect(title?.closest('code') !== null).toBe(insideCode);
+            }
+
+            const chainedHtml = readHtml('chained-conflict');
+            const chainedDefinitions = chainedHtml.querySelectorAll('dfn');
+            expect(chainedDefinitions).toHaveLength(4);
+
+            const apiKeys: string[] = [];
+            const sdkKeys: string[] = [];
+
+            for (const {label, sdkDefinition} of [
+                {label: 'Root API', sdkDefinition: 'Parent SDK.'},
+                {label: 'Child API', sdkDefinition: 'Dependency SDK.'},
+            ]) {
+                const apiTitle = chainedHtml
+                    .querySelectorAll('.yfm-term_title')
+                    .find((candidate) => candidate.textContent === label);
+                expect(apiTitle).toBeDefined();
+
+                const apiKey = apiTitle?.getAttribute('term-key') ?? '';
+                expect(apiKey).not.toBe('');
+                const apiDefinition = chainedDefinitions.find(
+                    (candidate) => candidate.getAttribute('id') === `${apiKey}_element`,
+                );
+                expect(apiDefinition).toBeDefined();
+
+                const sdkTitle = apiDefinition?.querySelector('.yfm-term_title');
+                expect(sdkTitle?.textContent).toBe('SDK');
+                const sdkKey = sdkTitle?.getAttribute('term-key') ?? '';
+                expect(sdkKey).not.toBe('');
+                const sdkPopup = chainedDefinitions.find(
+                    (candidate) => candidate.getAttribute('id') === `${sdkKey}_element`,
+                );
+                expect(sdkPopup?.textContent.trim()).toBe(sdkDefinition);
+
+                apiKeys.push(apiKey);
+                sdkKeys.push(sdkKey);
+            }
+
+            expect(apiKeys[0]).toBe(':api');
+            expect(sdkKeys[0]).toBe(':sdk');
+            expect(apiKeys[1]).not.toBe(apiKeys[0]);
+            expect(sdkKeys[1]).not.toBe(sdkKeys[0]);
+        },
+    );
+
     test('yfm-table: include followed by || separator is inlined', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/yfm-table');
 

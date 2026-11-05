@@ -36,6 +36,14 @@ const CUSTOM_ANCHOR_RE = /\{\s*#([\p{L}\p{N}_-]+)\s*\}/u;
 const CUSTOM_ANCHOR_GLOBAL_RE = /\{\s*#[\p{L}\p{N}_-]+\s*\}/gu;
 const SLUG_REMOVE_RE = /[^\w\s$\-,;=/]+/g;
 const TERM_DEF_LINE_RE = /^(?:>\s*)*\s*\[\*([^[\]]+)\]:/;
+// Term destinations use YFM syntax, not Markdown URL syntax: keys may contain
+// spaces, and fenced code can contain interactive term references.
+const TERM_REFERENCE_PATTERN = String.raw`\[(?:\\[^\n]|[^\[\]\\\n])+\]\(\*([^\n)]+)\)|\[\*([^\[\]\n]+)\](?!:)`;
+const TERM_REFERENCE_RE = new RegExp(TERM_REFERENCE_PATTERN, 'g');
+const TERM_OR_CODE_SPAN_RE = new RegExp(
+    String.raw`(\x60+)[^\n]*?\1|${TERM_REFERENCE_PATTERN}`,
+    'g',
+);
 // CommonMark HTML block type 1 opening tags: <script>, <pre>, <style>, <textarea>
 // These tags are NOT interrupted by blank lines and break rendering when indented
 // inside a list item (markdown-it parses them as plain text, not HTML blocks).
@@ -1062,53 +1070,37 @@ export function prepareInlinedContent(
     termsCollector?: Array<TermBlock & {sourcePath: string}>,
     trailingSuffix?: string,
 ): string {
-    let depContent = contentWithoutFrontmatter(dep.content);
-
-    // Extract while definitions still form the dependency's trailing section.
-    // A selected heading can exclude that section, but its term references
-    // still need the definitions from the full dependency.
-    const {cleanContent, terms} = termsCollector
-        ? extractTermDefinitions(depContent)
-        : {cleanContent: depContent, terms: []};
-    depContent = cleanContent;
-
+    const sourceContent = contentWithoutFrontmatter(dep.content);
     const hashIndex = dep.link.indexOf('#');
-    if (hashIndex >= 0) {
-        depContent = extractSection(depContent, dep.link.slice(hashIndex + 1));
-    }
+    const selectedContent =
+        hashIndex >= 0
+            ? extractSection(sourceContent, dep.link.slice(hashIndex + 1))
+            : sourceContent;
+    const {cleanContent, terms: selectedTerms} = termsCollector
+        ? extractTermDefinitions(selectedContent)
+        : {cleanContent: selectedContent, terms: []};
+    let depContent = cleanContent;
 
     if (NOTITLE_RE.test(dep.match)) {
         depContent = stripFirstHeading(depContent);
     }
 
     if (termsCollector) {
-        const references = hashIndex >= 0 ? findTermReferences(depContent) : undefined;
+        // Keep definitions that belong to the selected section even when their
+        // references are in its parent. Hoisted definitions outside the section
+        // are imported only when needed, so omitted sections cannot add conflicts.
+        const terms =
+            hashIndex >= 0
+                ? collectSectionTerms(
+                      depContent,
+                      selectedTerms,
+                      extractTermDefinitions(sourceContent).terms,
+                  )
+                : selectedTerms;
 
-        for (const term of terms) {
-            if (references && !references.has(term.key)) {
-                continue;
-            }
-
-            const rebasedBlock = rebaseRelativePaths(term.block, dep.path, entry);
-            const normalized = normalizeTermBlockForCompare(rebasedBlock);
-            const duplicate = termsCollector.find(
-                (t) => t.key === term.key && normalizeTermBlockForCompare(t.block) === normalized,
-            );
-            if (duplicate) {
-                continue;
-            }
-
-            const conflict = termsCollector.find(
-                (t) => t.key === term.key && normalizeTermBlockForCompare(t.block) !== normalized,
-            );
-            if (conflict) {
-                const newKey = makeUniqueTermKey(term.key, dep.path, termsCollector);
-                depContent = renameTermReferences(depContent, term.key, newKey);
-                const newBlock = rebasedBlock.replace(`[*${term.key}]:`, `[*${newKey}]:`);
-                termsCollector.push({key: newKey, block: newBlock, sourcePath: dep.path});
-            } else {
-                termsCollector.push({key: term.key, block: rebasedBlock, sourcePath: dep.path});
-            }
+        const renames = collectInlinedTerms(terms, dep.path, entry, termsCollector);
+        if (renames.size > 0) {
+            depContent = rewriteTermReferences(depContent, (key) => renames.get(key));
         }
     }
 
@@ -1158,10 +1150,6 @@ export function addFallbackDep(
     }
 }
 
-function escapeRegExp(s: string): string {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
-}
-
 /**
  * Normalizes term definition block text for duplicate/conflict comparison
  * (trailing newline differences from different sources should not force a rename).
@@ -1178,10 +1166,9 @@ function normalizeTermBlockForCompare(block: string): string {
 function makeUniqueTermKey(
     baseKey: string,
     sourcePath: string,
-    existing: ReadonlyArray<{key: string}>,
+    usedKeys: ReadonlySet<string>,
 ): string {
     const stem = basename(sourcePath, '.md').replace(/[^\w-]/g, '-');
-    const usedKeys = new Set(existing.map((t) => t.key));
     let candidate = `${baseKey}__${stem}`;
     let counter = 2;
     while (usedKeys.has(candidate)) {
@@ -1191,57 +1178,189 @@ function makeUniqueTermKey(
 }
 
 /**
- * Collects term keys used outside fenced and inline code in a selected section.
+ * Collects YFM term keys, including raw references in fenced and inline code.
+ * The renderer keeps definitions referenced from either kind of code.
  */
 function findTermReferences(content: string): Set<string> {
     const references = new Set<string>();
-    const fence = newFenceState();
-
-    for (const line of content.split('\n')) {
-        if (processCodeFence(stripBlockquoteMarkers(line), fence)) {
-            continue;
-        }
-
-        rewriteLinksInLine(line, (url) => {
-            if (url.startsWith('*')) {
-                references.add(url.slice(1));
-            }
-
-            return null;
-        });
-
-        const plain = line.replace(/(`+).*?\1/g, '');
-        for (const match of plain.matchAll(/\[\*([^[\]]+)\](?!:)/g)) {
-            references.add(match[1]);
-        }
+    for (const match of content.matchAll(TERM_REFERENCE_RE)) {
+        references.add(match[1] ?? match[2]);
     }
 
     return references;
 }
 
 /**
- * Renames both `[label](*key)` and shorthand `[*key]` term references.
- * Definition labels are left unchanged.
+ * Preserves a selected section's definitions and resolves references to hoisted
+ * definitions, including references inside definitions. Each block is scanned
+ * at most once, even when definitions form a cycle.
  */
-function renameTermReferences(content: string, oldKey: string, newKey: string): string {
-    const shorthandRe = new RegExp(
-        String.raw`(\x60+).*?\1|\[\*${escapeRegExp(oldKey)}\](?!:)`,
-        'g',
-    );
+function collectSectionTerms(
+    content: string,
+    selectedTerms: TermBlock[],
+    allTerms: TermBlock[],
+): TermBlock[] {
+    if (allTerms.length === 0) {
+        return [];
+    }
+
+    const needed = findTermReferences(content);
+    for (const term of selectedTerms) {
+        needed.add(term.key);
+    }
+    if (needed.size === 0) {
+        return [];
+    }
+
+    const blocksByKey = new Map<string, TermBlock[]>();
+    for (const term of allTerms) {
+        const blocks = blocksByKey.get(term.key);
+        if (blocks) {
+            blocks.push(term);
+        } else {
+            blocksByKey.set(term.key, [term]);
+        }
+    }
+
+    const pending = Array.from(needed);
+    for (let index = 0; index < pending.length; index++) {
+        for (const term of blocksByKey.get(pending[index]) ?? []) {
+            for (const key of findTermReferences(term.block)) {
+                if (!needed.has(key)) {
+                    needed.add(key);
+                    pending.push(key);
+                }
+            }
+        }
+    }
+
+    return allTerms.filter((term) => needed.has(term.key));
+}
+
+function rewriteTermReference(
+    match: string,
+    key: string | undefined,
+    shorthandKey: string | undefined,
+    resolve: (key: string) => string | undefined,
+): string {
+    const originalKey = key ?? shorthandKey;
+    const newKey = originalKey === undefined ? undefined : resolve(originalKey);
+    if (newKey === undefined) {
+        return match;
+    }
+
+    return key === undefined ? `[*${newKey}]` : match.slice(0, -key.length - 1) + newKey + ')';
+}
+
+/**
+ * Renames both `[label](*key)` and shorthand `[*key]` term references.
+ * Definition labels and inline code literals are left unchanged. References
+ * inside fenced code remain interactive and must follow a renamed definition.
+ */
+function rewriteTermReferences(
+    content: string,
+    resolve: (key: string) => string | undefined,
+): string {
     const fence = newFenceState();
 
     return content
         .split('\n')
         .map((line) => {
             if (processCodeFence(stripBlockquoteMarkers(line), fence)) {
-                return line;
+                return line.replace(TERM_REFERENCE_RE, (match, key, shorthandKey) =>
+                    rewriteTermReference(match, key, shorthandKey, resolve),
+                );
             }
 
-            return rewriteLinksInLine(line, (url) =>
-                url === `*${oldKey}` ? `*${newKey}` : null,
-            ).replace(shorthandRe, (match) => (match.startsWith('`') ? match : `[*${newKey}]`));
+            return line.replace(TERM_OR_CODE_SPAN_RE, (match, code, key, shorthandKey) =>
+                code ? match : rewriteTermReference(match, key, shorthandKey, resolve),
+            );
         })
         .join('\n');
+}
+
+/**
+ * Resolves definition conflicts before rewriting references. Renames also apply
+ * to imported definition bodies; an otherwise identical definition cannot be
+ * shared with its parent when one of its referenced definitions has changed.
+ */
+function collectInlinedTerms(
+    terms: TermBlock[],
+    sourcePath: NormalizedPath,
+    entry: NormalizedPath,
+    collector: Array<TermBlock & {sourcePath: string}>,
+): Map<string, string> {
+    const renames = new Map<string, string>();
+    if (terms.length === 0) {
+        return renames;
+    }
+
+    const imported = terms.map((term) => ({
+        key: term.key,
+        block: rebaseRelativePaths(term.block, sourcePath, entry),
+    }));
+    const existing = new Map(collector.map((term) => [term.key, term.block]));
+    const usedKeys = new Set([...existing.keys(), ...imported.map((term) => term.key)]);
+    const dependents = new Map<string, Set<string>>();
+    const pending: string[] = [];
+    const rename = (key: string) => {
+        if (renames.has(key)) {
+            return;
+        }
+        const newKey = makeUniqueTermKey(key, sourcePath, usedKeys);
+        usedKeys.add(newKey);
+        renames.set(key, newKey);
+        pending.push(key);
+    };
+
+    for (const term of imported) {
+        const previous = existing.get(term.key);
+        if (previous === undefined) {
+            continue;
+        }
+        if (normalizeTermBlockForCompare(previous) !== normalizeTermBlockForCompare(term.block)) {
+            rename(term.key);
+            continue;
+        }
+
+        rewriteTermReferences(term.block, (key) => {
+            const keys = dependents.get(key);
+            if (keys) {
+                keys.add(term.key);
+            } else {
+                dependents.set(key, new Set([term.key]));
+            }
+            return undefined;
+        });
+    }
+
+    for (let index = 0; index < pending.length; index++) {
+        for (const key of dependents.get(pending[index]) ?? []) {
+            rename(key);
+        }
+    }
+
+    for (const term of imported) {
+        const key = renames.get(term.key) ?? term.key;
+        let block =
+            renames.size > 0
+                ? rewriteTermReferences(term.block, (reference) => renames.get(reference))
+                : term.block;
+        if (key !== term.key) {
+            block = block.replace(`[*${term.key}]:`, `[*${key}]:`);
+        }
+        const previous = existing.get(key);
+        if (
+            previous !== undefined &&
+            normalizeTermBlockForCompare(previous) === normalizeTermBlockForCompare(block)
+        ) {
+            continue;
+        }
+        collector.push({key, block, sourcePath});
+        existing.set(key, block);
+    }
+
+    return renames;
 }
 
 /**
