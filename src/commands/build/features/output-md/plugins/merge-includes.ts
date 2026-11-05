@@ -37,13 +37,16 @@ const CUSTOM_ANCHOR_GLOBAL_RE = /\{\s*#[\p{L}\p{N}_-]+\s*\}/gu;
 const SLUG_REMOVE_RE = /[^\w\s$\-,;=/]+/g;
 const TERM_DEF_LINE_RE = /^(?:>\s*)*\s*\[\*([^[\]]+)\]:/;
 // Term destinations use YFM syntax, not Markdown URL syntax: keys may contain
-// spaces, and fenced code can contain interactive term references.
-const TERM_REFERENCE_PATTERN = String.raw`\[(?:\\[^\n]|[^\[\]\\\n])+\]\(\*([^\n)]+)\)|\[\*([^\[\]\n]+)\](?!:)`;
+// spaces. Prose labels may wrap, while interactive fenced labels stay on one line.
+const TERM_REFERENCE_PATTERN = String.raw`\[(?:\\[\s\S]|[^\[\]\\])+\]\(\*([^\r\n)]+)\)|\[\*([^\[\]\r\n]+)\](?!:)`;
 const TERM_REFERENCE_RE = new RegExp(TERM_REFERENCE_PATTERN, 'g');
+const FENCED_TERM_REFERENCE_RE =
+    /\[(?:\\[^\r\n]|[^\[\]\\\r\n])+\]\(\*([^\r\n)]+)\)|\[\*([^\[\]\r\n]+)\](?!:)/g;
 const TERM_OR_CODE_SPAN_RE = new RegExp(
     String.raw`(\x60+)[^\n]*?\1|${TERM_REFERENCE_PATTERN}`,
     'g',
 );
+const TERM_OR_BACKTICKS_RE = new RegExp(String.raw`(\x60+)|${TERM_REFERENCE_PATTERN}`, 'g');
 // CommonMark HTML block type 1 opening tags: <script>, <pre>, <style>, <textarea>
 // These tags are NOT interrupted by blank lines and break rendering when indented
 // inside a list item (markdown-it parses them as plain text, not HTML blocks).
@@ -1198,9 +1201,12 @@ function makeUniqueTermKey(
  */
 function findTermReferences(content: string): Set<string> {
     const references = new Set<string>();
-    for (const match of content.matchAll(TERM_REFERENCE_RE)) {
-        references.add(match[1] ?? match[2]);
-    }
+    mapTermReferenceBlocks(content, (block) => {
+        for (const match of block.matchAll(TERM_REFERENCE_RE)) {
+            references.add(match[1] ?? match[2]);
+        }
+        return block;
+    });
 
     return references;
 }
@@ -1276,22 +1282,147 @@ function rewriteTermReferences(
     content: string,
     resolve: (key: string) => string | undefined,
 ): string {
+    return mapTermReferenceBlocks(content, (block, fenced) =>
+        fenced
+            ? block.replace(FENCED_TERM_REFERENCE_RE, (match, key, shorthandKey) =>
+                  rewriteTermReference(match, key, shorthandKey, resolve),
+              )
+            : rewriteProseTermReferences(block, resolve),
+    );
+}
+
+/**
+ * Keeps wrapped prose references within their paragraph and out of fence
+ * delimiters. Fence bodies are separate blocks: raw references there can retain
+ * definitions, but only single-line references are rendered interactively.
+ */
+function mapTermReferenceBlocks(
+    content: string,
+    visit: (block: string, fenced: boolean) => string,
+): string {
+    if (!content.includes('\n')) {
+        return visit(content, false);
+    }
+
     const fence = newFenceState();
+    const result: string[] = [];
+    let block: string[] = [];
+    let fenced = false;
+    let quoteDepth = 0;
+    const flush = () => {
+        if (block.length > 0) {
+            result.push(visit(block.join('\n'), fenced));
+            block = [];
+        }
+    };
 
-    return content
-        .split('\n')
-        .map((line) => {
-            if (processCodeFence(stripBlockquoteMarkers(line), fence)) {
-                return line.replace(TERM_REFERENCE_RE, (match, key, shorthandKey) =>
-                    rewriteTermReference(match, key, shorthandKey, resolve),
-                );
+    for (const line of content.split('\n')) {
+        let plain = line.trimStart();
+        let depth = 0;
+        while (plain.startsWith('>')) {
+            depth++;
+            plain = plain.slice(1).trimStart();
+        }
+
+        const wasFenced = fence.active;
+        const inFence = processCodeFence(plain, fence);
+        if (inFence && (!wasFenced || !fence.active)) {
+            flush();
+            result.push(line);
+            fenced = fence.active;
+            quoteDepth = depth;
+            continue;
+        }
+        if (inFence) {
+            block.push(line);
+            continue;
+        }
+
+        // A plain continuation line can remain in the current blockquote.
+        // Only a deeper quote starts a new block before a paragraph boundary.
+        if (depth > quoteDepth) {
+            flush();
+        }
+        if (block.length === 0) {
+            quoteDepth = depth;
+        }
+        if (!plain.trim()) {
+            flush();
+            result.push(line);
+            continue;
+        }
+
+        const heading = /^#{1,6}(?:\s|$)/.test(plain);
+        const separator = /^(?:[-*_]\s*){3,}$|^[-=]+\s*$/.test(plain);
+        if (heading || separator || /^(?:[-+*]|\d+[.)])\s/.test(plain)) {
+            flush();
+        }
+        block.push(line);
+        if (heading || separator) {
+            flush();
+        }
+    }
+    flush();
+
+    return result.join('\n');
+}
+
+/** Rewrites prose references while preserving single- and multi-line code spans. */
+function rewriteProseTermReferences(
+    content: string,
+    resolve: (key: string) => string | undefined,
+): string {
+    if (!content.includes('`')) {
+        return content.replace(TERM_REFERENCE_RE, (match, key, shorthandKey) =>
+            rewriteTermReference(match, key, shorthandKey, resolve),
+        );
+    }
+    if (!content.includes('\n')) {
+        return content.replace(TERM_OR_CODE_SPAN_RE, (match, code, key, shorthandKey) =>
+            code ? match : rewriteTermReference(match, key, shorthandKey, resolve),
+        );
+    }
+
+    // Index exact-width closing delimiters once. Searching the whole remaining
+    // paragraph separately for each unmatched backtick run would be quadratic.
+    const closingByStart = new Map<number, number>();
+    const nextByWidth = new Map<number, number>();
+    const runs = Array.from(content.matchAll(/`+/g));
+    for (let index = runs.length - 1; index >= 0; index--) {
+        const run = runs[index];
+        const width = run[0].length;
+        const next = nextByWidth.get(width);
+        if (next !== undefined) {
+            closingByStart.set(run.index, next + width);
+        }
+        nextByWidth.set(width, run.index);
+    }
+
+    const result: string[] = [];
+    const tokens = new RegExp(TERM_OR_BACKTICKS_RE);
+    let start = 0;
+    for (let match = tokens.exec(content); match; match = tokens.exec(content)) {
+        if (match[1]) {
+            let escapeStart = match.index;
+            while (escapeStart > 0 && content[escapeStart - 1] === '\\') {
+                escapeStart--;
             }
-
-            return line.replace(TERM_OR_CODE_SPAN_RE, (match, code, key, shorthandKey) =>
-                code ? match : rewriteTermReference(match, key, shorthandKey, resolve),
+            const close = closingByStart.get(match.index);
+            if (close !== undefined && (match.index - escapeStart) % 2 === 0) {
+                result.push(content.slice(start, close));
+                start = close;
+                tokens.lastIndex = close;
+            }
+        } else {
+            result.push(
+                content.slice(start, match.index),
+                rewriteTermReference(match[0], match[2], match[3], resolve),
             );
-        })
-        .join('\n');
+            start = tokens.lastIndex;
+        }
+    }
+    result.push(content.slice(start));
+    return result.join('');
 }
 
 /**

@@ -363,6 +363,154 @@ describe('Merge includes (md2md)', () => {
         },
     );
 
+    test.each([true, false])(
+        'wrapped term labels: match unmerged rendering and preserve code literals (source maps: %s)',
+        async (sourceMaps) => {
+            const paths = getTestPaths('mocks/merge-includes/multiline-term-labels');
+            const expectedTerms: Array<{
+                page: string;
+                label: string;
+                definition: string;
+                insideCode?: boolean;
+            }> = [
+                {
+                    page: 'renderer-control',
+                    label: 'Control API',
+                    definition: 'Renderer control definition.',
+                },
+                {
+                    page: 'renderer-control',
+                    label: 'Control spaced API',
+                    definition: 'Renderer control spaced definition.',
+                },
+                {page: 'index', label: 'Wrapped API', definition: 'Definition of the wrapped API.'},
+                {
+                    page: 'index',
+                    label: 'Wrapped spaced API',
+                    definition: 'Definition of the wrapped spaced key.',
+                },
+                {page: 'conflicts', label: 'Root API', definition: 'Root API definition.'},
+                {page: 'conflicts', label: 'Child API', definition: 'Child API definition.'},
+                {
+                    page: 'conflicts',
+                    label: 'Root spaced API',
+                    definition: 'Root spaced definition.',
+                },
+                {
+                    page: 'conflicts',
+                    label: 'Child spaced API',
+                    definition: 'Child spaced definition.',
+                },
+                {page: 'code-literals', label: 'Root API', definition: 'Root code definition.'},
+                {page: 'code-literals', label: 'Child API', definition: 'Child code definition.'},
+                {
+                    page: 'code-literals',
+                    label: 'Code API',
+                    definition: 'Child code definition.',
+                    insideCode: true,
+                },
+                {page: 'key-newline', label: 'Root key', definition: 'Root key definition.'},
+                {page: 'key-newline', label: 'Child key', definition: 'Child key definition.'},
+            ];
+
+            for (const merge of [false, true]) {
+                const outputPath = `${paths.outputPath}-${sourceMaps ? 'source-maps' : 'plain'}-${merge ? 'merged' : 'baseline'}`;
+                const args = [
+                    merge ? '--merge-includes' : '--no-merge-includes',
+                    '--multiline-term-definitions',
+                    sourceMaps ? '--merge-includes-source-maps' : '--no-merge-includes-source-maps',
+                ];
+
+                await TestAdapter.testBuildPass(paths.inputPath, outputPath, {
+                    md2md: true,
+                    md2html: false,
+                    args: args.join(' '),
+                });
+
+                const htmlReport = await TestAdapter.build.run(outputPath, `${outputPath}-html`, [
+                    ...args,
+                    '-f',
+                    'html',
+                    '--static-content',
+                ]);
+                expect(htmlReport.code).toBe(0);
+                expect(htmlReport.errors).toEqual([]);
+                expect(htmlReport.warns).toEqual([]);
+
+                const pages = new Map(
+                    ['index', 'renderer-control', 'conflicts', 'code-literals', 'key-newline'].map(
+                        (page) => [
+                            page,
+                            parse(
+                                readFileSync(join(`${outputPath}-html`, `${page}.html`), 'utf8'),
+                                {
+                                    blockTextElements: {script: true, style: true, noscript: true},
+                                },
+                            ),
+                        ],
+                    ),
+                );
+
+                for (const {page, label, definition, insideCode = false} of expectedTerms) {
+                    // The direct page isolates renderer semantics from unmerged include
+                    // scoping. Merged includes must retain and bind their hoisted definitions.
+                    if (!merge && page !== 'renderer-control') {
+                        continue;
+                    }
+                    const html = pages.get(page)!;
+                    const titles = html
+                        .querySelectorAll('.yfm-term_title')
+                        .filter((title) => title.textContent.replace(/\s+/g, ' ').trim() === label);
+                    expect(titles, `${page}: ${label} (merge: ${merge})`).toHaveLength(1);
+                    const key = titles[0].getAttribute('term-key');
+                    const definitions = html
+                        .querySelectorAll('dfn')
+                        .filter((popup) => popup.getAttribute('id') === `${key}_element`);
+                    expect(definitions).toHaveLength(1);
+                    expect(definitions[0].textContent.trim()).toBe(definition);
+                    expect(titles[0].closest('code') !== null).toBe(insideCode);
+                }
+
+                for (const [page, definitions] of [
+                    ['renderer-control', 2],
+                    ['index', 2],
+                    ['conflicts', 4],
+                    ['code-literals', 2],
+                    ['key-newline', 2],
+                ] as const) {
+                    if (!merge && page !== 'renderer-control') {
+                        continue;
+                    }
+                    const html = pages.get(page)!;
+                    expect(html.querySelectorAll('dfn')).toHaveLength(definitions);
+                    expect(html.querySelectorAll('.yfm-term_title')).toHaveLength(
+                        expectedTerms.filter((term) => term.page === page).length,
+                    );
+                }
+
+                const codeHtml = pages.get('code-literals')!;
+                const inlineCode = codeHtml
+                    .querySelectorAll('code')
+                    .find((code) => code.closest('pre') === null);
+                expect(inlineCode?.textContent).toBe('[Inline API](*api)');
+                const fencedCode = codeHtml.querySelector('pre code');
+                expect(fencedCode?.textContent).toContain('[Fenced\nAPI](*api)');
+                expect(fencedCode?.querySelectorAll('.yfm-term_title')).toHaveLength(1);
+                expect(pages.get('key-newline')?.textContent.replace(/\s+/g, ' ')).toContain(
+                    '[Not a term](*api key)',
+                );
+
+                if (merge) {
+                    const codeMarkdown = readFileSync(join(outputPath, 'code-literals.md'), 'utf8');
+                    expect(codeMarkdown).toContain('`[Inline\nAPI](*api)`');
+                    expect(codeMarkdown).toContain('[Fenced\nAPI](*api)');
+                    const keyMarkdown = readFileSync(join(outputPath, 'key-newline.md'), 'utf8');
+                    expect(keyMarkdown).toContain('[Not a term](*api\nkey)');
+                }
+            }
+        },
+    );
+
     test('yfm-table: include followed by || separator is inlined', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/yfm-table');
 
