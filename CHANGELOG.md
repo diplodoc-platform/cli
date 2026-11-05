@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.66.0](https://github.com/diplodoc-platform/cli/compare/v5.65.0...v5.66.0) (2026-11-05)
+
+
+### Features
+
+* **cli:** expose article modification dates in manifests #DOCSTOOLS-6995 ([3fe7932](https://github.com/diplodoc-platform/cli/commit/3fe7932c54c41262099759379dd8366a2144f787))
+
+
+### Bug Fixes
+
+* **llms:** prefer article titles in index links #DOCSTOOLS-6731 ([e008f09](https://github.com/diplodoc-platform/cli/commit/e008f0977583493f1f0fa19c207706d9e7afb005))
+
 ## [5.65.0](https://github.com/diplodoc-platform/cli/compare/v5.64.2...v5.65.0) (2026-11-05)
 
 
