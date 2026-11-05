@@ -64,7 +64,7 @@ exports[`Toc label > should pass TocLabel object through to toc output 4`] = `
 
 ## Documentation
 
-- [index.md](index.md)
+- [Toc Label Test](index.md)
 - [Page 1](page1.md)
 
 ---
@@ -159,7 +159,7 @@ exports[`Toc label > should pass TocLabel object through to toc output 10`] = `
 
 ## Documentation
 
-- [index.md](index.md)
+- [Toc Label Test](index.md)
 - [Page 1](page1.md)
 
 ---
