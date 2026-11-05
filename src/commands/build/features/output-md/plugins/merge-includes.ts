@@ -899,15 +899,41 @@ export function extractSection(content: string, hash: string): string {
     return selectSection(content, hash).content;
 }
 
+/** Validates ambiguous headings lazily before updating the selected section. */
+function createSectionHeadingHandler(
+    lines: string[],
+    hash: string,
+    ctx: {start: number; level: number},
+) {
+    let headingLines: Set<number> | undefined;
+
+    return (heading: {level: number; anchor: string}, line: number): string | null => {
+        if (/^(?: {4}| {0,3}\t)/.test(lines[line])) {
+            // Deep indentation may be a paragraph continuation or code,
+            // but it can also introduce a real heading inside a list.
+            headingLines ??= new Set(
+                parseMarkdownBlocks(lines).tokens.flatMap((token) =>
+                    token.type === 'heading_open' && token.map ? [token.map[0]] : [],
+                ),
+            );
+            if (!headingLines.has(line)) {
+                return null;
+            }
+        }
+
+        return processHeadingForSection(heading, hash, ctx, lines, line);
+    };
+}
+
 function selectSection(
     content: string,
     hash: string,
 ): {content: string; includesAllDefinitions: boolean} {
     const lines = content.split('\n');
     const ctx = {start: -1, level: 0};
+    const handleHeading = createSectionHeadingHandler(lines, hash, ctx);
     const fence = newFenceState();
     let definitionsBeforeSection = false;
-    let headingLines: Set<number> | undefined;
 
     for (let i = 0; i < lines.length; i++) {
         const trimmed = lines[i].trim();
@@ -921,19 +947,7 @@ function selectSection(
 
         const heading = parseHeading(trimmed);
         if (heading) {
-            if (/^(?: {4}| {0,3}\t)/.test(lines[i])) {
-                // Deep indentation may be a paragraph continuation or code,
-                // but it can also introduce a real heading inside a list.
-                headingLines ??= new Set(
-                    parseMarkdownBlocks(lines).tokens.flatMap((token) =>
-                        token.type === 'heading_open' && token.map ? [token.map[0]] : [],
-                    ),
-                );
-                if (!headingLines.has(i)) {
-                    continue;
-                }
-            }
-            const result = processHeadingForSection(heading, hash, ctx, lines, i);
+            const result = handleHeading(heading, i);
             if (result !== null) {
                 return {content: result, includesAllDefinitions: false};
             }
@@ -1226,6 +1240,20 @@ function findTermReferences(content: string): Set<string> {
     return references;
 }
 
+/** Indexes every definition for a key without changing their source order. */
+function indexTermBlocks(terms: TermBlock[]): Map<string, TermBlock[]> {
+    const blocksByKey = new Map<string, TermBlock[]>();
+    for (const term of terms) {
+        const blocks = blocksByKey.get(term.key);
+        if (blocks) {
+            blocks.push(term);
+        } else {
+            blocksByKey.set(term.key, [term]);
+        }
+    }
+    return blocksByKey;
+}
+
 /**
  * Preserves a selected section's definitions and resolves references to hoisted
  * definitions, including references inside definitions. Each block is scanned
@@ -1248,19 +1276,10 @@ function collectSectionTerms(
         return [];
     }
 
-    const blocksByKey = new Map<string, TermBlock[]>();
-    for (const term of allTerms) {
-        const blocks = blocksByKey.get(term.key);
-        if (blocks) {
-            blocks.push(term);
-        } else {
-            blocksByKey.set(term.key, [term]);
-        }
-    }
-
+    const blocksByKey = indexTermBlocks(allTerms);
     const pending = Array.from(needed);
-    for (let index = 0; index < pending.length; index++) {
-        for (const term of blocksByKey.get(pending[index]) ?? []) {
+    for (const pendingKey of pending) {
+        for (const term of blocksByKey.get(pendingKey) ?? []) {
             for (const key of findTermReferences(term.block)) {
                 if (!needed.has(key)) {
                     needed.add(key);
@@ -1311,6 +1330,7 @@ function rewriteTermReferences(
 }
 
 type TermReferenceBlockKind = 'prose' | 'fence' | 'code';
+type TermReferenceBlock = {start: number; end: number; kind: TermReferenceBlockKind};
 
 let markdownBlockParser: MarkdownIt | undefined;
 
@@ -1322,6 +1342,34 @@ function parseMarkdownBlocks(lines: string[]): {tokens: Token[]; parserLines: st
     parser.block.parse(parserLines.join('\n'), parser, {}, tokens);
 
     return {tokens, parserLines};
+}
+
+/** Maps a supported token to its source body, leaving fence delimiters untouched. */
+function getTermReferenceBlock(
+    token: Token,
+    parserLines: string[],
+): TermReferenceBlock | undefined {
+    if (!token.map) {
+        return undefined;
+    }
+    const [start, end] = token.map;
+    switch (token.type) {
+        case 'inline':
+        case 'tr_open':
+            // Table cell inline tokens lack maps; their mapped row is visited once.
+            return {start, end, kind: 'prose'};
+        case 'code_block':
+            return {start, end, kind: 'code'};
+        case 'fence': {
+            const bodyStart = start + 1;
+            const hasCloser =
+                end > bodyStart &&
+                fenceCloseTail(stripBlockquoteMarkers(parserLines[end - 1]), token.markup) === '';
+            return {start: bodyStart, end: hasCloser ? end - 1 : end, kind: 'fence'};
+        }
+        default:
+            return undefined;
+    }
 }
 
 /**
@@ -1343,28 +1391,11 @@ function mapTermReferenceBlocks(
     const result: string[] = [];
     let nextLine = 0;
     for (const token of tokens) {
-        if (!token.map) {
+        const block = getTermReferenceBlock(token, parserLines);
+        if (!block) {
             continue;
         }
-        let [start, end] = token.map;
-        let kind: TermReferenceBlockKind;
-        if (token.type === 'inline' || token.type === 'tr_open') {
-            // Table cell inline tokens lack maps; their mapped row is visited once.
-            kind = 'prose';
-        } else if (token.type === 'code_block') {
-            kind = 'code';
-        } else if (token.type === 'fence') {
-            kind = 'fence';
-            start++;
-            if (
-                end > start &&
-                fenceCloseTail(stripBlockquoteMarkers(parserLines[end - 1]), token.markup) === ''
-            ) {
-                end--;
-            }
-        } else {
-            continue;
-        }
+        const {start, end, kind} = block;
         if (start < nextLine || end <= start) {
             continue;
         }
@@ -1396,6 +1427,23 @@ function normalizeTermReferenceFences(lines: string[]): string[] {
     });
 }
 
+/** Indexes exact-width code-span closers in one reverse pass. */
+function indexCodeSpanClosers(content: string): Map<number, number> {
+    const closingByStart = new Map<number, number>();
+    const nextByWidth = new Map<number, number>();
+    const runs = Array.from(content.matchAll(/`+/g));
+    for (let index = runs.length - 1; index >= 0; index--) {
+        const run = runs[index];
+        const width = run[0].length;
+        const next = nextByWidth.get(width);
+        if (next !== undefined) {
+            closingByStart.set(run.index, next + width);
+        }
+        nextByWidth.set(width, run.index);
+    }
+    return closingByStart;
+}
+
 /** Rewrites prose references while preserving single- and multi-line code spans. */
 function rewriteProseTermReferences(
     content: string,
@@ -1412,20 +1460,8 @@ function rewriteProseTermReferences(
         );
     }
 
-    // Index exact-width closing delimiters once. Searching the whole remaining
-    // paragraph separately for each unmatched backtick run would be quadratic.
-    const closingByStart = new Map<number, number>();
-    const nextByWidth = new Map<number, number>();
-    const runs = Array.from(content.matchAll(/`+/g));
-    for (let index = runs.length - 1; index >= 0; index--) {
-        const run = runs[index];
-        const width = run[0].length;
-        const next = nextByWidth.get(width);
-        if (next !== undefined) {
-            closingByStart.set(run.index, next + width);
-        }
-        nextByWidth.set(width, run.index);
-    }
+    // Searching separately for each unmatched delimiter would be quadratic.
+    const closingByStart = indexCodeSpanClosers(content);
 
     const result: string[] = [];
     const tokens = new RegExp(TERM_OR_BACKTICKS_RE);
@@ -1465,9 +1501,8 @@ function collectInlinedTerms(
     entry: NormalizedPath,
     collector: Array<TermBlock & {sourcePath: string}>,
 ): Map<string, string> {
-    const renames = new Map<string, string>();
     if (terms.length === 0) {
-        return renames;
+        return new Map();
     }
 
     const imported = terms.map((term) => ({
@@ -1475,6 +1510,38 @@ function collectInlinedTerms(
         block: rebaseRelativePaths(term.block, sourcePath, entry),
     }));
     const existing = new Map(collector.map((term) => [term.key, term.block]));
+    const renames = resolveInlinedTermConflicts(imported, existing, sourcePath);
+
+    for (const term of imported) {
+        const key = renames.get(term.key) ?? term.key;
+        let block =
+            renames.size > 0
+                ? rewriteTermReferences(term.block, (reference) => renames.get(reference))
+                : term.block;
+        if (key !== term.key) {
+            block = block.replace(`[*${term.key}]:`, `[*${key}]:`);
+        }
+        const previous = existing.get(key);
+        if (
+            previous !== undefined &&
+            normalizeTermBlockForCompare(previous) === normalizeTermBlockForCompare(block)
+        ) {
+            continue;
+        }
+        collector.push({key, block, sourcePath});
+        existing.set(key, block);
+    }
+
+    return renames;
+}
+
+/** Resolves direct conflicts and propagates renames through shared definitions. */
+function resolveInlinedTermConflicts(
+    imported: TermBlock[],
+    existing: ReadonlyMap<string, string>,
+    sourcePath: NormalizedPath,
+): Map<string, string> {
+    const renames = new Map<string, string>();
     const usedKeys = new Set([...existing.keys(), ...imported.map((term) => term.key)]);
     const dependents = new Map<string, Set<string>>();
     const pending: string[] = [];
@@ -1509,30 +1576,10 @@ function collectInlinedTerms(
         });
     }
 
-    for (let index = 0; index < pending.length; index++) {
-        for (const key of dependents.get(pending[index]) ?? []) {
-            rename(key);
+    for (const key of pending) {
+        for (const dependentKey of dependents.get(key) ?? []) {
+            rename(dependentKey);
         }
-    }
-
-    for (const term of imported) {
-        const key = renames.get(term.key) ?? term.key;
-        let block =
-            renames.size > 0
-                ? rewriteTermReferences(term.block, (reference) => renames.get(reference))
-                : term.block;
-        if (key !== term.key) {
-            block = block.replace(`[*${term.key}]:`, `[*${key}]:`);
-        }
-        const previous = existing.get(key);
-        if (
-            previous !== undefined &&
-            normalizeTermBlockForCompare(previous) === normalizeTermBlockForCompare(block)
-        ) {
-            continue;
-        }
-        collector.push({key, block, sourcePath});
-        existing.set(key, block);
     }
 
     return renames;
