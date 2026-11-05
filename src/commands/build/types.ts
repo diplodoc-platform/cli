@@ -240,6 +240,8 @@ export type BuildConfig = Config<
 
 export type EntryInfo<Extras extends LeadingData | MarkdownData = LeadingData | MarkdownData> =
     PageData<Extras> & {
+        /** Per-entry LLMS data transferred from the processing worker. */
+        llms?: {h1?: string; title: string; description: string};
         entryGraph: EntryService['relations'];
         varsGraph: VarsService['relations'];
     };

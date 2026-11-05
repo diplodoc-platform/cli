@@ -276,9 +276,9 @@ exports[`Translate command > build translated md files and remove no-translate d
 ## Documentation
 
 - [index.md](index.md)
-- [Не переводить](no-translate.md)
-- [Overview](openapi/index.md)
-- [Overview](openapi/test-controller/index.md)
+- [No-translate directive](no-translate.md)
+- [OpenAPI definition](openapi/index.md)
+- [test-controller](openapi/test-controller/index.md)
 - [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
 
 ---
@@ -865,9 +865,9 @@ exports[`Translate command > build translated static files and remove no-transla
 ## Documentation
 
 - [index.md](index.md)
-- [Не переводить](no-translate.md)
-- [Overview](openapi/index.md)
-- [Overview](openapi/test-controller/index.md)
+- [No-translate directive](no-translate.md)
+- [OpenAPI definition](openapi/index.md)
+- [test-controller](openapi/test-controller/index.md)
 - [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
 
 ---

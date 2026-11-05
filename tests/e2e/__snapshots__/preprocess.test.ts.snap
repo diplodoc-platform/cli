@@ -517,15 +517,15 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 12`] = `
 
 [Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
 
-[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+[Level root svg header ![Level root svg header](../../_assets/1.svg)](../../level0.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=false 13`] = `
 "## Documentation
 
-- [level1](level1.md)
-- [level2](level2/level2.md)
+- [Level 1 svg header Level 1 svg header](level1.md)
+- [Level 2 svg header Level 2 svg header](level2/level2.md)
 
 ---
 
@@ -882,7 +882,7 @@ Link after include
 
 # Level root svg header ![Level root svg header](_assets/1.svg)
 
-[Images ![svg image 1](../../_assets/1.svg)](images.md)
+[Images ![svg image 1](_assets/1.svg)](images.md)
 
 [Level 1 svg header ![Level 1 svg header](_assets/1.svg)](level1/level1.md)
 
@@ -892,34 +892,34 @@ Link after include
 
 [Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
 
-[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level2/level2.md)
+[Level 2 svg header ![Level 2 svg header](../_assets/1.svg)](level2/level2.md)
 
-[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](../includes/level11.md)
+[Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)
 
 # Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
 
-[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](../level1.md)
+[Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
 
-[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+[Level root svg header ![Level root svg header](../../_assets/1.svg)](../../level0.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=false 16`] = `
 "## Documentation
 
-- [Md item with not_var syntax](1.md)
-- [Md item named without extension](1.md)
-- [Included Item](included-item.md)
+- [Title](1.md)
+- [Title](1.md)
+- [Included item](included-item.md)
 - [Item 1](sub/folder/item-1.md)
 - [Mermaid usage](mermaid.md)
 - [Latex usage](latex.md)
-- [Images](images.md)
-- [Autotitle](autotitle.md)
+- [Images svg image 1](images.md)
+- [Autotitles](autotitle.md)
 - [includes](includes.md)
-- [level11](includes/level11.md)
-- [level0](level0.md)
-- [level1](level1/level1.md)
-- [level2](level1/level2/level2.md)
+- [Level 11 svg header Level 11 svg header](includes/level11.md)
+- [Level root svg header Level root svg header](level0.md)
+- [Level 1 svg header Level 1 svg header](level1/level1.md)
+- [Level 2 svg header Level 2 svg header](level1/level2/level2.md)
 
 ---
 
@@ -1530,15 +1530,15 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 12`] = `
 
 [Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
 
-[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+[Level root svg header ![Level root svg header](../../_assets/1.svg)](../../level0.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 13`] = `
 "## Documentation
 
-- [level1](level1.md)
-- [level2](level2/level2.md)
+- [Level 1 svg header Level 1 svg header](level1.md)
+- [Level 2 svg header Level 2 svg header](level2/level2.md)
 
 ---
 
@@ -1895,7 +1895,7 @@ Link after include
 
 # Level root svg header ![Level root svg header](_assets/1.svg)
 
-[Images ![svg image 1](../../_assets/1.svg)](images.md)
+[Images ![svg image 1](_assets/1.svg)](images.md)
 
 [Level 1 svg header ![Level 1 svg header](_assets/1.svg)](level1/level1.md)
 
@@ -1905,34 +1905,34 @@ Link after include
 
 [Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
 
-[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level2/level2.md)
+[Level 2 svg header ![Level 2 svg header](../_assets/1.svg)](level2/level2.md)
 
-[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](../includes/level11.md)
+[Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)
 
 # Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
 
-[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](../level1.md)
+[Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
 
-[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+[Level root svg header ![Level root svg header](../../_assets/1.svg)](../../level0.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 16`] = `
 "## Documentation
 
-- [Md item with not_var syntax](1.md)
-- [Md item named without extension](1.md)
-- [Included Item](included-item.md)
+- [Title](1.md)
+- [Title](1.md)
+- [Included item](included-item.md)
 - [Item 1](sub/folder/item-1.md)
 - [Mermaid usage](mermaid.md)
 - [Latex usage](latex.md)
-- [Images](images.md)
-- [Autotitle](autotitle.md)
+- [Images svg image 1](images.md)
+- [Autotitles](autotitle.md)
 - [includes](includes.md)
-- [level11](includes/level11.md)
-- [level0](level0.md)
-- [level1](level1/level1.md)
-- [level2](level1/level2/level2.md)
+- [Level 11 svg header Level 11 svg header](includes/level11.md)
+- [Level root svg header Level root svg header](level0.md)
+- [Level 1 svg header Level 1 svg header](level1/level1.md)
+- [Level 2 svg header Level 2 svg header](level1/level2/level2.md)
 
 ---
 
@@ -2571,15 +2571,15 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 12`] = `
 
 [Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
 
-[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+[Level root svg header ![Level root svg header](../../_assets/1.svg)](../../level0.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 13`] = `
 "## Documentation
 
-- [level1](level1.md)
-- [level2](level2/level2.md)
+- [Level 1 svg header Level 1 svg header](level1.md)
+- [Level 2 svg header Level 2 svg header](level2/level2.md)
 
 ---
 
@@ -2936,7 +2936,7 @@ Link after include
 
 # Level root svg header ![Level root svg header](_assets/1.svg)
 
-[Images ![svg image 1](../../_assets/1.svg)](images.md)
+[Images ![svg image 1](_assets/1.svg)](images.md)
 
 [Level 1 svg header ![Level 1 svg header](_assets/1.svg)](level1/level1.md)
 
@@ -2946,34 +2946,34 @@ Link after include
 
 [Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
 
-[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level2/level2.md)
+[Level 2 svg header ![Level 2 svg header](../_assets/1.svg)](level2/level2.md)
 
-[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](../includes/level11.md)
+[Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)
 
 # Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
 
-[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](../level1.md)
+[Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
 
-[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+[Level root svg header ![Level root svg header](../../_assets/1.svg)](../../level0.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 16`] = `
 "## Documentation
 
-- [Md item with not_var syntax](1.md)
-- [Md item named without extension](1.md)
-- [Included Item](included-item.md)
+- [Title](1.md)
+- [Title](1.md)
+- [Included item](included-item.md)
 - [Item 1](sub/folder/item-1.md)
 - [Mermaid usage](mermaid.md)
 - [Latex usage](latex.md)
-- [Images](images.md)
-- [Autotitle](autotitle.md)
+- [Images svg image 1](images.md)
+- [Autotitles](autotitle.md)
 - [includes](includes.md)
-- [level11](includes/level11.md)
-- [level0](level0.md)
-- [level1](level1/level1.md)
-- [level2](level1/level2/level2.md)
+- [Level 11 svg header Level 11 svg header](includes/level11.md)
+- [Level root svg header Level root svg header](level0.md)
+- [Level 1 svg header Level 1 svg header](level1/level1.md)
+- [Level 2 svg header Level 2 svg header](level1/level2/level2.md)
 
 ---
 
@@ -3385,15 +3385,15 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 31`] = `
 
 [Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
 
-[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+[Level root svg header ![Level root svg header](../../_assets/1.svg)](../../level0.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 32`] = `
 "## Documentation
 
-- [level1](level1.md)
-- [level2](level2/level2.md)
+- [Level 1 svg header Level 1 svg header](level1.md)
+- [Level 2 svg header Level 2 svg header](level2/level2.md)
 
 ---
 
@@ -3742,7 +3742,7 @@ Link after include
 
 # Level root svg header ![Level root svg header](_assets/1.svg)
 
-[Images ![svg image 1](../../_assets/1.svg)](images.md)
+[Images ![svg image 1](_assets/1.svg)](images.md)
 
 [Level 1 svg header ![Level 1 svg header](_assets/1.svg)](level1/level1.md)
 
@@ -3752,34 +3752,34 @@ Link after include
 
 [Level root svg header ![Level root svg header](../_assets/1.svg)](../level0.md)
 
-[Level 2 svg header ![Level 2 svg header](_assets/1.svg)](level2/level2.md)
+[Level 2 svg header ![Level 2 svg header](../_assets/1.svg)](level2/level2.md)
 
-[Level 11 svg header ![Level 11 svg header](_assets/1.svg)](../includes/level11.md)
+[Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)
 
 # Level 2 svg header ![Level 2 svg header](../../_assets/1.svg)
 
-[Level 1 svg header ![Level 1 svg header](_assets/1.svg)](../level1.md)
+[Level 1 svg header ![Level 1 svg header](../../_assets/1.svg)](../level1.md)
 
-[Level root svg header ![Level root svg header](../_assets/1.svg)](../../level0.md)
+[Level root svg header ![Level root svg header](../../_assets/1.svg)](../../level0.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 35`] = `
 "## Documentation
 
-- [Md item with not_var syntax](1.md)
-- [Md item named without extension](1.md)
-- [Included Item](included-item.md)
+- [Title](1.md)
+- [Title](1.md)
+- [Included item](included-item.md)
 - [Item 1](sub/folder/item-1.md)
 - [Mermaid usage](mermaid.md)
 - [Latex usage](latex.md)
-- [Images](images.md)
-- [Autotitle](autotitle.md)
+- [Images svg image 1](images.md)
+- [Autotitles](autotitle.md)
 - [includes](includes.md)
-- [level11](includes/level11.md)
-- [level0](level0.md)
-- [level1](level1/level1.md)
-- [level2](level1/level2/level2.md)
+- [Level 11 svg header Level 11 svg header](includes/level11.md)
+- [Level root svg header Level root svg header](level0.md)
+- [Level 1 svg header Level 1 svg header](level1/level1.md)
+- [Level 2 svg header Level 2 svg header](level1/level2/level2.md)
 
 ---
 

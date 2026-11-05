@@ -487,11 +487,11 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 exports[`Include toc > Toc is included inline, not as a new section 8`] = `
 "## Documentation
 
-- [Name1](file1.md)
-- [NameA](fileA.md): YFM description
-- [NameB](fileB.md)
-- [NameC](fileC.md)
-- [NameX](fileX.md)
+- [File 1](file1.md)
+- [File A](fileA.md): YFM description
+- [File B](fileB.md)
+- [File C](fileC.md)
+- [File X](fileX.md)
 
 ---
 
@@ -701,11 +701,11 @@ exports[`Include toc > Toc with generic includer 2`] = `
 
 ## Documentation
 
-- [test](test/test.md)
-- [index](test/index.md)
-- [sub-2](test/sub/sub-2.md)
-- [sub-1](test/sub/sub-1.md)
-- [sub-3](test/sub/sub/sub-3.md)
+- [H1](test/test.md)
+- [H1](test/index.md)
+- [H1](test/sub/sub-2.md)
+- [H1](test/sub/sub-1.md)
+- [H1](test/sub/sub/sub-3.md)
 
 ---
 
@@ -866,12 +866,12 @@ exports[`Include toc > Toc with generic includer and linkIndex option 2`] = `
 
 ## Documentation
 
-- [test](test/test.md)
-- [index](test/index.md)
-- [sub](test/sub/index.md)
-- [sub-2](test/sub/sub-2.md)
-- [sub-1](test/sub/sub-1.md)
-- [sub-3](test/sub/sub/sub-3.md)
+- [H1](test/test.md)
+- [H1](test/index.md)
+- [Sub index](test/sub/index.md)
+- [H1](test/sub/sub-2.md)
+- [H1](test/sub/sub-1.md)
+- [H1](test/sub/sub/sub-3.md)
 
 ---
 
@@ -1049,12 +1049,12 @@ exports[`Include toc > Toc with generic includer keeps index.md as child item by
 
 ## Documentation
 
-- [test](test/test.md)
-- [index](test/index.md)
-- [sub-2](test/sub/sub-2.md)
-- [sub-1](test/sub/sub-1.md)
-- [index](test/sub/index.md)
-- [sub-3](test/sub/sub/sub-3.md)
+- [H1](test/test.md)
+- [H1](test/index.md)
+- [H1](test/sub/sub-2.md)
+- [H1](test/sub/sub-1.md)
+- [Sub index](test/sub/index.md)
+- [H1](test/sub/sub/sub-3.md)
 
 ---
 
