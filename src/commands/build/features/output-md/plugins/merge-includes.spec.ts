@@ -1529,6 +1529,38 @@ describe('prepareInlinedContent', () => {
         ]);
     });
 
+    it('should resolve referenced definitions before a heading inside a multiline definition', () => {
+        const selectedBody = [
+            '# Selected {#selected}',
+            '',
+            'Use [Earlier](*earlier) and [Selected](*selected).',
+        ].join('\n');
+        const {result, terms} = prepareSelectedSection(
+            [
+                '[*unused]: Unused earlier definition.',
+                '[*earlier]: Earlier definition.',
+                '',
+                selectedBody,
+                '',
+                '[*selected]: Selected definition.',
+            ].join('\n'),
+        );
+
+        expect(result).toBe(selectedBody);
+        expect(terms).toEqual([
+            {
+                key: 'earlier',
+                block: `[*earlier]: Earlier definition.\n\n${selectedBody}`,
+                sourcePath: '_includes/guide.md',
+            },
+            {
+                key: 'selected',
+                block: '[*selected]: Selected definition.',
+                sourcePath: '_includes/guide.md',
+            },
+        ]);
+    });
+
     it.each([
         {name: 'a reference chain', sdkDescription: 'SDK description.'},
         {name: 'a reference cycle', sdkDescription: 'Related [API](*api).'},

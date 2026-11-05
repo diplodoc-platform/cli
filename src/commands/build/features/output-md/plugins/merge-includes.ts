@@ -891,9 +891,17 @@ function sliceLines(lines: string[], start: number, end?: number): string {
  * prematurely terminate the section.
  */
 export function extractSection(content: string, hash: string): string {
+    return selectSection(content, hash).content;
+}
+
+function selectSection(
+    content: string,
+    hash: string,
+): {content: string; includesAllDefinitions: boolean} {
     const lines = content.split('\n');
     const ctx = {start: -1, level: 0};
     const fence = newFenceState();
+    let definitionsBeforeSection = false;
 
     for (let i = 0; i < lines.length; i++) {
         const trimmed = lines[i].trim();
@@ -901,22 +909,30 @@ export function extractSection(content: string, hash: string): string {
         if (processCodeFence(trimmed, fence)) {
             continue;
         }
+        if (ctx.start < 0 && TERM_DEF_LINE_RE.test(lines[i])) {
+            definitionsBeforeSection = true;
+        }
 
         const heading = parseHeading(trimmed);
         if (heading) {
             const result = processHeadingForSection(heading, hash, ctx, lines, i);
             if (result !== null) {
-                return result;
+                return {content: result, includesAllDefinitions: false};
             }
             continue;
         }
 
         if (ctx.start < 0 && CUSTOM_ANCHOR_RE.exec(trimmed)?.[1] === hash) {
-            return extractParagraph(lines, i);
+            return {content: extractParagraph(lines, i), includesAllDefinitions: false};
         }
     }
 
-    return ctx.start >= 0 ? sliceLines(lines, ctx.start) : content;
+    // A suffix with no earlier definitions already contains every definition;
+    // its parsed terms can be reused without scanning the full dependency again.
+    return {
+        content: ctx.start >= 0 ? sliceLines(lines, ctx.start) : content,
+        includesAllDefinitions: ctx.start < 0 || !definitionsBeforeSection,
+    };
 }
 
 type FallbackEntry = {key: string; content: string};
@@ -1072,13 +1088,13 @@ export function prepareInlinedContent(
 ): string {
     const sourceContent = contentWithoutFrontmatter(dep.content);
     const hashIndex = dep.link.indexOf('#');
-    const selectedContent =
+    const section =
         hashIndex >= 0
-            ? extractSection(sourceContent, dep.link.slice(hashIndex + 1))
-            : sourceContent;
+            ? selectSection(sourceContent, dep.link.slice(hashIndex + 1))
+            : {content: sourceContent, includesAllDefinitions: true};
     const {cleanContent, terms: selectedTerms} = termsCollector
-        ? extractTermDefinitions(selectedContent)
-        : {cleanContent: selectedContent, terms: []};
+        ? extractTermDefinitions(section.content)
+        : {cleanContent: section.content, terms: []};
     let depContent = cleanContent;
 
     if (NOTITLE_RE.test(dep.match)) {
@@ -1089,14 +1105,13 @@ export function prepareInlinedContent(
         // Keep definitions that belong to the selected section even when their
         // references are in its parent. Hoisted definitions outside the section
         // are imported only when needed, so omitted sections cannot add conflicts.
-        const terms =
-            hashIndex >= 0
-                ? collectSectionTerms(
-                      depContent,
-                      selectedTerms,
-                      extractTermDefinitions(sourceContent).terms,
-                  )
-                : selectedTerms;
+        const terms = !section.includesAllDefinitions
+            ? collectSectionTerms(
+                  depContent,
+                  selectedTerms,
+                  extractTermDefinitions(sourceContent).terms,
+              )
+            : selectedTerms;
 
         const renames = collectInlinedTerms(terms, dep.path, entry, termsCollector);
         if (renames.size > 0) {
