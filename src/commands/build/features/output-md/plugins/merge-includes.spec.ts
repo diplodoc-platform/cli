@@ -1109,6 +1109,32 @@ describe('extractSection', () => {
         expect(extractSection(content, 'setup')).toBe('## Setup {#setup}\n\nSetup text.');
     });
 
+    it('should ignore heading-like text in indented code when selecting or ending a section', () => {
+        const selected = '# Selected {#selected}\n\n    # Code {#code}\n\nFollowing content.';
+        const content = `${selected}\n\n# Next\n\nOmitted content.`;
+
+        expect(extractSection(content, 'selected')).toBe(selected);
+        expect(extractSection(content, 'code')).toBe(content);
+    });
+
+    it('should preserve real indented headings inside a list when selecting a section', () => {
+        const content = [
+            '- Item',
+            '',
+            '    # Selected {#selected}',
+            '',
+            '    Selected content.',
+            '',
+            '    # Next',
+            '',
+            '    Omitted content.',
+        ].join('\n');
+
+        expect(extractSection(content, 'selected')).toBe(
+            '    # Selected {#selected}\n\n    Selected content.',
+        );
+    });
+
     it('extracts a section whose anchor contains non-ASCII (cyrillic) characters (Bug 32)', () => {
         // `\w` is ASCII-only, so the old `[\w-]+` anchor regex failed to
         // match `{#YNDX-00540-с-Matter}` (cyrillic `с`), extractSection
@@ -1519,10 +1545,96 @@ describe('prepareInlinedContent', () => {
         {name: 'a blockquote', body: '> Use [API\n> name](*api).'},
         {name: 'a lazy blockquote continuation', body: '> Use [API\nname](*api).'},
         {name: 'a label containing backticks', body: 'Use [API `code`\nname](*api).'},
+        {name: 'an indented paragraph continuation', body: 'Use [API\n    ## name](*api).'},
     ])('should rename a wrapped reference in $name', ({body}) => {
         const {result, terms} = prepareReferenceSection(body, {conflict: true});
 
         expect(result).toBe(`# Selected {#selected}\n\n${body.replace('(*api)', '(*api__guide)')}`);
+        expect(terms.map((term) => term.key)).toEqual(['api', 'api__guide']);
+    });
+
+    it.each([false, true])(
+        'should preserve a wrapped label with a non-interrupting ordered marker (conflict: %s)',
+        (conflict) => {
+            const {result, terms} = prepareReferenceSection('[Part\n2. name](*api)', {
+                conflict,
+            });
+            const key = conflict ? 'api__guide' : 'api';
+
+            expect(result).toBe(`# Selected {#selected}\n\n[Part\n2. name](*${key})`);
+            expect(terms.map((term) => term.key)).toEqual(conflict ? ['api', key] : [key]);
+            expect(terms[terms.length - 1]).toEqual({
+                key,
+                block: `[*${key}]: Dependency description.`,
+                sourcePath: '_includes/guide.md',
+            });
+        },
+    );
+
+    it.each([
+        {name: 'spaces', indent: '    ', conflict: false},
+        {name: 'spaces', indent: '    ', conflict: true},
+        {name: 'a tab', indent: '\t', conflict: false},
+        {name: 'a tab', indent: '\t', conflict: true},
+    ])(
+        'should preserve a wrapped label with a heading-like continuation indented by $name (conflict: $conflict)',
+        ({indent, conflict}) => {
+            const {result, terms} = prepareReferenceSection(`Use [API\n${indent}# name](*api).`, {
+                conflict,
+            });
+            const key = conflict ? 'api__guide' : 'api';
+
+            expect(result).toBe(`# Selected {#selected}\n\nUse [API\n${indent}# name](*${key}).`);
+            expect(terms.map((term) => term.key)).toEqual(conflict ? ['api', key] : [key]);
+        },
+    );
+
+    it('should preserve blockquote prefixes and CRLF endings while renaming a wrapped reference', () => {
+        const body = '> Use [API\r\n> name](*api).';
+        const {result, terms} = prepareSelectedSection(
+            [
+                '# Selected {#selected}',
+                '',
+                body,
+                '',
+                '# Omitted',
+                '',
+                '[*api]: Dependency description.',
+            ].join('\r\n'),
+            '',
+            [{key: 'api', block: '[*api]: Parent description.', sourcePath: 'main.md'}],
+        );
+
+        expect(result).toBe('# Selected {#selected}\r\n\r\n> Use [API\r\n> name](*api__guide).');
+        expect(terms.map((term) => term.key)).toEqual(['api', 'api__guide']);
+    });
+
+    it('should rename conflicting references in GFM table cells whose inline tokens lack maps', () => {
+        const body = ['Term | Description', '--- | ---', '[API](*api) | Description.'].join('\n');
+        const {result, terms} = prepareReferenceSection(body, {conflict: true});
+
+        expect(result).toBe(`# Selected {#selected}\n\n${body.replace('(*api)', '(*api__guide)')}`);
+        expect(terms.map((term) => term.key)).toEqual(['api', 'api__guide']);
+    });
+
+    it.each([
+        '    [API](*api)',
+        '    [API\n    name](*api)',
+        '    ```text\n    [API](*api)\n    ```',
+    ])('should retain raw code references without renaming indented code: %s', (body) => {
+        const {result, terms} = prepareReferenceSection(body, {conflict: true});
+
+        expect(result).toBe(`# Selected {#selected}\n\n${body}`);
+        expect(terms.map((term) => term.key)).toEqual(['api', 'api__guide']);
+    });
+
+    it('should preserve a glued YFM fence closer while renaming fenced and following prose references', () => {
+        const body = '```text\n[API](*api)\n```||\n\nUse [API\nname](*api).';
+        const {result, terms} = prepareReferenceSection(body, {conflict: true});
+
+        expect(result).toBe(
+            '# Selected {#selected}\n\n```text\n[API](*api__guide)\n```||\n\nUse [API\nname](*api__guide).',
+        );
         expect(terms.map((term) => term.key)).toEqual(['api', 'api__guide']);
     });
 
@@ -1574,6 +1686,7 @@ describe('prepareInlinedContent', () => {
         {name: 'a key newline', body: '[API](*api\nkey)', key: 'api key'},
         {name: 'a heading', body: '[API\n## Heading\nname](*api)', key: 'api'},
         {name: 'a list item', body: '[API\n- name](*api)', key: 'api'},
+        {name: 'separate ordered list items', body: '1. [Part\n2. name](*api)', key: 'api'},
         {name: 'a nested blockquote', body: '> [API\n>> name](*api)', key: 'api'},
     ];
 
