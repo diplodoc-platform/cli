@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.65.0](https://github.com/diplodoc-platform/cli/compare/v5.64.2...v5.65.0) (2026-11-05)
+
+
+### Features
+
+* added showAbsoluteUrls option in yfm ([#2375](https://github.com/diplodoc-platform/cli/issues/2375)) ([f4bd77f](https://github.com/diplodoc-platform/cli/commit/f4bd77fde9ffd0c3ea7b8615b4990947f7e83232))
+
 ## [5.64.2](https://github.com/diplodoc-platform/cli/compare/v5.64.1...v5.64.2) (2026-11-03)
 
 
