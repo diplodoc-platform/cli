@@ -1,5 +1,6 @@
 import type {EntryInfo, Run} from '~/commands/build';
 
+import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
 import {Template} from '~/core/template';
@@ -47,12 +48,12 @@ describe('external search build provider', () => {
         await provider.add('en/guide.md' as NormalizedPath, 'en', {} as EntryInfo);
         await provider.release();
         expect(run.copy).toHaveBeenCalledWith(
-            '/assets/external-search/api.js',
-            '/output/_search/external-api.js',
+            join('/assets', 'external-search/api.js'),
+            join('/output', '_search/external-api.js'),
         );
         expect(run.write.mock.calls).toEqual([
-            ['/output/_search/en/index.html', '<html>en</html>', true],
-            ['/output/_search/ru/index.html', '<html>ru</html>', true],
+            [join('/output', '_search/en/index.html'), '<html>en</html>', true],
+            [join('/output', '_search/ru/index.html'), '<html>ru</html>', true],
         ]);
     });
     it('permits workers without restricting existing connections', () => {

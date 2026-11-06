@@ -3,7 +3,7 @@ import type {Template} from '~/core/template';
 
 import {join} from 'node:path';
 
-import {shortLink} from '~/core/utils';
+import {normalizePath, shortLink} from '~/core/utils';
 
 export class ExternalSearchProvider implements SearchProvider {
     private langs = new Set<string>();
@@ -32,7 +32,7 @@ export class ExternalSearchProvider implements SearchProvider {
 
     config(lang: string) {
         const {search, skipHtmlExtension} = this.run.config;
-        const link = join('_search', lang, 'index.html');
+        const link = normalizePath(join('_search', lang, 'index.html'));
         const tags = this.tags.get(lang);
         return {
             enabled: true,
