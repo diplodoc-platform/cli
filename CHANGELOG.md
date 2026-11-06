@@ -1,5 +1,24 @@
 # Changelog
 
+## [5.66.1](https://github.com/diplodoc-platform/cli/compare/v5.66.0...v5.66.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/openapi-extension@5.3.1 ([563a925](https://github.com/diplodoc-platform/cli/commit/563a9251b6cae936ebb216ea05258a37d6a9c205))
+* index SVG assets in reachable embedded includes ([97168cb](https://github.com/diplodoc-platform/cli/commit/97168cb74e57a975490dcaca1fc44dc2617256be))
+* limit section includes to referenced terms ([3fea4a5](https://github.com/diplodoc-platform/cli/commit/3fea4a55a0326b954fe34783dfa9a36c1f13fbb2))
+* parse wrapped term references within Markdown blocks ([ad77a09](https://github.com/diplodoc-platform/cli/commit/ad77a09dd1e19382d8a17c194fc4d8e2630507ec))
+* preserve scoped term references in section includes ([66a5121](https://github.com/diplodoc-platform/cli/commit/66a5121d8bef7c2159c4b0182b623bc35cd6b91d))
+* preserve term boundaries across nested includes ([9743a75](https://github.com/diplodoc-platform/cli/commit/9743a75c2930e575a297952a9b07c06d9149a97d))
+* preserve wrapped term labels when merging includes ([6f6dfc8](https://github.com/diplodoc-platform/cli/commit/6f6dfc88581801d13bbffd92619dbae7a66f2fa8))
+* track embedded SVG resources in watch dependencies ([39d25ec](https://github.com/diplodoc-platform/cli/commit/39d25ec172b4dca697aaace6639ae64bfac168be))
+
+
+### Performance Improvements
+
+* reuse definitions from complete include sections ([cb21508](https://github.com/diplodoc-platform/cli/commit/cb215089a694f1950b107ca937a13bb7eb5437ff))
+
 ## [5.66.0](https://github.com/diplodoc-platform/cli/compare/v5.65.0...v5.66.0) (2026-11-05)
 
 
