@@ -1,5 +1,5 @@
 import type {LogConfig} from './types';
-import type {Result} from 'execa';
+import type * as ExecaModule from 'execa';
 
 import {setTimeout} from 'node:timers/promises';
 import {afterEach, describe, expect, it, vi} from 'vitest';
@@ -9,11 +9,13 @@ import {dedent} from 'ts-dedent';
 
 import {ArcClient} from './arc-client';
 
+type Result = ExecaModule.Result;
+
 const baseDir = __dirname;
 
 // Mock at module level
 vi.mock('execa', async (importOriginal) => ({
-    ...(await importOriginal<typeof import('execa')>()),
+    ...(await importOriginal<typeof ExecaModule>()),
     execa: vi.fn(),
 }));
 
