@@ -1,6 +1,6 @@
 import type {Build, BuildArgs, EntryInfo, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {Toc} from '~/core/toc';
+import type {Toc, TocLlmsConfig} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 import {eachSeries} from 'async';
@@ -11,6 +11,7 @@ import {
 } from '@diplodoc/transform/lib/plugins/visibility';
 
 import {defined} from '~/core/config';
+import {resolveLlmsConfig} from '~/core/toc';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
@@ -37,9 +38,8 @@ export type LlmsArgs = {
 };
 
 export type LlmsConfig = {
-    llms: {
+    llms: TocLlmsConfig & {
         enabled: boolean;
-        description?: string;
         llmsFullMaxSize: number;
         /**
          * Override URL for `llms.txt` used in md companion AI hints.
@@ -233,7 +233,14 @@ export class Llms {
             audienceSpecificContent,
             pageTitles,
         });
-        const index = await this.renderIndex(run, title, entries, tocDir, pageTitles);
+        const index = await this.renderIndex(
+            run,
+            title,
+            entries,
+            tocDir,
+            resolveLlmsConfig(run.config.llms, toc),
+            pageTitles,
+        );
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
@@ -349,6 +356,7 @@ export class Llms {
         title: string,
         entries: LlmsEntry[],
         tocDir: string,
+        config: TocLlmsConfig = run.config.llms,
         pageTitles?: ReadonlyMap<NormalizedPath, string>,
     ) {
         const html = run.config.outputFormat === OutputFormat.html;
@@ -358,10 +366,14 @@ export class Llms {
             lines.push(`# ${title}`, '');
         }
 
-        const description = run.config.llms?.description || '';
+        const description = config.description || '';
 
         if (description) {
             lines.push(`> ${description}`, '');
+        }
+
+        if (config.details) {
+            lines.push(config.details.trimEnd(), '');
         }
 
         lines.push('## Documentation', '');
