@@ -1,9 +1,10 @@
 import type {LogConfig} from './types';
 import type {Result} from 'execa';
 
+import {setTimeout} from 'node:timers/promises';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {execa} from 'execa';
+import {ExecaError, execa} from 'execa';
 import {dedent} from 'ts-dedent';
 
 import {ArcClient} from './arc-client';
@@ -11,9 +12,12 @@ import {ArcClient} from './arc-client';
 const baseDir = __dirname;
 
 // Mock at module level
-vi.mock('execa', () => ({
+vi.mock('execa', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('execa')>()),
     execa: vi.fn(),
 }));
+
+vi.mock('node:timers/promises', () => ({setTimeout: vi.fn().mockResolvedValue(undefined)}));
 
 // Helper functions for data preparation
 function createClientWithSampleData(sample: string, config: LogConfig = {vcs: {}}) {
@@ -184,6 +188,76 @@ describe('ArcClient', () => {
     afterEach(() => {
         vi.resetModules();
         vi.clearAllMocks();
+    });
+
+    it('should keep successful output when arc writes to stderr', async () => {
+        vi.mocked(execa).mockResolvedValue({
+            stdout: baseDir,
+            stderr: 'the target uri is not valid: dns:///',
+            exitCode: 0,
+        } as Result);
+
+        const client = new ArcClient({vcs: {}}, baseDir);
+
+        expect(await client.getBase()).toBe('.');
+    });
+
+    it('should propagate a failed arc command', async () => {
+        const error = Object.assign(new Error('DEADLINE_EXCEEDED'), {exitCode: 1});
+        vi.mocked(execa).mockRejectedValueOnce(error);
+
+        const client = new ArcClient({vcs: {}}, baseDir);
+
+        await expect(client.getBase()).rejects.toBe(error);
+    });
+
+    it('should retry a timed out log once and discard its partial output', async () => {
+        const error = Object.assign(new ExecaError(), {
+            exitCode: 1,
+            stderr: 'Error in grpc call code = DEADLINE_EXCEEDED',
+            stdout: MULTIPLE_COMMITS_SAMPLE,
+        });
+        const log = vi
+            .fn()
+            .mockRejectedValueOnce(error)
+            .mockResolvedValue({stdout: BASIC_COMMIT_SAMPLE});
+        vi.mocked(execa).mockImplementation(((_command: string, args: string[]) =>
+            args[0] === 'root' ? Promise.resolve({stdout: baseDir}) : log()) as typeof execa);
+        const client = new ArcClient({vcs: {}}, baseDir);
+
+        expect(await client.getMTimes()).toEqual({'file1.md': 1735689600});
+        expect(log).toHaveBeenCalledTimes(2);
+        expect(setTimeout).toHaveBeenCalledWith(2000);
+    });
+
+    it('should propagate the second log timeout without another retry', async () => {
+        const error = Object.assign(new ExecaError(), {
+            exitCode: 1,
+            stderr: 'DEADLINE_EXCEEDED',
+        });
+        const log = vi.fn().mockRejectedValue(error);
+        vi.mocked(execa).mockImplementation(((_command: string, args: string[]) =>
+            args[0] === 'root' ? Promise.resolve({stdout: baseDir}) : log()) as typeof execa);
+        const client = new ArcClient({vcs: {}}, baseDir);
+
+        await expect(client.getMTimes()).rejects.toBe(error);
+        expect(log).toHaveBeenCalledTimes(2);
+        expect(setTimeout).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not retry other log errors', async () => {
+        const error = Object.assign(new ExecaError(), {
+            exitCode: 1,
+            stderr: 'PERMISSION_DENIED',
+        });
+        const log = vi.fn().mockRejectedValue(error);
+        vi.mocked(execa).mockImplementation(((_command: string, args: string[]) =>
+            args[0] === 'root' ? Promise.resolve({stdout: baseDir}) : log()) as typeof execa);
+        const client = new ArcClient({vcs: {}}, baseDir);
+
+        await expect(client.getMTimes()).rejects.toBe(error);
+        expect(log).toHaveBeenCalledTimes(1);
+        expect(setTimeout).not.toHaveBeenCalled();
     });
 
     it('should parse authors from arc CLI', async () => {

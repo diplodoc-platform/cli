@@ -3,6 +3,7 @@ import type {Contributor, SyncData, VcsConnector} from '@diplodoc/cli/lib/vcs';
 import type {Config} from './types';
 
 import {dirname} from 'node:path';
+import {isMainThread} from 'node:worker_threads';
 import {uniqBy} from 'lodash';
 
 import {bounded, normalizePath} from '@diplodoc/cli/lib/utils';
@@ -23,7 +24,7 @@ export class ArcadiaVcsConnector implements VcsConnector {
 
     private run: Run<Config>;
 
-    private arcAvailable = false;
+    private base = '.' as NormalizedPath;
 
     constructor(run: Run<Config>) {
         this.run = run;
@@ -32,6 +33,10 @@ export class ArcadiaVcsConnector implements VcsConnector {
     }
 
     async init() {
+        if (!isMainThread) {
+            return this;
+        }
+
         const {mtimes, authors, contributors} = this.config;
 
         try {
@@ -42,7 +47,8 @@ export class ArcadiaVcsConnector implements VcsConnector {
                     contributors.enabled && this.fillContributors(),
                 ].filter(Boolean),
             );
-            this.arcAvailable = true;
+
+            this.base = await this.arc.getBase();
         } catch (error) {
             if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
                 this.run.logger.warn(
@@ -58,6 +64,7 @@ export class ArcadiaVcsConnector implements VcsConnector {
 
     getData() {
         return {
+            base: this.base,
             mtimes: this.mtimeByPath,
             authors: this.authorByPath,
             contributors: this.contributorsByPath,
@@ -65,17 +72,14 @@ export class ArcadiaVcsConnector implements VcsConnector {
     }
 
     setData(data: SyncData) {
+        this.base = data.base ?? ('.' as NormalizedPath);
         this.mtimeByPath = data.mtimes;
         this.authorByPath = data.authors;
         this.contributorsByPath = data.contributors;
     }
 
     async getBase() {
-        if (!this.arcAvailable) {
-            return '.' as NormalizedPath;
-        }
-
-        return this.arc.getBase();
+        return this.base;
     }
 
     @bounded

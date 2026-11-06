@@ -1,7 +1,8 @@
 import type {LogConfig} from './types';
 
 import {relative} from 'node:path';
-import {execa} from 'execa';
+import {setTimeout} from 'node:timers/promises';
+import {ExecaError, execa} from 'execa';
 import {minimatch} from 'minimatch';
 
 import {memoize, normalizePath} from '@diplodoc/cli/lib/utils';
@@ -214,22 +215,32 @@ export class ArcClient {
     private async run(...args: string[]) {
         const cwd = await arc(this.root, 'root');
 
-        return arc(cwd, ...args);
+        try {
+            return await arc(cwd, ...args);
+        } catch (error) {
+            if (
+                args[0] !== 'log' ||
+                !(error instanceof ExecaError) ||
+                !error.exitCode ||
+                !String(error.stderr).includes('DEADLINE_EXCEEDED')
+            ) {
+                throw error;
+            }
+
+            await setTimeout(2000);
+            return arc(cwd, ...args);
+        }
     }
 }
 
 //
 
 async function arc(cwd: string, ...args: string[]) {
-    const {stdout, stderr} = await execa('arc', args, {
+    const {stdout} = await execa('arc', args, {
         cwd,
         buffer: true,
         maxBuffer: 1024 * 1024 * 64,
     });
-
-    if (stderr) {
-        throw new Error(stderr);
-    }
 
     return stdout || '';
 }
