@@ -415,7 +415,7 @@ export class MarkdownService {
             graph.addDependency(path, source);
         }
 
-        assets.map(async (asset) => {
+        assets.forEach((asset) => {
             if (['image', 'video'].includes(asset.type)) {
                 graph.addNode(asset.path);
                 graph.setNodeData(asset.path, {type: 'resource'});
