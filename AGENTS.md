@@ -263,6 +263,19 @@ Main build logic is located in:
 - `src/commands/build/run.ts` — command execution
 - `src/commands/build/features/` — various build features
 
+### Static search integration
+
+The client loads `search.api` as a classic script inside its own Web Worker, after setting
+`self.config`. A script implements `self.api.suggest(query, count)` and
+`self.api.search(query, count, page, tags)`; the argument order differs from the UI provider.
+Browser search runtime sources must be bundled separately by `scripts/assets.js`, without
+Node dependencies. Build providers generate language-specific result pages in `release()`.
+Header suggestions require `toc.navigation`; a plain TOC without extended navigation has no
+search header even when search configuration is present. Search pages use a documentation-root
+`<base>`, so client history updates must include the current pathname instead of only a query.
+Do not introduce a restrictive `connect-src` merely to enable search: it can block existing
+feedback and other project integrations.
+
 ### llms.txt OpenAPI companions
 
 `src/commands/build/features/llms/` collects entries from the resolved TOC recursively while
