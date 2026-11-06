@@ -393,7 +393,12 @@ export class MarkdownService {
 
         graph.addNode(path, {type: 'entry'});
 
-        await this.load(path, from);
+        const content = await this.load(path, from);
+        const embedded = content.includes('included')
+            ? this.embeddedAssets(path, content, await this._deps(path, from))
+            : [];
+        const assets = (this.pathToAssets.get(key) || []).concat(embedded);
+
         await all(
             (this.pathToDeps.get(key) || []).map(async (dep) => {
                 graph.consume(await this._relations(dep.path, from || path));
@@ -410,7 +415,7 @@ export class MarkdownService {
             graph.addDependency(path, source);
         }
 
-        (this.pathToAssets.get(key) || []).map(async (asset) => {
+        assets.map(async (asset) => {
             if (['image', 'video'].includes(asset.type)) {
                 graph.addNode(asset.path);
                 graph.setNodeData(asset.path, {type: 'resource'});
