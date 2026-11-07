@@ -344,7 +344,10 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     @threads.threaded('build.process')
     async process(file: NormalizedPath, meta: Meta): Promise<EntryInfo> {
-        this.run.meta.set(file, meta);
+        if (this.run.meta.get(file) !== meta) {
+            this.run.meta.add(file, meta, true);
+            this.run.meta.addResources(file, meta);
+        }
 
         const result = await this.run.entry.dump(file);
 
