@@ -7,6 +7,8 @@ import {minimatch} from 'minimatch';
 
 import {memoize, normalizePath} from '@diplodoc/cli/lib/utils';
 
+const RETRY_DELAY_MS = 2000;
+
 export interface AuthorInfo {
     login: string;
     commit: string;
@@ -222,12 +224,12 @@ export class ArcClient {
                 args[0] !== 'log' ||
                 !(error instanceof ExecaError) ||
                 !error.exitCode ||
-                !String(error.stderr).includes('DEADLINE_EXCEEDED')
+                !/DEADLINE_EXCEEDED/.test(error.stderr ?? '')
             ) {
                 throw error;
             }
 
-            await setTimeout(2000);
+            await setTimeout(RETRY_DELAY_MS);
             return arc(cwd, ...args);
         }
     }
@@ -236,6 +238,8 @@ export class ArcClient {
 //
 
 async function arc(cwd: string, ...args: string[]) {
+    // Arc may write diagnostics to stderr even on success (for example, dns:///).
+    // Let execa reject failed commands based on their exit code.
     const {stdout} = await execa('arc', args, {
         cwd,
         buffer: true,

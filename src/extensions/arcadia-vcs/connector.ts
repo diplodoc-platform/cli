@@ -39,6 +39,10 @@ export class ArcadiaVcsConnector implements VcsConnector {
 
         const {mtimes, authors, contributors} = this.config;
 
+        if (!mtimes.enabled && !authors.enabled && !contributors.enabled) {
+            return this;
+        }
+
         try {
             await Promise.all(
                 [
