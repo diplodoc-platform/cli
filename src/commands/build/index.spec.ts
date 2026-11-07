@@ -1291,25 +1291,29 @@ describe('Build command', () => {
     });
 
     // describe('apply', () => {});
-});
+    describe('process', () => {
+        it('preserves cached page resources when receiving main-thread metadata', async () => {
+            const run = setupRun({addResourcesMeta: true});
+            const build = new Build();
+            Object.assign(build, {run});
+            const file = normalizePath('page.md');
+            const resources = {
+                style: ['custom.css'],
+                csp: [{'frame-src': ['https://example.com']}],
+            };
+            const incomingMeta = {...run.meta.snapshot(file), title: 'Page'};
+            run.meta.addResources(file, resources);
 
-it('preserves cached page resources when receiving main-thread metadata', async () => {
-    const run = setupRun({addResourcesMeta: true});
-    const build = new Build();
-    Object.assign(build, {run});
-    const file = normalizePath('page.md');
-    const resources = {style: ['custom.css'], csp: [{'frame-src': ['https://example.com']}]};
-    const incomingMeta = {...run.meta.snapshot(file), title: 'Page'};
-    run.meta.addResources(file, resources);
+            vi.spyOn(run.entry, 'dump').mockResolvedValue({
+                path: file,
+                info: {},
+                toString: () => '# Page',
+            } as Awaited<ReturnType<Run['entry']['dump']>>);
+            vi.mocked(run.write).mockResolvedValue(undefined);
 
-    vi.spyOn(run.entry, 'dump').mockResolvedValue({
-        path: file,
-        info: {},
-        toString: () => '# Page',
-    } as Awaited<ReturnType<Run['entry']['dump']>>);
-    vi.mocked(run.write).mockResolvedValue(undefined);
+            await build.process(file, incomingMeta);
 
-    await build.process(file, incomingMeta);
-
-    expect(run.meta.snapshot(file)).toMatchObject({title: 'Page', ...resources});
+            expect(run.meta.snapshot(file)).toMatchObject({title: 'Page', ...resources});
+        });
+    });
 });
