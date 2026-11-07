@@ -344,7 +344,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     @threads.threaded('build.process')
     async process(file: NormalizedPath, meta: Meta): Promise<EntryInfo> {
-        this.run.meta.set(file, meta);
+        if (this.run.meta.get(file) !== meta) {
+            // Merge by default; keep the previous replacement behavior in rawAddMeta mode.
+            // Without isRaw=true, that mode would ignore the incoming metadata.
+            this.run.meta.add(file, meta, true);
+            this.run.meta.addResources(file, meta);
+        }
 
         const result = await this.run.entry.dump(file);
 
