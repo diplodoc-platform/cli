@@ -8,17 +8,18 @@ import {constants as fsConstants} from 'node:fs/promises';
 
 import {normalizePath} from '~/core/utils';
 
-import {Build} from '.';
 import {combineProps, fileSizeConverter} from './config';
 import {
     handler,
-    setupRun,
     runBuild as run,
+    setupRun,
     testConfig as test,
     testBooleanFlag,
     testNestedBooleanFlag,
 } from './__tests__';
 import {Run} from './run';
+
+import {Build} from '.';
 
 describe('Build command', () => {
     describe('config', () => {
