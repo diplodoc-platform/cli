@@ -1,6 +1,7 @@
 import type {Resources} from '~/core/meta';
 
 export interface SyncData {
+    base?: NormalizedPath;
     mtimes: Record<NormalizedPath, number>;
     authors: Record<NormalizedPath, Contributor>;
     contributors: Record<NormalizedPath, Contributor[]>;
