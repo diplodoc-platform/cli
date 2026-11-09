@@ -1,0 +1,1500 @@
+{
+  "schema": 2,
+  "trainId": "ecadfeaf70f55794",
+  "toolSha": "18805994952ae6112e0f1b4639a92c94d839460b",
+  "packages": [
+    {
+      "repo": "tabs-extension",
+      "name": "@diplodoc/tabs-extension",
+      "sourceSha": "bcb2452ec6481c1e4d9fcc5a90dff549382b43a9",
+      "archiveSha256": "986f42ab053310bdaf4f0bace3b1a6d72f67204441518a92ae35de8d6a2928d5",
+      "sourceLockSha256": "0f7db55f30be0a47942c021b5bd64188c6467a07d5008b453b2c921f88166c2c",
+      "resolutions": []
+    },
+    {
+      "repo": "transform",
+      "name": "@diplodoc/transform",
+      "sourceSha": "9e834f1c74e8222d003e683c9c2422cc4f8263e8",
+      "archiveSha256": "adaf12f3c002e91ed6d9c86237342bf02dde173a7a24cf78026110499068ef7b",
+      "sourceLockSha256": "26614f30dc57da1b31636ac41d0d39f6dfee79cfafeb2523d362d2f3aed46760",
+      "resolutions": [
+        {
+          "path": "node_modules/@diplodoc/cut-extension",
+          "version": "1.1.8"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive",
+          "version": "2.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it",
+          "version": "13.0.9"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it/node_modules/@types/linkify-it",
+          "version": "3.0.5"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it/node_modules/@types/mdurl",
+          "version": "1.0.5"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/utils",
+          "version": "2.3.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive",
+          "version": "2.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it",
+          "version": "13.0.9"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it/node_modules/@types/linkify-it",
+          "version": "3.0.5"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it/node_modules/@types/mdurl",
+          "version": "1.0.5"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension",
+          "version": "0.2.7"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive",
+          "version": "2.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it",
+          "version": "13.0.9"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it/node_modules/@types/linkify-it",
+          "version": "3.0.5"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it/node_modules/@types/mdurl",
+          "version": "1.0.5"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/utils",
+          "version": "2.3.6"
+        },
+        {
+          "path": "node_modules/chalk",
+          "version": "4.1.2"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/ansi-styles",
+          "version": "4.3.0"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/ansi-styles/node_modules/color-convert",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/ansi-styles/node_modules/color-convert/node_modules/color-name",
+          "version": "1.1.4"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/supports-color",
+          "version": "7.2.0"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/supports-color/node_modules/has-flag",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/cheerio",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select",
+          "version": "2.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select",
+          "version": "5.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check",
+          "version": "2.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer",
+          "version": "0.2.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding",
+          "version": "3.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2",
+          "version": "10.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/entities",
+          "version": "7.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter",
+          "version": "7.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream",
+          "version": "7.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/undici",
+          "version": "7.30.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/whatwg-mimetype",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/css",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/css/node_modules/inherits",
+          "version": "2.0.4"
+        },
+        {
+          "path": "node_modules/css/node_modules/source-map",
+          "version": "0.6.1"
+        },
+        {
+          "path": "node_modules/css/node_modules/source-map-resolve",
+          "version": "0.6.0"
+        },
+        {
+          "path": "node_modules/css/node_modules/source-map-resolve/node_modules/atob",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/css/node_modules/source-map-resolve/node_modules/decode-uri-component",
+          "version": "0.2.2"
+        },
+        {
+          "path": "node_modules/cssfilter",
+          "version": "0.0.10"
+        },
+        {
+          "path": "node_modules/get-root-node-polyfill",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/github-slugger",
+          "version": "1.5.0"
+        },
+        {
+          "path": "node_modules/highlight.js",
+          "version": "11.11.1"
+        },
+        {
+          "path": "node_modules/js-yaml",
+          "version": "4.3.2"
+        },
+        {
+          "path": "node_modules/js-yaml/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/lodash",
+          "version": "4.18.1"
+        },
+        {
+          "path": "node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs",
+          "version": "4.3.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it-deflist",
+          "version": "2.1.0"
+        },
+        {
+          "path": "node_modules/markdown-it-sup",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/markdownlint",
+          "version": "0.32.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdownlint-micromark",
+          "version": "0.1.7"
+        },
+        {
+          "path": "node_modules/markdownlint-rule-helpers",
+          "version": "0.17.2"
+        },
+        {
+          "path": "node_modules/quick-lru",
+          "version": "5.1.1"
+        },
+        {
+          "path": "node_modules/sanitize-html",
+          "version": "2.18.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/deepmerge",
+          "version": "4.3.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/escape-string-regexp",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2",
+          "version": "12.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domhandler",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domhandler/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils",
+          "version": "4.0.2"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer",
+          "version": "3.1.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "8.1.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/entities",
+          "version": "8.1.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/is-plain-object",
+          "version": "5.1.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/launder",
+          "version": "1.7.2"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/launder/node_modules/dayjs",
+          "version": "1.11.23"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/parse-srcset",
+          "version": "1.0.2"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/postcss",
+          "version": "8.5.30"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/postcss/node_modules/nanoid",
+          "version": "3.3.20"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/postcss/node_modules/picocolors",
+          "version": "1.1.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/postcss/node_modules/source-map-js",
+          "version": "1.2.2"
+        },
+        {
+          "path": "node_modules/slugify",
+          "version": "1.6.6"
+        },
+        {
+          "path": "node_modules/ts-dedent",
+          "version": "2.2.0"
+        }
+      ]
+    },
+    {
+      "repo": "client",
+      "name": "@diplodoc/client",
+      "sourceSha": "4236a16634534c60e15ab2c32fd94fe56e4e067a",
+      "archiveSha256": "66d5e8821e466395a347134266fb0237c596a0ecf69a683aaa010d6a12aec4b6",
+      "sourceLockSha256": "b9c2e09d3e68eeb8c58cdae8b8378c0461144249eb80ec091c649c5d71fc6ec1",
+      "resolutions": []
+    },
+    {
+      "repo": "translation",
+      "name": "@diplodoc/translation",
+      "sourceSha": "ae0ad7ee9893a684a86d8a2ae6b75c0f084a21a5",
+      "archiveSha256": "5e861aee91590409b76a34434a61c6f1ede45fcf02656f566a42ad5734d6293f",
+      "sourceLockSha256": "28c787898994404fc43f5652d3ac5377969b1d24877ac0c0207699ec8e9adf11",
+      "resolutions": [
+        {
+          "path": "node_modules/@cospired/i18n-iso-languages",
+          "version": "4.2.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/ajv",
+          "version": "0.11.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/ajv/node_modules/js-yaml",
+          "version": "4.3.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/ajv/node_modules/js-yaml/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive",
+          "version": "2.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it",
+          "version": "13.0.9"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it/node_modules/@types/linkify-it",
+          "version": "3.0.5"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/@types/markdown-it/node_modules/@types/mdurl",
+          "version": "1.0.5"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/sentenizer",
+          "version": "0.0.12"
+        },
+        {
+          "path": "node_modules/@diplodoc/sentenizer/node_modules/ramda",
+          "version": "0.28.0"
+        },
+        {
+          "path": "node_modules/@shellscape/i18n-iso-countries",
+          "version": "7.5.0-shellscape.v1"
+        },
+        {
+          "path": "node_modules/@shellscape/i18n-iso-countries/node_modules/diacritics",
+          "version": "1.3.0"
+        },
+        {
+          "path": "node_modules/ajv",
+          "version": "8.20.0"
+        },
+        {
+          "path": "node_modules/ajv/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/ajv/node_modules/fast-uri",
+          "version": "3.1.0"
+        },
+        {
+          "path": "node_modules/ajv/node_modules/json-schema-traverse",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/ajv/node_modules/require-from-string",
+          "version": "2.0.2"
+        },
+        {
+          "path": "node_modules/ajv-keywords",
+          "version": "5.1.0"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv",
+          "version": "8.20.0"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv/node_modules/fast-uri",
+          "version": "3.1.0"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv/node_modules/json-schema-traverse",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv/node_modules/require-from-string",
+          "version": "2.0.2"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/cheerio",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select",
+          "version": "2.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select",
+          "version": "5.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check",
+          "version": "2.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer",
+          "version": "0.2.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding",
+          "version": "3.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2",
+          "version": "10.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/entities",
+          "version": "7.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter",
+          "version": "7.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream",
+          "version": "7.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/undici",
+          "version": "7.30.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/whatwg-mimetype",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/fast-xml-parser",
+          "version": "4.5.3"
+        },
+        {
+          "path": "node_modules/fast-xml-parser/node_modules/strnum",
+          "version": "1.1.2"
+        },
+        {
+          "path": "node_modules/js-yaml",
+          "version": "4.3.2"
+        },
+        {
+          "path": "node_modules/js-yaml/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/json-schema",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/lodash",
+          "version": "4.18.1"
+        },
+        {
+          "path": "node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it-deflist",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/markdown-it-meta",
+          "version": "0.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-meta/node_modules/js-yaml",
+          "version": "3.15.2"
+        },
+        {
+          "path": "node_modules/markdown-it-meta/node_modules/js-yaml/node_modules/argparse",
+          "version": "1.0.10"
+        },
+        {
+          "path": "node_modules/markdown-it-meta/node_modules/js-yaml/node_modules/argparse/node_modules/sprintf-js",
+          "version": "1.0.3"
+        },
+        {
+          "path": "node_modules/markdown-it-meta/node_modules/js-yaml/node_modules/esprima",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-sup",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/node-html-parser",
+          "version": "6.1.13"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select",
+          "version": "5.2.2"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/nth-check",
+          "version": "2.1.1"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/nth-check/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/he",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/openapi-types",
+          "version": "12.1.3"
+        },
+        {
+          "path": "node_modules/ts-dedent",
+          "version": "2.2.0"
+        },
+        {
+          "path": "node_modules/uri-js",
+          "version": "4.4.1"
+        },
+        {
+          "path": "node_modules/uri-js/node_modules/punycode",
+          "version": "2.3.1"
+        },
+        {
+          "path": "node_modules/xml-formatter",
+          "version": "3.6.7"
+        },
+        {
+          "path": "node_modules/xml-formatter/node_modules/xml-parser-xo",
+          "version": "4.1.5"
+        },
+        {
+          "path": "node_modules/xml-parser-xo",
+          "version": "4.1.5"
+        },
+        {
+          "path": "node_modules/yaml",
+          "version": "2.9.0"
+        }
+      ]
+    }
+  ],
+  "hostPeers": [
+    {
+      "repo": "tabs-extension",
+      "context": "",
+      "name": "react"
+    },
+    {
+      "repo": "transform",
+      "context": "node_modules/@diplodoc/utils",
+      "name": "react"
+    }
+  ],
+  "cliBaseLockSha256": "c5d912345ab837d05713a2f113d78ed6ed9e007b4df2dc3d04dfc4be4f0b94f7",
+  "integrations": [],
+  "cliBaseSha": "70b53ad01835feaeda7856cb96b7ba403213090a"
+}
