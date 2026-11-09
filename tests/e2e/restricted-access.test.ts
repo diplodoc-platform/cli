@@ -20,7 +20,9 @@ describe('Restricted access', () => {
     generateFilesYamlTestTemplate('Nested toc restricted access', 'mocks/restricted-access/test3');
 
     test('emits empty restrictedAccess when the project has no restrictions', async () => {
-        const {inputPath, outputPath} = getTestPaths('mocks/generate-map/test1');
+        const {inputPath, outputPath: fixtureOutputPath} = getTestPaths('mocks/generate-map/test1');
+        // generate-map.spec.ts shares the input but must keep its own build output.
+        const outputPath = `${fixtureOutputPath}-restricted-access`;
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,

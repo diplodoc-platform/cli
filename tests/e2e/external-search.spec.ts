@@ -93,6 +93,7 @@ describe('external HTTP search', () => {
                 fetch,
                 URL,
             };
+            await expect(access(join(output, '_bundle/external-search/api.js'))).rejects.toThrow();
             const source = await readFile(join(output, '_search/external-api.js'), 'utf8');
             runInNewContext(source, context);
             const {api} = context as typeof context & {
