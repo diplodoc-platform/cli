@@ -19,8 +19,9 @@ import {SourceMap} from '@diplodoc/liquid';
 
 import {Buckets, Defer, Graph, VFile, all, bounded, fullPath, normalizePath} from '~/core/utils';
 
-import {LoaderAPI, loader} from './loader';
+import {LoaderAPI, inspectMarkdown, loader} from './loader';
 import {getHooks, withHooks} from './hooks';
+import {extractIncludedBlocks} from './included';
 import {parseHeading, resolveMarkdownPage} from './utils';
 
 type MarkdownServiceConfig = {
@@ -273,7 +274,7 @@ export class MarkdownService {
         const content = await loader.call(context, raw);
 
         const deps = api.deps.get();
-        const assets = [...api.assets.get()];
+        const assets = [...api.assets.get(), ...this.embeddedAssets(file, content)];
 
         return {content, deps, assets};
     }
@@ -301,6 +302,35 @@ export class MarkdownService {
         this.pathToHeadings.delete(key);
         this.pathToComments.delete(key);
         this.pathToSourcemap.delete(key);
+    }
+
+    /** Returns assets from reachable embedded sources using each source's own logical path. */
+    embeddedAssets(file: NormalizedPath, content: string, deps: IncludeInfo[] = []): AssetInfo[] {
+        const {content: cleanContent, files} = extractIncludedBlocks(content, file);
+        if (!Object.keys(files).length) {
+            return [];
+        }
+
+        const assets: AssetInfo[] = [];
+        const seen = new Set<NormalizedPath>();
+        const context = this.loaderContext(file, cleanContent, {});
+        const roots = inspectMarkdown.call(context, cleanContent).deps;
+        const visit = ({path}: IncludeInfo) => {
+            if (seen.has(path) || typeof files[path] !== 'string') {
+                return;
+            }
+            seen.add(path);
+
+            const body = files[path];
+            const context = this.loaderContext(path, body, {});
+            const inspected = inspectMarkdown.call(context, body);
+            assets.push(...inspected.assets);
+            inspected.deps.forEach(visit);
+        };
+
+        [...roots, ...deps].forEach(visit);
+
+        return assets;
     }
 
     private async _meta(file: NormalizedPath, from?: NormalizedPath) {
@@ -363,7 +393,12 @@ export class MarkdownService {
 
         graph.addNode(path, {type: 'entry'});
 
-        await this.load(path, from);
+        const content = await this.load(path, from);
+        const embedded = content.includes('included')
+            ? this.embeddedAssets(path, content, await this._deps(path, from))
+            : [];
+        const assets = (this.pathToAssets.get(key) || []).concat(embedded);
+
         await all(
             (this.pathToDeps.get(key) || []).map(async (dep) => {
                 graph.consume(await this._relations(dep.path, from || path));
@@ -380,7 +415,7 @@ export class MarkdownService {
             graph.addDependency(path, source);
         }
 
-        (this.pathToAssets.get(key) || []).map(async (asset) => {
+        assets.forEach((asset) => {
             if (['image', 'video'].includes(asset.type)) {
                 graph.addNode(asset.path);
                 graph.setNodeData(asset.path, {type: 'resource'});
@@ -423,7 +458,7 @@ export class MarkdownService {
     private async _assets(file: NormalizedPath, from?: NormalizedPath) {
         const key = hash(file, from);
 
-        await this.load(file, from);
+        const content = await this.load(file, from);
 
         const assets = this.pathToAssets.get(key) || [];
         const internals: AssetInfo[][] = await all(
@@ -432,7 +467,9 @@ export class MarkdownService {
             }),
         );
 
-        return assets.concat(...internals);
+        const embeddedDeps = content.includes('included') ? await this._deps(file, from) : [];
+
+        return assets.concat(...internals, this.embeddedAssets(file, content, embeddedDeps));
     }
 
     private async _headings(file: NormalizedPath, from?: NormalizedPath) {

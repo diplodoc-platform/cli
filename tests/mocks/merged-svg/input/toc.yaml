@@ -1,0 +1,5 @@
+title: Embedded SVG
+href: index.md
+items:
+  - name: Nested
+    href: nested.md

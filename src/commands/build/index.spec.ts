@@ -6,15 +6,20 @@ import type {Stats} from 'node:fs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {constants as fsConstants} from 'node:fs/promises';
 
+import {normalizePath} from '~/core/utils';
+
 import {combineProps, fileSizeConverter} from './config';
 import {
     handler,
     runBuild as run,
+    setupRun,
     testConfig as test,
     testBooleanFlag,
     testNestedBooleanFlag,
 } from './__tests__';
 import {Run} from './run';
+
+import {Build} from '.';
 
 describe('Build command', () => {
     describe('config', () => {
@@ -1286,4 +1291,29 @@ describe('Build command', () => {
     });
 
     // describe('apply', () => {});
+    describe('process', () => {
+        it('preserves cached page resources when receiving main-thread metadata', async () => {
+            const run = setupRun({addResourcesMeta: true});
+            const build = new Build();
+            Object.assign(build, {run});
+            const file = normalizePath('page.md');
+            const resources = {
+                style: ['custom.css'],
+                csp: [{'frame-src': ['https://example.com']}],
+            };
+            const incomingMeta = {...run.meta.snapshot(file), title: 'Page'};
+            run.meta.addResources(file, resources);
+
+            vi.spyOn(run.entry, 'dump').mockResolvedValue({
+                path: file,
+                info: {},
+                toString: () => '# Page',
+            } as Awaited<ReturnType<Run['entry']['dump']>>);
+            vi.mocked(run.write).mockResolvedValue(undefined);
+
+            await build.process(file, incomingMeta);
+
+            expect(run.meta.snapshot(file)).toMatchObject({title: 'Page', ...resources});
+        });
+    });
 });

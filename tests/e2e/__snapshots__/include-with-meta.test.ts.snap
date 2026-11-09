@@ -97,8 +97,8 @@ Some content in section 2.
 exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preserve meta information in includes 4`] = `
 "## Documentation
 
-- [Main Page](index.md)
-- [Included Page](included.md)
+- [Main Page Title](index.md): This is the description for the main page
+- [Included Page Title](included.md): This is the description for the included page
 
 ---
 

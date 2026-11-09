@@ -1,7 +1,9 @@
+import type Token from 'markdown-it/lib/token';
 import type {Run} from '../../..';
 import type {HashedGraphNode, Scheduler, StepFunction} from '../utils';
 
 import {basename, dirname, join, relative} from 'node:path';
+import MarkdownIt from 'markdown-it';
 import slugify from 'slugify';
 
 import {
@@ -36,6 +38,17 @@ const CUSTOM_ANCHOR_RE = /\{\s*#([\p{L}\p{N}_-]+)\s*\}/u;
 const CUSTOM_ANCHOR_GLOBAL_RE = /\{\s*#[\p{L}\p{N}_-]+\s*\}/gu;
 const SLUG_REMOVE_RE = /[^\w\s$\-,;=/]+/g;
 const TERM_DEF_LINE_RE = /^(?:>\s*)*\s*\[\*([^[\]]+)\]:/;
+// Term destinations use YFM syntax, not Markdown URL syntax: keys may contain
+// spaces. Prose labels may wrap, while interactive fenced labels stay on one line.
+const TERM_REFERENCE_PATTERN = String.raw`\[(?:\\[\s\S]|[^\[\]\\])+\]\(\*([^\r\n)]+)\)|\[\*([^\[\]\r\n]+)\](?!:)`;
+const TERM_REFERENCE_RE = new RegExp(TERM_REFERENCE_PATTERN, 'g');
+const FENCED_TERM_REFERENCE_RE =
+    /\[(?:\\[^\r\n]|[^[\]\\\r\n])+\]\(\*([^\r\n)]+)\)|\[\*([^[\]\r\n]+)\](?!:)/g;
+const TERM_OR_CODE_SPAN_RE = new RegExp(
+    String.raw`(\x60+)[^\n]*?\1|${TERM_REFERENCE_PATTERN}`,
+    'g',
+);
+const TERM_OR_BACKTICKS_RE = new RegExp(String.raw`(\x60+)|${TERM_REFERENCE_PATTERN}`, 'g');
 // CommonMark HTML block type 1 opening tags: <script>, <pre>, <style>, <textarea>
 // These tags are NOT interrupted by blank lines and break rendering when indented
 // inside a list item (markdown-it parses them as plain text, not HTML blocks).
@@ -883,9 +896,44 @@ function sliceLines(lines: string[], start: number, end?: number): string {
  * prematurely terminate the section.
  */
 export function extractSection(content: string, hash: string): string {
+    return selectSection(content, hash).content;
+}
+
+/** Validates ambiguous headings lazily before updating the selected section. */
+function createSectionHeadingHandler(
+    lines: string[],
+    hash: string,
+    ctx: {start: number; level: number},
+) {
+    let headingLines: Set<number> | undefined;
+
+    return (heading: {level: number; anchor: string}, line: number): string | null => {
+        if (/^(?: {4}| {0,3}\t)/.test(lines[line])) {
+            // Deep indentation may be a paragraph continuation or code,
+            // but it can also introduce a real heading inside a list.
+            headingLines ??= new Set(
+                parseMarkdownBlocks(lines).tokens.flatMap((token) =>
+                    token.type === 'heading_open' && token.map ? [token.map[0]] : [],
+                ),
+            );
+            if (!headingLines.has(line)) {
+                return null;
+            }
+        }
+
+        return processHeadingForSection(heading, hash, ctx, lines, line);
+    };
+}
+
+function selectSection(
+    content: string,
+    hash: string,
+): {content: string; includesAllDefinitions: boolean} {
     const lines = content.split('\n');
     const ctx = {start: -1, level: 0};
+    const handleHeading = createSectionHeadingHandler(lines, hash, ctx);
     const fence = newFenceState();
+    let definitionsBeforeSection = false;
 
     for (let i = 0; i < lines.length; i++) {
         const trimmed = lines[i].trim();
@@ -893,22 +941,30 @@ export function extractSection(content: string, hash: string): string {
         if (processCodeFence(trimmed, fence)) {
             continue;
         }
+        if (ctx.start < 0 && TERM_DEF_LINE_RE.test(lines[i])) {
+            definitionsBeforeSection = true;
+        }
 
         const heading = parseHeading(trimmed);
         if (heading) {
-            const result = processHeadingForSection(heading, hash, ctx, lines, i);
+            const result = handleHeading(heading, i);
             if (result !== null) {
-                return result;
+                return {content: result, includesAllDefinitions: false};
             }
             continue;
         }
 
         if (ctx.start < 0 && CUSTOM_ANCHOR_RE.exec(trimmed)?.[1] === hash) {
-            return extractParagraph(lines, i);
+            return {content: extractParagraph(lines, i), includesAllDefinitions: false};
         }
     }
 
-    return ctx.start >= 0 ? sliceLines(lines, ctx.start) : content;
+    // A suffix with no earlier definitions already contains every definition;
+    // its parsed terms can be reused without scanning the full dependency again.
+    return {
+        content: ctx.start >= 0 ? sliceLines(lines, ctx.start) : content,
+        includesAllDefinitions: ctx.start < 0 || !definitionsBeforeSection,
+    };
 }
 
 type FallbackEntry = {key: string; content: string};
@@ -930,20 +986,28 @@ export function collectFallbackDepsForInlined(
     const toDir = dirname(rootPath);
 
     for (const subDep of deps) {
-        if (parentProcessedContent && !parentProcessedContent.includes(subDep.match)) {
-            continue;
+        if (parentProcessedContent === undefined || parentProcessedContent.includes(subDep.match)) {
+            const rebasedLink = rebaseUrl(stripHash(subDep.link), fromDir, toDir);
+            const key = rebasedLink || stripHash(subDep.link);
+
+            if (!seen.has(key)) {
+                seen.add(key);
+                result.push({key, content: contentWithoutFrontmatter(subDep.content)});
+            }
         }
 
-        const rebasedLink = rebaseUrl(stripHash(subDep.link), fromDir, toDir);
-        const key = rebasedLink || stripHash(subDep.link);
-
-        if (!seen.has(key)) {
-            seen.add(key);
-            result.push({key, content: contentWithoutFrontmatter(subDep.content)});
-        }
-
+        // Inlining a parent removes its directive, but unresolved descendants
+        // can still occur in the merged body or in its hoisted term section.
         if (subDep.deps.length > 0) {
-            result.push(...collectFallbackDepsForInlined(subDep.deps, subDep.path, rootPath, seen));
+            result.push(
+                ...collectFallbackDepsForInlined(
+                    subDep.deps,
+                    subDep.path,
+                    rootPath,
+                    seen,
+                    parentProcessedContent === undefined ? undefined : subDep.content,
+                ),
+            );
         }
     }
 
@@ -1054,41 +1118,36 @@ export function prepareInlinedContent(
     termsCollector?: Array<TermBlock & {sourcePath: string}>,
     trailingSuffix?: string,
 ): string {
-    let depContent = contentWithoutFrontmatter(dep.content);
-
+    const sourceContent = contentWithoutFrontmatter(dep.content);
     const hashIndex = dep.link.indexOf('#');
-    if (hashIndex >= 0) {
-        depContent = extractSection(depContent, dep.link.slice(hashIndex + 1));
-    }
+    const section =
+        hashIndex >= 0
+            ? selectSection(sourceContent, dep.link.slice(hashIndex + 1))
+            : {content: sourceContent, includesAllDefinitions: true};
+    const {cleanContent, terms: selectedTerms} = termsCollector
+        ? extractTermDefinitions(section.content)
+        : {cleanContent: section.content, terms: []};
+    let depContent = cleanContent;
 
     if (NOTITLE_RE.test(dep.match)) {
         depContent = stripFirstHeading(depContent);
     }
 
     if (termsCollector) {
-        const {cleanContent, terms} = extractTermDefinitions(depContent);
-        depContent = cleanContent;
-        for (const term of terms) {
-            const rebasedBlock = rebaseRelativePaths(term.block, dep.path, entry);
-            const normalized = normalizeTermBlockForCompare(rebasedBlock);
-            const duplicate = termsCollector.find(
-                (t) => t.key === term.key && normalizeTermBlockForCompare(t.block) === normalized,
-            );
-            if (duplicate) {
-                continue;
-            }
+        // Keep definitions that belong to the selected section even when their
+        // references are in its parent. Hoisted definitions outside the section
+        // are imported only when needed, so omitted sections cannot add conflicts.
+        const terms = !section.includesAllDefinitions
+            ? collectSectionTerms(
+                  depContent,
+                  selectedTerms,
+                  extractTermDefinitions(sourceContent).terms,
+              )
+            : selectedTerms;
 
-            const conflict = termsCollector.find(
-                (t) => t.key === term.key && normalizeTermBlockForCompare(t.block) !== normalized,
-            );
-            if (conflict) {
-                const newKey = makeUniqueTermKey(term.key, dep.path, termsCollector);
-                depContent = renameTermReferences(depContent, term.key, newKey);
-                const newBlock = rebasedBlock.replace(`[*${term.key}]:`, `[*${newKey}]:`);
-                termsCollector.push({key: newKey, block: newBlock, sourcePath: dep.path});
-            } else {
-                termsCollector.push({key: term.key, block: rebasedBlock, sourcePath: dep.path});
-            }
+        const renames = collectInlinedTerms(terms, dep.path, entry, termsCollector);
+        if (renames.size > 0) {
+            depContent = rewriteTermReferences(depContent, (key) => renames.get(key));
         }
     }
 
@@ -1138,10 +1197,6 @@ export function addFallbackDep(
     }
 }
 
-function escapeRegExp(s: string): string {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
-}
-
 /**
  * Normalizes term definition block text for duplicate/conflict comparison
  * (trailing newline differences from different sources should not force a rename).
@@ -1158,10 +1213,9 @@ function normalizeTermBlockForCompare(block: string): string {
 function makeUniqueTermKey(
     baseKey: string,
     sourcePath: string,
-    existing: ReadonlyArray<{key: string}>,
+    usedKeys: ReadonlySet<string>,
 ): string {
     const stem = basename(sourcePath, '.md').replace(/[^\w-]/g, '-');
-    const usedKeys = new Set(existing.map((t) => t.key));
     let candidate = `${baseKey}__${stem}`;
     let counter = 2;
     while (usedKeys.has(candidate)) {
@@ -1171,12 +1225,364 @@ function makeUniqueTermKey(
 }
 
 /**
- * Renames term references `[*oldKey]` → `[*newKey]` in content.
- * Only matches references (not definitions, which have `:` after `]`).
+ * Collects YFM term keys, including raw references in fenced and inline code.
+ * The renderer keeps definitions referenced from either kind of code.
  */
-function renameTermReferences(content: string, oldKey: string, newKey: string): string {
-    const re = new RegExp(String.raw`\[\*${escapeRegExp(oldKey)}\](?!:)`, 'g');
-    return content.replace(re, `[*${newKey}]`);
+function findTermReferences(content: string): Set<string> {
+    const references = new Set<string>();
+    mapTermReferenceBlocks(content, (block) => {
+        for (const match of block.matchAll(TERM_REFERENCE_RE)) {
+            references.add(match[1] ?? match[2]);
+        }
+        return block;
+    });
+
+    return references;
+}
+
+/** Indexes every definition for a key without changing their source order. */
+function indexTermBlocks(terms: TermBlock[]): Map<string, TermBlock[]> {
+    const blocksByKey = new Map<string, TermBlock[]>();
+    for (const term of terms) {
+        const blocks = blocksByKey.get(term.key);
+        if (blocks) {
+            blocks.push(term);
+        } else {
+            blocksByKey.set(term.key, [term]);
+        }
+    }
+    return blocksByKey;
+}
+
+/**
+ * Preserves a selected section's definitions and resolves references to hoisted
+ * definitions, including references inside definitions. Each block is scanned
+ * at most once, even when definitions form a cycle.
+ */
+function collectSectionTerms(
+    content: string,
+    selectedTerms: TermBlock[],
+    allTerms: TermBlock[],
+): TermBlock[] {
+    if (allTerms.length === 0) {
+        return [];
+    }
+
+    const needed = findTermReferences(content);
+    for (const term of selectedTerms) {
+        needed.add(term.key);
+    }
+    if (needed.size === 0) {
+        return [];
+    }
+
+    const blocksByKey = indexTermBlocks(allTerms);
+    const pending = Array.from(needed);
+    for (const pendingKey of pending) {
+        for (const term of blocksByKey.get(pendingKey) ?? []) {
+            for (const key of findTermReferences(term.block)) {
+                if (!needed.has(key)) {
+                    needed.add(key);
+                    pending.push(key);
+                }
+            }
+        }
+    }
+
+    return allTerms.filter((term) => needed.has(term.key));
+}
+
+function rewriteTermReference(
+    match: string,
+    key: string | undefined,
+    shorthandKey: string | undefined,
+    resolve: (key: string) => string | undefined,
+): string {
+    const originalKey = key ?? shorthandKey;
+    const newKey = originalKey === undefined ? undefined : resolve(originalKey);
+    if (newKey === undefined) {
+        return match;
+    }
+
+    return key === undefined ? `[*${newKey}]` : match.slice(0, -key.length - 1) + newKey + ')';
+}
+
+/**
+ * Renames both `[label](*key)` and shorthand `[*key]` term references.
+ * Definition labels and inline code literals are left unchanged. References
+ * inside fenced code remain interactive and must follow a renamed definition.
+ */
+function rewriteTermReferences(
+    content: string,
+    resolve: (key: string) => string | undefined,
+): string {
+    return mapTermReferenceBlocks(content, (block, kind) => {
+        if (kind === 'code') {
+            return block;
+        }
+        if (kind === 'fence') {
+            return block.replace(FENCED_TERM_REFERENCE_RE, (match, key, shorthandKey) =>
+                rewriteTermReference(match, key, shorthandKey, resolve),
+            );
+        }
+        return rewriteProseTermReferences(block, resolve);
+    });
+}
+
+type TermReferenceBlockKind = 'prose' | 'fence' | 'code';
+type TermReferenceBlock = {start: number; end: number; kind: TermReferenceBlockKind};
+
+let markdownBlockParser: MarkdownIt | undefined;
+
+/** Parses source blocks only; YFM term definitions must not become link definitions. */
+function parseMarkdownBlocks(lines: string[]): {tokens: Token[]; parserLines: string[]} {
+    const parserLines = normalizeTermReferenceFences(lines);
+    const parser = (markdownBlockParser ??= new MarkdownIt({html: true}).disable('reference'));
+    const tokens: Token[] = [];
+    parser.block.parse(parserLines.join('\n'), parser, {}, tokens);
+
+    return {tokens, parserLines};
+}
+
+/** Maps a supported token to its source body, leaving fence delimiters untouched. */
+function getTermReferenceBlock(
+    token: Token,
+    parserLines: string[],
+): TermReferenceBlock | undefined {
+    if (!token.map) {
+        return undefined;
+    }
+    const [start, end] = token.map;
+    switch (token.type) {
+        case 'inline':
+        case 'tr_open':
+            // Table cell inline tokens lack maps; their mapped row is visited once.
+            return {start, end, kind: 'prose'};
+        case 'code_block':
+            return {start, end, kind: 'code'};
+        case 'fence': {
+            const bodyStart = start + 1;
+            const hasCloser =
+                end > bodyStart &&
+                fenceCloseTail(stripBlockquoteMarkers(parserLines[end - 1]), token.markup) === '';
+            return {start: bodyStart, end: hasCloser ? end - 1 : end, kind: 'fence'};
+        }
+        default:
+            return undefined;
+    }
+}
+
+/**
+ * Lets the Markdown block parser distinguish wrapped paragraph text from block
+ * boundaries. Its maps address the original lines, so prefixes and line endings
+ * survive unchanged. Inline parsing and rendering are not run.
+ */
+function mapTermReferenceBlocks(
+    content: string,
+    visit: (block: string, kind: TermReferenceBlockKind) => string,
+): string {
+    if (content.search(TERM_REFERENCE_RE) < 0) {
+        return content;
+    }
+
+    const lines = content.split('\n');
+    const {tokens, parserLines} = parseMarkdownBlocks(lines);
+
+    const result: string[] = [];
+    let nextLine = 0;
+    for (const token of tokens) {
+        const block = getTermReferenceBlock(token, parserLines);
+        if (!block) {
+            continue;
+        }
+        const {start, end, kind} = block;
+        if (start < nextLine || end <= start) {
+            continue;
+        }
+        if (start > nextLine) {
+            result.push(lines.slice(nextLine, start).join('\n'));
+        }
+        result.push(visit(lines.slice(start, end).join('\n'), kind));
+        nextLine = end;
+    }
+    if (nextLine < lines.length) {
+        result.push(lines.slice(nextLine).join('\n'));
+    }
+
+    return result.join('\n');
+}
+
+/** Accepts YFM fence closers glued to a table separator only in the parser copy. */
+function normalizeTermReferenceFences(lines: string[]): string[] {
+    const fence = newFenceState();
+    return lines.map((line) => {
+        const normalized = line.endsWith('\r') ? line.slice(0, -1) : line;
+        const plain = stripBlockquoteMarkers(normalized);
+        const tail = fence.active ? fenceCloseTail(plain, fence.markup) : null;
+        processCodeFence(plain, fence);
+        if (tail?.startsWith('||')) {
+            return normalized.slice(0, normalized.indexOf('||', normalized.length - plain.length));
+        }
+        return normalized;
+    });
+}
+
+/** Indexes exact-width code-span closers in one reverse pass. */
+function indexCodeSpanClosers(content: string): Map<number, number> {
+    const closingByStart = new Map<number, number>();
+    const nextByWidth = new Map<number, number>();
+    const runs = Array.from(content.matchAll(/`+/g));
+    for (let index = runs.length - 1; index >= 0; index--) {
+        const run = runs[index];
+        const width = run[0].length;
+        const next = nextByWidth.get(width);
+        if (next !== undefined) {
+            closingByStart.set(run.index, next + width);
+        }
+        nextByWidth.set(width, run.index);
+    }
+    return closingByStart;
+}
+
+/** Rewrites prose references while preserving single- and multi-line code spans. */
+function rewriteProseTermReferences(
+    content: string,
+    resolve: (key: string) => string | undefined,
+): string {
+    if (!content.includes('`')) {
+        return content.replace(TERM_REFERENCE_RE, (match, key, shorthandKey) =>
+            rewriteTermReference(match, key, shorthandKey, resolve),
+        );
+    }
+    if (!content.includes('\n')) {
+        return content.replace(TERM_OR_CODE_SPAN_RE, (match, code, key, shorthandKey) =>
+            code ? match : rewriteTermReference(match, key, shorthandKey, resolve),
+        );
+    }
+
+    // Searching separately for each unmatched delimiter would be quadratic.
+    const closingByStart = indexCodeSpanClosers(content);
+
+    const result: string[] = [];
+    const tokens = new RegExp(TERM_OR_BACKTICKS_RE);
+    let start = 0;
+    for (let match = tokens.exec(content); match; match = tokens.exec(content)) {
+        if (match[1]) {
+            let escapeStart = match.index;
+            while (escapeStart > 0 && content[escapeStart - 1] === '\\') {
+                escapeStart--;
+            }
+            const close = closingByStart.get(match.index);
+            if (close !== undefined && (match.index - escapeStart) % 2 === 0) {
+                result.push(content.slice(start, close));
+                start = close;
+                tokens.lastIndex = close;
+            }
+        } else {
+            result.push(
+                content.slice(start, match.index),
+                rewriteTermReference(match[0], match[2], match[3], resolve),
+            );
+            start = tokens.lastIndex;
+        }
+    }
+    result.push(content.slice(start));
+    return result.join('');
+}
+
+/**
+ * Resolves definition conflicts before rewriting references. Renames also apply
+ * to imported definition bodies; an otherwise identical definition cannot be
+ * shared with its parent when one of its referenced definitions has changed.
+ */
+function collectInlinedTerms(
+    terms: TermBlock[],
+    sourcePath: NormalizedPath,
+    entry: NormalizedPath,
+    collector: Array<TermBlock & {sourcePath: string}>,
+): Map<string, string> {
+    if (terms.length === 0) {
+        return new Map();
+    }
+
+    const imported = terms.map((term) => ({
+        key: term.key,
+        block: rebaseRelativePaths(term.block, sourcePath, entry),
+    }));
+    const existing = new Map(collector.map((term) => [term.key, term.block]));
+    const renames = resolveInlinedTermConflicts(imported, existing, sourcePath);
+
+    for (const term of imported) {
+        const key = renames.get(term.key) ?? term.key;
+        let block =
+            renames.size > 0
+                ? rewriteTermReferences(term.block, (reference) => renames.get(reference))
+                : term.block;
+        if (key !== term.key) {
+            block = block.replace(`[*${term.key}]:`, `[*${key}]:`);
+        }
+        const previous = existing.get(key);
+        if (
+            previous !== undefined &&
+            normalizeTermBlockForCompare(previous) === normalizeTermBlockForCompare(block)
+        ) {
+            continue;
+        }
+        collector.push({key, block, sourcePath});
+        existing.set(key, block);
+    }
+
+    return renames;
+}
+
+/** Resolves direct conflicts and propagates renames through shared definitions. */
+function resolveInlinedTermConflicts(
+    imported: TermBlock[],
+    existing: ReadonlyMap<string, string>,
+    sourcePath: NormalizedPath,
+): Map<string, string> {
+    const renames = new Map<string, string>();
+    const usedKeys = new Set([...existing.keys(), ...imported.map((term) => term.key)]);
+    const dependents = new Map<string, Set<string>>();
+    const pending: string[] = [];
+    const rename = (key: string) => {
+        if (renames.has(key)) {
+            return;
+        }
+        const newKey = makeUniqueTermKey(key, sourcePath, usedKeys);
+        usedKeys.add(newKey);
+        renames.set(key, newKey);
+        pending.push(key);
+    };
+
+    for (const term of imported) {
+        const previous = existing.get(term.key);
+        if (previous === undefined) {
+            continue;
+        }
+        if (normalizeTermBlockForCompare(previous) !== normalizeTermBlockForCompare(term.block)) {
+            rename(term.key);
+            continue;
+        }
+
+        rewriteTermReferences(term.block, (key) => {
+            const keys = dependents.get(key);
+            if (keys) {
+                keys.add(term.key);
+            } else {
+                dependents.set(key, new Set([term.key]));
+            }
+            return undefined;
+        });
+    }
+
+    for (const key of pending) {
+        for (const dependentKey of dependents.get(key) ?? []) {
+            rename(dependentKey);
+        }
+    }
+
+    return renames;
 }
 
 /**
@@ -1470,9 +1876,9 @@ function buildRootAppendix(
  *     (term definitions are left as-is).
  * - Non-standalone includes always use {% included %} fallback blocks.
  *
- * @param rootMode - When true (entry file), adds fallback blocks and term
- *   sections at the end.  When false (dep files), only inlines standalone
- *   includes so that nested include chains are resolved bottom-up.
+ * @param rootMode - When true (entry file), adds fallback blocks at the end.
+ *   Term definitions are hoisted at every level before the collected dependency
+ *   is inlined into its parent, preserving the boundary of each term section.
  */
 export function mergeIncludes(
     run: Run,
@@ -1486,9 +1892,8 @@ export function mergeIncludes(
             return;
         }
 
-        const multilineTerm = rootMode
-            ? (run.config.content.multilineTermDefinitions ?? run.config.multilineTermDefinitions)
-            : false;
+        const multilineTerm =
+            run.config.content.multilineTermDefinitions ?? run.config.multilineTermDefinitions;
         const fallbackEntries: FallbackEntry[] = [];
         const seen = new Set<string>();
         const allTerms: TermWithSource[] = [];
@@ -1551,16 +1956,14 @@ export function mergeIncludes(
             }
         }
 
-        if (rootMode) {
-            const appendix = buildRootAppendix(
-                allTerms,
-                fallbackEntries,
-                multilineTerm,
-                run.logger,
-            );
-            if (appendix) {
-                scheduler.add([0, 0], async (content) => content + appendix, {});
-            }
+        const appendix = buildRootAppendix(
+            allTerms,
+            rootMode ? fallbackEntries : [],
+            multilineTerm,
+            run.logger,
+        );
+        if (appendix) {
+            scheduler.add([0, 0], async (content) => content + appendix, {});
         }
     } as StepFunction;
 }

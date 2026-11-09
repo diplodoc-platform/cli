@@ -1,10 +1,13 @@
 import type {LogConfig} from './types';
 
 import {relative} from 'node:path';
-import {execa} from 'execa';
+import {setTimeout} from 'node:timers/promises';
+import {ExecaError, execa} from 'execa';
 import {minimatch} from 'minimatch';
 
 import {memoize, normalizePath} from '@diplodoc/cli/lib/utils';
+
+const RETRY_DELAY_MS = 2000;
 
 export interface AuthorInfo {
     login: string;
@@ -214,22 +217,34 @@ export class ArcClient {
     private async run(...args: string[]) {
         const cwd = await arc(this.root, 'root');
 
-        return arc(cwd, ...args);
+        try {
+            return await arc(cwd, ...args);
+        } catch (error) {
+            if (
+                args[0] !== 'log' ||
+                !(error instanceof ExecaError) ||
+                !error.exitCode ||
+                !/DEADLINE_EXCEEDED/.test(error.stderr ?? '')
+            ) {
+                throw error;
+            }
+
+            await setTimeout(RETRY_DELAY_MS);
+            return arc(cwd, ...args);
+        }
     }
 }
 
 //
 
 async function arc(cwd: string, ...args: string[]) {
-    const {stdout, stderr} = await execa('arc', args, {
+    // Arc may write diagnostics to stderr even on success (for example, dns:///).
+    // Let execa reject failed commands based on their exit code.
+    const {stdout} = await execa('arc', args, {
         cwd,
         buffer: true,
         maxBuffer: 1024 * 1024 * 64,
     });
-
-    if (stderr) {
-        throw new Error(stderr);
-    }
 
     return stdout || '';
 }

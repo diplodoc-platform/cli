@@ -1,0 +1,13 @@
+title: Section term references
+href: index.md
+items:
+  - name: Fenced reference
+    href: fenced.md
+  - name: Key with a space
+    href: spaces.md
+  - name: Excluded definition
+    href: excluded.md
+  - name: Conflicting definitions
+    href: conflicts.md
+  - name: Conflicting definition chain
+    href: chained-conflict.md

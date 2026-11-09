@@ -1609,18 +1609,18 @@ exports[`Regression > internal 18`] = `
 
 - [Verbose root (index.yaml) will be transformed to index.html](index.yaml)
 - [Root will be transformed to index.html](/index.yaml)
-- [Md item with not_var syntax](1.md)
-- [Md item named without extension](1.md)
-- [Multitoc item](merge/merged.md)
+- [Title](1.md)
+- [Title](1.md)
+- [Merged item](merge/merged.md)
 - [Fragments](includes/fragments.md)
-- [Included Item](included-item.md)
+- [Included item](included-item.md)
 - [Item 1](sub/folder/item-1.md)
 - [Mermaid usage](mermaid.md)
 - [Latex usage](latex.md)
 - [Images](images.md)
-- [Autotitle](autotitle.md)
-- [includes](includes.md)
-- [Entry as include](entry-as-include.md)
+- [Autotitles](autotitle.md)
+- [Mermaid usage](includes.md)
+- [Entry that is also used as include](entry-as-include.md)
 - [Includer of entry](includer-of-entry.md)
 - [Note 1](generic/1.md)
 - [Note 1](generic/2.md)
@@ -1628,8 +1628,8 @@ exports[`Regression > internal 18`] = `
 - [Sub note 1](generic/Sub notes/1.md)
 - [Sub note 2](generic/Sub notes/2.md)
 - [openapi](openapi/openapi-spec.openapi.json): OpenAPI specification
-- [Overview](openapi/index.md)
-- [Overview](openapi/test-controller/index.md)
+- [OpenAPI definition](openapi/index.md)
+- [test-controller](openapi/test-controller/index.md)
 - [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
 - [Test x-hidden attribute](openapi/test-controller/getHiddenTest.md)
 
@@ -1685,8 +1685,8 @@ Should be linked in toc.yaml
 exports[`Regression > internal 20`] = `
 "## Documentation
 
-- [Use merged](merge.md)
-- [Multitoc item](../1.md)
+- [Should use merged item](merge.md)
+- [Title](../1.md)
 - [Merged item](merged.md)
 
 ---
@@ -3910,18 +3910,18 @@ exports[`Regression > internal 51`] = `
 
 - [Verbose root (index.yaml) will be transformed to index.html](index.yaml)
 - [Root will be transformed to index.html](/index.yaml)
-- [Md item with not_var syntax](1.md)
-- [Md item named without extension](1.md)
-- [Multitoc item](merge/merged.md)
+- [Title](1.md)
+- [Title](1.md)
+- [Merged item](merge/merged.md)
 - [Fragments](includes/fragments.md)
-- [Included Item](included-item.md)
+- [Included item](included-item.md)
 - [Item 1](sub/folder/item-1.md)
 - [Mermaid usage](mermaid.md)
 - [Latex usage](latex.md)
 - [Images](images.md)
-- [Autotitle](autotitle.md)
-- [includes](includes.md)
-- [Entry as include](entry-as-include.md)
+- [Autotitles](autotitle.md)
+- [Mermaid usage](includes.md)
+- [Entry that is also used as include](entry-as-include.md)
 - [Includer of entry](includer-of-entry.md)
 - [Note 1](generic/1.md)
 - [Note 1](generic/2.md)
@@ -3929,8 +3929,8 @@ exports[`Regression > internal 51`] = `
 - [Sub note 1](generic/Sub notes/1.md)
 - [Sub note 2](generic/Sub notes/2.md)
 - [openapi](openapi/openapi-spec.openapi.json): OpenAPI specification
-- [Overview](openapi/index.md)
-- [Overview](openapi/test-controller/index.md)
+- [OpenAPI definition](openapi/index.md)
+- [test-controller](openapi/test-controller/index.md)
 - [Simple get operation. тест новой верстки 3](openapi/test-controller/getWithPayloadResponse.md)
 - [Test x-hidden attribute](openapi/test-controller/getHiddenTest.md)
 
@@ -3986,8 +3986,8 @@ Should be linked in toc.yaml
 exports[`Regression > internal 53`] = `
 "## Documentation
 
-- [Use merged](merge.md)
-- [Multitoc item](../1.md)
+- [Should use merged item](merge.md)
+- [Title](../1.md)
 - [Merged item](merged.md)
 
 ---

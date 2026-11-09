@@ -1,8 +1,9 @@
-import type {Build, BuildArgs, OpenapiCompanionEntry, Run} from '~/commands/build';
+import type {Build, BuildArgs, EntryInfo, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {Toc} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
+import {eachSeries} from 'async';
 import {extractFrontMatter} from '@diplodoc/liquid';
 import {
     type ContentAudience,
@@ -14,10 +15,12 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
 
-import {MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
+import {getHooks as getEntryHooks} from '../../services/entry/hooks';
+import {getHooks as getBuildHooks} from '../../hooks';
+import {CollectedContentCache, MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
 import {resolveAbsolutePaths} from '../output-md/plugins/merge-includes';
 
-import {stripHtmlTags} from './utils';
+import {getArticleTitle, getPreparedArticleTitle, stripHtmlTags} from './utils';
 import {options, resolveLlmsFullMaxSize} from './config';
 
 export const LLMS_INDEX_FILENAME = 'llms.txt';
@@ -64,6 +67,14 @@ type LlmsTocItem = {
     items?: LlmsTocItem[];
 };
 
+type CollectionOptions = {
+    audience: ContentAudience;
+    fileName: string;
+    reportErrors?: boolean;
+    audienceSpecificContent?: Set<ContentAudience>;
+    pageTitles?: Map<NormalizedPath, string>;
+};
+
 /**
  * Generates `llms.txt` (a compact index) and `llms-full.txt` (the whole
  * documentation concatenated) per toc, following the https://llmstxt.org spec.
@@ -84,6 +95,13 @@ type LlmsTocItem = {
  * rendered `.html` in `html`.
  */
 export class Llms {
+    private readonly pages = new WeakMap<
+        Run,
+        Map<NormalizedPath, NonNullable<EntryInfo['llms']>>
+    >();
+
+    private readonly collections = new WeakMap<Run, CollectedContentCache>();
+
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Llms', (command: Command) => {
             command.addOption(options.llms);
@@ -108,6 +126,54 @@ export class Llms {
             return config;
         });
 
+        getBuildHooks(program)
+            .BeforeRun.for('md')
+            .tap('Llms', (run) => {
+                if (!run.config.llms?.enabled) {
+                    return;
+                }
+                getEntryHooks(run.entry).Dump.tap('Llms', (vfile) => {
+                    const {meta, content, type} = vfile.data;
+                    const title = typeof meta.title === 'string' ? meta.title : '';
+                    const description =
+                        typeof meta.description === 'string' ? meta.description : '';
+                    const page: NonNullable<EntryInfo['llms']> = {
+                        title,
+                        description,
+                    };
+                    const preprocess = run.config.preprocess;
+                    if (title.trim()) {
+                        page.h1 = '';
+                    } else if (type === 'yaml') {
+                        page.h1 = content.data.title || '';
+                    } else {
+                        const [, markdown] = extractFrontMatter(content.toString());
+                        page.h1 = getPreparedArticleTitle(
+                            markdown,
+                            run.config.allowHtml,
+                            Boolean(
+                                preprocess.mergeIncludes &&
+                                    preprocess.mergeAutotitles &&
+                                    !preprocess.mergeIncludesSourceMaps,
+                            ),
+                        );
+                    }
+                    Object.assign(vfile.info, {llms: page});
+                });
+            });
+        getBuildHooks(program)
+            .Entry.for('md')
+            .tap('Llms', (run, path, info) => {
+                if (info.llms) {
+                    let pages = this.pages.get(run);
+                    if (!pages) {
+                        pages = new Map();
+                        this.pages.set(run, pages);
+                    }
+                    pages.set(path, info.llms);
+                }
+            });
+
         getBaseHooks<Run>(program).AfterAnyRun.tapPromise('Llms', async (run) => {
             if (!run.config.llms?.enabled) {
                 return;
@@ -121,6 +187,15 @@ export class Llms {
                 }
             }
         });
+    }
+
+    private collectionCache(run: Run) {
+        let cache = this.collections.get(run);
+        if (!cache) {
+            cache = new CollectedContentCache();
+            this.collections.set(run, cache);
+        }
+        return cache;
     }
 
     private resolveLlmsEnabled(
@@ -148,17 +223,17 @@ export class Llms {
 
         const title = toc.title || '';
 
-        const index = await this.renderIndex(run, title, entries, tocDir);
+        // Reuse the human collection for titles, retaining only strings rather
+        // than another copy of every assembled article in memory.
+        const pageTitles = new Map<NormalizedPath, string>();
         const audienceSpecificContent = new Set<ContentAudience>();
-        const full = await this.renderFull(
-            run,
-            title,
-            entries,
-            'human',
-            LLMS_FULL_FILENAME,
-            true,
+        const full = await this.renderFull(run, title, entries, {
+            audience: 'human',
+            fileName: LLMS_FULL_FILENAME,
             audienceSpecificContent,
-        );
+            pageTitles,
+        });
+        const index = await this.renderIndex(run, title, entries, tocDir, pageTitles);
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
@@ -168,14 +243,11 @@ export class Llms {
         // reparsing the whole llms-full file on every request. Static html builds only expose the
         // canonical human corpus above.
         if (run.config.outputFormat === OutputFormat.md && audienceSpecificContent.size > 0) {
-            const agentFull = await this.renderFull(
-                run,
-                title,
-                entries,
-                'agent',
-                LLMS_FULL_AGENT_FILENAME,
-                false,
-            );
+            const agentFull = await this.renderFull(run, title, entries, {
+                audience: 'agent',
+                fileName: LLMS_FULL_AGENT_FILENAME,
+                reportErrors: false,
+            });
             await run.write(join(run.output, tocDir, LLMS_FULL_AGENT_FILENAME), agentFull, true);
         }
     }
@@ -272,7 +344,13 @@ export class Llms {
         return entries;
     }
 
-    private async renderIndex(run: Run, title: string, entries: LlmsEntry[], tocDir: string) {
+    private async renderIndex(
+        run: Run,
+        title: string,
+        entries: LlmsEntry[],
+        tocDir: string,
+        pageTitles?: ReadonlyMap<NormalizedPath, string>,
+    ) {
         const html = run.config.outputFormat === OutputFormat.html;
         const lines: string[] = [];
 
@@ -289,15 +367,31 @@ export class Llms {
         lines.push('## Documentation', '');
 
         const seenOpenapiCompanions = new Set<string>();
-        for (const entry of entries) {
+        // Loading includes can replace shared page metadata. Finish each entry
+        // before loading the next one, preserving TOC order without concurrency.
+        await eachSeries(entries, async (entry) => {
             this.appendOpenapiCompanions(run, entry, tocDir, lines, seenOpenapiCompanions);
 
-            const meta = await run.meta.dump(entry.path);
+            const prepared = this.pages.get(run)?.get(entry.path);
+            const pageTitle =
+                prepared?.h1 ??
+                pageTitles?.get(entry.path) ??
+                (await this.loadPageTitle(run, entry.path));
+            if (!prepared && pageTitles?.has(entry.path) && entry.path.endsWith('.md')) {
+                // A later article may have included this page with different
+                // variables. Restore its own metadata before using the cached H1.
+                await run.markdown.load(entry.path);
+            }
+            const meta = prepared || (await run.meta.dump(entry.path));
             const description = typeof meta.description === 'string' ? meta.description : '';
-            // Prefer the toc name; fall back to the page title (e.g. the root
-            // entry has no toc item name), then description, then the href.
-            const pageTitle = typeof meta.title === 'string' ? meta.title : '';
-            const name = entry.name || pageTitle || description || entry.href;
+            const metaTitle = typeof meta.title === 'string' ? meta.title : '';
+            const name =
+                [metaTitle, pageTitle, entry.name, description, entry.href]
+                    .map((value) => value.replace(/\s+/g, ' ').trim())
+                    .find(Boolean) || entry.href;
+            // The extracted title is plain text, including literal inline code.
+            // Keep Markdown syntax, HTML tags, and entities literal in the label.
+            const label = name.replace(/[\\[\]`*_<>&{}~^$]/g, String.raw`\$&`);
             const suffix = description ? `: ${description}` : '';
             // Link to the artifact that readers can fetch directly. Static HTML
             // builds use source-format companions when enabled; otherwise they
@@ -305,8 +399,8 @@ export class Llms {
             const relativeHref = resolveEntryHref(run, entry.href, html);
             const href = resolveAbsoluteHref(relativeHref, run.config.baseHref, tocDir);
 
-            lines.push(`- [${name}](${href})${suffix}`);
-        }
+            lines.push(`- [${label}](${href})${suffix}`);
+        });
 
         const fullHref = run.config.baseHref
             ? resolveAbsoluteHref(LLMS_FULL_FILENAME, run.config.baseHref, tocDir)
@@ -320,6 +414,53 @@ export class Llms {
         );
 
         return lines.join('\n') + '\n';
+    }
+
+    private async loadPageTitle(
+        run: Run,
+        path: NormalizedPath,
+        collectedMarkdown?: string,
+    ): Promise<string> {
+        // Load through the source services before dumping metadata: worker builds
+        // do not populate the main thread's MetaService. This also resolves Liquid
+        // consistently and keeps author metadata separate from the article H1.
+        const prepared = this.pages.get(run)?.get(path);
+        if (prepared?.h1 !== undefined) {
+            return prepared.h1;
+        }
+        try {
+            if (path.endsWith('.md')) {
+                if (!prepared) {
+                    await run.markdown.load(path);
+                }
+                const meta = prepared || (await run.meta.dump(path));
+                if (typeof meta.title === 'string' && meta.title.trim()) {
+                    return '';
+                }
+
+                if (collectedMarkdown !== undefined) {
+                    return getArticleTitle(collectedMarkdown, run.config.allowHtml);
+                }
+
+                // Includes are cached by path, but their variables depend on the
+                // article. Keep this collector scoped to one article's context.
+                const collector = new MarkdownCollector(run, SELF_CONTAINED, {
+                    audience: 'human',
+                    processedContent: this.collectionCache(run),
+                });
+                // Match the human document and canonical corpus: resolve includes
+                // (including hash/notitle) and filter visibility before selecting H1.
+                return getArticleTitle(await collector.collect(path), run.config.allowHtml);
+            }
+
+            if (path.endsWith('.yaml') || path.endsWith('.yml')) {
+                return (await run.leading.load(path)).title || '';
+            }
+        } catch (error) {
+            run.logger.warn(`llms.txt: unable to read title for ${path}: ${error}`);
+        }
+
+        return '';
     }
 
     /**
@@ -376,11 +517,10 @@ export class Llms {
         run: Run,
         title: string,
         entries: LlmsEntry[],
-        audience: 'human' | 'agent',
-        fileName: string,
-        reportErrors = true,
-        audienceSpecificContent?: Set<ContentAudience>,
+        options: CollectionOptions,
     ) {
+        const {audience, fileName} = options;
+        const processedContent = this.collectionCache(run);
         const parts: string[] = [];
 
         if (title) {
@@ -393,10 +533,6 @@ export class Llms {
             'utf8',
         );
 
-        // Assemble fully self-contained markdown (all includes merged),
-        // independent of the build's output format — see MarkdownCollector.
-        const collector = new MarkdownCollector(run, SELF_CONTAINED, {audience});
-
         for (const entry of entries) {
             // Leading (yaml) pages have no markdown body to inline; they still
             // appear in the index above.
@@ -404,15 +540,13 @@ export class Llms {
                 continue;
             }
 
-            const body = await this.collectBody(
-                run,
-                collector,
-                entry.path,
+            // The same include can resolve differently in each article's preset
+            // context. Never share its path-based collection cache across entries.
+            const collector = new MarkdownCollector(run, SELF_CONTAINED, {
                 audience,
-                fileName,
-                reportErrors,
-                audienceSpecificContent,
-            );
+                processedContent,
+            });
+            const body = await this.collectBody(run, collector, entry.path, options);
 
             if (!body) {
                 continue;
@@ -444,13 +578,23 @@ export class Llms {
         run: Run,
         collector: MarkdownCollector,
         entryPath: NormalizedPath,
-        audience: 'human' | 'agent',
-        fileName: string,
-        reportErrors: boolean,
-        audienceSpecificContent?: Set<ContentAudience>,
+        options: CollectionOptions,
     ): Promise<string> {
+        const {
+            audience,
+            fileName,
+            reportErrors = true,
+            audienceSpecificContent,
+            pageTitles,
+        } = options;
         try {
             const collected = await collector.collectWithInfo(entryPath);
+            if (pageTitles) {
+                pageTitles.set(
+                    entryPath,
+                    await this.loadPageTitle(run, entryPath, collected.content),
+                );
+            }
 
             // Keep the established order: strip non-LLM HTML before audience
             // filtering. Collection must filter first for dependency safety, so

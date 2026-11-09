@@ -1,6 +1,7 @@
 import {describe, expect, test} from 'vitest';
 import {join} from 'node:path';
-import {readFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {mkdtemp, readFile, realpath, rm} from 'node:fs/promises';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
@@ -20,20 +21,25 @@ describe('Restricted access', () => {
     generateFilesYamlTestTemplate('Nested toc restricted access', 'mocks/restricted-access/test3');
 
     test('emits empty restrictedAccess when the project has no restrictions', async () => {
-        const {inputPath, outputPath: fixtureOutputPath} = getTestPaths('mocks/generate-map/test1');
-        // generate-map.spec.ts shares the input but must keep its own build output.
-        const outputPath = `${fixtureOutputPath}-restricted-access`;
+        const {inputPath} = getTestPaths('mocks/generate-map/test1');
+        // Keep output separate from generate-map tests running in parallel.
+        const tempPath = await realpath(await mkdtemp(join(tmpdir(), 'restricted-access-')));
+        const outputPath = join(tempPath, 'output');
 
-        await TestAdapter.testBuildPass(inputPath, outputPath, {
-            md2md: true,
-            args: '--build-manifest',
-        });
+        try {
+            await TestAdapter.testBuildPass(inputPath, outputPath, {
+                md2md: true,
+                args: '--build-manifest',
+            });
 
-        const manifest = JSON.parse(
-            await readFile(join(outputPath, 'yfm-build-manifest.json'), 'utf-8'),
-        );
+            const manifest = JSON.parse(
+                await readFile(join(outputPath, 'yfm-build-manifest.json'), 'utf-8'),
+            );
 
-        expect(manifest.restrictedAccess).toEqual({});
+            expect(manifest.restrictedAccess).toEqual({});
+        } finally {
+            await rm(tempPath, {recursive: true, force: true});
+        }
     });
 
     test('emits restrictedAccess map in build manifest', async () => {
