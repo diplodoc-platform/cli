@@ -235,6 +235,59 @@ describe('yfm generate metadata', () => {
         expect(await readFixture()).toBe(source);
     });
 
+    it('saves each document before requesting metadata for the next one', async () => {
+        await writeFixture('# First\n', 'a.md');
+        await writeFixture('# Second\n', 'b.md');
+        vi.mocked(axios.post)
+            .mockResolvedValueOnce(completion({description: 'First description'}))
+            .mockImplementationOnce(async () => {
+                expect(extractFrontMatter(await readFixture('a.md'))[0]).toEqual({
+                    description: 'First description',
+                });
+
+                return completion({description: 'Second description'});
+            });
+
+        await run(['--fields', 'description', '--retry', '0']);
+
+        expect(axios.post).toHaveBeenCalledTimes(2);
+        expect(extractFrontMatter(await readFixture('b.md'))[0]).toEqual({
+            description: 'Second description',
+        });
+    });
+
+    it('stops requesting metadata after a document fails validation', async () => {
+        await writeFixture('# First\n', 'a.md');
+        await writeFixture('# Second\n', 'b.md');
+        vi.mocked(axios.post).mockResolvedValueOnce(completion({description: false}));
+
+        await run(['--fields', 'description', '--retry', '0'], 1);
+
+        expect(axios.post).toHaveBeenCalledTimes(1);
+        expect(await readFixture('a.md')).toBe('# First\n');
+        expect(await readFixture('b.md')).toBe('# Second\n');
+    });
+
+    it.each(['```json\n', '```\n', '```json \t\r\n\r\n'])(
+        'accepts JSON wrapped in a Markdown fence starting with %j',
+        async (opening) => {
+            await writeFixture('# Article\n');
+            vi.mocked(axios.post).mockResolvedValue({
+                data: {
+                    choices: [
+                        {message: {content: opening + '{"description":"About the article"}\n```'}},
+                    ],
+                },
+            });
+
+            await run(['--fields', 'description', '--retry', '0']);
+
+            expect(extractFrontMatter(await readFixture())[0]).toEqual({
+                description: 'About the article',
+            });
+        },
+    );
+
     it('fills an empty metadata block in a YAML page', async () => {
         await writeFixture('title: Page\nlinks: []\nmeta:\n', 'page.yaml');
 

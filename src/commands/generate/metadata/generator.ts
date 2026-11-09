@@ -5,6 +5,7 @@ import {ok} from 'node:assert';
 import {isDeepStrictEqual} from 'node:util';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
+import {eachSeries} from 'async';
 import {frontmatterSchemaJson} from '@diplodoc/ajv';
 
 import {resolveToken} from '~/commands/translate/providers/ai/auth';
@@ -22,7 +23,7 @@ import {console} from '~/core/utils';
 import {listDocuments, readDocument} from './document';
 
 const ajv = addFormats(new Ajv({strict: false, allErrors: true}));
-const CONTENT_FIELDS = ['title', 'description', 'summary', 'keywords', 'tags'];
+const CONTENT_FIELDS = new Set(['title', 'description', 'summary', 'keywords', 'tags']);
 
 function hasControlCharacters(value: unknown): boolean {
     if (typeof value === 'string') {
@@ -157,7 +158,9 @@ async function generate(
                 ),
                 {temperature: 0, maxTokens: config.maxOutputTokens ?? 4000},
             );
-            const text = response.text.trim().replace(/^```(?:json)?\s*\n([\s\S]*?)\n```$/, '$1');
+            const text = response.text
+                .trim()
+                .replace(/^```(?:json)?[^\S\n]*\n([\s\S]*?)\n```$/, '$1');
             let result: unknown;
 
             try {
@@ -196,7 +199,7 @@ async function generate(
             const generated: Record<string, unknown> = {};
 
             for (const [field, value] of Object.entries(result)) {
-                if (CONTENT_FIELDS.includes(field)) {
+                if (CONTENT_FIELDS.has(field)) {
                     generated[field] = value;
 
                     continue;
@@ -225,14 +228,14 @@ export async function generateMetadata(settings: MetadataSettings, config: Metad
     let updated = 0;
     let skipped = 0;
 
-    for (const path of paths) {
+    await eachSeries(paths, async (path) => {
         try {
             const document = await readDocument(path);
 
             if (!document) {
                 skipped++;
 
-                continue;
+                return;
             }
 
             const fields = settings.fields.filter(
@@ -244,7 +247,7 @@ export async function generateMetadata(settings: MetadataSettings, config: Metad
             if (!fields.length) {
                 skipped++;
 
-                continue;
+                return;
             }
 
             client ??= resolveClient(settings, config);
@@ -261,7 +264,7 @@ export async function generateMetadata(settings: MetadataSettings, config: Metad
                 console.log(`Skipped ${path}: no metadata could be derived.`);
                 skipped++;
 
-                continue;
+                return;
             }
 
             await document.write(metadata);
@@ -270,7 +273,7 @@ export async function generateMetadata(settings: MetadataSettings, config: Metad
         } catch (error) {
             throw new Error(`${path}: ${error instanceof Error ? error.message : String(error)}`);
         }
-    }
+    });
 
     console.log(`Metadata generation completed. Updated: ${updated}. Skipped: ${skipped}.`);
 }

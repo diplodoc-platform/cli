@@ -26,7 +26,7 @@ export async function listDocuments(input: AbsolutePath): Promise<AbsolutePath[]
             nodir: true,
             ignore: ['**/node_modules/**', '**/_includes/**', '**/toc.yaml', '**/presets.yaml'],
         })
-    ).sort() as AbsolutePath[];
+    ).sort((left, right) => left.localeCompare(right)) as AbsolutePath[];
 }
 
 export async function readDocument(path: AbsolutePath) {
