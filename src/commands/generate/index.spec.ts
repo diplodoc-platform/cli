@@ -467,11 +467,12 @@ describe('yfm generate metadata', () => {
 
             await run(['--fields', 'title,tags,keywords', '--mode', 'overwrite', '--retry', '0']);
             const generated = await readFixture(name);
-            const parsed = name.endsWith('.md')
-                ? extractFrontMatter(generated)[0]
-                : (load(generated) as {meta: unknown}).meta;
+            const parseMetadata = (content: string) =>
+                name.endsWith('.md')
+                    ? extractFrontMatter(content)[0]
+                    : (load(content) as {meta: Record<string, unknown>}).meta;
 
-            expect(parsed).toEqual({...metadata, custom: 1000});
+            expect(parseMetadata(generated)).toEqual({...parseMetadata(source), ...metadata});
         },
     );
 
