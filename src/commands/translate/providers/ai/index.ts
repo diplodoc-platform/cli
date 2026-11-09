@@ -2,7 +2,7 @@ import type {BaseProgram} from '~/core/program';
 import type {Config as ResolvedConfig} from '~/core/config';
 import type {Translate, TranslateArgs, TranslateConfig} from '~/commands/translate';
 import type {CodeMode} from '~/commands/translate/utils';
-import type {LLMClient} from './clients/types';
+import type {LLMProvider as ProviderName} from './clients/types';
 import type {GlossaryPair, PromptMode} from './prompts';
 
 import {ok} from 'node:assert';
@@ -17,47 +17,20 @@ import {Provider} from './provider';
 import {NO_TEMPERATURE, options} from './config';
 import {resolveToken} from './auth';
 import {resolveContextValue, resolvePromptValue} from './prompts';
-import {YandexGptClient} from './clients/yandexgpt';
-import {AnthropicClient} from './clients/anthropic';
-import {createOpenAIClient, createOpenRouterClient} from './clients/openai';
-
-const PROVIDER_NAMES = ['yandexgpt', 'openai', 'openrouter', 'anthropic'] as const;
-type ProviderName = (typeof PROVIDER_NAMES)[number];
+import {
+    AUTH_HEADER,
+    DEFAULT_MODELS,
+    ENV_AUTH,
+    ENV_BASE_URL,
+    PROVIDER_NAMES,
+    createClient,
+    parseHeaders,
+    readEnv,
+} from './clients';
 
 const ExtensionName = 'AITranslation';
 
 const DEFAULT_TIMEOUT = 60_000;
-
-const DEFAULT_MODELS: Record<ProviderName, string> = {
-    yandexgpt: 'yandexgpt-lite',
-    openai: 'gpt-4o-mini',
-    openrouter: 'openai/gpt-4o-mini',
-    anthropic: 'claude-sonnet-4-5',
-};
-
-const ENV_AUTH: Record<ProviderName, string[]> = {
-    yandexgpt: ['YANDEX_API_KEY', 'YC_IAM_TOKEN'],
-    openai: ['OPENAI_API_KEY'],
-    openrouter: ['OPENROUTER_API_KEY'],
-    anthropic: ['ANTHROPIC_API_KEY'],
-};
-
-const ENV_BASE_URL: Record<ProviderName, string[]> = {
-    yandexgpt: [],
-    openai: ['OPENAI_BASE_URL'],
-    openrouter: ['OPENROUTER_BASE_URL'],
-    anthropic: ['ANTHROPIC_BASE_URL'],
-};
-
-// The header each client would build from --auth. When the same header
-// comes from --api-header / apiHeaders (internal gateways with their own
-// auth schemes), --auth becomes redundant and is not required.
-const AUTH_HEADER: Record<ProviderName, string> = {
-    yandexgpt: 'authorization',
-    openai: 'authorization',
-    openrouter: 'authorization',
-    anthropic: 'x-api-key',
-};
 
 type Args = {
     auth?: string;
@@ -128,42 +101,6 @@ function resolveMemoryHints(args: Args, config: Hash): boolean {
     return !own<boolean, 'memoryHints'>(config, 'memoryHints') || config.memoryHints !== false;
 }
 
-function readEnv(names: string[]): string | undefined {
-    for (const name of names) {
-        const value = process.env[name];
-        if (value) {
-            return value;
-        }
-    }
-    return undefined;
-}
-
-/**
- * Accepts headers as a list of "Name: value" strings (CLI) or as a plain object (config).
- */
-function parseHeaders(value: unknown): Record<string, string> {
-    if (!value) {
-        return {};
-    }
-
-    if (Array.isArray(value)) {
-        const headers: Record<string, string> = {};
-        for (const entry of value) {
-            const text = String(entry);
-            const separator = text.indexOf(':');
-            ok(separator > 0, `Invalid api header "${entry}". Expected "Name: value" format.`);
-            headers[text.slice(0, separator).trim()] = text.slice(separator + 1).trim();
-        }
-        return headers;
-    }
-
-    if (typeof value === 'object') {
-        return {...(value as Record<string, string>)};
-    }
-
-    return parseHeaders([value]);
-}
-
 /**
  * Resolves --context-file values: CLI paths from cwd, config values from the config dir.
  */
@@ -194,29 +131,6 @@ function resolveFallbackApiBase(value: unknown, fallbackModel: string | undefine
     ok(!fallbackApiBase || fallbackModel, '--fallback-api-base requires --fallback-model');
 
     return fallbackApiBase;
-}
-
-function makeClientFactory(provider: ProviderName) {
-    return function clientFactory(config: AITranslationConfig): LLMClient {
-        const common = {
-            token: config.auth,
-            model: config.model,
-            baseUrl: config.apiBase,
-            timeout: config.timeout,
-            headers: config.apiHeaders,
-        };
-
-        switch (provider) {
-            case 'yandexgpt':
-                return new YandexGptClient({...common, folder: config.folder});
-            case 'openai':
-                return createOpenAIClient(common);
-            case 'openrouter':
-                return createOpenRouterClient(common);
-            case 'anthropic':
-                return new AnthropicClient(common);
-        }
-    };
 }
 
 /**
@@ -432,7 +346,10 @@ export class Extension {
                     return config;
                 });
 
-                const provider = new Provider(makeClientFactory(providerName), config);
+                const provider = new Provider(
+                    (settings) => createClient(providerName, settings),
+                    config,
+                );
 
                 provider.pipe(program.logger);
 
