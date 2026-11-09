@@ -56,6 +56,7 @@ export class Companions {
 
         const renderer = new MarkdownOutputRenderer(run, {
             metaSource: 'snapshot',
+            omitMarkdownMetaFields: ['style', 'script', 'csp'],
             audience: 'human',
             collectConfig: {
                 ...SELF_CONTAINED,

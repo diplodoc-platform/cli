@@ -82,6 +82,14 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
 - **Build**: esbuild
 - **Linting**: ESLint (via `@diplodoc/lint`)
 
+## Public contribution metadata
+
+- Use Conventional Commits for commit messages and pull request titles, for example
+  `fix(companions): omit HTML resource metadata`.
+- Keep public commit messages, PR titles and descriptions, comments, and accompanying documentation
+  free of private tracker ticket IDs and links to internal resources. Describe the change using
+  the public repository's context.
+
 ## Development Commands
 
 ```bash
@@ -262,6 +270,15 @@ Main build logic is located in:
 - `src/commands/build/handler.ts` — command handler
 - `src/commands/build/run.ts` — command execution
 - `src/commands/build/features/` — various build features
+
+### Static Markdown companions
+
+`src/commands/build/features/companions` uses the shared `MarkdownOutputRenderer` with a metadata
+snapshot and `omitMarkdownMetaFields` to remove `style`, `script`, and `csp` from Markdown
+companion front matter. Keep this policy local to companions: ordinary `-f md` output is also an
+intermediate format for Viewer
+rendering and must retain page resources. Do not remove them in `MetaService` or change the
+metadata used by the HTML renderer. `tests/e2e/companions.spec.ts` checks this boundary.
 
 ### llms.txt OpenAPI companions
 
