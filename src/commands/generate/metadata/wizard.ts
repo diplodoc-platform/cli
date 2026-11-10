@@ -17,7 +17,6 @@ export async function runWizard(defaults: MetadataSettings): Promise<MetadataSet
         choices: FIELDS.map((field) => ({
             name: field,
             value: field,
-            checked: defaults.fields.includes(field),
         })),
         validate: (chosen) => chosen.length > 0 || 'Select at least one field.',
     });

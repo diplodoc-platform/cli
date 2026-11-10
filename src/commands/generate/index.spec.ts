@@ -124,9 +124,13 @@ describe('yfm generate metadata', () => {
 
         const program = await run();
 
-        expect(program.generate.metadata.config.fields).toEqual(
-            expect.arrayContaining(['title', 'keywords', 'noIndex', 'aiChat', '__metadata']),
-        );
+        expect(program.generate.metadata.config.fields).toEqual([
+            'title',
+            'description',
+            'summary',
+            'keywords',
+            'tags',
+        ]);
         expect(await readFixture()).toBe(
             source.replace(
                 'custom: value\n',
@@ -137,7 +141,12 @@ describe('yfm generate metadata', () => {
         const request = vi.mocked(axios.post).mock.calls[0][1] as {messages: {content: string}[]};
         expect(request.messages[1].content).toBe(source);
         const schema = JSON.parse(request.messages[0].content.split('JSON schema: ')[1]);
-        expect(schema.properties).not.toHaveProperty('noIndex');
+        expect(Object.keys(schema.properties)).toEqual([
+            'description',
+            'summary',
+            'keywords',
+            'tags',
+        ]);
     });
 
     it('overrides config with flags and skips the wizard in a terminal', async () => {
@@ -172,7 +181,33 @@ describe('yfm generate metadata', () => {
         Object.defineProperty(process.stdin, 'isTTY', {value: true, configurable: true});
         vi.mocked(input).mockResolvedValueOnce(fixturePath());
         vi.mocked(input).mockResolvedValueOnce('custom-model');
-        vi.mocked(checkbox).mockResolvedValueOnce(['summary']);
+        vi.mocked(checkbox).mockImplementationOnce(async (config) => {
+            expect(config.choices).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({value: 'summary'}),
+                    expect.objectContaining({value: 'interface'}),
+                    expect.objectContaining({value: 'restricted-access'}),
+                ]),
+            );
+            expect(config.choices).not.toEqual(
+                expect.arrayContaining([expect.objectContaining({checked: true})]),
+            );
+            expect(await config.validate?.([])).toEqual(expect.any(String));
+            expect(
+                await config.validate?.([
+                    {
+                        value: 'summary',
+                        name: 'summary',
+                        checkedName: 'summary',
+                        short: 'summary',
+                        disabled: false,
+                        checked: true,
+                    },
+                ]),
+            ).toBe(true);
+
+            return ['summary'];
+        });
         vi.mocked(select).mockResolvedValueOnce('overwrite').mockResolvedValueOnce('openrouter');
         await writeFixture('# Article\n');
         vi.mocked(axios.post).mockResolvedValue(completion({summary: 'Article summary.'}));
@@ -303,12 +338,13 @@ describe('yfm generate metadata', () => {
         expect(axios.post).toHaveBeenCalledTimes(2);
     });
 
-    it('does not request a model when all selected fields are already present', async () => {
-        const source = '---\ntitle: ""\nnoIndex: false\n---\n# Article\n';
+    it('skips the model with default fields when all descriptive keys exist', async () => {
+        const source =
+            '---\ntitle: ""\ndescription: ""\nsummary: null\nkeywords: []\ntags: null\nnoIndex: false\n---\n# Article\n';
         await writeFixture(source);
         vi.stubEnv('OPENAI_API_KEY', '');
 
-        await run(['--fields', 'title,noIndex']);
+        await run();
 
         expect(axios.post).not.toHaveBeenCalled();
         expect(await readFixture()).toBe(source);
@@ -525,7 +561,17 @@ describe('yfm generate metadata', () => {
             completion({summary: 'Article summary.', ...settings}),
         );
 
-        await run(['--mode', 'overwrite', '--retry', '0'], 1);
+        await run(
+            [
+                '--fields',
+                'summary,restricted-access,noIndex,interface,script',
+                '--mode',
+                'overwrite',
+                '--retry',
+                '0',
+            ],
+            1,
+        );
 
         expect(globalThis.console.error).toHaveBeenCalledWith(
             expect.stringContaining('publication setting'),
@@ -545,7 +591,14 @@ describe('yfm generate metadata', () => {
             }),
         );
 
-        await run(['--mode', 'overwrite', '--retry', '0']);
+        await run([
+            '--fields',
+            'summary,restricted-access,interface',
+            '--mode',
+            'overwrite',
+            '--retry',
+            '0',
+        ]);
 
         expect(await readFixture()).toBe(
             source.replace('\n---\n# Article', '\nsummary: "Article summary."\n---\n# Article'),
@@ -629,7 +682,11 @@ describe('yfm generate metadata', () => {
         },
     );
 
-    it.each(['unknown', '', 'title,'])('rejects invalid field selection %j', async (fields) => {
-        await expect(run(['--fields', fields])).rejects.toThrow(/field/i);
-    });
+    it.each(['unknown', '', 'title,'])(
+        'rejects unsupported field selection %j before contacting the model',
+        async (fields) => {
+            await expect(run(['--fields', fields]).then(() => undefined)).rejects.toThrow(/field/i);
+            expect(axios.post).not.toHaveBeenCalled();
+        },
+    );
 });

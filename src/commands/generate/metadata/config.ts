@@ -9,6 +9,13 @@ import {PROVIDER_NAMES} from '~/commands/translate/providers/ai/clients';
 import {options as aiOptions} from '~/commands/translate/providers/ai/config';
 
 export const FIELDS = Object.keys(frontmatterSchemaJson.properties as object) as MetadataField[];
+export const CONTENT_FIELDS = new Set<MetadataField>([
+    'title',
+    'description',
+    'summary',
+    'keywords',
+    'tags',
+]);
 export const MODES = ['missing', 'overwrite'] as const;
 export const PROVIDERS = PROVIDER_NAMES;
 
@@ -17,7 +24,7 @@ export function resolveFields(value: unknown): MetadataField[] {
         typeof value === 'string' ? value.split(',').map((field) => field.trim()) : value;
 
     if (fields === undefined) {
-        return [...FIELDS];
+        return [...CONTENT_FIELDS];
     }
 
     ok(
@@ -51,7 +58,7 @@ export const options = {
     }),
     fields: option({
         flags: '--fields <list>',
-        desc: 'Comma-separated metadata fields. Selects all fields when omitted.',
+        desc: `Comma-separated metadata fields. Defaults to ${[...CONTENT_FIELDS].join(', ')}.`,
         parser: resolveFields,
     }),
     mode: option({
