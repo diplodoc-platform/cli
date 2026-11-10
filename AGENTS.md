@@ -278,6 +278,10 @@ Main build logic is located in:
 
 ### Static search integration
 
+Search extensions may share the provider flag and supply a default. Commander includes
+these defaults in `optsWithGlobals()`, so check the option source before overriding a
+configured provider: a `default` source is not an explicit CLI or environment choice.
+
 The client loads `search.api` as a classic script inside its own Web Worker, after setting
 `self.config`. A script implements `self.api.suggest(query, count)` and
 `self.api.search(query, count, page, tags)`; the argument order differs from the UI provider.

@@ -48,7 +48,12 @@ export class Search {
 
         // Normalize search config
         getBaseHooks(program).Config.tap('Search', (config, args) => {
-            config.search = normalizeSearch(config.search, args);
+            const providerSource =
+                program.command.getOptionValueSourceWithGlobals('searchProvider');
+            config.search = normalizeSearch(config.search, {
+                ...args,
+                searchProvider: providerSource === 'default' ? undefined : args.searchProvider,
+            });
 
             return config;
         });
