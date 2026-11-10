@@ -18,8 +18,8 @@ Yfm-docs lets you build a full-fledged documentation project: with navigation, i
 
 ## Documentation
 
-For backend-neutral corpus export, OpenSearch uploads and custom indexers, see
-[External search indexing](docs/search-index.md).
+To export resolved documentation as backend-neutral JSON for external indexing, see
+[Search corpus export](docs/search-index.md).
 
 [ydocs.tech](https://diplodoc.com/docs/en/tools/docs)
 

@@ -1,7 +1,6 @@
 import {mkdir, mkdtemp, readFile, realpath, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {createServer} from 'node:http';
 import {afterEach, describe, expect, it} from 'vitest';
 
 import {TestAdapter} from '../fixtures';
@@ -31,65 +30,68 @@ async function project() {
     );
     await writeFile(join(input, 'en/private.md'), '# Private\n\nSecret.\n');
     await writeFile(join(input, 'en/hidden.md'), '# Hidden\n\nHidden.\n');
-    return {root, input, output};
+    return {input, output};
+}
+
+async function corpus(output: string) {
+    return JSON.parse(await readFile(join(output, '_search/documents.json'), 'utf8'));
 }
 
 describe('search corpus export', () => {
-    it('uploads to OpenSearch using connection and private authorization environment variables', async () => {
+    it('exports resolved public documents with search disabled', async () => {
         const {input, output} = await project();
-        const requests: {path: string; authorization?: string}[] = [];
-        const server = createServer(async (request, response) => {
-            const path = request.url || '';
-            requests.push({path, authorization: request.headers.authorization});
-            let body = '';
-            for await (const chunk of request) body += chunk;
-            response.setHeader('Content-Type', 'application/json');
-            if (request.method === 'GET') {
-                response.statusCode = 404;
-                response.end('{}');
-            } else if (path.endsWith('/_bulk'))
-                response.end(
-                    JSON.stringify({
-                        errors: false,
-                        items: Array.from({length: body.trim().split('\n').length / 2}, () => ({
-                            index: {status: 201},
-                        })),
-                    }),
-                );
-            else if (path.endsWith('/_refresh'))
-                response.end(JSON.stringify({_shards: {failed: 0, successful: 1, total: 1}}));
-            else response.end(JSON.stringify({acknowledged: true}));
+        const report = await TestAdapter.build.run(input, output, [
+            '--no-lint',
+            '--search-index',
+            '--skip-html-extension',
+            '-j2',
+        ]);
+        expect(report.code, report.errors.join('\n')).toBe(0);
+        const snapshot = await corpus(output);
+        expect(snapshot.schemaVersion).toBe(1);
+        expect(snapshot.documents).toHaveLength(1);
+        expect(snapshot.documents[0]).toEqual({
+            id: '1f2fcdd0ccaac9f9a15f4a73a0d9c00fb787bac300f9959aeca48795d5bcc816',
+            path: 'en/guide.md',
+            url: 'en/guide',
+            lang: 'en',
+            title: 'Guide',
+            content: 'Hello world & friends.',
+            tags: ['guide'],
+            keywords: ['help'],
+            headings: ['Guide'],
         });
-        await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
-        try {
-            const address = server.address();
-            if (!address || typeof address === 'string') throw new Error('Missing address');
-            const env = {
-                SEARCH_INDEX_ENDPOINT: `http://127.0.0.1:${address.port}`,
-                SEARCH_INDEX_NAME: 'docs',
-                SEARCH_INDEX_AUTHORIZATION: 'Bearer test-secret',
-            };
-            expect(
-                (await TestAdapter.build.run(input, output, ['--no-lint', '--search-index'], env))
-                    .code,
-            ).toBe(0);
-            expect(requests).toHaveLength(0);
-            expect(await readFile(join(output, '_search/documents.json'), 'utf8')).not.toContain(
-                'test-secret',
-            );
-            const upload = await TestAdapter.runner.runYfmDocs(['search-index', '-i', output], env);
-            expect(upload.code, upload.errors.join('\n')).toBe(0);
-            expect(requests[0].path).toBe('/_alias/docs');
-            expect(requests.at(-1)?.path).toBe('/_aliases');
-            expect(
-                requests.every((request) => request.authorization === 'Bearer test-secret'),
-            ).toBe(true);
-        } finally {
-            server.closeAllConnections();
-            await new Promise<void>((resolve, reject) =>
-                server.close((error) => (error ? reject(error) : resolve())),
-            );
-        }
+    });
+
+    it('keeps document IDs stable when content changes', async () => {
+        const {input, output} = await project();
+        expect(
+            (await TestAdapter.build.run(input, output, ['--no-lint', '--search-index'])).code,
+        ).toBe(0);
+        const before = await corpus(output);
+        await writeFile(join(input, 'en/guide.md'), '# Guide\n\nUpdated content.\n');
+        expect(
+            (await TestAdapter.build.run(input, output, ['--no-lint', '--search-index'])).code,
+        ).toBe(0);
+        const after = await corpus(output);
+        expect(after.documents).toHaveLength(1);
+        expect(after.documents[0].id).toBe(before.documents[0].id);
+        expect(after.documents[0].content).toBe('Updated content.');
+    });
+
+    it('replaces the snapshot with an empty array when every page becomes excluded', async () => {
+        const {input, output} = await project();
+        expect(
+            (await TestAdapter.build.run(input, output, ['--no-lint', '--search-index'])).code,
+        ).toBe(0);
+        await writeFile(
+            join(input, 'en/guide.md'),
+            '---\nnoIndex: true\n---\n# Guide\n\nPrivate now.\n',
+        );
+        expect(
+            (await TestAdapter.build.run(input, output, ['--no-lint', '--search-index'])).code,
+        ).toBe(0);
+        expect(await corpus(output)).toEqual({schemaVersion: 1, documents: []});
     });
 
     it('removes a stale corpus when a later build does not request export', async () => {
@@ -110,47 +112,6 @@ describe('search corpus export', () => {
             'md',
         ]);
         expect(report.code).toBe(1);
-    });
-    it('exports resolved public documents with search disabled and uploads through a custom module', async () => {
-        const {root, input, output} = await project();
-        const report = await TestAdapter.build.run(input, output, [
-            '--no-lint',
-            '--search-index',
-            '--skip-html-extension',
-            '-j2',
-        ]);
-        expect(report.code, report.errors.join('\n')).toBe(0);
-        const corpus = JSON.parse(await readFile(join(output, '_search/documents.json'), 'utf8'));
-        expect(corpus.schemaVersion).toBe(1);
-        expect(corpus.documents).toHaveLength(1);
-        expect(corpus.documents[0]).toMatchObject({
-            path: 'en/guide.md',
-            url: 'en/guide',
-            lang: 'en',
-            title: 'Guide',
-            content: expect.stringContaining('Hello world & friends.'),
-            tags: ['guide'],
-            keywords: ['help'],
-            headings: ['Guide'],
-        });
-        expect(corpus.documents[0].content).not.toContain('<');
-        const received = join(root, 'received.json');
-        const provider = join(root, 'provider.cjs');
-        await writeFile(
-            provider,
-            `const fs = require('node:fs/promises');\nmodule.exports = {async index(corpus, options) { await fs.writeFile(${JSON.stringify(received)}, JSON.stringify({corpus, name: options.indexName})); }};`,
-        );
-        const upload = await TestAdapter.runner.runYfmDocs([
-            'search-index',
-            '-i',
-            output,
-            '--provider',
-            provider,
-            '--index-name',
-            'docs',
-        ]);
-        expect(upload.code, upload.errors.join('\n')).toBe(0);
-        expect(JSON.parse(await readFile(received, 'utf8'))).toEqual({corpus, name: 'docs'});
     });
 
     it('does not export by default', async () => {

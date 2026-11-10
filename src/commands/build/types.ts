@@ -32,6 +32,7 @@ import type {TransformConfig} from './run';
 import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
 
 export type {SearchProvider, SearchServiceConfig} from './services/search';
+export type {SearchCorpus, SearchDocument} from './features/search-index';
 export type {EntryData, PageData} from './services/entry';
 
 export {OutputFormat, TransformConfig};

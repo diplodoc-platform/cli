@@ -9,11 +9,16 @@ import {Content} from './content';
 import {Generate} from './generate';
 import {Init} from './init';
 import {Publish} from './publish';
-import {SearchIndex} from './search-index';
 import {Translate} from './translate';
 import {NAME, USAGE, options} from './config';
 
-export type {EntryInfo, SearchProvider, SearchServiceConfig} from './build';
+export type {
+    EntryInfo,
+    SearchProvider,
+    SearchServiceConfig,
+    SearchCorpus,
+    SearchDocument,
+} from './build';
 
 export {parse} from './parser';
 export {
@@ -28,13 +33,6 @@ export {Translate, getHooks as getTranslateHooks} from './translate';
 export {Content} from './content';
 export {Generate} from './generate';
 export {Init} from './init';
-export {SearchIndex} from './search-index';
-export type {
-    SearchCorpus,
-    SearchDocument,
-    SearchIndexer,
-    SearchIndexOptions,
-} from '~/core/search-index';
 
 @withConfigDefaults(() => ({
     extensions: [] as ExtensionInfo[],
@@ -58,8 +56,6 @@ export class Program extends BaseProgram {
 
     readonly publish = new Publish();
 
-    readonly searchIndex = new SearchIndex();
-
     readonly translate = new Translate();
 
     readonly options = [
@@ -80,7 +76,6 @@ export class Program extends BaseProgram {
         this.generate,
         this.initProject,
         this.publish,
-        this.searchIndex,
         this.translate,
     ];
 }

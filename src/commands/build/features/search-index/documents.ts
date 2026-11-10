@@ -1,5 +1,5 @@
 import type {EntryInfo} from '~/commands/build';
-import type {SearchDocument} from '~/core/search-index';
+import type {SearchDocument} from './types';
 
 import {createHash} from 'node:crypto';
 import {parse} from 'node-html-parser';

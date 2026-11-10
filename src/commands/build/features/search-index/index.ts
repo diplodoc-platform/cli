@@ -1,5 +1,5 @@
 import type {Build, Run} from '~/commands/build';
-import type {SearchDocument} from '~/core/search-index';
+import type {SearchCorpus, SearchDocument} from './types';
 
 import {join} from 'node:path';
 
@@ -7,10 +7,13 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {option} from '~/core/config';
 import {langFromPath} from '~/core/utils';
 import {stats} from '~/core/logger';
-import {SEARCH_CORPUS_PATH} from '~/core/search-index';
 import {getHooks as getBuildHooks} from '~/commands/build';
 
 import {createDocument} from './documents';
+
+export type {SearchCorpus, SearchDocument} from './types';
+
+const SEARCH_CORPUS_PATH = '_search/documents.json';
 
 export type SearchIndexArgs = {searchIndex?: boolean};
 
@@ -22,7 +25,7 @@ export class SearchIndex {
             command.addOption(
                 option({
                     flags: '--search-index',
-                    desc: 'Export a backend-neutral search corpus for the search-index command.',
+                    desc: 'Export resolved documentation pages as a backend-neutral JSON search corpus.',
                 }),
             );
         });
@@ -63,15 +66,16 @@ export class SearchIndex {
             .tapPromise('SearchIndex', async (run) => {
                 const corpus = documents.get(run);
                 if (!corpus || stats(run.logger).error) return;
+                const snapshot: SearchCorpus = {
+                    schemaVersion: 1,
+                    documents: [...corpus.values()].sort((left, right) => {
+                        if (left.path === right.path) return 0;
+                        return left.path < right.path ? -1 : 1;
+                    }),
+                };
                 await run.write(
                     join(run.output, SEARCH_CORPUS_PATH),
-                    JSON.stringify({
-                        schemaVersion: 1,
-                        documents: [...corpus.values()].sort((left, right) => {
-                            if (left.path === right.path) return 0;
-                            return left.path < right.path ? -1 : 1;
-                        }),
-                    }),
+                    JSON.stringify(snapshot),
                     true,
                 );
             });
