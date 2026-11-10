@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.67.1](https://github.com/diplodoc-platform/cli/compare/v5.67.0...v5.67.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* added folder id in wizard ([#2394](https://github.com/diplodoc-platform/cli/issues/2394)) ([1d6b7fc](https://github.com/diplodoc-platform/cli/commit/1d6b7fc8a8a9bd25d5a3cc900bf981dec87a5b10))
+
 ## [5.67.0](https://github.com/diplodoc-platform/cli/compare/v5.66.1...v5.67.0) (2026-11-10)
 
 
