@@ -63,9 +63,14 @@ export class SearchIndex {
             });
         getBuildHooks(program)
             .AfterRun.for('html')
-            .tapPromise('SearchIndex', async (run) => {
+            .tapPromise({name: 'SearchIndex', stage: Infinity}, async (run) => {
+                // Finalize after HTML asset copying, which may restore an input snapshot.
+                const output = join(run.output, SEARCH_CORPUS_PATH);
                 const corpus = documents.get(run);
-                if (!corpus || stats(run.logger).error) return;
+                if (!corpus || stats(run.logger).error) {
+                    if (run.exists(output)) await run.remove(output);
+                    return;
+                }
                 const snapshot: SearchCorpus = {
                     schemaVersion: 1,
                     documents: [...corpus.values()].sort((left, right) => {
@@ -73,11 +78,7 @@ export class SearchIndex {
                         return left.path < right.path ? -1 : 1;
                     }),
                 };
-                await run.write(
-                    join(run.output, SEARCH_CORPUS_PATH),
-                    JSON.stringify(snapshot),
-                    true,
-                );
+                await run.write(output, JSON.stringify(snapshot), true);
             });
     }
 }

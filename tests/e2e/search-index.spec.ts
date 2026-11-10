@@ -38,6 +38,34 @@ async function corpus(output: string) {
 }
 
 describe('search corpus export', () => {
+    it('replaces an existing source snapshot after copying project assets', async () => {
+        const {input, output} = await project();
+        await mkdir(join(input, '_search'), {recursive: true});
+        await writeFile(
+            join(input, '_search/documents.json'),
+            '{"schemaVersion":1,"documents":[{"id":"obsolete"}]}',
+        );
+        const report = await TestAdapter.build.run(input, output, ['--no-lint', '--search-index']);
+        expect(report.code, report.errors.join('\n')).toBe(0);
+        const snapshot = await corpus(output);
+        expect(snapshot.documents).toHaveLength(1);
+        expect(snapshot.documents[0]).toMatchObject({
+            path: 'en/guide.md',
+            content: 'Hello world & friends.',
+        });
+    });
+
+    it('removes a copied source snapshot when export is disabled', async () => {
+        const {input, output} = await project();
+        await mkdir(join(input, '_search'), {recursive: true});
+        const original = '{"schemaVersion":1,"documents":[{"id":"obsolete"}]}';
+        await writeFile(join(input, '_search/documents.json'), original);
+        const report = await TestAdapter.build.run(input, output, ['--no-lint']);
+        expect(report.code, report.errors.join('\n')).toBe(0);
+        await expect(readFile(join(output, '_search/documents.json'))).rejects.toThrow();
+        expect(await readFile(join(input, '_search/documents.json'), 'utf8')).toBe(original);
+    });
+
     it('exports resolved public documents with search disabled', async () => {
         const {input, output} = await project();
         const report = await TestAdapter.build.run(input, output, [
