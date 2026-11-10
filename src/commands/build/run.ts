@@ -25,7 +25,7 @@ import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
 import {AnchorsService, collectAnchorIds} from './services/anchors';
 import {extractIncludedBlocks} from './extract-included';
-import {lintWithLocalAnchors} from './lint';
+import {getLocalAnchorRuleConfig, lintWithLocalAnchors} from './lint';
 import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
 
 type TransformOptions = {
@@ -213,7 +213,10 @@ export class Run extends BaseRun<BuildConfig> {
             plugins,
             files: {...depFiles, ...includedFiles},
             titles: await remap(titles, this.titles),
-            anchorIndex: await this.anchors.index(file, assets),
+            anchorIndex:
+                getLocalAnchorRuleConfig(this.config.lint.config) === false
+                    ? undefined
+                    : await this.anchors.index(file, assets),
             assets: assetsRemap,
         };
 
