@@ -9,8 +9,7 @@ yfm build -i ./docs -o ./build --search-index
 The build writes `_search/documents.json` in the output directory. `--search-index`
 is an opt-in flag for HTML snapshot builds; watch mode is unsupported. Export works
 independently of the browser search provider, including when search is disabled.
-The CLI only prepares the JSON. Send it to your search backend with a separate script
-or a step in your CI pipeline.
+The generated snapshot is independent of any search backend.
 
 ## JSON format
 
@@ -62,37 +61,10 @@ includes. Entries marked `noIndex` are excluded. Hidden entries follow
 article HTML contributes its title and metadata description.
 
 Documents are sorted by source path. Rebuilding with the same paths keeps their IDs;
-moving a page changes its ID. Relative `url` values let the uploader choose the
-publication base URL without tying the snapshot to a particular host.
+moving a page changes its ID. The `url` field is relative to the publication root
+and does not encode a particular host.
 
 Each successful export writes a complete snapshot. Removed or newly excluded pages
 are absent, and no indexable pages produce an empty `documents` array. Export is
 skipped if the build reports errors. A later HTML build without `--search-index`
 removes a previously generated snapshot from the output directory.
-
-## Send the snapshot with a separate script
-
-Copy [upload-search-index.mjs](examples/upload-search-index.mjs) into your project.
-The example uses Node.js to read the snapshot, check its version and POST the complete
-JSON to an HTTP import endpoint. It exits with a nonzero code on an HTTP or network
-error. Run it after a successful build:
-
-```sh
-yfm build -i ./docs -o ./build --search-index && \
-  SEARCH_IMPORT_URL=https://search.example.com/import \
-  SEARCH_IMPORT_AUTHORIZATION='Bearer <token>' \
-  node ./upload-search-index.mjs ./build/_search/documents.json
-```
-
-`SEARCH_IMPORT_URL` and the optional `SEARCH_IMPORT_AUTHORIZATION` are read by the
-example script, not by the CLI. Keep upload credentials in your CI secret storage.
-
-The example assumes that the endpoint accepts this complete snapshot format. Adapt
-the request, field mapping and batching to your backend's import API. Use `id` as the
-stable document key and resolve `url` against your documentation's publication base.
-For a shared search index, scope IDs by project and version to avoid collisions.
-
-The uploader or import service owns replacement semantics: remove documents absent
-from the new snapshot, including when `documents` is empty. It also owns retry policy,
-authentication and backend-specific configuration. Merely adding the new documents
-will leave deleted pages in search results.
