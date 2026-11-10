@@ -118,7 +118,9 @@ yfm generate metadata -i ./docs/article.md --folder <folder-id> \
   --fields title,description,summary,tags --skip-interactive
 ```
 
-The wizard runs in a terminal unless `--skip-interactive` is set. Flags override
+The wizard runs in a terminal unless `--skip-interactive` is set. It lists all
+AJV frontmatter fields with nothing selected, even when flags or config specify fields;
+select at least one field to continue. In non-interactive runs, flags override
 `generate.metadata` in `.yfm`. Directory input discovers `.yfm` automatically;
 for a single file, pass `-c ./docs/.yfm` explicitly:
 
@@ -141,13 +143,15 @@ Gateways support `--api-base` and repeated `--api-header 'Name: value'`
 (`apiHeaders` in config); an authorization header can replace `--auth`.
 `OPENAI_BASE_URL`, `OPENROUTER_BASE_URL` and `ANTHROPIC_BASE_URL` are also supported.
 
-All AJV frontmatter fields are accepted and selected by default. Only `title`,
-`description`, `summary`, `keywords` and `tags` can change. Other publication
-settings must exactly match existing frontmatter or `meta` values if returned by
-AI; invented or changed settings invalidate the response. Matching settings are
-not rewritten. Article text and examples cannot authorize configuration changes.
-Prefer a small `--fields` selection: Lite can omit fields or return invalid
-placeholders in large requests, even after a retry. Review generated descriptions.
+Without `--fields` or `generate.metadata.fields`, non-interactive runs select
+`title`, `description`, `summary`, `keywords` and `tags`. Explicit selection accepts
+any AJV frontmatter field. Only the five descriptive fields can change; other
+publication settings must be omitted or exactly match existing values if returned
+by AI. Matching settings are not rewritten; changed or invented settings reject
+the response. The response schema rejects unselected keys. Prefer the five-field
+default for generation: broad selections can cause unnecessary validation retries.
+Review descriptions for accuracy and natural wording; validation cannot assess
+writing quality.
 
 `missing` adds absent keys, preserving existing `false`, `null` and empty strings.
 `overwrite` replaces selected descriptive fields returned by AI. YAML comments,
@@ -172,7 +176,7 @@ previously completed files remain saved. Files needing no changes make no AI cal
 | Option                    | Default                       | Description                                      |
 | ------------------------- | ----------------------------- | ------------------------------------------------ |
 | `-i, --input <path>`      | `.`                           | Documentation file or directory                  |
-| `--fields <list>`         | all frontmatter fields        | Comma-separated fields                           |
+| `--fields <list>`         | all five descriptive fields   | Comma-separated fields; wizard starts unselected |
 | `--mode <mode>`           | `missing`                     | `missing` or `overwrite`                         |
 | `--provider <provider>`   | `yandexgpt`                   | `yandexgpt`, `openai`, `openrouter`, `anthropic` |
 | `--model <name>`          | same as `translate`           | Model name                                       |

@@ -20,10 +20,10 @@ import {
 import {LLMResponseError, backoff} from '~/commands/translate/providers/ai/utils';
 import {console} from '~/core/utils';
 
+import {CONTENT_FIELDS} from './config';
 import {listDocuments, readDocument} from './document';
 
 const ajv = addFormats(new Ajv({strict: false, allErrors: true}));
-const CONTENT_FIELDS = new Set(['title', 'description', 'summary', 'keywords', 'tags']);
 
 function hasControlCharacters(value: unknown): boolean {
     if (typeof value === 'string') {
@@ -123,10 +123,13 @@ async function generate(
                 'Put the requested fields directly at the root; do not add a wrapper or return the schema itself.',
                 `Allowed top-level keys: ${fields.join(', ')}.`,
                 'Use the language of the article. Be concise and factual.',
+                'Describe the actual topic and concrete user tasks or capabilities directly. Use verbs for what the feature does, not what an article explains.',
+                'Match each subject to a factual action: a table of contents lists headings and links to sections; it does not explain or describe itself. Avoid vague phrases such as "and much more".',
                 ...(fields.includes('summary')
                     ? [
                           'summary: write one complete sentence ending with punctuation. Aim for 60–80 characters, never exceed 100 characters including spaces.',
                           'Summarize the main purpose in plain text, without inline code. Rephrase to fit; never cut a word or sentence short or use an ellipsis.',
+                          'State the behavior directly, not what is explained, described, discussed or covered in the text.',
                       ]
                     : []),
                 'Preserve the spelling of technical terms, including slashes in names such as CI/CD. Never emit control characters.',
@@ -200,7 +203,7 @@ async function generate(
             const generated: Record<string, unknown> = {};
 
             for (const [field, value] of Object.entries(result)) {
-                if (CONTENT_FIELDS.has(field)) {
+                if (CONTENT_FIELDS.has(field as MetadataField)) {
                     generated[field] = value;
 
                     continue;
