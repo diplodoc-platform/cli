@@ -42,11 +42,24 @@ export async function runWizard(defaults: MetadataSettings): Promise<MetadataSet
         default: defaults.model,
     });
 
+    let folder = defaults.folder;
+
+    if (provider === 'yandexgpt' && !/^(gpt|ds):\/\//.test(model.trim())) {
+        folder = (
+            await input({
+                message: 'Yandex Cloud folder ID:',
+                default: defaults.folder,
+                validate: (value) => Boolean(value.trim()) || 'Enter a folder ID.',
+            })
+        ).trim();
+    }
+
     return {
         input: resolve(source.trim()) as AbsolutePath,
         fields,
         mode,
         provider,
         model: model.trim() || undefined,
+        folder,
     };
 }

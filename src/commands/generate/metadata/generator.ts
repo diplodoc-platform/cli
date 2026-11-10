@@ -80,7 +80,7 @@ function metadataSchema(fields: MetadataField[]) {
 }
 
 function resolveClient(settings: MetadataSettings, config: MetadataConfig) {
-    const {provider} = settings;
+    const {provider, folder} = settings;
     const auth = config.auth || readEnv(ENV_AUTH[provider]);
     const headers = config.apiHeaders || {};
     const hasAuthHeader = Object.keys(headers).some(
@@ -89,13 +89,14 @@ function resolveClient(settings: MetadataSettings, config: MetadataConfig) {
     ok(auth || hasAuthHeader, `Required param --auth is not configured for provider "${provider}"`);
     const model = settings.model || DEFAULT_MODELS[provider];
     ok(
-        provider !== 'yandexgpt' || config.folder || /^(gpt|ds):\/\//.test(model),
+        provider !== 'yandexgpt' || folder || /^(gpt|ds):\/\//.test(model),
         'Yandex AI Studio: --folder is required when --model is a short name.',
     );
 
     return createClient(provider, {
         ...config,
         model,
+        folder,
         auth: auth ? resolveToken(auth) : undefined,
         apiBase: config.apiBase || readEnv(ENV_BASE_URL[provider]),
         apiHeaders: headers,

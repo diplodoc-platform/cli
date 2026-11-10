@@ -42,7 +42,7 @@ export class Metadata extends BaseProgram<MetadataConfig, MetadataArgs> {
     }
 
     async action() {
-        const {input, fields, mode, provider, model} = this.config;
+        const {input, fields, mode, provider, model, folder} = this.config;
 
         ok(MODES.includes(mode), `Unknown metadata mode: ${mode}`);
         ok(PROVIDERS.includes(provider), `Unknown metadata provider: ${provider}`);
@@ -66,6 +66,7 @@ export class Metadata extends BaseProgram<MetadataConfig, MetadataArgs> {
             mode,
             provider,
             model,
+            folder,
         };
 
         if (process.stdin.isTTY && !this.config.skipInteractive) {
@@ -78,6 +79,11 @@ export class Metadata extends BaseProgram<MetadataConfig, MetadataArgs> {
         console.log(`Mode: ${settings.mode}`);
         console.log(`Provider: ${settings.provider}`);
         console.log(`Model: ${settings.model || '(provider default)'}`);
+
+        if (settings.provider === 'yandexgpt' && settings.folder) {
+            console.log(`Folder: ${settings.folder}`);
+        }
+
         await generateMetadata(settings, this.config);
     }
 }

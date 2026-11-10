@@ -110,7 +110,7 @@ recursively includes `.md`, `.yaml` and `.yml`; hidden directories, `node_module
 
 ```bash
 export YANDEX_API_KEY='<api-key>'
-yfm generate metadata --folder <folder-id>
+yfm generate metadata -i ./docs
 yfm generate metadata -i ./docs/article.md --folder <folder-id> \
   --fields title,description,summary,tags --skip-interactive
 ```
@@ -131,7 +131,9 @@ generate:
 Authentication follows `translate`: `--auth` accepts a token or token-file path;
 otherwise use `YANDEX_API_KEY` / `YC_IAM_TOKEN`, `OPENAI_API_KEY`,
 `OPENROUTER_API_KEY` or `ANTHROPIC_API_KEY`. Never store `auth` in `.yfm`.
-YandexGPT needs `--folder` unless `--model` is a full `gpt://` or `ds://` URI.
+YandexGPT needs a folder ID unless `--model` is a full `gpt://` or `ds://` URI.
+The wizard asks for it when needed, using `--folder` or `generate.metadata.folder`
+as the default. For non-interactive runs, set the folder through that flag or config.
 Gateways support `--api-base` and repeated `--api-header 'Name: value'`
 (`apiHeaders` in config); an authorization header can replace `--auth`.
 `OPENAI_BASE_URL`, `OPENROUTER_BASE_URL` and `ANTHROPIC_BASE_URL` are also supported.

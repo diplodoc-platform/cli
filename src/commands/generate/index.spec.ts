@@ -191,6 +191,57 @@ describe('yfm generate metadata', () => {
         expect(await readFixture()).toBe('---\nsummary: "Article summary."\n---\n# Article\n');
     });
 
+    it.each([
+        ['', undefined, 'gpt://wizard-folder/yandexgpt-lite/latest'],
+        [' yandexgpt ', 'configured-folder', 'gpt://wizard-folder/yandexgpt/latest'],
+        ['gpt://uri-folder/yandexgpt/latest', undefined, 'gpt://uri-folder/yandexgpt/latest'],
+        ['ds://uri-folder/deepseek/latest', undefined, 'ds://uri-folder/deepseek/latest'],
+    ] as const)(
+        'resolves the YandexGPT wizard folder for model %j',
+        async (model, folder, modelUri) => {
+            Object.defineProperty(process.stdin, 'isTTY', {value: true, configurable: true});
+            vi.stubEnv('YANDEX_API_KEY', 'test-token');
+            vi.mocked(input).mockResolvedValueOnce(fixturePath()).mockResolvedValueOnce(model);
+            vi.mocked(checkbox).mockResolvedValueOnce(['summary']);
+            vi.mocked(select).mockResolvedValueOnce('missing').mockResolvedValueOnce('yandexgpt');
+
+            if (!model.includes('://')) {
+                vi.mocked(input).mockImplementationOnce(async (config) => {
+                    expect(config.default).toBe(folder);
+                    expect(await config.validate?.('   ')).not.toBe(true);
+                    expect(await config.validate?.('wizard-folder')).toBe(true);
+
+                    return '  wizard-folder  ';
+                });
+            }
+
+            if (folder) {
+                await writeFixture(`generate:\n  metadata:\n    folder: ${folder}\n`, '.yfm');
+            }
+
+            await writeFixture('# Article\n');
+            vi.mocked(axios.post).mockResolvedValue({
+                data: {
+                    result: {
+                        alternatives: [
+                            {
+                                message: {text: '{"summary":"Article summary."}'},
+                                status: 'ALTERNATIVE_STATUS_FINAL',
+                            },
+                        ],
+                    },
+                },
+            });
+
+            await run();
+
+            expect(vi.mocked(axios.post).mock.calls[0][1]).toHaveProperty('modelUri', modelUri);
+            expect(extractFrontMatter(await readFixture())[0]).toEqual({
+                summary: 'Article summary.',
+            });
+        },
+    );
+
     it('validates YandexGPT JSON locally without constrained decoding', async () => {
         const metadata = {summary: 'About Diplodoc.', tags: ['CI/CD']};
         await writeFixture('# Diplodoc\n');

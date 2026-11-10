@@ -12,6 +12,7 @@ export type MetadataSettings = {
     mode: MetadataMode;
     provider: MetadataProvider;
     model?: string;
+    folder?: string;
 };
 
 export type MetadataConfig = BaseConfig &
