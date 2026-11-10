@@ -113,6 +113,17 @@ npm run lint
 npm run lint:fix
 ```
 
+## Release verification
+
+A successful `npm publish` does not yet prove that consumers can install the version:
+npm runs a [publish-time scan](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/)
+before making new versions available. Wait for the exact version to appear in
+`npm view @diplodoc/cli@<version> version --registry=https://registry.npmjs.org`, then install it
+in a fresh directory and run the packaged CLI. If `Verify published CLI`
+(`.github/workflows/verify-npm-release.yml`) fails with `ETARGET` immediately after publication,
+rerun that verification once the version is available. Retry the verification workflow rather
+than the publishing workflow.
+
 ## Working with Code
 
 ### Imports
