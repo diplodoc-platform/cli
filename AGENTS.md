@@ -265,6 +265,18 @@ Check both registries before assigning a number and keep their configuration ind
 
 ## Key Modules
 
+### Search corpus exports
+
+`EntryInfo.title` can contain rendered HTML, while the extracted H1 is absent from
+`EntryInfo.html`. Normalize the title to text separately when indexing. Entry page
+rendering also converts `meta.keywords` to a comma-separated string despite the
+public metadata type declaring an array. Consume both forms at the indexing boundary.
+Use the build Entry hook for backend-neutral exports: `SearchService.add()` is gated
+by the browser search setting, which must not disable a separately requested export.
+`OutputHtml` copies input assets in the HTML AfterRun hook. Finalize generated snapshots
+after that copy, including cleanup when export is disabled or the build reports errors;
+otherwise an input `_search/documents.json` can restore stale data in the output.
+
 ### Core Modules
 
 - `core/config/` — configuration management

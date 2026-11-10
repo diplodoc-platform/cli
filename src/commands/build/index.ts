@@ -42,6 +42,7 @@ import {Changelogs} from './features/changelogs';
 import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
+import {SearchIndex} from './features/search-index';
 import {Watch} from './features/watch';
 import {YaMake} from './features/ya-make';
 import {Legacy} from './features/legacy';
@@ -99,6 +100,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     readonly html = new OutputHtml();
 
     readonly search = new Search();
+
+    readonly searchIndex = new SearchIndex();
 
     readonly watch = new Watch();
 
@@ -177,6 +180,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.crawlerManifest,
         this.changelogs,
         this.search,
+        this.searchIndex,
         this.watch,
         this.yaMake,
         this.md,

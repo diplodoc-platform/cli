@@ -17,6 +17,7 @@ import type {BuildContentMapArgs, BuildContentMapConfig} from './features/build-
 import type {CrawlerManifestArgs, CrawlerManifestConfig} from './features/crawler-manifest';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
+import type {SearchIndexArgs} from './features/search-index';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filtering';
@@ -31,6 +32,7 @@ import type {TransformConfig} from './run';
 import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
 
 export type {SearchProvider, SearchServiceConfig} from './services/search';
+export type {SearchCorpus, SearchDocument} from './features/search-index';
 export type {EntryData, PageData} from './services/entry';
 
 export {OutputFormat, TransformConfig};
@@ -175,6 +177,7 @@ export type BuildArgs = ProgramArgs &
             PreprocessConfig &
             ChangelogsArgs &
             SearchArgs &
+            SearchIndexArgs &
             LegacyArgs &
             CustomResourcesArgs &
             TocFilteringArgs &

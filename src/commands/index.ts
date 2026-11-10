@@ -12,7 +12,13 @@ import {Publish} from './publish';
 import {Translate} from './translate';
 import {NAME, USAGE, options} from './config';
 
-export type {EntryInfo, SearchProvider, SearchServiceConfig} from './build';
+export type {
+    EntryInfo,
+    SearchProvider,
+    SearchServiceConfig,
+    SearchCorpus,
+    SearchDocument,
+} from './build';
 
 export {parse} from './parser';
 export {
