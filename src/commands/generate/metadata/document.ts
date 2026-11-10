@@ -6,7 +6,7 @@ import {extname} from 'node:path';
 import {isDeepStrictEqual} from 'node:util';
 import {glob} from 'glob';
 import {dump, load} from 'js-yaml';
-import {isMap, isScalar, parseDocument} from 'yaml';
+import {isAlias, isMap, isScalar, parseDocument} from 'yaml';
 
 export async function listDocuments(input: AbsolutePath): Promise<AbsolutePath[]> {
     const info = await lstat(input);
@@ -24,9 +24,14 @@ export async function listDocuments(input: AbsolutePath): Promise<AbsolutePath[]
             cwd: input,
             absolute: true,
             nodir: true,
-            ignore: ['**/node_modules/**', '**/_includes/**', '**/toc.yaml', '**/presets.yaml'],
+            ignore: [
+                '**/node_modules/**',
+                '**/_includes/**',
+                '**/toc.{yaml,yml}',
+                '**/presets.{yaml,yml}',
+            ],
         })
-    ).sort((left, right) => left.localeCompare(right)) as AbsolutePath[];
+    ).sort((left, right) => left.localeCompare(right, 'en')) as AbsolutePath[];
 }
 
 export async function readDocument(path: AbsolutePath) {
@@ -76,6 +81,7 @@ export async function readDocument(path: AbsolutePath) {
     ok(document.contents === null || isMap(document.contents), `${path}: expected a YAML mapping.`);
 
     const node = markdown ? document.contents : document.get('meta', true);
+    ok(!isAlias(node), `${path}: meta is a YAML alias; file not changed.`);
     const parsed = (load(yaml) ?? {}) as Record<string, unknown>;
     const metadata = ((markdown ? parsed : parsed.meta) ?? {}) as Record<string, unknown>;
     ok(

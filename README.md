@@ -151,8 +151,9 @@ Frontmatter delimiters of three or more hyphens are preserved. Initial Markdown
 BOM is removed so the build recognizes frontmatter; ambiguous strings are quoted.
 Before saving, the build's YAML parser verifies generated values and unchanged
 content, including indirect changes through anchors/aliases. Concurrent file edits
-also prevent saving. Liquid in YAML causes an error before any AI request; Liquid
-in the Markdown body is preserved. Includes and variables are not expanded.
+also prevent saving. Liquid in YAML or an aliased page `meta` block causes an error
+before any AI request; Liquid in the Markdown body is preserved. Includes and
+variables are not expanded.
 
 Responses must pass AJV type, format and length checks. `summary` must end with
 sentence punctuation, without an ellipsis; the prompt targets 60–80 characters

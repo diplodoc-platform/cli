@@ -271,7 +271,10 @@ export async function generateMetadata(settings: MetadataSettings, config: Metad
             updated++;
             console.log(`Updated ${path}: ${generated.join(', ')}`);
         } catch (error) {
-            throw new Error(`${path}: ${error instanceof Error ? error.message : String(error)}`);
+            const failure = error instanceof Error ? error : new Error(String(error));
+            failure.message = `${path}: ${failure.message}`;
+
+            throw failure;
         }
     });
 

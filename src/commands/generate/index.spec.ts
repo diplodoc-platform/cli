@@ -91,6 +91,32 @@ function completion(metadata: unknown) {
 }
 
 describe('yfm generate metadata', () => {
+    it('uses the current directory when input is omitted', async () => {
+        vi.spyOn(process, 'cwd').mockReturnValue(directory);
+        await writeFixture('# Article\n');
+        const argv = [
+            'node',
+            'yfm',
+            'generate',
+            'metadata',
+            '--provider',
+            'openai',
+            '--fields',
+            'description',
+            '--skip-interactive',
+        ];
+        const program = new Program();
+
+        await program.init(parse(argv));
+        await program.parse(argv);
+
+        expect(program.report.code).toBe(0);
+        expect(program.generate.metadata.config.input).toBe(directory);
+        expect(extractFrontMatter(await readFixture())[0]).toEqual({
+            description: 'Generated description',
+        });
+    });
+
     it('fills missing fields while preserving existing metadata and the article', async () => {
         const source =
             '---\ntitle: Existing title # keep\nnoIndex: false\ncustom: value\n---\n# Article\n';
@@ -205,6 +231,8 @@ describe('yfm generate metadata', () => {
         await mkdir(join(directory, '_includes'));
         await writeFile(join(directory, '_includes', 'part.md'), '# Include\n');
         await writeFixture('items: []\n', 'toc.yaml');
+        await writeFixture('links: []\n', 'toc.yml');
+        await writeFixture('blocks: []\n', 'presets.yml');
         await writeFixture('- one\n- two\n', 'data.yaml');
         await writeFixture('title: Page\nlinks: []\nmeta:\n  custom: value # keep\n', 'page.yaml');
         await writeFixture('\uFEFF# Article\r\n');
@@ -473,16 +501,17 @@ describe('yfm generate metadata', () => {
         );
     });
 
-    it('rejects changes to access rules inherited through a YAML alias', async () => {
+    it('rejects aliased page metadata before contacting a provider', async () => {
         const source =
             'defaults: &settings\n  restricted-access: [["role:admin"]]\nlinks: []\nmeta: *settings\n';
         await writeFixture(source, 'page.yaml');
-        vi.mocked(axios.post).mockResolvedValue(
-            completion({'restricted-access': [['role', 'admin']]}),
+
+        await run(['--fields', 'description', '--retry', '0'], 1);
+
+        expect(globalThis.console.error).toHaveBeenCalledWith(
+            expect.stringContaining('meta is a YAML alias'),
         );
-
-        await run(['--fields', 'restricted-access', '--mode', 'overwrite', '--retry', '0'], 1);
-
+        expect(axios.post).not.toHaveBeenCalled();
         expect(await readFixture('page.yaml')).toBe(source);
     });
 
