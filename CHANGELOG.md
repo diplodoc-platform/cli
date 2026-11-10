@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.67.2](https://github.com/diplodoc-platform/cli/compare/v5.67.1...v5.67.2) (2026-11-10)
+
+
+### Bug Fixes
+
+* **companions:** omit HTML resource metadata ([#2389](https://github.com/diplodoc-platform/cli/issues/2389)) ([e7097d8](https://github.com/diplodoc-platform/cli/commit/e7097d8c848b460d99bb782996867f456c406d7a))
+
 ## [5.67.1](https://github.com/diplodoc-platform/cli/compare/v5.67.0...v5.67.1) (2026-11-10)
 
 
