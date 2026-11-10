@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.68.0](https://github.com/diplodoc-platform/cli/compare/v5.67.2...v5.68.0) (2026-11-10)
+
+
+### Features
+
+* **search:** export backend-neutral JSON corpus ([#2398](https://github.com/diplodoc-platform/cli/issues/2398)) ([93f5670](https://github.com/diplodoc-platform/cli/commit/93f56704dedf783f31491c38cb380e843a9e7438))
+
+
+### Bug Fixes
+
+* default fields added to the metadata generator ([#2401](https://github.com/diplodoc-platform/cli/issues/2401)) ([e48bbdd](https://github.com/diplodoc-platform/cli/commit/e48bbdd94a21ca8f8275dba1fae9e5cc74dc90d9))
+
 ## [5.67.2](https://github.com/diplodoc-platform/cli/compare/v5.67.1...v5.67.2) (2026-11-10)
 
 
