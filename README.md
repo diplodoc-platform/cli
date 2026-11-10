@@ -101,6 +101,90 @@ For multilingual projects (`--langs en,ru`) content is placed in per-language su
     └── index.md
 ```
 
+## `yfm generate metadata`
+
+Generate metadata in Markdown frontmatter or the `meta` block of YAML leading and
+Page Constructor pages, using the AI clients from `translate`. Directory input
+recursively includes `.md`, `.yaml` and `.yml`; hidden directories, `node_modules`,
+`_includes`, TOCs, presets and YAML without `links` or `blocks` are skipped.
+
+```bash
+export YANDEX_API_KEY='<api-key>'
+yfm generate metadata -i ./docs
+yfm generate metadata -i ./docs/article.md --folder <folder-id> \
+  --fields title,description,summary,tags --skip-interactive
+```
+
+The wizard runs in a terminal unless `--skip-interactive` is set. Flags override
+`generate.metadata` in `.yfm`. Directory input discovers `.yfm` automatically;
+for a single file, pass `-c ./docs/.yfm` explicitly:
+
+```yaml
+generate:
+  metadata:
+    fields: [title, description, summary, tags]
+    mode: missing
+    provider: openai
+    model: gpt-4o-mini
+```
+
+Authentication follows `translate`: `--auth` accepts a token or token-file path;
+otherwise use `YANDEX_API_KEY` / `YC_IAM_TOKEN`, `OPENAI_API_KEY`,
+`OPENROUTER_API_KEY` or `ANTHROPIC_API_KEY`. Never store `auth` in `.yfm`.
+YandexGPT needs a folder ID unless `--model` is a full `gpt://` or `ds://` URI.
+The wizard asks for it when needed, using `--folder` or `generate.metadata.folder`
+as the default. For non-interactive runs, set the folder through that flag or config.
+Gateways support `--api-base` and repeated `--api-header 'Name: value'`
+(`apiHeaders` in config); an authorization header can replace `--auth`.
+`OPENAI_BASE_URL`, `OPENROUTER_BASE_URL` and `ANTHROPIC_BASE_URL` are also supported.
+
+All AJV frontmatter fields are accepted and selected by default. Only `title`,
+`description`, `summary`, `keywords` and `tags` can change. Other publication
+settings must exactly match existing frontmatter or `meta` values if returned by
+AI; invented or changed settings invalidate the response. Matching settings are
+not rewritten. Article text and examples cannot authorize configuration changes.
+Prefer a small `--fields` selection: Lite can omit fields or return invalid
+placeholders in large requests, even after a retry. Review generated descriptions.
+
+`missing` adds absent keys, preserving existing `false`, `null` and empty strings.
+`overwrite` replaces selected descriptive fields returned by AI. YAML comments,
+unselected values and Markdown content are retained; YAML formatting may change.
+Frontmatter delimiters of three or more hyphens are preserved. Initial Markdown
+BOM is removed so the build recognizes frontmatter; ambiguous strings are quoted.
+Before saving, the build's YAML parser verifies generated values and unchanged
+content, including indirect changes through anchors/aliases. Concurrent file edits
+also prevent saving. Liquid in YAML or an aliased page `meta` block causes an error
+before any AI request; Liquid in the Markdown body is preserved. Includes and
+variables are not expanded.
+
+Responses must pass AJV type, format and length checks. `summary` must end with
+sentence punctuation, without an ellipsis; the prompt targets 60–80 characters
+within the 100-character limit. Control characters are rejected, except tabs and
+line breaks in multiline values. YandexGPT uses ordinary JSON text because its
+constrained decoding corrupted strings in live checks. Invalid responses are
+retried with validation feedback; transient API errors are also retried.
+A failed file stays unchanged and stops the command with a nonzero exit code;
+previously completed files remain saved. Files needing no changes make no AI call.
+
+| Option                    | Default                       | Description                                      |
+| ------------------------- | ----------------------------- | ------------------------------------------------ |
+| `-i, --input <path>`      | `.`                           | Documentation file or directory                  |
+| `--fields <list>`         | all frontmatter fields        | Comma-separated fields                           |
+| `--mode <mode>`           | `missing`                     | `missing` or `overwrite`                         |
+| `--provider <provider>`   | `yandexgpt`                   | `yandexgpt`, `openai`, `openrouter`, `anthropic` |
+| `--model <name>`          | same as `translate`           | Model name                                       |
+| `--auth <value>`          | provider environment variable | Token or token-file path                         |
+| `--folder <value>`        | —                             | Yandex AI Studio folder                          |
+| `--api-base <url>`        | provider endpoint             | Override API base URL                            |
+| `--api-header <header>`   | —                             | Additional HTTP header; repeatable               |
+| `--timeout <ms>`          | `60000`                       | Request timeout                                  |
+| `--max-output-tokens <n>` | `4000`                        | Maximum response tokens                          |
+| `--retry <n>`             | `3`                           | Invalid-response and API-error retries           |
+| `--rate-limit-retry <n>`  | `8`                           | Separate retry budget for rate limits            |
+| `--skip-interactive`      | `false`                       | Skip the wizard                                  |
+
+Run `yfm generate` to see the available generation commands.
+
 ## `yfm content`
 
 Process a **single** Markdown file and print the result to stdout (or write it to a file).

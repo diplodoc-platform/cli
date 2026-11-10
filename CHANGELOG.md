@@ -1,4754 +1,4141 @@
 # Changelog
 
-## [5.66.1](https://github.com/diplodoc-platform/cli/compare/v5.66.0...v5.66.1) (2026-11-08)
-
+## [5.67.1](https://github.com/diplodoc-platform/cli/compare/v5.67.0...v5.67.1) (2026-11-10)
 
 ### Bug Fixes
 
-* arc vcs stderr ([#2383](https://github.com/diplodoc-platform/cli/issues/2383)) ([18b95d6](https://github.com/diplodoc-platform/cli/commit/18b95d6fd37765ca01d572f82879fb29c986d47d))
-* **deps:** Update @diplodoc/openapi-extension@5.3.1 ([563a925](https://github.com/diplodoc-platform/cli/commit/563a9251b6cae936ebb216ea05258a37d6a9c205))
-* index SVG assets in reachable embedded includes ([97168cb](https://github.com/diplodoc-platform/cli/commit/97168cb74e57a975490dcaca1fc44dc2617256be))
-* limit section includes to referenced terms ([3fea4a5](https://github.com/diplodoc-platform/cli/commit/3fea4a55a0326b954fe34783dfa9a36c1f13fbb2))
-* parse wrapped term references within Markdown blocks ([ad77a09](https://github.com/diplodoc-platform/cli/commit/ad77a09dd1e19382d8a17c194fc4d8e2630507ec))
-* preserve cached page metadata ([#2384](https://github.com/diplodoc-platform/cli/issues/2384)) ([b6d83e7](https://github.com/diplodoc-platform/cli/commit/b6d83e7aa769ff1e6f866ddc731f949acf2bbf3d))
-* preserve scoped term references in section includes ([66a5121](https://github.com/diplodoc-platform/cli/commit/66a5121d8bef7c2159c4b0182b623bc35cd6b91d))
-* preserve term boundaries across nested includes ([9743a75](https://github.com/diplodoc-platform/cli/commit/9743a75c2930e575a297952a9b07c06d9149a97d))
-* preserve wrapped term labels when merging includes ([6f6dfc8](https://github.com/diplodoc-platform/cli/commit/6f6dfc88581801d13bbffd92619dbae7a66f2fa8))
-* track embedded SVG resources in watch dependencies ([39d25ec](https://github.com/diplodoc-platform/cli/commit/39d25ec172b4dca697aaace6639ae64bfac168be))
+- added folder id in wizard ([#2394](https://github.com/diplodoc-platform/cli/issues/2394)) ([1d6b7fc](https://github.com/diplodoc-platform/cli/commit/1d6b7fc8a8a9bd25d5a3cc900bf981dec87a5b10))
 
+## [5.67.0](https://github.com/diplodoc-platform/cli/compare/v5.66.1...v5.67.0) (2026-11-10)
+
+### Features
+
+- added generate metadata command ([#2393](https://github.com/diplodoc-platform/cli/issues/2393)) ([df0cbc8](https://github.com/diplodoc-platform/cli/commit/df0cbc8b2b82c77eabce0d95b5a1b05be12e752f))
+
+### Bug Fixes
+
+- **deps:** align patched transitive dependencies and pin policy ([7fda7fc](https://github.com/diplodoc-platform/cli/commit/7fda7fc4c62d552394357f79232c3a4d89b7ae04))
+- **deps:** consume the released runtime baseline ([70b53ad](https://github.com/diplodoc-platform/cli/commit/70b53ad01835feaeda7856cb96b7ba403213090a))
+- **deps:** pin a consistent runtime baseline for candidate train ([f787c64](https://github.com/diplodoc-platform/cli/commit/f787c64f3b38424f643cb4d6bb18b488c416f5dd))
+
+## [5.66.1](https://github.com/diplodoc-platform/cli/compare/v5.66.0...v5.66.1) (2026-11-08)
+
+### Bug Fixes
+
+- arc vcs stderr ([#2383](https://github.com/diplodoc-platform/cli/issues/2383)) ([18b95d6](https://github.com/diplodoc-platform/cli/commit/18b95d6fd37765ca01d572f82879fb29c986d47d))
+- **deps:** Update @diplodoc/openapi-extension@5.3.1 ([563a925](https://github.com/diplodoc-platform/cli/commit/563a9251b6cae936ebb216ea05258a37d6a9c205))
+- index SVG assets in reachable embedded includes ([97168cb](https://github.com/diplodoc-platform/cli/commit/97168cb74e57a975490dcaca1fc44dc2617256be))
+- limit section includes to referenced terms ([3fea4a5](https://github.com/diplodoc-platform/cli/commit/3fea4a55a0326b954fe34783dfa9a36c1f13fbb2))
+- parse wrapped term references within Markdown blocks ([ad77a09](https://github.com/diplodoc-platform/cli/commit/ad77a09dd1e19382d8a17c194fc4d8e2630507ec))
+- preserve cached page metadata ([#2384](https://github.com/diplodoc-platform/cli/issues/2384)) ([b6d83e7](https://github.com/diplodoc-platform/cli/commit/b6d83e7aa769ff1e6f866ddc731f949acf2bbf3d))
+- preserve scoped term references in section includes ([66a5121](https://github.com/diplodoc-platform/cli/commit/66a5121d8bef7c2159c4b0182b623bc35cd6b91d))
+- preserve term boundaries across nested includes ([9743a75](https://github.com/diplodoc-platform/cli/commit/9743a75c2930e575a297952a9b07c06d9149a97d))
+- preserve wrapped term labels when merging includes ([6f6dfc8](https://github.com/diplodoc-platform/cli/commit/6f6dfc88581801d13bbffd92619dbae7a66f2fa8))
+- track embedded SVG resources in watch dependencies ([39d25ec](https://github.com/diplodoc-platform/cli/commit/39d25ec172b4dca697aaace6639ae64bfac168be))
 
 ### Performance Improvements
 
-* reuse definitions from complete include sections ([cb21508](https://github.com/diplodoc-platform/cli/commit/cb215089a694f1950b107ca937a13bb7eb5437ff))
+- reuse definitions from complete include sections ([cb21508](https://github.com/diplodoc-platform/cli/commit/cb215089a694f1950b107ca937a13bb7eb5437ff))
 
 ## [5.66.0](https://github.com/diplodoc-platform/cli/compare/v5.65.0...v5.66.0) (2026-11-05)
 
-
 ### Features
 
-* **cli:** expose article modification dates in manifests #DOCSTOOLS-6995 ([3fe7932](https://github.com/diplodoc-platform/cli/commit/3fe7932c54c41262099759379dd8366a2144f787))
-
+- **cli:** expose article modification dates in manifests #DOCSTOOLS-6995 ([3fe7932](https://github.com/diplodoc-platform/cli/commit/3fe7932c54c41262099759379dd8366a2144f787))
 
 ### Bug Fixes
 
-* **llms:** prefer article titles in index links #DOCSTOOLS-6731 ([e008f09](https://github.com/diplodoc-platform/cli/commit/e008f0977583493f1f0fa19c207706d9e7afb005))
+- **llms:** prefer article titles in index links #DOCSTOOLS-6731 ([e008f09](https://github.com/diplodoc-platform/cli/commit/e008f0977583493f1f0fa19c207706d9e7afb005))
 
 ## [5.65.0](https://github.com/diplodoc-platform/cli/compare/v5.64.2...v5.65.0) (2026-11-05)
 
-
 ### Features
 
-* added showAbsoluteUrls option in yfm ([#2375](https://github.com/diplodoc-platform/cli/issues/2375)) ([f4bd77f](https://github.com/diplodoc-platform/cli/commit/f4bd77fde9ffd0c3ea7b8615b4990947f7e83232))
+- added showAbsoluteUrls option in yfm ([#2375](https://github.com/diplodoc-platform/cli/issues/2375)) ([f4bd77f](https://github.com/diplodoc-platform/cli/commit/f4bd77fde9ffd0c3ea7b8615b4990947f7e83232))
 
 ## [5.64.2](https://github.com/diplodoc-platform/cli/compare/v5.64.1...v5.64.2) (2026-11-03)
 
-
 ### Bug Fixes
 
-* **cli:** expect compact missing-anchor context DOCSTOOLS-7022 ([188c01e](https://github.com/diplodoc-platform/cli/commit/188c01e4033e278915379e353844b8d906430ca0))
-* **cli:** skip anchor validation for browser fragment directives #DOCSTOOLS-6419 ([cbbf8e7](https://github.com/diplodoc-platform/cli/commit/cbbf8e78fb194ba267894b68ec5852c5cd5fa096))
+- **cli:** expect compact missing-anchor context DOCSTOOLS-7022 ([188c01e](https://github.com/diplodoc-platform/cli/commit/188c01e4033e278915379e353844b8d906430ca0))
+- **cli:** skip anchor validation for browser fragment directives #DOCSTOOLS-6419 ([cbbf8e7](https://github.com/diplodoc-platform/cli/commit/cbbf8e78fb194ba267894b68ec5852c5cd5fa096))
 
 ## [5.64.1](https://github.com/diplodoc-platform/cli/compare/v5.64.0...v5.64.1) (2026-10-28)
 
-
 ### Bug Fixes
 
-* **deps:** Update dev:@diplodoc/openapi-extension@5.2.7, dev:@diplodoc/search-extension@3.1.4, @diplodoc/transform@4.78.11 ([cff00f0](https://github.com/diplodoc-platform/cli/commit/cff00f0daaa70629c963a657d18f7fc474c44a4c))
+- **deps:** Update dev:@diplodoc/openapi-extension@5.2.7, dev:@diplodoc/search-extension@3.1.4, @diplodoc/transform@4.78.11 ([cff00f0](https://github.com/diplodoc-platform/cli/commit/cff00f0daaa70629c963a657d18f7fc474c44a4c))
 
 ## [5.64.0](https://github.com/diplodoc-platform/cli/compare/v5.63.4...v5.64.0) (2026-10-16)
 
-
 ### Features
 
-* **svg:** forward optional parser entity limit ([066ccd6](https://github.com/diplodoc-platform/cli/commit/066ccd6083f2bc0e64d3502905f3848b96dd3b01))
-
+- **svg:** forward optional parser entity limit ([066ccd6](https://github.com/diplodoc-platform/cli/commit/066ccd6083f2bc0e64d3502905f3848b96dd3b01))
 
 ### Bug Fixes
 
-* **deps:** require transform 4.78.9 ([2c0346d](https://github.com/diplodoc-platform/cli/commit/2c0346d19aec247f53137d1340df896d05a5fd28))
-* **svg:** complete asset metadata in forwarding fixture ([ee02c71](https://github.com/diplodoc-platform/cli/commit/ee02c71963b2753bb5f46c8ad653bfdb0eef76ba))
-* **svg:** retain Markdown images on entity limit errors ([e43db46](https://github.com/diplodoc-platform/cli/commit/e43db461fb16bd4bea746ab5dd52dd5f6b868054))
-* **svg:** use shared fallback and warning handling ([3fca2af](https://github.com/diplodoc-platform/cli/commit/3fca2af74a6c0320237e7feefb2f918aba058f93))
+- **deps:** require transform 4.78.9 ([2c0346d](https://github.com/diplodoc-platform/cli/commit/2c0346d19aec247f53137d1340df896d05a5fd28))
+- **svg:** complete asset metadata in forwarding fixture ([ee02c71](https://github.com/diplodoc-platform/cli/commit/ee02c71963b2753bb5f46c8ad653bfdb0eef76ba))
+- **svg:** retain Markdown images on entity limit errors ([e43db46](https://github.com/diplodoc-platform/cli/commit/e43db461fb16bd4bea746ab5dd52dd5f6b868054))
+- **svg:** use shared fallback and warning handling ([3fca2af](https://github.com/diplodoc-platform/cli/commit/3fca2af74a6c0320237e7feefb2f918aba058f93))
 
 ## [5.63.4](https://github.com/diplodoc-platform/cli/compare/v5.63.3...v5.63.4) (2026-10-15)
 
-
 ### Bug Fixes
 
-* **cli:** make search regression checks portable ([67fe4c7](https://github.com/diplodoc-platform/cli/commit/67fe4c7f724559062dbab1a6431f7f0ebb251db7))
-* **cli:** preserve search resource paths #DOCSTOOLS-6964 ([897022b](https://github.com/diplodoc-platform/cli/commit/897022b33168b6deb1766d721c2abf371c4fb66c))
-* **cli:** separate heading and local-anchor diagnostics ([b4e88e5](https://github.com/diplodoc-platform/cli/commit/b4e88e5d674f2dc1679a25a889b6973ba9895ddd))
-* **cli:** validate local anchor links #DOCSTOOLS-6419 ([19a0ee0](https://github.com/diplodoc-platform/cli/commit/19a0ee08edf32cc25bef20ea3e05a38a7b1d8562))
-* **deps:** require transform 4.78.7 ([a5c0ba4](https://github.com/diplodoc-platform/cli/commit/a5c0ba4895a8e15b6f489a68148bc061479bbf3c))
+- **cli:** make search regression checks portable ([67fe4c7](https://github.com/diplodoc-platform/cli/commit/67fe4c7f724559062dbab1a6431f7f0ebb251db7))
+- **cli:** preserve search resource paths #DOCSTOOLS-6964 ([897022b](https://github.com/diplodoc-platform/cli/commit/897022b33168b6deb1766d721c2abf371c4fb66c))
+- **cli:** separate heading and local-anchor diagnostics ([b4e88e5](https://github.com/diplodoc-platform/cli/commit/b4e88e5d674f2dc1679a25a889b6973ba9895ddd))
+- **cli:** validate local anchor links #DOCSTOOLS-6419 ([19a0ee0](https://github.com/diplodoc-platform/cli/commit/19a0ee08edf32cc25bef20ea3e05a38a7b1d8562))
+- **deps:** require transform 4.78.7 ([a5c0ba4](https://github.com/diplodoc-platform/cli/commit/a5c0ba4895a8e15b6f489a68148bc061479bbf3c))
 
 ## [5.63.3](https://github.com/diplodoc-platform/cli/compare/v5.63.2...v5.63.3) (2026-10-10)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.14.8 ([1c2b0f2](https://github.com/diplodoc-platform/cli/commit/1c2b0f2ad112bba119a48ea786953e82b48ae4d7))
-* **translate:** preserve approved formatting and validate shared translation seeds ([#2321](https://github.com/diplodoc-platform/cli/issues/2321)) ([b020375](https://github.com/diplodoc-platform/cli/commit/b020375d034437b2e08296148a717ea1759e7e77))
+- **deps:** Update @diplodoc/client@5.14.8 ([1c2b0f2](https://github.com/diplodoc-platform/cli/commit/1c2b0f2ad112bba119a48ea786953e82b48ae4d7))
+- **translate:** preserve approved formatting and validate shared translation seeds ([#2321](https://github.com/diplodoc-platform/cli/issues/2321)) ([b020375](https://github.com/diplodoc-platform/cli/commit/b020375d034437b2e08296148a717ea1759e7e77))
 
 ## [5.63.2](https://github.com/diplodoc-platform/cli/compare/v5.63.1...v5.63.2) (2026-10-07)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/transform@4.78.4 ([db74afc](https://github.com/diplodoc-platform/cli/commit/db74afc128d1b63894568b4f1ac7f04891ea2005))
+- **deps:** Update @diplodoc/transform@4.78.4 ([db74afc](https://github.com/diplodoc-platform/cli/commit/db74afc128d1b63894568b4f1ac7f04891ea2005))
 
 ## [5.63.1](https://github.com/diplodoc-platform/cli/compare/v5.63.0...v5.63.1) (2026-10-06)
 
-
 ### Bug Fixes
 
-* avoid duplicate static page HTML ([#2299](https://github.com/diplodoc-platform/cli/issues/2299)) ([a89e3d7](https://github.com/diplodoc-platform/cli/commit/a89e3d71309e5125ec3df98b4562a839961e2025))
-* **deps:** Update @diplodoc/ajv@0.10.0 ([bf3a74d](https://github.com/diplodoc-platform/cli/commit/bf3a74da6e01f92e7e7cc3d84d6c60375f88b381))
-* **deps:** Update @diplodoc/client@5.14.4 ([#2318](https://github.com/diplodoc-platform/cli/issues/2318)) ([cd1315f](https://github.com/diplodoc-platform/cli/commit/cd1315f4a407cac9049ca4f3297bf24214279df9))
-* **deps:** Update @diplodoc/client@5.14.7 ([#2323](https://github.com/diplodoc-platform/cli/issues/2323)) ([4b0c9dc](https://github.com/diplodoc-platform/cli/commit/4b0c9dc266d5cd929c6b99ed969baab4dd7af115))
-* **deps:** Update @diplodoc/transform@4.78.3, @diplodoc/client@5.14.6 ([#2322](https://github.com/diplodoc-platform/cli/issues/2322)) ([25bbaf4](https://github.com/diplodoc-platform/cli/commit/25bbaf400ec9bdbc7a6541e56c326e2667dc722f))
-* **search:** exclude hidden pages from search with hiddenPolicy #DOCSTOOLS-6799 ([924c353](https://github.com/diplodoc-platform/cli/commit/924c35302a237e9f153b3321bafc35f4ec8491e9))
-* **toc:** keep noIndex: false from includes #DOCSTOOLS-6799 ([fc9ed2e](https://github.com/diplodoc-platform/cli/commit/fc9ed2e5a0097cdc251c914284e8dcf68fcd2040))
-* **translate:** preserve source markup structure ([#2308](https://github.com/diplodoc-platform/cli/issues/2308)) ([06e47ac](https://github.com/diplodoc-platform/cli/commit/06e47acf446ffbc3d979c79213480890c7083df5))
+- avoid duplicate static page HTML ([#2299](https://github.com/diplodoc-platform/cli/issues/2299)) ([a89e3d7](https://github.com/diplodoc-platform/cli/commit/a89e3d71309e5125ec3df98b4562a839961e2025))
+- **deps:** Update @diplodoc/ajv@0.10.0 ([bf3a74d](https://github.com/diplodoc-platform/cli/commit/bf3a74da6e01f92e7e7cc3d84d6c60375f88b381))
+- **deps:** Update @diplodoc/client@5.14.4 ([#2318](https://github.com/diplodoc-platform/cli/issues/2318)) ([cd1315f](https://github.com/diplodoc-platform/cli/commit/cd1315f4a407cac9049ca4f3297bf24214279df9))
+- **deps:** Update @diplodoc/client@5.14.7 ([#2323](https://github.com/diplodoc-platform/cli/issues/2323)) ([4b0c9dc](https://github.com/diplodoc-platform/cli/commit/4b0c9dc266d5cd929c6b99ed969baab4dd7af115))
+- **deps:** Update @diplodoc/transform@4.78.3, @diplodoc/client@5.14.6 ([#2322](https://github.com/diplodoc-platform/cli/issues/2322)) ([25bbaf4](https://github.com/diplodoc-platform/cli/commit/25bbaf400ec9bdbc7a6541e56c326e2667dc722f))
+- **search:** exclude hidden pages from search with hiddenPolicy #DOCSTOOLS-6799 ([924c353](https://github.com/diplodoc-platform/cli/commit/924c35302a237e9f153b3321bafc35f4ec8491e9))
+- **toc:** keep noIndex: false from includes #DOCSTOOLS-6799 ([fc9ed2e](https://github.com/diplodoc-platform/cli/commit/fc9ed2e5a0097cdc251c914284e8dcf68fcd2040))
+- **translate:** preserve source markup structure ([#2308](https://github.com/diplodoc-platform/cli/issues/2308)) ([06e47ac](https://github.com/diplodoc-platform/cli/commit/06e47acf446ffbc3d979c79213480890c7083df5))
 
 ## [5.63.0](https://github.com/diplodoc-platform/cli/compare/v5.62.0...v5.63.0) (2026-09-29)
 
-
 ### Features
 
-* **cli:** generate sitemap.xml in static builds #DOCSTOOLS-6563 ([e5d2b6a](https://github.com/diplodoc-platform/cli/commit/e5d2b6ab6c735073d0a80530ce990905220e2826))
-* **cli:** support local code directives #DOCSTOOLS-6666 ([50f1df7](https://github.com/diplodoc-platform/cli/commit/50f1df7e0c0d59924944580169532dff4169009a))
-* **toc:** support inherited noIndex #DOCSTOOLS-4902 ([3893fb3](https://github.com/diplodoc-platform/cli/commit/3893fb3f362c6d784e21134b1e6585a6fb4250da))
-* **translate:** apply vars presets from .yfm behind --presets ([#2297](https://github.com/diplodoc-platform/cli/issues/2297)) ([2b7a899](https://github.com/diplodoc-platform/cli/commit/2b7a8998c6a62c7696b24085e0f4f5c8af1381f7))
-* **translate:** code mode option for comments and mermaid labels DOCSTOOLS-6809 ([#2291](https://github.com/diplodoc-platform/cli/issues/2291)) ([a339f33](https://github.com/diplodoc-platform/cli/commit/a339f33ae370dd11845323c78e9af3d06af2f74d))
-* **translate:** translation memory hints for changed units ([#2296](https://github.com/diplodoc-platform/cli/issues/2296)) ([deb6ef0](https://github.com/diplodoc-platform/cli/commit/deb6ef0dafab06910b4f4a8169887d5a41b93049))
-
+- **cli:** generate sitemap.xml in static builds #DOCSTOOLS-6563 ([e5d2b6a](https://github.com/diplodoc-platform/cli/commit/e5d2b6ab6c735073d0a80530ce990905220e2826))
+- **cli:** support local code directives #DOCSTOOLS-6666 ([50f1df7](https://github.com/diplodoc-platform/cli/commit/50f1df7e0c0d59924944580169532dff4169009a))
+- **toc:** support inherited noIndex #DOCSTOOLS-4902 ([3893fb3](https://github.com/diplodoc-platform/cli/commit/3893fb3f362c6d784e21134b1e6585a6fb4250da))
+- **translate:** apply vars presets from .yfm behind --presets ([#2297](https://github.com/diplodoc-platform/cli/issues/2297)) ([2b7a899](https://github.com/diplodoc-platform/cli/commit/2b7a8998c6a62c7696b24085e0f4f5c8af1381f7))
+- **translate:** code mode option for comments and mermaid labels DOCSTOOLS-6809 ([#2291](https://github.com/diplodoc-platform/cli/issues/2291)) ([a339f33](https://github.com/diplodoc-platform/cli/commit/a339f33ae370dd11845323c78e9af3d06af2f74d))
+- **translate:** translation memory hints for changed units ([#2296](https://github.com/diplodoc-platform/cli/issues/2296)) ([deb6ef0](https://github.com/diplodoc-platform/cli/commit/deb6ef0dafab06910b4f4a8169887d5a41b93049))
 
 ### Bug Fixes
 
-* **build:** hide Markdown actions without companions #DOCSTOOLS-6851 ([ae732ca](https://github.com/diplodoc-platform/cli/commit/ae732cad50707cb1b93cc6295ca37727b8d43b4c))
-* **cli:** address sitemap review feedback #DOCSTOOLS-6563 ([6e981d6](https://github.com/diplodoc-platform/cli/commit/6e981d68b41d26a30de2f8834deb450cc27c1916))
-* **cli:** check the meta section of leading pages in sitemap noIndex filter #DOCSTOOLS-6563 ([96e3d87](https://github.com/diplodoc-platform/cli/commit/96e3d873e8a72a5b3e9be019faa101728a4caa9f))
-* **cli:** satisfy sonar S2871 and make sitemap specs windows-safe #DOCSTOOLS-6563 ([3fba63b](https://github.com/diplodoc-platform/cli/commit/3fba63b9bcb1a03f4e1004c02703cdeffa8977c8))
-* **translate:** escape literal NUL in markup source ([#2309](https://github.com/diplodoc-platform/cli/issues/2309)) ([402755a](https://github.com/diplodoc-platform/cli/commit/402755afb1bc188625e196c95768448be446a737))
-* **translate:** seed localized links, code blocks and identifiers, take link addresses from the source ([#2298](https://github.com/diplodoc-platform/cli/issues/2298)) ([5b043c6](https://github.com/diplodoc-platform/cli/commit/5b043c6024be60d6ce9c03e68296cc00857eb5cd))
-
+- **build:** hide Markdown actions without companions #DOCSTOOLS-6851 ([ae732ca](https://github.com/diplodoc-platform/cli/commit/ae732cad50707cb1b93cc6295ca37727b8d43b4c))
+- **cli:** address sitemap review feedback #DOCSTOOLS-6563 ([6e981d6](https://github.com/diplodoc-platform/cli/commit/6e981d68b41d26a30de2f8834deb450cc27c1916))
+- **cli:** check the meta section of leading pages in sitemap noIndex filter #DOCSTOOLS-6563 ([96e3d87](https://github.com/diplodoc-platform/cli/commit/96e3d873e8a72a5b3e9be019faa101728a4caa9f))
+- **cli:** satisfy sonar S2871 and make sitemap specs windows-safe #DOCSTOOLS-6563 ([3fba63b](https://github.com/diplodoc-platform/cli/commit/3fba63b9bcb1a03f4e1004c02703cdeffa8977c8))
+- **translate:** escape literal NUL in markup source ([#2309](https://github.com/diplodoc-platform/cli/issues/2309)) ([402755a](https://github.com/diplodoc-platform/cli/commit/402755afb1bc188625e196c95768448be446a737))
+- **translate:** seed localized links, code blocks and identifiers, take link addresses from the source ([#2298](https://github.com/diplodoc-platform/cli/issues/2298)) ([5b043c6](https://github.com/diplodoc-platform/cli/commit/5b043c6024be60d6ce9c03e68296cc00857eb5cd))
 
 ### Performance Improvements
 
-* **toc:** avoid repeated dependency traversal when filtering entries ([#2285](https://github.com/diplodoc-platform/cli/issues/2285)) ([ee76f76](https://github.com/diplodoc-platform/cli/commit/ee76f7628e1de490dd25e2ee3ef01886d687b498))
+- **toc:** avoid repeated dependency traversal when filtering entries ([#2285](https://github.com/diplodoc-platform/cli/issues/2285)) ([ee76f76](https://github.com/diplodoc-platform/cli/commit/ee76f7628e1de490dd25e2ee3ef01886d687b498))
 
 ## [5.62.0](https://github.com/diplodoc-platform/cli/compare/v5.61.0...v5.62.0) (2026-09-21)
 
-
 ### Features
 
-* **build:** emit static Markdown companions ([4a2b898](https://github.com/diplodoc-platform/cli/commit/4a2b89857cee6bdf5053d9e565bdfe05a5ecebfd))
-
+- **build:** emit static Markdown companions ([4a2b898](https://github.com/diplodoc-platform/cli/commit/4a2b89857cee6bdf5053d9e565bdfe05a5ecebfd))
 
 ### Bug Fixes
 
-* **build:** address companion sonar findings ([6855efb](https://github.com/diplodoc-platform/cli/commit/6855efb00ac731e2f25f8447c573210b9b4eaa76))
-* **build:** filter companion graphs before collection ([c2aae71](https://github.com/diplodoc-platform/cli/commit/c2aae71085618c2a57a2df490a7a6d1d43b22bf3))
-* **build:** initialize AI config for companions ([d3dc216](https://github.com/diplodoc-platform/cli/commit/d3dc2160477455c5ce7ab55ce2c6cd3742f1225c))
-* **build:** preserve visibility in companion includes ([24e3f30](https://github.com/diplodoc-platform/cli/commit/24e3f301076dbace897287a65995f28e33bae490))
-* **llms:** preserve audience separators ([890d5ac](https://github.com/diplodoc-platform/cli/commit/890d5acfaffcf94b65d4e6b92df4b21ff3f6b994))
-* **llms:** preserve merge behavior while restoring separators ([b516ab0](https://github.com/diplodoc-platform/cli/commit/b516ab0e6987dfa2492aadec5a52c9f47d53b190))
-
-
+- **build:** address companion sonar findings ([6855efb](https://github.com/diplodoc-platform/cli/commit/6855efb00ac731e2f25f8447c573210b9b4eaa76))
+- **build:** filter companion graphs before collection ([c2aae71](https://github.com/diplodoc-platform/cli/commit/c2aae71085618c2a57a2df490a7a6d1d43b22bf3))
+- **build:** initialize AI config for companions ([d3dc216](https://github.com/diplodoc-platform/cli/commit/d3dc2160477455c5ce7ab55ce2c6cd3742f1225c))
+- **build:** preserve visibility in companion includes ([24e3f30](https://github.com/diplodoc-platform/cli/commit/24e3f301076dbace897287a65995f28e33bae490))
+- **llms:** preserve audience separators ([890d5ac](https://github.com/diplodoc-platform/cli/commit/890d5acfaffcf94b65d4e6b92df4b21ff3f6b994))
+- **llms:** preserve merge behavior while restoring separators ([b516ab0](https://github.com/diplodoc-platform/cli/commit/b516ab0e6987dfa2492aadec5a52c9f47d53b190))
 
 ### Performance Improvements
 
-* **build:** skip fallback parsing for regular pages ([722509d](https://github.com/diplodoc-platform/cli/commit/722509d8a3a028dddedb3e1fe14191b2674dd565))
-* **meta:** avoid duplicate path normalization ([39fb290](https://github.com/diplodoc-platform/cli/commit/39fb290884ddb0737c67d1e71dce41750952aef9))
+- **build:** skip fallback parsing for regular pages ([722509d](https://github.com/diplodoc-platform/cli/commit/722509d8a3a028dddedb3e1fe14191b2674dd565))
+- **meta:** avoid duplicate path normalization ([39fb290](https://github.com/diplodoc-platform/cli/commit/39fb290884ddb0737c67d1e71dce41750952aef9))
 
 ## [5.61.1](https://github.com/diplodoc-platform/cli/compare/v5.61.0...v5.61.1) (2026-09-18)
 
-
 ### Bug Fixes
 
-* **translate:** seed translations whose edge markers were hoisted into their skeleton ([#2284](https://github.com/diplodoc-platform/cli/issues/2284)) ([348de81](https://github.com/diplodoc-platform/cli/commit/348de816af5822c48e6aef3b25db17b82ea6d4e5))
+- **translate:** seed translations whose edge markers were hoisted into their skeleton ([#2284](https://github.com/diplodoc-platform/cli/issues/2284)) ([348de81](https://github.com/diplodoc-platform/cli/commit/348de816af5822c48e6aef3b25db17b82ea6d4e5))
 
 ## [5.61.0](https://github.com/diplodoc-platform/cli/compare/v5.60.0...v5.61.0) (2026-09-17)
 
-
 ### Features
 
-* **translate:** eval series as the gate before a model change ([#2282](https://github.com/diplodoc-platform/cli/issues/2282)) ([c92ab94](https://github.com/diplodoc-platform/cli/commit/c92ab946da1d9440eb0d0d490cc810bd984d31fa))
-
+- **translate:** eval series as the gate before a model change ([#2282](https://github.com/diplodoc-platform/cli/issues/2282)) ([c92ab94](https://github.com/diplodoc-platform/cli/commit/c92ab946da1d9440eb0d0d490cc810bd984d31fa))
 
 ### Bug Fixes
 
-* **build:** copy images referenced only by gallery-src ([#2273](https://github.com/diplodoc-platform/cli/issues/2273)) ([6b40188](https://github.com/diplodoc-platform/cli/commit/6b4018833b426173bc0759a1009500dbde22161a))
-* **cli:** avoid markdown lint plugin side effects ([b52daf9](https://github.com/diplodoc-platform/cli/commit/b52daf9c71d11dca0c57a31dca011e2683402965))
-* **cli:** limit markdown lint to audience validation ([6405640](https://github.com/diplodoc-platform/cli/commit/64056408c61b50d4f4980e05d7e4f595be717ab7))
-* **deps:** Update @diplodoc/ajv@0.6.1 ([#2280](https://github.com/diplodoc-platform/cli/issues/2280)) ([b397a4d](https://github.com/diplodoc-platform/cli/commit/b397a4d0ac6c4c03e0fafc52eed13652cf47e827))
-* **translate:** stop shipping units the model returns untranslated ([#2277](https://github.com/diplodoc-platform/cli/issues/2277)) ([b4a58e7](https://github.com/diplodoc-platform/cli/commit/b4a58e7bbf90b1a96897865fd0005e4755cc8fb2))
-
+- **build:** copy images referenced only by gallery-src ([#2273](https://github.com/diplodoc-platform/cli/issues/2273)) ([6b40188](https://github.com/diplodoc-platform/cli/commit/6b4018833b426173bc0759a1009500dbde22161a))
+- **cli:** avoid markdown lint plugin side effects ([b52daf9](https://github.com/diplodoc-platform/cli/commit/b52daf9c71d11dca0c57a31dca011e2683402965))
+- **cli:** limit markdown lint to audience validation ([6405640](https://github.com/diplodoc-platform/cli/commit/64056408c61b50d4f4980e05d7e4f595be717ab7))
+- **deps:** Update @diplodoc/ajv@0.6.1 ([#2280](https://github.com/diplodoc-platform/cli/issues/2280)) ([b397a4d](https://github.com/diplodoc-platform/cli/commit/b397a4d0ac6c4c03e0fafc52eed13652cf47e827))
+- **translate:** stop shipping units the model returns untranslated ([#2277](https://github.com/diplodoc-platform/cli/issues/2277)) ([b4a58e7](https://github.com/diplodoc-platform/cli/commit/b4a58e7bbf90b1a96897865fd0005e4755cc8fb2))
 
 ### Miscellaneous Chores
 
-* **master:** release 5.61.0 ([afe8760](https://github.com/diplodoc-platform/cli/commit/afe8760262311bec1118cd29714d091552002c42))
+- **master:** release 5.61.0 ([afe8760](https://github.com/diplodoc-platform/cli/commit/afe8760262311bec1118cd29714d091552002c42))
 
 ## [5.60.0](https://github.com/diplodoc-platform/cli/compare/v5.59.0...v5.60.0) (2026-09-16)
 
-
 ### Features
 
-* **translate:** align existing translations block by block when seeding ([#2272](https://github.com/diplodoc-platform/cli/issues/2272)) ([c3eae2d](https://github.com/diplodoc-platform/cli/commit/c3eae2d9ef2209e9569bc6a8f8d12fb71b922372))
+- **translate:** align existing translations block by block when seeding ([#2272](https://github.com/diplodoc-platform/cli/issues/2272)) ([c3eae2d](https://github.com/diplodoc-platform/cli/commit/c3eae2d9ef2209e9569bc6a8f8d12fb71b922372))
 
 ## [5.59.0](https://github.com/diplodoc-platform/cli/compare/v5.58.1...v5.59.0) (2026-09-15)
 
-
 ### Features
 
-* build audience-specific documentation DOCSTOOLS-6553 ([0e9ddd8](https://github.com/diplodoc-platform/cli/commit/0e9ddd86cc46e58a23a073e301cedbc61ca4ecf0))
-* **llms:** add viewer audience variants ([a55e657](https://github.com/diplodoc-platform/cli/commit/a55e657fa59f1ce9083aa68b3f5ee9d464073557))
-* **translate:** model benchmark with a pairwise judge ([#2256](https://github.com/diplodoc-platform/cli/issues/2256)) ([fb7aac0](https://github.com/diplodoc-platform/cli/commit/fb7aac0a798f3d24c5a63a821849266d3a449fd8))
-
+- build audience-specific documentation DOCSTOOLS-6553 ([0e9ddd8](https://github.com/diplodoc-platform/cli/commit/0e9ddd86cc46e58a23a073e301cedbc61ca4ecf0))
+- **llms:** add viewer audience variants ([a55e657](https://github.com/diplodoc-platform/cli/commit/a55e657fa59f1ce9083aa68b3f5ee9d464073557))
+- **translate:** model benchmark with a pairwise judge ([#2256](https://github.com/diplodoc-platform/cli/issues/2256)) ([fb7aac0](https://github.com/diplodoc-platform/cli/commit/fb7aac0a798f3d24c5a63a821849266d3a449fd8))
 
 ### Bug Fixes
 
-* address audience build review DOCSTOOLS-6553 ([fa5ccc6](https://github.com/diplodoc-platform/cli/commit/fa5ccc6d70cb55c3bf7ef3aeb75c754948da8add))
-* **cli:** omit merged line number from visibility errors DOCSTOOLS-6553 ([4cd4686](https://github.com/diplodoc-platform/cli/commit/4cd4686001ca50c151b62cfefb64877f5b6eb406))
-* **e2e:** update transform regression snapshots ([59708ab](https://github.com/diplodoc-platform/cli/commit/59708abef8717da4a8beb0756c3634867e84fdca))
-* **translate:** keep link-included tocs in translate and seed file lists ([#2270](https://github.com/diplodoc-platform/cli/issues/2270)) ([16da1c3](https://github.com/diplodoc-platform/cli/commit/16da1c38b1e54e7953d530829804762e7f5ab878))
+- address audience build review DOCSTOOLS-6553 ([fa5ccc6](https://github.com/diplodoc-platform/cli/commit/fa5ccc6d70cb55c3bf7ef3aeb75c754948da8add))
+- **cli:** omit merged line number from visibility errors DOCSTOOLS-6553 ([4cd4686](https://github.com/diplodoc-platform/cli/commit/4cd4686001ca50c151b62cfefb64877f5b6eb406))
+- **e2e:** update transform regression snapshots ([59708ab](https://github.com/diplodoc-platform/cli/commit/59708abef8717da4a8beb0756c3634867e84fdca))
+- **translate:** keep link-included tocs in translate and seed file lists ([#2270](https://github.com/diplodoc-platform/cli/issues/2270)) ([16da1c3](https://github.com/diplodoc-platform/cli/commit/16da1c38b1e54e7953d530829804762e7f5ab878))
 
 ## [5.58.1](https://github.com/diplodoc-platform/cli/compare/v5.58.0...v5.58.1) (2026-09-15)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.13.2 ([#2268](https://github.com/diplodoc-platform/cli/issues/2268)) ([ec0b779](https://github.com/diplodoc-platform/cli/commit/ec0b7798928bce5e328b0df4512fb6f821830867))
-* preserve PDF footnote links ([#2267](https://github.com/diplodoc-platform/cli/issues/2267)) ([3b06f69](https://github.com/diplodoc-platform/cli/commit/3b06f69b8caeee67924b7d0cc17cfc3200044333))
+- **deps:** Update @diplodoc/client@5.13.2 ([#2268](https://github.com/diplodoc-platform/cli/issues/2268)) ([ec0b779](https://github.com/diplodoc-platform/cli/commit/ec0b7798928bce5e328b0df4512fb6f821830867))
+- preserve PDF footnote links ([#2267](https://github.com/diplodoc-platform/cli/issues/2267)) ([3b06f69](https://github.com/diplodoc-platform/cli/commit/3b06f69b8caeee67924b7d0cc17cfc3200044333))
 
 ## [5.58.0](https://github.com/diplodoc-platform/cli/compare/v5.57.4...v5.58.0) (2026-09-15)
 
-
 ### Features
 
-* added summary field in meta ([#2261](https://github.com/diplodoc-platform/cli/issues/2261)) ([1c4d1c4](https://github.com/diplodoc-platform/cli/commit/1c4d1c4288192d24a6cee748abb709e8693d89f7))
-* **translate:** allow the fallback model on its own endpoint ([#2255](https://github.com/diplodoc-platform/cli/issues/2255)) ([6e1a8a6](https://github.com/diplodoc-platform/cli/commit/6e1a8a6e553ab1f4d8079bea1e7090b68c02dc06))
-
+- added summary field in meta ([#2261](https://github.com/diplodoc-platform/cli/issues/2261)) ([1c4d1c4](https://github.com/diplodoc-platform/cli/commit/1c4d1c4288192d24a6cee748abb709e8693d89f7))
+- **translate:** allow the fallback model on its own endpoint ([#2255](https://github.com/diplodoc-platform/cli/issues/2255)) ([6e1a8a6](https://github.com/diplodoc-platform/cli/commit/6e1a8a6e553ab1f4d8079bea1e7090b68c02dc06))
 
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/ajv@0.5.0 ([#2262](https://github.com/diplodoc-platform/cli/issues/2262)) ([7b1e454](https://github.com/diplodoc-platform/cli/commit/7b1e4540ea7873f122502ca430d0211215bd53b1))
-* **deps:** Update @diplodoc/client@5.12.2 ([#2253](https://github.com/diplodoc-platform/cli/issues/2253)) ([570a3eb](https://github.com/diplodoc-platform/cli/commit/570a3ebb19563dde93cf183c67d2ebe9eef0f60e))
-* **deps:** Update @diplodoc/client@5.13.0, dev:@diplodoc/page-constructor-extension@0.13.16 ([452bfb5](https://github.com/diplodoc-platform/cli/commit/452bfb53261db285a908a5e78540ed1d2cd5e8a5))
-* **deps:** Update dev:@diplodoc/search-extension@3.1.2 ([#2251](https://github.com/diplodoc-platform/cli/issues/2251)) ([d5b86df](https://github.com/diplodoc-platform/cli/commit/d5b86dff70d1db9ad61adb5433eb1acce4194fe6))
-* **translate:** recover from models which reject temperature ([#2257](https://github.com/diplodoc-platform/cli/issues/2257)) ([2e81018](https://github.com/diplodoc-platform/cli/commit/2e81018f35dfb5ca4feb056622d0607c788826b8))
-* **translate:** strip emphasis the model adds around fragments ([#2254](https://github.com/diplodoc-platform/cli/issues/2254)) ([56ff3ee](https://github.com/diplodoc-platform/cli/commit/56ff3ee2dd24345c03a20d0b5dc64181f8c2c792))
+- **deps:** Update @diplodoc/ajv@0.5.0 ([#2262](https://github.com/diplodoc-platform/cli/issues/2262)) ([7b1e454](https://github.com/diplodoc-platform/cli/commit/7b1e4540ea7873f122502ca430d0211215bd53b1))
+- **deps:** Update @diplodoc/client@5.12.2 ([#2253](https://github.com/diplodoc-platform/cli/issues/2253)) ([570a3eb](https://github.com/diplodoc-platform/cli/commit/570a3ebb19563dde93cf183c67d2ebe9eef0f60e))
+- **deps:** Update @diplodoc/client@5.13.0, dev:@diplodoc/page-constructor-extension@0.13.16 ([452bfb5](https://github.com/diplodoc-platform/cli/commit/452bfb53261db285a908a5e78540ed1d2cd5e8a5))
+- **deps:** Update dev:@diplodoc/search-extension@3.1.2 ([#2251](https://github.com/diplodoc-platform/cli/issues/2251)) ([d5b86df](https://github.com/diplodoc-platform/cli/commit/d5b86dff70d1db9ad61adb5433eb1acce4194fe6))
+- **translate:** recover from models which reject temperature ([#2257](https://github.com/diplodoc-platform/cli/issues/2257)) ([2e81018](https://github.com/diplodoc-platform/cli/commit/2e81018f35dfb5ca4feb056622d0607c788826b8))
+- **translate:** strip emphasis the model adds around fragments ([#2254](https://github.com/diplodoc-platform/cli/issues/2254)) ([56ff3ee](https://github.com/diplodoc-platform/cli/commit/56ff3ee2dd24345c03a20d0b5dc64181f8c2c792))
 
 ## [5.57.4](https://github.com/diplodoc-platform/cli/compare/v5.57.3...v5.57.4) (2026-09-09)
 
-
 ### Bug Fixes
 
-* **cli:** use describedby for llms.txt metadata ([9754c78](https://github.com/diplodoc-platform/cli/commit/9754c7876e663a9940efc55c368230eebf740290))
-* **e2e:** update llms metadata snapshots ([90df29f](https://github.com/diplodoc-platform/cli/commit/90df29fe8acf4e6c3c4582c22087bba74ab4a5ec))
+- **cli:** use describedby for llms.txt metadata ([9754c78](https://github.com/diplodoc-platform/cli/commit/9754c7876e663a9940efc55c368230eebf740290))
+- **e2e:** update llms metadata snapshots ([90df29f](https://github.com/diplodoc-platform/cli/commit/90df29fe8acf4e6c3c4582c22087bba74ab4a5ec))
 
 ## [5.57.3](https://github.com/diplodoc-platform/cli/compare/v5.57.2...v5.57.3) (2026-08-31)
 
-
 ### Bug Fixes
 
-* **tests:** do not ship the translate eval e2e and corpus in the npm package ([#2234](https://github.com/diplodoc-platform/cli/issues/2234)) ([a43b6c7](https://github.com/diplodoc-platform/cli/commit/a43b6c7ad83fb48ab56f27250e6f9c3a8e5bcbe5))
+- **tests:** do not ship the translate eval e2e and corpus in the npm package ([#2234](https://github.com/diplodoc-platform/cli/issues/2234)) ([a43b6c7](https://github.com/diplodoc-platform/cli/commit/a43b6c7ad83fb48ab56f27250e6f9c3a8e5bcbe5))
 
 ## [5.57.2](https://github.com/diplodoc-platform/cli/compare/v5.57.1...v5.57.2) (2026-08-28)
 
-
 ### Bug Fixes
 
-* added theme.css on search page ([#2232](https://github.com/diplodoc-platform/cli/issues/2232)) ([662be50](https://github.com/diplodoc-platform/cli/commit/662be509a60f44c21b8592d2780117fe5ab82fbc))
+- added theme.css on search page ([#2232](https://github.com/diplodoc-platform/cli/issues/2232)) ([662be50](https://github.com/diplodoc-platform/cli/commit/662be509a60f44c21b8592d2780117fe5ab82fbc))
 
 ## [5.57.1](https://github.com/diplodoc-platform/cli/compare/v5.57.0...v5.57.1) (2026-08-27)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/transform@4.77.15 ([93c192f](https://github.com/diplodoc-platform/cli/commit/93c192fcf39e76833590581ec0d9ad343f7cb422))
+- **deps:** Update @diplodoc/transform@4.77.15 ([93c192f](https://github.com/diplodoc-platform/cli/commit/93c192fcf39e76833590581ec0d9ad343f7cb422))
 
 ## [5.57.0](https://github.com/diplodoc-platform/cli/compare/v5.56.0...v5.57.0) (2026-08-27)
 
-
 ### Features
 
-* **translate:** add translation quality eval harness ([#2225](https://github.com/diplodoc-platform/cli/issues/2225)) ([d99f3f2](https://github.com/diplodoc-platform/cli/commit/d99f3f289ea2d843851aca7e6f6d257e1fbe153e))
-
+- **translate:** add translation quality eval harness ([#2225](https://github.com/diplodoc-platform/cli/issues/2225)) ([d99f3f2](https://github.com/diplodoc-platform/cli/commit/d99f3f289ea2d843851aca7e6f6d257e1fbe153e))
 
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/transform@4.77.13 ([8c39735](https://github.com/diplodoc-platform/cli/commit/8c3973512d51392a4750da658c76d8477cbde4c3))
-* **deps:** Update @diplodoc/transform@4.77.14 ([34086cc](https://github.com/diplodoc-platform/cli/commit/34086cc2e8931e5a57e46af04022c4b2615576de))
-* **deps:** Update dev:@diplodoc/page-constructor-extension@0.13.13 ([094c84b](https://github.com/diplodoc-platform/cli/commit/094c84b99826227769350f731a04fc6d7793fa98))
-* **deps:** update e2e snapshot ([59d375f](https://github.com/diplodoc-platform/cli/commit/59d375fc39bf4bc0a09ad1b5d62c864286e558c9))
+- **deps:** Update @diplodoc/transform@4.77.13 ([8c39735](https://github.com/diplodoc-platform/cli/commit/8c3973512d51392a4750da658c76d8477cbde4c3))
+- **deps:** Update @diplodoc/transform@4.77.14 ([34086cc](https://github.com/diplodoc-platform/cli/commit/34086cc2e8931e5a57e46af04022c4b2615576de))
+- **deps:** Update dev:@diplodoc/page-constructor-extension@0.13.13 ([094c84b](https://github.com/diplodoc-platform/cli/commit/094c84b99826227769350f731a04fc6d7793fa98))
+- **deps:** update e2e snapshot ([59d375f](https://github.com/diplodoc-platform/cli/commit/59d375fc39bf4bc0a09ad1b5d62c864286e558c9))
 
 ## [5.56.0](https://github.com/diplodoc-platform/cli/compare/v5.55.3...v5.56.0) (2026-08-25)
 
-
 ### Features
 
-* **translate:** add --report flag with a machine-readable run report ([#2224](https://github.com/diplodoc-platform/cli/issues/2224)) ([584995d](https://github.com/diplodoc-platform/cli/commit/584995de6badf62c138b0a24ecff44a94650fd4c))
-
+- **translate:** add --report flag with a machine-readable run report ([#2224](https://github.com/diplodoc-platform/cli/issues/2224)) ([584995d](https://github.com/diplodoc-platform/cli/commit/584995de6badf62c138b0a24ecff44a94650fd4c))
 
 ### Bug Fixes
 
-* **translate/seed:** tolerate per-file load and extraction errors ([#2220](https://github.com/diplodoc-platform/cli/issues/2220)) ([77961e6](https://github.com/diplodoc-platform/cli/commit/77961e6c0fe084dd28aa4569a444cdfcd4515937))
+- **translate/seed:** tolerate per-file load and extraction errors ([#2220](https://github.com/diplodoc-platform/cli/issues/2220)) ([77961e6](https://github.com/diplodoc-platform/cli/commit/77961e6c0fe084dd28aa4569a444cdfcd4515937))
 
 ## [5.55.3](https://github.com/diplodoc-platform/cli/compare/v5.55.2...v5.55.3) (2026-08-24)
 
-
 ### Bug Fixes
 
-* **llms:** read noIndex from source file instead of MetaService ([2819fa2](https://github.com/diplodoc-platform/cli/commit/2819fa276c7eda683ac73eed8fa76e2e3d1886ee))
+- **llms:** read noIndex from source file instead of MetaService ([2819fa2](https://github.com/diplodoc-platform/cli/commit/2819fa276c7eda683ac73eed8fa76e2e3d1886ee))
 
 ## [5.55.2](https://github.com/diplodoc-platform/cli/compare/v5.55.1...v5.55.2) (2026-08-21)
 
-
 ### Bug Fixes
 
-* **llms:** check noIndex in docs-viewer namespace ([9fa1806](https://github.com/diplodoc-platform/cli/commit/9fa1806a43bd40282de6c226af4e76b04ba10fa7))
+- **llms:** check noIndex in docs-viewer namespace ([9fa1806](https://github.com/diplodoc-platform/cli/commit/9fa1806a43bd40282de6c226af4e76b04ba10fa7))
 
 ## [5.55.1](https://github.com/diplodoc-platform/cli/compare/v5.55.0...v5.55.1) (2026-08-20)
 
-
 ### Bug Fixes
 
-* **deps:** Update dev:@diplodoc/mermaid-extension@2.2.3 ([df10ecf](https://github.com/diplodoc-platform/cli/commit/df10ecfef3526744ad107a45a4fb375dc5aa8889))
+- **deps:** Update dev:@diplodoc/mermaid-extension@2.2.3 ([df10ecf](https://github.com/diplodoc-platform/cli/commit/df10ecfef3526744ad107a45a4fb375dc5aa8889))
 
 ## [5.55.0](https://github.com/diplodoc-platform/cli/compare/v5.54.5...v5.55.0) (2026-08-19)
 
-
 ### Features
 
-* **translate:** seed the translation cache from existing translations ([#2206](https://github.com/diplodoc-platform/cli/issues/2206)) ([3bf7c1f](https://github.com/diplodoc-platform/cli/commit/3bf7c1fbd36cec077df6a5d58ed3a40ba53bf9c6))
-* **translate:** support --context-file for AI providers DOCSTOOLS-6493 ([#2205](https://github.com/diplodoc-platform/cli/issues/2205)) ([c8c6e96](https://github.com/diplodoc-platform/cli/commit/c8c6e9647ece38c21071d3a58994f5d0141d9df0))
-* **translate:** support --fallback-model for AI providers ([#2204](https://github.com/diplodoc-platform/cli/issues/2204)) ([50834cc](https://github.com/diplodoc-platform/cli/commit/50834cc73d16de1257dab47e77a60633c743076e))
-* **translate:** support --include-vcs-diff for translating only changed files ([#2189](https://github.com/diplodoc-platform/cli/issues/2189)) ([d280fb4](https://github.com/diplodoc-platform/cli/commit/d280fb41d621fca0b7f567e233df71f4366d85d4))
-
+- **translate:** seed the translation cache from existing translations ([#2206](https://github.com/diplodoc-platform/cli/issues/2206)) ([3bf7c1f](https://github.com/diplodoc-platform/cli/commit/3bf7c1fbd36cec077df6a5d58ed3a40ba53bf9c6))
+- **translate:** support --context-file for AI providers DOCSTOOLS-6493 ([#2205](https://github.com/diplodoc-platform/cli/issues/2205)) ([c8c6e96](https://github.com/diplodoc-platform/cli/commit/c8c6e9647ece38c21071d3a58994f5d0141d9df0))
+- **translate:** support --fallback-model for AI providers ([#2204](https://github.com/diplodoc-platform/cli/issues/2204)) ([50834cc](https://github.com/diplodoc-platform/cli/commit/50834cc73d16de1257dab47e77a60633c743076e))
+- **translate:** support --include-vcs-diff for translating only changed files ([#2189](https://github.com/diplodoc-platform/cli/issues/2189)) ([d280fb4](https://github.com/diplodoc-platform/cli/commit/d280fb41d621fca0b7f567e233df71f4366d85d4))
 
 ### Bug Fixes
 
-* **llms:** exclude noIndex pages from llms.txt and llms-full.txt ([6740058](https://github.com/diplodoc-platform/cli/commit/6740058de2c8843006cdeae591c148caad8f15cf))
-* **translate:** do not require --auth when the auth header comes via api headers ([#2188](https://github.com/diplodoc-platform/cli/issues/2188)) ([e594a92](https://github.com/diplodoc-platform/cli/commit/e594a9292b7c29ae471d6f02ffe1efad2b3799ea))
+- **llms:** exclude noIndex pages from llms.txt and llms-full.txt ([6740058](https://github.com/diplodoc-platform/cli/commit/6740058de2c8843006cdeae591c148caad8f15cf))
+- **translate:** do not require --auth when the auth header comes via api headers ([#2188](https://github.com/diplodoc-platform/cli/issues/2188)) ([e594a92](https://github.com/diplodoc-platform/cli/commit/e594a9292b7c29ae471d6f02ffe1efad2b3799ea))
 
 ## [5.54.5](https://github.com/diplodoc-platform/cli/compare/v5.54.4...v5.54.5) (2026-08-17)
 
-
 ### Bug Fixes
 
-* correct title for openapi companion DOCSTOOLS-6346 ([68c1f21](https://github.com/diplodoc-platform/cli/commit/68c1f21d2305d76ac4ad2a5928ec939c34a36a47))
-* enable build manifest by default ([481c10c](https://github.com/diplodoc-platform/cli/commit/481c10cf0537b5ef9aeb1accd1c37a8e35385324))
-* exclude hidden from llms and llms-full DOCSTOOLS-6195 ([0538e11](https://github.com/diplodoc-platform/cli/commit/0538e1139534df88ef0d1828620fc657acf7a389))
+- correct title for openapi companion DOCSTOOLS-6346 ([68c1f21](https://github.com/diplodoc-platform/cli/commit/68c1f21d2305d76ac4ad2a5928ec939c34a36a47))
+- enable build manifest by default ([481c10c](https://github.com/diplodoc-platform/cli/commit/481c10cf0537b5ef9aeb1accd1c37a8e35385324))
+- exclude hidden from llms and llms-full DOCSTOOLS-6195 ([0538e11](https://github.com/diplodoc-platform/cli/commit/0538e1139534df88ef0d1828620fc657acf7a389))
 
 ## [5.54.4](https://github.com/diplodoc-platform/cli/compare/v5.54.3...v5.54.4) (2026-08-14)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.11.7 ([#2195](https://github.com/diplodoc-platform/cli/issues/2195)) ([f49c20e](https://github.com/diplodoc-platform/cli/commit/f49c20e96e72fdfd0fefdfceea031ccaf5013716))
-* fixed meta set ([#2194](https://github.com/diplodoc-platform/cli/issues/2194)) ([5c225c8](https://github.com/diplodoc-platform/cli/commit/5c225c8b54862acb6b7bc8fa47f761ea3aacf74a))
+- **deps:** Update @diplodoc/client@5.11.7 ([#2195](https://github.com/diplodoc-platform/cli/issues/2195)) ([f49c20e](https://github.com/diplodoc-platform/cli/commit/f49c20e96e72fdfd0fefdfceea031ccaf5013716))
+- fixed meta set ([#2194](https://github.com/diplodoc-platform/cli/issues/2194)) ([5c225c8](https://github.com/diplodoc-platform/cli/commit/5c225c8b54862acb6b7bc8fa47f761ea3aacf74a))
 
 ## [5.54.3](https://github.com/diplodoc-platform/cli/compare/v5.54.2...v5.54.3) (2026-08-13)
 
-
 ### Bug Fixes
 
-* **deps:** Update dev:@diplodoc/search-extension@3.1.1, @diplodoc/client@5.11.5 ([#2191](https://github.com/diplodoc-platform/cli/issues/2191)) ([5483fae](https://github.com/diplodoc-platform/cli/commit/5483fae61ac87d4b08ef6fb3c3aac886faba1f55))
-* improved tag normalization ([#2190](https://github.com/diplodoc-platform/cli/issues/2190)) ([904c8b0](https://github.com/diplodoc-platform/cli/commit/904c8b02ad6be8ed3bcd7ba6a4c1d9befe2a9d61))
+- **deps:** Update dev:@diplodoc/search-extension@3.1.1, @diplodoc/client@5.11.5 ([#2191](https://github.com/diplodoc-platform/cli/issues/2191)) ([5483fae](https://github.com/diplodoc-platform/cli/commit/5483fae61ac87d4b08ef6fb3c3aac886faba1f55))
+- improved tag normalization ([#2190](https://github.com/diplodoc-platform/cli/issues/2190)) ([904c8b0](https://github.com/diplodoc-platform/cli/commit/904c8b02ad6be8ed3bcd7ba6a4c1d9befe2a9d61))
 
 ## [5.54.2](https://github.com/diplodoc-platform/cli/compare/v5.54.1...v5.54.2) (2026-08-12)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/ajv@0.4.2 ([3a68198](https://github.com/diplodoc-platform/cli/commit/3a68198134a536e9aa696449d9de4c8ac8f33759))
-* **deps:** Update @diplodoc/client@5.11.4 ([a50b85a](https://github.com/diplodoc-platform/cli/commit/a50b85a19ee4e15348a8352e0a21c864ff89981e))
-* **deps:** Update @diplodoc/translation@1.7.30 ([#2182](https://github.com/diplodoc-platform/cli/issues/2182)) ([cf1e77b](https://github.com/diplodoc-platform/cli/commit/cf1e77bec5e4aacb47dd84082c336ab63aaaf9aa))
-* **translate:** retry untranslated units and heal poisoned cache entries ([#2170](https://github.com/diplodoc-platform/cli/issues/2170)) ([aa1a6a6](https://github.com/diplodoc-platform/cli/commit/aa1a6a641d9d3a01d1fbfe1e84f6715d7f8b10f8))
-* **translate:** survive sustained rate limit windows in ai provider ([#2186](https://github.com/diplodoc-platform/cli/issues/2186)) ([b92a350](https://github.com/diplodoc-platform/cli/commit/b92a3501727f0f0422782cae59c59427212c0b97))
+- **deps:** Update @diplodoc/ajv@0.4.2 ([3a68198](https://github.com/diplodoc-platform/cli/commit/3a68198134a536e9aa696449d9de4c8ac8f33759))
+- **deps:** Update @diplodoc/client@5.11.4 ([a50b85a](https://github.com/diplodoc-platform/cli/commit/a50b85a19ee4e15348a8352e0a21c864ff89981e))
+- **deps:** Update @diplodoc/translation@1.7.30 ([#2182](https://github.com/diplodoc-platform/cli/issues/2182)) ([cf1e77b](https://github.com/diplodoc-platform/cli/commit/cf1e77bec5e4aacb47dd84082c336ab63aaaf9aa))
+- **translate:** retry untranslated units and heal poisoned cache entries ([#2170](https://github.com/diplodoc-platform/cli/issues/2170)) ([aa1a6a6](https://github.com/diplodoc-platform/cli/commit/aa1a6a641d9d3a01d1fbfe1e84f6715d7f8b10f8))
+- **translate:** survive sustained rate limit windows in ai provider ([#2186](https://github.com/diplodoc-platform/cli/issues/2186)) ([b92a350](https://github.com/diplodoc-platform/cli/commit/b92a3501727f0f0422782cae59c59427212c0b97))
 
 ## [5.54.1](https://github.com/diplodoc-platform/cli/compare/v5.54.0...v5.54.1) (2026-08-10)
 
-
 ### Bug Fixes
 
-* added ya.make ignore command ([#2177](https://github.com/diplodoc-platform/cli/issues/2177)) ([1f03917](https://github.com/diplodoc-platform/cli/commit/1f03917edcaea8c62d10711d41aa0f50004f77c8))
-* **deps:** Update @diplodoc/client@5.11.3 ([96be9fe](https://github.com/diplodoc-platform/cli/commit/96be9fe32f61485f4548f046203f0cff6bcba1ba))
-* **deps:** Update @diplodoc/transform@4.77.12 ([8fd3c7a](https://github.com/diplodoc-platform/cli/commit/8fd3c7aca39997c4d70370d11df8a70915a68f88))
+- added ya.make ignore command ([#2177](https://github.com/diplodoc-platform/cli/issues/2177)) ([1f03917](https://github.com/diplodoc-platform/cli/commit/1f03917edcaea8c62d10711d41aa0f50004f77c8))
+- **deps:** Update @diplodoc/client@5.11.3 ([96be9fe](https://github.com/diplodoc-platform/cli/commit/96be9fe32f61485f4548f046203f0cff6bcba1ba))
+- **deps:** Update @diplodoc/transform@4.77.12 ([8fd3c7a](https://github.com/diplodoc-platform/cli/commit/8fd3c7aca39997c4d70370d11df8a70915a68f88))
 
 ## [5.54.0](https://github.com/diplodoc-platform/cli/compare/v5.53.0...v5.54.0) (2026-08-07)
 
-
 ### Features
 
-* added page tags ([#2158](https://github.com/diplodoc-platform/cli/issues/2158)) ([1a864a3](https://github.com/diplodoc-platform/cli/commit/1a864a3d7437688dac42ebdb5ade0ab52c552878))
-
+- added page tags ([#2158](https://github.com/diplodoc-platform/cli/issues/2158)) ([1a864a3](https://github.com/diplodoc-platform/cli/commit/1a864a3d7437688dac42ebdb5ade0ab52c552878))
 
 ### Bug Fixes
 
-* **translate:** stop relying on the model echoing xliff wrappers ([#2159](https://github.com/diplodoc-platform/cli/issues/2159)) ([b3605c1](https://github.com/diplodoc-platform/cli/commit/b3605c148d03bb6f1e9b764d0fd214eb514b7af9))
-* **yfmlint:** keep error level after double normalization [#5243](https://github.com/diplodoc-platform/cli/issues/5243) ([4c352b3](https://github.com/diplodoc-platform/cli/commit/4c352b3abd24cc5d8eed166d34414bfce977a261))
+- **translate:** stop relying on the model echoing xliff wrappers ([#2159](https://github.com/diplodoc-platform/cli/issues/2159)) ([b3605c1](https://github.com/diplodoc-platform/cli/commit/b3605c148d03bb6f1e9b764d0fd214eb514b7af9))
+- **yfmlint:** keep error level after double normalization [#5243](https://github.com/diplodoc-platform/cli/issues/5243) ([4c352b3](https://github.com/diplodoc-platform/cli/commit/4c352b3abd24cc5d8eed166d34414bfce977a261))
 
 ## [5.53.0](https://github.com/diplodoc-platform/cli/compare/v5.52.0...v5.53.0) (2026-08-07)
 
-
 ### Features
 
-* **translate:** copy assets into the translated output ([#2163](https://github.com/diplodoc-platform/cli/issues/2163)) ([ed1f0d9](https://github.com/diplodoc-platform/cli/commit/ed1f0d91275fe18061f538fc5e48f3f7093bed09))
-
+- **translate:** copy assets into the translated output ([#2163](https://github.com/diplodoc-platform/cli/issues/2163)) ([ed1f0d9](https://github.com/diplodoc-platform/cli/commit/ed1f0d91275fe18061f538fc5e48f3f7093bed09))
 
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.11.1 ([6e8ce7f](https://github.com/diplodoc-platform/cli/commit/6e8ce7fd68705746547f22a3e2c2256dbc0f4bf5))
-* Upgrade typescript to 5.9.3 DOCSTOOLS-6357 ([ad248cd](https://github.com/diplodoc-platform/cli/commit/ad248cdc7c11ab9d29730452ec8c2793f4baf6c8))
-* Upgrade typescript to 6.0.3 DOCSTOOLS-6359 ([8204740](https://github.com/diplodoc-platform/cli/commit/82047401aa7f59f9dd2a1cf0345d91d002a86e7d))
+- **deps:** Update @diplodoc/client@5.11.1 ([6e8ce7f](https://github.com/diplodoc-platform/cli/commit/6e8ce7fd68705746547f22a3e2c2256dbc0f4bf5))
+- Upgrade typescript to 5.9.3 DOCSTOOLS-6357 ([ad248cd](https://github.com/diplodoc-platform/cli/commit/ad248cdc7c11ab9d29730452ec8c2793f4baf6c8))
+- Upgrade typescript to 6.0.3 DOCSTOOLS-6359 ([8204740](https://github.com/diplodoc-platform/cli/commit/82047401aa7f59f9dd2a1cf0345d91d002a86e7d))
 
 ## [5.52.0](https://github.com/diplodoc-platform/cli/compare/v5.51.2...v5.52.0) (2026-08-05)
 
-
 ### Features
 
-* **translate:** optional LLM-as-judge quality report for AI translations ([#2136](https://github.com/diplodoc-platform/cli/issues/2136)) ([305809a](https://github.com/diplodoc-platform/cli/commit/305809aaaa7ab00986bb892749bceaca09be2cc1))
-* **translate:** pass document context to AI translation prompts ([#2134](https://github.com/diplodoc-platform/cli/issues/2134)) ([2215c4d](https://github.com/diplodoc-platform/cli/commit/2215c4db7c6f7a967f9eacec4766e361629fd201))
-* **translate:** persistent translation cache for AI providers ([#2135](https://github.com/diplodoc-platform/cli/issues/2135)) ([84975c7](https://github.com/diplodoc-platform/cli/commit/84975c7ab6039dbf54b9909e9f6ecae96a00472c))
-
+- **translate:** optional LLM-as-judge quality report for AI translations ([#2136](https://github.com/diplodoc-platform/cli/issues/2136)) ([305809a](https://github.com/diplodoc-platform/cli/commit/305809aaaa7ab00986bb892749bceaca09be2cc1))
+- **translate:** pass document context to AI translation prompts ([#2134](https://github.com/diplodoc-platform/cli/issues/2134)) ([2215c4d](https://github.com/diplodoc-platform/cli/commit/2215c4db7c6f7a967f9eacec4766e361629fd201))
+- **translate:** persistent translation cache for AI providers ([#2135](https://github.com/diplodoc-platform/cli/issues/2135)) ([84975c7](https://github.com/diplodoc-platform/cli/commit/84975c7ab6039dbf54b9909e9f6ecae96a00472c))
 
 ### Bug Fixes
 
-* Add openapi spec links to llms.txt DOCSTOOLS-6346 ([eaed307](https://github.com/diplodoc-platform/cli/commit/eaed3073ba914bbadf65a59dd8f8c5e77da6c11a))
-* **deps:** Update @diplodoc/client@5.10.3 ([dad2eba](https://github.com/diplodoc-platform/cli/commit/dad2ebaa7cada2d7de77aa29850f0da278ad6860))
-* **deps:** Update @diplodoc/transform@4.77.10 ([368bd9a](https://github.com/diplodoc-platform/cli/commit/368bd9aa039894ffaaa00ff44357cebca9f504db))
-* remove diplodoc components from deps ([#2148](https://github.com/diplodoc-platform/cli/issues/2148)) ([5d06192](https://github.com/diplodoc-platform/cli/commit/5d06192d80d9ed5ef1e6bab7a043b001a1ee47f6))
-* **translate:** usability fixes for AI provider after field trial ([#2150](https://github.com/diplodoc-platform/cli/issues/2150)) ([deb30e4](https://github.com/diplodoc-platform/cli/commit/deb30e437ddc8216c6bed3caa303394fb55a8480))
+- Add openapi spec links to llms.txt DOCSTOOLS-6346 ([eaed307](https://github.com/diplodoc-platform/cli/commit/eaed3073ba914bbadf65a59dd8f8c5e77da6c11a))
+- **deps:** Update @diplodoc/client@5.10.3 ([dad2eba](https://github.com/diplodoc-platform/cli/commit/dad2ebaa7cada2d7de77aa29850f0da278ad6860))
+- **deps:** Update @diplodoc/transform@4.77.10 ([368bd9a](https://github.com/diplodoc-platform/cli/commit/368bd9aa039894ffaaa00ff44357cebca9f504db))
+- remove diplodoc components from deps ([#2148](https://github.com/diplodoc-platform/cli/issues/2148)) ([5d06192](https://github.com/diplodoc-platform/cli/commit/5d06192d80d9ed5ef1e6bab7a043b001a1ee47f6))
+- **translate:** usability fixes for AI provider after field trial ([#2150](https://github.com/diplodoc-platform/cli/issues/2150)) ([deb30e4](https://github.com/diplodoc-platform/cli/commit/deb30e437ddc8216c6bed3caa303394fb55a8480))
 
 ## [5.51.2](https://github.com/diplodoc-platform/cli/compare/v5.51.1...v5.51.2) (2026-08-03)
 
-
 ### Bug Fixes
 
-* add gallery flag to config ([7f3a2a4](https://github.com/diplodoc-platform/cli/commit/7f3a2a4fa7103b7beb894e72f5c22338f2a44ee6))
-* update e2e snapshots ([e155a60](https://github.com/diplodoc-platform/cli/commit/e155a60a54ade89824822fdf926527e90df2cebb))
+- add gallery flag to config ([7f3a2a4](https://github.com/diplodoc-platform/cli/commit/7f3a2a4fa7103b7beb894e72f5c22338f2a44ee6))
+- update e2e snapshots ([e155a60](https://github.com/diplodoc-platform/cli/commit/e155a60a54ade89824822fdf926527e90df2cebb))
 
 ## [5.51.1](https://github.com/diplodoc-platform/cli/compare/v5.51.0...v5.51.1) (2026-08-03)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/components@5.17.4 ([a2c73ba](https://github.com/diplodoc-platform/cli/commit/a2c73ba88e754617497aa933c702964b2f72d4b5))
+- **deps:** Update @diplodoc/components@5.17.4 ([a2c73ba](https://github.com/diplodoc-platform/cli/commit/a2c73ba88e754617497aa933c702964b2f72d4b5))
 
 ## [5.51.0](https://github.com/diplodoc-platform/cli/compare/v5.50.6...v5.51.0) (2026-07-31)
 
-
 ### Features
 
-* **ai:** Add link alternate to md companion DOCSTOOLS-6313 ([f286589](https://github.com/diplodoc-platform/cli/commit/f286589d1eb85ddec46cfe5aa98ba3c9d2981fd4))
-* **ai:** Add link llms DOCSTOOLS-6317 ([926e5e2](https://github.com/diplodoc-platform/cli/commit/926e5e25929f2a9586fb3900bfedf01354309b00))
-* **translate:** add AI translation provider (Yandex AI Studio / OpenAI / OpenRouter / Anthropic) ([#1906](https://github.com/diplodoc-platform/cli/issues/1906)) ([2b2f8a9](https://github.com/diplodoc-platform/cli/commit/2b2f8a96838cfe05849f58c23090bf6692b60b5b))
-
+- **ai:** Add link alternate to md companion DOCSTOOLS-6313 ([f286589](https://github.com/diplodoc-platform/cli/commit/f286589d1eb85ddec46cfe5aa98ba3c9d2981fd4))
+- **ai:** Add link llms DOCSTOOLS-6317 ([926e5e2](https://github.com/diplodoc-platform/cli/commit/926e5e25929f2a9586fb3900bfedf01354309b00))
+- **translate:** add AI translation provider (Yandex AI Studio / OpenAI / OpenRouter / Anthropic) ([#1906](https://github.com/diplodoc-platform/cli/issues/1906)) ([2b2f8a9](https://github.com/diplodoc-platform/cli/commit/2b2f8a96838cfe05849f58c23090bf6692b60b5b))
 
 ### Bug Fixes
 
-* Clear llms-full from style, script DOCSTOOLS-6205 ([70ca214](https://github.com/diplodoc-platform/cli/commit/70ca21405f96bf9fa29bbaf0777072de2dd044a5))
-* correct read llmsFullMaxSize DOCSTOOLS-6204 ([4330f44](https://github.com/diplodoc-platform/cli/commit/4330f4492cf519c5f45df17e1cb41b6088dbafe9))
-* **deps:** Update @diplodoc/client@5.10.2 ([#2133](https://github.com/diplodoc-platform/cli/issues/2133)) ([727ddb9](https://github.com/diplodoc-platform/cli/commit/727ddb9e32b388c59daf58aedf5dc7578c6d1283))
-* **deps:** Update @diplodoc/transform@4.77.8 ([#2130](https://github.com/diplodoc-platform/cli/issues/2130)) ([1a95b2b](https://github.com/diplodoc-platform/cli/commit/1a95b2bfbace46faaf52819e2b75670af76b0adc))
+- Clear llms-full from style, script DOCSTOOLS-6205 ([70ca214](https://github.com/diplodoc-platform/cli/commit/70ca21405f96bf9fa29bbaf0777072de2dd044a5))
+- correct read llmsFullMaxSize DOCSTOOLS-6204 ([4330f44](https://github.com/diplodoc-platform/cli/commit/4330f4492cf519c5f45df17e1cb41b6088dbafe9))
+- **deps:** Update @diplodoc/client@5.10.2 ([#2133](https://github.com/diplodoc-platform/cli/issues/2133)) ([727ddb9](https://github.com/diplodoc-platform/cli/commit/727ddb9e32b388c59daf58aedf5dc7578c6d1283))
+- **deps:** Update @diplodoc/transform@4.77.8 ([#2130](https://github.com/diplodoc-platform/cli/issues/2130)) ([1a95b2b](https://github.com/diplodoc-platform/cli/commit/1a95b2bfbace46faaf52819e2b75670af76b0adc))
 
 ## [5.50.6](https://github.com/diplodoc-platform/cli/compare/v5.50.5...v5.50.6) (2026-07-29)
 
-
 ### Bug Fixes
 
-* do not fail translate extract on link-included tocs ([#2107](https://github.com/diplodoc-platform/cli/issues/2107)) ([0fa0a5a](https://github.com/diplodoc-platform/cli/commit/0fa0a5a2afe6aa494584f3412bb74431e4e6b82a))
+- do not fail translate extract on link-included tocs ([#2107](https://github.com/diplodoc-platform/cli/issues/2107)) ([0fa0a5a](https://github.com/diplodoc-platform/cli/commit/0fa0a5a2afe6aa494584f3412bb74431e4e6b82a))
 
 ## [5.50.5](https://github.com/diplodoc-platform/cli/compare/v5.50.4...v5.50.5) (2026-07-29)
 
-
 ### Bug Fixes
 
-* Add llms url, add llms feature in build-stats DOCSTOOLS-5956 ([913c0ef](https://github.com/diplodoc-platform/cli/commit/913c0ef4666d9d7bddb2b03dc2b888e77536ac7b))
-* **deps:** Update @diplodoc/ajv@0.1.4, @diplodoc/client@5.10.0, @diplodoc/translation@1.7.28, dev:@diplodoc/mermaid-extension@2.2.1, dev:@diplodoc/openapi-extension@5.2.3, dev:@diplodoc/page-constructor-extension@0.13.11 ([#2122](https://github.com/diplodoc-platform/cli/issues/2122)) ([ef5c92f](https://github.com/diplodoc-platform/cli/commit/ef5c92f16e4a6312a38ccc27ebe560c76c216dc7))
-* **deps:** Update @diplodoc/ajv@0.1.5 ([831b7b5](https://github.com/diplodoc-platform/cli/commit/831b7b5ae00496603bdf5d3b77fb2e21f7e87b15))
-* **deps:** Update @diplodoc/transform@4.77.6 ([ed78a59](https://github.com/diplodoc-platform/cli/commit/ed78a599ac7764bbfd60c0603b7850c2921a142a))
-* **deps:** Update @diplodoc/transform@4.77.7 ([#2121](https://github.com/diplodoc-platform/cli/issues/2121)) ([447391a](https://github.com/diplodoc-platform/cli/commit/447391a9be38d29b3c612990e5b90b97725601a5))
+- Add llms url, add llms feature in build-stats DOCSTOOLS-5956 ([913c0ef](https://github.com/diplodoc-platform/cli/commit/913c0ef4666d9d7bddb2b03dc2b888e77536ac7b))
+- **deps:** Update @diplodoc/ajv@0.1.4, @diplodoc/client@5.10.0, @diplodoc/translation@1.7.28, dev:@diplodoc/mermaid-extension@2.2.1, dev:@diplodoc/openapi-extension@5.2.3, dev:@diplodoc/page-constructor-extension@0.13.11 ([#2122](https://github.com/diplodoc-platform/cli/issues/2122)) ([ef5c92f](https://github.com/diplodoc-platform/cli/commit/ef5c92f16e4a6312a38ccc27ebe560c76c216dc7))
+- **deps:** Update @diplodoc/ajv@0.1.5 ([831b7b5](https://github.com/diplodoc-platform/cli/commit/831b7b5ae00496603bdf5d3b77fb2e21f7e87b15))
+- **deps:** Update @diplodoc/transform@4.77.6 ([ed78a59](https://github.com/diplodoc-platform/cli/commit/ed78a599ac7764bbfd60c0603b7850c2921a142a))
+- **deps:** Update @diplodoc/transform@4.77.7 ([#2121](https://github.com/diplodoc-platform/cli/issues/2121)) ([447391a](https://github.com/diplodoc-platform/cli/commit/447391a9be38d29b3c612990e5b90b97725601a5))
 
 ## [5.50.4](https://github.com/diplodoc-platform/cli/compare/v5.50.3...v5.50.4) (2026-07-21)
 
-
 ### Bug Fixes
 
-* add llms format resolve with defined method ([b3ffe47](https://github.com/diplodoc-platform/cli/commit/b3ffe47a5018b90532672001e45d37952ca2af6e))
-* Add llmsFullMaxSize param DOCSTOOLS-6204 ([6304521](https://github.com/diplodoc-platform/cli/commit/6304521b8fdef4f193f13e084df4788c7bada74b))
-* add resolve llms enable ([0deaac2](https://github.com/diplodoc-platform/cli/commit/0deaac22af74275e43e7fb382f42b11fc73aa3ba))
-* added arc root ([#2099](https://github.com/diplodoc-platform/cli/issues/2099)) ([6db7f17](https://github.com/diplodoc-platform/cli/commit/6db7f1769d631d78f960ac8bb8b445ee139b4100))
-* **deps:** Update @diplodoc/transform@4.77.1, @diplodoc/client@5.9.2 ([55e5529](https://github.com/diplodoc-platform/cli/commit/55e5529f6d8160485e7b180ddc333b8468085e24))
-* **deps:** Update @diplodoc/utils@2.3.5 ([#2100](https://github.com/diplodoc-platform/cli/issues/2100)) ([2aea830](https://github.com/diplodoc-platform/cli/commit/2aea830c83165a40421ed64afdf7dcde65fcf2b8))
-* updated e2e snapshots ([d604ee1](https://github.com/diplodoc-platform/cli/commit/d604ee10fa8dc1d81e1419221d50526c21786082))
+- add llms format resolve with defined method ([b3ffe47](https://github.com/diplodoc-platform/cli/commit/b3ffe47a5018b90532672001e45d37952ca2af6e))
+- Add llmsFullMaxSize param DOCSTOOLS-6204 ([6304521](https://github.com/diplodoc-platform/cli/commit/6304521b8fdef4f193f13e084df4788c7bada74b))
+- add resolve llms enable ([0deaac2](https://github.com/diplodoc-platform/cli/commit/0deaac22af74275e43e7fb382f42b11fc73aa3ba))
+- added arc root ([#2099](https://github.com/diplodoc-platform/cli/issues/2099)) ([6db7f17](https://github.com/diplodoc-platform/cli/commit/6db7f1769d631d78f960ac8bb8b445ee139b4100))
+- **deps:** Update @diplodoc/transform@4.77.1, @diplodoc/client@5.9.2 ([55e5529](https://github.com/diplodoc-platform/cli/commit/55e5529f6d8160485e7b180ddc333b8468085e24))
+- **deps:** Update @diplodoc/utils@2.3.5 ([#2100](https://github.com/diplodoc-platform/cli/issues/2100)) ([2aea830](https://github.com/diplodoc-platform/cli/commit/2aea830c83165a40421ed64afdf7dcde65fcf2b8))
+- updated e2e snapshots ([d604ee1](https://github.com/diplodoc-platform/cli/commit/d604ee10fa8dc1d81e1419221d50526c21786082))
 
 ## [5.50.3](https://github.com/diplodoc-platform/cli/compare/v5.50.2...v5.50.3) (2026-07-20)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.9.2 ([#2082](https://github.com/diplodoc-platform/cli/issues/2082)) ([312fbe4](https://github.com/diplodoc-platform/cli/commit/312fbe4314c2736814c7131245e4f525f7d57def))
-* **deps:** Update @diplodoc/page-constructor-extension@0.13.8 ([#2078](https://github.com/diplodoc-platform/cli/issues/2078)) ([f63ce13](https://github.com/diplodoc-platform/cli/commit/f63ce1320fd9ef47c97fca7321a5cc773ad13e77))
+- **deps:** Update @diplodoc/client@5.9.2 ([#2082](https://github.com/diplodoc-platform/cli/issues/2082)) ([312fbe4](https://github.com/diplodoc-platform/cli/commit/312fbe4314c2736814c7131245e4f525f7d57def))
+- **deps:** Update @diplodoc/page-constructor-extension@0.13.8 ([#2078](https://github.com/diplodoc-platform/cli/issues/2078)) ([f63ce13](https://github.com/diplodoc-platform/cli/commit/f63ce1320fd9ef47c97fca7321a5cc773ad13e77))
 
 ## [5.50.2](https://github.com/diplodoc-platform/cli/compare/v5.50.1...v5.50.2) (2026-07-16)
 
-
 ### Bug Fixes
 
-* **ci:** update snapshot DOCSTOOLS-6241 ([d3e1726](https://github.com/diplodoc-platform/cli/commit/d3e172659d40249ad3782bc342f18d25845fa5a8))
-* **ci:** update snapshots with amend on default ([06cd209](https://github.com/diplodoc-platform/cli/commit/06cd209d031d305581d99aebed2ec7545b2b6029))
-* remove node url DOCSTOOLS-6242 ([d2aaea5](https://github.com/diplodoc-platform/cli/commit/d2aaea5b8e648d2e2ba9c637e1040059f7ba256b))
+- **ci:** update snapshot DOCSTOOLS-6241 ([d3e1726](https://github.com/diplodoc-platform/cli/commit/d3e172659d40249ad3782bc342f18d25845fa5a8))
+- **ci:** update snapshots with amend on default ([06cd209](https://github.com/diplodoc-platform/cli/commit/06cd209d031d305581d99aebed2ec7545b2b6029))
+- remove node url DOCSTOOLS-6242 ([d2aaea5](https://github.com/diplodoc-platform/cli/commit/d2aaea5b8e648d2e2ba9c637e1040059f7ba256b))
 
 ## [5.50.1](https://github.com/diplodoc-platform/cli/compare/v5.50.0...v5.50.1) (2026-07-15)
 
-
 ### Bug Fixes
 
-* add timeout arg for translate provider ([23dce21](https://github.com/diplodoc-platform/cli/commit/23dce21f75d53c322ccc2f9b3b61938735ec1aca))
+- add timeout arg for translate provider ([23dce21](https://github.com/diplodoc-platform/cli/commit/23dce21f75d53c322ccc2f9b3b61938735ec1aca))
 
 ## [5.50.0](https://github.com/diplodoc-platform/cli/compare/v5.49.4...v5.50.0) (2026-07-15)
 
-
 ### Features
 
-* added footer ([#2073](https://github.com/diplodoc-platform/cli/issues/2073)) ([53f79ed](https://github.com/diplodoc-platform/cli/commit/53f79ed7b5b134633278bfafd680a8c39e97cf4f))
-
+- added footer ([#2073](https://github.com/diplodoc-platform/cli/issues/2073)) ([53f79ed](https://github.com/diplodoc-platform/cli/commit/53f79ed7b5b134633278bfafd680a8c39e97cf4f))
 
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/ajv@0.1.1 ([#2072](https://github.com/diplodoc-platform/cli/issues/2072)) ([08f6d39](https://github.com/diplodoc-platform/cli/commit/08f6d39c30bf43bab3087142bffc1917abc51bfb))
-* **deps:** Update @diplodoc/client@5.8.1 ([#2070](https://github.com/diplodoc-platform/cli/issues/2070)) ([a56b9aa](https://github.com/diplodoc-platform/cli/commit/a56b9aadd2316ff3e83d32a286015560a79c362c))
-* **deps:** Update dev:@diplodoc/mermaid-extension@2.2.0 ([#2069](https://github.com/diplodoc-platform/cli/issues/2069)) ([e2c4f4a](https://github.com/diplodoc-platform/cli/commit/e2c4f4a412e2a1916064388b888dccff74821432))
-* fixed anchors to non-heading elements ([#2052](https://github.com/diplodoc-platform/cli/issues/2052)) ([5f509fe](https://github.com/diplodoc-platform/cli/commit/5f509fed5183c0e8e4e898be21991f612b8c652d))
-* meta fields parse to html and update snapshots ([45e9975](https://github.com/diplodoc-platform/cli/commit/45e997535931c3971361cf1a003a6d19a075e116))
+- **deps:** Update @diplodoc/ajv@0.1.1 ([#2072](https://github.com/diplodoc-platform/cli/issues/2072)) ([08f6d39](https://github.com/diplodoc-platform/cli/commit/08f6d39c30bf43bab3087142bffc1917abc51bfb))
+- **deps:** Update @diplodoc/client@5.8.1 ([#2070](https://github.com/diplodoc-platform/cli/issues/2070)) ([a56b9aa](https://github.com/diplodoc-platform/cli/commit/a56b9aadd2316ff3e83d32a286015560a79c362c))
+- **deps:** Update dev:@diplodoc/mermaid-extension@2.2.0 ([#2069](https://github.com/diplodoc-platform/cli/issues/2069)) ([e2c4f4a](https://github.com/diplodoc-platform/cli/commit/e2c4f4a412e2a1916064388b888dccff74821432))
+- fixed anchors to non-heading elements ([#2052](https://github.com/diplodoc-platform/cli/issues/2052)) ([5f509fe](https://github.com/diplodoc-platform/cli/commit/5f509fed5183c0e8e4e898be21991f612b8c652d))
+- meta fields parse to html and update snapshots ([45e9975](https://github.com/diplodoc-platform/cli/commit/45e997535931c3971361cf1a003a6d19a075e116))
 
 ## [5.49.4](https://github.com/diplodoc-platform/cli/compare/v5.49.3...v5.49.4) (2026-07-13)
 
-
 ### Bug Fixes
 
-* added DOCS_CONFIG support ([#2060](https://github.com/diplodoc-platform/cli/issues/2060)) ([cdfed90](https://github.com/diplodoc-platform/cli/commit/cdfed90f5a29b40985578c2870900f9de77bc854))
+- added DOCS_CONFIG support ([#2060](https://github.com/diplodoc-platform/cli/issues/2060)) ([cdfed90](https://github.com/diplodoc-platform/cli/commit/cdfed90f5a29b40985578c2870900f9de77bc854))
 
 ## [5.49.3](https://github.com/diplodoc-platform/cli/compare/v5.49.2...v5.49.3) (2026-07-10)
 
-
 ### Bug Fixes
 
-* filter fake links ([#2054](https://github.com/diplodoc-platform/cli/issues/2054)) ([c0c19a5](https://github.com/diplodoc-platform/cli/commit/c0c19a50ee53f9924dc049e15c8766f604b77529))
+- filter fake links ([#2054](https://github.com/diplodoc-platform/cli/issues/2054)) ([c0c19a5](https://github.com/diplodoc-platform/cli/commit/c0c19a50ee53f9924dc049e15c8766f604b77529))
 
 ## [5.49.2](https://github.com/diplodoc-platform/cli/compare/v5.49.1...v5.49.2) (2026-07-09)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/ajv@0.0.7 ([0b2791c](https://github.com/diplodoc-platform/cli/commit/0b2791cf42696486040a12d7261d68bf14045816))
-* edit meta keywords parse ([80b5612](https://github.com/diplodoc-platform/cli/commit/80b56125ae5bf89359e65aae09c1f202bb2ae67c))
+- **deps:** Update @diplodoc/ajv@0.0.7 ([0b2791c](https://github.com/diplodoc-platform/cli/commit/0b2791cf42696486040a12d7261d68bf14045816))
+- edit meta keywords parse ([80b5612](https://github.com/diplodoc-platform/cli/commit/80b56125ae5bf89359e65aae09c1f202bb2ae67c))
 
 ## [5.49.1](https://github.com/diplodoc-platform/cli/compare/v5.49.0...v5.49.1) (2026-07-09)
 
-
 ### Bug Fixes
 
-* add RA in builm manifest with empty rules ([92ae662](https://github.com/diplodoc-platform/cli/commit/92ae662febcfcc1b3870555fa6a525bb2c53d2b3))
-* add restricted-access to build-manifest DOCSTOOLS-6180 ([36c2ca8](https://github.com/diplodoc-platform/cli/commit/36c2ca8e11a9375eb02791d86dadc3c70c7f23d8))
-* added crawler-manifest when -f html ([#2049](https://github.com/diplodoc-platform/cli/issues/2049)) ([c91a625](https://github.com/diplodoc-platform/cli/commit/c91a6255d55c2d145e614fb54cd65abf63216720))
+- add RA in builm manifest with empty rules ([92ae662](https://github.com/diplodoc-platform/cli/commit/92ae662febcfcc1b3870555fa6a525bb2c53d2b3))
+- add restricted-access to build-manifest DOCSTOOLS-6180 ([36c2ca8](https://github.com/diplodoc-platform/cli/commit/36c2ca8e11a9375eb02791d86dadc3c70c7f23d8))
+- added crawler-manifest when -f html ([#2049](https://github.com/diplodoc-platform/cli/issues/2049)) ([c91a625](https://github.com/diplodoc-platform/cli/commit/c91a6255d55c2d145e614fb54cd65abf63216720))
 
 ## [5.49.0](https://github.com/diplodoc-platform/cli/compare/v5.48.2...v5.49.0) (2026-07-09)
 
-
 ### Features
 
-* added color extension ([#2045](https://github.com/diplodoc-platform/cli/issues/2045)) ([3d97b50](https://github.com/diplodoc-platform/cli/commit/3d97b50874360b68ca5b4ac637bae09f9e485e44))
-
+- added color extension ([#2045](https://github.com/diplodoc-platform/cli/issues/2045)) ([3d97b50](https://github.com/diplodoc-platform/cli/commit/3d97b50874360b68ca5b4ac637bae09f9e485e44))
 
 ### Bug Fixes
 
-* update transform ([ff298ef](https://github.com/diplodoc-platform/cli/commit/ff298ef717193f70704a528a486f068055f2e591))
-* update transform + tests DOCSTOOLS-6054 ([6445a1f](https://github.com/diplodoc-platform/cli/commit/6445a1f39468c20f6d0e9dda1da410dc0350593d))
+- update transform ([ff298ef](https://github.com/diplodoc-platform/cli/commit/ff298ef717193f70704a528a486f068055f2e591))
+- update transform + tests DOCSTOOLS-6054 ([6445a1f](https://github.com/diplodoc-platform/cli/commit/6445a1f39468c20f6d0e9dda1da410dc0350593d))
 
 ## [5.48.2](https://github.com/diplodoc-platform/cli/compare/v5.48.1...v5.48.2) (2026-07-02)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/translation@1.7.26 ([7ba5159](https://github.com/diplodoc-platform/cli/commit/7ba51599ad9244d78af8896a2061f3d77dc78357))
+- **deps:** Update @diplodoc/translation@1.7.26 ([7ba5159](https://github.com/diplodoc-platform/cli/commit/7ba51599ad9244d78af8896a2061f3d77dc78357))
 
 ## [5.48.1](https://github.com/diplodoc-platform/cli/compare/v5.48.0...v5.48.1) (2026-06-30)
 
-
 ### Bug Fixes
 
-* adjust llms.txt/llms-full.txt format to meet llmstxt.org spec ([25c491a](https://github.com/diplodoc-platform/cli/commit/25c491aa1959587cb97465a5262957efba19f277))
-* **deps:** Update @diplodoc/ajv@0.0.6 ([#2033](https://github.com/diplodoc-platform/cli/issues/2033)) ([34a8078](https://github.com/diplodoc-platform/cli/commit/34a8078bc80b73aa0c591ca574842c4ab32fbbce))
+- adjust llms.txt/llms-full.txt format to meet llmstxt.org spec ([25c491a](https://github.com/diplodoc-platform/cli/commit/25c491aa1959587cb97465a5262957efba19f277))
+- **deps:** Update @diplodoc/ajv@0.0.6 ([#2033](https://github.com/diplodoc-platform/cli/issues/2033)) ([34a8078](https://github.com/diplodoc-platform/cli/commit/34a8078bc80b73aa0c591ca574842c4ab32fbbce))
 
 ## [5.48.0](https://github.com/diplodoc-platform/cli/compare/v5.47.3...v5.48.0) (2026-06-29)
 
-
 ### Features
 
-* Add mode "content" for single file DOCSTOOLS-5984 ([3792860](https://github.com/diplodoc-platform/cli/commit/37928602baa469b7308c82c1b9fde38d006c4cb0))
-* added support for documentation with ya.make ([#2030](https://github.com/diplodoc-platform/cli/issues/2030)) ([00ed72b](https://github.com/diplodoc-platform/cli/commit/00ed72be43d070466cc4ff4387cf1dbdbee86c21))
-
+- Add mode "content" for single file DOCSTOOLS-5984 ([3792860](https://github.com/diplodoc-platform/cli/commit/37928602baa469b7308c82c1b9fde38d006c4cb0))
+- added support for documentation with ya.make ([#2030](https://github.com/diplodoc-platform/cli/issues/2030)) ([00ed72b](https://github.com/diplodoc-platform/cli/commit/00ed72be43d070466cc4ff4387cf1dbdbee86c21))
 
 ### Bug Fixes
 
-* add `raw` param for content mode ([035b978](https://github.com/diplodoc-platform/cli/commit/035b9785507bc73a3991652430dfc1c903020b7c))
-* **template:** preserve whitespace in body interpolation in Template.dump ([a4c491a](https://github.com/diplodoc-platform/cli/commit/a4c491a7ee5cda0f9f9c864d96c71d0574a9f891)), closes [#1893](https://github.com/diplodoc-platform/cli/issues/1893)
-* yaml compose format fix ([0ca1043](https://github.com/diplodoc-platform/cli/commit/0ca1043610c80a8ba58cde250dfb2d4d8cf27f43))
+- add `raw` param for content mode ([035b978](https://github.com/diplodoc-platform/cli/commit/035b9785507bc73a3991652430dfc1c903020b7c))
+- **template:** preserve whitespace in body interpolation in Template.dump ([a4c491a](https://github.com/diplodoc-platform/cli/commit/a4c491a7ee5cda0f9f9c864d96c71d0574a9f891)), closes [#1893](https://github.com/diplodoc-platform/cli/issues/1893)
+- yaml compose format fix ([0ca1043](https://github.com/diplodoc-platform/cli/commit/0ca1043610c80a8ba58cde250dfb2d4d8cf27f43))
 
 ## [5.47.3](https://github.com/diplodoc-platform/cli/compare/v5.47.2...v5.47.3) (2026-06-26)
 
-
 ### Bug Fixes
 
-* add codeLineWrapping to BaseConfig ([c3640cc](https://github.com/diplodoc-platform/cli/commit/c3640cc98e838c5687cf7c3e500f74615fcef373))
-* **deps:** Update @diplodoc/transform@4.76.2 ([a442127](https://github.com/diplodoc-platform/cli/commit/a442127763aaba36e1737de9aa6a23cef9dc4284))
-* exclude build dir from repeated input ([3bbbc7d](https://github.com/diplodoc-platform/cli/commit/3bbbc7d24b6b3bb525a6678e130d59dc4703da00))
+- add codeLineWrapping to BaseConfig ([c3640cc](https://github.com/diplodoc-platform/cli/commit/c3640cc98e838c5687cf7c3e500f74615fcef373))
+- **deps:** Update @diplodoc/transform@4.76.2 ([a442127](https://github.com/diplodoc-platform/cli/commit/a442127763aaba36e1737de9aa6a23cef9dc4284))
+- exclude build dir from repeated input ([3bbbc7d](https://github.com/diplodoc-platform/cli/commit/3bbbc7d24b6b3bb525a6678e130d59dc4703da00))
 
 ## [5.47.2](https://github.com/diplodoc-platform/cli/compare/v5.47.1...v5.47.2) (2026-06-26)
 
-
 ### Bug Fixes
 
-* fixed pc md images ([#2021](https://github.com/diplodoc-platform/cli/issues/2021)) ([c7451e2](https://github.com/diplodoc-platform/cli/commit/c7451e25d0fd05927476ab52a467c7ebd452e754))
+- fixed pc md images ([#2021](https://github.com/diplodoc-platform/cli/issues/2021)) ([c7451e2](https://github.com/diplodoc-platform/cli/commit/c7451e25d0fd05927476ab52a467c7ebd452e754))
 
 ## [5.47.1](https://github.com/diplodoc-platform/cli/compare/v5.47.0...v5.47.1) (2026-06-25)
 
-
 ### Bug Fixes
 
-* add frontmatter from include when parent is empty DOCSTOOLS-6100 ([8fded44](https://github.com/diplodoc-platform/cli/commit/8fded44fd1609a58d20d04f8a64df8435b0c4018))
-* **build-content-map:** stabilize content hash for inlined SVG ids ([#2013](https://github.com/diplodoc-platform/cli/issues/2013)) ([128cf6e](https://github.com/diplodoc-platform/cli/commit/128cf6e7b32ae1a85aa67b570f4ad097903cd532))
-* rm extra wraps on compose ([0d495d5](https://github.com/diplodoc-platform/cli/commit/0d495d5c74c275e3b43c3e2e4a276d7b9707cd6e))
+- add frontmatter from include when parent is empty DOCSTOOLS-6100 ([8fded44](https://github.com/diplodoc-platform/cli/commit/8fded44fd1609a58d20d04f8a64df8435b0c4018))
+- **build-content-map:** stabilize content hash for inlined SVG ids ([#2013](https://github.com/diplodoc-platform/cli/issues/2013)) ([128cf6e](https://github.com/diplodoc-platform/cli/commit/128cf6e7b32ae1a85aa67b570f4ad097903cd532))
+- rm extra wraps on compose ([0d495d5](https://github.com/diplodoc-platform/cli/commit/0d495d5c74c275e3b43c3e2e4a276d7b9707cd6e))
 
 ## [5.47.0](https://github.com/diplodoc-platform/cli/compare/v5.46.1...v5.47.0) (2026-06-24)
 
-
 ### Features
 
-* **infra:** remove cli-tests DOCSTOOLS-4734 ([cb9aa5e](https://github.com/diplodoc-platform/cli/commit/cb9aa5e631bf7aa0be0c566f6060c6a0a2b9be2d))
-
+- **infra:** remove cli-tests DOCSTOOLS-4734 ([cb9aa5e](https://github.com/diplodoc-platform/cli/commit/cb9aa5e631bf7aa0be0c566f6060c6a0a2b9be2d))
 
 ### Bug Fixes
 
-* **tests:** normalize bundle test DOCSTOOLS-5718 ([7e3154e](https://github.com/diplodoc-platform/cli/commit/7e3154ed51ebd78781845fc834f8ea37e0adb238))
+- **tests:** normalize bundle test DOCSTOOLS-5718 ([7e3154e](https://github.com/diplodoc-platform/cli/commit/7e3154ed51ebd78781845fc834f8ea37e0adb238))
 
 ## [5.46.1](https://github.com/diplodoc-platform/cli/compare/v5.46.0...v5.46.1) (2026-06-22)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/transform@4.76.1 ([f39224d](https://github.com/diplodoc-platform/cli/commit/f39224d951935b17ae19b75d99dc4735dc33e02a))
-* fixed autotitles on windows ([#2009](https://github.com/diplodoc-platform/cli/issues/2009)) ([1f07a7e](https://github.com/diplodoc-platform/cli/commit/1f07a7eacc6522704897e86c08049904780e52f6))
+- **deps:** Update @diplodoc/transform@4.76.1 ([f39224d](https://github.com/diplodoc-platform/cli/commit/f39224d951935b17ae19b75d99dc4735dc33e02a))
+- fixed autotitles on windows ([#2009](https://github.com/diplodoc-platform/cli/issues/2009)) ([1f07a7e](https://github.com/diplodoc-platform/cli/commit/1f07a7eacc6522704897e86c08049904780e52f6))
 
 ## [5.46.0](https://github.com/diplodoc-platform/cli/compare/v5.45.0...v5.46.0) (2026-06-19)
 
-
 ### Features
 
-* removed schemas and replaced it with @diplodoc/ajv ([#2004](https://github.com/diplodoc-platform/cli/issues/2004)) ([df65a89](https://github.com/diplodoc-platform/cli/commit/df65a892efeb37b7f5527675d1731622aa11f147))
+- removed schemas and replaced it with @diplodoc/ajv ([#2004](https://github.com/diplodoc-platform/cli/issues/2004)) ([df65a89](https://github.com/diplodoc-platform/cli/commit/df65a892efeb37b7f5527675d1731622aa11f147))
 
 ## [5.45.0](https://github.com/diplodoc-platform/cli/compare/v5.44.0...v5.45.0) (2026-06-19)
 
-
 ### Features
 
-* add openapi companion DOCSTOOLS-5791 ([8240cd9](https://github.com/diplodoc-platform/cli/commit/8240cd97a8762b4948c028f954564a356b3ee45e))
-* **themer:** add code highlight theme configuration and tests ([#1966](https://github.com/diplodoc-platform/cli/issues/1966)) ([99bebb3](https://github.com/diplodoc-platform/cli/commit/99bebb312e30d84486bd2781a2e60d317ef97609))
-
+- add openapi companion DOCSTOOLS-5791 ([8240cd9](https://github.com/diplodoc-platform/cli/commit/8240cd97a8762b4948c028f954564a356b3ee45e))
+- **themer:** add code highlight theme configuration and tests ([#1966](https://github.com/diplodoc-platform/cli/issues/1966)) ([99bebb3](https://github.com/diplodoc-platform/cli/commit/99bebb312e30d84486bd2781a2e60d317ef97609))
 
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/mermaid-extension@2.1.3 ([#2001](https://github.com/diplodoc-platform/cli/issues/2001)) ([5caacf6](https://github.com/diplodoc-platform/cli/commit/5caacf6e68fadc36a1fac9118f95f4da4d52b9a1))
-* **e2e:** Unknown highlight.js theme: "github-dark" ([540149a](https://github.com/diplodoc-platform/cli/commit/540149a6cc9b4f9b43a690289c88a7ef00e3b11b))
+- **deps:** Update @diplodoc/mermaid-extension@2.1.3 ([#2001](https://github.com/diplodoc-platform/cli/issues/2001)) ([5caacf6](https://github.com/diplodoc-platform/cli/commit/5caacf6e68fadc36a1fac9118f95f4da4d52b9a1))
+- **e2e:** Unknown highlight.js theme: "github-dark" ([540149a](https://github.com/diplodoc-platform/cli/commit/540149a6cc9b4f9b43a690289c88a7ef00e3b11b))
 
 ## [5.44.0](https://github.com/diplodoc-platform/cli/compare/v5.43.3...v5.44.0) (2026-06-15)
 
-
 ### Features
 
-* **build:** generate llms.txt and llms-full.txt ([#1986](https://github.com/diplodoc-platform/cli/issues/1986)) ([2492619](https://github.com/diplodoc-platform/cli/commit/24926191472a8afb0592e38a92a53ee82e800f23))
-
+- **build:** generate llms.txt and llms-full.txt ([#1986](https://github.com/diplodoc-platform/cli/issues/1986)) ([2492619](https://github.com/diplodoc-platform/cli/commit/24926191472a8afb0592e38a92a53ee82e800f23))
 
 ### Bug Fixes
 
-* fixed crawler manifest ([#1998](https://github.com/diplodoc-platform/cli/issues/1998)) ([6f28ef9](https://github.com/diplodoc-platform/cli/commit/6f28ef9ef9cae9b44f843699c76bc10cdcba9e18))
-* vcs path ([#1971](https://github.com/diplodoc-platform/cli/issues/1971)) ([bfd0755](https://github.com/diplodoc-platform/cli/commit/bfd0755529e6501135ff2a931e59b8543f311ff0))
+- fixed crawler manifest ([#1998](https://github.com/diplodoc-platform/cli/issues/1998)) ([6f28ef9](https://github.com/diplodoc-platform/cli/commit/6f28ef9ef9cae9b44f843699c76bc10cdcba9e18))
+- vcs path ([#1971](https://github.com/diplodoc-platform/cli/issues/1971)) ([bfd0755](https://github.com/diplodoc-platform/cli/commit/bfd0755529e6501135ff2a931e59b8543f311ff0))
 
 ## [5.43.3](https://github.com/diplodoc-platform/cli/compare/v5.43.2...v5.43.3) (2026-06-11)
 
-
 ### Bug Fixes
 
-* **assets:** move asset size validation to markdown hook and optimize… ([#1994](https://github.com/diplodoc-platform/cli/issues/1994)) ([932c3b5](https://github.com/diplodoc-platform/cli/commit/932c3b58ecdab8a71c11b34d15ec9bbd906deeae))
-* fixed init ([#1996](https://github.com/diplodoc-platform/cli/issues/1996)) ([f2f8a94](https://github.com/diplodoc-platform/cli/commit/f2f8a94b97e0034e76d19bf74d0a715f1e40c904))
-* **templating:** cleanup empty directories ([#1991](https://github.com/diplodoc-platform/cli/issues/1991)) ([ea826ea](https://github.com/diplodoc-platform/cli/commit/ea826eac32b8dd92464785f36ed12fdb191dcf62))
+- **assets:** move asset size validation to markdown hook and optimize… ([#1994](https://github.com/diplodoc-platform/cli/issues/1994)) ([932c3b5](https://github.com/diplodoc-platform/cli/commit/932c3b58ecdab8a71c11b34d15ec9bbd906deeae))
+- fixed init ([#1996](https://github.com/diplodoc-platform/cli/issues/1996)) ([f2f8a94](https://github.com/diplodoc-platform/cli/commit/f2f8a94b97e0034e76d19bf74d0a715f1e40c904))
+- **templating:** cleanup empty directories ([#1991](https://github.com/diplodoc-platform/cli/issues/1991)) ([ea826ea](https://github.com/diplodoc-platform/cli/commit/ea826eac32b8dd92464785f36ed12fdb191dcf62))
 
 ## [5.43.2](https://github.com/diplodoc-platform/cli/compare/v5.43.1...v5.43.2) (2026-06-10)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.7.9 ([#1992](https://github.com/diplodoc-platform/cli/issues/1992)) ([d406594](https://github.com/diplodoc-platform/cli/commit/d406594aa921a82323e918723d91c0f6d2e4bc89))
+- **deps:** Update @diplodoc/client@5.7.9 ([#1992](https://github.com/diplodoc-platform/cli/issues/1992)) ([d406594](https://github.com/diplodoc-platform/cli/commit/d406594aa921a82323e918723d91c0f6d2e4bc89))
 
 ## [5.43.1](https://github.com/diplodoc-platform/cli/compare/v5.43.0...v5.43.1) (2026-06-10)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.7.8 ([a47977f](https://github.com/diplodoc-platform/cli/commit/a47977fb85b26c57c8cb3be82d16811dd6933478))
-* **deps:** Update dev:@diplodoc/mermaid-extension@2.1.2 ([68e5834](https://github.com/diplodoc-platform/cli/commit/68e5834b0c8598059f1f16a620679bbafdf86fc0))
+- **deps:** Update @diplodoc/client@5.7.8 ([a47977f](https://github.com/diplodoc-platform/cli/commit/a47977fb85b26c57c8cb3be82d16811dd6933478))
+- **deps:** Update dev:@diplodoc/mermaid-extension@2.1.2 ([68e5834](https://github.com/diplodoc-platform/cli/commit/68e5834b0c8598059f1f16a620679bbafdf86fc0))
 
 ## [5.43.0](https://github.com/diplodoc-platform/cli/compare/v5.42.2...v5.43.0) (2026-06-05)
 
-
 ### Features
 
-* added notifications in crawler manifest ([#1984](https://github.com/diplodoc-platform/cli/issues/1984)) ([dd64f96](https://github.com/diplodoc-platform/cli/commit/dd64f9674b71d4351820a622a7d71c18e3ae6f81))
+- added notifications in crawler manifest ([#1984](https://github.com/diplodoc-platform/cli/issues/1984)) ([dd64f96](https://github.com/diplodoc-platform/cli/commit/dd64f9674b71d4351820a622a7d71c18e3ae6f81))
 
 ## [5.42.2](https://github.com/diplodoc-platform/cli/compare/v5.42.1...v5.42.2) (2026-06-05)
 
-
 ### Bug Fixes
 
-* dir "constructor" not in build manifest ([e1501d3](https://github.com/diplodoc-platform/cli/commit/e1501d348995595b28b023cfd7702233de9aae97))
+- dir "constructor" not in build manifest ([e1501d3](https://github.com/diplodoc-platform/cli/commit/e1501d348995595b28b023cfd7702233de9aae97))
 
 ## [5.42.1](https://github.com/diplodoc-platform/cli/compare/v5.42.0...v5.42.1) (2026-06-04)
 
-
 ### Bug Fixes
 
-* fixed pc in md files in pdf ([#1979](https://github.com/diplodoc-platform/cli/issues/1979)) ([d179d34](https://github.com/diplodoc-platform/cli/commit/d179d34f256b42e5136255d9d32a07b62a165c4c))
+- fixed pc in md files in pdf ([#1979](https://github.com/diplodoc-platform/cli/issues/1979)) ([d179d34](https://github.com/diplodoc-platform/cli/commit/d179d34f256b42e5136255d9d32a07b62a165c4c))
 
 ## [5.42.0](https://github.com/diplodoc-platform/cli/compare/v5.41.0...v5.42.0) (2026-06-03)
 
-
 ### Features
 
-* **build:** enable build-stats and build-content by default for md2md ([#1976](https://github.com/diplodoc-platform/cli/issues/1976)) ([029b4b5](https://github.com/diplodoc-platform/cli/commit/029b4b5d25ba6b7665e817fd93cc40dd8cc5992d))
+- **build:** enable build-stats and build-content by default for md2md ([#1976](https://github.com/diplodoc-platform/cli/issues/1976)) ([029b4b5](https://github.com/diplodoc-platform/cli/commit/029b4b5d25ba6b7665e817fd93cc40dd8cc5992d))
 
 ## [5.41.0](https://github.com/diplodoc-platform/cli/compare/v5.40.0...v5.41.0) (2026-06-02)
 
-
 ### Features
 
-* **build-content-map:** content-fingerprint manifest for cross-build diff ([#1951](https://github.com/diplodoc-platform/cli/issues/1951)) ([b965e91](https://github.com/diplodoc-platform/cli/commit/b965e912563e5fe9969ae376fbf57215e08f034c))
+- **build-content-map:** content-fingerprint manifest for cross-build diff ([#1951](https://github.com/diplodoc-platform/cli/issues/1951)) ([b965e91](https://github.com/diplodoc-platform/cli/commit/b965e912563e5fe9969ae376fbf57215e08f034c))
 
 ## [5.40.0](https://github.com/diplodoc-platform/cli/compare/v5.39.8...v5.40.0) (2026-06-02)
 
-
 ### Features
 
-* enable merge includes ([fb2a582](https://github.com/diplodoc-platform/cli/commit/fb2a582243ca7c3f0c1c0239c06ac3cabd54a2a0))
+- enable merge includes ([fb2a582](https://github.com/diplodoc-platform/cli/commit/fb2a582243ca7c3f0c1c0239c06ac3cabd54a2a0))
 
 ## [5.39.8](https://github.com/diplodoc-platform/cli/compare/v5.39.7...v5.39.8) (2026-06-02)
 
-
 ### Bug Fixes
 
-* bugs 19-23 for mergeIncludes ([66e5b1e](https://github.com/diplodoc-platform/cli/commit/66e5b1eaec66cd2afa0dc2abcd9ae2ce01f3e14d))
-* bugs 28-29 ([c2173cd](https://github.com/diplodoc-platform/cli/commit/c2173cdd182e571945bd072df87a78a7387c6368))
-* bugs 31-33 ([df787cf](https://github.com/diplodoc-platform/cli/commit/df787cfd7953d847c2ecf203c0fd0cdcbfdd7dd5))
-* regression bug 29 ([0692761](https://github.com/diplodoc-platform/cli/commit/06927614bc1853dea4454540932c9b1f57f4b41d))
-* stop merge includes with indent out and in ([fc0b1ee](https://github.com/diplodoc-platform/cli/commit/fc0b1ee1f65f628192a40f5deab70c5967ce9d90))
+- bugs 19-23 for mergeIncludes ([66e5b1e](https://github.com/diplodoc-platform/cli/commit/66e5b1eaec66cd2afa0dc2abcd9ae2ce01f3e14d))
+- bugs 28-29 ([c2173cd](https://github.com/diplodoc-platform/cli/commit/c2173cdd182e571945bd072df87a78a7387c6368))
+- bugs 31-33 ([df787cf](https://github.com/diplodoc-platform/cli/commit/df787cfd7953d847c2ecf203c0fd0cdcbfdd7dd5))
+- regression bug 29 ([0692761](https://github.com/diplodoc-platform/cli/commit/06927614bc1853dea4454540932c9b1f57f4b41d))
+- stop merge includes with indent out and in ([fc0b1ee](https://github.com/diplodoc-platform/cli/commit/fc0b1ee1f65f628192a40f5deab70c5967ce9d90))
 
 ## [5.39.7](https://github.com/diplodoc-platform/cli/compare/v5.39.6...v5.39.7) (2026-06-02)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.7.7 ([a5cc810](https://github.com/diplodoc-platform/cli/commit/a5cc810b86755ff69d63efa4fcc9a71b57d37819))
+- **deps:** Update @diplodoc/client@5.7.7 ([a5cc810](https://github.com/diplodoc-platform/cli/commit/a5cc810b86755ff69d63efa4fcc9a71b57d37819))
 
 ## [5.39.6](https://github.com/diplodoc-platform/cli/compare/v5.39.5...v5.39.6) (2026-05-28)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.7.5 ([#1963](https://github.com/diplodoc-platform/cli/issues/1963)) ([350652d](https://github.com/diplodoc-platform/cli/commit/350652dea6c2dec992267d9a10cc07ac73aa5423))
-* **deps:** Update @diplodoc/liquid@1.5.2 ([#1962](https://github.com/diplodoc-platform/cli/issues/1962)) ([6664653](https://github.com/diplodoc-platform/cli/commit/666465337ddf4a9ff60302d954d4ce0da951bd2b))
-* **deps:** Update @diplodoc/transform@4.75.4, @diplodoc/translation@1.7.24 ([#1964](https://github.com/diplodoc-platform/cli/issues/1964)) ([99f5f8c](https://github.com/diplodoc-platform/cli/commit/99f5f8c2988dff747acc1bf1c0c7eb9de1924795))
-* **deps:** Update @diplodoc/utils@2.2.3 ([#1960](https://github.com/diplodoc-platform/cli/issues/1960)) ([2bf1d77](https://github.com/diplodoc-platform/cli/commit/2bf1d77a1585640d852937dc63e826f07609045f))
+- **deps:** Update @diplodoc/client@5.7.5 ([#1963](https://github.com/diplodoc-platform/cli/issues/1963)) ([350652d](https://github.com/diplodoc-platform/cli/commit/350652dea6c2dec992267d9a10cc07ac73aa5423))
+- **deps:** Update @diplodoc/liquid@1.5.2 ([#1962](https://github.com/diplodoc-platform/cli/issues/1962)) ([6664653](https://github.com/diplodoc-platform/cli/commit/666465337ddf4a9ff60302d954d4ce0da951bd2b))
+- **deps:** Update @diplodoc/transform@4.75.4, @diplodoc/translation@1.7.24 ([#1964](https://github.com/diplodoc-platform/cli/issues/1964)) ([99f5f8c](https://github.com/diplodoc-platform/cli/commit/99f5f8c2988dff747acc1bf1c0c7eb9de1924795))
+- **deps:** Update @diplodoc/utils@2.2.3 ([#1960](https://github.com/diplodoc-platform/cli/issues/1960)) ([2bf1d77](https://github.com/diplodoc-platform/cli/commit/2bf1d77a1585640d852937dc63e826f07609045f))
 
 ## [5.39.5](https://github.com/diplodoc-platform/cli/compare/v5.39.4...v5.39.5) (2026-05-28)
 
-
 ### Bug Fixes
 
-* **deps:** updated node to 24 ([#1957](https://github.com/diplodoc-platform/cli/issues/1957)) ([cf937da](https://github.com/diplodoc-platform/cli/commit/cf937da656f82b171bc27c1f0d6d1479b8f4fbc7))
+- **deps:** updated node to 24 ([#1957](https://github.com/diplodoc-platform/cli/issues/1957)) ([cf937da](https://github.com/diplodoc-platform/cli/commit/cf937da656f82b171bc27c1f0d6d1479b8f4fbc7))
 
 ## [5.39.4](https://github.com/diplodoc-platform/cli/compare/v5.39.3...v5.39.4) (2026-05-27)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.7.3 ([#1956](https://github.com/diplodoc-platform/cli/issues/1956)) ([920c91d](https://github.com/diplodoc-platform/cli/commit/920c91d22b3186ba0ec4a3f3fefad4605504019b))
-* **deps:** Update @diplodoc/page-constructor-extension@0.13.4 ([#1953](https://github.com/diplodoc-platform/cli/issues/1953)) ([dbbaf36](https://github.com/diplodoc-platform/cli/commit/dbbaf36f0f7cd4139e2f81d8c94e3c8362a4e38d))
+- **deps:** Update @diplodoc/client@5.7.3 ([#1956](https://github.com/diplodoc-platform/cli/issues/1956)) ([920c91d](https://github.com/diplodoc-platform/cli/commit/920c91d22b3186ba0ec4a3f3fefad4605504019b))
+- **deps:** Update @diplodoc/page-constructor-extension@0.13.4 ([#1953](https://github.com/diplodoc-platform/cli/issues/1953)) ([dbbaf36](https://github.com/diplodoc-platform/cli/commit/dbbaf36f0f7cd4139e2f81d8c94e3c8362a4e38d))
 
 ## [5.39.3](https://github.com/diplodoc-platform/cli/compare/v5.39.2...v5.39.3) (2026-05-25)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.7.2 ([154b2e2](https://github.com/diplodoc-platform/cli/commit/154b2e22b3551cd135be3e858597d15743dc35ac))
-* **deps:** Update @diplodoc/translation@1.7.22 ([f8da04a](https://github.com/diplodoc-platform/cli/commit/f8da04a671c05b3ccef41204c29d1ef2f38120e6))
-* empty include content handle ([#1950](https://github.com/diplodoc-platform/cli/issues/1950)) ([96124ba](https://github.com/diplodoc-platform/cli/commit/96124ba142dd6457673c6a7879226aa5f0a848a6))
+- **deps:** Update @diplodoc/client@5.7.2 ([154b2e2](https://github.com/diplodoc-platform/cli/commit/154b2e22b3551cd135be3e858597d15743dc35ac))
+- **deps:** Update @diplodoc/translation@1.7.22 ([f8da04a](https://github.com/diplodoc-platform/cli/commit/f8da04a671c05b3ccef41204c29d1ef2f38120e6))
+- empty include content handle ([#1950](https://github.com/diplodoc-platform/cli/issues/1950)) ([96124ba](https://github.com/diplodoc-platform/cli/commit/96124ba142dd6457673c6a7879226aa5f0a848a6))
 
 ## [5.39.2](https://github.com/diplodoc-platform/cli/compare/v5.39.1...v5.39.2) (2026-05-21)
 
-
 ### Bug Fixes
 
-* add liquid cycles for md2md DOCSTOOLS-5853 ([1080d0a](https://github.com/diplodoc-platform/cli/commit/1080d0a96162a0edcb09d6def0f46137795f9c47))
-* **deps:** Update @diplodoc/client@5.7.1 ([#1942](https://github.com/diplodoc-platform/cli/issues/1942)) ([e926f69](https://github.com/diplodoc-platform/cli/commit/e926f69d953ee1e9c3d268d330d5e9de641a4517))
+- add liquid cycles for md2md DOCSTOOLS-5853 ([1080d0a](https://github.com/diplodoc-platform/cli/commit/1080d0a96162a0edcb09d6def0f46137795f9c47))
+- **deps:** Update @diplodoc/client@5.7.1 ([#1942](https://github.com/diplodoc-platform/cli/issues/1942)) ([e926f69](https://github.com/diplodoc-platform/cli/commit/e926f69d953ee1e9c3d268d330d5e9de641a4517))
 
 ## [5.39.1](https://github.com/diplodoc-platform/cli/compare/v5.39.0...v5.39.1) (2026-05-18)
 
-
 ### Bug Fixes
 
-* Add validate toc structure DOCSTOOLS-5856 yandex-cloud/docs[#1088](https://github.com/diplodoc-platform/cli/issues/1088) ([036826a](https://github.com/diplodoc-platform/cli/commit/036826a1772f46b63c67beb2229797775654272c))
-* **deps:** Update @diplodoc/client@5.6.1 ([bdb7299](https://github.com/diplodoc-platform/cli/commit/bdb72997d711069e9ceab2eb65748cf376a702bc))
-* **deps:** Update @diplodoc/client@5.7.0 ([#1941](https://github.com/diplodoc-platform/cli/issues/1941)) ([3f078bf](https://github.com/diplodoc-platform/cli/commit/3f078bf6c81c866c8b5af61a6a25ac621eec75e5))
-* fixed getAuthors ([#1930](https://github.com/diplodoc-platform/cli/issues/1930)) ([3150074](https://github.com/diplodoc-platform/cli/commit/31500747a19808b81fd3f2fcd0cc348978bbc6e7))
-* **tests:** fix flap tests for vcsPath ([8be58d7](https://github.com/diplodoc-platform/cli/commit/8be58d741cb26fe51d99bf1d58d320e3edcab915))
+- Add validate toc structure DOCSTOOLS-5856 yandex-cloud/docs[#1088](https://github.com/diplodoc-platform/cli/issues/1088) ([036826a](https://github.com/diplodoc-platform/cli/commit/036826a1772f46b63c67beb2229797775654272c))
+- **deps:** Update @diplodoc/client@5.6.1 ([bdb7299](https://github.com/diplodoc-platform/cli/commit/bdb72997d711069e9ceab2eb65748cf376a702bc))
+- **deps:** Update @diplodoc/client@5.7.0 ([#1941](https://github.com/diplodoc-platform/cli/issues/1941)) ([3f078bf](https://github.com/diplodoc-platform/cli/commit/3f078bf6c81c866c8b5af61a6a25ac621eec75e5))
+- fixed getAuthors ([#1930](https://github.com/diplodoc-platform/cli/issues/1930)) ([3150074](https://github.com/diplodoc-platform/cli/commit/31500747a19808b81fd3f2fcd0cc348978bbc6e7))
+- **tests:** fix flap tests for vcsPath ([8be58d7](https://github.com/diplodoc-platform/cli/commit/8be58d741cb26fe51d99bf1d58d320e3edcab915))
 
 ## [5.39.0](https://github.com/diplodoc-platform/cli/compare/v5.38.1...v5.39.0) (2026-05-13)
 
-
 ### Features
 
-* **build:** emit build stats file with timing and counters ([#1905](https://github.com/diplodoc-platform/cli/issues/1905)) ([66a9dcd](https://github.com/diplodoc-platform/cli/commit/66a9dcdd9ffc0aff73f496ab891c0cc74f2a8f3a))
-
+- **build:** emit build stats file with timing and counters ([#1905](https://github.com/diplodoc-platform/cli/issues/1905)) ([66a9dcd](https://github.com/diplodoc-platform/cli/commit/66a9dcdd9ffc0aff73f496ab891c0cc74f2a8f3a))
 
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/transform@4.75.1 ([#1927](https://github.com/diplodoc-platform/cli/issues/1927)) ([f92b016](https://github.com/diplodoc-platform/cli/commit/f92b01603b4668e4ad93201427548c0a2cfbbd47))
+- **deps:** Update @diplodoc/transform@4.75.1 ([#1927](https://github.com/diplodoc-platform/cli/issues/1927)) ([f92b016](https://github.com/diplodoc-platform/cli/commit/f92b01603b4668e4ad93201427548c0a2cfbbd47))
 
 ## [5.38.1](https://github.com/diplodoc-platform/cli/compare/v5.38.0...v5.38.1) (2026-05-12)
 
-
 ### Bug Fixes
 
-* fixed crawler manifest ([#1923](https://github.com/diplodoc-platform/cli/issues/1923)) ([f23e3cd](https://github.com/diplodoc-platform/cli/commit/f23e3cd780dc4abaca639c62a433b0203c14c1cc))
-* no add indent in term definitions ([5a9991c](https://github.com/diplodoc-platform/cli/commit/5a9991c7268c150e947167c9174d87aeca2fd55a))
+- fixed crawler manifest ([#1923](https://github.com/diplodoc-platform/cli/issues/1923)) ([f23e3cd](https://github.com/diplodoc-platform/cli/commit/f23e3cd780dc4abaca639c62a433b0203c14c1cc))
+- no add indent in term definitions ([5a9991c](https://github.com/diplodoc-platform/cli/commit/5a9991c7268c150e947167c9174d87aeca2fd55a))
 
 ## [5.38.0](https://github.com/diplodoc-platform/cli/compare/v5.37.1...v5.38.0) (2026-05-08)
 
-
 ### Features
 
-* add analytics to toc schema ([#1836](https://github.com/diplodoc-platform/cli/issues/1836)) ([46357f7](https://github.com/diplodoc-platform/cli/commit/46357f73a674333af5b7a70c30318ddaca28c925))
+- add analytics to toc schema ([#1836](https://github.com/diplodoc-platform/cli/issues/1836)) ([46357f7](https://github.com/diplodoc-platform/cli/commit/46357f73a674333af5b7a70c30318ddaca28c925))
 
 ## [5.37.1](https://github.com/diplodoc-platform/cli/compare/v5.37.0...v5.37.1) (2026-05-07)
 
-
 ### Bug Fixes
 
-* terms in merge includes DOCSTOOLS-3760 ([50312d9](https://github.com/diplodoc-platform/cli/commit/50312d9057beba443fe294a561100e459160d451))
+- terms in merge includes DOCSTOOLS-3760 ([50312d9](https://github.com/diplodoc-platform/cli/commit/50312d9057beba443fe294a561100e459160d451))
 
 ## [5.37.0](https://github.com/diplodoc-platform/cli/compare/v5.36.6...v5.37.0) (2026-05-05)
 
-
 ### Features
 
-* **generic-includer:** add linkIndexAutotitle option for directory titles from index.md ([#1898](https://github.com/diplodoc-platform/cli/issues/1898)) ([52c9672](https://github.com/diplodoc-platform/cli/commit/52c96728d64f73c2476c381861516585571940e6))
-* **generic-includer:** add opt-in natural sort options ([#1901](https://github.com/diplodoc-platform/cli/issues/1901)) ([e0e0d27](https://github.com/diplodoc-platform/cli/commit/e0e0d276eed417144c66260e1be8982d6a290f14))
+- **generic-includer:** add linkIndexAutotitle option for directory titles from index.md ([#1898](https://github.com/diplodoc-platform/cli/issues/1898)) ([52c9672](https://github.com/diplodoc-platform/cli/commit/52c96728d64f73c2476c381861516585571940e6))
+- **generic-includer:** add opt-in natural sort options ([#1901](https://github.com/diplodoc-platform/cli/issues/1901)) ([e0e0d27](https://github.com/diplodoc-platform/cli/commit/e0e0d276eed417144c66260e1be8982d6a290f14))
 
 ## [5.36.6](https://github.com/diplodoc-platform/cli/compare/v5.36.5...v5.36.6) (2026-05-01)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.5.4 ([#1911](https://github.com/diplodoc-platform/cli/issues/1911)) ([b27e948](https://github.com/diplodoc-platform/cli/commit/b27e94849b219df993f4b2e67b2ede78e5fcbe80))
-* goals of the neuroexpert's actions in the metrics ([#1908](https://github.com/diplodoc-platform/cli/issues/1908)) ([ada52fe](https://github.com/diplodoc-platform/cli/commit/ada52fe6f9d63e74eb1e8ddde1f0f090f39cda58))
+- **deps:** Update @diplodoc/client@5.5.4 ([#1911](https://github.com/diplodoc-platform/cli/issues/1911)) ([b27e948](https://github.com/diplodoc-platform/cli/commit/b27e94849b219df993f4b2e67b2ede78e5fcbe80))
+- goals of the neuroexpert's actions in the metrics ([#1908](https://github.com/diplodoc-platform/cli/issues/1908)) ([ada52fe](https://github.com/diplodoc-platform/cli/commit/ada52fe6f9d63e74eb1e8ddde1f0f090f39cda58))
 
 ## [5.36.5](https://github.com/diplodoc-platform/cli/compare/v5.36.4...v5.36.5) (2026-05-01)
 
-
 ### Bug Fixes
 
-* fixed arcadia-vcs ([#1907](https://github.com/diplodoc-platform/cli/issues/1907)) ([a59d063](https://github.com/diplodoc-platform/cli/commit/a59d063cba8b21c66a0905c394cd78547eef9758))
+- fixed arcadia-vcs ([#1907](https://github.com/diplodoc-platform/cli/issues/1907)) ([a59d063](https://github.com/diplodoc-platform/cli/commit/a59d063cba8b21c66a0905c394cd78547eef9758))
 
 ## [5.36.4](https://github.com/diplodoc-platform/cli/compare/v5.36.3...v5.36.4) (2026-04-29)
 
-
 ### Bug Fixes
 
-* update file formats ([dc9ff56](https://github.com/diplodoc-platform/cli/commit/dc9ff569f5d011ac414b02d221474a5b4c3db749))
+- update file formats ([dc9ff56](https://github.com/diplodoc-platform/cli/commit/dc9ff569f5d011ac414b02d221474a5b4c3db749))
 
 ## [5.36.3](https://github.com/diplodoc-platform/cli/compare/v5.36.2...v5.36.3) (2026-04-29)
 
-
 ### Bug Fixes
 
-* add warning for arcadia vcs ([#1892](https://github.com/diplodoc-platform/cli/issues/1892)) ([bf8353a](https://github.com/diplodoc-platform/cli/commit/bf8353a040e87011fdfc5efdb105d2fd5cbc9835))
-* **deps:** Update @diplodoc/client@5.5.3 ([4889ec3](https://github.com/diplodoc-platform/cli/commit/4889ec3a40068bb002191fef02385c542defea44))
-* **deps:** Update @diplodoc/translation@1.7.21 ([2cc971d](https://github.com/diplodoc-platform/cli/commit/2cc971dcd0b9e49716a680587a7da889be46fbad))
+- add warning for arcadia vcs ([#1892](https://github.com/diplodoc-platform/cli/issues/1892)) ([bf8353a](https://github.com/diplodoc-platform/cli/commit/bf8353a040e87011fdfc5efdb105d2fd5cbc9835))
+- **deps:** Update @diplodoc/client@5.5.3 ([4889ec3](https://github.com/diplodoc-platform/cli/commit/4889ec3a40068bb002191fef02385c542defea44))
+- **deps:** Update @diplodoc/translation@1.7.21 ([2cc971d](https://github.com/diplodoc-platform/cli/commit/2cc971dcd0b9e49716a680587a7da889be46fbad))
 
 ## [5.36.2](https://github.com/diplodoc-platform/cli/compare/v5.36.1...v5.36.2) (2026-04-28)
 
-
 ### Bug Fixes
 
-* correct use features with plugins on include pages DOCSTOOLS-5398 ([59a8824](https://github.com/diplodoc-platform/cli/commit/59a88249acfcbf2cbe76070968d73bf08681d80e))
+- correct use features with plugins on include pages DOCSTOOLS-5398 ([59a8824](https://github.com/diplodoc-platform/cli/commit/59a88249acfcbf2cbe76070968d73bf08681d80e))
 
 ## [5.36.1](https://github.com/diplodoc-platform/cli/compare/v5.36.0...v5.36.1) (2026-04-28)
 
-
 ### Bug Fixes
 
-* copy pdf icon as custom resource ([0f36c8d](https://github.com/diplodoc-platform/cli/commit/0f36c8d2e44923c145ad6c33460799cd38080c08))
-* **deps:** Update @diplodoc/yfmlint@1.7.5 ([#1885](https://github.com/diplodoc-platform/cli/issues/1885)) ([f69b21f](https://github.com/diplodoc-platform/cli/commit/f69b21f5b7125e68f4fce5c8f1175ce65b845175))
-* Support includes in terms ([c687b6c](https://github.com/diplodoc-platform/cli/commit/c687b6c72383cd25754efd2de0dd6be143b2f9db))
+- copy pdf icon as custom resource ([0f36c8d](https://github.com/diplodoc-platform/cli/commit/0f36c8d2e44923c145ad6c33460799cd38080c08))
+- **deps:** Update @diplodoc/yfmlint@1.7.5 ([#1885](https://github.com/diplodoc-platform/cli/issues/1885)) ([f69b21f](https://github.com/diplodoc-platform/cli/commit/f69b21f5b7125e68f4fce5c8f1175ce65b845175))
+- Support includes in terms ([c687b6c](https://github.com/diplodoc-platform/cli/commit/c687b6c72383cd25754efd2de0dd6be143b2f9db))
 
 ## [5.36.0](https://github.com/diplodoc-platform/cli/compare/v5.35.3...v5.36.0) (2026-04-25)
 
-
 ### Features
 
-* use generateID from utils DOCSTOOLS-5561 ([02b65ed](https://github.com/diplodoc-platform/cli/commit/02b65ede92c85802b85eac57b1f62c18bf82340c))
+- use generateID from utils DOCSTOOLS-5561 ([02b65ed](https://github.com/diplodoc-platform/cli/commit/02b65ede92c85802b85eac57b1f62c18bf82340c))
 
 ## [5.35.3](https://github.com/diplodoc-platform/cli/compare/v5.35.2...v5.35.3) (2026-04-24)
 
-
 ### Bug Fixes
 
-* **deps:** Update dev:@diplodoc/search-extension@3.0.5 ([#1873](https://github.com/diplodoc-platform/cli/issues/1873)) ([debac90](https://github.com/diplodoc-platform/cli/commit/debac901d3e92baef592e90493662254a6192b30))
+- **deps:** Update dev:@diplodoc/search-extension@3.0.5 ([#1873](https://github.com/diplodoc-platform/cli/issues/1873)) ([debac90](https://github.com/diplodoc-platform/cli/commit/debac901d3e92baef592e90493662254a6192b30))
 
 ## [5.35.2](https://github.com/diplodoc-platform/cli/compare/v5.35.1...v5.35.2) (2026-04-23)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.5.2 ([22262e3](https://github.com/diplodoc-platform/cli/commit/22262e379b03329ddd13a52b9af4c45c5678a6a0))
+- **deps:** Update @diplodoc/client@5.5.2 ([22262e3](https://github.com/diplodoc-platform/cli/commit/22262e379b03329ddd13a52b9af4c45c5678a6a0))
 
 ## [5.35.1](https://github.com/diplodoc-platform/cli/compare/v5.35.0...v5.35.1) (2026-04-21)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.5.0 ([#1861](https://github.com/diplodoc-platform/cli/issues/1861)) ([bc2e9b0](https://github.com/diplodoc-platform/cli/commit/bc2e9b07279a8e14422dd55e625cb906f1d14c27))
-* **deps:** Update @diplodoc/client@5.5.1 ([#1864](https://github.com/diplodoc-platform/cli/issues/1864)) ([fc561ad](https://github.com/diplodoc-platform/cli/commit/fc561ad11380a3d345f5451331766eb3420fdce1))
-* extend copy assets with file directive link ([22fbc30](https://github.com/diplodoc-platform/cli/commit/22fbc3011377ffd56c2f067e06f4fe902170829e))
+- **deps:** Update @diplodoc/client@5.5.0 ([#1861](https://github.com/diplodoc-platform/cli/issues/1861)) ([bc2e9b0](https://github.com/diplodoc-platform/cli/commit/bc2e9b07279a8e14422dd55e625cb906f1d14c27))
+- **deps:** Update @diplodoc/client@5.5.1 ([#1864](https://github.com/diplodoc-platform/cli/issues/1864)) ([fc561ad](https://github.com/diplodoc-platform/cli/commit/fc561ad11380a3d345f5451331766eb3420fdce1))
+- extend copy assets with file directive link ([22fbc30](https://github.com/diplodoc-platform/cli/commit/22fbc3011377ffd56c2f067e06f4fe902170829e))
 
 ## [5.35.0](https://github.com/diplodoc-platform/cli/compare/v5.34.8...v5.35.0) (2026-04-17)
 
-
 ### Features
 
-* added type option in neuroExpert ([#1853](https://github.com/diplodoc-platform/cli/issues/1853)) ([c8a1a49](https://github.com/diplodoc-platform/cli/commit/c8a1a49ed7f026712f92a0e3a5b9339a8f293bb1))
-* **analytics:** add csp rules when metrika counter is configured ([#1846](https://github.com/diplodoc-platform/cli/issues/1846)) ([8a81d87](https://github.com/diplodoc-platform/cli/commit/8a81d877596454375ed6693bfb51ba7ba00b1fab))
-
+- added type option in neuroExpert ([#1853](https://github.com/diplodoc-platform/cli/issues/1853)) ([c8a1a49](https://github.com/diplodoc-platform/cli/commit/c8a1a49ed7f026712f92a0e3a5b9339a8f293bb1))
+- **analytics:** add csp rules when metrika counter is configured ([#1846](https://github.com/diplodoc-platform/cli/issues/1846)) ([8a81d87](https://github.com/diplodoc-platform/cli/commit/8a81d877596454375ed6693bfb51ba7ba00b1fab))
 
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.4.1 ([#1860](https://github.com/diplodoc-platform/cli/issues/1860)) ([957034d](https://github.com/diplodoc-platform/cli/commit/957034db2516f79484e10775bb3e1f705bdc7619))
+- **deps:** Update @diplodoc/client@5.4.1 ([#1860](https://github.com/diplodoc-platform/cli/issues/1860)) ([957034d](https://github.com/diplodoc-platform/cli/commit/957034db2516f79484e10775bb3e1f705bdc7619))
 
 ## [5.34.8](https://github.com/diplodoc-platform/cli/compare/v5.34.7...v5.34.8) (2026-04-17)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.4.0 ([#1857](https://github.com/diplodoc-platform/cli/issues/1857)) ([2617ea8](https://github.com/diplodoc-platform/cli/commit/2617ea88b64b3d86fbb15c395d73bc62bc79e897))
+- **deps:** Update @diplodoc/client@5.4.0 ([#1857](https://github.com/diplodoc-platform/cli/issues/1857)) ([2617ea8](https://github.com/diplodoc-platform/cli/commit/2617ea88b64b3d86fbb15c395d73bc62bc79e897))
 
 ## [5.34.7](https://github.com/diplodoc-platform/cli/compare/v5.34.6...v5.34.7) (2026-04-16)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/yfmlint@1.7.3 ([#1855](https://github.com/diplodoc-platform/cli/issues/1855)) ([290fab3](https://github.com/diplodoc-platform/cli/commit/290fab308619f5b6f235aec4713f7a5c257e9caf))
+- **deps:** Update @diplodoc/yfmlint@1.7.3 ([#1855](https://github.com/diplodoc-platform/cli/issues/1855)) ([290fab3](https://github.com/diplodoc-platform/cli/commit/290fab308619f5b6f235aec4713f7a5c257e9caf))
 
 ## [5.34.6](https://github.com/diplodoc-platform/cli/compare/v5.34.5...v5.34.6) (2026-04-16)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/yfmlint@1.7.2 ([#1851](https://github.com/diplodoc-platform/cli/issues/1851)) ([afa3366](https://github.com/diplodoc-platform/cli/commit/afa336616164e4cb90ca64d67cd86143a0d643e7))
+- **deps:** Update @diplodoc/yfmlint@1.7.2 ([#1851](https://github.com/diplodoc-platform/cli/issues/1851)) ([afa3366](https://github.com/diplodoc-platform/cli/commit/afa336616164e4cb90ca64d67cd86143a0d643e7))
 
 ## [5.34.5](https://github.com/diplodoc-platform/cli/compare/v5.34.4...v5.34.5) (2026-04-16)
 
-
 ### Bug Fixes
 
-* bundless ([b3feea1](https://github.com/diplodoc-platform/cli/commit/b3feea1cfc26c6696cea7695e4f15f957db6fb81))
+- bundless ([b3feea1](https://github.com/diplodoc-platform/cli/commit/b3feea1cfc26c6696cea7695e4f15f957db6fb81))
 
 ## [5.34.4](https://github.com/diplodoc-platform/cli/compare/v5.34.3...v5.34.4) (2026-04-15)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/yfmlint@1.7.1 ([#1844](https://github.com/diplodoc-platform/cli/issues/1844)) ([554c156](https://github.com/diplodoc-platform/cli/commit/554c156896e3a21e258efb66d8f17a103d56c00c))
+- **deps:** Update @diplodoc/yfmlint@1.7.1 ([#1844](https://github.com/diplodoc-platform/cli/issues/1844)) ([554c156](https://github.com/diplodoc-platform/cli/commit/554c156896e3a21e258efb66d8f17a103d56c00c))
 
 ## [5.34.3](https://github.com/diplodoc-platform/cli/compare/v5.34.2...v5.34.3) (2026-04-14)
 
-
 ### Bug Fixes
 
-* hash for tests ([09ab447](https://github.com/diplodoc-platform/cli/commit/09ab44775391b4847485399083d9257f2da28b43))
+- hash for tests ([09ab447](https://github.com/diplodoc-platform/cli/commit/09ab44775391b4847485399083d9257f2da28b43))
 
 ## [5.34.2](https://github.com/diplodoc-platform/cli/compare/v5.34.1...v5.34.2) (2026-04-14)
 
-
 ### Bug Fixes
 
-* fixed anchor in md ([#1839](https://github.com/diplodoc-platform/cli/issues/1839)) ([0dd1b00](https://github.com/diplodoc-platform/cli/commit/0dd1b00cda45b351c041762fded9138947864b3e))
+- fixed anchor in md ([#1839](https://github.com/diplodoc-platform/cli/issues/1839)) ([0dd1b00](https://github.com/diplodoc-platform/cli/commit/0dd1b00cda45b351c041762fded9138947864b3e))
 
 ## [5.34.1](https://github.com/diplodoc-platform/cli/compare/v5.34.0...v5.34.1) (2026-04-13)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/yfmlint@1.7.0 ([#1837](https://github.com/diplodoc-platform/cli/issues/1837)) ([47a653a](https://github.com/diplodoc-platform/cli/commit/47a653aecaf721b6251f1a8989dcff932cf6780c))
+- **deps:** Update @diplodoc/yfmlint@1.7.0 ([#1837](https://github.com/diplodoc-platform/cli/issues/1837)) ([47a653a](https://github.com/diplodoc-platform/cli/commit/47a653aecaf721b6251f1a8989dcff932cf6780c))
 
 ## [5.34.0](https://github.com/diplodoc-platform/cli/compare/v5.33.2...v5.34.0) (2026-04-10)
 
-
 ### Features
 
-* **schemas:** add analytics.metrika property to yfm schema ([#1825](https://github.com/diplodoc-platform/cli/issues/1825)) ([4e3f857](https://github.com/diplodoc-platform/cli/commit/4e3f857f0c859809fe7e7cf02c55b3707774b8b8))
-
+- **schemas:** add analytics.metrika property to yfm schema ([#1825](https://github.com/diplodoc-platform/cli/issues/1825)) ([4e3f857](https://github.com/diplodoc-platform/cli/commit/4e3f857f0c859809fe7e7cf02c55b3707774b8b8))
 
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.3.1 ([#1832](https://github.com/diplodoc-platform/cli/issues/1832)) ([218b1d1](https://github.com/diplodoc-platform/cli/commit/218b1d1f54e674a219e132f4e0206f3d6da5f160))
+- **deps:** Update @diplodoc/client@5.3.1 ([#1832](https://github.com/diplodoc-platform/cli/issues/1832)) ([218b1d1](https://github.com/diplodoc-platform/cli/commit/218b1d1f54e674a219e132f4e0206f3d6da5f160))
 
 ## [5.33.2](https://github.com/diplodoc-platform/cli/compare/v5.33.1...v5.33.2) (2026-04-08)
 
-
 ### Bug Fixes
 
-* fixed bundledDeps ([#1827](https://github.com/diplodoc-platform/cli/issues/1827)) ([d013d74](https://github.com/diplodoc-platform/cli/commit/d013d74320fd92a1d6e8123892057eea5ebc1ee7))
+- fixed bundledDeps ([#1827](https://github.com/diplodoc-platform/cli/issues/1827)) ([d013d74](https://github.com/diplodoc-platform/cli/commit/d013d74320fd92a1d6e8123892057eea5ebc1ee7))
 
 ## [5.33.1](https://github.com/diplodoc-platform/cli/compare/v5.33.0...v5.33.1) (2026-04-08)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.2.15 ([#1822](https://github.com/diplodoc-platform/cli/issues/1822)) ([2a5d8f6](https://github.com/diplodoc-platform/cli/commit/2a5d8f6d38840502daf18f14a76e2dc992ca0752))
-* **deps:** Update @diplodoc/client@5.2.16 ([#1826](https://github.com/diplodoc-platform/cli/issues/1826)) ([30a538e](https://github.com/diplodoc-platform/cli/commit/30a538e61b205e92e7c971b2ec4f98a23473b18c))
+- **deps:** Update @diplodoc/client@5.2.15 ([#1822](https://github.com/diplodoc-platform/cli/issues/1822)) ([2a5d8f6](https://github.com/diplodoc-platform/cli/commit/2a5d8f6d38840502daf18f14a76e2dc992ca0752))
+- **deps:** Update @diplodoc/client@5.2.16 ([#1826](https://github.com/diplodoc-platform/cli/issues/1826)) ([30a538e](https://github.com/diplodoc-platform/cli/commit/30a538e61b205e92e7c971b2ec4f98a23473b18c))
 
 ## [5.33.0](https://github.com/diplodoc-platform/cli/compare/v5.32.1...v5.33.0) (2026-04-06)
 
-
 ### Features
 
-* added init command ([#1748](https://github.com/diplodoc-platform/cli/issues/1748)) ([16a26b7](https://github.com/diplodoc-platform/cli/commit/16a26b7e3b97592df05900c1426bdb025b78196a))
+- added init command ([#1748](https://github.com/diplodoc-platform/cli/issues/1748)) ([16a26b7](https://github.com/diplodoc-platform/cli/commit/16a26b7e3b97592df05900c1426bdb025b78196a))
 
 ## [5.32.1](https://github.com/diplodoc-platform/cli/compare/v5.32.0...v5.32.1) (2026-04-03)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/transform@4.73.2, @diplodoc/client@5.2.14 ([#1813](https://github.com/diplodoc-platform/cli/issues/1813)) ([a2bcc75](https://github.com/diplodoc-platform/cli/commit/a2bcc75999791e78f780175d1cbbe6abac2f3c82))
+- **deps:** Update @diplodoc/transform@4.73.2, @diplodoc/client@5.2.14 ([#1813](https://github.com/diplodoc-platform/cli/issues/1813)) ([a2bcc75](https://github.com/diplodoc-platform/cli/commit/a2bcc75999791e78f780175d1cbbe6abac2f3c82))
 
 ## [5.32.0](https://github.com/diplodoc-platform/cli/compare/v5.31.2...v5.32.0) (2026-04-01)
 
-
 ### Features
 
-* added crawler section in .yfm support ([#1807](https://github.com/diplodoc-platform/cli/issues/1807)) ([75c350f](https://github.com/diplodoc-platform/cli/commit/75c350fe7337ad41ea3917d83437e71955bffe3e))
+- added crawler section in .yfm support ([#1807](https://github.com/diplodoc-platform/cli/issues/1807)) ([75c350f](https://github.com/diplodoc-platform/cli/commit/75c350fe7337ad41ea3917d83437e71955bffe3e))
 
 ## [5.31.2](https://github.com/diplodoc-platform/cli/compare/v5.31.1...v5.31.2) (2026-04-01)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.2.13 ([#1808](https://github.com/diplodoc-platform/cli/issues/1808)) ([de700e3](https://github.com/diplodoc-platform/cli/commit/de700e3fd96c03ff08a3284d4c2cde2473b33dc5))
+- **deps:** Update @diplodoc/client@5.2.13 ([#1808](https://github.com/diplodoc-platform/cli/issues/1808)) ([de700e3](https://github.com/diplodoc-platform/cli/commit/de700e3fd96c03ff08a3284d4c2cde2473b33dc5))
 
 ## [5.31.1](https://github.com/diplodoc-platform/cli/compare/v5.31.0...v5.31.1) (2026-03-30)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.2.12 ([#1801](https://github.com/diplodoc-platform/cli/issues/1801)) ([dad3f4a](https://github.com/diplodoc-platform/cli/commit/dad3f4ae966ecf487dd690f44339d26e53859c9c))
+- **deps:** Update @diplodoc/client@5.2.12 ([#1801](https://github.com/diplodoc-platform/cli/issues/1801)) ([dad3f4a](https://github.com/diplodoc-platform/cli/commit/dad3f4ae966ecf487dd690f44339d26e53859c9c))
 
 ## [5.31.0](https://github.com/diplodoc-platform/cli/compare/v5.30.0...v5.31.0) (2026-03-30)
 
-
 ### Features
 
-* **cli:** add --disable-csp CLI flag ([#1795](https://github.com/diplodoc-platform/cli/issues/1795)) ([0439a96](https://github.com/diplodoc-platform/cli/commit/0439a96f8c1ab9e3329eabcad0b46b71327d3e80))
+- **cli:** add --disable-csp CLI flag ([#1795](https://github.com/diplodoc-platform/cli/issues/1795)) ([0439a96](https://github.com/diplodoc-platform/cli/commit/0439a96f8c1ab9e3329eabcad0b46b71327d3e80))
 
 ## [5.30.0](https://github.com/diplodoc-platform/cli/compare/v5.29.0...v5.30.0) (2026-03-30)
 
-
 ### Features
 
-* added endPages ([#1792](https://github.com/diplodoc-platform/cli/issues/1792)) ([434a095](https://github.com/diplodoc-platform/cli/commit/434a095a47816a58ef0ff44d86a3df218655a213))
-* **generic-includer:** add linkIndex option ([#1784](https://github.com/diplodoc-platform/cli/issues/1784)) ([bb3ee39](https://github.com/diplodoc-platform/cli/commit/bb3ee3908ef5042ead8f7ac01771808da170a8fc))
-
+- added endPages ([#1792](https://github.com/diplodoc-platform/cli/issues/1792)) ([434a095](https://github.com/diplodoc-platform/cli/commit/434a095a47816a58ef0ff44d86a3df218655a213))
+- **generic-includer:** add linkIndex option ([#1784](https://github.com/diplodoc-platform/cli/issues/1784)) ([bb3ee39](https://github.com/diplodoc-platform/cli/commit/bb3ee3908ef5042ead8f7ac01771808da170a8fc))
 
 ### Bug Fixes
 
-* add missing CSP for contributors on leading pages ([#1785](https://github.com/diplodoc-platform/cli/issues/1785)) ([843f065](https://github.com/diplodoc-platform/cli/commit/843f0651d2781a47b1f990c4926366392a3e6c1b))
+- add missing CSP for contributors on leading pages ([#1785](https://github.com/diplodoc-platform/cli/issues/1785)) ([843f065](https://github.com/diplodoc-platform/cli/commit/843f0651d2781a47b1f990c4926366392a3e6c1b))
 
 ## [5.29.0](https://github.com/diplodoc-platform/cli/compare/v5.28.0...v5.29.0) (2026-03-23)
 
-
 ### Features
 
-* add disableCsp config option ([#1776](https://github.com/diplodoc-platform/cli/issues/1776)) ([e056ac3](https://github.com/diplodoc-platform/cli/commit/e056ac3918db0e8e405380690884fa01bda45a89))
-* Set YFM009 Error, support miltiline termDefinitions ([82fae22](https://github.com/diplodoc-platform/cli/commit/82fae22470b8e01e625631f802102b0b67d9b498))
-
+- add disableCsp config option ([#1776](https://github.com/diplodoc-platform/cli/issues/1776)) ([e056ac3](https://github.com/diplodoc-platform/cli/commit/e056ac3918db0e8e405380690884fa01bda45a89))
+- Set YFM009 Error, support miltiline termDefinitions ([82fae22](https://github.com/diplodoc-platform/cli/commit/82fae22470b8e01e625631f802102b0b67d9b498))
 
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client@5.2.11, @diplodoc/transform@4.71.0 ([691cf45](https://github.com/diplodoc-platform/cli/commit/691cf4528fac9269bac4b94738299d76ad4f6e97))
+- **deps:** Update @diplodoc/client@5.2.11, @diplodoc/transform@4.71.0 ([691cf45](https://github.com/diplodoc-platform/cli/commit/691cf4528fac9269bac4b94738299d76ad4f6e97))
 
 ## [5.28.0](https://github.com/diplodoc-platform/cli/compare/v5.27.4...v5.28.0) (2026-03-20)
 
-
 ### Features
 
-* added crawler manifest ([#1771](https://github.com/diplodoc-platform/cli/issues/1771)) ([efca399](https://github.com/diplodoc-platform/cli/commit/efca3990087a98b6f47da105ff291eb021a71f50))
-* implement max openapi include size ([2e327d1](https://github.com/diplodoc-platform/cli/commit/2e327d11c5aaea74b9f68c0ee48d3c862ec9d929))
+- added crawler manifest ([#1771](https://github.com/diplodoc-platform/cli/issues/1771)) ([efca399](https://github.com/diplodoc-platform/cli/commit/efca3990087a98b6f47da105ff291eb021a71f50))
+- implement max openapi include size ([2e327d1](https://github.com/diplodoc-platform/cli/commit/2e327d11c5aaea74b9f68c0ee48d3c862ec9d929))
 
 ## [5.27.4](https://github.com/diplodoc-platform/cli/compare/v5.27.3...v5.27.4) (2026-03-18)
 
-
 ### Bug Fixes
 
-* **deps:** Update openapi@5.1.3 and test ([d2ae11d](https://github.com/diplodoc-platform/cli/commit/d2ae11d6ef5def612e41f4d016b60bdfc75a4ce7))
+- **deps:** Update openapi@5.1.3 and test ([d2ae11d](https://github.com/diplodoc-platform/cli/commit/d2ae11d6ef5def612e41f4d016b60bdfc75a4ce7))
 
 ## [5.27.3](https://github.com/diplodoc-platform/cli/compare/v5.27.2...v5.27.3) (2026-03-18)
 
-
 ### Bug Fixes
 
-* **deps:** update client, transform ([87e75a6](https://github.com/diplodoc-platform/cli/commit/87e75a6efb0ce6dfed75d4271bace1f27a6e5f89))
+- **deps:** update client, transform ([87e75a6](https://github.com/diplodoc-platform/cli/commit/87e75a6efb0ce6dfed75d4271bace1f27a6e5f89))
 
 ## [5.27.2](https://github.com/diplodoc-platform/cli/compare/v5.27.1...v5.27.2) (2026-03-18)
 
-
 ### Bug Fixes
 
-* **deps:** Update client, transform ([5171f9e](https://github.com/diplodoc-platform/cli/commit/5171f9e934dc5754aa67545ce23bc7bede9e7e1b))
+- **deps:** Update client, transform ([5171f9e](https://github.com/diplodoc-platform/cli/commit/5171f9e934dc5754aa67545ce23bc7bede9e7e1b))
 
 ## [5.27.1](https://github.com/diplodoc-platform/cli/compare/v5.27.0...v5.27.1) (2026-03-16)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/page-constructor-extension to 0.13.2 ([#1761](https://github.com/diplodoc-platform/cli/issues/1761)) ([8e5ecda](https://github.com/diplodoc-platform/cli/commit/8e5ecda6036d16f5b4117f6c68e611b109a1cf39))
+- **deps:** Update @diplodoc/page-constructor-extension to 0.13.2 ([#1761](https://github.com/diplodoc-platform/cli/issues/1761)) ([8e5ecda](https://github.com/diplodoc-platform/cli/commit/8e5ecda6036d16f5b4117f6c68e611b109a1cf39))
 
 ## [5.27.0](https://github.com/diplodoc-platform/cli/compare/v5.26.2...v5.27.0) (2026-03-16)
 
-
 ### Features
 
-* Embedding the include at the bottom of the page ([c673209](https://github.com/diplodoc-platform/cli/commit/c6732098eb238b3a0ac982ecb24d147e802591dc))
-* Include wtih indent and hash ([cb11158](https://github.com/diplodoc-platform/cli/commit/cb111585b65cbbbe12dc61f61cfea81f06ac656f))
-* Simple inline includes ([203d15d](https://github.com/diplodoc-platform/cli/commit/203d15db7f090f66a9fae9b773a1f1d819271019))
-
+- Embedding the include at the bottom of the page ([c673209](https://github.com/diplodoc-platform/cli/commit/c6732098eb238b3a0ac982ecb24d147e802591dc))
+- Include wtih indent and hash ([cb11158](https://github.com/diplodoc-platform/cli/commit/cb111585b65cbbbe12dc61f61cfea81f06ac656f))
+- Simple inline includes ([203d15d](https://github.com/diplodoc-platform/cli/commit/203d15db7f090f66a9fae9b773a1f1d819271019))
 
 ### Bug Fixes
 
-* add source maps for included ([c5e45b6](https://github.com/diplodoc-platform/cli/commit/c5e45b6a8256da4c9a922019373e59d174f99824))
-* added customLabel to neuro expert ([#1754](https://github.com/diplodoc-platform/cli/issues/1754)) ([ddf994b](https://github.com/diplodoc-platform/cli/commit/ddf994bd1688c774878ec0ff06aa809c543a6bb7))
-* bug in cache dump with 1 include and different hash ([ea472d3](https://github.com/diplodoc-platform/cli/commit/ea472d3fb47fc1c0616c5d02cdd478f54dfea23b))
-* **deps:** Update @diplodoc/transform to 4.70.2 ([ec6b767](https://github.com/diplodoc-platform/cli/commit/ec6b76779760b5c515d021f6c6c3a4dc2e0fa248))
+- add source maps for included ([c5e45b6](https://github.com/diplodoc-platform/cli/commit/c5e45b6a8256da4c9a922019373e59d174f99824))
+- added customLabel to neuro expert ([#1754](https://github.com/diplodoc-platform/cli/issues/1754)) ([ddf994b](https://github.com/diplodoc-platform/cli/commit/ddf994bd1688c774878ec0ff06aa809c543a6bb7))
+- bug in cache dump with 1 include and different hash ([ea472d3](https://github.com/diplodoc-platform/cli/commit/ea472d3fb47fc1c0616c5d02cdd478f54dfea23b))
+- **deps:** Update @diplodoc/transform to 4.70.2 ([ec6b767](https://github.com/diplodoc-platform/cli/commit/ec6b76779760b5c515d021f6c6c3a4dc2e0fa248))
 
 ## [5.26.2](https://github.com/diplodoc-platform/cli/compare/v5.26.1...v5.26.2) (2026-03-10)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client to 5.2.8 ([#1747](https://github.com/diplodoc-platform/cli/issues/1747)) ([96972f6](https://github.com/diplodoc-platform/cli/commit/96972f6ecf528b7de2784ed3a0cdc401b457e344))
+- **deps:** Update @diplodoc/client to 5.2.8 ([#1747](https://github.com/diplodoc-platform/cli/issues/1747)) ([96972f6](https://github.com/diplodoc-platform/cli/commit/96972f6ecf528b7de2784ed3a0cdc401b457e344))
 
 ## [5.26.1](https://github.com/diplodoc-platform/cli/compare/v5.26.0...v5.26.1) (2026-03-10)
 
-
 ### Bug Fixes
 
-* pdf multi toc ([d53bd74](https://github.com/diplodoc-platform/cli/commit/d53bd74c87bc5fd8bec7a1aac96002113add9b3e))
-* sorted alternates and contributors ([#1743](https://github.com/diplodoc-platform/cli/issues/1743)) ([249018c](https://github.com/diplodoc-platform/cli/commit/249018c13ec037987d81dbf92a638bc58651237a))
+- pdf multi toc ([d53bd74](https://github.com/diplodoc-platform/cli/commit/d53bd74c87bc5fd8bec7a1aac96002113add9b3e))
+- sorted alternates and contributors ([#1743](https://github.com/diplodoc-platform/cli/issues/1743)) ([249018c](https://github.com/diplodoc-platform/cli/commit/249018c13ec037987d81dbf92a638bc58651237a))
 
 ## [5.26.0](https://github.com/diplodoc-platform/cli/compare/v5.25.4...v5.26.0) (2026-03-05)
 
-
 ### Features
 
-* **cli:** add token-level source tracking to includes plugin ([013b06b](https://github.com/diplodoc-platform/cli/commit/013b06bed998e5a09082d71d1142933e52cdab39))
-
+- **cli:** add token-level source tracking to includes plugin ([013b06b](https://github.com/diplodoc-platform/cli/commit/013b06bed998e5a09082d71d1142933e52cdab39))
 
 ### Bug Fixes
 
-* race for write file ([30cdb6e](https://github.com/diplodoc-platform/cli/commit/30cdb6e55c9a246e50191585f24f16c6ea041021))
+- race for write file ([30cdb6e](https://github.com/diplodoc-platform/cli/commit/30cdb6e55c9a246e50191585f24f16c6ea041021))
 
 ## [5.25.4](https://github.com/diplodoc-platform/cli/compare/v5.25.3...v5.25.4) (2026-03-04)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/search-extension to 3.0.2 ([#1732](https://github.com/diplodoc-platform/cli/issues/1732)) ([8ba2e51](https://github.com/diplodoc-platform/cli/commit/8ba2e514fc9585dad1253df7757ffc030f63f205))
-* **deps:** Update @diplodoc/transform to 4.70.1 ([#1736](https://github.com/diplodoc-platform/cli/issues/1736)) ([6435d63](https://github.com/diplodoc-platform/cli/commit/6435d63e3e501474a2e16614b9e7233d1c21ce5d))
-* fixed search favicon ([#1730](https://github.com/diplodoc-platform/cli/issues/1730)) ([475726a](https://github.com/diplodoc-platform/cli/commit/475726a731697cb7cb6b98b599bb4abea97069ab))
-* switch page-constructor to CSR mode to fix hydration bugs ([#1726](https://github.com/diplodoc-platform/cli/issues/1726)) ([f9a9271](https://github.com/diplodoc-platform/cli/commit/f9a9271c6b93d79206917b42f3faefea79f8c6e6))
+- **deps:** Update @diplodoc/search-extension to 3.0.2 ([#1732](https://github.com/diplodoc-platform/cli/issues/1732)) ([8ba2e51](https://github.com/diplodoc-platform/cli/commit/8ba2e514fc9585dad1253df7757ffc030f63f205))
+- **deps:** Update @diplodoc/transform to 4.70.1 ([#1736](https://github.com/diplodoc-platform/cli/issues/1736)) ([6435d63](https://github.com/diplodoc-platform/cli/commit/6435d63e3e501474a2e16614b9e7233d1c21ce5d))
+- fixed search favicon ([#1730](https://github.com/diplodoc-platform/cli/issues/1730)) ([475726a](https://github.com/diplodoc-platform/cli/commit/475726a731697cb7cb6b98b599bb4abea97069ab))
+- switch page-constructor to CSR mode to fix hydration bugs ([#1726](https://github.com/diplodoc-platform/cli/issues/1726)) ([f9a9271](https://github.com/diplodoc-platform/cli/commit/f9a9271c6b93d79206917b42f3faefea79f8c6e6))
 
 ## [5.25.3](https://github.com/diplodoc-platform/cli/compare/v5.25.2...v5.25.3) (2026-03-02)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client to 5.2.6 ([#1728](https://github.com/diplodoc-platform/cli/issues/1728)) ([1d9b099](https://github.com/diplodoc-platform/cli/commit/1d9b09990cafb17a2158b0b4f05059357e6446ae))
+- **deps:** Update @diplodoc/client to 5.2.6 ([#1728](https://github.com/diplodoc-platform/cli/issues/1728)) ([1d9b099](https://github.com/diplodoc-platform/cli/commit/1d9b09990cafb17a2158b0b4f05059357e6446ae))
 
 ## [5.25.2](https://github.com/diplodoc-platform/cli/compare/v5.25.1...v5.25.2) (2026-02-27)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/client to 5.2.5 ([#1725](https://github.com/diplodoc-platform/cli/issues/1725)) ([649e571](https://github.com/diplodoc-platform/cli/commit/649e571f6d9378c84cc75fdc5993c407b20a7d50))
-* fixed handling of the label field in toc.yaml ([#1720](https://github.com/diplodoc-platform/cli/issues/1720)) ([7a24352](https://github.com/diplodoc-platform/cli/commit/7a2435218d42b6df932c5233ffd5be2e3c4f0acb))
+- **deps:** Update @diplodoc/client to 5.2.5 ([#1725](https://github.com/diplodoc-platform/cli/issues/1725)) ([649e571](https://github.com/diplodoc-platform/cli/commit/649e571f6d9378c84cc75fdc5993c407b20a7d50))
+- fixed handling of the label field in toc.yaml ([#1720](https://github.com/diplodoc-platform/cli/issues/1720)) ([7a24352](https://github.com/diplodoc-platform/cli/commit/7a2435218d42b6df932c5233ffd5be2e3c4f0acb))
 
 ## [5.25.1](https://github.com/diplodoc-platform/cli/compare/v5.25.0...v5.25.1) (2026-02-27)
 
-
 ### Bug Fixes
 
-* fixed non-working options in .yfm ([#1708](https://github.com/diplodoc-platform/cli/issues/1708)) ([7656e6c](https://github.com/diplodoc-platform/cli/commit/7656e6ca8044a9b2bed1acb52df6edbc883074ae))
+- fixed non-working options in .yfm ([#1708](https://github.com/diplodoc-platform/cli/issues/1708)) ([7656e6c](https://github.com/diplodoc-platform/cli/commit/7656e6ca8044a9b2bed1acb52df6edbc883074ae))
 
 ## [5.25.0](https://github.com/diplodoc-platform/cli/compare/v5.24.3...v5.25.0) (2026-02-27)
 
-
 ### Features
 
-* add addAlternateMeta option ([#1710](https://github.com/diplodoc-platform/cli/issues/1710)) ([8277869](https://github.com/diplodoc-platform/cli/commit/82778692c8694219bbb628fafc36268d66ea8902))
+- add addAlternateMeta option ([#1710](https://github.com/diplodoc-platform/cli/issues/1710)) ([8277869](https://github.com/diplodoc-platform/cli/commit/82778692c8694219bbb628fafc36268d66ea8902))
 
 ## [5.24.3](https://github.com/diplodoc-platform/cli/compare/v5.24.2...v5.24.3) (2026-02-26)
 
-
 ### Bug Fixes
 
-* add theme to front matter ([#1706](https://github.com/diplodoc-platform/cli/issues/1706)) ([ee7ace2](https://github.com/diplodoc-platform/cli/commit/ee7ace2374bac955b8a0afc2b64caf57fe66fcad))
-* **deps:** Update @diplodoc/client to 5.2.3 ([#1712](https://github.com/diplodoc-platform/cli/issues/1712)) ([69bb2b1](https://github.com/diplodoc-platform/cli/commit/69bb2b10bb40584ab559bfbf3176541403cedac7))
+- add theme to front matter ([#1706](https://github.com/diplodoc-platform/cli/issues/1706)) ([ee7ace2](https://github.com/diplodoc-platform/cli/commit/ee7ace2374bac955b8a0afc2b64caf57fe66fcad))
+- **deps:** Update @diplodoc/client to 5.2.3 ([#1712](https://github.com/diplodoc-platform/cli/issues/1712)) ([69bb2b1](https://github.com/diplodoc-platform/cli/commit/69bb2b10bb40584ab559bfbf3176541403cedac7))
 
 ## [5.24.2](https://github.com/diplodoc-platform/cli/compare/v5.24.1...v5.24.2) (2026-02-24)
 
-
 ### Bug Fixes
 
-* do not copy twice toc entry ([b78508a](https://github.com/diplodoc-platform/cli/commit/b78508a57fbc4c7c9bd4f0fe8b3ed1c7b9d2caec))
+- do not copy twice toc entry ([b78508a](https://github.com/diplodoc-platform/cli/commit/b78508a57fbc4c7c9bd4f0fe8b3ed1c7b9d2caec))
 
 ## [5.24.1](https://github.com/diplodoc-platform/cli/compare/v5.24.0...v5.24.1) (2026-02-24)
 
-
 ### Bug Fixes
 
-* **deps:** Update @diplodoc/transform to 4.70.0 ([04aa1f0](https://github.com/diplodoc-platform/cli/commit/04aa1f0dd78813d10068ae0088fce7a7739531ac))
-* metadata lost ([#1698](https://github.com/diplodoc-platform/cli/issues/1698)) ([5c914b7](https://github.com/diplodoc-platform/cli/commit/5c914b72cbac7d5bc6ded3c6720cf06e8826e988))
+- **deps:** Update @diplodoc/transform to 4.70.0 ([04aa1f0](https://github.com/diplodoc-platform/cli/commit/04aa1f0dd78813d10068ae0088fce7a7739531ac))
+- metadata lost ([#1698](https://github.com/diplodoc-platform/cli/issues/1698)) ([5c914b7](https://github.com/diplodoc-platform/cli/commit/5c914b72cbac7d5bc6ded3c6720cf06e8826e988))
 
 ## [5.24.0](https://github.com/diplodoc-platform/cli/compare/v5.23.1...v5.24.0) (2026-02-19)
 
-
 ### Features
 
-* add error if duplicated key ([#1652](https://github.com/diplodoc-platform/cli/issues/1652)) ([e5f75b6](https://github.com/diplodoc-platform/cli/commit/e5f75b6d8876d1c5615af63f2245dc52f30b8d6a))
-
+- add error if duplicated key ([#1652](https://github.com/diplodoc-platform/cli/issues/1652)) ([e5f75b6](https://github.com/diplodoc-platform/cli/commit/e5f75b6d8876d1c5615af63f2245dc52f30b8d6a))
 
 ### Bug Fixes
 
-* **e2e:** regression test ([ec1e9d8](https://github.com/diplodoc-platform/cli/commit/ec1e9d8bb2d22d4091de9f58c62af4ef7f6ede34))
+- **e2e:** regression test ([ec1e9d8](https://github.com/diplodoc-platform/cli/commit/ec1e9d8bb2d22d4091de9f58c62af4ef7f6ede34))
 
 ## [5.23.1](https://github.com/diplodoc-platform/cli/compare/v5.23.0...v5.23.1) (2026-02-18)
 
-
 ### Bug Fixes
 
-* e2e for new transform ([d0169f4](https://github.com/diplodoc-platform/cli/commit/d0169f4dc8502cbcb12420e0fd5e43dcbc05c914))
-* prevent md2md metadata from leaking via include files ([d23be5d](https://github.com/diplodoc-platform/cli/commit/d23be5d8a3670d44d7f6f32fab437bca37ce2ce8))
-* snaphot update ([4046a68](https://github.com/diplodoc-platform/cli/commit/4046a6857fbfc4f8fb40b5bfab6d3b245c17f8b1))
-* static asset link ([5f4658d](https://github.com/diplodoc-platform/cli/commit/5f4658debfb3fbde5095db8e2845327c7305ca82))
+- e2e for new transform ([d0169f4](https://github.com/diplodoc-platform/cli/commit/d0169f4dc8502cbcb12420e0fd5e43dcbc05c914))
+- prevent md2md metadata from leaking via include files ([d23be5d](https://github.com/diplodoc-platform/cli/commit/d23be5d8a3670d44d7f6f32fab437bca37ce2ce8))
+- snaphot update ([4046a68](https://github.com/diplodoc-platform/cli/commit/4046a6857fbfc4f8fb40b5bfab6d3b245c17f8b1))
+- static asset link ([5f4658d](https://github.com/diplodoc-platform/cli/commit/5f4658debfb3fbde5095db8e2845327c7305ca82))
 
 ## [5.23.0](https://github.com/diplodoc-platform/cli/compare/v5.22.5...v5.23.0) (2026-02-16)
 
-
 ### Features
 
-* add originAsInput, copy optimization ([#1672](https://github.com/diplodoc-platform/cli/issues/1672)) ([9f367ad](https://github.com/diplodoc-platform/cli/commit/9f367ad4aac8f55a8bbe6472c7ec82ea047c343e))
-
+- add originAsInput, copy optimization ([#1672](https://github.com/diplodoc-platform/cli/issues/1672)) ([9f367ad](https://github.com/diplodoc-platform/cli/commit/9f367ad4aac8f55a8bbe6472c7ec82ea047c343e))
 
 ### Bug Fixes
 
-* save liquid conditions on true ([388b530](https://github.com/diplodoc-platform/cli/commit/388b530b70a0e38e5b229a79b302f590ad1dd578))
+- save liquid conditions on true ([388b530](https://github.com/diplodoc-platform/cli/commit/388b530b70a0e38e5b229a79b302f590ad1dd578))
 
 ## [5.22.5](https://github.com/diplodoc-platform/cli/compare/v5.22.4...v5.22.5) (2026-02-10)
 
-
 ### Bug Fixes
 
-* do not translate merged entries on toc ([81741bf](https://github.com/diplodoc-platform/cli/commit/81741bf05e1b905964c9a7c04748260dcd9d2c15))
-* DOCSTOOLS-3562 incorrect link in term with include ([acb9ddd](https://github.com/diplodoc-platform/cli/commit/acb9ddd6ad52b479161ea43d36b6aa22d65c43df))
+- do not translate merged entries on toc ([81741bf](https://github.com/diplodoc-platform/cli/commit/81741bf05e1b905964c9a7c04748260dcd9d2c15))
+- DOCSTOOLS-3562 incorrect link in term with include ([acb9ddd](https://github.com/diplodoc-platform/cli/commit/acb9ddd6ad52b479161ea43d36b6aa22d65c43df))
 
 ## [5.22.4](https://github.com/diplodoc-platform/cli/compare/v5.22.3...v5.22.4) (2026-02-05)
 
-
 ### Bug Fixes
 
-* added a more detailed error when trying to include an anchor ([#1653](https://github.com/diplodoc-platform/cli/issues/1653)) ([ba38ef9](https://github.com/diplodoc-platform/cli/commit/ba38ef92b5c9135037fe623b0b8b49e483de9d1b))
+- added a more detailed error when trying to include an anchor ([#1653](https://github.com/diplodoc-platform/cli/issues/1653)) ([ba38ef9](https://github.com/diplodoc-platform/cli/commit/ba38ef92b5c9135037fe623b0b8b49e483de9d1b))
 
 ## [5.22.3](https://github.com/diplodoc-platform/cli/compare/v5.22.2...v5.22.3) (2026-02-03)
 
-
 ### Bug Fixes
 
-* fixed release-please-config ([#1647](https://github.com/diplodoc-platform/cli/issues/1647)) ([af77b4e](https://github.com/diplodoc-platform/cli/commit/af77b4e99a16532f0b6573586d2393c97cfc6b20))
+- fixed release-please-config ([#1647](https://github.com/diplodoc-platform/cli/issues/1647)) ([af77b4e](https://github.com/diplodoc-platform/cli/commit/af77b4e99a16532f0b6573586d2393c97cfc6b20))
 
 ## [5.22.2](https://github.com/diplodoc-platform/cli/compare/v5.22.1...v5.22.2) (2026-02-03)
 
-
 ### Bug Fixes
 
-* fixed release-please-config ([#1647](https://github.com/diplodoc-platform/cli/issues/1647)) ([af77b4e](https://github.com/diplodoc-platform/cli/commit/af77b4e99a16532f0b6573586d2393c97cfc6b20))
+- fixed release-please-config ([#1647](https://github.com/diplodoc-platform/cli/issues/1647)) ([af77b4e](https://github.com/diplodoc-platform/cli/commit/af77b4e99a16532f0b6573586d2393c97cfc6b20))
 
 ## [5.22.1](https://github.com/diplodoc-platform/cli/compare/v5.22.0...v5.22.1) (2026-02-02)
 
-
 ### Bug Fixes
 
-* skip create empty preset files ([#1624](https://github.com/diplodoc-platform/cli/issues/1624)) ([317f767](https://github.com/diplodoc-platform/cli/commit/317f767c53785b3226a6d62270380a06fde08a3d))
+- skip create empty preset files ([#1624](https://github.com/diplodoc-platform/cli/issues/1624)) ([317f767](https://github.com/diplodoc-platform/cli/commit/317f767c53785b3226a6d62270380a06fde08a3d))
 
 ## [5.22.0](https://github.com/diplodoc-platform/cli/compare/v5.21.0...v5.22.0) (2026-02-02)
 
-
 ### Features
 
-* add themer ([#1594](https://github.com/diplodoc-platform/cli/issues/1594)) ([ee0a59f](https://github.com/diplodoc-platform/cli/commit/ee0a59f2146ea7e912e46dfd4b50ce7033d4ee2a))
+- add themer ([#1594](https://github.com/diplodoc-platform/cli/issues/1594)) ([ee0a59f](https://github.com/diplodoc-platform/cli/commit/ee0a59f2146ea7e912e46dfd4b50ce7033d4ee2a))
 
 ## [5.21.0](https://github.com/diplodoc-platform/cli/compare/v5.20.1...v5.21.0) (2026-02-02)
 
-
 ### Features
 
-* vars are supported in toc header ([#1629](https://github.com/diplodoc-platform/cli/issues/1629)) ([642654e](https://github.com/diplodoc-platform/cli/commit/642654e86aba7956521d4cce02fecc0bf31cb424))
+- vars are supported in toc header ([#1629](https://github.com/diplodoc-platform/cli/issues/1629)) ([642654e](https://github.com/diplodoc-platform/cli/commit/642654e86aba7956521d4cce02fecc0bf31cb424))
 
 ## [5.20.1](https://github.com/diplodoc-platform/cli/compare/v5.20.0...v5.20.1) (2026-01-30)
 
-
 ### Bug Fixes
 
-* add author inherit when default connector ([#1619](https://github.com/diplodoc-platform/cli/issues/1619)) ([6b63c5b](https://github.com/diplodoc-platform/cli/commit/6b63c5bb39ed7acf4390eff8310a33a540774c78))
-* add into output only root or ref tocs ([#1625](https://github.com/diplodoc-platform/cli/issues/1625)) ([35f0542](https://github.com/diplodoc-platform/cli/commit/35f05427815aba16a84164ee8e045a0a6aaf2cf8))
-* copy changelog image ([#1610](https://github.com/diplodoc-platform/cli/issues/1610)) ([5de989a](https://github.com/diplodoc-platform/cli/commit/5de989a1a79a9d3b569d443fff8c86be421e9052))
-* remove folders with only presets.yaml file ([#1626](https://github.com/diplodoc-platform/cli/issues/1626)) ([b6746e8](https://github.com/diplodoc-platform/cli/commit/b6746e83943b0b93023494f51d5b94a193aa558d))
-* use isRaw flag ([#1613](https://github.com/diplodoc-platform/cli/issues/1613)) ([9eb844d](https://github.com/diplodoc-platform/cli/commit/9eb844d64a9dc8dfddc8f661de12c648d6aef0cb))
+- add author inherit when default connector ([#1619](https://github.com/diplodoc-platform/cli/issues/1619)) ([6b63c5b](https://github.com/diplodoc-platform/cli/commit/6b63c5bb39ed7acf4390eff8310a33a540774c78))
+- add into output only root or ref tocs ([#1625](https://github.com/diplodoc-platform/cli/issues/1625)) ([35f0542](https://github.com/diplodoc-platform/cli/commit/35f05427815aba16a84164ee8e045a0a6aaf2cf8))
+- copy changelog image ([#1610](https://github.com/diplodoc-platform/cli/issues/1610)) ([5de989a](https://github.com/diplodoc-platform/cli/commit/5de989a1a79a9d3b569d443fff8c86be421e9052))
+- remove folders with only presets.yaml file ([#1626](https://github.com/diplodoc-platform/cli/issues/1626)) ([b6746e8](https://github.com/diplodoc-platform/cli/commit/b6746e83943b0b93023494f51d5b94a193aa558d))
+- use isRaw flag ([#1613](https://github.com/diplodoc-platform/cli/issues/1613)) ([9eb844d](https://github.com/diplodoc-platform/cli/commit/9eb844d64a9dc8dfddc8f661de12c648d6aef0cb))
 
 ## [5.20.0](https://github.com/diplodoc-platform/cli/compare/v5.19.10...v5.20.0) (2026-01-28)
 
-
 ### Features
 
-* when-conditions are supported in page-constructor ([#1599](https://github.com/diplodoc-platform/cli/issues/1599)) ([ae4f14d](https://github.com/diplodoc-platform/cli/commit/ae4f14dd384b8b025a74c75e4129c86f87677c03))
-* when-conditions are supported in toc header ([#1617](https://github.com/diplodoc-platform/cli/issues/1617)) ([b4dbc77](https://github.com/diplodoc-platform/cli/commit/b4dbc77938d3f2da33514ae6d5f62bb14fc08757))
-
+- when-conditions are supported in page-constructor ([#1599](https://github.com/diplodoc-platform/cli/issues/1599)) ([ae4f14d](https://github.com/diplodoc-platform/cli/commit/ae4f14dd384b8b025a74c75e4129c86f87677c03))
+- when-conditions are supported in toc header ([#1617](https://github.com/diplodoc-platform/cli/issues/1617)) ([b4dbc77](https://github.com/diplodoc-platform/cli/commit/b4dbc77938d3f2da33514ae6d5f62bb14fc08757))
 
 ### Bug Fixes
 
-* fix strict mode option ([2eb4e31](https://github.com/diplodoc-platform/cli/commit/2eb4e31310560ff0005621b1226d09f59eb2e122))
+- fix strict mode option ([2eb4e31](https://github.com/diplodoc-platform/cli/commit/2eb4e31310560ff0005621b1226d09f59eb2e122))
 
 ## [5.19.10](https://github.com/diplodoc-platform/cli/compare/v5.19.9...v5.19.10) (2026-01-23)
 
-
 ### Bug Fixes
 
-* Fix release tests ([6a4b298](https://github.com/diplodoc-platform/cli/commit/6a4b298126ba83499fb906783e2213cf7198db24))
+- Fix release tests ([6a4b298](https://github.com/diplodoc-platform/cli/commit/6a4b298126ba83499fb906783e2213cf7198db24))
 
 ## [5.19.9](https://github.com/diplodoc-platform/cli/compare/v5.19.8...v5.19.9) (2026-01-23)
 
-
 ### Bug Fixes
 
-* Update tests package-lock ([d9f6731](https://github.com/diplodoc-platform/cli/commit/d9f6731ecfb7f532c7a226d293fde027984af939))
+- Update tests package-lock ([d9f6731](https://github.com/diplodoc-platform/cli/commit/d9f6731ecfb7f532c7a226d293fde027984af939))
 
 ## [5.19.8](https://github.com/diplodoc-platform/cli/compare/v5.19.7...v5.19.8) (2026-01-22)
 
-
 ### Bug Fixes
 
-* **cli:** resolve typecheck errors ([29672e9](https://github.com/diplodoc-platform/cli/commit/29672e93444ccd30b3c4799a3f60cee3319e5ae0))
-* **deps:** Update openapi extension ([eb4eee2](https://github.com/diplodoc-platform/cli/commit/eb4eee27aa49b3127b35cbb58a017282a8bd8937))
+- **cli:** resolve typecheck errors ([29672e9](https://github.com/diplodoc-platform/cli/commit/29672e93444ccd30b3c4799a3f60cee3319e5ae0))
+- **deps:** Update openapi extension ([eb4eee2](https://github.com/diplodoc-platform/cli/commit/eb4eee27aa49b3127b35cbb58a017282a8bd8937))
 
 ## [5.19.7](https://github.com/diplodoc-platform/cli/compare/v5.19.6...v5.19.7) (2026-01-21)
 
-
 ### Bug Fixes
 
-* prevent metadata loss in multi-threaded md2md builds ([#1596](https://github.com/diplodoc-platform/cli/issues/1596)) ([13d9480](https://github.com/diplodoc-platform/cli/commit/13d94808cfa554c055b6b1cd5d5545db9e7066fb))
+- prevent metadata loss in multi-threaded md2md builds ([#1596](https://github.com/diplodoc-platform/cli/issues/1596)) ([13d9480](https://github.com/diplodoc-platform/cli/commit/13d94808cfa554c055b6b1cd5d5545db9e7066fb))
 
 ## [5.19.6](https://github.com/diplodoc-platform/cli/compare/v5.19.5...v5.19.6) (2025-12-30)
 
-
 ### Bug Fixes
 
-* add check max asset size to md2html ([3287a99](https://github.com/diplodoc-platform/cli/commit/3287a992ddbf117086f890a29d2cc943ad20a1e7))
+- add check max asset size to md2html ([3287a99](https://github.com/diplodoc-platform/cli/commit/3287a992ddbf117086f890a29d2cc943ad20a1e7))
 
 ## [5.19.5](https://github.com/diplodoc-platform/cli/compare/v5.19.4...v5.19.5) (2025-12-29)
 
-
 ### Bug Fixes
 
-* add flag for max asset size ([417474d](https://github.com/diplodoc-platform/cli/commit/417474d6629679918fd82739834c0e82958b237a))
-* add try for find correct link from incorrect relative ([f93623a](https://github.com/diplodoc-platform/cli/commit/f93623abf3a4f7c6d0e2e2436f0a7c53f7e325bd))
+- add flag for max asset size ([417474d](https://github.com/diplodoc-platform/cli/commit/417474d6629679918fd82739834c0e82958b237a))
+- add try for find correct link from incorrect relative ([f93623a](https://github.com/diplodoc-platform/cli/commit/f93623abf3a4f7c6d0e2e2436f0a7c53f7e325bd))
 
 ## [5.19.4](https://github.com/diplodoc-platform/cli/compare/v5.19.3...v5.19.4) (2025-12-25)
 
-
 ### Bug Fixes
 
-* **deps:** Update openapi-extension ([7b9a0b4](https://github.com/diplodoc-platform/cli/commit/7b9a0b4e2f458823d0af73774bb8f15c9a26c336))
-* pdf related fixes ([a556a1b](https://github.com/diplodoc-platform/cli/commit/a556a1b6ee7463b2b14053ae307f0a37ccde8d6c))
+- **deps:** Update openapi-extension ([7b9a0b4](https://github.com/diplodoc-platform/cli/commit/7b9a0b4e2f458823d0af73774bb8f15c9a26c336))
+- pdf related fixes ([a556a1b](https://github.com/diplodoc-platform/cli/commit/a556a1b6ee7463b2b14053ae307f0a37ccde8d6c))
 
 ## [5.19.3](https://github.com/diplodoc-platform/cli/compare/v5.19.2...v5.19.3) (2025-12-25)
 
-
 ### Bug Fixes
 
-* **deps:** Update openapi-extension ([fb6c174](https://github.com/diplodoc-platform/cli/commit/fb6c174b863d3de7277572faf57cc9317457bd97))
+- **deps:** Update openapi-extension ([fb6c174](https://github.com/diplodoc-platform/cli/commit/fb6c174b863d3de7277572faf57cc9317457bd97))
 
 ## [5.19.2](https://github.com/diplodoc-platform/cli/compare/v5.19.1...v5.19.2) (2025-12-25)
 
-
 ### Bug Fixes
 
-* **deps:** Update openapi-extension ([7b82873](https://github.com/diplodoc-platform/cli/commit/7b8287393875d74fbb1708c7f515ea370eb58858))
+- **deps:** Update openapi-extension ([7b82873](https://github.com/diplodoc-platform/cli/commit/7b8287393875d74fbb1708c7f515ea370eb58858))
 
 ## [5.19.1](https://github.com/diplodoc-platform/cli/compare/v5.19.0...v5.19.1) (2025-12-25)
 
-
 ### Bug Fixes
 
-* **deps:** Update openapi-extension ([f617570](https://github.com/diplodoc-platform/cli/commit/f6175707590ea03cb70a974ba9372014b508a1bd))
+- **deps:** Update openapi-extension ([f617570](https://github.com/diplodoc-platform/cli/commit/f6175707590ea03cb70a974ba9372014b508a1bd))
 
 ## [5.19.0](https://github.com/diplodoc-platform/cli/compare/v5.18.3...v5.19.0) (2025-12-24)
 
-
 ### Features
 
-* add build options ([#1560](https://github.com/diplodoc-platform/cli/issues/1560)) ([6b69d35](https://github.com/diplodoc-platform/cli/commit/6b69d3597a5a46f3215ab9e3ec9912a89ccf9918))
-
+- add build options ([#1560](https://github.com/diplodoc-platform/cli/issues/1560)) ([6b69d35](https://github.com/diplodoc-platform/cli/commit/6b69d3597a5a46f3215ab9e3ec9912a89ccf9918))
 
 ### Bug Fixes
 
-* **deps:** Update openapi-extension ([82d9d02](https://github.com/diplodoc-platform/cli/commit/82d9d02184a9f0208f6206becd3bfe0c7f680a2e))
+- **deps:** Update openapi-extension ([82d9d02](https://github.com/diplodoc-platform/cli/commit/82d9d02184a9f0208f6206becd3bfe0c7f680a2e))
 
 ## [5.18.3](https://github.com/diplodoc-platform/cli/compare/v5.18.2...v5.18.3) (2025-12-23)
 
-
 ### Bug Fixes
 
-* Update @diplodoc/openapi-extension to 5.0.4 ([8796f27](https://github.com/diplodoc-platform/cli/commit/8796f273f884346565faac3c90c0e8c59994d04b))
+- Update @diplodoc/openapi-extension to 5.0.4 ([8796f27](https://github.com/diplodoc-platform/cli/commit/8796f273f884346565faac3c90c0e8c59994d04b))
 
 ## [5.18.2](https://github.com/diplodoc-platform/cli/compare/v5.18.1...v5.18.2) (2025-12-23)
 
-
 ### Bug Fixes
 
-* read yfm config for build-manifest ([174c120](https://github.com/diplodoc-platform/cli/commit/174c120c2d0a0952ce630f4d1cd9d8e6439b80fa))
-* symlink in scopes ([83e9c30](https://github.com/diplodoc-platform/cli/commit/83e9c30bad38f54c666e29f3ab1747b29d2f1098))
+- read yfm config for build-manifest ([174c120](https://github.com/diplodoc-platform/cli/commit/174c120c2d0a0952ce630f4d1cd9d8e6439b80fa))
+- symlink in scopes ([83e9c30](https://github.com/diplodoc-platform/cli/commit/83e9c30bad38f54c666e29f3ab1747b29d2f1098))
 
 ## [5.18.1](https://github.com/diplodoc-platform/cli/compare/v5.18.0...v5.18.1) (2025-12-23)
 
-
 ### Bug Fixes
 
-* **perf:** Fix performance for files with lot of includes ([8ddae95](https://github.com/diplodoc-platform/cli/commit/8ddae9527e2d31c2547defbaf513b1dc72979a7c))
+- **perf:** Fix performance for files with lot of includes ([8ddae95](https://github.com/diplodoc-platform/cli/commit/8ddae9527e2d31c2547defbaf513b1dc72979a7c))
 
 ## [5.18.0](https://github.com/diplodoc-platform/cli/compare/v5.17.3...v5.18.0) (2025-12-22)
 
-
 ### Features
 
-* Update openapi schemas rendering ([7dbebf3](https://github.com/diplodoc-platform/cli/commit/7dbebf3d92b4d97783589b5107b505329feb12b3))
+- Update openapi schemas rendering ([7dbebf3](https://github.com/diplodoc-platform/cli/commit/7dbebf3d92b4d97783589b5107b505329feb12b3))
 
 ## [5.17.3](https://github.com/diplodoc-platform/cli/compare/v5.17.2...v5.17.3) (2025-12-15)
 
-
 ### Bug Fixes
 
-* react warning and add line for include ([#1561](https://github.com/diplodoc-platform/cli/issues/1561)) ([a8016f7](https://github.com/diplodoc-platform/cli/commit/a8016f795ea750ecbec1646600b0cd345be77143))
+- react warning and add line for include ([#1561](https://github.com/diplodoc-platform/cli/issues/1561)) ([a8016f7](https://github.com/diplodoc-platform/cli/commit/a8016f795ea750ecbec1646600b0cd345be77143))
 
 ## [5.17.2](https://github.com/diplodoc-platform/cli/compare/v5.17.1...v5.17.2) (2025-12-11)
 
-
 ### Bug Fixes
 
-* add pc page for pdf ([035888a](https://github.com/diplodoc-platform/cli/commit/035888a61785b96b99cbcda4ca47c214c435066f))
-* remove xml header from svg ([0c5c7be](https://github.com/diplodoc-platform/cli/commit/0c5c7be370510cb18728239c49d9350d39f4fc6c))
+- add pc page for pdf ([035888a](https://github.com/diplodoc-platform/cli/commit/035888a61785b96b99cbcda4ca47c214c435066f))
+- remove xml header from svg ([0c5c7be](https://github.com/diplodoc-platform/cli/commit/0c5c7be370510cb18728239c49d9350d39f4fc6c))
 
 ## [5.17.1](https://github.com/diplodoc-platform/cli/compare/v5.17.0...v5.17.1) (2025-12-04)
 
-
 ### Bug Fixes
 
-* attr in links ([#1558](https://github.com/diplodoc-platform/cli/issues/1558)) ([83e619d](https://github.com/diplodoc-platform/cli/commit/83e619d9ee8da55498472ea45b868f3c27cc3966))
+- attr in links ([#1558](https://github.com/diplodoc-platform/cli/issues/1558)) ([83e619d](https://github.com/diplodoc-platform/cli/commit/83e619d9ee8da55498472ea45b868f3c27cc3966))
 
 ## [5.17.0](https://github.com/diplodoc-platform/cli/compare/v5.16.4...v5.17.0) (2025-12-04)
 
-
 ### Features
 
-* add feedback URL support via interface.feedback ([#1553](https://github.com/diplodoc-platform/cli/issues/1553)) ([70ff54f](https://github.com/diplodoc-platform/cli/commit/70ff54fc73dbd80654ad4990f6fc5f3163a13be4))
-* add feedback.url config option ([#1555](https://github.com/diplodoc-platform/cli/issues/1555)) ([80aa99a](https://github.com/diplodoc-platform/cli/commit/80aa99a384ae63364749cec69b05c53ad6febbfe))
-
+- add feedback URL support via interface.feedback ([#1553](https://github.com/diplodoc-platform/cli/issues/1553)) ([70ff54f](https://github.com/diplodoc-platform/cli/commit/70ff54fc73dbd80654ad4990f6fc5f3163a13be4))
+- add feedback.url config option ([#1555](https://github.com/diplodoc-platform/cli/issues/1555)) ([80aa99a](https://github.com/diplodoc-platform/cli/commit/80aa99a384ae63364749cec69b05c53ad6febbfe))
 
 ### Bug Fixes
 
-* add flag keepNotVar ([829b719](https://github.com/diplodoc-platform/cli/commit/829b719904191067e0d323fa00238848899989a6))
-* add no ref resolve option for extract ([835d787](https://github.com/diplodoc-platform/cli/commit/835d787dd83d9b780ff30680814bc7eecfa9d78b))
-* fixed alternates sorting ([#1554](https://github.com/diplodoc-platform/cli/issues/1554)) ([e75e4cc](https://github.com/diplodoc-platform/cli/commit/e75e4cc584d2a635fd3b7a319e3c0642b452816f))
-* max svg size ([4fd3b4f](https://github.com/diplodoc-platform/cli/commit/4fd3b4fddfe6694ee91f8d428769fc6d637afb6d))
+- add flag keepNotVar ([829b719](https://github.com/diplodoc-platform/cli/commit/829b719904191067e0d323fa00238848899989a6))
+- add no ref resolve option for extract ([835d787](https://github.com/diplodoc-platform/cli/commit/835d787dd83d9b780ff30680814bc7eecfa9d78b))
+- fixed alternates sorting ([#1554](https://github.com/diplodoc-platform/cli/issues/1554)) ([e75e4cc](https://github.com/diplodoc-platform/cli/commit/e75e4cc584d2a635fd3b7a319e3c0642b452816f))
+- max svg size ([4fd3b4f](https://github.com/diplodoc-platform/cli/commit/4fd3b4fddfe6694ee91f8d428769fc6d637afb6d))
 
 ## [5.16.4](https://github.com/diplodoc-platform/cli/compare/v5.16.3...v5.16.4) (2025-12-01)
 
-
 ### Bug Fixes
 
-* fixed lineNumber in yfmlint in yfm003 ([#1546](https://github.com/diplodoc-platform/cli/issues/1546)) ([c452c4c](https://github.com/diplodoc-platform/cli/commit/c452c4ced4f3cb13d36785be774abc0682da23d3))
+- fixed lineNumber in yfmlint in yfm003 ([#1546](https://github.com/diplodoc-platform/cli/issues/1546)) ([c452c4c](https://github.com/diplodoc-platform/cli/commit/c452c4ced4f3cb13d36785be774abc0682da23d3))
 
 ## [5.16.3](https://github.com/diplodoc-platform/cli/compare/v5.16.2...v5.16.3) (2025-12-01)
 
-
 ### Bug Fixes
 
-* add ignore pattern normalization for preset discovery ([#1540](https://github.com/diplodoc-platform/cli/issues/1540)) ([96c3356](https://github.com/diplodoc-platform/cli/commit/96c33564aef5ab61ab9651cb4d32439fbc5d7897))
+- add ignore pattern normalization for preset discovery ([#1540](https://github.com/diplodoc-platform/cli/issues/1540)) ([96c3356](https://github.com/diplodoc-platform/cli/commit/96c33564aef5ab61ab9651cb4d32439fbc5d7897))
 
 ## [5.16.2](https://github.com/diplodoc-platform/cli/compare/v5.16.1...v5.16.2) (2025-11-27)
 
-
 ### Bug Fixes
 
-* check html result max size ([09c99ff](https://github.com/diplodoc-platform/cli/commit/09c99ffec7bf925e922d2cd02da97c6981e9beac))
+- check html result max size ([09c99ff](https://github.com/diplodoc-platform/cli/commit/09c99ffec7bf925e922d2cd02da97c6981e9beac))
 
 ## [5.16.1](https://github.com/diplodoc-platform/cli/compare/v5.16.0...v5.16.1) (2025-11-27)
 
-
 ### Bug Fixes
 
-* build manifest ([bee5a4a](https://github.com/diplodoc-platform/cli/commit/bee5a4a5483226f5d943168c58fbd9bc03e37de0))
-* fixed attr for links ([#1534](https://github.com/diplodoc-platform/cli/issues/1534)) ([4575b59](https://github.com/diplodoc-platform/cli/commit/4575b5939db485008cc4c9ef093c1d59c7fc3afc))
+- build manifest ([bee5a4a](https://github.com/diplodoc-platform/cli/commit/bee5a4a5483226f5d943168c58fbd9bc03e37de0))
+- fixed attr for links ([#1534](https://github.com/diplodoc-platform/cli/issues/1534)) ([4575b59](https://github.com/diplodoc-platform/cli/commit/4575b5939db485008cc4c9ef093c1d59c7fc3afc))
 
 ## [5.16.0](https://github.com/diplodoc-platform/cli/compare/v5.15.8...v5.16.0) (2025-11-25)
 
-
 ### Features
 
-* inline svg config ([42592c4](https://github.com/diplodoc-platform/cli/commit/42592c46d636d15cf5c7f3474fb13c8f5883987a))
+- inline svg config ([42592c4](https://github.com/diplodoc-platform/cli/commit/42592c46d636d15cf5c7f3474fb13c8f5883987a))
 
 ## [5.15.8](https://github.com/diplodoc-platform/cli/compare/v5.15.7...v5.15.8) (2025-11-24)
 
-
 ### Bug Fixes
 
-* fixed MaxListenersExceededWarning warning ([#1529](https://github.com/diplodoc-platform/cli/issues/1529)) ([e7b6b3d](https://github.com/diplodoc-platform/cli/commit/e7b6b3da7ff376a978a27b9e116759253bae2126))
+- fixed MaxListenersExceededWarning warning ([#1529](https://github.com/diplodoc-platform/cli/issues/1529)) ([e7b6b3d](https://github.com/diplodoc-platform/cli/commit/e7b6b3da7ff376a978a27b9e116759253bae2126))
 
 ## [5.15.7](https://github.com/diplodoc-platform/cli/compare/v5.15.6...v5.15.7) (2025-11-19)
 
-
 ### Bug Fixes
 
-* logic for determining alternates has been changed ([#1507](https://github.com/diplodoc-platform/cli/issues/1507)) ([3d16a81](https://github.com/diplodoc-platform/cli/commit/3d16a81fb3ae30c135b104900a85e3bda050cab3))
+- logic for determining alternates has been changed ([#1507](https://github.com/diplodoc-platform/cli/issues/1507)) ([3d16a81](https://github.com/diplodoc-platform/cli/commit/3d16a81fb3ae30c135b104900a85e3bda050cab3))
 
 ## [5.15.6](https://github.com/diplodoc-platform/cli/compare/v5.15.5...v5.15.6) (2025-11-18)
 
-
 ### Bug Fixes
 
-* custom openapi schema test ([53c6dc6](https://github.com/diplodoc-platform/cli/commit/53c6dc630fd5e841fdbf649c1b591824c3461b07))
+- custom openapi schema test ([53c6dc6](https://github.com/diplodoc-platform/cli/commit/53c6dc630fd5e841fdbf649c1b591824c3461b07))
 
 ## [5.15.5](https://github.com/diplodoc-platform/cli/compare/v5.15.4...v5.15.5) (2025-11-17)
 
-
 ### Bug Fixes
 
-* no-inline for image in page-constructor ([8af53b5](https://github.com/diplodoc-platform/cli/commit/8af53b5c06416c2b51c94f7f02771b2077f307b8))
-* parse path for popup link with % ([9de9d7c](https://github.com/diplodoc-platform/cli/commit/9de9d7c0fc6de085e759661183c4d69b4adad9ab))
-* resolve codeblock ([3fdf1b1](https://github.com/diplodoc-platform/cli/commit/3fdf1b196acde12362ced1fcb764fecc88808ab4))
+- no-inline for image in page-constructor ([8af53b5](https://github.com/diplodoc-platform/cli/commit/8af53b5c06416c2b51c94f7f02771b2077f307b8))
+- parse path for popup link with % ([9de9d7c](https://github.com/diplodoc-platform/cli/commit/9de9d7c0fc6de085e759661183c4d69b4adad9ab))
+- resolve codeblock ([3fdf1b1](https://github.com/diplodoc-platform/cli/commit/3fdf1b196acde12362ced1fcb764fecc88808ab4))
 
 ## [5.15.4](https://github.com/diplodoc-platform/cli/compare/v5.15.3...v5.15.4) (2025-11-17)
 
-
 ### Bug Fixes
 
-* translate json compose ([600376d](https://github.com/diplodoc-platform/cli/commit/600376d7bfe78bc14d34befaee2d9717ba597728))
+- translate json compose ([600376d](https://github.com/diplodoc-platform/cli/commit/600376d7bfe78bc14d34befaee2d9717ba597728))
 
 ## [5.15.3](https://github.com/diplodoc-platform/cli/compare/v5.15.2...v5.15.3) (2025-11-12)
 
-
 ### Bug Fixes
 
-* isToc check for stage ignored toc ([ef38918](https://github.com/diplodoc-platform/cli/commit/ef38918fc755903d991d44829d891b0d98a07ff3))
+- isToc check for stage ignored toc ([ef38918](https://github.com/diplodoc-platform/cli/commit/ef38918fc755903d991d44829d891b0d98a07ff3))
 
 ## [5.15.2](https://github.com/diplodoc-platform/cli/compare/v5.15.1...v5.15.2) (2025-11-06)
 
-
 ### Bug Fixes
 
-* add lang path to pdf titles ([db020dc](https://github.com/diplodoc-platform/cli/commit/db020dc765c2ece29604137f4e02723bac747327))
+- add lang path to pdf titles ([db020dc](https://github.com/diplodoc-platform/cli/commit/db020dc765c2ece29604137f4e02723bac747327))
 
 ## [5.15.1](https://github.com/diplodoc-platform/cli/compare/v5.15.0...v5.15.1) (2025-11-05)
 
-
 ### Bug Fixes
 
-* enable pdf title pages ([0fa794a](https://github.com/diplodoc-platform/cli/commit/0fa794a93980774b74ed15f194c10243d3f54ee3))
+- enable pdf title pages ([0fa794a](https://github.com/diplodoc-platform/cli/commit/0fa794a93980774b74ed15f194c10243d3f54ee3))
 
 ## [5.15.0](https://github.com/diplodoc-platform/cli/compare/v5.14.1...v5.15.0) (2025-10-27)
 
-
 ### Features
 
-* neuroexpert support added ([#1473](https://github.com/diplodoc-platform/cli/issues/1473)) ([22ad22b](https://github.com/diplodoc-platform/cli/commit/22ad22bcce357c9117b57195fa049b9fffabccc1))
+- neuroexpert support added ([#1473](https://github.com/diplodoc-platform/cli/issues/1473)) ([22ad22b](https://github.com/diplodoc-platform/cli/commit/22ad22bcce357c9117b57195fa049b9fffabccc1))
 
 ## [5.14.1](https://github.com/diplodoc-platform/cli/compare/v5.14.0...v5.14.1) (2025-10-23)
 
-
 ### Bug Fixes
 
-* fixed types ([#1483](https://github.com/diplodoc-platform/cli/issues/1483)) ([82ea4b5](https://github.com/diplodoc-platform/cli/commit/82ea4b5e7788892277ad8c72c2b333edb6a7c365))
-* liquid on extract ([e7c1230](https://github.com/diplodoc-platform/cli/commit/e7c1230c8a0ea2b6f49a218e58c7bcf409a87ca6))
+- fixed types ([#1483](https://github.com/diplodoc-platform/cli/issues/1483)) ([82ea4b5](https://github.com/diplodoc-platform/cli/commit/82ea4b5e7788892277ad8c72c2b333edb6a7c365))
+- liquid on extract ([e7c1230](https://github.com/diplodoc-platform/cli/commit/e7c1230c8a0ea2b6f49a218e58c7bcf409a87ca6))
 
 ## [5.14.0](https://github.com/diplodoc-platform/cli/compare/v5.13.3...v5.14.0) (2025-10-23)
 
-
 ### Features
 
-* add new meta in head ([#1477](https://github.com/diplodoc-platform/cli/issues/1477)) ([1e5fdd6](https://github.com/diplodoc-platform/cli/commit/1e5fdd68b04aaf569f75c156a211ae1125101361))
-* add support for og:* properties in metadata ([#1472](https://github.com/diplodoc-platform/cli/issues/1472)) ([bab1252](https://github.com/diplodoc-platform/cli/commit/bab125275bc2f3057e76bb26f07814489f87d205))
-
+- add new meta in head ([#1477](https://github.com/diplodoc-platform/cli/issues/1477)) ([1e5fdd6](https://github.com/diplodoc-platform/cli/commit/1e5fdd68b04aaf569f75c156a211ae1125101361))
+- add support for og:\* properties in metadata ([#1472](https://github.com/diplodoc-platform/cli/issues/1472)) ([bab1252](https://github.com/diplodoc-platform/cli/commit/bab125275bc2f3057e76bb26f07814489f87d205))
 
 ### Bug Fixes
 
-* Fix including md part by heading ([e1a72b9](https://github.com/diplodoc-platform/cli/commit/e1a72b9d52bd5e51af492c1ff1ac8db2b806979d))
-* Fix links path resolving in nested includes ([423456e](https://github.com/diplodoc-platform/cli/commit/423456ead3e08a135bb585865f74d8027636114f))
-* fixed faviconSrc ([#1479](https://github.com/diplodoc-platform/cli/issues/1479)) ([e48733b](https://github.com/diplodoc-platform/cli/commit/e48733bcc38a244937a52b936c91c21c35b51994))
-* fixed test ([#1482](https://github.com/diplodoc-platform/cli/issues/1482)) ([b276339](https://github.com/diplodoc-platform/cli/commit/b276339e8fbbfa4f2724353306af3b3b3abed2d2))
-* icons and images in the ::: page-constructor block are included ([#1469](https://github.com/diplodoc-platform/cli/issues/1469)) ([3ed83f5](https://github.com/diplodoc-platform/cli/commit/3ed83f514beaf13338033e596fede8a082a793b9))
+- Fix including md part by heading ([e1a72b9](https://github.com/diplodoc-platform/cli/commit/e1a72b9d52bd5e51af492c1ff1ac8db2b806979d))
+- Fix links path resolving in nested includes ([423456e](https://github.com/diplodoc-platform/cli/commit/423456ead3e08a135bb585865f74d8027636114f))
+- fixed faviconSrc ([#1479](https://github.com/diplodoc-platform/cli/issues/1479)) ([e48733b](https://github.com/diplodoc-platform/cli/commit/e48733bcc38a244937a52b936c91c21c35b51994))
+- fixed test ([#1482](https://github.com/diplodoc-platform/cli/issues/1482)) ([b276339](https://github.com/diplodoc-platform/cli/commit/b276339e8fbbfa4f2724353306af3b3b3abed2d2))
+- icons and images in the ::: page-constructor block are included ([#1469](https://github.com/diplodoc-platform/cli/issues/1469)) ([3ed83f5](https://github.com/diplodoc-platform/cli/commit/3ed83f514beaf13338033e596fede8a082a793b9))
 
 ## [5.13.3](https://github.com/diplodoc-platform/cli/compare/v5.13.2...v5.13.3) (2025-10-17)
 
-
 ### Bug Fixes
 
-* Always add github img-src to resources ([e63cf68](https://github.com/diplodoc-platform/cli/commit/e63cf68f7655ee17f084686e2c6d5445f003949e))
+- Always add github img-src to resources ([e63cf68](https://github.com/diplodoc-platform/cli/commit/e63cf68f7655ee17f084686e2c6d5445f003949e))
 
 ## [5.13.2](https://github.com/diplodoc-platform/cli/compare/v5.13.1...v5.13.2) (2025-10-16)
 
-
 ### Bug Fixes
 
-* Fix threading mode for tocs with navigation from presets ([b3e0b93](https://github.com/diplodoc-platform/cli/commit/b3e0b93368bea8466480e1dbadb85bca2db62e27))
-
+- Fix threading mode for tocs with navigation from presets ([b3e0b93](https://github.com/diplodoc-platform/cli/commit/b3e0b93368bea8466480e1dbadb85bca2db62e27))
 
 ### Performance Improvements
 
-* Do not store large presets on build graph ([a430b64](https://github.com/diplodoc-platform/cli/commit/a430b642c278d68c85e9a2969c28ea7ce29719be))
+- Do not store large presets on build graph ([a430b64](https://github.com/diplodoc-platform/cli/commit/a430b642c278d68c85e9a2969c28ea7ce29719be))
 
 ## [5.13.1](https://github.com/diplodoc-platform/cli/compare/v5.13.0...v5.13.1) (2025-10-13)
 
-
 ### Bug Fixes
 
-* fixed redirects file ([#1461](https://github.com/diplodoc-platform/cli/issues/1461)) ([dfc4847](https://github.com/diplodoc-platform/cli/commit/dfc4847fc5a7ab1273812a773c088025aaf0b0b2))
+- fixed redirects file ([#1461](https://github.com/diplodoc-platform/cli/issues/1461)) ([dfc4847](https://github.com/diplodoc-platform/cli/commit/dfc4847fc5a7ab1273812a773c088025aaf0b0b2))
 
 ## [5.13.0](https://github.com/diplodoc-platform/cli/compare/v5.12.5...v5.13.0) (2025-10-13)
 
-
 ### Features
 
-* svg inline options ([07dd380](https://github.com/diplodoc-platform/cli/commit/07dd3805d57ade57af554441e743079da6b8ff48))
-
+- svg inline options ([07dd380](https://github.com/diplodoc-platform/cli/commit/07dd3805d57ade57af554441e743079da6b8ff48))
 
 ### Bug Fixes
 
-* links withing include md files ([3ec1c9e](https://github.com/diplodoc-platform/cli/commit/3ec1c9e7a57fa1b37f92449ab3a8de1a3df2e794))
+- links withing include md files ([3ec1c9e](https://github.com/diplodoc-platform/cli/commit/3ec1c9e7a57fa1b37f92449ab3a8de1a3df2e794))
 
 ## [5.12.5](https://github.com/diplodoc-platform/cli/compare/v5.12.4...v5.12.5) (2025-10-07)
 
-
 ### Bug Fixes
 
-* added arg --pdf ([#1455](https://github.com/diplodoc-platform/cli/issues/1455)) ([f05d039](https://github.com/diplodoc-platform/cli/commit/f05d0397ca7a7ed84534db1668911b2d91a3ee63))
-* incorrect vars in toc ([93a2ea3](https://github.com/diplodoc-platform/cli/commit/93a2ea343b1461ccb28b2d0ca01d301e23c16155))
+- added arg --pdf ([#1455](https://github.com/diplodoc-platform/cli/issues/1455)) ([f05d039](https://github.com/diplodoc-platform/cli/commit/f05d0397ca7a7ed84534db1668911b2d91a3ee63))
+- incorrect vars in toc ([93a2ea3](https://github.com/diplodoc-platform/cli/commit/93a2ea343b1461ccb28b2d0ca01d301e23c16155))
 
 ## [5.12.4](https://github.com/diplodoc-platform/cli/compare/v5.12.3...v5.12.4) (2025-10-03)
 
-
 ### Bug Fixes
 
-* pdf link ([d8becaa](https://github.com/diplodoc-platform/cli/commit/d8becaaf146926a1cd2df45708d72e004ac0c1fc))
+- pdf link ([d8becaa](https://github.com/diplodoc-platform/cli/commit/d8becaaf146926a1cd2df45708d72e004ac0c1fc))
 
 ## [5.12.3](https://github.com/diplodoc-platform/cli/compare/v5.12.2...v5.12.3) (2025-09-30)
 
-
 ### Bug Fixes
 
-* Added a pdf-page feature to assist with pdf generation ([#1447](https://github.com/diplodoc-platform/cli/issues/1447)) ([d6e187c](https://github.com/diplodoc-platform/cli/commit/d6e187ccd745b3a52d6267d60575aaab9f1ec770))
+- Added a pdf-page feature to assist with pdf generation ([#1447](https://github.com/diplodoc-platform/cli/issues/1447)) ([d6e187c](https://github.com/diplodoc-platform/cli/commit/d6e187ccd745b3a52d6267d60575aaab9f1ec770))
 
 ## [5.12.2](https://github.com/diplodoc-platform/cli/compare/v5.12.1...v5.12.2) (2025-09-24)
 
-
 ### Bug Fixes
 
-* rebase links in image in autotitles ([14f5364](https://github.com/diplodoc-platform/cli/commit/14f5364c5d50beb2656184ea25de4e49910332ad))
+- rebase links in image in autotitles ([14f5364](https://github.com/diplodoc-platform/cli/commit/14f5364c5d50beb2656184ea25de4e49910332ad))
 
 ## [5.12.1](https://github.com/diplodoc-platform/cli/compare/v5.12.0...v5.12.1) (2025-09-23)
 
-
 ### Bug Fixes
 
-* Fix client bundle missing ([b79bbba](https://github.com/diplodoc-platform/cli/commit/b79bbbaa2056bf8b3f1cf1f00acde550958d6e87))
-* rollback resolve codeblock ([3e630fa](https://github.com/diplodoc-platform/cli/commit/3e630faf9ada4111d271832d95778114920136be))
-* Set meta sourcePath only for copied files ([7d214e2](https://github.com/diplodoc-platform/cli/commit/7d214e27d3d55c6c2f5f9cba012afe8d4668252e))
+- Fix client bundle missing ([b79bbba](https://github.com/diplodoc-platform/cli/commit/b79bbbaa2056bf8b3f1cf1f00acde550958d6e87))
+- rollback resolve codeblock ([3e630fa](https://github.com/diplodoc-platform/cli/commit/3e630faf9ada4111d271832d95778114920136be))
+- Set meta sourcePath only for copied files ([7d214e2](https://github.com/diplodoc-platform/cli/commit/7d214e27d3d55c6c2f5f9cba012afe8d4668252e))
 
 ## [5.12.0](https://github.com/diplodoc-platform/cli/compare/v5.11.6...v5.12.0) (2025-09-18)
 
-
 ### Features
 
-* added availableLinks to meta ([#1375](https://github.com/diplodoc-platform/cli/issues/1375)) ([e7a864a](https://github.com/diplodoc-platform/cli/commit/e7a864a1d11a5d3a67c54a0435bb2459199cc749))
-* merge svg on md2md step ([c74401b](https://github.com/diplodoc-platform/cli/commit/c74401bd717c892cab9b0fc25fe762764f6f34fb))
-
+- added availableLinks to meta ([#1375](https://github.com/diplodoc-platform/cli/issues/1375)) ([e7a864a](https://github.com/diplodoc-platform/cli/commit/e7a864a1d11a5d3a67c54a0435bb2459199cc749))
+- merge svg on md2md step ([c74401b](https://github.com/diplodoc-platform/cli/commit/c74401bd717c892cab9b0fc25fe762764f6f34fb))
 
 ### Bug Fixes
 
-* add support reference links in assets ([a62f7ea](https://github.com/diplodoc-platform/cli/commit/a62f7eaefeb4f06808d0b8ab549736d61db34411))
-* autotitle in header non 1 level ([933684c](https://github.com/diplodoc-platform/cli/commit/933684c311edbf413c0ab79d6f090b58cb18fcf6))
-* detect codeblocks ([82f9361](https://github.com/diplodoc-platform/cli/commit/82f93619ac59bdf1e2a11b5cc626e4df69a9ed2e))
-* detect reference assets for image ([df8ce90](https://github.com/diplodoc-platform/cli/commit/df8ce905bf358a6ca7bda18505b6eb5a0cedc76d))
-* extend image assets for fields: subtype, code ([df8ce90](https://github.com/diplodoc-platform/cli/commit/df8ce905bf358a6ca7bda18505b6eb5a0cedc76d))
-* incorrect lastIndex when empty link in reference ([55d00cb](https://github.com/diplodoc-platform/cli/commit/55d00cb99a8b7c2d90e0a37bc8322c3a525a498a))
-* incorrect rebased ([c9f80c0](https://github.com/diplodoc-platform/cli/commit/c9f80c05cefa534e7a1c115b865ad54794828a7e))
-* support reference links in autotitles ([c9f80c0](https://github.com/diplodoc-platform/cli/commit/c9f80c05cefa534e7a1c115b865ad54794828a7e))
+- add support reference links in assets ([a62f7ea](https://github.com/diplodoc-platform/cli/commit/a62f7eaefeb4f06808d0b8ab549736d61db34411))
+- autotitle in header non 1 level ([933684c](https://github.com/diplodoc-platform/cli/commit/933684c311edbf413c0ab79d6f090b58cb18fcf6))
+- detect codeblocks ([82f9361](https://github.com/diplodoc-platform/cli/commit/82f93619ac59bdf1e2a11b5cc626e4df69a9ed2e))
+- detect reference assets for image ([df8ce90](https://github.com/diplodoc-platform/cli/commit/df8ce905bf358a6ca7bda18505b6eb5a0cedc76d))
+- extend image assets for fields: subtype, code ([df8ce90](https://github.com/diplodoc-platform/cli/commit/df8ce905bf358a6ca7bda18505b6eb5a0cedc76d))
+- incorrect lastIndex when empty link in reference ([55d00cb](https://github.com/diplodoc-platform/cli/commit/55d00cb99a8b7c2d90e0a37bc8322c3a525a498a))
+- incorrect rebased ([c9f80c0](https://github.com/diplodoc-platform/cli/commit/c9f80c05cefa534e7a1c115b865ad54794828a7e))
+- support reference links in autotitles ([c9f80c0](https://github.com/diplodoc-platform/cli/commit/c9f80c05cefa534e7a1c115b865ad54794828a7e))
 
 ## [5.11.6](https://github.com/diplodoc-platform/cli/compare/v5.11.5...v5.11.6) (2025-09-16)
 
-
 ### Bug Fixes
 
-* Bump arcadia-vcs extension priority ([bae9be8](https://github.com/diplodoc-platform/cli/commit/bae9be818491503bbdf434a39fdde82c5b8fb73e))
+- Bump arcadia-vcs extension priority ([bae9be8](https://github.com/diplodoc-platform/cli/commit/bae9be818491503bbdf434a39fdde82c5b8fb73e))
 
 ## [5.11.5](https://github.com/diplodoc-platform/cli/compare/v5.11.4...v5.11.5) (2025-09-15)
 
-
 ### Bug Fixes
 
-* **vcs:** Add csp for github avatars ([f2b460f](https://github.com/diplodoc-platform/cli/commit/f2b460f9da94750738effedcf02a5c8e43c10310))
-* **vcs:** Add vcs resources control ([2da39ab](https://github.com/diplodoc-platform/cli/commit/2da39ab7d55f081042c006c593cf5bbfc74b807b))
+- **vcs:** Add csp for github avatars ([f2b460f](https://github.com/diplodoc-platform/cli/commit/f2b460f9da94750738effedcf02a5c8e43c10310))
+- **vcs:** Add vcs resources control ([2da39ab](https://github.com/diplodoc-platform/cli/commit/2da39ab7d55f081042c006c593cf5bbfc74b807b))
 
 ## [5.11.4](https://github.com/diplodoc-platform/cli/compare/v5.11.3...v5.11.4) (2025-09-15)
 
-
 ### Bug Fixes
 
-* use toc entries to check filtered files, update tests ([520db4c](https://github.com/diplodoc-platform/cli/commit/520db4cc1973dd9536393534bc00e1e4fabd102f))
-* **vcs:** Fix vcs `owner` and `repo` detection for https remote ([69efb76](https://github.com/diplodoc-platform/cli/commit/69efb7660122cca42029cb6eb5c83016dcabc01e))
+- use toc entries to check filtered files, update tests ([520db4c](https://github.com/diplodoc-platform/cli/commit/520db4cc1973dd9536393534bc00e1e4fabd102f))
+- **vcs:** Fix vcs `owner` and `repo` detection for https remote ([69efb76](https://github.com/diplodoc-platform/cli/commit/69efb7660122cca42029cb6eb5c83016dcabc01e))
 
 ## [5.11.3](https://github.com/diplodoc-platform/cli/compare/v5.11.2...v5.11.3) (2025-09-15)
 
-
 ### Bug Fixes
 
-* **vcs:** Fix vcs `owner` and `repo` detection for https remote ([f28cf4c](https://github.com/diplodoc-platform/cli/commit/f28cf4ca4ef53ef375c164e8e9cdc8ee77fe2ccb))
+- **vcs:** Fix vcs `owner` and `repo` detection for https remote ([f28cf4c](https://github.com/diplodoc-platform/cli/commit/f28cf4ca4ef53ef375c164e8e9cdc8ee77fe2ccb))
 
 ## [5.11.2](https://github.com/diplodoc-platform/cli/compare/v5.11.1...v5.11.2) (2025-09-15)
 
-
 ### Bug Fixes
 
-* Update release-please-action ([50a4135](https://github.com/diplodoc-platform/cli/commit/50a41350ad6f5ac39f31b36fefd1e4913e224a9c))
-* **vcs:** Fix vcs `owner` and `repo` detection for https remote ([a75c435](https://github.com/diplodoc-platform/cli/commit/a75c435108e0df96efaa2881e427604c5f530579))
+- Update release-please-action ([50a4135](https://github.com/diplodoc-platform/cli/commit/50a41350ad6f5ac39f31b36fefd1e4913e224a9c))
+- **vcs:** Fix vcs `owner` and `repo` detection for https remote ([a75c435](https://github.com/diplodoc-platform/cli/commit/a75c435108e0df96efaa2881e427604c5f530579))
 
 ## [5.11.1](https://github.com/diplodoc-platform/cli/compare/v5.11.0...v5.11.1) (2025-09-15)
 
-
 ### Bug Fixes
 
-* empty href prop on filtered hook, add warning ([ee63d6d](https://github.com/diplodoc-platform/cli/commit/ee63d6da7b49b06d860ffbf208300b9da9cc983e))
+- empty href prop on filtered hook, add warning ([ee63d6d](https://github.com/diplodoc-platform/cli/commit/ee63d6da7b49b06d860ffbf208300b9da9cc983e))
 
 ## [5.11.0](https://github.com/diplodoc-platform/cli/compare/v5.10.3...v5.11.0) (2025-09-15)
 
-
 ### Features
 
-* Add arcadia-vcs extension ([d8be840](https://github.com/diplodoc-platform/cli/commit/d8be8408fae79acac8bbe54f67caeb8980b27dc6))
-* Add required `getBase` method to VCSConnector interface ([e2ce3e5](https://github.com/diplodoc-platform/cli/commit/e2ce3e51666c45d2fdf20c97b51d58ed0a386f79))
-
+- Add arcadia-vcs extension ([d8be840](https://github.com/diplodoc-platform/cli/commit/d8be8408fae79acac8bbe54f67caeb8980b27dc6))
+- Add required `getBase` method to VCSConnector interface ([e2ce3e5](https://github.com/diplodoc-platform/cli/commit/e2ce3e51666c45d2fdf20c97b51d58ed0a386f79))
 
 ### Bug Fixes
 
-* Fix arc root resolving ([f941309](https://github.com/diplodoc-platform/cli/commit/f941309c44acaca6ed27caab72a0cc78080b7fe3))
-* headings processing ([#1388](https://github.com/diplodoc-platform/cli/issues/1388)) ([fc8ca10](https://github.com/diplodoc-platform/cli/commit/fc8ca10a4ec979c8ca1a61c4a631aaa379d30678))
-* Normalize ignore lists for contributors ([5cffee3](https://github.com/diplodoc-platform/cli/commit/5cffee31e8437565250fcef3754470079d56ceaa))
-* Remove meta structure knowlegle from lib ([e523cdb](https://github.com/diplodoc-platform/cli/commit/e523cdba19e175362672321e5bb257b3825e0b56))
-* **singlepage:** Fix page title resolving ([bbd7ab3](https://github.com/diplodoc-platform/cli/commit/bbd7ab30e1bc85b009723a821421981d2ae3c084))
-* Use relative to git root paths in github-vcs ([3bf5728](https://github.com/diplodoc-platform/cli/commit/3bf5728585a0d56e9b0e855281a3ef20bf185f6f))
+- Fix arc root resolving ([f941309](https://github.com/diplodoc-platform/cli/commit/f941309c44acaca6ed27caab72a0cc78080b7fe3))
+- headings processing ([#1388](https://github.com/diplodoc-platform/cli/issues/1388)) ([fc8ca10](https://github.com/diplodoc-platform/cli/commit/fc8ca10a4ec979c8ca1a61c4a631aaa379d30678))
+- Normalize ignore lists for contributors ([5cffee3](https://github.com/diplodoc-platform/cli/commit/5cffee31e8437565250fcef3754470079d56ceaa))
+- Remove meta structure knowlegle from lib ([e523cdb](https://github.com/diplodoc-platform/cli/commit/e523cdba19e175362672321e5bb257b3825e0b56))
+- **singlepage:** Fix page title resolving ([bbd7ab3](https://github.com/diplodoc-platform/cli/commit/bbd7ab30e1bc85b009723a821421981d2ae3c084))
+- Use relative to git root paths in github-vcs ([3bf5728](https://github.com/diplodoc-platform/cli/commit/3bf5728585a0d56e9b0e855281a3ef20bf185f6f))
 
 ## [5.10.3](https://github.com/diplodoc-platform/cli/compare/v5.10.2...v5.10.3) (2025-09-12)
 
-
 ### Bug Fixes
 
-* prop symbol case ([2b6a3a3](https://github.com/diplodoc-platform/cli/commit/2b6a3a3bff8921e16e7b4d94df7e85d10a50d4b5))
+- prop symbol case ([2b6a3a3](https://github.com/diplodoc-platform/cli/commit/2b6a3a3bff8921e16e7b4d94df7e85d10a50d4b5))
 
 ## [5.10.2](https://github.com/diplodoc-platform/cli/compare/v5.10.1...v5.10.2) (2025-09-11)
 
-
 ### Bug Fixes
 
-* Fix performance leak ([af3e9ac](https://github.com/diplodoc-platform/cli/commit/af3e9ac35e37181a71e68bc0c1a024329617ee64))
-* Fix theads termination error handling ([76ad23f](https://github.com/diplodoc-platform/cli/commit/76ad23ff414f9e20466b408cc190013fa3acdaba))
+- Fix performance leak ([af3e9ac](https://github.com/diplodoc-platform/cli/commit/af3e9ac35e37181a71e68bc0c1a024329617ee64))
+- Fix theads termination error handling ([76ad23f](https://github.com/diplodoc-platform/cli/commit/76ad23ff414f9e20466b408cc190013fa3acdaba))
 
 ## [5.10.1](https://github.com/diplodoc-platform/cli/compare/v5.10.0...v5.10.1) (2025-09-10)
 
-
 ### Bug Fixes
 
-* sorted filesForSnapshot ([#1393](https://github.com/diplodoc-platform/cli/issues/1393)) ([fd9b5c1](https://github.com/diplodoc-platform/cli/commit/fd9b5c18a72e3995175075689bae37e3cfe9b652))
+- sorted filesForSnapshot ([#1393](https://github.com/diplodoc-platform/cli/issues/1393)) ([fd9b5c1](https://github.com/diplodoc-platform/cli/commit/fd9b5c18a72e3995175075689bae37e3cfe9b652))
 
 ## [5.10.0](https://github.com/diplodoc-platform/cli/compare/v5.9.5...v5.10.0) (2025-09-09)
 
-
 ### Features
 
-* added checkBundle to compareDirectories ([#1391](https://github.com/diplodoc-platform/cli/issues/1391)) ([c3793ee](https://github.com/diplodoc-platform/cli/commit/c3793eeef8f5448fc6da0c8b17500db6cf81f927))
+- added checkBundle to compareDirectories ([#1391](https://github.com/diplodoc-platform/cli/issues/1391)) ([c3793ee](https://github.com/diplodoc-platform/cli/commit/c3793eeef8f5448fc6da0c8b17500db6cf81f927))
 
 ## [5.9.5](https://github.com/diplodoc-platform/cli/compare/v5.9.4...v5.9.5) (2025-09-09)
 
-
 ### Bug Fixes
 
-* Fix threads init race condition ([eabdf0b](https://github.com/diplodoc-platform/cli/commit/eabdf0b996dc0ce984eb44d549f79b8d49bf5d02))
-* single-page.json html prop ([827bf82](https://github.com/diplodoc-platform/cli/commit/827bf828d03937a6b8d1f80038137128b75208c3))
+- Fix threads init race condition ([eabdf0b](https://github.com/diplodoc-platform/cli/commit/eabdf0b996dc0ce984eb44d549f79b8d49bf5d02))
+- single-page.json html prop ([827bf82](https://github.com/diplodoc-platform/cli/commit/827bf828d03937a6b8d1f80038137128b75208c3))
 
 ## [5.9.4](https://github.com/diplodoc-platform/cli/compare/v5.9.3...v5.9.4) (2025-09-05)
 
-
 ### Bug Fixes
 
-* Fix pseudo circular deps resolving ([7742d74](https://github.com/diplodoc-platform/cli/commit/7742d74c26487a0ad6d05e2340af410ed76a70f5))
+- Fix pseudo circular deps resolving ([7742d74](https://github.com/diplodoc-platform/cli/commit/7742d74c26487a0ad6d05e2340af410ed76a70f5))
 
 ## [5.9.3](https://github.com/diplodoc-platform/cli/compare/v5.9.2...v5.9.3) (2025-09-05)
 
-
 ### Dependency update
 
-* Update @diplodoc/client to 3.11.0 ([ce27e02](https://github.com/diplodoc-platform/cli/commit/ce27e02ed0e88efedd607da0a723c4986f3e1599))
+- Update @diplodoc/client to 3.11.0 ([ce27e02](https://github.com/diplodoc-platform/cli/commit/ce27e02ed0e88efedd607da0a723c4986f3e1599))
 
 ## [5.9.2](https://github.com/diplodoc-platform/cli/compare/v5.9.1...v5.9.2) (2025-09-05)
 
-
 ### Bug Fixes
 
-* Fix threads timeout handling ([8a4ab54](https://github.com/diplodoc-platform/cli/commit/8a4ab54a151f099b48bc382a279e7e739a89c770))
+- Fix threads timeout handling ([8a4ab54](https://github.com/diplodoc-platform/cli/commit/8a4ab54a151f099b48bc382a279e7e739a89c770))
 
 ## [5.9.1](https://github.com/diplodoc-platform/cli/compare/v5.9.0...v5.9.1) (2025-09-05)
 
-
 ### Bug Fixes
 
-* add --filter option, warning feature ([2935d9f](https://github.com/diplodoc-platform/cli/commit/2935d9fdafc4aa3791aaf25898ae983d85e2b959))
+- add --filter option, warning feature ([2935d9f](https://github.com/diplodoc-platform/cli/commit/2935d9fdafc4aa3791aaf25898ae983d85e2b959))
 
 ## [5.9.0](https://github.com/diplodoc-platform/cli/compare/v5.8.4...v5.9.0) (2025-09-04)
 
-
 ### Features
 
-* Implement relations API in EntryService ([f860587](https://github.com/diplodoc-platform/cli/commit/f860587ef48db61c59a31bde23ac88bee58dd436))
-* Implement relations API in LeadingService ([992265d](https://github.com/diplodoc-platform/cli/commit/992265df7693d134f689a98c886ea04ba4905363))
-* Implement relations API in MarkdownService ([4ec7b18](https://github.com/diplodoc-platform/cli/commit/4ec7b1893e3701d569e02de5e78c3b5f40d9111f))
-* Implement relations API in TocService ([210d619](https://github.com/diplodoc-platform/cli/commit/210d6194dc7e6a1bba01f76caa07da85753e738b))
-* Implement relations API in VarsService ([599120b](https://github.com/diplodoc-platform/cli/commit/599120b15f7fcb9b6b9ff9582ec3931aafec6e0c))
-* Implement watch mode feature ([fdd31d8](https://github.com/diplodoc-platform/cli/commit/fdd31d8f66b918f9b192ba411d8eac8b5d9cbce1))
-
+- Implement relations API in EntryService ([f860587](https://github.com/diplodoc-platform/cli/commit/f860587ef48db61c59a31bde23ac88bee58dd436))
+- Implement relations API in LeadingService ([992265d](https://github.com/diplodoc-platform/cli/commit/992265df7693d134f689a98c886ea04ba4905363))
+- Implement relations API in MarkdownService ([4ec7b18](https://github.com/diplodoc-platform/cli/commit/4ec7b1893e3701d569e02de5e78c3b5f40d9111f))
+- Implement relations API in TocService ([210d619](https://github.com/diplodoc-platform/cli/commit/210d6194dc7e6a1bba01f76caa07da85753e738b))
+- Implement relations API in VarsService ([599120b](https://github.com/diplodoc-platform/cli/commit/599120b15f7fcb9b6b9ff9582ec3931aafec6e0c))
+- Implement watch mode feature ([fdd31d8](https://github.com/diplodoc-platform/cli/commit/fdd31d8f66b918f9b192ba411d8eac8b5d9cbce1))
 
 ### Bug Fixes
 
-* Compare normalized paths on project scope check ([73ab04e](https://github.com/diplodoc-platform/cli/commit/73ab04e9dadd4e22c2c2d278ed6edac04f49518f))
-* **watch:** Handle `move` event ([f6f0623](https://github.com/diplodoc-platform/cli/commit/f6f06237b7e855fe7667206acefed99e2c8de9a9))
-* **watch:** Handle changed generated entries ([5744fb0](https://github.com/diplodoc-platform/cli/commit/5744fb0bdb09c23d3a044bb03647f0fd4ffbc1ea))
-* **watch:** Handle entry resources ([992d100](https://github.com/diplodoc-platform/cli/commit/992d100e8dde051e53b2912466dcb31db46ebf58))
-* **watch:** Handle initially broken entries ([8a6c823](https://github.com/diplodoc-platform/cli/commit/8a6c823c1d3ffd7cfd3b81afecea3e756c6d3a08))
-* **watch:** Handle update entries with errors ([810bc42](https://github.com/diplodoc-platform/cli/commit/810bc42ab0444d4408a94b228f98bac09f15345c))
-* **watch:** Implement watch on removed files ([0b161ce](https://github.com/diplodoc-platform/cli/commit/0b161ce9d74ebf4dfac689fc838caeedb85329e1))
+- Compare normalized paths on project scope check ([73ab04e](https://github.com/diplodoc-platform/cli/commit/73ab04e9dadd4e22c2c2d278ed6edac04f49518f))
+- **watch:** Handle `move` event ([f6f0623](https://github.com/diplodoc-platform/cli/commit/f6f06237b7e855fe7667206acefed99e2c8de9a9))
+- **watch:** Handle changed generated entries ([5744fb0](https://github.com/diplodoc-platform/cli/commit/5744fb0bdb09c23d3a044bb03647f0fd4ffbc1ea))
+- **watch:** Handle entry resources ([992d100](https://github.com/diplodoc-platform/cli/commit/992d100e8dde051e53b2912466dcb31db46ebf58))
+- **watch:** Handle initially broken entries ([8a6c823](https://github.com/diplodoc-platform/cli/commit/8a6c823c1d3ffd7cfd3b81afecea3e756c6d3a08))
+- **watch:** Handle update entries with errors ([810bc42](https://github.com/diplodoc-platform/cli/commit/810bc42ab0444d4408a94b228f98bac09f15345c))
+- **watch:** Implement watch on removed files ([0b161ce](https://github.com/diplodoc-platform/cli/commit/0b161ce9d74ebf4dfac689fc838caeedb85329e1))
 
 ## [5.8.4](https://github.com/diplodoc-platform/cli/compare/v5.8.3...v5.8.4) (2025-09-04)
 
-
 ### Bug Fixes
 
-* **threads:** Add timeout for threads init ([744de06](https://github.com/diplodoc-platform/cli/commit/744de068cb9fcdef693227ce1ca9d924a27cc9bd))
+- **threads:** Add timeout for threads init ([744de06](https://github.com/diplodoc-platform/cli/commit/744de068cb9fcdef693227ce1ca9d924a27cc9bd))
 
 ## [5.8.3](https://github.com/diplodoc-platform/cli/compare/v5.8.2...v5.8.3) (2025-09-03)
 
-
 ### Bug Fixes
 
-* Fix autotitles resolving in headings ([caf9c02](https://github.com/diplodoc-platform/cli/commit/caf9c02ef8144558943eb03a322a788584a16897))
-* Fix error message logging in threading mode ([41c4685](https://github.com/diplodoc-platform/cli/commit/41c4685869c25924beb8b77fb8140be65c71c3ef))
+- Fix autotitles resolving in headings ([caf9c02](https://github.com/diplodoc-platform/cli/commit/caf9c02ef8144558943eb03a322a788584a16897))
+- Fix error message logging in threading mode ([41c4685](https://github.com/diplodoc-platform/cli/commit/41c4685869c25924beb8b77fb8140be65c71c3ef))
 
 ## [5.8.2](https://github.com/diplodoc-platform/cli/compare/v5.8.1...v5.8.2) (2025-09-02)
 
-
 ### Bug Fixes
 
-* Fix autotitles merging in includes ([7aadddc](https://github.com/diplodoc-platform/cli/commit/7aadddcd3b4a1f93b54b86f7d5d11d2821bd6d27))
+- Fix autotitles merging in includes ([7aadddc](https://github.com/diplodoc-platform/cli/commit/7aadddcd3b4a1f93b54b86f7d5d11d2821bd6d27))
 
 ## [5.8.1](https://github.com/diplodoc-platform/cli/compare/v5.8.0...v5.8.1) (2025-09-02)
 
-
 ### Bug Fixes
 
-* Return `from` param to TocService.Includer hook ([5fa947e](https://github.com/diplodoc-platform/cli/commit/5fa947e155281e0318ca1f1662372b3e59367410))
-
+- Return `from` param to TocService.Includer hook ([5fa947e](https://github.com/diplodoc-platform/cli/commit/5fa947e155281e0318ca1f1662372b3e59367410))
 
 ### Dependency update
 
-* Update @diplodoc/page-constructor-extension to 0.10.0 ([078e7ef](https://github.com/diplodoc-platform/cli/commit/078e7ef3566978ef0992bc5681c8d4d726070b91))
+- Update @diplodoc/page-constructor-extension to 0.10.0 ([078e7ef](https://github.com/diplodoc-platform/cli/commit/078e7ef3566978ef0992bc5681c8d4d726070b91))
 
 ## [5.8.0](https://github.com/diplodoc-platform/cli/compare/v5.7.1...v5.8.0) (2025-08-29)
 
-
 ### Features
 
-* Add `--remove-empty-toc-items` flag to build command ([7cd9f29](https://github.com/diplodoc-platform/cli/commit/7cd9f299b31629aab07c2bc36a3648918233dcc0))
-* added support for disabling .html ([#1353](https://github.com/diplodoc-platform/cli/issues/1353)) ([fd52d80](https://github.com/diplodoc-platform/cli/commit/fd52d80b05a138f475846be551ad0d532ac01f7c))
-
+- Add `--remove-empty-toc-items` flag to build command ([7cd9f29](https://github.com/diplodoc-platform/cli/commit/7cd9f299b31629aab07c2bc36a3648918233dcc0))
+- added support for disabling .html ([#1353](https://github.com/diplodoc-platform/cli/issues/1353)) ([fd52d80](https://github.com/diplodoc-platform/cli/commit/fd52d80b05a138f475846be551ad0d532ac01f7c))
 
 ### Dependency update
 
-* Update @diplodoc/client to 3.10.2 ([f4c2098](https://github.com/diplodoc-platform/cli/commit/f4c2098bd3213eb40ab8b982373fff7e0d361dff))
-* Update @diplodoc/client to 3.10.3 ([b87a48e](https://github.com/diplodoc-platform/cli/commit/b87a48ef73a3d5f91e9fe31a0e36c9f670a498b0))
-* Update @diplodoc/transform to 4.61.0 ([5af3812](https://github.com/diplodoc-platform/cli/commit/5af3812492f7af7c073413a31fc9f2f36c1e680e))
+- Update @diplodoc/client to 3.10.2 ([f4c2098](https://github.com/diplodoc-platform/cli/commit/f4c2098bd3213eb40ab8b982373fff7e0d361dff))
+- Update @diplodoc/client to 3.10.3 ([b87a48e](https://github.com/diplodoc-platform/cli/commit/b87a48ef73a3d5f91e9fe31a0e36c9f670a498b0))
+- Update @diplodoc/transform to 4.61.0 ([5af3812](https://github.com/diplodoc-platform/cli/commit/5af3812492f7af7c073413a31fc9f2f36c1e680e))
 
 ## [5.7.1](https://github.com/diplodoc-platform/cli/compare/v5.7.0...v5.7.1) (2025-08-28)
 
-
 ### Bug Fixes
 
-* enable autotitles ([4e313ca](https://github.com/diplodoc-platform/cli/commit/4e313cab2c6da830c0dc1828098e6a4b6a3b292a))
+- enable autotitles ([4e313ca](https://github.com/diplodoc-platform/cli/commit/4e313cab2c6da830c0dc1828098e6a4b6a3b292a))
 
 ## [5.7.0](https://github.com/diplodoc-platform/cli/compare/v5.6.0...v5.7.0) (2025-08-27)
 
-
 ### Features
 
-* Change TocService hooks API ([95fe98a](https://github.com/diplodoc-platform/cli/commit/95fe98aff5e7fd2275c8cbc0e82e8db399105ca3))
-
+- Change TocService hooks API ([95fe98a](https://github.com/diplodoc-platform/cli/commit/95fe98aff5e7fd2275c8cbc0e82e8db399105ca3))
 
 ### Bug Fixes
 
-* Add sourcePath to copied files ([c741140](https://github.com/diplodoc-platform/cli/commit/c741140fcf7636016973115b759e6a6d16c370a7))
-* Fix private TocService.load method usage in translate ([14d671e](https://github.com/diplodoc-platform/cli/commit/14d671e6fae8e8b18c4c764e71a7fc97335b775d))
-* Fix VERSION interpolation in code ([65786a0](https://github.com/diplodoc-platform/cli/commit/65786a02c9353eeaf5d56d29c93bb49c67dcbaa8))
-* Merge vfile info instead of override it ([bd6ece1](https://github.com/diplodoc-platform/cli/commit/bd6ece15a80a9a4bcccfb77be3f0c0f4717bc35c))
-* Move search extension bootstrap to CLI ([9fcbdca](https://github.com/diplodoc-platform/cli/commit/9fcbdca115955ca59d217eb980becb8d0c6dfb5b))
-
+- Add sourcePath to copied files ([c741140](https://github.com/diplodoc-platform/cli/commit/c741140fcf7636016973115b759e6a6d16c370a7))
+- Fix private TocService.load method usage in translate ([14d671e](https://github.com/diplodoc-platform/cli/commit/14d671e6fae8e8b18c4c764e71a7fc97335b775d))
+- Fix VERSION interpolation in code ([65786a0](https://github.com/diplodoc-platform/cli/commit/65786a02c9353eeaf5d56d29c93bb49c67dcbaa8))
+- Merge vfile info instead of override it ([bd6ece1](https://github.com/diplodoc-platform/cli/commit/bd6ece15a80a9a4bcccfb77be3f0c0f4717bc35c))
+- Move search extension bootstrap to CLI ([9fcbdca](https://github.com/diplodoc-platform/cli/commit/9fcbdca115955ca59d217eb980becb8d0c6dfb5b))
 
 ### Dependency update
 
-* Update client to 3.10.0 ([4c22ce8](https://github.com/diplodoc-platform/cli/commit/4c22ce81a24e374322eacbf2c8e33b93c57fcddf))
-* Update client to 4.10.1 ([72a407d](https://github.com/diplodoc-platform/cli/commit/72a407d932459e77145d34841cb80db989924bfd))
-* Update transform to 4.60.4 ([3921e96](https://github.com/diplodoc-platform/cli/commit/3921e96539ec6df8ca024b92cbf05bdb3d9ba5c2))
+- Update client to 3.10.0 ([4c22ce8](https://github.com/diplodoc-platform/cli/commit/4c22ce81a24e374322eacbf2c8e33b93c57fcddf))
+- Update client to 4.10.1 ([72a407d](https://github.com/diplodoc-platform/cli/commit/72a407d932459e77145d34841cb80db989924bfd))
+- Update transform to 4.60.4 ([3921e96](https://github.com/diplodoc-platform/cli/commit/3921e96539ec6df8ca024b92cbf05bdb3d9ba5c2))
 
 ## [5.6.0](https://github.com/diplodoc-platform/cli/compare/v5.5.3...v5.6.0) (2025-08-25)
 
-
 ### Features
 
-* added inline-code plugin ([#1354](https://github.com/diplodoc-platform/cli/issues/1354)) ([44dd6c5](https://github.com/diplodoc-platform/cli/commit/44dd6c56b916ebbc00e5a1f65c99a4bb746ec5d3))
-
+- added inline-code plugin ([#1354](https://github.com/diplodoc-platform/cli/issues/1354)) ([44dd6c5](https://github.com/diplodoc-platform/cli/commit/44dd6c56b916ebbc00e5a1f65c99a4bb746ec5d3))
 
 ### Bug Fixes
 
-* add YFM010 warning for autotitles ([1e5ca85](https://github.com/diplodoc-platform/cli/commit/1e5ca85dea3afd323d0c3249687cf46de5e7e754))
+- add YFM010 warning for autotitles ([1e5ca85](https://github.com/diplodoc-platform/cli/commit/1e5ca85dea3afd323d0c3249687cf46de5e7e754))
 
 ## [5.5.3](https://github.com/diplodoc-platform/cli/compare/v5.5.2...v5.5.3) (2025-08-22)
 
-
 ### Bug Fixes
 
-* pass yfm interface props ([fdc35d4](https://github.com/diplodoc-platform/cli/commit/fdc35d4fd83289fb7c393efbcb5c383ff8f03fb8))
-* update snapshots ([519d5c0](https://github.com/diplodoc-platform/cli/commit/519d5c045ac4f7ebe9c570c90d333c8c747613ba))
+- pass yfm interface props ([fdc35d4](https://github.com/diplodoc-platform/cli/commit/fdc35d4fd83289fb7c393efbcb5c383ff8f03fb8))
+- update snapshots ([519d5c0](https://github.com/diplodoc-platform/cli/commit/519d5c045ac4f7ebe9c570c90d333c8c747613ba))
 
 ## [5.5.2](https://github.com/diplodoc-platform/cli/compare/v5.5.1...v5.5.2) (2025-08-21)
 
-
 ### Bug Fixes
 
-* add test checking includer is added ([b037fdb](https://github.com/diplodoc-platform/cli/commit/b037fdb05b77b04a0a7c526efbc030388c5d7ab6))
-* openapi includer error ([9ea9e0a](https://github.com/diplodoc-platform/cli/commit/9ea9e0a7c591f5a1c71612b19e09eaae71d8925e))
-* resolve warning punycode ([37caec4](https://github.com/diplodoc-platform/cli/commit/37caec4e98e57e82ec7d05f4991c0608728ba507))
+- add test checking includer is added ([b037fdb](https://github.com/diplodoc-platform/cli/commit/b037fdb05b77b04a0a7c526efbc030388c5d7ab6))
+- openapi includer error ([9ea9e0a](https://github.com/diplodoc-platform/cli/commit/9ea9e0a7c591f5a1c71612b19e09eaae71d8925e))
+- resolve warning punycode ([37caec4](https://github.com/diplodoc-platform/cli/commit/37caec4e98e57e82ec7d05f4991c0608728ba507))
 
 ## [5.5.1](https://github.com/diplodoc-platform/cli/compare/v5.5.0...v5.5.1) (2025-08-19)
 
-
 ### Dependency update
 
-* updated client in cli/tests ([#1345](https://github.com/diplodoc-platform/cli/issues/1345)) ([e920b4a](https://github.com/diplodoc-platform/cli/commit/e920b4a2b7b37e503e932a06dc21c14aef65fa99))
+- updated client in cli/tests ([#1345](https://github.com/diplodoc-platform/cli/issues/1345)) ([e920b4a](https://github.com/diplodoc-platform/cli/commit/e920b4a2b7b37e503e932a06dc21c14aef65fa99))
 
 ## [5.5.0](https://github.com/diplodoc-platform/cli/compare/v5.4.1...v5.5.0) (2025-08-18)
 
-
 ### Features
 
-* Static search results page ([#1314](https://github.com/diplodoc-platform/cli/issues/1314)) ([4852daf](https://github.com/diplodoc-platform/cli/commit/4852daff644dd016ee8a217193a6e709feb71fb9))
-
+- Static search results page ([#1314](https://github.com/diplodoc-platform/cli/issues/1314)) ([4852daf](https://github.com/diplodoc-platform/cli/commit/4852daff644dd016ee8a217193a6e709feb71fb9))
 
 ### Bug Fixes
 
-* add flat to deps in contributers ([679d102](https://github.com/diplodoc-platform/cli/commit/679d102199b3b0aa38d0d24554221d5c8625b830))
-* exclude titles with from includes, add test ([a4926d4](https://github.com/diplodoc-platform/cli/commit/a4926d4bab3bd16d7ed480d0f36e6e07ca052711))
-* from not array ([6082282](https://github.com/diplodoc-platform/cli/commit/6082282f2beb72394bdca82a4c69498027a9ba04))
-
+- add flat to deps in contributers ([679d102](https://github.com/diplodoc-platform/cli/commit/679d102199b3b0aa38d0d24554221d5c8625b830))
+- exclude titles with from includes, add test ([a4926d4](https://github.com/diplodoc-platform/cli/commit/a4926d4bab3bd16d7ed480d0f36e6e07ca052711))
+- from not array ([6082282](https://github.com/diplodoc-platform/cli/commit/6082282f2beb72394bdca82a4c69498027a9ba04))
 
 ### Dependency update
 
-* Update @diplodoc/search-extension to 2.1.0 ([#1341](https://github.com/diplodoc-platform/cli/issues/1341)) ([f40afd8](https://github.com/diplodoc-platform/cli/commit/f40afd8a98518ded4b9becfc6aa0f13e288f1343))
-* updated client to 3.9.0 ([3e1c179](https://github.com/diplodoc-platform/cli/commit/3e1c1796f349016a389de946699dd328c9037a6f))
+- Update @diplodoc/search-extension to 2.1.0 ([#1341](https://github.com/diplodoc-platform/cli/issues/1341)) ([f40afd8](https://github.com/diplodoc-platform/cli/commit/f40afd8a98518ded4b9becfc6aa0f13e288f1343))
+- updated client to 3.9.0 ([3e1c179](https://github.com/diplodoc-platform/cli/commit/3e1c1796f349016a389de946699dd328c9037a6f))
 
 ## [5.4.1](https://github.com/diplodoc-platform/cli/compare/v5.4.0...v5.4.1) (2025-08-18)
 
-
 ### Bug Fixes
 
-* add flat to deps in contributers ([839d408](https://github.com/diplodoc-platform/cli/commit/839d4082011fb305cac1c1b5be63500aee435004))
-* Revert "fix: add flat to deps in contributers" ([f8300ac](https://github.com/diplodoc-platform/cli/commit/f8300acc8903344919a945ef18c39d477e115635))
+- add flat to deps in contributers ([839d408](https://github.com/diplodoc-platform/cli/commit/839d4082011fb305cac1c1b5be63500aee435004))
+- Revert "fix: add flat to deps in contributers" ([f8300ac](https://github.com/diplodoc-platform/cli/commit/f8300acc8903344919a945ef18c39d477e115635))
 
 ## [5.4.0](https://github.com/diplodoc-platform/cli/compare/v5.3.2...v5.4.0) (2025-08-14)
 
-
 ### Features
 
-* **BREAKING** update version node 22 ([8497f58](https://github.com/diplodoc-platform/cli/commit/8497f5838fd6d303be4301ae88e3b6301316e9c4))
+- **BREAKING** update version node 22 ([8497f58](https://github.com/diplodoc-platform/cli/commit/8497f5838fd6d303be4301ae88e3b6301316e9c4))
 
 ## [5.3.2](https://github.com/diplodoc-platform/cli/compare/v5.3.1...v5.3.2) (2025-08-14)
 
-
 ### Bug Fixes
 
-* exclude titles with from includes, add test ([a00eb47](https://github.com/diplodoc-platform/cli/commit/a00eb47d9040bd34645f2f8244045eb2af07dfc5))
-
+- exclude titles with from includes, add test ([a00eb47](https://github.com/diplodoc-platform/cli/commit/a00eb47d9040bd34645f2f8244045eb2af07dfc5))
 
 ### Dependency update
 
-* update openapi ([078f974](https://github.com/diplodoc-platform/cli/commit/078f974c80a5bad329b62ac276bcdf1fceab5944))
+- update openapi ([078f974](https://github.com/diplodoc-platform/cli/commit/078f974c80a5bad329b62ac276bcdf1fceab5944))
 
 ## [5.3.1](https://github.com/diplodoc-platform/cli/compare/v5.3.0...v5.3.1) (2025-08-12)
 
-
 ### Bug Fixes
 
-* disable Autotitles ([f8a5df3](https://github.com/diplodoc-platform/cli/commit/f8a5df3ebf102644a9da23bc23a09e4ef8a8f2da))
+- disable Autotitles ([f8a5df3](https://github.com/diplodoc-platform/cli/commit/f8a5df3ebf102644a9da23bc23a09e4ef8a8f2da))
 
 ## [5.3.0](https://github.com/diplodoc-platform/cli/compare/v5.2.2...v5.3.0) (2025-08-08)
 
-
 ### Features
 
-* draft implementation for BuildManifest feature ([339ee5f](https://github.com/diplodoc-platform/cli/commit/339ee5f9bb711c3994128847d1ef0a5e75eccd6c))
-* Improve mdit_plugins ([971c57d](https://github.com/diplodoc-platform/cli/commit/971c57d23c0b523b8068a72db633d862514ee67e))
-* optimize manifest size on disk ([c4ca36d](https://github.com/diplodoc-platform/cli/commit/c4ca36d444393060bb724c234f710315032841a5))
-* preprocess autotitles with sheduler ([29d7783](https://github.com/diplodoc-platform/cli/commit/29d778311439313f1ec50a5d0746f05f48d8acf7))
-* tests for build maps ([a4e19a3](https://github.com/diplodoc-platform/cli/commit/a4e19a3e754807a32dade77499d533d7e0ae2e6b))
-
+- draft implementation for BuildManifest feature ([339ee5f](https://github.com/diplodoc-platform/cli/commit/339ee5f9bb711c3994128847d1ef0a5e75eccd6c))
+- Improve mdit_plugins ([971c57d](https://github.com/diplodoc-platform/cli/commit/971c57d23c0b523b8068a72db633d862514ee67e))
+- optimize manifest size on disk ([c4ca36d](https://github.com/diplodoc-platform/cli/commit/c4ca36d444393060bb724c234f710315032841a5))
+- preprocess autotitles with sheduler ([29d7783](https://github.com/diplodoc-platform/cli/commit/29d778311439313f1ec50a5d0746f05f48d8acf7))
+- tests for build maps ([a4e19a3](https://github.com/diplodoc-platform/cli/commit/a4e19a3e754807a32dade77499d533d7e0ae2e6b))
 
 ### Bug Fixes
 
-* replace warning with an error on a duplicate file ([45c96ee](https://github.com/diplodoc-platform/cli/commit/45c96ee10cc80b9635db81edf31abdc616de1ac9))
+- replace warning with an error on a duplicate file ([45c96ee](https://github.com/diplodoc-platform/cli/commit/45c96ee10cc80b9635db81edf31abdc616de1ac9))
 
 ## [5.2.2](https://github.com/diplodoc-platform/cli/compare/v5.2.1...v5.2.2) (2025-08-06)
 
-
 ### Bug Fixes
 
-* lang type, path in assets, config in tests ([5efdbb1](https://github.com/diplodoc-platform/cli/commit/5efdbb16094993f01cb32c5fe1f33b9396210ce2))
-* removed interface and resources from html meta ([#1303](https://github.com/diplodoc-platform/cli/issues/1303)) ([50a18a1](https://github.com/diplodoc-platform/cli/commit/50a18a197ecbe1b7601ad4f5da3f89e50470c727))
+- lang type, path in assets, config in tests ([5efdbb1](https://github.com/diplodoc-platform/cli/commit/5efdbb16094993f01cb32c5fe1f33b9396210ce2))
+- removed interface and resources from html meta ([#1303](https://github.com/diplodoc-platform/cli/issues/1303)) ([50a18a1](https://github.com/diplodoc-platform/cli/commit/50a18a197ecbe1b7601ad4f5da3f89e50470c727))
 
 ## [5.2.1](https://github.com/diplodoc-platform/cli/compare/v5.2.0...v5.2.1) (2025-08-05)
 
-
 ### Dependency update
 
-* CI release trigger ([ab17894](https://github.com/diplodoc-platform/cli/commit/ab17894d7acddef2e3d809f702e3dd59527a26ad))
+- CI release trigger ([ab17894](https://github.com/diplodoc-platform/cli/commit/ab17894d7acddef2e3d809f702e3dd59527a26ad))
 
 ## [5.2.0](https://github.com/diplodoc-platform/cli/compare/v5.1.1...v5.2.0) (2025-08-05)
 
-
 ### Features
 
-* added metadata support ([#1284](https://github.com/diplodoc-platform/cli/issues/1284)) ([3fe5c36](https://github.com/diplodoc-platform/cli/commit/3fe5c3611b8ce46a3cfd1bc83fdae3677c288b1a))
-
+- added metadata support ([#1284](https://github.com/diplodoc-platform/cli/issues/1284)) ([3fe5c36](https://github.com/diplodoc-platform/cli/commit/3fe5c3611b8ce46a3cfd1bc83fdae3677c288b1a))
 
 ### Bug Fixes
 
-* disable prefix in svg classes ([6892265](https://github.com/diplodoc-platform/cli/commit/689226583d633081c448bed22a2552edca4b9214))
-
+- disable prefix in svg classes ([6892265](https://github.com/diplodoc-platform/cli/commit/689226583d633081c448bed22a2552edca4b9214))
 
 ### Dependency update
 
-* Update @diplodoc/client to 3.8.3 ([#1296](https://github.com/diplodoc-platform/cli/issues/1296)) ([192c89b](https://github.com/diplodoc-platform/cli/commit/192c89b93048dfd9c244f40c75a7912c8c961e90))
+- Update @diplodoc/client to 3.8.3 ([#1296](https://github.com/diplodoc-platform/cli/issues/1296)) ([192c89b](https://github.com/diplodoc-platform/cli/commit/192c89b93048dfd9c244f40c75a7912c8c961e90))
 
 ## [5.1.1](https://github.com/diplodoc-platform/cli/compare/v5.1.0...v5.1.1) (2025-07-31)
 
-
 ### Bug Fixes
 
-* build_doc fixed undici version ([6dfd11c](https://github.com/diplodoc-platform/cli/commit/6dfd11c914755fe84836394a2ba417e2d109759b))
-
+- build_doc fixed undici version ([6dfd11c](https://github.com/diplodoc-platform/cli/commit/6dfd11c914755fe84836394a2ba417e2d109759b))
 
 ### Dependency update
 
-* Update @diplodoc/client to 3.8.2 ([5aaee7c](https://github.com/diplodoc-platform/cli/commit/5aaee7cdbeda6c03298faf8094c12daed62f57a1))
-* Update @diplodoc/transform to 4.59.1 ([37e19b1](https://github.com/diplodoc-platform/cli/commit/37e19b17245d13989248451c3484492448a21177))
-* Update @diplodoc/transform to 4.60.0 ([#1288](https://github.com/diplodoc-platform/cli/issues/1288)) ([174bf5d](https://github.com/diplodoc-platform/cli/commit/174bf5d17c24dc1b01c62201200db63ad6cc9d66))
+- Update @diplodoc/client to 3.8.2 ([5aaee7c](https://github.com/diplodoc-platform/cli/commit/5aaee7cdbeda6c03298faf8094c12daed62f57a1))
+- Update @diplodoc/transform to 4.59.1 ([37e19b1](https://github.com/diplodoc-platform/cli/commit/37e19b17245d13989248451c3484492448a21177))
+- Update @diplodoc/transform to 4.60.0 ([#1288](https://github.com/diplodoc-platform/cli/issues/1288)) ([174bf5d](https://github.com/diplodoc-platform/cli/commit/174bf5d17c24dc1b01c62201200db63ad6cc9d66))
 
 ## [5.1.0](https://github.com/diplodoc-platform/cli/compare/v5.0.12...v5.1.0) (2025-07-15)
 
-
 ### Features
 
-* added viewerInterface to page state ([#1268](https://github.com/diplodoc-platform/cli/issues/1268)) ([dfffa8d](https://github.com/diplodoc-platform/cli/commit/dfffa8dfa5edb55d6582af0a570e9d4339621eee))
-* supported favicon in static ([#1271](https://github.com/diplodoc-platform/cli/issues/1271)) ([cdd8d79](https://github.com/diplodoc-platform/cli/commit/cdd8d798ec215c6fa5af482fdc3948a3e7c0a1c6))
-
+- added viewerInterface to page state ([#1268](https://github.com/diplodoc-platform/cli/issues/1268)) ([dfffa8d](https://github.com/diplodoc-platform/cli/commit/dfffa8dfa5edb55d6582af0a570e9d4339621eee))
+- supported favicon in static ([#1271](https://github.com/diplodoc-platform/cli/issues/1271)) ([cdd8d79](https://github.com/diplodoc-platform/cli/commit/cdd8d798ec215c6fa5af482fdc3948a3e7c0a1c6))
 
 ### Bug Fixes
 
-* no-translate directive resolve ([a77bb22](https://github.com/diplodoc-platform/cli/commit/a77bb2221a6c597de23d9da21e548b73ab5f3b30))
-
+- no-translate directive resolve ([a77bb22](https://github.com/diplodoc-platform/cli/commit/a77bb2221a6c597de23d9da21e548b73ab5f3b30))
 
 ### Dependency update
 
-* Update @diplodoc/client to 3.7.3 ([#1275](https://github.com/diplodoc-platform/cli/issues/1275)) ([e2f98bf](https://github.com/diplodoc-platform/cli/commit/e2f98bfc572b03d2f46c7d50d3dc0a634bfe66a8))
+- Update @diplodoc/client to 3.7.3 ([#1275](https://github.com/diplodoc-platform/cli/issues/1275)) ([e2f98bf](https://github.com/diplodoc-platform/cli/commit/e2f98bfc572b03d2f46c7d50d3dc0a634bfe66a8))
 
 ## [5.0.12](https://github.com/diplodoc-platform/cli/compare/v5.0.11...v5.0.12) (2025-07-03)
 
-
 ### Bug Fixes
 
-* Compute difference for git and yfm roots for vcs features ([95f0ffe](https://github.com/diplodoc-platform/cli/commit/95f0ffeca2cf9cb32a542d2235731bfabfa15fe9))
-* Do not resolve authors for disabled feature ([415458b](https://github.com/diplodoc-platform/cli/commit/415458bba03e323724ed74c03ca9689621a8f356))
-* Fix search extension deps conflict ([7d0e384](https://github.com/diplodoc-platform/cli/commit/7d0e384834f95f61f48891e87963e1460aef1fc2))
+- Compute difference for git and yfm roots for vcs features ([95f0ffe](https://github.com/diplodoc-platform/cli/commit/95f0ffeca2cf9cb32a542d2235731bfabfa15fe9))
+- Do not resolve authors for disabled feature ([415458b](https://github.com/diplodoc-platform/cli/commit/415458bba03e323724ed74c03ca9689621a8f356))
+- Fix search extension deps conflict ([7d0e384](https://github.com/diplodoc-platform/cli/commit/7d0e384834f95f61f48891e87963e1460aef1fc2))
 
 ## [5.0.11](https://github.com/diplodoc-platform/cli/compare/v5.0.10...v5.0.11) (2025-07-02)
 
-
 ### Bug Fixes
 
-* rm no-translate directive, leave content ([2cfd010](https://github.com/diplodoc-platform/cli/commit/2cfd01049e95d3e970417e8e99db573610cc0755))
+- rm no-translate directive, leave content ([2cfd010](https://github.com/diplodoc-platform/cli/commit/2cfd01049e95d3e970417e8e99db573610cc0755))
 
 ## [5.0.10](https://github.com/diplodoc-platform/cli/compare/v5.0.9...v5.0.10) (2025-07-02)
 
-
 ### Bug Fixes
 
-* translate test: Change regexp for search construction ([3aece84](https://github.com/diplodoc-platform/cli/commit/3aece8416c4194213d38cda4dc2a3645b2063d33))
-
+- translate test: Change regexp for search construction ([3aece84](https://github.com/diplodoc-platform/cli/commit/3aece8416c4194213d38cda4dc2a3645b2063d33))
 
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.17 ([f88f62c](https://github.com/diplodoc-platform/cli/commit/f88f62ce557c027a1504ac5ac516372b20f7a676))
+- Update @diplodoc/translation to 1.7.17 ([f88f62c](https://github.com/diplodoc-platform/cli/commit/f88f62ce557c027a1504ac5ac516372b20f7a676))
 
 ## [5.0.9](https://github.com/diplodoc-platform/cli/compare/v5.0.8...v5.0.9) (2025-07-01)
 
-
 ### Bug Fixes
 
-* add to extract openapi includer ([c823a9c](https://github.com/diplodoc-platform/cli/commit/c823a9c74f49e43446e89480142b81509f9fc4eb))
+- add to extract openapi includer ([c823a9c](https://github.com/diplodoc-platform/cli/commit/c823a9c74f49e43446e89480142b81509f9fc4eb))
 
 ## [5.0.8](https://github.com/diplodoc-platform/cli/compare/v5.0.7...v5.0.8) (2025-06-22)
 
-
 ### Bug Fixes
 
-* Fix docs rebuilding with existed output ([35aa586](https://github.com/diplodoc-platform/cli/commit/35aa58698dd3ac897b245a109d34cd508266a8b7))
-
+- Fix docs rebuilding with existed output ([35aa586](https://github.com/diplodoc-platform/cli/commit/35aa58698dd3ac897b245a109d34cd508266a8b7))
 
 ### Dependency update
 
-* Update @diplodoc/search-extension to 2.0.1 ([f5dc159](https://github.com/diplodoc-platform/cli/commit/f5dc1597c5cb81050813b575cff5ad5a473b41fe))
+- Update @diplodoc/search-extension to 2.0.1 ([f5dc159](https://github.com/diplodoc-platform/cli/commit/f5dc1597c5cb81050813b575cff5ad5a473b41fe))
 
 ## [5.0.7](https://github.com/diplodoc-platform/cli/compare/v5.0.6...v5.0.7) (2025-06-19)
 
-
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.15 ([117e6a8](https://github.com/diplodoc-platform/cli/commit/117e6a868593bd664ce32f2661fd74a54a5d2695))
+- Update @diplodoc/translation to 1.7.15 ([117e6a8](https://github.com/diplodoc-platform/cli/commit/117e6a868593bd664ce32f2661fd74a54a5d2695))
 
 ## [5.0.6](https://github.com/diplodoc-platform/cli/compare/v5.0.5...v5.0.6) (2025-06-18)
 
-
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.14 ([a9217b0](https://github.com/diplodoc-platform/cli/commit/a9217b0d482d0fba83d63a339286512e78e06b11))
+- Update @diplodoc/translation to 1.7.14 ([a9217b0](https://github.com/diplodoc-platform/cli/commit/a9217b0d482d0fba83d63a339286512e78e06b11))
 
 ## [5.0.5](https://github.com/diplodoc-platform/cli/compare/v5.0.4...v5.0.5) (2025-06-17)
 
-
 ### Bug Fixes
 
-* FIx assets with escaped chars handling ([940bdfc](https://github.com/diplodoc-platform/cli/commit/940bdfcb7ba89f2d1d4b399d21fab28a51e3fa31))
-* Fix mdit-plugins extension configuration ([91d865f](https://github.com/diplodoc-platform/cli/commit/91d865f963afff6c15290fdbc3c8e88f7094ffac))
-* Update search extension to latest version ([b9bacd6](https://github.com/diplodoc-platform/cli/commit/b9bacd611e66e0a3a7cfc0ebc83c883ee0ac703f))
+- FIx assets with escaped chars handling ([940bdfc](https://github.com/diplodoc-platform/cli/commit/940bdfcb7ba89f2d1d4b399d21fab28a51e3fa31))
+- Fix mdit-plugins extension configuration ([91d865f](https://github.com/diplodoc-platform/cli/commit/91d865f963afff6c15290fdbc3c8e88f7094ffac))
+- Update search extension to latest version ([b9bacd6](https://github.com/diplodoc-platform/cli/commit/b9bacd611e66e0a3a7cfc0ebc83c883ee0ac703f))
 
 ## [5.0.4](https://github.com/diplodoc-platform/cli/compare/v5.0.3...v5.0.4) (2025-06-11)
 
-
 ### Bug Fixes
 
-* Fix extensions initialization ([ee09c16](https://github.com/diplodoc-platform/cli/commit/ee09c16d2e1b49e5018cbc745ae8554055f141c5))
-* Fix Toc restricted-access for subsequent tocs ([0d9206a](https://github.com/diplodoc-platform/cli/commit/0d9206a8bb199e9c4ac78c49cd278f212a8a4288))
-* Improve autotitles resolution speed ([a029252](https://github.com/diplodoc-platform/cli/commit/a02925235d91c372304ce63551f67e4e77dca582))
-* Skip copy to tmp output folder ([dbead70](https://github.com/diplodoc-platform/cli/commit/dbead708d639d15fa3c86ca92c704392a0252684))
+- Fix extensions initialization ([ee09c16](https://github.com/diplodoc-platform/cli/commit/ee09c16d2e1b49e5018cbc745ae8554055f141c5))
+- Fix Toc restricted-access for subsequent tocs ([0d9206a](https://github.com/diplodoc-platform/cli/commit/0d9206a8bb199e9c4ac78c49cd278f212a8a4288))
+- Improve autotitles resolution speed ([a029252](https://github.com/diplodoc-platform/cli/commit/a02925235d91c372304ce63551f67e4e77dca582))
+- Skip copy to tmp output folder ([dbead70](https://github.com/diplodoc-platform/cli/commit/dbead708d639d15fa3c86ca92c704392a0252684))
 
 ## [5.0.3](https://github.com/diplodoc-platform/cli/compare/v5.0.2...v5.0.3) (2025-06-09)
 
-
 ### Dependency update
 
-* update @diplodoc/client@3.6.3 to run tests ([31885da](https://github.com/diplodoc-platform/cli/commit/31885dada6df48cdf37812cb6b8bb75964d9f07d))
+- update @diplodoc/client@3.6.3 to run tests ([31885da](https://github.com/diplodoc-platform/cli/commit/31885dada6df48cdf37812cb6b8bb75964d9f07d))
 
 ## [5.0.2](https://github.com/diplodoc-platform/cli/compare/v5.0.1...v5.0.2) (2025-06-06)
 
-
 ### Dependency update
 
-* Update @diplodoc/client to 3.6.3 ([e3a6dd6](https://github.com/diplodoc-platform/cli/commit/e3a6dd6ab9dc0ad4e8aa8af5fb9e782f87ea721a))
+- Update @diplodoc/client to 3.6.3 ([e3a6dd6](https://github.com/diplodoc-platform/cli/commit/e3a6dd6ab9dc0ad4e8aa8af5fb9e782f87ea721a))
 
 ## [5.0.1](https://github.com/diplodoc-platform/cli/compare/v5.0.0...v5.0.1) (2025-06-06)
 
-
 ### Dependency update
 
-* Update @diplodoc/client to 3.6.0 ([989b292](https://github.com/diplodoc-platform/cli/commit/989b2929c8e167632100b654f3b8cebaff3567e0))
-* Update @diplodoc/client to 3.6.1 ([d45af45](https://github.com/diplodoc-platform/cli/commit/d45af45b02e94ccd567773e56f24140b545369cb))
+- Update @diplodoc/client to 3.6.0 ([989b292](https://github.com/diplodoc-platform/cli/commit/989b2929c8e167632100b654f3b8cebaff3567e0))
+- Update @diplodoc/client to 3.6.1 ([d45af45](https://github.com/diplodoc-platform/cli/commit/d45af45b02e94ccd567773e56f24140b545369cb))
 
 ## [5.0.0](https://github.com/diplodoc-platform/cli/compare/v4.59.13...v5.0.0) (2025-06-04)
 
-
 ### ⚠ BREAKING CHANGES
 
-* Add multithreading
+- Add multithreading
 
 ### Features
 
-* add @diplodoc/page-constructor-extension ([#1222](https://github.com/diplodoc-platform/cli/issues/1222)) ([5a9f8ce](https://github.com/diplodoc-platform/cli/commit/5a9f8ce8e9d38092393ebf964c485c60a48d0622))
-* Add `hashIncludes` build option ([80b3d96](https://github.com/diplodoc-platform/cli/commit/80b3d96e447ab701fa3e5295abac1a06e0c05be3))
-* Add autotitles to generic includer ([3e7f143](https://github.com/diplodoc-platform/cli/commit/3e7f1438f2685bfc8813d24bc913d0d9a7ecd811))
-* Add autotitles to TOC ([32d790f](https://github.com/diplodoc-platform/cli/commit/32d790f2e83a911267e88f0347236698ff2abc7a))
-* Add hooks to logger ([78d06f4](https://github.com/diplodoc-platform/cli/commit/78d06f4fdb94f4bb5311fa6ce5c14fd4e471e6d0))
-* Add multithreading ([d7af822](https://github.com/diplodoc-platform/cli/commit/d7af822c6b0ed8a25b7e1b7764c363fb6b0452ee))
-* Add program run report ([456d03b](https://github.com/diplodoc-platform/cli/commit/456d03b318090006e04ede69726bb5d3ce0e57e7))
-* Add program run report ([62a6541](https://github.com/diplodoc-platform/cli/commit/62a65419e0766807dd529ff3d135005e743d32ea))
-* Add smart extensions resolving ([81a0c4c](https://github.com/diplodoc-platform/cli/commit/81a0c4c606adf079b4e46b519a10b9adbc97032d))
-* delete algolia ([9257c87](https://github.com/diplodoc-platform/cli/commit/9257c870026021869ad6b7b19acc7ea8a50b6f31))
-* flexible support for restricted-access has been added when adding it to frontmatter ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-* Implement build Entry service ([2551b64](https://github.com/diplodoc-platform/cli/commit/2551b64001cf4bc8fa62cf6f462261efe92e9442))
-* Implement core template class ([d094a6a](https://github.com/diplodoc-platform/cli/commit/d094a6ac7e28dff0a1b0adc7bdc7282b6cc1231d))
-* Improve vcs connector ([0251165](https://github.com/diplodoc-platform/cli/commit/0251165f8f57fdedb111336a25ef1f28ba9885d3))
-* Make VCS feature more configuragle ([03c33f5](https://github.com/diplodoc-platform/cli/commit/03c33f590b2eb8e07d8ea64238f5bdfaa37011b7))
-* merge config ([7597350](https://github.com/diplodoc-platform/cli/commit/75973504327e6fbe9f317e5c7559b8c14154ee1c))
-* Reimplement redirects feature to redirects service ([f4931ec](https://github.com/diplodoc-platform/cli/commit/f4931ec1c7777f5d1ac354726f9225b6aa6b12aa))
-* Remove `from` argument from public markdown api ([f896a6f](https://github.com/diplodoc-platform/cli/commit/f896a6fe65537bc664933098c628f2c0996326ff))
-* Rename github-vcs-connector to github-vcs ([925854b](https://github.com/diplodoc-platform/cli/commit/925854b226c154dae357021704f3cf782377ae40))
-
+- add @diplodoc/page-constructor-extension ([#1222](https://github.com/diplodoc-platform/cli/issues/1222)) ([5a9f8ce](https://github.com/diplodoc-platform/cli/commit/5a9f8ce8e9d38092393ebf964c485c60a48d0622))
+- Add `hashIncludes` build option ([80b3d96](https://github.com/diplodoc-platform/cli/commit/80b3d96e447ab701fa3e5295abac1a06e0c05be3))
+- Add autotitles to generic includer ([3e7f143](https://github.com/diplodoc-platform/cli/commit/3e7f1438f2685bfc8813d24bc913d0d9a7ecd811))
+- Add autotitles to TOC ([32d790f](https://github.com/diplodoc-platform/cli/commit/32d790f2e83a911267e88f0347236698ff2abc7a))
+- Add hooks to logger ([78d06f4](https://github.com/diplodoc-platform/cli/commit/78d06f4fdb94f4bb5311fa6ce5c14fd4e471e6d0))
+- Add multithreading ([d7af822](https://github.com/diplodoc-platform/cli/commit/d7af822c6b0ed8a25b7e1b7764c363fb6b0452ee))
+- Add program run report ([456d03b](https://github.com/diplodoc-platform/cli/commit/456d03b318090006e04ede69726bb5d3ce0e57e7))
+- Add program run report ([62a6541](https://github.com/diplodoc-platform/cli/commit/62a65419e0766807dd529ff3d135005e743d32ea))
+- Add smart extensions resolving ([81a0c4c](https://github.com/diplodoc-platform/cli/commit/81a0c4c606adf079b4e46b519a10b9adbc97032d))
+- delete algolia ([9257c87](https://github.com/diplodoc-platform/cli/commit/9257c870026021869ad6b7b19acc7ea8a50b6f31))
+- flexible support for restricted-access has been added when adding it to frontmatter ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+- Implement build Entry service ([2551b64](https://github.com/diplodoc-platform/cli/commit/2551b64001cf4bc8fa62cf6f462261efe92e9442))
+- Implement core template class ([d094a6a](https://github.com/diplodoc-platform/cli/commit/d094a6ac7e28dff0a1b0adc7bdc7282b6cc1231d))
+- Improve vcs connector ([0251165](https://github.com/diplodoc-platform/cli/commit/0251165f8f57fdedb111336a25ef1f28ba9885d3))
+- Make VCS feature more configuragle ([03c33f5](https://github.com/diplodoc-platform/cli/commit/03c33f590b2eb8e07d8ea64238f5bdfaa37011b7))
+- merge config ([7597350](https://github.com/diplodoc-platform/cli/commit/75973504327e6fbe9f317e5c7559b8c14154ee1c))
+- Reimplement redirects feature to redirects service ([f4931ec](https://github.com/diplodoc-platform/cli/commit/f4931ec1c7777f5d1ac354726f9225b6aa6b12aa))
+- Remove `from` argument from public markdown api ([f896a6f](https://github.com/diplodoc-platform/cli/commit/f896a6fe65537bc664933098c628f2c0996326ff))
+- Rename github-vcs-connector to github-vcs ([925854b](https://github.com/diplodoc-platform/cli/commit/925854b226c154dae357021704f3cf782377ae40))
 
 ### Bug Fixes
 
-* Accurate use memory on threads ([2b9e213](https://github.com/diplodoc-platform/cli/commit/2b9e21351a5ee73d2fddadcecfdc8d2fe4bb949c))
-* add lint rule YFM003 for unreachable links ([617e432](https://github.com/diplodoc-platform/cli/commit/617e432c62f8b815d36161ac0fd4d50a091388a3))
-* Add toc info for ssr single-page ([c13805c](https://github.com/diplodoc-platform/cli/commit/c13805c51e1f56678829f90ab6583aecb8602650))
-* addModule & lint tests ([4615a40](https://github.com/diplodoc-platform/cli/commit/4615a4054c2299d931cac3dd0b55eb34142126fd))
-* after rebase ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-* by review ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-* Change includes hashing algorithm ([7bdd323](https://github.com/diplodoc-platform/cli/commit/7bdd3231a0504ff75e24c4d651c87ffc09179946))
-* Change threads sync algorithm and Toc service api ([f747846](https://github.com/diplodoc-platform/cli/commit/f747846b963cb78580e91eca6b0534fb05366881))
-* Change threads sync algorithm and Toc service api ([89e2a11](https://github.com/diplodoc-platform/cli/commit/89e2a11703e95b455803987191c86e7e856809b9))
-* correct after rebase ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-* Create VCS worktree only if branch configured ([0d0237e](https://github.com/diplodoc-platform/cli/commit/0d0237e5afaa19635ebc69c41d1042dd69a91a2a))
-* Debounce includes copy ([11bec0b](https://github.com/diplodoc-platform/cli/commit/11bec0ba968b2212aa20ac11c9c7996cb6dd21c5))
-* Disable ignoring toc with `technical-preview` stage ([9c7c6be](https://github.com/diplodoc-platform/cli/commit/9c7c6be2efedc13af5676ab0065706989eb97b38))
-* Disable VCS data processing on threads ([cf276ea](https://github.com/diplodoc-platform/cli/commit/cf276ea1b0b4aff856a2ff19fd920606beff64b1))
-* Do not store meta inside leading data for html ([c27d463](https://github.com/diplodoc-platform/cli/commit/c27d463cc243b78001871afbcfed597f2f52e0b7))
-* Fix commented includes hashing ([8ced95b](https://github.com/diplodoc-platform/cli/commit/8ced95bfd0f1a60a5ab6d1fbbb29f3b739196bdd))
-* Fix empty VCS data processing ([c9f5870](https://github.com/diplodoc-platform/cli/commit/c9f587086c1947b617cd66848ec2894b02d39afd))
-* Fix included tocs processing ([ad1a8e3](https://github.com/diplodoc-platform/cli/commit/ad1a8e336c449e9cf3be0592112852c39011aa52))
-* Fix includes hashing link processing ([f8e6161](https://github.com/diplodoc-platform/cli/commit/f8e6161ab8c628a5427f40cc76c2c6537d2cc916))
-* Fix link unreachble check for threading mode ([f4d03ba](https://github.com/diplodoc-platform/cli/commit/f4d03baf0495ec741a88070fdaae49f4cfb0eaa4))
-* Fix link unreachble check for threading mode ([1be05ab](https://github.com/diplodoc-platform/cli/commit/1be05abb9c9eeeb7fb711c1e6abc652f079aa8c2))
-* Fix multithreading featue ([7fc344e](https://github.com/diplodoc-platform/cli/commit/7fc344e0a80faa8658946644fff9d2590e7e0f83))
-* Fix project links exists check ([4b73a93](https://github.com/diplodoc-platform/cli/commit/4b73a9328522fa884cb276c08fce1e1822f2541d))
-* Fix single-page rendering mode ([c9c5968](https://github.com/diplodoc-platform/cli/commit/c9c5968da6e4f0c3c070b3e1bc30bd3da5d79c42))
-* fix tests, add test, fix logic add meta ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-* Fix threaded entries processing ([b094bf5](https://github.com/diplodoc-platform/cli/commit/b094bf5dca1583af767dbd90f47dc1dac4cfbfa5))
-* Fix types, lint, package-lock ([4646d21](https://github.com/diplodoc-platform/cli/commit/4646d217adaff405ee097854494e65b3fe9f1a71))
-* Fix VCS mtimes for threaded mode ([6cd665c](https://github.com/diplodoc-platform/cli/commit/6cd665ce028a3bd5e4043aacc19e973e95331048))
-* generic include ([d8e43a4](https://github.com/diplodoc-platform/cli/commit/d8e43a40e752d2cd2be1d7126d5aeb5605942a51))
-* Handle VCS empty user info ([e096544](https://github.com/diplodoc-platform/cli/commit/e096544e71ee25f81f66e9997dd5b92075dbafc9))
-* Hash markdown includes ([7d1a599](https://github.com/diplodoc-platform/cli/commit/7d1a5994ed58d670607519f9b4af019402e13cea))
-* Improve error logs ([0533029](https://github.com/diplodoc-platform/cli/commit/05330291392ec77756637e751a7fc5a59ecf7c91))
-* incorrect merge ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-* link err to warn ([2c3806c](https://github.com/diplodoc-platform/cli/commit/2c3806c47c78fbd8395bb63e771c517e0fd090f2))
-* merge ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-* merge ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-* Move `mergeIncludes` option to md feature ([ac7401f](https://github.com/diplodoc-platform/cli/commit/ac7401f35398d026fbbc9a7664fcb332a2d28d43))
-* Move `mergeIncludes` option to md feature ([370d9b8](https://github.com/diplodoc-platform/cli/commit/370d9b8d9850eff2bb90f32cae3ac3847675c5a5))
-* Pile threads logs to main process ([dcd1572](https://github.com/diplodoc-platform/cli/commit/dcd1572b2e498c141df9feb5ad3c6c884a3d0926))
-* Remove useless logger `add` method ([c9bfb17](https://github.com/diplodoc-platform/cli/commit/c9bfb1722e41818aeae53f6eb02062579ae4497b))
-* Split github info request ([074ff4d](https://github.com/diplodoc-platform/cli/commit/074ff4dc793e1a38e583c87dd713a5898dd6993a))
-* temp disable toc filtrations ([172630d](https://github.com/diplodoc-platform/cli/commit/172630d0d6864fc15b8842e5bb1a17f7b327b9d8))
-* transferring restricted-access logic to walkItems ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-* traversing branches without an href attribute ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
-
+- Accurate use memory on threads ([2b9e213](https://github.com/diplodoc-platform/cli/commit/2b9e21351a5ee73d2fddadcecfdc8d2fe4bb949c))
+- add lint rule YFM003 for unreachable links ([617e432](https://github.com/diplodoc-platform/cli/commit/617e432c62f8b815d36161ac0fd4d50a091388a3))
+- Add toc info for ssr single-page ([c13805c](https://github.com/diplodoc-platform/cli/commit/c13805c51e1f56678829f90ab6583aecb8602650))
+- addModule & lint tests ([4615a40](https://github.com/diplodoc-platform/cli/commit/4615a4054c2299d931cac3dd0b55eb34142126fd))
+- after rebase ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+- by review ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+- Change includes hashing algorithm ([7bdd323](https://github.com/diplodoc-platform/cli/commit/7bdd3231a0504ff75e24c4d651c87ffc09179946))
+- Change threads sync algorithm and Toc service api ([f747846](https://github.com/diplodoc-platform/cli/commit/f747846b963cb78580e91eca6b0534fb05366881))
+- Change threads sync algorithm and Toc service api ([89e2a11](https://github.com/diplodoc-platform/cli/commit/89e2a11703e95b455803987191c86e7e856809b9))
+- correct after rebase ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+- Create VCS worktree only if branch configured ([0d0237e](https://github.com/diplodoc-platform/cli/commit/0d0237e5afaa19635ebc69c41d1042dd69a91a2a))
+- Debounce includes copy ([11bec0b](https://github.com/diplodoc-platform/cli/commit/11bec0ba968b2212aa20ac11c9c7996cb6dd21c5))
+- Disable ignoring toc with `technical-preview` stage ([9c7c6be](https://github.com/diplodoc-platform/cli/commit/9c7c6be2efedc13af5676ab0065706989eb97b38))
+- Disable VCS data processing on threads ([cf276ea](https://github.com/diplodoc-platform/cli/commit/cf276ea1b0b4aff856a2ff19fd920606beff64b1))
+- Do not store meta inside leading data for html ([c27d463](https://github.com/diplodoc-platform/cli/commit/c27d463cc243b78001871afbcfed597f2f52e0b7))
+- Fix commented includes hashing ([8ced95b](https://github.com/diplodoc-platform/cli/commit/8ced95bfd0f1a60a5ab6d1fbbb29f3b739196bdd))
+- Fix empty VCS data processing ([c9f5870](https://github.com/diplodoc-platform/cli/commit/c9f587086c1947b617cd66848ec2894b02d39afd))
+- Fix included tocs processing ([ad1a8e3](https://github.com/diplodoc-platform/cli/commit/ad1a8e336c449e9cf3be0592112852c39011aa52))
+- Fix includes hashing link processing ([f8e6161](https://github.com/diplodoc-platform/cli/commit/f8e6161ab8c628a5427f40cc76c2c6537d2cc916))
+- Fix link unreachble check for threading mode ([f4d03ba](https://github.com/diplodoc-platform/cli/commit/f4d03baf0495ec741a88070fdaae49f4cfb0eaa4))
+- Fix link unreachble check for threading mode ([1be05ab](https://github.com/diplodoc-platform/cli/commit/1be05abb9c9eeeb7fb711c1e6abc652f079aa8c2))
+- Fix multithreading featue ([7fc344e](https://github.com/diplodoc-platform/cli/commit/7fc344e0a80faa8658946644fff9d2590e7e0f83))
+- Fix project links exists check ([4b73a93](https://github.com/diplodoc-platform/cli/commit/4b73a9328522fa884cb276c08fce1e1822f2541d))
+- Fix single-page rendering mode ([c9c5968](https://github.com/diplodoc-platform/cli/commit/c9c5968da6e4f0c3c070b3e1bc30bd3da5d79c42))
+- fix tests, add test, fix logic add meta ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+- Fix threaded entries processing ([b094bf5](https://github.com/diplodoc-platform/cli/commit/b094bf5dca1583af767dbd90f47dc1dac4cfbfa5))
+- Fix types, lint, package-lock ([4646d21](https://github.com/diplodoc-platform/cli/commit/4646d217adaff405ee097854494e65b3fe9f1a71))
+- Fix VCS mtimes for threaded mode ([6cd665c](https://github.com/diplodoc-platform/cli/commit/6cd665ce028a3bd5e4043aacc19e973e95331048))
+- generic include ([d8e43a4](https://github.com/diplodoc-platform/cli/commit/d8e43a40e752d2cd2be1d7126d5aeb5605942a51))
+- Handle VCS empty user info ([e096544](https://github.com/diplodoc-platform/cli/commit/e096544e71ee25f81f66e9997dd5b92075dbafc9))
+- Hash markdown includes ([7d1a599](https://github.com/diplodoc-platform/cli/commit/7d1a5994ed58d670607519f9b4af019402e13cea))
+- Improve error logs ([0533029](https://github.com/diplodoc-platform/cli/commit/05330291392ec77756637e751a7fc5a59ecf7c91))
+- incorrect merge ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+- link err to warn ([2c3806c](https://github.com/diplodoc-platform/cli/commit/2c3806c47c78fbd8395bb63e771c517e0fd090f2))
+- merge ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+- merge ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+- Move `mergeIncludes` option to md feature ([ac7401f](https://github.com/diplodoc-platform/cli/commit/ac7401f35398d026fbbc9a7664fcb332a2d28d43))
+- Move `mergeIncludes` option to md feature ([370d9b8](https://github.com/diplodoc-platform/cli/commit/370d9b8d9850eff2bb90f32cae3ac3847675c5a5))
+- Pile threads logs to main process ([dcd1572](https://github.com/diplodoc-platform/cli/commit/dcd1572b2e498c141df9feb5ad3c6c884a3d0926))
+- Remove useless logger `add` method ([c9bfb17](https://github.com/diplodoc-platform/cli/commit/c9bfb1722e41818aeae53f6eb02062579ae4497b))
+- Split github info request ([074ff4d](https://github.com/diplodoc-platform/cli/commit/074ff4dc793e1a38e583c87dd713a5898dd6993a))
+- temp disable toc filtrations ([172630d](https://github.com/diplodoc-platform/cli/commit/172630d0d6864fc15b8842e5bb1a17f7b327b9d8))
+- transferring restricted-access logic to walkItems ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+- traversing branches without an href attribute ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
 
 ### Dependency update
 
-* @diplodoc/client@3.5.0 ([d7b2373](https://github.com/diplodoc-platform/cli/commit/d7b2373b573eac7b6fec1861f99d0bddd49f5fe7))
-* bump yfmlint 1.2.2-&gt;1.23 ([9ccca5e](https://github.com/diplodoc-platform/cli/commit/9ccca5e6db6aa66c7831ddbd298aea60d4cfd6e8))
-* Downgrade execa to 9.5.2 ([3c7e83e](https://github.com/diplodoc-platform/cli/commit/3c7e83eccfcd378b7e8e446025150963d8329c0b))
-* Update yfmlint ([471993b](https://github.com/diplodoc-platform/cli/commit/471993bb279a59b1bf5d06dff728a3a30368e16d))
-* Update yfmlint and client ([6ebc0eb](https://github.com/diplodoc-platform/cli/commit/6ebc0eb8a3e188b0a2613ab44f6ad5c3a19e975b))
+- @diplodoc/client@3.5.0 ([d7b2373](https://github.com/diplodoc-platform/cli/commit/d7b2373b573eac7b6fec1861f99d0bddd49f5fe7))
+- bump yfmlint 1.2.2-&gt;1.23 ([9ccca5e](https://github.com/diplodoc-platform/cli/commit/9ccca5e6db6aa66c7831ddbd298aea60d4cfd6e8))
+- Downgrade execa to 9.5.2 ([3c7e83e](https://github.com/diplodoc-platform/cli/commit/3c7e83eccfcd378b7e8e446025150963d8329c0b))
+- Update yfmlint ([471993b](https://github.com/diplodoc-platform/cli/commit/471993bb279a59b1bf5d06dff728a3a30368e16d))
+- Update yfmlint and client ([6ebc0eb](https://github.com/diplodoc-platform/cli/commit/6ebc0eb8a3e188b0a2613ab44f6ad5c3a19e975b))
 
 ## [4.59.13](https://github.com/diplodoc-platform/cli/compare/v4.59.12...v4.59.13) (2025-06-04)
 
-
 ### Bug Fixes
 
-* Fix source to full path ([#1228](https://github.com/diplodoc-platform/cli/issues/1228)) ([53864ea](https://github.com/diplodoc-platform/cli/commit/53864ea210f22a05e44407b48610eff452f86193))
+- Fix source to full path ([#1228](https://github.com/diplodoc-platform/cli/issues/1228)) ([53864ea](https://github.com/diplodoc-platform/cli/commit/53864ea210f22a05e44407b48610eff452f86193))
 
 ## [4.59.12](https://github.com/diplodoc-platform/cli/compare/v4.59.11...v4.59.12) (2025-06-02)
 
-
 ### Bug Fixes
 
-* Seal project deps for stable version ([174e0a0](https://github.com/diplodoc-platform/cli/commit/174e0a03ed1df15ec1f3ea3719da7bfff82442d0))
+- Seal project deps for stable version ([174e0a0](https://github.com/diplodoc-platform/cli/commit/174e0a03ed1df15ec1f3ea3719da7bfff82442d0))
 
 ## [4.59.11](https://github.com/diplodoc-platform/cli/compare/v4.59.10...v4.59.11) (2025-05-21)
 
-
 ### Bug Fixes
 
-* revert to a less verbose regex to use in version substitution ([caee2fd](https://github.com/diplodoc-platform/cli/commit/caee2fdb2edaa45446d087fbea4516e9b52ef110))
-* use a regexp with wider coverage to replace version with a placeholder ([b7db9d2](https://github.com/diplodoc-platform/cli/commit/b7db9d249fda3b536e180aec7b87969a1a03f839))
+- revert to a less verbose regex to use in version substitution ([caee2fd](https://github.com/diplodoc-platform/cli/commit/caee2fdb2edaa45446d087fbea4516e9b52ef110))
+- use a regexp with wider coverage to replace version with a placeholder ([b7db9d2](https://github.com/diplodoc-platform/cli/commit/b7db9d249fda3b536e180aec7b87969a1a03f839))
 
 ## [4.59.10](https://github.com/diplodoc-platform/cli/compare/v4.59.9...v4.59.10) (2025-05-21)
 
-
 ### Bug Fixes
 
-* Fix autotitles for parent folders ([4c2d0b2](https://github.com/diplodoc-platform/cli/commit/4c2d0b23d3abe0424a2570cfbf9162452b2537a4))
-
+- Fix autotitles for parent folders ([4c2d0b2](https://github.com/diplodoc-platform/cli/commit/4c2d0b23d3abe0424a2570cfbf9162452b2537a4))
 
 ### Dependency update
 
-* Update @diplodoc/transform to 4.57.7 ([3c9604f](https://github.com/diplodoc-platform/cli/commit/3c9604fad54b20ed3dfe1d4289364b784f858584))
+- Update @diplodoc/transform to 4.57.7 ([3c9604f](https://github.com/diplodoc-platform/cli/commit/3c9604fad54b20ed3dfe1d4289364b784f858584))
 
 ## [4.59.9](https://github.com/diplodoc-platform/cli/compare/v4.59.8...v4.59.9) (2025-05-20)
 
-
 ### Bug Fixes
 
-* export `CliTestAdapter` class ([4b5e105](https://github.com/diplodoc-platform/cli/commit/4b5e10549426e2726c17928830c8677eb2bd26ff))
+- export `CliTestAdapter` class ([4b5e105](https://github.com/diplodoc-platform/cli/commit/4b5e10549426e2726c17928830c8677eb2bd26ff))
 
 ## [4.59.8](https://github.com/diplodoc-platform/cli/compare/v4.59.7...v4.59.8) (2025-05-19)
 
-
 ### Dependency update
 
-* Update @diplodoc/transform to 4.57.6 ([#1188](https://github.com/diplodoc-platform/cli/issues/1188)) ([dd53559](https://github.com/diplodoc-platform/cli/commit/dd53559b5b284532257f20d465424ed46c4db248))
+- Update @diplodoc/transform to 4.57.6 ([#1188](https://github.com/diplodoc-platform/cli/issues/1188)) ([dd53559](https://github.com/diplodoc-platform/cli/commit/dd53559b5b284532257f20d465424ed46c4db248))
 
 ## [4.59.7](https://github.com/diplodoc-platform/cli/compare/v4.59.6...v4.59.7) (2025-05-16)
 
-
 ### Bug Fixes
 
-* tests quality of life improvements ([44a89ed](https://github.com/diplodoc-platform/cli/commit/44a89ed27c2cee98e521810d315df191eb241790))
+- tests quality of life improvements ([44a89ed](https://github.com/diplodoc-platform/cli/commit/44a89ed27c2cee98e521810d315df191eb241790))
 
 ## [4.59.6](https://github.com/diplodoc-platform/cli/compare/v4.59.5...v4.59.6) (2025-05-16)
 
-
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.11 ([f803c5f](https://github.com/diplodoc-platform/cli/commit/f803c5f01cd9791c587076f7f8299cbb747776e7))
+- Update @diplodoc/translation to 1.7.11 ([f803c5f](https://github.com/diplodoc-platform/cli/commit/f803c5f01cd9791c587076f7f8299cbb747776e7))
 
 ## [4.59.5](https://github.com/diplodoc-platform/cli/compare/v4.59.4...v4.59.5) (2025-05-16)
 
-
 ### Bug Fixes
 
-* scope `require.resolve` call to the SourceRunner class ([e5418a2](https://github.com/diplodoc-platform/cli/commit/e5418a212cd63e81f2ff51f01bdc25e073d9a696))
+- scope `require.resolve` call to the SourceRunner class ([e5418a2](https://github.com/diplodoc-platform/cli/commit/e5418a212cd63e81f2ff51f01bdc25e073d9a696))
 
 ## [4.59.4](https://github.com/diplodoc-platform/cli/compare/v4.59.3...v4.59.4) (2025-05-15)
 
-
 ### Bug Fixes
 
-* link plugin check ([99cef65](https://github.com/diplodoc-platform/cli/commit/99cef65720853271d2db383624d2cbf468b7881d))
-* Split links and includes html plugins ([ddbd80f](https://github.com/diplodoc-platform/cli/commit/ddbd80fe9ea90f791b0e5ea3283afd7839ff3178))
+- link plugin check ([99cef65](https://github.com/diplodoc-platform/cli/commit/99cef65720853271d2db383624d2cbf468b7881d))
+- Split links and includes html plugins ([ddbd80f](https://github.com/diplodoc-platform/cli/commit/ddbd80fe9ea90f791b0e5ea3283afd7839ff3178))
 
 ## [4.59.3](https://github.com/diplodoc-platform/cli/compare/v4.59.2...v4.59.3) (2025-05-15)
 
-
 ### Bug Fixes
 
-* check md file link ([cf77523](https://github.com/diplodoc-platform/cli/commit/cf775235fee58ae1778c4b603e59a58a6fe78e3b))
-* Handle includes before links ([d3e95ea](https://github.com/diplodoc-platform/cli/commit/d3e95ea3f28cd3924b394683b8e56bc7fd942365))
+- check md file link ([cf77523](https://github.com/diplodoc-platform/cli/commit/cf775235fee58ae1778c4b603e59a58a6fe78e3b))
+- Handle includes before links ([d3e95ea](https://github.com/diplodoc-platform/cli/commit/d3e95ea3f28cd3924b394683b8e56bc7fd942365))
 
 ## [4.59.2](https://github.com/diplodoc-platform/cli/compare/v4.59.1...v4.59.2) (2025-05-15)
 
-
 ### Bug Fixes
 
-* check md file link ([ab1b971](https://github.com/diplodoc-platform/cli/commit/ab1b971b2b9dfcbc40adbe39bf55a0d6c0edcb9e))
-* Handle includes before links ([266ab5a](https://github.com/diplodoc-platform/cli/commit/266ab5aa983b8597740de555853c02e4dc985508))
+- check md file link ([ab1b971](https://github.com/diplodoc-platform/cli/commit/ab1b971b2b9dfcbc40adbe39bf55a0d6c0edcb9e))
+- Handle includes before links ([266ab5a](https://github.com/diplodoc-platform/cli/commit/266ab5aa983b8597740de555853c02e4dc985508))
 
 ## [4.59.1](https://github.com/diplodoc-platform/cli/compare/v4.59.0...v4.59.1) (2025-05-14)
 
-
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.10 ([5c8eea7](https://github.com/diplodoc-platform/cli/commit/5c8eea710b409f59ac65b66462101e9b1a21641f))
+- Update @diplodoc/translation to 1.7.10 ([5c8eea7](https://github.com/diplodoc-platform/cli/commit/5c8eea710b409f59ac65b66462101e9b1a21641f))
 
 ## [4.59.0](https://github.com/diplodoc-platform/cli/compare/v4.58.4...v4.59.0) (2025-05-14)
 
-
 ### Features
 
-* do not use a separate release flow for `cli-tests` companion package ([d37bef9](https://github.com/diplodoc-platform/cli/commit/d37bef9db9a61b25df5528b2c89cb94bec248862))
+- do not use a separate release flow for `cli-tests` companion package ([d37bef9](https://github.com/diplodoc-platform/cli/commit/d37bef9db9a61b25df5528b2c89cb94bec248862))
 
 ## [4.58.4](https://github.com/diplodoc-platform/cli/compare/v4.58.3...v4.58.4) (2025-05-14)
 
-
 ### Dependency update
 
-* Update @diplodoc/client to 3.3.4 ([17a2683](https://github.com/diplodoc-platform/cli/commit/17a2683270a1f70de225bb8854b24d61a3f9b8b3))
+- Update @diplodoc/client to 3.3.4 ([17a2683](https://github.com/diplodoc-platform/cli/commit/17a2683270a1f70de225bb8854b24d61a3f9b8b3))
 
 ## [4.58.3](https://github.com/diplodoc-platform/cli/compare/v4.58.2...v4.58.3) (2025-05-14)
 
-
 ### Dependency update
 
-* Update @diplodoc/liquid to 1.3.1 ([252acc4](https://github.com/diplodoc-platform/cli/commit/252acc465765a2d4f0ed0a24550d1c6a7665b65d))
+- Update @diplodoc/liquid to 1.3.1 ([252acc4](https://github.com/diplodoc-platform/cli/commit/252acc465765a2d4f0ed0a24550d1c6a7665b65d))
 
 ## [4.58.2](https://github.com/diplodoc-platform/cli/compare/v4.58.1...v4.58.2) (2025-05-14)
 
-
 ### Dependency update
 
-* Update @diplodoc/mermaid-extension to 1.3.5 ([689c3d0](https://github.com/diplodoc-platform/cli/commit/689c3d0a414f0e534bfbd8fd57dc010b3254bb87))
+- Update @diplodoc/mermaid-extension to 1.3.5 ([689c3d0](https://github.com/diplodoc-platform/cli/commit/689c3d0a414f0e534bfbd8fd57dc010b3254bb87))
 
 ## [4.58.1](https://github.com/diplodoc-platform/cli/compare/v4.58.0...v4.58.1) (2025-05-14)
 
-
 ### Bug Fixes
 
-* add api prop to config ([f80dff7](https://github.com/diplodoc-platform/cli/commit/f80dff7aeccc746ba868496eaf3b9e2808ad7800))
+- add api prop to config ([f80dff7](https://github.com/diplodoc-platform/cli/commit/f80dff7aeccc746ba868496eaf3b9e2808ad7800))
 
 ## [4.58.0](https://github.com/diplodoc-platform/cli/compare/v4.57.24...v4.58.0) (2025-05-13)
 
-
 ### Features
 
-* reusable e2e tests ([1d86644](https://github.com/diplodoc-platform/cli/commit/1d866446dff1c8cb12ef9394d3a78e19702466db))
+- reusable e2e tests ([1d86644](https://github.com/diplodoc-platform/cli/commit/1d866446dff1c8cb12ef9394d3a78e19702466db))
 
 ## [4.57.24](https://github.com/diplodoc-platform/cli/compare/v4.57.23...v4.57.24) (2025-05-13)
 
-
 ### Bug Fixes
 
-* rm strict false mode ([5bc7f31](https://github.com/diplodoc-platform/cli/commit/5bc7f31e872dd5dccbd6ff8d95f8daa96569bd6e))
+- rm strict false mode ([5bc7f31](https://github.com/diplodoc-platform/cli/commit/5bc7f31e872dd5dccbd6ff8d95f8daa96569bd6e))
 
 ## [4.57.23](https://github.com/diplodoc-platform/cli/compare/v4.57.22...v4.57.23) (2025-05-12)
 
-
 ### Bug Fixes
 
-* Fix relative extensions initialization ([f3a7f14](https://github.com/diplodoc-platform/cli/commit/f3a7f149c12fa393cf4e7a46ddff071ef037ad58))
-* ts translate command errors ([118f66f](https://github.com/diplodoc-platform/cli/commit/118f66f773a319dd90129ccb7dc7b52c09b4e174))
-
+- Fix relative extensions initialization ([f3a7f14](https://github.com/diplodoc-platform/cli/commit/f3a7f149c12fa393cf4e7a46ddff071ef037ad58))
+- ts translate command errors ([118f66f](https://github.com/diplodoc-platform/cli/commit/118f66f773a319dd90129ccb7dc7b52c09b4e174))
 
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.9 ([2d92003](https://github.com/diplodoc-platform/cli/commit/2d92003e0517307dd5e76bb781663d8d7165ae04))
+- Update @diplodoc/translation to 1.7.9 ([2d92003](https://github.com/diplodoc-platform/cli/commit/2d92003e0517307dd5e76bb781663d8d7165ae04))
 
 ## [4.57.22](https://github.com/diplodoc-platform/cli/compare/v4.57.21...v4.57.22) (2025-05-06)
 
-
 ### Bug Fixes
 
-* resricted access on group without href ([a1ff892](https://github.com/diplodoc-platform/cli/commit/a1ff8928c0eef3ab985617fca4a37d61e65d832e))
+- resricted access on group without href ([a1ff892](https://github.com/diplodoc-platform/cli/commit/a1ff8928c0eef3ab985617fca4a37d61e65d832e))
 
 ## [4.57.21](https://github.com/diplodoc-platform/cli/compare/v4.57.20...v4.57.21) (2025-04-30)
 
-
 ### Bug Fixes
 
-* temporarily ignore typescript errors when running `prepublishOnly` ([81f027f](https://github.com/diplodoc-platform/cli/commit/81f027fb5aa4352accf64165cb440416dce9ca25))
+- temporarily ignore typescript errors when running `prepublishOnly` ([81f027f](https://github.com/diplodoc-platform/cli/commit/81f027fb5aa4352accf64165cb440416dce9ca25))
 
 ## [4.57.20](https://github.com/diplodoc-platform/cli/compare/v4.57.19...v4.57.20) (2025-04-30)
 
-
 ### Dependency update
 
-* pin cytoscape to 3.31.2 ([087d704](https://github.com/diplodoc-platform/cli/commit/087d70471e57beab5f2b593c5c58a4f14204892b))
+- pin cytoscape to 3.31.2 ([087d704](https://github.com/diplodoc-platform/cli/commit/087d70471e57beab5f2b593c5c58a4f14204892b))
 
 ## [4.57.19](https://github.com/diplodoc-platform/cli/compare/v4.57.18...v4.57.19) (2025-04-24)
 
-
 ### Bug Fixes
 
-* add default tocEntries list ([644c283](https://github.com/diplodoc-platform/cli/commit/644c283cdbf009ee95c5a290b1768639633684e2))
-* throw enoent warning, rm this file from entries list ([1f1588d](https://github.com/diplodoc-platform/cli/commit/1f1588d3d659daad709bc3e175313684e2c3e0cd))
+- add default tocEntries list ([644c283](https://github.com/diplodoc-platform/cli/commit/644c283cdbf009ee95c5a290b1768639633684e2))
+- throw enoent warning, rm this file from entries list ([1f1588d](https://github.com/diplodoc-platform/cli/commit/1f1588d3d659daad709bc3e175313684e2c3e0cd))
 
 ## [4.57.18](https://github.com/diplodoc-platform/cli/compare/v4.57.17...v4.57.18) (2025-04-23)
 
-
 ### Bug Fixes
 
-* if no entries in toc take input dir files ([3592461](https://github.com/diplodoc-platform/cli/commit/3592461744587a5eb98a6801d327f308a8f3ba36))
+- if no entries in toc take input dir files ([3592461](https://github.com/diplodoc-platform/cli/commit/3592461744587a5eb98a6801d327f308a8f3ba36))
 
 ## [4.57.17](https://github.com/diplodoc-platform/cli/compare/v4.57.16...v4.57.17) (2025-04-22)
 
-
 ### Bug Fixes
 
-* add meta, urlTitle, tags, leftItems to translate ([042ba2e](https://github.com/diplodoc-platform/cli/commit/042ba2e4f18e70d00baf07e8e3b5026768e0c3ed))
-* Update page-constructor-schema and script, add e2e test ([58c1c3c](https://github.com/diplodoc-platform/cli/commit/58c1c3c323acfc36fbf4cb21d49a63ca79a8c592))
+- add meta, urlTitle, tags, leftItems to translate ([042ba2e](https://github.com/diplodoc-platform/cli/commit/042ba2e4f18e70d00baf07e8e3b5026768e0c3ed))
+- Update page-constructor-schema and script, add e2e test ([58c1c3c](https://github.com/diplodoc-platform/cli/commit/58c1c3c323acfc36fbf4cb21d49a63ca79a8c592))
 
 ## [4.57.16](https://github.com/diplodoc-platform/cli/compare/v4.57.15...v4.57.16) (2025-04-21)
 
-
 ### Bug Fixes
 
-* add default toc conditions, subsitutions ([8362b8f](https://github.com/diplodoc-platform/cli/commit/8362b8fc95be8bfcbe328c963db4c40f6c5beb72))
+- add default toc conditions, subsitutions ([8362b8f](https://github.com/diplodoc-platform/cli/commit/8362b8fc95be8bfcbe328c963db4c40f6c5beb72))
 
 ## [4.57.15](https://github.com/diplodoc-platform/cli/compare/v4.57.14...v4.57.15) (2025-04-21)
 
-
 ### Bug Fixes
 
-* add default yaml conditions, update test, add toc.yaml files to translations ([d4faaaf](https://github.com/diplodoc-platform/cli/commit/d4faaaf593c76607ee25ee2d07a3de02b5a50ee9))
+- add default yaml conditions, update test, add toc.yaml files to translations ([d4faaaf](https://github.com/diplodoc-platform/cli/commit/d4faaaf593c76607ee25ee2d07a3de02b5a50ee9))
 
 ## [4.57.14](https://github.com/diplodoc-platform/cli/compare/v4.57.13...v4.57.14) (2025-04-18)
 
-
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.8 ([ea27260](https://github.com/diplodoc-platform/cli/commit/ea272606573816f23633d9019d73c8cfa3f2c03d))
+- Update @diplodoc/translation to 1.7.8 ([ea27260](https://github.com/diplodoc-platform/cli/commit/ea272606573816f23633d9019d73c8cfa3f2c03d))
 
 ## [4.57.13](https://github.com/diplodoc-platform/cli/compare/v4.57.12...v4.57.13) (2025-04-18)
 
-
 ### Bug Fixes
 
-* filter files in translate ([e4ff6a2](https://github.com/diplodoc-platform/cli/commit/e4ff6a202f275ef104013fc70ed83bd5e4e09913))
-* filter files in translate test ([9909c99](https://github.com/diplodoc-platform/cli/commit/9909c99873ff3d3d91493bef55fb68f3b456055a))
+- filter files in translate ([e4ff6a2](https://github.com/diplodoc-platform/cli/commit/e4ff6a202f275ef104013fc70ed83bd5e4e09913))
+- filter files in translate test ([9909c99](https://github.com/diplodoc-platform/cli/commit/9909c99873ff3d3d91493bef55fb68f3b456055a))
 
 ## [4.57.12](https://github.com/diplodoc-platform/cli/compare/v4.57.11...v4.57.12) (2025-04-17)
 
-
 ### chore
 
-* release 4.57.12 ([5dfbd0e](https://github.com/diplodoc-platform/cli/commit/5dfbd0e43eec40c9372f831733622fbd27d23cb6))
-
+- release 4.57.12 ([5dfbd0e](https://github.com/diplodoc-platform/cli/commit/5dfbd0e43eec40c9372f831733622fbd27d23cb6))
 
 ### Features
 
-* add restricted access to frontmatter ([fbe9eaa](https://github.com/diplodoc-platform/cli/commit/fbe9eaabab768a1e32bd3b1b7578f3927514d5cc))
+- add restricted access to frontmatter ([fbe9eaa](https://github.com/diplodoc-platform/cli/commit/fbe9eaabab768a1e32bd3b1b7578f3927514d5cc))
 
 ## [4.57.11](https://github.com/diplodoc-platform/cli/compare/v4.57.10...v4.57.11) (2025-04-09)
 
-
 ### Bug Fixes
 
-* add toc dump memoize ([59895ae](https://github.com/diplodoc-platform/cli/commit/59895aed36f7ff1833ee06c9885ed9c543878dae))
+- add toc dump memoize ([59895ae](https://github.com/diplodoc-platform/cli/commit/59895aed36f7ff1833ee06c9885ed9c543878dae))
 
 ## [4.57.10](https://github.com/diplodoc-platform/cli/compare/v4.57.9...v4.57.10) (2025-04-03)
 
-
 ### Dependency update
 
-* Update @diplodoc/openapi-extension to 2.7.1 ([a763308](https://github.com/diplodoc-platform/cli/commit/a763308796b6175b99e70e69d8de1942567a155b))
+- Update @diplodoc/openapi-extension to 2.7.1 ([a763308](https://github.com/diplodoc-platform/cli/commit/a763308796b6175b99e70e69d8de1942567a155b))
 
 ## [4.57.9](https://github.com/diplodoc-platform/cli/compare/v4.57.8...v4.57.9) (2025-04-03)
 
-
 ### Bug Fixes
 
-* downgrade escaping ([3339eb3](https://github.com/diplodoc-platform/cli/commit/3339eb3d01c92f0072742082f2f99c500b3e415f))
-* XSS expluatation in static-content mode ([#1092](https://github.com/diplodoc-platform/cli/issues/1092)) ([c652a0d](https://github.com/diplodoc-platform/cli/commit/c652a0d62ec964d13e91a8ca50f88de4aeb90e96))
+- downgrade escaping ([3339eb3](https://github.com/diplodoc-platform/cli/commit/3339eb3d01c92f0072742082f2f99c500b3e415f))
+- XSS expluatation in static-content mode ([#1092](https://github.com/diplodoc-platform/cli/issues/1092)) ([c652a0d](https://github.com/diplodoc-platform/cli/commit/c652a0d62ec964d13e91a8ca50f88de4aeb90e96))
 
 ## [4.57.8](https://github.com/diplodoc-platform/cli/compare/v4.57.7...v4.57.8) (2025-04-01)
 
-
 ### Bug Fixes
 
-* Fix local link rebasing and resolving ([8c41f6c](https://github.com/diplodoc-platform/cli/commit/8c41f6ceb0436a06f643a8d5de3fe9b7b166b34c))
-* Handle only known leading description formats ([6e3f8cd](https://github.com/diplodoc-platform/cli/commit/6e3f8cd2f8fba7b19530b53e921f5e92969c3a08))
-
+- Fix local link rebasing and resolving ([8c41f6c](https://github.com/diplodoc-platform/cli/commit/8c41f6ceb0436a06f643a8d5de3fe9b7b166b34c))
+- Handle only known leading description formats ([6e3f8cd](https://github.com/diplodoc-platform/cli/commit/6e3f8cd2f8fba7b19530b53e921f5e92969c3a08))
 
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.6 ([246d6bd](https://github.com/diplodoc-platform/cli/commit/246d6bdcabc6d8947200dfaed85c14ebdb162e2d))
+- Update @diplodoc/translation to 1.7.6 ([246d6bd](https://github.com/diplodoc-platform/cli/commit/246d6bdcabc6d8947200dfaed85c14ebdb162e2d))
 
 ## [4.57.7](https://github.com/diplodoc-platform/cli/compare/v4.57.6...v4.57.7) (2025-03-27)
 
-
 ### Bug Fixes
 
-* Write file race condition ([22f3dd9](https://github.com/diplodoc-platform/cli/commit/22f3dd92b2e1f70aadb08aa7a5aca887c2ecff02))
+- Write file race condition ([22f3dd9](https://github.com/diplodoc-platform/cli/commit/22f3dd92b2e1f70aadb08aa7a5aca887c2ecff02))
 
 ## [4.57.6](https://github.com/diplodoc-platform/cli/compare/v4.57.5...v4.57.6) (2025-03-27)
 
-
 ### Bug Fixes
 
-* Fix sequential includes ([cddae07](https://github.com/diplodoc-platform/cli/commit/cddae07f8fcf0358bf0eb0bb5e50ccae7468baeb))
+- Fix sequential includes ([cddae07](https://github.com/diplodoc-platform/cli/commit/cddae07f8fcf0358bf0eb0bb5e50ccae7468baeb))
 
 ## [4.57.5](https://github.com/diplodoc-platform/cli/compare/v4.57.4...v4.57.5) (2025-03-27)
 
-
 ### Bug Fixes
 
-* Fix singlepage files race condition ([b4bcc4d](https://github.com/diplodoc-platform/cli/commit/b4bcc4d995f6484387844cc6cd85d25f345be17e))
+- Fix singlepage files race condition ([b4bcc4d](https://github.com/diplodoc-platform/cli/commit/b4bcc4d995f6484387844cc6cd85d25f345be17e))
 
 ## [4.57.4](https://github.com/diplodoc-platform/cli/compare/v4.57.3...v4.57.4) (2025-03-26)
 
-
 ### Bug Fixes
 
-* restore broken anchors ([c193a1d](https://github.com/diplodoc-platform/cli/commit/c193a1df8452cb7638c8d0849510ab7b57c5b031))
+- restore broken anchors ([c193a1d](https://github.com/diplodoc-platform/cli/commit/c193a1df8452cb7638c8d0849510ab7b57c5b031))
 
 ## [4.57.3](https://github.com/diplodoc-platform/cli/compare/v4.57.2...v4.57.3) (2025-03-26)
 
-
 ### Dependency update
 
-* Update @diplodoc/client to 3.3.1 ([#1078](https://github.com/diplodoc-platform/cli/issues/1078)) ([6f5862f](https://github.com/diplodoc-platform/cli/commit/6f5862f0378c89eec40797f7e754dff980697334))
+- Update @diplodoc/client to 3.3.1 ([#1078](https://github.com/diplodoc-platform/cli/issues/1078)) ([6f5862f](https://github.com/diplodoc-platform/cli/commit/6f5862f0378c89eec40797f7e754dff980697334))
 
 ## [4.57.2](https://github.com/diplodoc-platform/cli/compare/v4.57.1...v4.57.2) (2025-03-25)
 
-
 ### Dependency update
 
-* Update @diplodoc/client to 3.3.0 ([2cf559b](https://github.com/diplodoc-platform/cli/commit/2cf559b8442a1cde5271c5b1dc85c0d897e29a55))
-* Update @diplodoc/transform to 4.50.2 ([7b15df0](https://github.com/diplodoc-platform/cli/commit/7b15df0c86ac350d8f0429b305dd79ac659c40db))
+- Update @diplodoc/client to 3.3.0 ([2cf559b](https://github.com/diplodoc-platform/cli/commit/2cf559b8442a1cde5271c5b1dc85c0d897e29a55))
+- Update @diplodoc/transform to 4.50.2 ([7b15df0](https://github.com/diplodoc-platform/cli/commit/7b15df0c86ac350d8f0429b305dd79ac659c40db))
 
 ## [4.57.1](https://github.com/diplodoc-platform/cli/compare/v4.57.0...v4.57.1) (2025-03-24)
 
-
 ### Bug Fixes
 
-* Force write generated openapi files ([d60d064](https://github.com/diplodoc-platform/cli/commit/d60d064222ac542f1fad43854344a178750206e2))
+- Force write generated openapi files ([d60d064](https://github.com/diplodoc-platform/cli/commit/d60d064222ac542f1fad43854344a178750206e2))
 
 ## [4.57.0](https://github.com/diplodoc-platform/cli/compare/v4.56.0...v4.57.0) (2025-03-24)
 
-
 ### Features
 
-* Add meta tag "generator" ([fede530](https://github.com/diplodoc-platform/cli/commit/fede530cd716321ec23bb0071f5f78f4e8651b39))
-* Reimplement linter to be compatible with new arch ([dade3d2](https://github.com/diplodoc-platform/cli/commit/dade3d25d35cd1590c33cb6ecdf527375bf8a589))
-
+- Add meta tag "generator" ([fede530](https://github.com/diplodoc-platform/cli/commit/fede530cd716321ec23bb0071f5f78f4e8651b39))
+- Reimplement linter to be compatible with new arch ([dade3d2](https://github.com/diplodoc-platform/cli/commit/dade3d25d35cd1590c33cb6ecdf527375bf8a589))
 
 ### Bug Fixes
 
-* Copy all related files in one place ([00bcf72](https://github.com/diplodoc-platform/cli/commit/00bcf72d0988cc40ff8e8a3bd6bc12f42f8ab434))
-* Do not handle images inside commented blocks ([e5a0ff1](https://github.com/diplodoc-platform/cli/commit/e5a0ff171dff3e7065ba1e73673336c261c707e8))
-* Do not use legacy meta plugin ([2d6761c](https://github.com/diplodoc-platform/cli/commit/2d6761cb42ff5a962a8206de4617a73b6239a5d7))
-* Fix `Search provider for 'local' is not registered.` for md build ([d4ff161](https://github.com/diplodoc-platform/cli/commit/d4ff161926a30f2638e03023d53476cb656ecb78))
-* Fix deps detection ([d24a6f5](https://github.com/diplodoc-platform/cli/commit/d24a6f5b25fb5e941409ae63ee8974a13bcdddb8))
-* Fix external link processing ([ce7fcc4](https://github.com/diplodoc-platform/cli/commit/ce7fcc496afdb8990e54f5623a649c3f29222e4a))
-* Fix uncaught exceptions ([08f93ba](https://github.com/diplodoc-platform/cli/commit/08f93ba17844e70c0cf224b57984e59faf73e3c4))
-* Ignore incorrect assets ([757c5be](https://github.com/diplodoc-platform/cli/commit/757c5becc5556806f3c97fee173014d7f1641fc7))
-* Normalize empty yaml files ([7f3e072](https://github.com/diplodoc-platform/cli/commit/7f3e0721f14c2012a9769701ae774159124c7bed))
-* Safely parse urls in markdown ([05af25a](https://github.com/diplodoc-platform/cli/commit/05af25a3216a545e62388825402eccdb9a3257f7))
-* Show warnings and errors in quiet mode ([31e0b3a](https://github.com/diplodoc-platform/cli/commit/31e0b3aede4ccfa1ef553c29866673ff6c8c6620))
-* Simplify async code in loaders ([af203ca](https://github.com/diplodoc-platform/cli/commit/af203cae4c02e136a702b455d8dcb51eddd6cf97))
-
+- Copy all related files in one place ([00bcf72](https://github.com/diplodoc-platform/cli/commit/00bcf72d0988cc40ff8e8a3bd6bc12f42f8ab434))
+- Do not handle images inside commented blocks ([e5a0ff1](https://github.com/diplodoc-platform/cli/commit/e5a0ff171dff3e7065ba1e73673336c261c707e8))
+- Do not use legacy meta plugin ([2d6761c](https://github.com/diplodoc-platform/cli/commit/2d6761cb42ff5a962a8206de4617a73b6239a5d7))
+- Fix `Search provider for 'local' is not registered.` for md build ([d4ff161](https://github.com/diplodoc-platform/cli/commit/d4ff161926a30f2638e03023d53476cb656ecb78))
+- Fix deps detection ([d24a6f5](https://github.com/diplodoc-platform/cli/commit/d24a6f5b25fb5e941409ae63ee8974a13bcdddb8))
+- Fix external link processing ([ce7fcc4](https://github.com/diplodoc-platform/cli/commit/ce7fcc496afdb8990e54f5623a649c3f29222e4a))
+- Fix uncaught exceptions ([08f93ba](https://github.com/diplodoc-platform/cli/commit/08f93ba17844e70c0cf224b57984e59faf73e3c4))
+- Ignore incorrect assets ([757c5be](https://github.com/diplodoc-platform/cli/commit/757c5becc5556806f3c97fee173014d7f1641fc7))
+- Normalize empty yaml files ([7f3e072](https://github.com/diplodoc-platform/cli/commit/7f3e0721f14c2012a9769701ae774159124c7bed))
+- Safely parse urls in markdown ([05af25a](https://github.com/diplodoc-platform/cli/commit/05af25a3216a545e62388825402eccdb9a3257f7))
+- Show warnings and errors in quiet mode ([31e0b3a](https://github.com/diplodoc-platform/cli/commit/31e0b3aede4ccfa1ef553c29866673ff6c8c6620))
+- Simplify async code in loaders ([af203ca](https://github.com/diplodoc-platform/cli/commit/af203cae4c02e136a702b455d8dcb51eddd6cf97))
 
 ### Performance Improvements
 
-* Reduce memory consumption for assets ([3de3961](https://github.com/diplodoc-platform/cli/commit/3de3961a657641e2a974a64318d96c94bb9ec242))
-
+- Reduce memory consumption for assets ([3de3961](https://github.com/diplodoc-platform/cli/commit/3de3961a657641e2a974a64318d96c94bb9ec242))
 
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.5 ([60f18fd](https://github.com/diplodoc-platform/cli/commit/60f18fd200d06e8795fe0808bf3a1d7ce9b30bde))
-* Update yfmlint ([993ac7f](https://github.com/diplodoc-platform/cli/commit/993ac7f910a5bca52b6725015423f2e15d5abc40))
+- Update @diplodoc/translation to 1.7.5 ([60f18fd](https://github.com/diplodoc-platform/cli/commit/60f18fd200d06e8795fe0808bf3a1d7ce9b30bde))
+- Update yfmlint ([993ac7f](https://github.com/diplodoc-platform/cli/commit/993ac7f910a5bca52b6725015423f2e15d5abc40))
 
 ## [4.56.0](https://github.com/diplodoc-platform/cli/compare/v4.55.1...v4.56.0) (2025-03-10)
 
-
 ### Features
 
-* Drop old logger support ([9b5abed](https://github.com/diplodoc-platform/cli/commit/9b5abed7272d0851b0bf9de488805f31a72af200))
-* Enable new Vcs feature ([c962314](https://github.com/diplodoc-platform/cli/commit/c962314d28713c290816a5e6d6343d39f0272eea))
-* Expose public Extension API ([a004f7a](https://github.com/diplodoc-platform/cli/commit/a004f7aeadda4572e943fb45fdfd6e2b9b00b8b4))
-* Implement custom-resources feature ([1ff4e9e](https://github.com/diplodoc-platform/cli/commit/1ff4e9e643280cdfca4d4eb42ae32962b7c5fc11))
-* Integrate external liquid package ([8c5dd44](https://github.com/diplodoc-platform/cli/commit/8c5dd44c094ac5c7c8eac55177c26cf38b0eebba))
-* Protect Run.write from concurrent write ([3b35b56](https://github.com/diplodoc-platform/cli/commit/3b35b564b80c54dfc8d7753e1c21ec94d26dc507))
-* Remove `sourcePath` option from core.Run.load ([0fa4aac](https://github.com/diplodoc-platform/cli/commit/0fa4aace7fd2f9d774769272ca8e85d898a29c8c))
-* Remove processAssets step ([37cb50d](https://github.com/diplodoc-platform/cli/commit/37cb50d4e8f6b79dda47d7289b32da090e887c14))
-* Use new Markdown service in processPages ([270aaf0](https://github.com/diplodoc-platform/cli/commit/270aaf0ca666f38505109030725282381fa68449))
-* Use new services in page processing ([3d827e3](https://github.com/diplodoc-platform/cli/commit/3d827e31025038236bf3ec48444772485753077c))
-* Use reimplemented changelogs plugin ([eb3a382](https://github.com/diplodoc-platform/cli/commit/eb3a3826809c343d7469aa097bc82e121be79c07))
-
+- Drop old logger support ([9b5abed](https://github.com/diplodoc-platform/cli/commit/9b5abed7272d0851b0bf9de488805f31a72af200))
+- Enable new Vcs feature ([c962314](https://github.com/diplodoc-platform/cli/commit/c962314d28713c290816a5e6d6343d39f0272eea))
+- Expose public Extension API ([a004f7a](https://github.com/diplodoc-platform/cli/commit/a004f7aeadda4572e943fb45fdfd6e2b9b00b8b4))
+- Implement custom-resources feature ([1ff4e9e](https://github.com/diplodoc-platform/cli/commit/1ff4e9e643280cdfca4d4eb42ae32962b7c5fc11))
+- Integrate external liquid package ([8c5dd44](https://github.com/diplodoc-platform/cli/commit/8c5dd44c094ac5c7c8eac55177c26cf38b0eebba))
+- Protect Run.write from concurrent write ([3b35b56](https://github.com/diplodoc-platform/cli/commit/3b35b564b80c54dfc8d7753e1c21ec94d26dc507))
+- Remove `sourcePath` option from core.Run.load ([0fa4aac](https://github.com/diplodoc-platform/cli/commit/0fa4aace7fd2f9d774769272ca8e85d898a29c8c))
+- Remove processAssets step ([37cb50d](https://github.com/diplodoc-platform/cli/commit/37cb50d4e8f6b79dda47d7289b32da090e887c14))
+- Use new Markdown service in processPages ([270aaf0](https://github.com/diplodoc-platform/cli/commit/270aaf0ca666f38505109030725282381fa68449))
+- Use new services in page processing ([3d827e3](https://github.com/diplodoc-platform/cli/commit/3d827e31025038236bf3ec48444772485753077c))
+- Use reimplemented changelogs plugin ([eb3a382](https://github.com/diplodoc-platform/cli/commit/eb3a3826809c343d7469aa097bc82e121be79c07))
 
 ### Bug Fixes
 
-* Allow incorrect include syntax ([05393bb](https://github.com/diplodoc-platform/cli/commit/05393bb5d35a017645613333c4647830cae52bca))
-* Copy leading page assets ([1100bfe](https://github.com/diplodoc-platform/cli/commit/1100bfe91763517e976a4e71dc094d0c09929a70))
-* Extend out of scope logging ([d80088d](https://github.com/diplodoc-platform/cli/commit/d80088d5dbf17a4bc0c9a8b805d6d7c43e277438))
-* Fix assets resolution ([32296b2](https://github.com/diplodoc-platform/cli/commit/32296b2da99791c32a8d16c42ffadf4d0bd2922d))
-* Fix extension resolving ([7ab0025](https://github.com/diplodoc-platform/cli/commit/7ab0025fc230447039576329e724ceb157d06f00))
-* Fix hidden directory filtering ([1a60921](https://github.com/diplodoc-platform/cli/commit/1a609216a072491df3ed264e1d3bcbc484696501))
-* Fix Latex and Mermaid processing ([edc671c](https://github.com/diplodoc-platform/cli/commit/edc671cc1b28f4585840e2545639db457ba058b9))
-* Fix leading assets copy ([0d5ef8f](https://github.com/diplodoc-platform/cli/commit/0d5ef8f5f22e367ac575c10a8a0096cedc94884f))
-* Fix legacy presets resolving ([9f647f3](https://github.com/diplodoc-platform/cli/commit/9f647f3cb9dd4a9daed02ab136f40f26b83b7fa6))
-* Fix PC preprocessing langs ([0e03175](https://github.com/diplodoc-platform/cli/commit/0e03175aa33258ce4bc016a6247bddeccdee1fc3))
-* Fix search provider varning ([83fbcb1](https://github.com/diplodoc-platform/cli/commit/83fbcb1afb9a3cf2004ffbd3a23d07d22728a46d))
-* Fixes for smoke tests ([00d6b50](https://github.com/diplodoc-platform/cli/commit/00d6b50fc7af102e0478712036b6c23c19d8c7ef))
-* Handle root presets.yaml ([b9dff73](https://github.com/diplodoc-platform/cli/commit/b9dff7396ae6f12b1f43180b06c6cb483f236f2c))
-* Improve VarsService memory consumption ([99f83f6](https://github.com/diplodoc-platform/cli/commit/99f83f68ac2a4b4c2fb3688fc04f72b688b4833a))
-* Trim legacy config ([0ba54a3](https://github.com/diplodoc-platform/cli/commit/0ba54a3015ac52cd83b1b41ffe512207417b9886))
-
+- Allow incorrect include syntax ([05393bb](https://github.com/diplodoc-platform/cli/commit/05393bb5d35a017645613333c4647830cae52bca))
+- Copy leading page assets ([1100bfe](https://github.com/diplodoc-platform/cli/commit/1100bfe91763517e976a4e71dc094d0c09929a70))
+- Extend out of scope logging ([d80088d](https://github.com/diplodoc-platform/cli/commit/d80088d5dbf17a4bc0c9a8b805d6d7c43e277438))
+- Fix assets resolution ([32296b2](https://github.com/diplodoc-platform/cli/commit/32296b2da99791c32a8d16c42ffadf4d0bd2922d))
+- Fix extension resolving ([7ab0025](https://github.com/diplodoc-platform/cli/commit/7ab0025fc230447039576329e724ceb157d06f00))
+- Fix hidden directory filtering ([1a60921](https://github.com/diplodoc-platform/cli/commit/1a609216a072491df3ed264e1d3bcbc484696501))
+- Fix Latex and Mermaid processing ([edc671c](https://github.com/diplodoc-platform/cli/commit/edc671cc1b28f4585840e2545639db457ba058b9))
+- Fix leading assets copy ([0d5ef8f](https://github.com/diplodoc-platform/cli/commit/0d5ef8f5f22e367ac575c10a8a0096cedc94884f))
+- Fix legacy presets resolving ([9f647f3](https://github.com/diplodoc-platform/cli/commit/9f647f3cb9dd4a9daed02ab136f40f26b83b7fa6))
+- Fix PC preprocessing langs ([0e03175](https://github.com/diplodoc-platform/cli/commit/0e03175aa33258ce4bc016a6247bddeccdee1fc3))
+- Fix search provider varning ([83fbcb1](https://github.com/diplodoc-platform/cli/commit/83fbcb1afb9a3cf2004ffbd3a23d07d22728a46d))
+- Fixes for smoke tests ([00d6b50](https://github.com/diplodoc-platform/cli/commit/00d6b50fc7af102e0478712036b6c23c19d8c7ef))
+- Handle root presets.yaml ([b9dff73](https://github.com/diplodoc-platform/cli/commit/b9dff7396ae6f12b1f43180b06c6cb483f236f2c))
+- Improve VarsService memory consumption ([99f83f6](https://github.com/diplodoc-platform/cli/commit/99f83f68ac2a4b4c2fb3688fc04f72b688b4833a))
+- Trim legacy config ([0ba54a3](https://github.com/diplodoc-platform/cli/commit/0ba54a3015ac52cd83b1b41ffe512207417b9886))
 
 ### Performance Improvements
 
-* Improve heading match performance ([2ec51b2](https://github.com/diplodoc-platform/cli/commit/2ec51b20cda3ba90b8ee33b84678d1efc2dabb84))
-
+- Improve heading match performance ([2ec51b2](https://github.com/diplodoc-platform/cli/commit/2ec51b20cda3ba90b8ee33b84678d1efc2dabb84))
 
 ### Dependency update
 
-* Update mermaid, latex, translation ([5cad013](https://github.com/diplodoc-platform/cli/commit/5cad013c79a81fa2adf09910ffbdba56713bda7c))
+- Update mermaid, latex, translation ([5cad013](https://github.com/diplodoc-platform/cli/commit/5cad013c79a81fa2adf09910ffbdba56713bda7c))
 
 ## [4.55.1](https://github.com/diplodoc-platform/cli/compare/v4.55.0...v4.55.1) (2025-03-06)
 
-
 ### Bug Fixes
 
-* move lib-storage to dependencies ([#1049](https://github.com/diplodoc-platform/cli/issues/1049)) ([7453ac9](https://github.com/diplodoc-platform/cli/commit/7453ac9bddc5d29d4e32df93140e87cb0f0b9b8d))
+- move lib-storage to dependencies ([#1049](https://github.com/diplodoc-platform/cli/issues/1049)) ([7453ac9](https://github.com/diplodoc-platform/cli/commit/7453ac9bddc5d29d4e32df93140e87cb0f0b9b8d))
 
 ## [4.55.0](https://github.com/diplodoc-platform/cli/compare/v4.54.6...v4.55.0) (2025-03-05)
 
-
 ### Features
 
-* replace PutObjectCommand with lib-storage ([#1047](https://github.com/diplodoc-platform/cli/issues/1047)) ([ff0c898](https://github.com/diplodoc-platform/cli/commit/ff0c8982a73a74366b2f899bb13c93a1e4f7b362))
+- replace PutObjectCommand with lib-storage ([#1047](https://github.com/diplodoc-platform/cli/issues/1047)) ([ff0c898](https://github.com/diplodoc-platform/cli/commit/ff0c8982a73a74366b2f899bb13c93a1e4f7b362))
 
 ## [4.54.6](https://github.com/diplodoc-platform/cli/compare/v4.54.5...v4.54.6) (2025-03-03)
 
-
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.3 ([5d2b15e](https://github.com/diplodoc-platform/cli/commit/5d2b15e692807e7202954ecf037f2765bedbe7a5))
+- Update @diplodoc/translation to 1.7.3 ([5d2b15e](https://github.com/diplodoc-platform/cli/commit/5d2b15e692807e7202954ecf037f2765bedbe7a5))
 
 ## [4.54.5](https://github.com/diplodoc-platform/cli/compare/v4.54.4...v4.54.5) (2025-02-27)
 
-
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.2 ([4d7ed5a](https://github.com/diplodoc-platform/cli/commit/4d7ed5ac293008feaf02270f4c01071fba3cbeec))
+- Update @diplodoc/translation to 1.7.2 ([4d7ed5a](https://github.com/diplodoc-platform/cli/commit/4d7ed5ac293008feaf02270f4c01071fba3cbeec))
 
 ## [4.54.4](https://github.com/diplodoc-platform/cli/compare/v4.54.3...v4.54.4) (2025-02-25)
 
-
 ### Dependency update
 
-* Update @diplodoc/client to 3.1.12 ([#1039](https://github.com/diplodoc-platform/cli/issues/1039)) ([a78dffa](https://github.com/diplodoc-platform/cli/commit/a78dffafbd9856465064568dbb91d98f6ce33406))
+- Update @diplodoc/client to 3.1.12 ([#1039](https://github.com/diplodoc-platform/cli/issues/1039)) ([a78dffa](https://github.com/diplodoc-platform/cli/commit/a78dffafbd9856465064568dbb91d98f6ce33406))
 
 ## [4.54.3](https://github.com/diplodoc-platform/cli/compare/v4.54.2...v4.54.3) (2025-02-20)
 
-
 ### Dependency update
 
-* Update @diplodoc/translation to 1.7.1 ([#1036](https://github.com/diplodoc-platform/cli/issues/1036)) ([6eb2351](https://github.com/diplodoc-platform/cli/commit/6eb2351f1f0c68d26d526c9cad6b212e0d93cb19))
+- Update @diplodoc/translation to 1.7.1 ([#1036](https://github.com/diplodoc-platform/cli/issues/1036)) ([6eb2351](https://github.com/diplodoc-platform/cli/commit/6eb2351f1f0c68d26d526c9cad6b212e0d93cb19))
 
 ## [4.54.2](https://github.com/diplodoc-platform/cli/compare/v4.54.1...v4.54.2) (2025-02-18)
 
-
 ### Dependency update
 
-* bump @diplodoc-platform/transform to 4.47.1 ([c8bdff5](https://github.com/diplodoc-platform/cli/commit/c8bdff52ff8d706c5aebe9d41d1a51fb8c652122))
+- bump @diplodoc-platform/transform to 4.47.1 ([c8bdff5](https://github.com/diplodoc-platform/cli/commit/c8bdff52ff8d706c5aebe9d41d1a51fb8c652122))
 
 ## [4.54.1](https://github.com/diplodoc-platform/cli/compare/v4.54.0...v4.54.1) (2025-02-17)
 
-
 ### Bug Fixes
 
-* Fix search configuration ([aa70ecc](https://github.com/diplodoc-platform/cli/commit/aa70ecc94fe5077abd4d7a315620ad4e28d3df17))
+- Fix search configuration ([aa70ecc](https://github.com/diplodoc-platform/cli/commit/aa70ecc94fe5077abd4d7a315620ad4e28d3df17))
 
 ## [4.54.0](https://github.com/diplodoc-platform/cli/compare/v4.53.15...v4.54.0) (2025-02-14)
 
-
 ### Features
 
-* Attach new search engines ([8f2a1a6](https://github.com/diplodoc-platform/cli/commit/8f2a1a695a1a0e047272d8c2983c1ea78911a65d))
-* Implement new AlgoliaSearch extension ([13bf4f2](https://github.com/diplodoc-platform/cli/commit/13bf4f297588206e77ffde3b6b12f22d57f7cb0f))
-* Implement new Leading service ([6e5971d](https://github.com/diplodoc-platform/cli/commit/6e5971d9042c47eff0673e412dd8466b2c259b52))
-* Implement new Meta service ([0d6d425](https://github.com/diplodoc-platform/cli/commit/0d6d425f7f945dd990bb4ed6d34c900fdcd2024f))
-* Implement new Search service ([b08ba35](https://github.com/diplodoc-platform/cli/commit/b08ba35029b2608855701f6ecd8604f23d13e4c9))
-* Implement new VCS service and connector ([76b9d7c](https://github.com/diplodoc-platform/cli/commit/76b9d7c22b69aec3330c5f38c62eb6aca22f23e4))
-
+- Attach new search engines ([8f2a1a6](https://github.com/diplodoc-platform/cli/commit/8f2a1a695a1a0e047272d8c2983c1ea78911a65d))
+- Implement new AlgoliaSearch extension ([13bf4f2](https://github.com/diplodoc-platform/cli/commit/13bf4f297588206e77ffde3b6b12f22d57f7cb0f))
+- Implement new Leading service ([6e5971d](https://github.com/diplodoc-platform/cli/commit/6e5971d9042c47eff0673e412dd8466b2c259b52))
+- Implement new Meta service ([0d6d425](https://github.com/diplodoc-platform/cli/commit/0d6d425f7f945dd990bb4ed6d34c900fdcd2024f))
+- Implement new Search service ([b08ba35](https://github.com/diplodoc-platform/cli/commit/b08ba35029b2608855701f6ecd8604f23d13e4c9))
+- Implement new VCS service and connector ([76b9d7c](https://github.com/diplodoc-platform/cli/commit/76b9d7c22b69aec3330c5f38c62eb6aca22f23e4))
 
 ### Bug Fixes
 
-* Fix core based paths ([4e35b36](https://github.com/diplodoc-platform/cli/commit/4e35b36187b71078dc564f27b8d027707e98efb7))
-* Move external assets copy to postinstall step ([30ea78b](https://github.com/diplodoc-platform/cli/commit/30ea78bf8a003b3dba046716d7553c92b4ad9223))
-
+- Fix core based paths ([4e35b36](https://github.com/diplodoc-platform/cli/commit/4e35b36187b71078dc564f27b8d027707e98efb7))
+- Move external assets copy to postinstall step ([30ea78b](https://github.com/diplodoc-platform/cli/commit/30ea78bf8a003b3dba046716d7553c92b4ad9223))
 
 ### Dependency update
 
-* Update core deps ([a2a1628](https://github.com/diplodoc-platform/cli/commit/a2a16282714dfd4688232282a4ccc0707e476dfc))
+- Update core deps ([a2a1628](https://github.com/diplodoc-platform/cli/commit/a2a16282714dfd4688232282a4ccc0707e476dfc))
 
 ## [4.53.15](https://github.com/diplodoc-platform/cli/compare/v4.53.14...v4.53.15) (2025-02-10)
 
-
 ### Bug Fixes
 
-* Fix async race confition on md files write ([f0593c5](https://github.com/diplodoc-platform/cli/commit/f0593c5488b89b0976f7fa98c815d36fc710454f))
+- Fix async race confition on md files write ([f0593c5](https://github.com/diplodoc-platform/cli/commit/f0593c5488b89b0976f7fa98c815d36fc710454f))
 
 ## [4.53.14](https://github.com/diplodoc-platform/cli/compare/v4.53.13...v4.53.14) (2025-02-10)
 
-
 ### Bug Fixes
 
-* Fix assets processing for leading pages with PC ([43d68b4](https://github.com/diplodoc-platform/cli/commit/43d68b4eddf56732fc937b6b65e3505b05a7fb6d))
+- Fix assets processing for leading pages with PC ([43d68b4](https://github.com/diplodoc-platform/cli/commit/43d68b4eddf56732fc937b6b65e3505b05a7fb6d))
 
 ## [4.53.13](https://github.com/diplodoc-platform/cli/compare/v4.53.12...v4.53.13) (2025-02-10)
 
-
 ### Bug Fixes
 
-* Revert md2md tokenStream feature ([425598b](https://github.com/diplodoc-platform/cli/commit/425598bb12d5de0da09ffcd3c4ff8cd7ce1fe387))
+- Revert md2md tokenStream feature ([425598b](https://github.com/diplodoc-platform/cli/commit/425598bb12d5de0da09ffcd3c4ff8cd7ce1fe387))
 
 ## [4.53.12](https://github.com/diplodoc-platform/cli/compare/v4.53.11...v4.53.12) (2025-02-10)
 
-
 ### Bug Fixes
 
-* Fix presets resolving for root merged toc fragments ([5042076](https://github.com/diplodoc-platform/cli/commit/50420760862e40c949d2c2f3e7d6795505cc5af2))
+- Fix presets resolving for root merged toc fragments ([5042076](https://github.com/diplodoc-platform/cli/commit/50420760862e40c949d2c2f3e7d6795505cc5af2))
 
 ## [4.53.11](https://github.com/diplodoc-platform/cli/compare/v4.53.10...v4.53.11) (2025-02-07)
 
-
 ### Bug Fixes
 
-* Normalize case when toc items is an object instead of array ([33bb645](https://github.com/diplodoc-platform/cli/commit/33bb645735ac49aa12cc61162789d0cd9321c39c))
+- Normalize case when toc items is an object instead of array ([33bb645](https://github.com/diplodoc-platform/cli/commit/33bb645735ac49aa12cc61162789d0cd9321c39c))
 
 ## [4.53.10](https://github.com/diplodoc-platform/cli/compare/v4.53.9...v4.53.10) (2025-02-06)
 
-
 ### Bug Fixes
 
-* Temporary mute error behevior on missed assets ([86ddbc5](https://github.com/diplodoc-platform/cli/commit/86ddbc5bd0fd04e673febdbb60d4851317f3b82a))
+- Temporary mute error behevior on missed assets ([86ddbc5](https://github.com/diplodoc-platform/cli/commit/86ddbc5bd0fd04e673febdbb60d4851317f3b82a))
 
 ## [4.53.9](https://github.com/diplodoc-platform/cli/compare/v4.53.8...v4.53.9) (2025-02-06)
 
-
 ### Bug Fixes
 
-* Handle same level toc root include ([cf8c5da](https://github.com/diplodoc-platform/cli/commit/cf8c5da9c8148feaa707f7cac0bd6d452e584588))
+- Handle same level toc root include ([cf8c5da](https://github.com/diplodoc-platform/cli/commit/cf8c5da9c8148feaa707f7cac0bd6d452e584588))
 
 ## [4.53.8](https://github.com/diplodoc-platform/cli/compare/v4.53.7...v4.53.8) (2025-02-05)
 
-
 ### Dependency update
 
-* Update @diplodoc/transform to 4.45.5 ([295e011](https://github.com/diplodoc-platform/cli/commit/295e011d1692bf4df49d0a8d2acdbf3f8a9c528b))
+- Update @diplodoc/transform to 4.45.5 ([295e011](https://github.com/diplodoc-platform/cli/commit/295e011d1692bf4df49d0a8d2acdbf3f8a9c528b))
 
 ## [4.53.7](https://github.com/diplodoc-platform/cli/compare/v4.53.6...v4.53.7) (2025-02-04)
 
-
 ### Bug Fixes
 
-* Temporary disable fixed strict mode ([119221b](https://github.com/diplodoc-platform/cli/commit/119221b17c25af92f9ecdda843a5a77f519b9725))
-* Use args and default config of parent program ([731e99c](https://github.com/diplodoc-platform/cli/commit/731e99cacfb7bb16ca3ccb01a83cadd03ffe5dee))
-* Use run.write on files.json to omit errors on empty projects ([0064b73](https://github.com/diplodoc-platform/cli/commit/0064b734270df997a4a20a68f071ba1807558b68))
+- Temporary disable fixed strict mode ([119221b](https://github.com/diplodoc-platform/cli/commit/119221b17c25af92f9ecdda843a5a77f519b9725))
+- Use args and default config of parent program ([731e99c](https://github.com/diplodoc-platform/cli/commit/731e99cacfb7bb16ca3ccb01a83cadd03ffe5dee))
+- Use run.write on files.json to omit errors on empty projects ([0064b73](https://github.com/diplodoc-platform/cli/commit/0064b734270df997a4a20a68f071ba1807558b68))
 
 ## [4.53.6](https://github.com/diplodoc-platform/cli/compare/v4.53.5...v4.53.6) (2025-02-04)
 
-
 ### Dependency update
 
-* bump transform to 4.45.3 ([6ecbea2](https://github.com/diplodoc-platform/cli/commit/6ecbea28b768d5059a37c73ebf70267794a527ac))
+- bump transform to 4.45.3 ([6ecbea2](https://github.com/diplodoc-platform/cli/commit/6ecbea28b768d5059a37c73ebf70267794a527ac))
 
 ## [4.53.5](https://github.com/diplodoc-platform/cli/compare/v4.53.4...v4.53.5) (2025-02-03)
 
-
 ### Bug Fixes
 
-* Fix duplicated path prefix for root merged toc includes ([9c92d13](https://github.com/diplodoc-platform/cli/commit/9c92d1307abe9159271f82d9b54c4ed36479baac))
-* Handle empty href in toc items ([0e15f40](https://github.com/diplodoc-platform/cli/commit/0e15f4027a5db624c48f5d64858ea1e1acc2784e))
+- Fix duplicated path prefix for root merged toc includes ([9c92d13](https://github.com/diplodoc-platform/cli/commit/9c92d1307abe9159271f82d9b54c4ed36479baac))
+- Handle empty href in toc items ([0e15f40](https://github.com/diplodoc-platform/cli/commit/0e15f4027a5db624c48f5d64858ea1e1acc2784e))
 
 ## [4.53.4](https://github.com/diplodoc-platform/cli/compare/v4.53.3...v4.53.4) (2025-02-03)
 
-
 ### Bug Fixes
 
-* Fix relative path search for page constructor links ([2792940](https://github.com/diplodoc-platform/cli/commit/2792940521e8d1b65a5ac5d132da6549446b75cb))
+- Fix relative path search for page constructor links ([2792940](https://github.com/diplodoc-platform/cli/commit/2792940521e8d1b65a5ac5d132da6549446b75cb))
 
 ## [4.53.3](https://github.com/diplodoc-platform/cli/compare/v4.53.2...v4.53.3) (2025-02-03)
 
-
 ### Bug Fixes
 
-* Disable `copy` logging noise ([8849771](https://github.com/diplodoc-platform/cli/commit/8849771b012bee73b9586da9bbc657ca29cd53e1))
-* Fix keepNotVar feature for md2md generator ([71a056f](https://github.com/diplodoc-platform/cli/commit/71a056f167785e27a56f8a37a1d63a230ccd6f61))
+- Disable `copy` logging noise ([8849771](https://github.com/diplodoc-platform/cli/commit/8849771b012bee73b9586da9bbc657ca29cd53e1))
+- Fix keepNotVar feature for md2md generator ([71a056f](https://github.com/diplodoc-platform/cli/commit/71a056f167785e27a56f8a37a1d63a230ccd6f61))
 
 ## [4.53.2](https://github.com/diplodoc-platform/cli/compare/v4.53.1...v4.53.2) (2025-01-30)
 
-
 ### Dependency update
 
-* Update @diplodoc/transform to 4.44.1 ([7e5509e](https://github.com/diplodoc-platform/cli/commit/7e5509ebc114f096dd261f18cca50412d881b79e))
+- Update @diplodoc/transform to 4.44.1 ([7e5509e](https://github.com/diplodoc-platform/cli/commit/7e5509ebc114f096dd261f18cca50412d881b79e))
 
 ## [4.53.1](https://github.com/diplodoc-platform/cli/compare/v4.53.0...v4.53.1) (2025-01-30)
 
-
 ### Bug Fixes
 
-* Hide hidden items in final html toc ([9f77b00](https://github.com/diplodoc-platform/cli/commit/9f77b0091087e6baec98bb0cc2baeafe6b0a612e))
+- Hide hidden items in final html toc ([9f77b00](https://github.com/diplodoc-platform/cli/commit/9f77b0091087e6baec98bb0cc2baeafe6b0a612e))
 
 ## [4.53.0](https://github.com/diplodoc-platform/cli/compare/v4.52.1...v4.53.0) (2025-01-30)
 
-
 ### Features
 
-* add --schema param to translate extract command ([437c9c9](https://github.com/diplodoc-platform/cli/commit/437c9c9c87fdac97b2b56b1ccb184778cb10f3bc))
-
+- add --schema param to translate extract command ([437c9c9](https://github.com/diplodoc-platform/cli/commit/437c9c9c87fdac97b2b56b1ccb184778cb10f3bc))
 
 ### Bug Fixes
 
-* remove unpack from TocService.dir ([bf38ba9](https://github.com/diplodoc-platform/cli/commit/bf38ba92e6bcdbc7ba709d8cf4b52693103967bd))
+- remove unpack from TocService.dir ([bf38ba9](https://github.com/diplodoc-platform/cli/commit/bf38ba92e6bcdbc7ba709d8cf4b52693103967bd))
 
 ## [4.52.1](https://github.com/diplodoc-platform/cli/compare/v4.52.0...v4.52.1) (2025-01-29)
 
-
 ### Bug Fixes
 
-* Add hash to search index files ([df68dbb](https://github.com/diplodoc-platform/cli/commit/df68dbb563c19c008fd8c761006c2d200e02c0ff))
-* Add hash to search index files for static build ([095d3c3](https://github.com/diplodoc-platform/cli/commit/095d3c3e30a3ca85af51df7a4abf117e3bd6c6d4))
-* Fix NavPanel highlite for static content generation ([b470932](https://github.com/diplodoc-platform/cli/commit/b4709322d40ea07b12abaa44e9824d158e284f66))
-
+- Add hash to search index files ([df68dbb](https://github.com/diplodoc-platform/cli/commit/df68dbb563c19c008fd8c761006c2d200e02c0ff))
+- Add hash to search index files for static build ([095d3c3](https://github.com/diplodoc-platform/cli/commit/095d3c3e30a3ca85af51df7a4abf117e3bd6c6d4))
+- Fix NavPanel highlite for static content generation ([b470932](https://github.com/diplodoc-platform/cli/commit/b4709322d40ea07b12abaa44e9824d158e284f66))
 
 ### Dependency update
 
-* bump transform version ([0a862b6](https://github.com/diplodoc-platform/cli/commit/0a862b6446a9e5624625a83d8ac779c7ea240673))
-* Update @diplodoc/transform to 4.43.0 ([#986](https://github.com/diplodoc-platform/cli/issues/986)) ([d531449](https://github.com/diplodoc-platform/cli/commit/d5314497e398d57c39dcb83ca3393d4a8c95a3fc))
+- bump transform version ([0a862b6](https://github.com/diplodoc-platform/cli/commit/0a862b6446a9e5624625a83d8ac779c7ea240673))
+- Update @diplodoc/transform to 4.43.0 ([#986](https://github.com/diplodoc-platform/cli/issues/986)) ([d531449](https://github.com/diplodoc-platform/cli/commit/d5314497e398d57c39dcb83ca3393d4a8c95a3fc))
 
 ## [4.52.0](https://github.com/diplodoc-platform/cli/compare/v4.51.1...v4.52.0) (2025-01-23)
 
-
 ### Features
 
-* add an e2e test to verify img in deflist behavior ([da3076c](https://github.com/diplodoc-platform/cli/commit/da3076c98eb25d35202e326f25359ff69c482953))
-* add pdf generator base option ([4364944](https://github.com/diplodoc-platform/cli/commit/436494450e1221380608374389c37c129bae43be))
-* Implement base run ([a45f69e](https://github.com/diplodoc-platform/cli/commit/a45f69edb0590309e0e9ee7ec6cba3ab4620c3d2))
-* Improve Program initialization flow ([9c62c99](https://github.com/diplodoc-platform/cli/commit/9c62c99bae6f9e2cdb5d0126cd3e824d44d1a4b5))
-* make collect plugin functions aware of the token stream ([289b4f5](https://github.com/diplodoc-platform/cli/commit/289b4f53bf343a1ccb5ef5540c540bb3e6db43e4))
-* Remove `--buildDisabled` flag ([a61ec20](https://github.com/diplodoc-platform/cli/commit/a61ec209c1c94ce9df4e5051e361cd782ee38d09))
-* upgrade transform to 4.42.0 ([68ee535](https://github.com/diplodoc-platform/cli/commit/68ee535cd594094ff8b3ad82de6355ccdbcc53a7))
-
+- add an e2e test to verify img in deflist behavior ([da3076c](https://github.com/diplodoc-platform/cli/commit/da3076c98eb25d35202e326f25359ff69c482953))
+- add pdf generator base option ([4364944](https://github.com/diplodoc-platform/cli/commit/436494450e1221380608374389c37c129bae43be))
+- Implement base run ([a45f69e](https://github.com/diplodoc-platform/cli/commit/a45f69edb0590309e0e9ee7ec6cba3ab4620c3d2))
+- Improve Program initialization flow ([9c62c99](https://github.com/diplodoc-platform/cli/commit/9c62c99bae6f9e2cdb5d0126cd3e824d44d1a4b5))
+- make collect plugin functions aware of the token stream ([289b4f5](https://github.com/diplodoc-platform/cli/commit/289b4f53bf343a1ccb5ef5540c540bb3e6db43e4))
+- Remove `--buildDisabled` flag ([a61ec20](https://github.com/diplodoc-platform/cli/commit/a61ec209c1c94ce9df4e5051e361cd782ee38d09))
+- upgrade transform to 4.42.0 ([68ee535](https://github.com/diplodoc-platform/cli/commit/68ee535cd594094ff8b3ad82de6355ccdbcc53a7))
 
 ### Bug Fixes
 
-* Drop legacy toc service ([7ef6c75](https://github.com/diplodoc-platform/cli/commit/7ef6c75eff5aaaf3fd233d28a9a75855a7758400))
-* Fix includers toc path resolution ([83e1e56](https://github.com/diplodoc-platform/cli/commit/83e1e5615a9c938fd9196ab2daa04bda4a38929c))
-* Isolate core code. Move new utils to core. ([486a4b4](https://github.com/diplodoc-platform/cli/commit/486a4b4700432596249b6c9c28d25b870f9a0fd4))
-* Remove some usages of shelljs ([2ccaf36](https://github.com/diplodoc-platform/cli/commit/2ccaf3611931838776cbb01c9d9704535fc971ac))
+- Drop legacy toc service ([7ef6c75](https://github.com/diplodoc-platform/cli/commit/7ef6c75eff5aaaf3fd233d28a9a75855a7758400))
+- Fix includers toc path resolution ([83e1e56](https://github.com/diplodoc-platform/cli/commit/83e1e5615a9c938fd9196ab2daa04bda4a38929c))
+- Isolate core code. Move new utils to core. ([486a4b4](https://github.com/diplodoc-platform/cli/commit/486a4b4700432596249b6c9c28d25b870f9a0fd4))
+- Remove some usages of shelljs ([2ccaf36](https://github.com/diplodoc-platform/cli/commit/2ccaf3611931838776cbb01c9d9704535fc971ac))
 
 ## [4.51.1](https://github.com/diplodoc-platform/cli/compare/v4.51.0...v4.51.1) (2025-01-14)
 
-
 ### Bug Fixes
 
-* Fix toc include link mode ([05b6913](https://github.com/diplodoc-platform/cli/commit/05b69130826ef58044864eca50d26c55f92d8522))
+- Fix toc include link mode ([05b6913](https://github.com/diplodoc-platform/cli/commit/05b69130826ef58044864eca50d26c55f92d8522))
 
 ## [4.51.0](https://github.com/diplodoc-platform/cli/compare/v4.50.0...v4.51.0) (2025-01-10)
 
-
 ### Features
 
-* Add `init` method to service API ([1d81ab7](https://github.com/diplodoc-platform/cli/commit/1d81ab797e80f5ec58ad7530c69010f510eeed57))
-* Extend Build.Run fs API ([55de3a3](https://github.com/diplodoc-platform/cli/commit/55de3a33b01065787bc675979eec2dcb0e8b1385))
-* Handle `ignoreStage` as array ([0fa5fd0](https://github.com/diplodoc-platform/cli/commit/0fa5fd0dd06f07546b203769feef80a30d29c7a9))
-* Implement Toc service ([2e1c78b](https://github.com/diplodoc-platform/cli/commit/2e1c78bcd152c7af4a0cdb83efb2eaf88baf2966))
-
+- Add `init` method to service API ([1d81ab7](https://github.com/diplodoc-platform/cli/commit/1d81ab797e80f5ec58ad7530c69010f510eeed57))
+- Extend Build.Run fs API ([55de3a3](https://github.com/diplodoc-platform/cli/commit/55de3a33b01065787bc675979eec2dcb0e8b1385))
+- Handle `ignoreStage` as array ([0fa5fd0](https://github.com/diplodoc-platform/cli/commit/0fa5fd0dd06f07546b203769feef80a30d29c7a9))
+- Implement Toc service ([2e1c78b](https://github.com/diplodoc-platform/cli/commit/2e1c78bcd152c7af4a0cdb83efb2eaf88baf2966))
 
 ### Bug Fixes
 
-* Bound class methods with decorator ([4260d31](https://github.com/diplodoc-platform/cli/commit/4260d31a0758343d477476726b433928936e3997))
-* Generate toc item ids on build ([45cab0a](https://github.com/diplodoc-platform/cli/commit/45cab0a0e0560d55b4569ea5076e83e4bf64d810))
-* Handle hooks errors ([64359f8](https://github.com/diplodoc-platform/cli/commit/64359f80172a2f0f7953d40bed157086df588ac6))
-* Migrate to new frontmatter API ([d5b8fdb](https://github.com/diplodoc-platform/cli/commit/d5b8fdb491df3fe1c5814c57331d88b064c7a502))
-* use `copyFile` with optional Copy-on-Write optimizations instead of `link` ([9889497](https://github.com/diplodoc-platform/cli/commit/9889497b4758679277773f5af2cab7ed37788f8f))
-
+- Bound class methods with decorator ([4260d31](https://github.com/diplodoc-platform/cli/commit/4260d31a0758343d477476726b433928936e3997))
+- Generate toc item ids on build ([45cab0a](https://github.com/diplodoc-platform/cli/commit/45cab0a0e0560d55b4569ea5076e83e4bf64d810))
+- Handle hooks errors ([64359f8](https://github.com/diplodoc-platform/cli/commit/64359f80172a2f0f7953d40bed157086df588ac6))
+- Migrate to new frontmatter API ([d5b8fdb](https://github.com/diplodoc-platform/cli/commit/d5b8fdb491df3fe1c5814c57331d88b064c7a502))
+- use `copyFile` with optional Copy-on-Write optimizations instead of `link` ([9889497](https://github.com/diplodoc-platform/cli/commit/9889497b4758679277773f5af2cab7ed37788f8f))
 
 ### Dependency update
 
-* Update openapi extension ([2cf0ede](https://github.com/diplodoc-platform/cli/commit/2cf0ede6ee85351ede28a671d7650dba4565725e))
-* Update transform, vitest ([fa30d1b](https://github.com/diplodoc-platform/cli/commit/fa30d1b86e2bee5bc59a7cdd4ceed7d3982da0a7))
+- Update openapi extension ([2cf0ede](https://github.com/diplodoc-platform/cli/commit/2cf0ede6ee85351ede28a671d7650dba4565725e))
+- Update transform, vitest ([fa30d1b](https://github.com/diplodoc-platform/cli/commit/fa30d1b86e2bee5bc59a7cdd4ceed7d3982da0a7))
 
 ## [4.50.0](https://github.com/diplodoc-platform/cli/compare/v4.49.1...v4.50.0) (2024-12-05)
 
-
 ### Features
 
-* Add build run fs utils ([ecff64a](https://github.com/diplodoc-platform/cli/commit/ecff64ac2f9eb8ec9828072cdeb459d5ba0a5363))
-
+- Add build run fs utils ([ecff64a](https://github.com/diplodoc-platform/cli/commit/ecff64ac2f9eb8ec9828072cdeb459d5ba0a5363))
 
 ### Bug Fixes
 
-* Update glob ([4df705c](https://github.com/diplodoc-platform/cli/commit/4df705c76c02cdf4dac038a30a171c696435c787))
+- Update glob ([4df705c](https://github.com/diplodoc-platform/cli/commit/4df705c76c02cdf4dac038a30a171c696435c787))
 
 ## [4.49.1](https://github.com/diplodoc-platform/cli/compare/v4.49.0...v4.49.1) (2024-12-03)
 
-
 ### Bug Fixes
 
-* Change page title resolving strategy ([669748a](https://github.com/diplodoc-platform/cli/commit/669748aff5e0e3e892b03fd6f1ce5bb034ad2d2a)), closes [#924](https://github.com/diplodoc-platform/cli/issues/924)
-* Fix translation compose step ([d61c2b9](https://github.com/diplodoc-platform/cli/commit/d61c2b9a79ef8f0b24ad2dd33b6a5a963d574c35))
-* Install highlight for prod package build ([0feb5ff](https://github.com/diplodoc-platform/cli/commit/0feb5ffd45c7c1989c16f58987b5a43fa9bf5993))
-* Support legasy camelCase args ([5886fe5](https://github.com/diplodoc-platform/cli/commit/5886fe5007ac6d8fcc3e1c811662162bcb7ad819))
-
+- Change page title resolving strategy ([669748a](https://github.com/diplodoc-platform/cli/commit/669748aff5e0e3e892b03fd6f1ce5bb034ad2d2a)), closes [#924](https://github.com/diplodoc-platform/cli/issues/924)
+- Fix translation compose step ([d61c2b9](https://github.com/diplodoc-platform/cli/commit/d61c2b9a79ef8f0b24ad2dd33b6a5a963d574c35))
+- Install highlight for prod package build ([0feb5ff](https://github.com/diplodoc-platform/cli/commit/0feb5ffd45c7c1989c16f58987b5a43fa9bf5993))
+- Support legasy camelCase args ([5886fe5](https://github.com/diplodoc-platform/cli/commit/5886fe5007ac6d8fcc3e1c811662162bcb7ad819))
 
 ### Dependency update
 
-* Update translation ([ca34116](https://github.com/diplodoc-platform/cli/commit/ca34116480f1e370d59c013d12eda9cbf49a0e51))
+- Update translation ([ca34116](https://github.com/diplodoc-platform/cli/commit/ca34116480f1e370d59c013d12eda9cbf49a0e51))
 
 ## [4.49.0](https://github.com/diplodoc-platform/cli/compare/v4.48.1...v4.49.0) (2024-11-27)
 
-
 ### Features
 
-* Implement new build configuration systemcon ([baf8f6b](https://github.com/diplodoc-platform/cli/commit/baf8f6b24c8e15500d41f373c6653e4772fad2fc))
-
+- Implement new build configuration systemcon ([baf8f6b](https://github.com/diplodoc-platform/cli/commit/baf8f6b24c8e15500d41f373c6653e4772fad2fc))
 
 ### Bug Fixes
 
-* Attach new build system to main program ([55aaf13](https://github.com/diplodoc-platform/cli/commit/55aaf13bcae2381a82038aa8feb8253595742707))
-* Enable new unit tests ([94773d9](https://github.com/diplodoc-platform/cli/commit/94773d9c5ac8e51bb20a5dc4ea24624c11711a7e))
-* Fix context config prototype to ballow serialization ([195d30a](https://github.com/diplodoc-platform/cli/commit/195d30a54f11e6a0e831025d51e51aa4fb67358b))
-* Fix global log processing to handle errors ([77a12a3](https://github.com/diplodoc-platform/cli/commit/77a12a39e0d7c4be8195354beef013e2b8ade121))
-* Fix leading page urls for static build ([31b564e](https://github.com/diplodoc-platform/cli/commit/31b564e327ac4953436f62015d7613192996fad9))
-* Fix post build logs processing ([2178c11](https://github.com/diplodoc-platform/cli/commit/2178c11ca9d46f01e34a60ad4ebe7b2da727c63c))
-* Fix some lint and typecheck errors ([cff3f6c](https://github.com/diplodoc-platform/cli/commit/cff3f6c338f113171e4430eb419d4151a7eecd73))
+- Attach new build system to main program ([55aaf13](https://github.com/diplodoc-platform/cli/commit/55aaf13bcae2381a82038aa8feb8253595742707))
+- Enable new unit tests ([94773d9](https://github.com/diplodoc-platform/cli/commit/94773d9c5ac8e51bb20a5dc4ea24624c11711a7e))
+- Fix context config prototype to ballow serialization ([195d30a](https://github.com/diplodoc-platform/cli/commit/195d30a54f11e6a0e831025d51e51aa4fb67358b))
+- Fix global log processing to handle errors ([77a12a3](https://github.com/diplodoc-platform/cli/commit/77a12a39e0d7c4be8195354beef013e2b8ade121))
+- Fix leading page urls for static build ([31b564e](https://github.com/diplodoc-platform/cli/commit/31b564e327ac4953436f62015d7613192996fad9))
+- Fix post build logs processing ([2178c11](https://github.com/diplodoc-platform/cli/commit/2178c11ca9d46f01e34a60ad4ebe7b2da727c63c))
+- Fix some lint and typecheck errors ([cff3f6c](https://github.com/diplodoc-platform/cli/commit/cff3f6c338f113171e4430eb419d4151a7eecd73))
 
 ## [4.48.1](https://github.com/diplodoc-platform/cli/compare/v4.48.0...v4.48.1) (2024-11-21)
 
-
 ### Dependency update
 
-* Update @diplodoc/openapi-extension to 2.6.0 ([b8388c1](https://github.com/diplodoc-platform/cli/commit/b8388c1f050868c78a87eeacab0fff9a91d43ffa))
+- Update @diplodoc/openapi-extension to 2.6.0 ([b8388c1](https://github.com/diplodoc-platform/cli/commit/b8388c1f050868c78a87eeacab0fff9a91d43ffa))
 
 ## [4.48.0](https://github.com/diplodoc-platform/cli/compare/v4.47.0...v4.48.0) (2024-11-19)
 
-
 ### Features
 
-* **BREAKING** Drop internal build publish functionality ([fa93f88](https://github.com/diplodoc-platform/cli/commit/fa93f88691905293163fd3e209de6fb42560493c))
-
+- **BREAKING** Drop internal build publish functionality ([fa93f88](https://github.com/diplodoc-platform/cli/commit/fa93f88691905293163fd3e209de6fb42560493c))
 
 ### Bug Fixes
 
-* Fix search results urls ([fe036ea](https://github.com/diplodoc-platform/cli/commit/fe036eac29854cafc75228856c27810d0fabbea4))
-* Fix some lint and typecheck errors ([e035838](https://github.com/diplodoc-platform/cli/commit/e0358388459d80259c8e7a2db18bb1bd8aaf8d5d))
-* Fix translation tests ([e3f0174](https://github.com/diplodoc-platform/cli/commit/e3f017472813e94905eb1aa403f29434e71ec60b))
-* Improve some types ([26d5849](https://github.com/diplodoc-platform/cli/commit/26d58498a55ea6e50a8e0fbbf47cb4b40030f9d6))
-* Replace local trim with ts-dedent ([5f84624](https://github.com/diplodoc-platform/cli/commit/5f846240d5709c723d7069b3a479e2a7422d98aa))
+- Fix search results urls ([fe036ea](https://github.com/diplodoc-platform/cli/commit/fe036eac29854cafc75228856c27810d0fabbea4))
+- Fix some lint and typecheck errors ([e035838](https://github.com/diplodoc-platform/cli/commit/e0358388459d80259c8e7a2db18bb1bd8aaf8d5d))
+- Fix translation tests ([e3f0174](https://github.com/diplodoc-platform/cli/commit/e3f017472813e94905eb1aa403f29434e71ec60b))
+- Improve some types ([26d5849](https://github.com/diplodoc-platform/cli/commit/26d58498a55ea6e50a8e0fbbf47cb4b40030f9d6))
+- Replace local trim with ts-dedent ([5f84624](https://github.com/diplodoc-platform/cli/commit/5f846240d5709c723d7069b3a479e2a7422d98aa))
 
 ## [4.47.0](https://github.com/diplodoc-platform/cli/compare/v4.46.0...v4.47.0) (2024-11-19)
 
-
 ### Features
 
-* **cli:** add ignore files starts from underline ([#904](https://github.com/diplodoc-platform/cli/issues/904)) ([dc1d0fa](https://github.com/diplodoc-platform/cli/commit/dc1d0fa4aca61e4b288265236dfb6dcdd9e9f9df))
-
+- **cli:** add ignore files starts from underline ([#904](https://github.com/diplodoc-platform/cli/issues/904)) ([dc1d0fa](https://github.com/diplodoc-platform/cli/commit/dc1d0fa4aca61e4b288265236dfb6dcdd9e9f9df))
 
 ### Bug Fixes
 
-* generic include should be inside root ([ccaa6f5](https://github.com/diplodoc-platform/cli/commit/ccaa6f591700140afcf225f5cb32d2506c71f3c8))
+- generic include should be inside root ([ccaa6f5](https://github.com/diplodoc-platform/cli/commit/ccaa6f591700140afcf225f5cb32d2506c71f3c8))
 
 ## [4.46.0](https://github.com/diplodoc-platform/cli/compare/v4.45.2...v4.46.0) (2024-11-19)
 
-
 ### Features
 
-* add deprecated option in toc item ([ad77a43](https://github.com/diplodoc-platform/cli/commit/ad77a438dbd85fba8c2bdc76ae2cedc022cc6351))
-
+- add deprecated option in toc item ([ad77a43](https://github.com/diplodoc-platform/cli/commit/ad77a438dbd85fba8c2bdc76ae2cedc022cc6351))
 
 ### Bug Fixes
 
-* check if output parameter is located inside root ([#896](https://github.com/diplodoc-platform/cli/issues/896)) ([69296e7](https://github.com/diplodoc-platform/cli/commit/69296e727af3a78f82e67b846142ee442f579499))
+- check if output parameter is located inside root ([#896](https://github.com/diplodoc-platform/cli/issues/896)) ([69296e7](https://github.com/diplodoc-platform/cli/commit/69296e727af3a78f82e67b846142ee442f579499))
 
 ## [4.45.2](https://github.com/diplodoc-platform/cli/compare/v4.45.1...v4.45.2) (2024-11-18)
 
-
 ### Bug Fixes
 
-* **deps:** update @diplodoc/tranform to 4.38.2 ([c39e7c6](https://github.com/diplodoc-platform/cli/commit/c39e7c6582fa5d754ebe71fb604ba89863af2f67))
+- **deps:** update @diplodoc/tranform to 4.38.2 ([c39e7c6](https://github.com/diplodoc-platform/cli/commit/c39e7c6582fa5d754ebe71fb604ba89863af2f67))
 
 ## [4.45.1](https://github.com/diplodoc-platform/cli/compare/v4.45.0...v4.45.1) (2024-11-18)
 
-
 ### Bug Fixes
 
-* update @diplodoc/transform@4.38.1 ([#892](https://github.com/diplodoc-platform/cli/issues/892)) ([5c9bed0](https://github.com/diplodoc-platform/cli/commit/5c9bed0bf6c2887bd23107fbb30282ae251febc6))
+- update @diplodoc/transform@4.38.1 ([#892](https://github.com/diplodoc-platform/cli/issues/892)) ([5c9bed0](https://github.com/diplodoc-platform/cli/commit/5c9bed0bf6c2887bd23107fbb30282ae251febc6))
 
 ## [4.45.0](https://github.com/diplodoc-platform/cli/compare/v4.44.1...v4.45.0) (2024-11-15)
 
-
 ### Features
 
-* build pc schema ([e21c638](https://github.com/diplodoc-platform/cli/commit/e21c6380762730594989c228d9aa947b62c2ed21))
-* translate page-constructor pages ([f3ed0f6](https://github.com/diplodoc-platform/cli/commit/f3ed0f65f16a965e49ac8a2d6a7fa36ac99053fd))
-* update @diplodoc/translation & run schema build on postinstall ([e73cf48](https://github.com/diplodoc-platform/cli/commit/e73cf48cc86ada3070f2da1a825b61a9bdc2e014))
-
+- build pc schema ([e21c638](https://github.com/diplodoc-platform/cli/commit/e21c6380762730594989c228d9aa947b62c2ed21))
+- translate page-constructor pages ([f3ed0f6](https://github.com/diplodoc-platform/cli/commit/f3ed0f65f16a965e49ac8a2d6a7fa36ac99053fd))
+- update @diplodoc/translation & run schema build on postinstall ([e73cf48](https://github.com/diplodoc-platform/cli/commit/e73cf48cc86ada3070f2da1a825b61a9bdc2e014))
 
 ### Bug Fixes
 
-* update @diplodoc/transform@4.37.1 ([#888](https://github.com/diplodoc-platform/cli/issues/888)) ([91425ab](https://github.com/diplodoc-platform/cli/commit/91425abbaf670a8f43afaddf0d61ceedd672c20e))
+- update @diplodoc/transform@4.37.1 ([#888](https://github.com/diplodoc-platform/cli/issues/888)) ([91425ab](https://github.com/diplodoc-platform/cli/commit/91425abbaf670a8f43afaddf0d61ceedd672c20e))
 
 ## [4.44.1](https://github.com/diplodoc-platform/cli/compare/v4.44.0...v4.44.1) (2024-11-13)
 
-
 ### Bug Fixes
 
-* deprecated with empty schemas ([a5b820c](https://github.com/diplodoc-platform/cli/commit/a5b820cdfb21ecd0507fe150471233b33ec3a0bb))
-* Fix CSP tag generation ([8b64d8a](https://github.com/diplodoc-platform/cli/commit/8b64d8a7fefa47995b95cfd16bd952c3fd370c6c))
-* Fix missed toc data for static-content ([b24876b](https://github.com/diplodoc-platform/cli/commit/b24876b1568e2f783828f104d4986c4d8979d1c1))
-* pc types & @diplodoc/client update ([e8c8f55](https://github.com/diplodoc-platform/cli/commit/e8c8f554f319961d83e28aff5d2173baaa684f85))
+- deprecated with empty schemas ([a5b820c](https://github.com/diplodoc-platform/cli/commit/a5b820cdfb21ecd0507fe150471233b33ec3a0bb))
+- Fix CSP tag generation ([8b64d8a](https://github.com/diplodoc-platform/cli/commit/8b64d8a7fefa47995b95cfd16bd952c3fd370c6c))
+- Fix missed toc data for static-content ([b24876b](https://github.com/diplodoc-platform/cli/commit/b24876b1568e2f783828f104d4986c4d8979d1c1))
+- pc types & @diplodoc/client update ([e8c8f55](https://github.com/diplodoc-platform/cli/commit/e8c8f554f319961d83e28aff5d2173baaa684f85))
 
 ## [4.44.0](https://github.com/diplodoc-platform/cli/compare/v4.43.1...v4.44.0) (2024-11-11)
 
-
 ### Features
 
-* change custom csp in md2md mode ([7ef5a5f](https://github.com/diplodoc-platform/cli/commit/7ef5a5fde3e8db4cb374c61170d64e779b01fe9c))
+- change custom csp in md2md mode ([7ef5a5f](https://github.com/diplodoc-platform/cli/commit/7ef5a5fde3e8db4cb374c61170d64e779b01fe9c))
 
 ## [4.43.1](https://github.com/diplodoc-platform/cli/compare/v4.43.0...v4.43.1) (2024-11-06)
 
-
 ### Bug Fixes
 
-* Fix images path resolution one more time ([37a4c8e](https://github.com/diplodoc-platform/cli/commit/37a4c8e32afc2c29a4fd96b71b22cd7dd13bc0be))
+- Fix images path resolution one more time ([37a4c8e](https://github.com/diplodoc-platform/cli/commit/37a4c8e32afc2c29a4fd96b71b22cd7dd13bc0be))
 
 ## [4.43.0](https://github.com/diplodoc-platform/cli/compare/v4.42.5...v4.43.0) (2024-11-06)
 
-
 ### Features
 
-* support csp in cli ([5f3b820](https://github.com/diplodoc-platform/cli/commit/5f3b820364afbeb1a2cf0622672130b44ade3fb1))
+- support csp in cli ([5f3b820](https://github.com/diplodoc-platform/cli/commit/5f3b820364afbeb1a2cf0622672130b44ade3fb1))
 
 ## [4.42.5](https://github.com/diplodoc-platform/cli/compare/v4.42.4...v4.42.5) (2024-11-06)
 
-
 ### Bug Fixes
 
-* Fix images path resolution ([f214db1](https://github.com/diplodoc-platform/cli/commit/f214db16c6c6c56f41aab2033cfc150722eec486))
+- Fix images path resolution ([f214db1](https://github.com/diplodoc-platform/cli/commit/f214db16c6c6c56f41aab2033cfc150722eec486))
 
 ## [4.42.4](https://github.com/diplodoc-platform/cli/compare/v4.42.3...v4.42.4) (2024-11-06)
 
-
 ### Bug Fixes
 
-* Update client ([363b02b](https://github.com/diplodoc-platform/cli/commit/363b02b2184babf9b6fc6531b3f80bd7e276e86e))
+- Update client ([363b02b](https://github.com/diplodoc-platform/cli/commit/363b02b2184babf9b6fc6531b3f80bd7e276e86e))
 
 ## [4.42.3](https://github.com/diplodoc-platform/cli/compare/v4.42.2...v4.42.3) (2024-11-05)
 
-
 ### Bug Fixes
 
-* Fix dir creation on toc.js save ([c6fe709](https://github.com/diplodoc-platform/cli/commit/c6fe709d6112b4330783103c63bf86ad947a3129))
-* Fix toc resolving for dir paths ([9099fb9](https://github.com/diplodoc-platform/cli/commit/9099fb9ec80cd3be54bc37d16df9ea136ec3c0a2))
+- Fix dir creation on toc.js save ([c6fe709](https://github.com/diplodoc-platform/cli/commit/c6fe709d6112b4330783103c63bf86ad947a3129))
+- Fix toc resolving for dir paths ([9099fb9](https://github.com/diplodoc-platform/cli/commit/9099fb9ec80cd3be54bc37d16df9ea136ec3c0a2))
 
 ## [4.42.2](https://github.com/diplodoc-platform/cli/compare/v4.42.1...v4.42.2) (2024-11-05)
 
-
 ### Bug Fixes
 
-* Fix missed paths in toc ([739f9e3](https://github.com/diplodoc-platform/cli/commit/739f9e36b59700bc11da91be876413b0559674ee))
+- Fix missed paths in toc ([739f9e3](https://github.com/diplodoc-platform/cli/commit/739f9e36b59700bc11da91be876413b0559674ee))
 
 ## [4.42.1](https://github.com/diplodoc-platform/cli/compare/v4.42.0...v4.42.1) (2024-11-05)
 
-
 ### Bug Fixes
 
-* Fix extracted toc for single page mode ([5183022](https://github.com/diplodoc-platform/cli/commit/5183022797a6c8fd078ce97d961fb98d081bdab3))
-* Fix page title computation ([f9135ce](https://github.com/diplodoc-platform/cli/commit/f9135ce61086b03bba9dcfd203c3b1234ae1a0cd))
-* Fix tests ([224774b](https://github.com/diplodoc-platform/cli/commit/224774b9b8cdb29c906d157bf23e179a7404c61c))
-* Fix tests ([58fe2a3](https://github.com/diplodoc-platform/cli/commit/58fe2a3b95f18a5702cf9ad991b6ec5baa4781ae))
-* Umpdate mermaid extension ([7d97c32](https://github.com/diplodoc-platform/cli/commit/7d97c32594577a33b26f2f6db524e211e167bd9f))
-* Update client ([f34fb16](https://github.com/diplodoc-platform/cli/commit/f34fb16deccde245c8d55953decf06f65efa0318))
-* Update client ([ff73944](https://github.com/diplodoc-platform/cli/commit/ff7394443a64b23dad7d8539d6ec00cedae6ced7))
-* Update search ([303b688](https://github.com/diplodoc-platform/cli/commit/303b68808309164b045215314d0f57cbd50b297a))
+- Fix extracted toc for single page mode ([5183022](https://github.com/diplodoc-platform/cli/commit/5183022797a6c8fd078ce97d961fb98d081bdab3))
+- Fix page title computation ([f9135ce](https://github.com/diplodoc-platform/cli/commit/f9135ce61086b03bba9dcfd203c3b1234ae1a0cd))
+- Fix tests ([224774b](https://github.com/diplodoc-platform/cli/commit/224774b9b8cdb29c906d157bf23e179a7404c61c))
+- Fix tests ([58fe2a3](https://github.com/diplodoc-platform/cli/commit/58fe2a3b95f18a5702cf9ad991b6ec5baa4781ae))
+- Umpdate mermaid extension ([7d97c32](https://github.com/diplodoc-platform/cli/commit/7d97c32594577a33b26f2f6db524e211e167bd9f))
+- Update client ([f34fb16](https://github.com/diplodoc-platform/cli/commit/f34fb16deccde245c8d55953decf06f65efa0318))
+- Update client ([ff73944](https://github.com/diplodoc-platform/cli/commit/ff7394443a64b23dad7d8539d6ec00cedae6ced7))
+- Update search ([303b688](https://github.com/diplodoc-platform/cli/commit/303b68808309164b045215314d0f57cbd50b297a))
 
 ## [4.42.0](https://github.com/diplodoc-platform/cli/compare/v4.41.0...v4.42.0) (2024-10-29)
 
-
 ### Features
 
-* Move toc to separated script for html build ([40e976a](https://github.com/diplodoc-platform/cli/commit/40e976ae680afa8bbb798d411690f08dfa5aa9e4))
-
+- Move toc to separated script for html build ([40e976a](https://github.com/diplodoc-platform/cli/commit/40e976ae680afa8bbb798d411690f08dfa5aa9e4))
 
 ### Bug Fixes
 
-* Fix liquid processing for toc.yaml ([938a817](https://github.com/diplodoc-platform/cli/commit/938a8174c5496a82ba1fa6167dbfe4612af85f95))
+- Fix liquid processing for toc.yaml ([938a817](https://github.com/diplodoc-platform/cli/commit/938a8174c5496a82ba1fa6167dbfe4612af85f95))
 
 ## [4.41.0](https://github.com/diplodoc-platform/cli/compare/v4.40.0...v4.41.0) (2024-10-28)
 
-
 ### Features
 
-* update deps ([#862](https://github.com/diplodoc-platform/cli/issues/862)) ([477c251](https://github.com/diplodoc-platform/cli/commit/477c251ec017f34d004266483dc801c0bc4d5bb5))
+- update deps ([#862](https://github.com/diplodoc-platform/cli/issues/862)) ([477c251](https://github.com/diplodoc-platform/cli/commit/477c251ec017f34d004266483dc801c0bc4d5bb5))
 
 ## [4.40.0](https://github.com/diplodoc-platform/cli/compare/v4.39.4...v4.40.0) (2024-10-24)
 
-
 ### Features
 
-* passthrough options to transformMd2Md ([1b7422a](https://github.com/diplodoc-platform/cli/commit/1b7422a1f24cb0d4f3c6beeef2544384eab23b98))
+- passthrough options to transformMd2Md ([1b7422a](https://github.com/diplodoc-platform/cli/commit/1b7422a1f24cb0d4f3c6beeef2544384eab23b98))
 
 ## [4.39.4](https://github.com/diplodoc-platform/cli/compare/v4.39.3...v4.39.4) (2024-10-23)
 
-
 ### Bug Fixes
 
-* Fix search assets path resolving ([0b22281](https://github.com/diplodoc-platform/cli/commit/0b222811dd1f8ed4ca9a0a44f78d852c571e828a))
+- Fix search assets path resolving ([0b22281](https://github.com/diplodoc-platform/cli/commit/0b222811dd1f8ed4ca9a0a44f78d852c571e828a))
 
 ## [4.39.3](https://github.com/diplodoc-platform/cli/compare/v4.39.2...v4.39.3) (2024-10-23)
 
-
 ### Bug Fixes
 
-* linter ([f9b923f](https://github.com/diplodoc-platform/cli/commit/f9b923f8a76f0d9851d1e7a89df78526c4402fdd))
-* Move search scripts to assets ([4bd36c0](https://github.com/diplodoc-platform/cli/commit/4bd36c0a5c9dad90d70607de2765dddc9154d167))
+- linter ([f9b923f](https://github.com/diplodoc-platform/cli/commit/f9b923f8a76f0d9851d1e7a89df78526c4402fdd))
+- Move search scripts to assets ([4bd36c0](https://github.com/diplodoc-platform/cli/commit/4bd36c0a5c9dad90d70607de2765dddc9154d167))
 
 ## [4.39.2](https://github.com/diplodoc-platform/cli/compare/v4.39.1...v4.39.2) (2024-10-21)
 
-
 ### Features
 
-* Update OpenAPI extension version ([e3e12cd](https://github.com/diplodoc-platform/cli/commit/e3e12cdca7ddcd5bac5efa1cef9efa8a3c4d9221))
-* Update transformer version ([93efc6e](https://github.com/diplodoc-platform/cli/commit/93efc6ea55fd00c36ceb9f81147fb87b8b01805e))
+- Update OpenAPI extension version ([e3e12cd](https://github.com/diplodoc-platform/cli/commit/e3e12cdca7ddcd5bac5efa1cef9efa8a3c4d9221))
+- Update transformer version ([93efc6e](https://github.com/diplodoc-platform/cli/commit/93efc6ea55fd00c36ceb9f81147fb87b8b01805e))
 
 ## [4.39.1](https://github.com/diplodoc-platform/cli/compare/v4.39.0...v4.39.1) (2024-10-20)
 
-
 ### Bug Fixes
 
-* Fix assets bundling ([37c1f7c](https://github.com/diplodoc-platform/cli/commit/37c1f7c8c392fcb9d14553512adaf205aca382dc))
+- Fix assets bundling ([37c1f7c](https://github.com/diplodoc-platform/cli/commit/37c1f7c8c392fcb9d14553512adaf205aca382dc))
 
 ## [4.39.0](https://github.com/diplodoc-platform/cli/compare/v4.38.0...v4.39.0) (2024-10-18)
 
-
 ### Features
 
-* Add language specific scoring ([ca4c349](https://github.com/diplodoc-platform/cli/commit/ca4c349c445f76b23930ebda7a0b3abbe20871b1))
-* Implement local search adapter ([3766714](https://github.com/diplodoc-platform/cli/commit/376671495dd68dfa73650742ca30c3ebacd326bc))
-* Update client to major 3 version ([be7ad13](https://github.com/diplodoc-platform/cli/commit/be7ad1387ebf3ea00c23111c072b74f64806dab4))
-
+- Add language specific scoring ([ca4c349](https://github.com/diplodoc-platform/cli/commit/ca4c349c445f76b23930ebda7a0b3abbe20871b1))
+- Implement local search adapter ([3766714](https://github.com/diplodoc-platform/cli/commit/376671495dd68dfa73650742ca30c3ebacd326bc))
+- Update client to major 3 version ([be7ad13](https://github.com/diplodoc-platform/cli/commit/be7ad1387ebf3ea00c23111c072b74f64806dab4))
 
 ### Bug Fixes
 
-* Do not enable search on search=false ([b647f0b](https://github.com/diplodoc-platform/cli/commit/b647f0b9ef0b25b2b5c070ebeba72941fc243672))
-* Fix depth computation on windows ([d0c708d](https://github.com/diplodoc-platform/cli/commit/d0c708df494e87dbb9e9e1fc5b746117de9f4395))
-* Fix search loading on file protocol ([6b8c2b5](https://github.com/diplodoc-platform/cli/commit/6b8c2b515257099a7fe2f6418442d4dd7f923aaf))
-* Fix search loading on simple docs (without langs) ([4c11edc](https://github.com/diplodoc-platform/cli/commit/4c11edcfedfd3832766f5e1e66c5dccc568981aa))
-* Fix typescript bundler mode ([c74fd8d](https://github.com/diplodoc-platform/cli/commit/c74fd8d258f0c883ccddf23880a5a2b2cae7336f))
-* Move page generators to page folder ([6cae881](https://github.com/diplodoc-platform/cli/commit/6cae881fb723bf7057b074a03e9b2ad963d9b96b))
-* Remove langs dependency from assets ([fd5294d](https://github.com/diplodoc-platform/cli/commit/fd5294d617956c2102ca0f1cd586f5ca3bf56483))
-* Simplify search configuration ([8fb62ba](https://github.com/diplodoc-platform/cli/commit/8fb62bae5183d5b80db2915a03789b73ef195d5f))
+- Do not enable search on search=false ([b647f0b](https://github.com/diplodoc-platform/cli/commit/b647f0b9ef0b25b2b5c070ebeba72941fc243672))
+- Fix depth computation on windows ([d0c708d](https://github.com/diplodoc-platform/cli/commit/d0c708df494e87dbb9e9e1fc5b746117de9f4395))
+- Fix search loading on file protocol ([6b8c2b5](https://github.com/diplodoc-platform/cli/commit/6b8c2b515257099a7fe2f6418442d4dd7f923aaf))
+- Fix search loading on simple docs (without langs) ([4c11edc](https://github.com/diplodoc-platform/cli/commit/4c11edcfedfd3832766f5e1e66c5dccc568981aa))
+- Fix typescript bundler mode ([c74fd8d](https://github.com/diplodoc-platform/cli/commit/c74fd8d258f0c883ccddf23880a5a2b2cae7336f))
+- Move page generators to page folder ([6cae881](https://github.com/diplodoc-platform/cli/commit/6cae881fb723bf7057b074a03e9b2ad963d9b96b))
+- Remove langs dependency from assets ([fd5294d](https://github.com/diplodoc-platform/cli/commit/fd5294d617956c2102ca0f1cd586f5ca3bf56483))
+- Simplify search configuration ([8fb62ba](https://github.com/diplodoc-platform/cli/commit/8fb62bae5183d5b80db2915a03789b73ef195d5f))
 
 ## [4.38.0](https://github.com/diplodoc-platform/cli/compare/v4.37.0...v4.38.0) (2024-10-10)
 
-
 ### Features
 
-* support deprecated in openapi ([7ae588d](https://github.com/diplodoc-platform/cli/commit/7ae588da487e3b02c47b2bc99fba6eee600522c1))
+- support deprecated in openapi ([7ae588d](https://github.com/diplodoc-platform/cli/commit/7ae588da487e3b02c47b2bc99fba6eee600522c1))
 
 ## [4.37.0](https://github.com/diplodoc-platform/cli/compare/v4.36.5...v4.37.0) (2024-10-01)
 
-
 ### Features
 
-* bump transform to 4.32.2, use transform metadata utilities ([a21fc3e](https://github.com/diplodoc-platform/cli/commit/a21fc3ef34134753c3e32edbbbd2e6f3ade45bb4))
+- bump transform to 4.32.2, use transform metadata utilities ([a21fc3e](https://github.com/diplodoc-platform/cli/commit/a21fc3ef34134753c3e32edbbbd2e6f3ade45bb4))
 
 ## [4.36.5](https://github.com/diplodoc-platform/cli/compare/v4.36.4...v4.36.5) (2024-09-26)
 
-
 ### Bug Fixes
 
-* **deps:** bump openapi-extension to 2.3.4 ([59bc288](https://github.com/diplodoc-platform/cli/commit/59bc288fdc6ad4d52b26013ee213f8f1fbb0e2fc))
+- **deps:** bump openapi-extension to 2.3.4 ([59bc288](https://github.com/diplodoc-platform/cli/commit/59bc288fdc6ad4d52b26013ee213f8f1fbb0e2fc))
 
 ## [4.36.4](https://github.com/diplodoc-platform/cli/compare/v4.36.3...v4.36.4) (2024-09-20)
 
-
 ### Bug Fixes
 
-* bump transform plugin ([906362c](https://github.com/diplodoc-platform/cli/commit/906362ccc33121a61b6c0e8cb65df385870dfaf8))
-* update @diplodoc/client@2.8.2 ([#837](https://github.com/diplodoc-platform/cli/issues/837)) ([cd14826](https://github.com/diplodoc-platform/cli/commit/cd148269fde3adc23cb9158ab7af1408de724ed1))
+- bump transform plugin ([906362c](https://github.com/diplodoc-platform/cli/commit/906362ccc33121a61b6c0e8cb65df385870dfaf8))
+- update @diplodoc/client@2.8.2 ([#837](https://github.com/diplodoc-platform/cli/issues/837)) ([cd14826](https://github.com/diplodoc-platform/cli/commit/cd148269fde3adc23cb9158ab7af1408de724ed1))
 
 ## [4.36.3](https://github.com/diplodoc-platform/cli/compare/v4.36.2...v4.36.3) (2024-09-18)
 
-
 ### Bug Fixes
 
-* re-enable `forceQuotes` while also fixing `systemVars` behaviour ([2c4a8b3](https://github.com/diplodoc-platform/cli/commit/2c4a8b30e3d0b79def437a373d56752e00669ed4))
-* unconstrain line width when dumping metadata to yaml ([d936302](https://github.com/diplodoc-platform/cli/commit/d936302b49f3b3608b69899596571be8386eca01))
+- re-enable `forceQuotes` while also fixing `systemVars` behaviour ([2c4a8b3](https://github.com/diplodoc-platform/cli/commit/2c4a8b30e3d0b79def437a373d56752e00669ed4))
+- unconstrain line width when dumping metadata to yaml ([d936302](https://github.com/diplodoc-platform/cli/commit/d936302b49f3b3608b69899596571be8386eca01))
 
 ## [4.36.2](https://github.com/diplodoc-platform/cli/compare/v4.36.1...v4.36.2) (2024-09-17)
 
-
 ### Bug Fixes
 
-* add useLegacyConditions option, disable forceQuotes in yaml ([#829](https://github.com/diplodoc-platform/cli/issues/829)) ([a0e77b4](https://github.com/diplodoc-platform/cli/commit/a0e77b4c04fad1dcdd1dd6eaa8a8c0fbb8a2d4a1))
+- add useLegacyConditions option, disable forceQuotes in yaml ([#829](https://github.com/diplodoc-platform/cli/issues/829)) ([a0e77b4](https://github.com/diplodoc-platform/cli/commit/a0e77b4c04fad1dcdd1dd6eaa8a8c0fbb8a2d4a1))
 
 ## [4.36.1](https://github.com/diplodoc-platform/cli/compare/v4.36.0...v4.36.1) (2024-09-17)
 
-
 ### Bug Fixes
 
-* bump openapi-extension ([#830](https://github.com/diplodoc-platform/cli/issues/830)) ([aac7b54](https://github.com/diplodoc-platform/cli/commit/aac7b54a752eea34c3f0aa697b752d52bce8afac))
+- bump openapi-extension ([#830](https://github.com/diplodoc-platform/cli/issues/830)) ([aac7b54](https://github.com/diplodoc-platform/cli/commit/aac7b54a752eea34c3f0aa697b752d52bce8afac))
 
 ## [4.36.0](https://github.com/diplodoc-platform/cli/compare/v4.35.3...v4.36.0) (2024-09-17)
 
-
 ### Features
 
-* add included option ([#828](https://github.com/diplodoc-platform/cli/issues/828)) ([c00ee30](https://github.com/diplodoc-platform/cli/commit/c00ee30a56248bb00518dc7ecd8e99edd6dcfe58))
-* bump transform version ([ca73c1c](https://github.com/diplodoc-platform/cli/commit/ca73c1c325267a6ff12fe0948789a71928e7f5d3))
-
+- add included option ([#828](https://github.com/diplodoc-platform/cli/issues/828)) ([c00ee30](https://github.com/diplodoc-platform/cli/commit/c00ee30a56248bb00518dc7ecd8e99edd6dcfe58))
+- bump transform version ([ca73c1c](https://github.com/diplodoc-platform/cli/commit/ca73c1c325267a6ff12fe0948789a71928e7f5d3))
 
 ### Bug Fixes
 
-* upload logs ([9ad49e8](https://github.com/diplodoc-platform/cli/commit/9ad49e878b02cb742dccd8129ee19294d9e35253))
+- upload logs ([9ad49e8](https://github.com/diplodoc-platform/cli/commit/9ad49e878b02cb742dccd8129ee19294d9e35253))
 
 ## [4.35.3](https://github.com/diplodoc-platform/cli/compare/v4.35.2...v4.35.3) (2024-09-02)
 
-
 ### Bug Fixes
 
-* add metadata compatibility with empty string substitutions ([5d9de26](https://github.com/diplodoc-platform/cli/commit/5d9de26f0b15b0ce1f1e8535ea935d521a648217))
-* tests ([6a14ebe](https://github.com/diplodoc-platform/cli/commit/6a14ebec1727afbaf915b5b9c18c7e39a060a2d0))
+- add metadata compatibility with empty string substitutions ([5d9de26](https://github.com/diplodoc-platform/cli/commit/5d9de26f0b15b0ce1f1e8535ea935d521a648217))
+- tests ([6a14ebe](https://github.com/diplodoc-platform/cli/commit/6a14ebec1727afbaf915b5b9c18c7e39a060a2d0))
 
 ## [4.35.2](https://github.com/diplodoc-platform/cli/compare/v4.35.1...v4.35.2) (2024-09-02)
 
-
 ### Bug Fixes
 
-* Update translation ([02c02f4](https://github.com/diplodoc-platform/cli/commit/02c02f47077a03956d3ea8d88ce9d7c95d003bdb))
+- Update translation ([02c02f4](https://github.com/diplodoc-platform/cli/commit/02c02f47077a03956d3ea8d88ce9d7c95d003bdb))
 
 ## [4.35.1](https://github.com/diplodoc-platform/cli/compare/v4.35.0...v4.35.1) (2024-08-14)
 
-
 ### Bug Fixes
 
-* Update translation ([3e289cc](https://github.com/diplodoc-platform/cli/commit/3e289cc578991f9df866980cfd99192dee10549b))
+- Update translation ([3e289cc](https://github.com/diplodoc-platform/cli/commit/3e289cc578991f9df866980cfd99192dee10549b))
 
 ## [4.35.0](https://github.com/diplodoc-platform/cli/compare/v4.34.3...v4.35.0) (2024-07-31)
 
-
 ### Features
 
-* add analytics config ([#812](https://github.com/diplodoc-platform/cli/issues/812)) ([17d874e](https://github.com/diplodoc-platform/cli/commit/17d874e7be519e289e3d7b791fd6cac4afe1105a))
+- add analytics config ([#812](https://github.com/diplodoc-platform/cli/issues/812)) ([17d874e](https://github.com/diplodoc-platform/cli/commit/17d874e7be519e289e3d7b791fd6cac4afe1105a))
 
 ## [4.34.3](https://github.com/diplodoc-platform/cli/compare/v4.34.2...v4.34.3) (2024-07-18)
 
-
 ### Bug Fixes
 
-* retry parsing existing metadata with duplicate key compatibility ([d1eff78](https://github.com/diplodoc-platform/cli/commit/d1eff78c0210765933b76ee1cf173966bcdc658a))
+- retry parsing existing metadata with duplicate key compatibility ([d1eff78](https://github.com/diplodoc-platform/cli/commit/d1eff78c0210765933b76ee1cf173966bcdc658a))
 
 ## [4.34.2](https://github.com/diplodoc-platform/cli/compare/v4.34.1...v4.34.2) (2024-07-15)
 
-
 ### Bug Fixes
 
-* preserve existing `vcsPath` when enriching a file with front matter ([58de41e](https://github.com/diplodoc-platform/cli/commit/58de41efb04834d06daec3fa517ab2f241608b87))
+- preserve existing `vcsPath` when enriching a file with front matter ([58de41e](https://github.com/diplodoc-platform/cli/commit/58de41efb04834d06daec3fa517ab2f241608b87))
 
 ## [4.34.1](https://github.com/diplodoc-platform/cli/compare/v4.34.0...v4.34.1) (2024-07-15)
 
-
 ### Bug Fixes
 
-* **deps:** Update translation dep ([ecaeabc](https://github.com/diplodoc-platform/cli/commit/ecaeabc31a48b16d38c3cd958feb2b5887f2222a))
+- **deps:** Update translation dep ([ecaeabc](https://github.com/diplodoc-platform/cli/commit/ecaeabc31a48b16d38c3cd958feb2b5887f2222a))
 
 ## [4.34.0](https://github.com/diplodoc-platform/cli/compare/v4.33.1...v4.34.0) (2024-07-12)
 
-
 ### Features
 
-* Use different escaping strategy for Liquid-style substitutions in YAML format front matter ([#804](https://github.com/diplodoc-platform/cli/issues/804)) ([1115459](https://github.com/diplodoc-platform/cli/commit/1115459b5a31522f222d71ec46a77bb182cda94d))
+- Use different escaping strategy for Liquid-style substitutions in YAML format front matter ([#804](https://github.com/diplodoc-platform/cli/issues/804)) ([1115459](https://github.com/diplodoc-platform/cli/commit/1115459b5a31522f222d71ec46a77bb182cda94d))
 
 ## [4.33.1](https://github.com/diplodoc-platform/cli/compare/v4.33.0...v4.33.1) (2024-07-11)
 
-
 ### Bug Fixes
 
-* Revert "feat: implement an option to always provide `vcsPath` in metadata for md-&gt;md transformations (sans tests)" ([a3455a5](https://github.com/diplodoc-platform/cli/commit/a3455a53b4aefb7c06676078a572fbdc4e2db701))
+- Revert "feat: implement an option to always provide `vcsPath` in metadata for md-&gt;md transformations (sans tests)" ([a3455a5](https://github.com/diplodoc-platform/cli/commit/a3455a53b4aefb7c06676078a572fbdc4e2db701))
 
 ## [4.33.0](https://github.com/diplodoc-platform/cli/compare/v4.32.3...v4.33.0) (2024-07-11)
 
-
 ### Features
 
-* add label ([b0f9c29](https://github.com/diplodoc-platform/cli/commit/b0f9c291d1a6782cc0dbe05a56612ea1786c5bdc))
-* implement an option to always provide `vcsPath` in metadata for md-&gt;md transformations (sans tests) ([ad1b879](https://github.com/diplodoc-platform/cli/commit/ad1b8798f67c803d67545152ba06f1981f1a5215))
-* resolve `vcsPath` correctly when `sourcePath` was supplied beforehand, refactor metadata generation procedures ([568f43b](https://github.com/diplodoc-platform/cli/commit/568f43b10ac3c744ba4b0cdadf4f5041f1fb1dff))
-
+- add label ([b0f9c29](https://github.com/diplodoc-platform/cli/commit/b0f9c291d1a6782cc0dbe05a56612ea1786c5bdc))
+- implement an option to always provide `vcsPath` in metadata for md-&gt;md transformations (sans tests) ([ad1b879](https://github.com/diplodoc-platform/cli/commit/ad1b8798f67c803d67545152ba06f1981f1a5215))
+- resolve `vcsPath` correctly when `sourcePath` was supplied beforehand, refactor metadata generation procedures ([568f43b](https://github.com/diplodoc-platform/cli/commit/568f43b10ac3c744ba4b0cdadf4f5041f1fb1dff))
 
 ### Bug Fixes
 
-* **deps:** Update openapi ([8e1f74e](https://github.com/diplodoc-platform/cli/commit/8e1f74ef056428b60f137aee7358e524dc7fafff))
+- **deps:** Update openapi ([8e1f74e](https://github.com/diplodoc-platform/cli/commit/8e1f74ef056428b60f137aee7358e524dc7fafff))
 
 ## [4.32.3](https://github.com/diplodoc-platform/cli/compare/v4.32.2...v4.32.3) (2024-07-09)
 
-
 ### Bug Fixes
 
-* **deps:** Update translation package ([63ae711](https://github.com/diplodoc-platform/cli/commit/63ae711d14dfc2a513280849ac1c756e405ac480))
+- **deps:** Update translation package ([63ae711](https://github.com/diplodoc-platform/cli/commit/63ae711d14dfc2a513280849ac1c756e405ac480))
 
 ## [4.32.2](https://github.com/diplodoc-platform/cli/compare/v4.32.1...v4.32.2) (2024-06-24)
 
-
 ### Bug Fixes
 
-* Add defaul output for translation compose command ([bdec089](https://github.com/diplodoc-platform/cli/commit/bdec0898f36d6d17ce30996fce7da01e9e91be11))
-* Improve translation logging ([34f6bb7](https://github.com/diplodoc-platform/cli/commit/34f6bb7f308af169cef06e65de37e3405a2ca120))
-* Log empty files on translation ([35cea29](https://github.com/diplodoc-platform/cli/commit/35cea29160b5af4f9c445b2cbf0db41d2288910f))
-* Update translation dep ([b20ae0d](https://github.com/diplodoc-platform/cli/commit/b20ae0dcc39863e6e4194308709a2a93865820c2))
-* Update translation dep ([5544251](https://github.com/diplodoc-platform/cli/commit/5544251c66b43c3f8880e7ecd34c0cf306f6c931))
+- Add defaul output for translation compose command ([bdec089](https://github.com/diplodoc-platform/cli/commit/bdec0898f36d6d17ce30996fce7da01e9e91be11))
+- Improve translation logging ([34f6bb7](https://github.com/diplodoc-platform/cli/commit/34f6bb7f308af169cef06e65de37e3405a2ca120))
+- Log empty files on translation ([35cea29](https://github.com/diplodoc-platform/cli/commit/35cea29160b5af4f9c445b2cbf0db41d2288910f))
+- Update translation dep ([b20ae0d](https://github.com/diplodoc-platform/cli/commit/b20ae0dcc39863e6e4194308709a2a93865820c2))
+- Update translation dep ([5544251](https://github.com/diplodoc-platform/cli/commit/5544251c66b43c3f8880e7ecd34c0cf306f6c931))
 
 ## [4.32.1](https://github.com/diplodoc-platform/cli/compare/v4.32.0...v4.32.1) (2024-06-17)
 
-
 ### Bug Fixes
 
-* **table:** update transform version to fix includes inside tables ([24ef64b](https://github.com/diplodoc-platform/cli/commit/24ef64be57b41f167d6de5baaaf812a09d34c2c0))
+- **table:** update transform version to fix includes inside tables ([24ef64b](https://github.com/diplodoc-platform/cli/commit/24ef64be57b41f167d6de5baaaf812a09d34c2c0))
 
 ## [4.32.0](https://github.com/diplodoc-platform/cli/compare/v4.31.0...v4.32.0) (2024-06-14)
 
-
 ### Features
 
-* update transform version ([#787](https://github.com/diplodoc-platform/cli/issues/787)) ([4df3cb8](https://github.com/diplodoc-platform/cli/commit/4df3cb82c0984178f48c6309e5567c4da1177df8))
+- update transform version ([#787](https://github.com/diplodoc-platform/cli/issues/787)) ([4df3cb8](https://github.com/diplodoc-platform/cli/commit/4df3cb82c0984178f48c6309e5567c4da1177df8))
 
 ## [4.31.0](https://github.com/diplodoc-platform/cli/compare/v4.30.0...v4.31.0) (2024-06-06)
 
-
 ### Features
 
-* add version log ([3fefc16](https://github.com/diplodoc-platform/cli/commit/3fefc16c9bb275ed2819a2edd2f59d7313aa6007))
+- add version log ([3fefc16](https://github.com/diplodoc-platform/cli/commit/3fefc16c9bb275ed2819a2edd2f59d7313aa6007))
 
 ## [4.30.0](https://github.com/diplodoc-platform/cli/compare/v4.29.0...v4.30.0) (2024-06-05)
 
-
 ### Features
 
-* liquid navigation field in toc.yaml ([75ab883](https://github.com/diplodoc-platform/cli/commit/75ab8838dab07cf3d008f1a9d2a300dd1258e76b))
+- liquid navigation field in toc.yaml ([75ab883](https://github.com/diplodoc-platform/cli/commit/75ab8838dab07cf3d008f1a9d2a300dd1258e76b))
 
 ## [4.29.0](https://github.com/diplodoc-platform/cli/compare/v4.28.2...v4.29.0) (2024-05-31)
 
-
 ### Features
 
-* Add content filtering ([ce2d387](https://github.com/diplodoc-platform/cli/commit/ce2d38748db09e9996d06d2148357a91f4e304ab))
+- Add content filtering ([ce2d387](https://github.com/diplodoc-platform/cli/commit/ce2d38748db09e9996d06d2148357a91f4e304ab))
 
 ## [4.28.2](https://github.com/diplodoc-platform/cli/compare/v4.28.1...v4.28.2) (2024-05-29)
 
-
 ### Bug Fixes
 
-* Update transform version ([89f034f](https://github.com/diplodoc-platform/cli/commit/89f034fc9e1dd4f6a89168971f392400b62a0787))
+- Update transform version ([89f034f](https://github.com/diplodoc-platform/cli/commit/89f034fc9e1dd4f6a89168971f392400b62a0787))
 
 ## [4.28.1](https://github.com/diplodoc-platform/cli/compare/v4.28.0...v4.28.1) (2024-05-28)
 
-
 ### Bug Fixes
 
-* Update transform version ([0684f2f](https://github.com/diplodoc-platform/cli/commit/0684f2f4ec9a69d4caaa91af8d22150145857a94))
+- Update transform version ([0684f2f](https://github.com/diplodoc-platform/cli/commit/0684f2f4ec9a69d4caaa91af8d22150145857a94))
 
 ## [4.28.0](https://github.com/diplodoc-platform/cli/compare/v4.27.0...v4.28.0) (2024-05-20)
 
-
 ### Features
 
-* **transform:** bump to version v4.17.0 ([4453e50](https://github.com/diplodoc-platform/cli/commit/4453e5011e4d87a931d1f5ff0f7b0c7bae431d3d))
+- **transform:** bump to version v4.17.0 ([4453e50](https://github.com/diplodoc-platform/cli/commit/4453e5011e4d87a931d1f5ff0f7b0c7bae431d3d))
 
 ## [4.27.0](https://github.com/diplodoc-platform/cli/compare/v4.26.0...v4.27.0) (2024-05-17)
 
-
 ### Features
 
-* **openapi:** bump version to 2.2.0 ([0fe088b](https://github.com/diplodoc-platform/cli/commit/0fe088bd54d9d6d3c7fcf691a55fd6ea566894f3))
+- **openapi:** bump version to 2.2.0 ([0fe088b](https://github.com/diplodoc-platform/cli/commit/0fe088bd54d9d6d3c7fcf691a55fd6ea566894f3))
 
 ## [4.26.0](https://github.com/diplodoc-platform/cli/compare/v4.25.1...v4.26.0) (2024-05-17)
 
-
 ### Features
 
-* new logic, changes stay ([176ba71](https://github.com/diplodoc-platform/cli/commit/176ba71a5346099bd0e2d387e66f43a7d432f839))
-
+- new logic, changes stay ([176ba71](https://github.com/diplodoc-platform/cli/commit/176ba71a5346099bd0e2d387e66f43a7d432f839))
 
 ### Bug Fixes
 
-* add support for sub toc files ([bfc23e3](https://github.com/diplodoc-platform/cli/commit/bfc23e3d58b3550201fd5686e0f0c22d3f66f538))
+- add support for sub toc files ([bfc23e3](https://github.com/diplodoc-platform/cli/commit/bfc23e3d58b3550201fd5686e0f0c22d3f66f538))
 
 ## [4.25.1](https://github.com/diplodoc-platform/cli/compare/v4.25.0...v4.25.1) (2024-05-15)
 
-
 ### Bug Fixes
 
-* correct root files for generic includer graph ([a8c8d79](https://github.com/diplodoc-platform/cli/commit/a8c8d7965e862ee5715c7e3428255169e4b24f5a))
+- correct root files for generic includer graph ([a8c8d79](https://github.com/diplodoc-platform/cli/commit/a8c8d7965e862ee5715c7e3428255169e4b24f5a))
 
 ## [4.25.0](https://github.com/diplodoc-platform/cli/compare/v4.24.1...v4.25.0) (2024-05-08)
 
-
 ### Features
 
-* add default public path ([1a252da](https://github.com/diplodoc-platform/cli/commit/1a252da0c672fe7d58cddefb91f735b6208e24a5))
+- add default public path ([1a252da](https://github.com/diplodoc-platform/cli/commit/1a252da0c672fe7d58cddefb91f735b6208e24a5))
 
 ## [4.24.1](https://github.com/diplodoc-platform/cli/compare/v4.24.0...v4.24.1) (2024-05-07)
 
-
 ### Bug Fixes
 
-* disable new markdownlint rules ([87db6c5](https://github.com/diplodoc-platform/cli/commit/87db6c5eafa1c0f23d04d1d1e01fd44a08f5a3d8))
+- disable new markdownlint rules ([87db6c5](https://github.com/diplodoc-platform/cli/commit/87db6c5eafa1c0f23d04d1d1e01fd44a08f5a3d8))
 
 ## [4.24.0](https://github.com/diplodoc-platform/cli/compare/v4.23.1...v4.24.0) (2024-05-03)
 
-
 ### Features
 
-* add language default from langs & redirect path check to exist ([bc5d971](https://github.com/diplodoc-platform/cli/commit/bc5d9711b71c65aaf0233cc5f61b1a76b6ed5af8))
-* add relative path resolution for links ([9939666](https://github.com/diplodoc-platform/cli/commit/993966612fc2ab1cfaf423270987d48cd1dbc53d))
-* group changelogs by tocs ([de4d9bc](https://github.com/diplodoc-platform/cli/commit/de4d9bca920cf949111a94bca8e03146971eed81))
-* update package.lok file ([c648c72](https://github.com/diplodoc-platform/cli/commit/c648c727d687160d49f51ce49709480226af0667))
-* update transform version ([ef9e5d3](https://github.com/diplodoc-platform/cli/commit/ef9e5d38b6a3b9c31bf1405bd6e4985f957c0b6b))
+- add language default from langs & redirect path check to exist ([bc5d971](https://github.com/diplodoc-platform/cli/commit/bc5d9711b71c65aaf0233cc5f61b1a76b6ed5af8))
+- add relative path resolution for links ([9939666](https://github.com/diplodoc-platform/cli/commit/993966612fc2ab1cfaf423270987d48cd1dbc53d))
+- group changelogs by tocs ([de4d9bc](https://github.com/diplodoc-platform/cli/commit/de4d9bca920cf949111a94bca8e03146971eed81))
+- update package.lok file ([c648c72](https://github.com/diplodoc-platform/cli/commit/c648c727d687160d49f51ce49709480226af0667))
+- update transform version ([ef9e5d3](https://github.com/diplodoc-platform/cli/commit/ef9e5d38b6a3b9c31bf1405bd6e4985f957c0b6b))
 
 ## [4.23.1](https://github.com/diplodoc-platform/cli/compare/v4.23.0...v4.23.1) (2024-04-23)
 
-
 ### Bug Fixes
 
-* Update client ([0d74025](https://github.com/diplodoc-platform/cli/commit/0d74025b18bb735aba1afdd87832855d1539b825))
+- Update client ([0d74025](https://github.com/diplodoc-platform/cli/commit/0d74025b18bb735aba1afdd87832855d1539b825))
 
 ## [4.23.0](https://github.com/diplodoc-platform/cli/compare/v4.22.1...v4.23.0) (2024-04-23)
 
-
 ### Features
 
-* add lang base url for non-lang mode ([2612594](https://github.com/diplodoc-platform/cli/commit/26125947b82debe10262349d945298954ac447a6))
-* add language control selector for static build ([77d9b34](https://github.com/diplodoc-platform/cli/commit/77d9b34c5c6abc03926f8661ac82575f9973a009))
-* add static local serve mode for langs ([9f9e117](https://github.com/diplodoc-platform/cli/commit/9f9e1175283f619af725aacbf1b4dee189494592))
-* implement base path ([dd0cdf2](https://github.com/diplodoc-platform/cli/commit/dd0cdf27cd1dcb66b629882bb8098c28560be6d1))
-* use base uri path ([3e19c4a](https://github.com/diplodoc-platform/cli/commit/3e19c4a7af685788b3c411eaf1903d29d9b95bc0))
-
+- add lang base url for non-lang mode ([2612594](https://github.com/diplodoc-platform/cli/commit/26125947b82debe10262349d945298954ac447a6))
+- add language control selector for static build ([77d9b34](https://github.com/diplodoc-platform/cli/commit/77d9b34c5c6abc03926f8661ac82575f9973a009))
+- add static local serve mode for langs ([9f9e117](https://github.com/diplodoc-platform/cli/commit/9f9e1175283f619af725aacbf1b4dee189494592))
+- implement base path ([dd0cdf2](https://github.com/diplodoc-platform/cli/commit/dd0cdf27cd1dcb66b629882bb8098c28560be6d1))
+- use base uri path ([3e19c4a](https://github.com/diplodoc-platform/cli/commit/3e19c4a7af685788b3c411eaf1903d29d9b95bc0))
 
 ### Bug Fixes
 
-* Fix base tag target ([4c6b6dc](https://github.com/diplodoc-platform/cli/commit/4c6b6dc6394d05ce7b53648ad2a9de05efa1b09d))
-* remove meta fixRelativePath ([d7fbe36](https://github.com/diplodoc-platform/cli/commit/d7fbe36639fef32d09ee4096800e8e4568bba878))
-* update test snapshots ([a22e516](https://github.com/diplodoc-platform/cli/commit/a22e5168a31109314a450fa210fc1d4aa3bdd439))
-* upgrade getAssetsPublicPath ([9200f11](https://github.com/diplodoc-platform/cli/commit/9200f11c1df729339beb4ecf1f1d363a50eac6ea))
+- Fix base tag target ([4c6b6dc](https://github.com/diplodoc-platform/cli/commit/4c6b6dc6394d05ce7b53648ad2a9de05efa1b09d))
+- remove meta fixRelativePath ([d7fbe36](https://github.com/diplodoc-platform/cli/commit/d7fbe36639fef32d09ee4096800e8e4568bba878))
+- update test snapshots ([a22e516](https://github.com/diplodoc-platform/cli/commit/a22e5168a31109314a450fa210fc1d4aa3bdd439))
+- upgrade getAssetsPublicPath ([9200f11](https://github.com/diplodoc-platform/cli/commit/9200f11c1df729339beb4ecf1f1d363a50eac6ea))
 
 ## [4.22.1](https://github.com/diplodoc-platform/cli/compare/v4.22.0...v4.22.1) (2024-04-22)
 
-
 ### Bug Fixes
 
-* node 18.14 don't support module.require.main ([#744](https://github.com/diplodoc-platform/cli/issues/744)) ([85ba262](https://github.com/diplodoc-platform/cli/commit/85ba262897a7d79aa0efa4e160597fb6adb276eb))
+- node 18.14 don't support module.require.main ([#744](https://github.com/diplodoc-platform/cli/issues/744)) ([85ba262](https://github.com/diplodoc-platform/cli/commit/85ba262897a7d79aa0efa4e160597fb6adb276eb))
 
 ## [4.22.0](https://github.com/diplodoc-platform/cli/compare/v4.21.0...v4.22.0) (2024-04-15)
 
-
 ### Features
 
-* Rewrite publish and translate commands on extension api ([7a2e3fc](https://github.com/diplodoc-platform/cli/commit/7a2e3fc7bea20ade2d43b887b8b42fe79cd70974))
-* transform yfm in pc ([#740](https://github.com/diplodoc-platform/cli/issues/740)) ([7fc7a01](https://github.com/diplodoc-platform/cli/commit/7fc7a010f9f2758a6492f884dbe85c53e98d9b43))
+- Rewrite publish and translate commands on extension api ([7a2e3fc](https://github.com/diplodoc-platform/cli/commit/7a2e3fc7bea20ade2d43b887b8b42fe79cd70974))
+- transform yfm in pc ([#740](https://github.com/diplodoc-platform/cli/issues/740)) ([7fc7a01](https://github.com/diplodoc-platform/cli/commit/7fc7a010f9f2758a6492f884dbe85c53e98d9b43))
 
 ## [4.21.0](https://github.com/diplodoc-platform/cli/compare/v4.20.0...v4.21.0) (2024-04-10)
 
-
 ### Features
 
-* generate html links for PC pages in md2html ([#734](https://github.com/diplodoc-platform/cli/issues/734)) ([91b2a37](https://github.com/diplodoc-platform/cli/commit/91b2a374bca216947b6dd28a96dd4d33f4452c00))
-* update @diplodoc/client@2.5.0 ([#737](https://github.com/diplodoc-platform/cli/issues/737)) ([55a4c7c](https://github.com/diplodoc-platform/cli/commit/55a4c7ce8d950400eff037f01c2c7d1841a8c38b))
+- generate html links for PC pages in md2html ([#734](https://github.com/diplodoc-platform/cli/issues/734)) ([91b2a37](https://github.com/diplodoc-platform/cli/commit/91b2a374bca216947b6dd28a96dd4d33f4452c00))
+- update @diplodoc/client@2.5.0 ([#737](https://github.com/diplodoc-platform/cli/issues/737)) ([55a4c7c](https://github.com/diplodoc-platform/cli/commit/55a4c7ce8d950400eff037f01c2c7d1841a8c38b))
 
 ## [4.20.0](https://github.com/diplodoc-platform/cli/compare/v4.19.3...v4.20.0) (2024-04-09)
 
-
 ### Features
 
-* add changelogs ([38733c8](https://github.com/diplodoc-platform/cli/commit/38733c87365693c5324aaec02527fccae29e9b06))
-* bump transform version ([1c2b8f5](https://github.com/diplodoc-platform/cli/commit/1c2b8f51014802bd2d9224bfe4d32b7e23b35adb))
+- add changelogs ([38733c8](https://github.com/diplodoc-platform/cli/commit/38733c87365693c5324aaec02527fccae29e9b06))
+- bump transform version ([1c2b8f5](https://github.com/diplodoc-platform/cli/commit/1c2b8f51014802bd2d9224bfe4d32b7e23b35adb))
 
 ## [4.19.3](https://github.com/diplodoc-platform/cli/compare/v4.19.2...v4.19.3) (2024-04-02)
 
-
 ### Bug Fixes
 
-* copy assets by root path ([#719](https://github.com/diplodoc-platform/cli/issues/719)) ([7104343](https://github.com/diplodoc-platform/cli/commit/710434395bb60dcd6d2b8fab563a1d2d859b68c2))
+- copy assets by root path ([#719](https://github.com/diplodoc-platform/cli/issues/719)) ([7104343](https://github.com/diplodoc-platform/cli/commit/710434395bb60dcd6d2b8fab563a1d2d859b68c2))
 
 ## [4.19.2](https://github.com/diplodoc-platform/cli/compare/v4.19.1...v4.19.2) (2024-04-02)
 
-
 ### Bug Fixes
 
-* process only yaml files in toc ([#717](https://github.com/diplodoc-platform/cli/issues/717)) ([0869419](https://github.com/diplodoc-platform/cli/commit/08694197a60256f9b81087ace6f3e0a3d5f5d989))
+- process only yaml files in toc ([#717](https://github.com/diplodoc-platform/cli/issues/717)) ([0869419](https://github.com/diplodoc-platform/cli/commit/08694197a60256f9b81087ace6f3e0a3d5f5d989))
 
 ## [4.19.1](https://github.com/diplodoc-platform/cli/compare/v4.19.0...v4.19.1) (2024-04-02)
 
-
 ### Bug Fixes
 
-* Try to fix binary build ([abe6f60](https://github.com/diplodoc-platform/cli/commit/abe6f607f57a6520a06a70794b7c330903b69a12))
+- Try to fix binary build ([abe6f60](https://github.com/diplodoc-platform/cli/commit/abe6f607f57a6520a06a70794b7c330903b69a12))
 
 ## [4.19.0](https://github.com/diplodoc-platform/cli/compare/v4.18.0...v4.19.0) (2024-04-01)
 
-
 ### Features
 
-* add redirect url for non-lang mode ([8c40c77](https://github.com/diplodoc-platform/cli/commit/8c40c777626bf361bfbf5fa1332180ada64827ec))
-* add redirect url for non-lang mode & update tests ([ee9b968](https://github.com/diplodoc-platform/cli/commit/ee9b968ba61fa61137f773c15884c277770947c5))
-* add static redirect page ([f0a9a8d](https://github.com/diplodoc-platform/cli/commit/f0a9a8dd224dbece649a2fa11fbbbd24f5f885b2))
-* copy yaml assets ([#707](https://github.com/diplodoc-platform/cli/issues/707)) ([0d3293c](https://github.com/diplodoc-platform/cli/commit/0d3293c5d3936fb7fdeb065a3becb6292542df73))
-* update @diplodoc/client@2.4.0 ([#713](https://github.com/diplodoc-platform/cli/issues/713)) ([b69e50b](https://github.com/diplodoc-platform/cli/commit/b69e50b709c4e8fbf951c6783bb4273ee25b98e7))
-
+- add redirect url for non-lang mode ([8c40c77](https://github.com/diplodoc-platform/cli/commit/8c40c777626bf361bfbf5fa1332180ada64827ec))
+- add redirect url for non-lang mode & update tests ([ee9b968](https://github.com/diplodoc-platform/cli/commit/ee9b968ba61fa61137f773c15884c277770947c5))
+- add static redirect page ([f0a9a8d](https://github.com/diplodoc-platform/cli/commit/f0a9a8dd224dbece649a2fa11fbbbd24f5f885b2))
+- copy yaml assets ([#707](https://github.com/diplodoc-platform/cli/issues/707)) ([0d3293c](https://github.com/diplodoc-platform/cli/commit/0d3293c5d3936fb7fdeb065a3becb6292542df73))
+- update @diplodoc/client@2.4.0 ([#713](https://github.com/diplodoc-platform/cli/issues/713)) ([b69e50b](https://github.com/diplodoc-platform/cli/commit/b69e50b709c4e8fbf951c6783bb4273ee25b98e7))
 
 ### Bug Fixes
 
-* lint ([286fb30](https://github.com/diplodoc-platform/cli/commit/286fb30ff1580fc541517398e7bf4076a71448c7))
+- lint ([286fb30](https://github.com/diplodoc-platform/cli/commit/286fb30ff1580fc541517398e7bf4076a71448c7))
 
 ## [4.18.0](https://github.com/diplodoc-platform/cli/compare/v4.17.1...v4.18.0) (2024-03-26)
 
-
 ### Features
 
-* lint YAML files ([#699](https://github.com/diplodoc-platform/cli/issues/699)) ([5b28f97](https://github.com/diplodoc-platform/cli/commit/5b28f97abb2ac40d2fe7cb9e9acc8ec0a6d105c2))
+- lint YAML files ([#699](https://github.com/diplodoc-platform/cli/issues/699)) ([5b28f97](https://github.com/diplodoc-platform/cli/commit/5b28f97abb2ac40d2fe7cb9e9acc8ec0a6d105c2))
 
 ## [4.17.1](https://github.com/diplodoc-platform/cli/compare/v4.17.0...v4.17.1) (2024-03-25)
 
-
 ### Bug Fixes
 
-* **translation:** Fix schemas resolution ([6228d3b](https://github.com/diplodoc-platform/cli/commit/6228d3b27e5d652924a5921b37c700f02af419e7))
+- **translation:** Fix schemas resolution ([6228d3b](https://github.com/diplodoc-platform/cli/commit/6228d3b27e5d652924a5921b37c700f02af419e7))
 
 ## [4.17.0](https://github.com/diplodoc-platform/cli/compare/v4.16.1...v4.17.0) (2024-03-25)
 
-
 ### Features
 
-* toc label syntax ([45e118f](https://github.com/diplodoc-platform/cli/commit/45e118f28079913887710423da4195b21bcd47c5))
-
+- toc label syntax ([45e118f](https://github.com/diplodoc-platform/cli/commit/45e118f28079913887710423da4195b21bcd47c5))
 
 ### Bug Fixes
 
-* Add translate fields ([7b0b48d](https://github.com/diplodoc-platform/cli/commit/7b0b48dc6859ad7a6cbcaa247e8c5ce7a6dd0835))
-* Fix translation schemas resolution ([c9c5436](https://github.com/diplodoc-platform/cli/commit/c9c54366412ed89f6c373dda6d0c3cbc807f16d1))
+- Add translate fields ([7b0b48d](https://github.com/diplodoc-platform/cli/commit/7b0b48dc6859ad7a6cbcaa247e8c5ce7a6dd0835))
+- Fix translation schemas resolution ([c9c5436](https://github.com/diplodoc-platform/cli/commit/c9c54366412ed89f6c373dda6d0c3cbc807f16d1))
 
 ## [4.16.1](https://github.com/diplodoc-platform/cli/compare/v4.16.0...v4.16.1) (2024-03-22)
 
-
 ### Bug Fixes
 
-* Add missed json schemas to npm package ([3db3863](https://github.com/diplodoc-platform/cli/commit/3db38632a3ffcf4d43854374487203088b729da5))
+- Add missed json schemas to npm package ([3db3863](https://github.com/diplodoc-platform/cli/commit/3db38632a3ffcf4d43854374487203088b729da5))
 
 ## [4.16.0](https://github.com/diplodoc-platform/cli/compare/v4.15.1...v4.16.0) (2024-03-21)
 
-
 ### Features
 
-* **translation:** Add schemas for toc/leading/presets ([6a25caf](https://github.com/diplodoc-platform/cli/commit/6a25cafc0774cdae464dbcf21143bcb81dc8e9ec))
+- **translation:** Add schemas for toc/leading/presets ([6a25caf](https://github.com/diplodoc-platform/cli/commit/6a25cafc0774cdae464dbcf21143bcb81dc8e9ec))
 
 ## [4.15.1](https://github.com/diplodoc-platform/cli/compare/v4.15.0...v4.15.1) (2024-03-11)
 
-
 ### Bug Fixes
 
-* Update translation dep ([c41878d](https://github.com/diplodoc-platform/cli/commit/c41878d125681f3634a46098010b727394bec227))
+- Update translation dep ([c41878d](https://github.com/diplodoc-platform/cli/commit/c41878d125681f3634a46098010b727394bec227))
 
 ## [4.15.0](https://github.com/diplodoc-platform/cli/compare/v4.14.0...v4.15.0) (2024-03-06)
 
-
 ### Features
 
-* **openapi:** bump version ([e2c06e6](https://github.com/diplodoc-platform/cli/commit/e2c06e62b322eed487445c138ab0888d17248685))
+- **openapi:** bump version ([e2c06e6](https://github.com/diplodoc-platform/cli/commit/e2c06e62b322eed487445c138ab0888d17248685))
 
 ## [4.14.0](https://github.com/diplodoc-platform/cli/compare/v4.13.8...v4.14.0) (2024-03-05)
 
-
 ### Features
 
-* add test for rtl ([27acab1](https://github.com/diplodoc-platform/cli/commit/27acab13b89a1d250c9b5d0608350cc1da5d10ac))
-* Rearrange dev and prod deps for optimal bimary (pkg) build ([015aec7](https://github.com/diplodoc-platform/cli/commit/015aec7fa782e19fd53191e36300a87675d0cb26))
-* **rtl:** filter assets based on rtl langs ([e3e0537](https://github.com/diplodoc-platform/cli/commit/e3e0537603b75775858dc952caf4fee94043f4cc))
-* **rtl:** html tag direction ([f4ee1b0](https://github.com/diplodoc-platform/cli/commit/f4ee1b0f3436b037ad60b4b6d344aa731a69f1ac))
-* update deps % openapi ([cb4e7d3](https://github.com/diplodoc-platform/cli/commit/cb4e7d32db663e2f82276a4ddb9e5c3f108ed35c))
-
+- add test for rtl ([27acab1](https://github.com/diplodoc-platform/cli/commit/27acab13b89a1d250c9b5d0608350cc1da5d10ac))
+- Rearrange dev and prod deps for optimal bimary (pkg) build ([015aec7](https://github.com/diplodoc-platform/cli/commit/015aec7fa782e19fd53191e36300a87675d0cb26))
+- **rtl:** filter assets based on rtl langs ([e3e0537](https://github.com/diplodoc-platform/cli/commit/e3e0537603b75775858dc952caf4fee94043f4cc))
+- **rtl:** html tag direction ([f4ee1b0](https://github.com/diplodoc-platform/cli/commit/f4ee1b0f3436b037ad60b4b6d344aa731a69f1ac))
+- update deps % openapi ([cb4e7d3](https://github.com/diplodoc-platform/cli/commit/cb4e7d32db663e2f82276a4ddb9e5c3f108ed35c))
 
 ### Bug Fixes
 
-* Fix translation error handleng ([48e9528](https://github.com/diplodoc-platform/cli/commit/48e9528f3118c7203e556b970ecbb923b96aacf9))
-* Fix translation limits handling ([193dbe9](https://github.com/diplodoc-platform/cli/commit/193dbe917e4b469c6b88e0d764f709d693594a07))
-* pass correct current lang ([6a7b357](https://github.com/diplodoc-platform/cli/commit/6a7b3577e2dd3cc89668e81b6a23c34fca951513))
-* toc may not have lang ([ba8ecc7](https://github.com/diplodoc-platform/cli/commit/ba8ecc714d2d63dc0816feab9c556f13fc017022))
-* Update client ([008ed60](https://github.com/diplodoc-platform/cli/commit/008ed6089163c8ee9c431e2dea0dc9b4cb602886))
+- Fix translation error handleng ([48e9528](https://github.com/diplodoc-platform/cli/commit/48e9528f3118c7203e556b970ecbb923b96aacf9))
+- Fix translation limits handling ([193dbe9](https://github.com/diplodoc-platform/cli/commit/193dbe917e4b469c6b88e0d764f709d693594a07))
+- pass correct current lang ([6a7b357](https://github.com/diplodoc-platform/cli/commit/6a7b3577e2dd3cc89668e81b6a23c34fca951513))
+- toc may not have lang ([ba8ecc7](https://github.com/diplodoc-platform/cli/commit/ba8ecc714d2d63dc0816feab9c556f13fc017022))
+- Update client ([008ed60](https://github.com/diplodoc-platform/cli/commit/008ed6089163c8ee9c431e2dea0dc9b4cb602886))
 
 ## [4.13.8](https://github.com/diplodoc-platform/cli/compare/v4.13.7...v4.13.8) (2024-02-27)
 
-
 ### Bug Fixes
 
-* Fix translation auth ([036cca8](https://github.com/diplodoc-platform/cli/commit/036cca80fd571fc6bfb0ffa06ec590880fc84b13))
+- Fix translation auth ([036cca8](https://github.com/diplodoc-platform/cli/commit/036cca80fd571fc6bfb0ffa06ec590880fc84b13))
 
 ## [4.13.7](https://github.com/diplodoc-platform/cli/compare/v4.13.6...v4.13.7) (2024-02-27)
 
-
 ### Bug Fixes
 
-* Migrate from markdown-translation to translation ([be844ca](https://github.com/diplodoc-platform/cli/commit/be844ca9f67e1e072db74614a0f36efaf124af02))
+- Migrate from markdown-translation to translation ([be844ca](https://github.com/diplodoc-platform/cli/commit/be844ca9f67e1e072db74614a0f36efaf124af02))
 
 ## [4.13.6](https://github.com/diplodoc-platform/cli/compare/v4.13.5...v4.13.6) (2024-02-12)
 
-
 ### Bug Fixes
 
-* bump latex extension ([bb6be65](https://github.com/diplodoc-platform/cli/commit/bb6be65ed02b96c37803e3d934bd3fb7af92632a))
+- bump latex extension ([bb6be65](https://github.com/diplodoc-platform/cli/commit/bb6be65ed02b96c37803e3d934bd3fb7af92632a))
 
 ## [4.13.5](https://github.com/diplodoc-platform/cli/compare/v4.13.4...v4.13.5) (2024-02-09)
 
-
 ### Bug Fixes
 
-* rewriten xliff api ([cc00fb5](https://github.com/diplodoc-platform/cli/commit/cc00fb5f209c029b4df2fc88cdca4cd50659e538))
-* Update deps (client, translation) ([0d6df6f](https://github.com/diplodoc-platform/cli/commit/0d6df6fb635008e2e6c71d0a2da58107bbc0a2c1))
+- rewriten xliff api ([cc00fb5](https://github.com/diplodoc-platform/cli/commit/cc00fb5f209c029b4df2fc88cdca4cd50659e538))
+- Update deps (client, translation) ([0d6df6f](https://github.com/diplodoc-platform/cli/commit/0d6df6fb635008e2e6c71d0a2da58107bbc0a2c1))
 
 ## [4.13.4](https://github.com/diplodoc-platform/cli/compare/v4.13.3...v4.13.4) (2024-02-08)
 
-
 ### Bug Fixes
 
-* Update client ([6ec8ad1](https://github.com/diplodoc-platform/cli/commit/6ec8ad1d065a42b57bf28fb2b71d80f424e4c267))
+- Update client ([6ec8ad1](https://github.com/diplodoc-platform/cli/commit/6ec8ad1d065a42b57bf28fb2b71d80f424e4c267))
 
 ## [4.13.3](https://github.com/diplodoc-platform/cli/compare/v4.13.2...v4.13.3) (2024-02-07)
 
-
 ### Bug Fixes
 
-* Update translation ([c659b63](https://github.com/diplodoc-platform/cli/commit/c659b6322a6f299afed921dda5c90293b3d8bbd8))
+- Update translation ([c659b63](https://github.com/diplodoc-platform/cli/commit/c659b6322a6f299afed921dda5c90293b3d8bbd8))
 
 ## [4.13.2](https://github.com/diplodoc-platform/cli/compare/v4.13.1...v4.13.2) (2024-02-06)
 
-
 ### Bug Fixes
 
-* Fix notes interaction ([cbf354b](https://github.com/diplodoc-platform/cli/commit/cbf354b281b6bf846c0aa3a4206fd8323168f5e5))
+- Fix notes interaction ([cbf354b](https://github.com/diplodoc-platform/cli/commit/cbf354b281b6bf846c0aa3a4206fd8323168f5e5))
 
 ## [4.13.1](https://github.com/diplodoc-platform/cli/compare/v4.13.0...v4.13.1) (2024-02-06)
 
-
 ### Bug Fixes
 
-* null filter ([f78e64a](https://github.com/diplodoc-platform/cli/commit/f78e64ac205b1f5269badc21d257bec719036bfb))
+- null filter ([f78e64a](https://github.com/diplodoc-platform/cli/commit/f78e64ac205b1f5269badc21d257bec719036bfb))
 
 ## [4.13.0](https://github.com/diplodoc-platform/cli/compare/v4.12.1...v4.13.0) (2024-02-06)
 
-
 ### Features
 
-* bump openapi version ([a361cfb](https://github.com/diplodoc-platform/cli/commit/a361cfb9f07c58278fe21342ed7f24472ccd9c6d))
+- bump openapi version ([a361cfb](https://github.com/diplodoc-platform/cli/commit/a361cfb9f07c58278fe21342ed7f24472ccd9c6d))
 
 ## [4.12.1](https://github.com/diplodoc-platform/cli/compare/v4.12.0...v4.12.1) (2024-02-01)
 
-
 ### Bug Fixes
 
-* fix plugins runtime in client ([dac2ab7](https://github.com/diplodoc-platform/cli/commit/dac2ab757e03b3fe37ac5f42e3a6f46a6a33d35e))
+- fix plugins runtime in client ([dac2ab7](https://github.com/diplodoc-platform/cli/commit/dac2ab757e03b3fe37ac5f42e3a6f46a6a33d35e))
 
 ## [4.12.0](https://github.com/diplodoc-platform/cli/compare/v4.11.0...v4.12.0) (2024-01-30)
 
-
 ### Features
 
-* **cmd:** add need-to-sanitize-html flag ([22957d8](https://github.com/diplodoc-platform/cli/commit/22957d8365f9ee8ab3442a6fdaa05a16d8f071cf))
-* **cli:** support custom metadata in presets.yaml / inline ([7be29c1](https://github.com/diplodoc-platform/cli/commit/7be29c11be2a555aa68fc7d290a912a05cbcc4a0))
+- **cmd:** add need-to-sanitize-html flag ([22957d8](https://github.com/diplodoc-platform/cli/commit/22957d8365f9ee8ab3442a6fdaa05a16d8f071cf))
+- **cli:** support custom metadata in presets.yaml / inline ([7be29c1](https://github.com/diplodoc-platform/cli/commit/7be29c11be2a555aa68fc7d290a912a05cbcc4a0))
 
 ### Bug Fixes
 
-* tests ([5073b66](https://github.com/diplodoc-platform/cli/commit/5073b662f4a8f74a22c1c1efce9f044eb96f6949))
-* update openapi-extension ([455613e](https://github.com/diplodoc-platform/cli/commit/455613eaf89ca56904aaf93f84ea36cfbbacacc6))
+- tests ([5073b66](https://github.com/diplodoc-platform/cli/commit/5073b662f4a8f74a22c1c1efce9f044eb96f6949))
+- update openapi-extension ([455613e](https://github.com/diplodoc-platform/cli/commit/455613eaf89ca56904aaf93f84ea36cfbbacacc6))
 
 ## [4.11.0](https://github.com/diplodoc-platform/cli/compare/v4.10.1...v4.11.0) (2024-01-25)
 
-
 ### Features
 
-* **cmd/xliff:** update markdown-translation ([d7b1777](https://github.com/diplodoc-platform/cli/commit/d7b177775840d69cb02e3859bfb82a57ffee72c2))
+- **cmd/xliff:** update markdown-translation ([d7b1777](https://github.com/diplodoc-platform/cli/commit/d7b177775840d69cb02e3859bfb82a57ffee72c2))
 
 ## [4.10.1](https://github.com/diplodoc-platform/cli/compare/v4.10.0...v4.10.1) (2024-01-23)
 
-
 ### Bug Fixes
 
-* Remove dummy html line breaks cleanup ([0fb3ead](https://github.com/diplodoc-platform/cli/commit/0fb3ead2b50b8eb994a2b53e0794fb8edeb90656)), closes [#641](https://github.com/diplodoc-platform/cli/issues/641)
+- Remove dummy html line breaks cleanup ([0fb3ead](https://github.com/diplodoc-platform/cli/commit/0fb3ead2b50b8eb994a2b53e0794fb8edeb90656)), closes [#641](https://github.com/diplodoc-platform/cli/issues/641)
 
 ## [4.10.0](https://github.com/diplodoc-platform/cli/compare/v4.9.0...v4.10.0) (2024-01-19)
 
-
 ### Features
 
-* update transform ([84ef5b3](https://github.com/diplodoc-platform/cli/commit/84ef5b3a9301aae2164328484ec09b1f708f4317))
-
+- update transform ([84ef5b3](https://github.com/diplodoc-platform/cli/commit/84ef5b3a9301aae2164328484ec09b1f708f4317))
 
 ### Bug Fixes
 
-* ignore tmp folder in uploading ([#643](https://github.com/diplodoc-platform/cli/issues/643)) ([caca466](https://github.com/diplodoc-platform/cli/commit/caca4667a6bf041045c04d97236bbe942ab97eb2))
+- ignore tmp folder in uploading ([#643](https://github.com/diplodoc-platform/cli/issues/643)) ([caca466](https://github.com/diplodoc-platform/cli/commit/caca4667a6bf041045c04d97236bbe942ab97eb2))
 
 ## [4.9.0](https://github.com/diplodoc-platform/cli/compare/v4.8.0...v4.9.0) (2024-01-09)
 
-
 ### Features
 
-* Add updatedAt field in metadata ([#628](https://github.com/diplodoc-platform/cli/issues/628)) ([63f6f5e](https://github.com/diplodoc-platform/cli/commit/63f6f5e1300e4a233e1c547860252562b1fe9772))
-
+- Add updatedAt field in metadata ([#628](https://github.com/diplodoc-platform/cli/issues/628)) ([63f6f5e](https://github.com/diplodoc-platform/cli/commit/63f6f5e1300e4a233e1c547860252562b1fe9772))
 
 ### Bug Fixes
 
-* Update latex extension ([0cd0a5d](https://github.com/diplodoc-platform/cli/commit/0cd0a5dded9b632be0b4a1c097ad0efaf8859d1c))
+- Update latex extension ([0cd0a5d](https://github.com/diplodoc-platform/cli/commit/0cd0a5dded9b632be0b4a1c097ad0efaf8859d1c))
 
 ## [4.8.0](https://github.com/diplodoc-platform/cli/compare/v4.7.0...v4.8.0) (2023-12-28)
 
-
 ### Features
 
-* Add Latex extension ([2426f5b](https://github.com/diplodoc-platform/cli/commit/2426f5b8978119ed3d617c33921dd0d83581fd6d))
-* Update client to v2 ([0050e29](https://github.com/diplodoc-platform/cli/commit/0050e298562bd0f82429b8a27635f5b7d8cb6351))
-
+- Add Latex extension ([2426f5b](https://github.com/diplodoc-platform/cli/commit/2426f5b8978119ed3d617c33921dd0d83581fd6d))
+- Update client to v2 ([0050e29](https://github.com/diplodoc-platform/cli/commit/0050e298562bd0f82429b8a27635f5b7d8cb6351))
 
 ### Bug Fixes
 
-* Update transformer ([cb5f4c7](https://github.com/diplodoc-platform/cli/commit/cb5f4c769a447cfef35e0e96111401db36e79892))
+- Update transformer ([cb5f4c7](https://github.com/diplodoc-platform/cli/commit/cb5f4c769a447cfef35e0e96111401db36e79892))
 
 ## [4.7.0](https://github.com/diplodoc-platform/cli/compare/v4.6.5...v4.7.0) (2023-12-26)
 
-
 ### Features
 
-* add block anchor plugin to transform ([26b5841](https://github.com/diplodoc-platform/cli/commit/26b584122894574a312ebe4631ac1dfe474285a0))
-
+- add block anchor plugin to transform ([26b5841](https://github.com/diplodoc-platform/cli/commit/26b584122894574a312ebe4631ac1dfe474285a0))
 
 ### Bug Fixes
 
-* **cmd/xliff:** bump markdown-translation version ([2564a58](https://github.com/diplodoc-platform/cli/commit/2564a582e4d4bd2bbdc3bbf3fc9c463bc8448fd3))
+- **cmd/xliff:** bump markdown-translation version ([2564a58](https://github.com/diplodoc-platform/cli/commit/2564a582e4d4bd2bbdc3bbf3fc9c463bc8448fd3))
 
 ## [4.6.5](https://github.com/diplodoc-platform/cli/compare/v4.6.4...v4.6.5) (2023-12-22)
 
-
 ### Bug Fixes
 
-* Limit translated chunk size ([00d8852](https://github.com/diplodoc-platform/cli/commit/00d88528487f48663406f58964d3563ddfd4e1fe))
-* Update core deps. Remove unused deps. ([f9cdb38](https://github.com/diplodoc-platform/cli/commit/f9cdb389cc8dbd984b4336b1fd058a8b39dd0bef))
+- Limit translated chunk size ([00d8852](https://github.com/diplodoc-platform/cli/commit/00d88528487f48663406f58964d3563ddfd4e1fe))
+- Update core deps. Remove unused deps. ([f9cdb38](https://github.com/diplodoc-platform/cli/commit/f9cdb389cc8dbd984b4336b1fd058a8b39dd0bef))
 
 ## [4.6.4](https://github.com/diplodoc-platform/cli/compare/v4.6.3...v4.6.4) (2023-12-13)
 
-
 ### Bug Fixes
 
-* **cmd/xliff:** update markdown-translation version ([8d19309](https://github.com/diplodoc-platform/cli/commit/8d19309586b3b3805846ff2e3671e4d0cef6dc3f))
+- **cmd/xliff:** update markdown-translation version ([8d19309](https://github.com/diplodoc-platform/cli/commit/8d19309586b3b3805846ff2e3671e4d0cef6dc3f))
 
 ## [4.6.3](https://github.com/diplodoc-platform/cli/compare/v4.6.2...v4.6.3) (2023-11-27)
 
-
 ### Bug Fixes
 
-* **cmd/xliff:** translations indexing ([3f67e33](https://github.com/diplodoc-platform/cli/commit/3f67e330c9d088e72072998830de3799a68ece10))
+- **cmd/xliff:** translations indexing ([3f67e33](https://github.com/diplodoc-platform/cli/commit/3f67e330c9d088e72072998830de3799a68ece10))
 
 ## [4.6.2](https://github.com/diplodoc-platform/cli/compare/v4.6.1...v4.6.2) (2023-11-27)
 
-
 ### Bug Fixes
 
-* **openapi:** bump extension version to v1.4.4 ([f110eb3](https://github.com/diplodoc-platform/cli/commit/f110eb3c41dd74b2f015b28952194ec9e8bfe80a))
+- **openapi:** bump extension version to v1.4.4 ([f110eb3](https://github.com/diplodoc-platform/cli/commit/f110eb3c41dd74b2f015b28952194ec9e8bfe80a))
 
 ## [4.6.1](https://github.com/diplodoc-platform/cli/compare/v4.6.0...v4.6.1) (2023-11-24)
 
-
 ### Bug Fixes
 
-* bump @diplodoc/openapi-extension version to v1.4.3 ([3fa633f](https://github.com/diplodoc-platform/cli/commit/3fa633fe0db08f2df35088004747da099420619e))
+- bump @diplodoc/openapi-extension version to v1.4.3 ([3fa633f](https://github.com/diplodoc-platform/cli/commit/3fa633fe0db08f2df35088004747da099420619e))
 
 ## [4.6.0](https://github.com/diplodoc-platform/cli/compare/v4.5.1...v4.6.0) (2023-11-24)
 
-
 ### Features
 
-* **cmd/xliff:** markdown-translation major update 1.0.0 ([ccc46dc](https://github.com/diplodoc-platform/cli/commit/ccc46dcedb97dc5c8df3f157c5844d9c360e9cd6))
+- **cmd/xliff:** markdown-translation major update 1.0.0 ([ccc46dc](https://github.com/diplodoc-platform/cli/commit/ccc46dcedb97dc5c8df3f157c5844d9c360e9cd6))
 
 ## [4.5.1](https://github.com/diplodoc-platform/cli/compare/v4.5.0...v4.5.1) (2023-11-22)
 
-
 ### Bug Fixes
 
-* **github:** fix UND_ERR_CONNECT_TIMEOUT error ([#606](https://github.com/diplodoc-platform/cli/issues/606)) ([d196861](https://github.com/diplodoc-platform/cli/commit/d1968614cdf9010da3de3ee10d080ea99c20003a))
+- **github:** fix UND_ERR_CONNECT_TIMEOUT error ([#606](https://github.com/diplodoc-platform/cli/issues/606)) ([d196861](https://github.com/diplodoc-platform/cli/commit/d1968614cdf9010da3de3ee10d080ea99c20003a))
 
 ## [4.5.0](https://github.com/diplodoc-platform/cli/compare/v4.4.0...v4.5.0) (2023-11-21)
 
-
 ### Features
 
-* **cmd/xliff:** inline code, inline html ([d631f8d](https://github.com/diplodoc-platform/cli/commit/d631f8d126a2a485cb7700388ea6cfcb70434c8c))
+- **cmd/xliff:** inline code, inline html ([d631f8d](https://github.com/diplodoc-platform/cli/commit/d631f8d126a2a485cb7700388ea6cfcb70434c8c))
 
 ## [4.4.0](https://github.com/diplodoc-platform/cli/compare/v4.3.2...v4.4.0) (2023-11-20)
 
-
 ### Features
 
-* **cmd/xliff:** newline separated segments ([f437710](https://github.com/diplodoc-platform/cli/commit/f4377103f37ca148081fc599d0a5853a8c56c77f))
+- **cmd/xliff:** newline separated segments ([f437710](https://github.com/diplodoc-platform/cli/commit/f4377103f37ca148081fc599d0a5853a8c56c77f))
 
 ## [4.3.2](https://github.com/diplodoc-platform/cli/compare/v4.3.1...v4.3.2) (2023-11-17)
 
-
 ### Bug Fixes
 
-* **cmd/xliff:** inline segmentation variables, liquid ([a6cc17f](https://github.com/diplodoc-platform/cli/commit/a6cc17f7fc82285f3fd6854159d42ee8bfe4c194))
+- **cmd/xliff:** inline segmentation variables, liquid ([a6cc17f](https://github.com/diplodoc-platform/cli/commit/a6cc17f7fc82285f3fd6854159d42ee8bfe4c194))
 
 ## [4.3.1](https://github.com/diplodoc-platform/cli/compare/v4.3.0...v4.3.1) (2023-11-16)
 
-
 ### Bug Fixes
 
-* **cmd/xliff:** inline segmentation variables, liquid ([90cecb2](https://github.com/diplodoc-platform/cli/commit/90cecb2cf3f2bd2747d8073dfb1b5698df6a592c))
+- **cmd/xliff:** inline segmentation variables, liquid ([90cecb2](https://github.com/diplodoc-platform/cli/commit/90cecb2cf3f2bd2747d8073dfb1b5698df6a592c))
 
 ## [4.3.0](https://github.com/diplodoc-platform/cli/compare/v4.2.2...v4.3.0) (2023-11-15)
 
-
 ### Features
 
-* **cmd/xliff:** inline segmentation variables, liquid ([ccb96db](https://github.com/diplodoc-platform/cli/commit/ccb96dbc7237c6cfa24faf6c49c519046c19dcba))
+- **cmd/xliff:** inline segmentation variables, liquid ([ccb96db](https://github.com/diplodoc-platform/cli/commit/ccb96dbc7237c6cfa24faf6c49c519046c19dcba))
 
 ## [4.2.2](https://github.com/diplodoc-platform/cli/compare/v4.2.1...v4.2.2) (2023-10-30)
 
-
 ### Bug Fixes
 
-* **copyFile:** With network storage shell.cp faster than copyFileSync ([b6a1a6b](https://github.com/diplodoc-platform/cli/commit/b6a1a6babfcf12bd3a38535481873154d2c919fd))
-* **infra:** engines, overrides, bump deps ([961452c](https://github.com/diplodoc-platform/cli/commit/961452cb8977cada6ecbb51c6349e34ce5cfdf87))
+- **copyFile:** With network storage shell.cp faster than copyFileSync ([b6a1a6b](https://github.com/diplodoc-platform/cli/commit/b6a1a6babfcf12bd3a38535481873154d2c919fd))
+- **infra:** engines, overrides, bump deps ([961452c](https://github.com/diplodoc-platform/cli/commit/961452cb8977cada6ecbb51c6349e34ce5cfdf87))
 
 ## [4.2.1](https://github.com/diplodoc-platform/cli/compare/v4.2.0...v4.2.1) (2023-10-26)
 
-
 ### Bug Fixes
 
-* linting errors ([ec72aeb](https://github.com/diplodoc-platform/cli/commit/ec72aebf011b9e64f70621fee6b1d6067459d01a))
+- linting errors ([ec72aeb](https://github.com/diplodoc-platform/cli/commit/ec72aebf011b9e64f70621fee6b1d6067459d01a))
 
 ## [4.2.0](https://github.com/diplodoc-platform/cli/compare/v4.1.0...v4.2.0) (2023-10-24)
 
-
 ### Features
 
-* add linter, move to diplodoc packages ([a92704a](https://github.com/diplodoc-platform/cli/commit/a92704a18d699084a6722011fdade0e300854765))
-* cleanup packages ([5155a46](https://github.com/diplodoc-platform/cli/commit/5155a461cc62f1d57922caf9fa51cb764a9d1ebc))
-* **cmd/xliff:** experimental-inline-segmentation-beta-2 ([729fc37](https://github.com/diplodoc-platform/cli/commit/729fc37a69a2de76eb4c22a7d16c75cb45ef9b2c))
-* configs ([ecc3c57](https://github.com/diplodoc-platform/cli/commit/ecc3c57367768455bb16ecf3ed77dd37f0a19ec8))
-
+- add linter, move to diplodoc packages ([a92704a](https://github.com/diplodoc-platform/cli/commit/a92704a18d699084a6722011fdade0e300854765))
+- cleanup packages ([5155a46](https://github.com/diplodoc-platform/cli/commit/5155a461cc62f1d57922caf9fa51cb764a9d1ebc))
+- **cmd/xliff:** experimental-inline-segmentation-beta-2 ([729fc37](https://github.com/diplodoc-platform/cli/commit/729fc37a69a2de76eb4c22a7d16c75cb45ef9b2c))
+- configs ([ecc3c57](https://github.com/diplodoc-platform/cli/commit/ecc3c57367768455bb16ecf3ed77dd37f0a19ec8))
 
 ### Bug Fixes
 
-* **deps:** deprecate yfm2xliff ([0852d6e](https://github.com/diplodoc-platform/cli/commit/0852d6ea9424d7a84dbe1a9c58376ae9e4a20fd6))
-* install babel core ([b6a785b](https://github.com/diplodoc-platform/cli/commit/b6a785b33edbfd33a24fc08de502d90908dcb01b))
+- **deps:** deprecate yfm2xliff ([0852d6e](https://github.com/diplodoc-platform/cli/commit/0852d6ea9424d7a84dbe1a9c58376ae9e4a20fd6))
+- install babel core ([b6a785b](https://github.com/diplodoc-platform/cli/commit/b6a785b33edbfd33a24fc08de502d90908dcb01b))
 
 ## [4.1.0](https://github.com/diplodoc-platform/cli/compare/v4.0.0...v4.1.0) (2023-10-04)
 
-
 ### Features
 
-* **cmd/xliff:** improved inline segmentation beta ([539136f](https://github.com/diplodoc-platform/cli/commit/539136f3d7ee0f032424f91f286aa749aab0aca5))
-* migrate to diplodoc ([9b79b32](https://github.com/diplodoc-platform/cli/commit/9b79b32596461c4c39af6dfc1036b004a6c56ef0))
+- **cmd/xliff:** improved inline segmentation beta ([539136f](https://github.com/diplodoc-platform/cli/commit/539136f3d7ee0f032424f91f286aa749aab0aca5))
+- migrate to diplodoc ([9b79b32](https://github.com/diplodoc-platform/cli/commit/9b79b32596461c4c39af6dfc1036b004a6c56ef0))
 
 ## [4.0.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.25.0...v4.0.0)(2023-09-27)
 
-
 ### Features
 
-* [@diplodoc/transform@4 major update](https://github.com/yandex-cloud/yfm-transform/commit/92d350168d9c7d6707df0473b1b6e614fe19f702) 
+- [@diplodoc/transform@4 major update](https://github.com/yandex-cloud/yfm-transform/commit/92d350168d9c7d6707df0473b1b6e614fe19f702)
 
 ## [3.25.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.24.0...v3.25.0) (2023-09-15)
 
-
 ### Features
 
-* update transform ([#556](https://github.com/yandex-cloud/yfm-docs/issues/556)) ([7696adf](https://github.com/yandex-cloud/yfm-docs/commit/7696adf879cfb73f68bd9481cd9260fdb4802630))
+- update transform ([#556](https://github.com/yandex-cloud/yfm-docs/issues/556)) ([7696adf](https://github.com/yandex-cloud/yfm-docs/commit/7696adf879cfb73f68bd9481cd9260fdb4802630))
 
 ## [3.24.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.23.0...v3.24.0) (2023-09-04)
 
-
 ### Features
 
-* optimize author obtaining ([#534](https://github.com/yandex-cloud/yfm-docs/issues/534)) ([b44ec30](https://github.com/yandex-cloud/yfm-docs/commit/b44ec3089011145b3f168e6c80ffdc6f34a87031))
+- optimize author obtaining ([#534](https://github.com/yandex-cloud/yfm-docs/issues/534)) ([b44ec30](https://github.com/yandex-cloud/yfm-docs/commit/b44ec3089011145b3f168e6c80ffdc6f34a87031))
 
 ## [3.23.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.22.0...v3.23.0) (2023-08-28)
 
-
 ### Features
 
-* bump openapi version ([8fbf6e5](https://github.com/yandex-cloud/yfm-docs/commit/8fbf6e54f645532bff0c989f9f1748816876916d))
+- bump openapi version ([8fbf6e5](https://github.com/yandex-cloud/yfm-docs/commit/8fbf6e54f645532bff0c989f9f1748816876916d))
 
 ## [3.22.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.21.0...v3.22.0) (2023-08-21)
 
-
 ### Features
 
-* bump openapi version ([cca7fa8](https://github.com/yandex-cloud/yfm-docs/commit/cca7fa8dc5864cd379269b7b2b836bc91cc3649d))
+- bump openapi version ([cca7fa8](https://github.com/yandex-cloud/yfm-docs/commit/cca7fa8dc5864cd379269b7b2b836bc91cc3649d))
 
 ## [3.21.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.3...v3.21.0) (2023-08-17)
 
-
 ### Features
 
-* add meta description into leading pages ([b8c19cd](https://github.com/yandex-cloud/yfm-docs/commit/b8c19cde6d1b80a14a372520ff114b4874f79af8))
+- add meta description into leading pages ([b8c19cd](https://github.com/yandex-cloud/yfm-docs/commit/b8c19cde6d1b80a14a372520ff114b4874f79af8))
 
 ## [3.20.3](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.2...v3.20.3) (2023-08-15)
 
-
 ### Bug Fixes
 
-* **cmd/xliff:** async batching ([5fc6bd2](https://github.com/yandex-cloud/yfm-docs/commit/5fc6bd2b8171170ebd70e44dbf461af951571fcd))
-* **cmd/xliff:** update markdown-translation ([90bbe12](https://github.com/yandex-cloud/yfm-docs/commit/90bbe120adfe1a8a32f9c29dbfcb7cdf40d1ed1f))
+- **cmd/xliff:** async batching ([5fc6bd2](https://github.com/yandex-cloud/yfm-docs/commit/5fc6bd2b8171170ebd70e44dbf461af951571fcd))
+- **cmd/xliff:** update markdown-translation ([90bbe12](https://github.com/yandex-cloud/yfm-docs/commit/90bbe120adfe1a8a32f9c29dbfcb7cdf40d1ed1f))
 
 ## [3.20.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.1...v3.20.2) (2023-08-14)
 
-
 ### Bug Fixes
 
-* publishing doesn't work ([#533](https://github.com/yandex-cloud/yfm-docs/issues/533)) ([3cf4bc1](https://github.com/yandex-cloud/yfm-docs/commit/3cf4bc1002f8ff016bf6aea849b5a4df389b6aab))
-* restore old aws-sdk client ([4d4b195](https://github.com/yandex-cloud/yfm-docs/commit/4d4b1955222214db4b84aaba5108a7d7f8aa3634))
+- publishing doesn't work ([#533](https://github.com/yandex-cloud/yfm-docs/issues/533)) ([3cf4bc1](https://github.com/yandex-cloud/yfm-docs/commit/3cf4bc1002f8ff016bf6aea849b5a4df389b6aab))
+- restore old aws-sdk client ([4d4b195](https://github.com/yandex-cloud/yfm-docs/commit/4d4b1955222214db4b84aaba5108a7d7f8aa3634))
 
 ## [3.20.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.0...v3.20.1) (2023-08-07)
 
-
 ### Bug Fixes
 
-* **contributors:** Fix contributors, authors is experiment ([#523](https://github.com/yandex-cloud/yfm-docs/issues/523)) ([7f2e395](https://github.com/yandex-cloud/yfm-docs/commit/7f2e39575a188b750ddb46e02cd74d8ddcb55c77))
+- **contributors:** Fix contributors, authors is experiment ([#523](https://github.com/yandex-cloud/yfm-docs/issues/523)) ([7f2e395](https://github.com/yandex-cloud/yfm-docs/commit/7f2e39575a188b750ddb46e02cd74d8ddcb55c77))
 
 ## [3.20.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.19.0...v3.20.0) (2023-07-24)
 
-
 ### Features
 
-* change a log level if request to github failed because commit not found ([3f3af78](https://github.com/yandex-cloud/yfm-docs/commit/3f3af789d9e4e16b2992b2990e35f04890c3f2fc))
-
+- change a log level if request to github failed because commit not found ([3f3af78](https://github.com/yandex-cloud/yfm-docs/commit/3f3af789d9e4e16b2992b2990e35f04890c3f2fc))
 
 ### Bug Fixes
 
-* do not use ignore option on files copy ([8d1ca53](https://github.com/yandex-cloud/yfm-docs/commit/8d1ca53d8c600ae8c9386f95d6e78058d95d1422))
-* remove unused parameter and update changelog.md ([cd058d4](https://github.com/yandex-cloud/yfm-docs/commit/cd058d41aa31ea572a7feb7b680d2c4f75bf7588))
+- do not use ignore option on files copy ([8d1ca53](https://github.com/yandex-cloud/yfm-docs/commit/8d1ca53d8c600ae8c9386f95d6e78058d95d1422))
+- remove unused parameter and update changelog.md ([cd058d4](https://github.com/yandex-cloud/yfm-docs/commit/cd058d41aa31ea572a7feb7b680d2c4f75bf7588))
 
 ## [3.19.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.18.0...v3.19.0) (2023-07-19)
 
-
 ### Features
 
-* **cli:** Add publish command ([4181880](https://github.com/yandex-cloud/yfm-docs/commit/4181880b37017e9023a0095ab46bf96e341399c8))
-* ignore contributors if an email includes a string from the --ignore-author-patterns parameter ([02a8f51](https://github.com/yandex-cloud/yfm-docs/commit/02a8f51dd536244c5af3be186b82337326f2c6e4))
-
+- **cli:** Add publish command ([4181880](https://github.com/yandex-cloud/yfm-docs/commit/4181880b37017e9023a0095ab46bf96e341399c8))
+- ignore contributors if an email includes a string from the --ignore-author-patterns parameter ([02a8f51](https://github.com/yandex-cloud/yfm-docs/commit/02a8f51dd536244c5af3be186b82337326f2c6e4))
 
 ### Bug Fixes
 
-* bump openapi version ([bbaea6b](https://github.com/yandex-cloud/yfm-docs/commit/bbaea6b5cfafea3349c3923a32b8c624aff58ec7))
-* bump openapi version ([f1a1df2](https://github.com/yandex-cloud/yfm-docs/commit/f1a1df2e4f0d9dca85de664695b3bc43f3bddf6c))
+- bump openapi version ([bbaea6b](https://github.com/yandex-cloud/yfm-docs/commit/bbaea6b5cfafea3349c3923a32b8c624aff58ec7))
+- bump openapi version ([f1a1df2](https://github.com/yandex-cloud/yfm-docs/commit/f1a1df2e4f0d9dca85de664695b3bc43f3bddf6c))
 
 ## [3.18.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.17.2...v3.18.0) (2023-07-14)
 
-
 ### Features
 
-* **cmd/xliff:** multiline tables and video support ([dfd45dd](https://github.com/yandex-cloud/yfm-docs/commit/dfd45dd07e6318393c4d69ef36bb58e066d20a4c))
-* **config:** Add `.yfmignore` file. Ignore node_modules in build ([9d1babc](https://github.com/yandex-cloud/yfm-docs/commit/9d1babcaffa4e06906cecb851f9f4fa697a8c1c9))
+- **cmd/xliff:** multiline tables and video support ([dfd45dd](https://github.com/yandex-cloud/yfm-docs/commit/dfd45dd07e6318393c4d69ef36bb58e066d20a4c))
+- **config:** Add `.yfmignore` file. Ignore node_modules in build ([9d1babc](https://github.com/yandex-cloud/yfm-docs/commit/9d1babcaffa4e06906cecb851f9f4fa697a8c1c9))
 
 ## [3.17.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.17.1...v3.17.2) (2023-07-11)
 
-
 ### Bug Fixes
 
-* **openapi:** bump version ([cbe3c98](https://github.com/yandex-cloud/yfm-docs/commit/cbe3c986374b8a616f80629c1f4ee2d0ed882130))
+- **openapi:** bump version ([cbe3c98](https://github.com/yandex-cloud/yfm-docs/commit/cbe3c986374b8a616f80629c1f4ee2d0ed882130))
 
 ## [3.17.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.17.0...v3.17.1) (2023-07-07)
 
-
 ### Bug Fixes
 
-* revert chore(deps): bump @doc-tools/transform from 3.2.0 to 3.3.0" ([0bc336c](https://github.com/yandex-cloud/yfm-docs/commit/0bc336cc81618b669ddd32fe87720c7322c98bd4))
+- revert chore(deps): bump @doc-tools/transform from 3.2.0 to 3.3.0" ([0bc336c](https://github.com/yandex-cloud/yfm-docs/commit/0bc336cc81618b669ddd32fe87720c7322c98bd4))
 
 ## [3.17.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.3...v3.17.0) (2023-07-07)
 
-
 ### Features
 
-* **cmd/xliff:** @diplodoc/tabs support ([b829110](https://github.com/yandex-cloud/yfm-docs/commit/b829110660babcc8c43e4971b653d6b64c4e4b70))
-
+- **cmd/xliff:** @diplodoc/tabs support ([b829110](https://github.com/yandex-cloud/yfm-docs/commit/b829110660babcc8c43e4971b653d6b64c4e4b70))
 
 ### Bug Fixes
 
-* **authors:** async files processing ([e058239](https://github.com/yandex-cloud/yfm-docs/commit/e0582392a39fd9d5618a749f5340d364d86ea57e))
+- **authors:** async files processing ([e058239](https://github.com/yandex-cloud/yfm-docs/commit/e0582392a39fd9d5618a749f5340d364d86ea57e))
 
 ## [3.16.3](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.2...v3.16.3) (2023-07-06)
 
-
 ### Bug Fixes
 
-* **meta:** Incorrect meta rendering ([5b32fa0](https://github.com/yandex-cloud/yfm-docs/commit/5b32fa00e025f83dca6f35b0b5076bdeb7696149))
+- **meta:** Incorrect meta rendering ([5b32fa0](https://github.com/yandex-cloud/yfm-docs/commit/5b32fa00e025f83dca6f35b0b5076bdeb7696149))
 
 ## [3.16.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.1...v3.16.2) (2023-07-03)
 
-
 ### Bug Fixes
 
-* **cmd/xliff:** parsing xliff target translations ([fe6ef10](https://github.com/yandex-cloud/yfm-docs/commit/fe6ef10cc4051951c1f285cf615ed55dd4cf2253))
+- **cmd/xliff:** parsing xliff target translations ([fe6ef10](https://github.com/yandex-cloud/yfm-docs/commit/fe6ef10cc4051951c1f285cf615ed55dd4cf2253))
 
 ## [3.16.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.0...v3.16.1) (2023-06-30)
 
-
 ### Bug Fixes
 
-* fix missing build dir, cli works from any folder now. ([8eb97c2](https://github.com/yandex-cloud/yfm-docs/commit/8eb97c2e09532a0d35ee7abb1648dbd8a5fedfdb))
+- fix missing build dir, cli works from any folder now. ([8eb97c2](https://github.com/yandex-cloud/yfm-docs/commit/8eb97c2e09532a0d35ee7abb1648dbd8a5fedfdb))
 
 ## [3.16.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.15.0...v3.16.0) (2023-06-29)
 
-
 ### Features
 
-* **changelog:** Add extract changelogs ([#348](https://github.com/yandex-cloud/yfm-docs/issues/348)) ([a8d096d](https://github.com/yandex-cloud/yfm-docs/commit/a8d096d6a9ff95dd88eb147df064e13b6494c8c3))
-* new client integration ([c1fb398](https://github.com/yandex-cloud/yfm-docs/commit/c1fb3985c8bf023ebe3c87d9d2df678e53271443))
-
+- **changelog:** Add extract changelogs ([#348](https://github.com/yandex-cloud/yfm-docs/issues/348)) ([a8d096d](https://github.com/yandex-cloud/yfm-docs/commit/a8d096d6a9ff95dd88eb147df064e13b6494c8c3))
+- new client integration ([c1fb398](https://github.com/yandex-cloud/yfm-docs/commit/c1fb3985c8bf023ebe3c87d9d2df678e53271443))
 
 ### Bug Fixes
 
-* add bundle path ([5109c6d](https://github.com/yandex-cloud/yfm-docs/commit/5109c6d7553ff5854065f6f3a78cd6478d72e5fe))
-* copy after build finished ([75d6c58](https://github.com/yandex-cloud/yfm-docs/commit/75d6c58a14bff592ac0372439d00bd00fcfaa7bb))
-* restore bundle path ([ffd29ba](https://github.com/yandex-cloud/yfm-docs/commit/ffd29bac3575a0ee873bb9360c1de5e6f59dda96))
+- add bundle path ([5109c6d](https://github.com/yandex-cloud/yfm-docs/commit/5109c6d7553ff5854065f6f3a78cd6478d72e5fe))
+- copy after build finished ([75d6c58](https://github.com/yandex-cloud/yfm-docs/commit/75d6c58a14bff592ac0372439d00bd00fcfaa7bb))
+- restore bundle path ([ffd29ba](https://github.com/yandex-cloud/yfm-docs/commit/ffd29bac3575a0ee873bb9360c1de5e6f59dda96))
 
 ## [3.15.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.14.0...v3.15.0) (2023-06-27)
 
-
 ### Features
 
-* bump openapi version ([9a6d334](https://github.com/yandex-cloud/yfm-docs/commit/9a6d33421c86977977f48b8f2392690ceb2c41f2))
+- bump openapi version ([9a6d334](https://github.com/yandex-cloud/yfm-docs/commit/9a6d33421c86977977f48b8f2392690ceb2c41f2))
 
 ## [3.14.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.13.1...v3.14.0) (2023-06-27)
 
-
 ### Features
 
-* **cmd/xliff:** diplodoc includes, strikethrough ([56613a9](https://github.com/yandex-cloud/yfm-docs/commit/56613a94153b1bc77e3690c3f2dafc968b17af52))
-
+- **cmd/xliff:** diplodoc includes, strikethrough ([56613a9](https://github.com/yandex-cloud/yfm-docs/commit/56613a94153b1bc77e3690c3f2dafc968b17af52))
 
 ### Bug Fixes
 
-* Add missed styles in static render mode ([fd7d094](https://github.com/yandex-cloud/yfm-docs/commit/fd7d094f98fc2ce8f69222be388269d1d1366dae))
-* Fix pkg assets list ([8759847](https://github.com/yandex-cloud/yfm-docs/commit/87598471ba0106fc1497c5401fe129d318ba062e))
-* Resolve generic includer paths relative to toc.yaml ([bc97e6e](https://github.com/yandex-cloud/yfm-docs/commit/bc97e6ee89426a2a1d9f57f9cc87608e9e9fd81d))
+- Add missed styles in static render mode ([fd7d094](https://github.com/yandex-cloud/yfm-docs/commit/fd7d094f98fc2ce8f69222be388269d1d1366dae))
+- Fix pkg assets list ([8759847](https://github.com/yandex-cloud/yfm-docs/commit/87598471ba0106fc1497c5401fe129d318ba062e))
+- Resolve generic includer paths relative to toc.yaml ([bc97e6e](https://github.com/yandex-cloud/yfm-docs/commit/bc97e6ee89426a2a1d9f57f9cc87608e9e9fd81d))
 
 ## [3.13.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.13.0...v3.13.1) (2023-06-23)
 
-
 ### Bug Fixes
 
-* Bump openapi version ([fff14de](https://github.com/yandex-cloud/yfm-docs/commit/fff14de67e45db1cc8b13134e6e801eae0a6e5e7))
+- Bump openapi version ([fff14de](https://github.com/yandex-cloud/yfm-docs/commit/fff14de67e45db1cc8b13134e6e801eae0a6e5e7))
+
 1. Fixed missing refs, types of parameters now renders.
 2. Remove repeated tables.
 
 ## [3.13.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.12.0...v3.13.0) (2023-06-22)
 
-
 ### Features
 
-* **cmd/xliff:** @diplodoc/links ref links {#T} ([8bdbeb5](https://github.com/yandex-cloud/yfm-docs/commit/8bdbeb50968cb228c3ee938f335c0e03ce4b937e))
+- **cmd/xliff:** @diplodoc/links ref links {#T} ([8bdbeb5](https://github.com/yandex-cloud/yfm-docs/commit/8bdbeb50968cb228c3ee938f335c0e03ce4b937e))
 
 ## [3.12.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.11.1...v3.12.0) (2023-06-21)
 
-
 ### Features
 
-* **cmd/xliff:** @diplodoc/file support ([7821b3e](https://github.com/yandex-cloud/yfm-docs/commit/7821b3e565fad713d38b2b592242b28e076e7379))
+- **cmd/xliff:** @diplodoc/file support ([7821b3e](https://github.com/yandex-cloud/yfm-docs/commit/7821b3e565fad713d38b2b592242b28e076e7379))
 
 ## [3.11.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.11.0...v3.11.1) (2023-06-21)
 
-
 ### Bug Fixes
 
-* @doc-tools/transform up to 3.1.2 ([39e5273](https://github.com/yandex-cloud/yfm-docs/commit/39e52732f8ec4df107abc2ef7591cb2069373531))
-* pass conditionsInCode to liquid when building with --output-format md ([e0ecd77](https://github.com/yandex-cloud/yfm-docs/commit/e0ecd7707edbdb4b183c92a7cd28a04ce0abba7d))
+- @doc-tools/transform up to 3.1.2 ([39e5273](https://github.com/yandex-cloud/yfm-docs/commit/39e52732f8ec4df107abc2ef7591cb2069373531))
+- pass conditionsInCode to liquid when building with --output-format md ([e0ecd77](https://github.com/yandex-cloud/yfm-docs/commit/e0ecd7707edbdb4b183c92a7cd28a04ce0abba7d))
 
 ## [3.11.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.10.0...v3.11.0) (2023-06-21)
 
-
 ### Features
 
-* **cmd/xliff:** @diplodoc/imsize support ([85a3dd6](https://github.com/yandex-cloud/yfm-docs/commit/85a3dd6b32e29986a8b72bb82003e4ff9f9a930a))
+- **cmd/xliff:** @diplodoc/imsize support ([85a3dd6](https://github.com/yandex-cloud/yfm-docs/commit/85a3dd6b32e29986a8b72bb82003e4ff9f9a930a))
 
 ## [3.10.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.9.0...v3.10.0) (2023-06-20)
 
-
 ### Features
 
-* **cmd/xliff:** @diplodoc/monospace support ([aa50f30](https://github.com/yandex-cloud/yfm-docs/commit/aa50f3059311632b204630cd2b37046141d510d2))
+- **cmd/xliff:** @diplodoc/monospace support ([aa50f30](https://github.com/yandex-cloud/yfm-docs/commit/aa50f3059311632b204630cd2b37046141d510d2))
 
 ## [3.9.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.8.1...v3.9.0) (2023-06-19)
 
-
 ### Features
 
-* **cmd/xliff:** @diplodoc/anchors syntax support ([ab1ecc1](https://github.com/yandex-cloud/yfm-docs/commit/ab1ecc1e9e54ba240a93cd3a4ed71fe10c1003e6))
+- **cmd/xliff:** @diplodoc/anchors syntax support ([ab1ecc1](https://github.com/yandex-cloud/yfm-docs/commit/ab1ecc1e9e54ba240a93cd3a4ed71fe10c1003e6))
 
 ## [3.8.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.8.0...v3.8.1) (2023-06-15)
 
-
 ### Bug Fixes
 
-* update plugin ([f70ff35](https://github.com/yandex-cloud/yfm-docs/commit/f70ff3530d28ebf27498ef5c033d18eb2c213e53))
+- update plugin ([f70ff35](https://github.com/yandex-cloud/yfm-docs/commit/f70ff3530d28ebf27498ef5c033d18eb2c213e53))
 
 ## [3.8.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.7.1...v3.8.0) (2023-06-14)
 
-
 ### Features
 
-* **cmd/xliff:** @diplodoc/checkbox syntax support ([45a728f](https://github.com/yandex-cloud/yfm-docs/commit/45a728fc04575ca9ddbd1e85d085715c596a4073))
+- **cmd/xliff:** @diplodoc/checkbox syntax support ([45a728f](https://github.com/yandex-cloud/yfm-docs/commit/45a728fc04575ca9ddbd1e85d085715c596a4073))
 
 ## [3.7.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.7.0...v3.7.1) (2023-06-13)
 
-
 ### Bug Fixes
 
-* update openapi plugin ([5e88205](https://github.com/yandex-cloud/yfm-docs/commit/5e882054a05fac6fb82d569ad8d3edb5072c63d2))
+- update openapi plugin ([5e88205](https://github.com/yandex-cloud/yfm-docs/commit/5e882054a05fac6fb82d569ad8d3edb5072c63d2))
 
 ## [3.7.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.6.0...v3.7.0) (2023-06-09)
 
-
 ### Features
 
-* **cmd/xliff:** @diplodoc/sup syntax support ([58e4d67](https://github.com/yandex-cloud/yfm-docs/commit/58e4d6708656cc988cb326a84973657c2213a923))
+- **cmd/xliff:** @diplodoc/sup syntax support ([58e4d67](https://github.com/yandex-cloud/yfm-docs/commit/58e4d6708656cc988cb326a84973657c2213a923))
 
 ## [3.6.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.5.1...v3.6.0) (2023-06-08)
 
-
 ### Features
 
-* **authors:** collect authors from github ([3decd33](https://github.com/yandex-cloud/yfm-docs/commit/3decd3337b8223e3171e2687f09ea87b81718834))
+- **authors:** collect authors from github ([3decd33](https://github.com/yandex-cloud/yfm-docs/commit/3decd3337b8223e3171e2687f09ea87b81718834))
 
 ## [3.5.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.5.0...v3.5.1) (2023-06-08)
 
-
 ### Bug Fixes
 
-* Resolve diplodoc/client bundle ([9974113](https://github.com/yandex-cloud/yfm-docs/commit/99741136291837107ed6c20ef8e746a91642205c))
+- Resolve diplodoc/client bundle ([9974113](https://github.com/yandex-cloud/yfm-docs/commit/99741136291837107ed6c20ef8e746a91642205c))
 
 ## [3.5.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.4.0...v3.5.0) (2023-06-08)
 
-
 ### Features
 
-* Add static markup mode ([b3524c7](https://github.com/yandex-cloud/yfm-docs/commit/b3524c7b811f9dc7a3e1f66c49723cb116ffb0df))
+- Add static markup mode ([b3524c7](https://github.com/yandex-cloud/yfm-docs/commit/b3524c7b811f9dc7a3e1f66c49723cb116ffb0df))
 
 ## [3.4.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.3.0...v3.4.0) (2023-06-07)
 
-
 ### Features
 
-* **cmd/xliff:** dipldodoc cuts, gfm tables ([00e6ec6](https://github.com/yandex-cloud/yfm-docs/commit/00e6ec6a9c031045f97de4aa33ac755d5322cbfa))
+- **cmd/xliff:** dipldodoc cuts, gfm tables ([00e6ec6](https://github.com/yandex-cloud/yfm-docs/commit/00e6ec6a9c031045f97de4aa33ac755d5322cbfa))
 
 ## [3.3.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.2.0...v3.3.0) (2023-06-06)
 
-
 ### Features
 
-* remove openapi ([cac389f](https://github.com/yandex-cloud/yfm-docs/commit/cac389f55300f81376759ece0ca5911ac4874680))
+- remove openapi ([cac389f](https://github.com/yandex-cloud/yfm-docs/commit/cac389f55300f81376759ece0ca5911ac4874680))
 
 ## [3.2.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.2...v3.2.0) (2023-05-29)
 
-
 ### Features
 
-* **cmd/xliff:** notes plugin support ([b339e90](https://github.com/yandex-cloud/yfm-docs/commit/b339e90c7280e73af165b55bd72dec3b1f551c5c))
+- **cmd/xliff:** notes plugin support ([b339e90](https://github.com/yandex-cloud/yfm-docs/commit/b339e90c7280e73af165b55bd72dec3b1f551c5c))
 
 ## [3.1.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.1...v3.1.2) (2023-05-23)
 
-
 ### Bug Fixes
 
-* binary packaging ([36316dd](https://github.com/yandex-cloud/yfm-docs/commit/36316dd808026c9c5a9f0a1ff17406db17db0db2))
+- binary packaging ([36316dd](https://github.com/yandex-cloud/yfm-docs/commit/36316dd808026c9c5a9f0a1ff17406db17db0db2))
 
 ## [3.1.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.0...v3.1.1) (2023-05-23)
 
-
 ### Bug Fixes
 
-* **contributors:** skip nested file not found exception ([#346](https://github.com/yandex-cloud/yfm-docs/issues/346)) ([9abbdd7](https://github.com/yandex-cloud/yfm-docs/commit/9abbdd70e90a2574e9e699845847da8d85187393))
-* fonts ([302ccf4](https://github.com/yandex-cloud/yfm-docs/commit/302ccf40cf6bdc5048db7724b773b3e68344bd29))
+- **contributors:** skip nested file not found exception ([#346](https://github.com/yandex-cloud/yfm-docs/issues/346)) ([9abbdd7](https://github.com/yandex-cloud/yfm-docs/commit/9abbdd70e90a2574e9e699845847da8d85187393))
+- fonts ([302ccf4](https://github.com/yandex-cloud/yfm-docs/commit/302ccf40cf6bdc5048db7724b773b3e68344bd29))
 
 ## [3.1.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.0.0...v3.1.0) (2023-05-18)
 
-
 ### Features
 
-* **cmd/xliff:** compose xliff and skeleton into markdown ([f9a4115](https://github.com/yandex-cloud/yfm-docs/commit/f9a4115f36da97f5f07cba8164749417c86a9738))
-* **cmd/xliff:** extract xliff and skeleton ([603d990](https://github.com/yandex-cloud/yfm-docs/commit/603d99075fd1e70c0ae649ea523843d9fa61921b))
+- **cmd/xliff:** compose xliff and skeleton into markdown ([f9a4115](https://github.com/yandex-cloud/yfm-docs/commit/f9a4115f36da97f5f07cba8164749417c86a9738))
+- **cmd/xliff:** extract xliff and skeleton ([603d990](https://github.com/yandex-cloud/yfm-docs/commit/603d99075fd1e70c0ae649ea523843d9fa61921b))
 
 ## [3.0.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.11.0...v3.0.0) (2023-05-12)
 
-
 ### ⚠ BREAKING CHANGES
 
-* migrate to transform v3
+- migrate to transform v3
 
 ### Bug Fixes
 
-* **includers/unarchive:** throw away return value ([f1fa3ad](https://github.com/yandex-cloud/yfm-docs/commit/f1fa3ad3a11df657a30a7b9ec7aa4ae02f21c3a4))
-* migrate to transform v3 ([0003242](https://github.com/yandex-cloud/yfm-docs/commit/0003242946ef0f7d0f21c52657032d8bc2329b1a))
+- **includers/unarchive:** throw away return value ([f1fa3ad](https://github.com/yandex-cloud/yfm-docs/commit/f1fa3ad3a11df657a30a7b9ec7aa4ae02f21c3a4))
+- migrate to transform v3 ([0003242](https://github.com/yandex-cloud/yfm-docs/commit/0003242946ef0f7d0f21c52657032d8bc2329b1a))
 
 ## [2.11.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.10.2...v2.11.0) (2023-04-25)
 
-
 ### Features
 
-* support hidden paths ([d037b1f](https://github.com/yandex-cloud/yfm-docs/commit/d037b1fe003618200116d3d99d71d107f75cb68f))
+- support hidden paths ([d037b1f](https://github.com/yandex-cloud/yfm-docs/commit/d037b1fe003618200116d3d99d71d107f75cb68f))
 
 ## [2.10.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.10.1...v2.10.2) (2023-04-20)
 
-
 ### Bug Fixes
 
-* Fix require of custom plugins ([d6d4af3](https://github.com/yandex-cloud/yfm-docs/commit/d6d4af33c12a2ef81f187c7aebdf9b55c4e26f87))
+- Fix require of custom plugins ([d6d4af3](https://github.com/yandex-cloud/yfm-docs/commit/d6d4af33c12a2ef81f187c7aebdf9b55c4e26f87))
 
 ## [2.10.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.10.0...v2.10.1) (2023-04-20)
 
-
 ### Bug Fixes
 
-* **infra/build:** add shebang to the bundled cli ([30212b9](https://github.com/yandex-cloud/yfm-docs/commit/30212b9d527f43454d79f4503391756cfa924a63))
+- **infra/build:** add shebang to the bundled cli ([30212b9](https://github.com/yandex-cloud/yfm-docs/commit/30212b9d527f43454d79f4503391756cfa924a63))
 
 ## [2.10.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.9.0...v2.10.0) (2023-04-19)
 
-
 ### Features
 
-* Add mermaid extension ([67efe6b](https://github.com/yandex-cloud/yfm-docs/commit/67efe6bff513277cb00decb0c36c2a7e66a0e65b))
-* Build builder with esbuild ([3c51c1f](https://github.com/yandex-cloud/yfm-docs/commit/3c51c1f95e720c02dcc35a458774405b1a359534))
-
+- Add mermaid extension ([67efe6b](https://github.com/yandex-cloud/yfm-docs/commit/67efe6bff513277cb00decb0c36c2a7e66a0e65b))
+- Build builder with esbuild ([3c51c1f](https://github.com/yandex-cloud/yfm-docs/commit/3c51c1f95e720c02dcc35a458774405b1a359534))
 
 ### Bug Fixes
 
-* **resolvers/md2html:** default meta for yaml ([21b2809](https://github.com/yandex-cloud/yfm-docs/commit/21b28094ddaa1186be46942ff077abae422392a5))
+- **resolvers/md2html:** default meta for yaml ([21b2809](https://github.com/yandex-cloud/yfm-docs/commit/21b28094ddaa1186be46942ff077abae422392a5))
 
 ## [2.9.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.8.2...v2.9.0) (2023-04-18)
 
-
 ### Features
 
-* add oneof support ([370ab6b](https://github.com/yandex-cloud/yfm-docs/commit/370ab6bdd4568873046dc1cfd47f2e61a68a8910))
-
+- add oneof support ([370ab6b](https://github.com/yandex-cloud/yfm-docs/commit/370ab6bdd4568873046dc1cfd47f2e61a68a8910))
 
 ### Bug Fixes
 
-* pr fix ([5d8c4d4](https://github.com/yandex-cloud/yfm-docs/commit/5d8c4d48191005820a8fc4454d386013c84b2352))
-* refactor description ([656a182](https://github.com/yandex-cloud/yfm-docs/commit/656a182f0aa714e5fe2a34338e7c5dd151606bce))
-* support single oneOf element ([c0c8759](https://github.com/yandex-cloud/yfm-docs/commit/c0c875927a2fcc2f55e3f7c1c2383b9c9a8da6e6))
+- pr fix ([5d8c4d4](https://github.com/yandex-cloud/yfm-docs/commit/5d8c4d48191005820a8fc4454d386013c84b2352))
+- refactor description ([656a182](https://github.com/yandex-cloud/yfm-docs/commit/656a182f0aa714e5fe2a34338e7c5dd151606bce))
+- support single oneOf element ([c0c8759](https://github.com/yandex-cloud/yfm-docs/commit/c0c875927a2fcc2f55e3f7c1c2383b9c9a8da6e6))
 
 ## [2.8.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.8.1...v2.8.2) (2023-04-14)
 
-
 ### Bug Fixes
 
-* update @doc-tools/components & @gravity-ui/uikit ([4c70cc3](https://github.com/yandex-cloud/yfm-docs/commit/4c70cc3560b7132d0df5c5163407808eae497528))
+- update @doc-tools/components & @gravity-ui/uikit ([4c70cc3](https://github.com/yandex-cloud/yfm-docs/commit/4c70cc3560b7132d0df5c5163407808eae497528))
 
 ## [2.8.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.8.0...v2.8.1) (2023-04-12)
 
-
 ### Bug Fixes
 
-* **authors:** Revert "feat(authors): scrape authors from github" ([7c807ce](https://github.com/yandex-cloud/yfm-docs/commit/7c807ce21e8ea98107f2ff6bdc2cc698b2fa986b))
+- **authors:** Revert "feat(authors): scrape authors from github" ([7c807ce](https://github.com/yandex-cloud/yfm-docs/commit/7c807ce21e8ea98107f2ff6bdc2cc698b2fa986b))
 
 ## [2.8.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.7.2...v2.8.0) (2023-04-10)
 
-
 ### Features
 
-* **openapi:** Add leading page disposition configuration ([a3477b4](https://github.com/yandex-cloud/yfm-docs/commit/a3477b4c8e8741104a6ef869fd08fe836a05dd7b))
-* **openapi:** Add noindex feature ([4b8fb6b](https://github.com/yandex-cloud/yfm-docs/commit/4b8fb6b9bfce82aaeae74bbd2219a4c5b703ecd8))
-* **openapi:** Add toc filtering feature ([4af7a80](https://github.com/yandex-cloud/yfm-docs/commit/4af7a80e26e8d8f61c56e77d57b516965eeaff82))
+- **openapi:** Add leading page disposition configuration ([a3477b4](https://github.com/yandex-cloud/yfm-docs/commit/a3477b4c8e8741104a6ef869fd08fe836a05dd7b))
+- **openapi:** Add noindex feature ([4b8fb6b](https://github.com/yandex-cloud/yfm-docs/commit/4b8fb6b9bfce82aaeae74bbd2219a4c5b703ecd8))
+- **openapi:** Add toc filtering feature ([4af7a80](https://github.com/yandex-cloud/yfm-docs/commit/4af7a80e26e8d8f61c56e77d57b516965eeaff82))
 
 ## [2.7.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.7.1...v2.7.2) (2023-04-03)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** type inferring ([40bb74f](https://github.com/yandex-cloud/yfm-docs/commit/40bb74f679c78fe5e7df5ec85d4d6c7a1b0ec8b0))
+- **includers/openapi:** type inferring ([40bb74f](https://github.com/yandex-cloud/yfm-docs/commit/40bb74f679c78fe5e7df5ec85d4d6c7a1b0ec8b0))
 
 ## [2.7.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.7.0...v2.7.1) (2023-03-31)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** bubble up erroneous values ([bd8f0b4](https://github.com/yandex-cloud/yfm-docs/commit/bd8f0b4cdd61f3e53b00a1d96d9b83862cdabb03))
+- **includers/openapi:** bubble up erroneous values ([bd8f0b4](https://github.com/yandex-cloud/yfm-docs/commit/bd8f0b4cdd61f3e53b00a1d96d9b83862cdabb03))
 
 ## [2.7.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.6.0...v2.7.0) (2023-03-28)
 
-
 ### Features
 
-* **authors:** scrape authors from github ([e5c9ddf](https://github.com/yandex-cloud/yfm-docs/commit/e5c9ddf166103174b4d4fd51a4ed218a86ec15cd))
+- **authors:** scrape authors from github ([e5c9ddf](https://github.com/yandex-cloud/yfm-docs/commit/e5c9ddf166103174b4d4fd51a4ed218a86ec15cd))
 
 ## [2.6.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.5.0...v2.6.0) (2023-03-14)
 
-
 ### Features
 
-* **includers/openapi:** parameter to set sandbox tab name ([d844e97](https://github.com/yandex-cloud/yfm-docs/commit/d844e97fe062a62e28d95143e8eeec3b4ee9a92f))
-
+- **includers/openapi:** parameter to set sandbox tab name ([d844e97](https://github.com/yandex-cloud/yfm-docs/commit/d844e97fe062a62e28d95143e8eeec3b4ee9a92f))
 
 ### Bug Fixes
 
-* **includers/openapi:** add default type "object" ([3972fa0](https://github.com/yandex-cloud/yfm-docs/commit/3972fa056db1b85849f83579ea03336c571b12c9))
+- **includers/openapi:** add default type "object" ([3972fa0](https://github.com/yandex-cloud/yfm-docs/commit/3972fa056db1b85849f83579ea03336c571b12c9))
 
 ## [2.5.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.4.1...v2.5.0) (2023-03-13)
 
-
 ### Features
 
-* **includers/openapi:** add ClipboardButton response body ([2607d94](https://github.com/yandex-cloud/yfm-docs/commit/2607d94fd689537675a16f2488ff24a15d791189))
-* **includers/openapi:** add view for primitive body ([#304](https://github.com/yandex-cloud/yfm-docs/issues/304)) ([f7102f0](https://github.com/yandex-cloud/yfm-docs/commit/f7102f0e48d07f01c348695ccada8f8d4498a648))
-
+- **includers/openapi:** add ClipboardButton response body ([2607d94](https://github.com/yandex-cloud/yfm-docs/commit/2607d94fd689537675a16f2488ff24a15d791189))
+- **includers/openapi:** add view for primitive body ([#304](https://github.com/yandex-cloud/yfm-docs/issues/304)) ([f7102f0](https://github.com/yandex-cloud/yfm-docs/commit/f7102f0e48d07f01c348695ccada8f8d4498a648))
 
 ### Bug Fixes
 
-* **includers/openapi:** add allOf property ([647120e](https://github.com/yandex-cloud/yfm-docs/commit/647120e59b5c22612884f3f5e2c4f069b9567ad4))
-* **includers/openapi:** add data-attribute in link ([5933c79](https://github.com/yandex-cloud/yfm-docs/commit/5933c79edbf919bb9f6719f81e5da52c9a8b6053))
-* **includers/openapi:** add default type for enum ([ad4ddae](https://github.com/yandex-cloud/yfm-docs/commit/ad4ddae0bb309a969fa22946da6241bfd90e3662))
-* **includers/openapi:** add possible reasons ([060497a](https://github.com/yandex-cloud/yfm-docs/commit/060497a7244e581be31275333faa2587fc11b1c7))
-* **includers/openapi:** download link ([2820e86](https://github.com/yandex-cloud/yfm-docs/commit/2820e865ed9da0a819d327b051203d05832fdb01))
-* **includers/openapi:** replace strong to red * ([43a1a5b](https://github.com/yandex-cloud/yfm-docs/commit/43a1a5bc785b8f40da2cad6abdff1aac7db4cc19))
+- **includers/openapi:** add allOf property ([647120e](https://github.com/yandex-cloud/yfm-docs/commit/647120e59b5c22612884f3f5e2c4f069b9567ad4))
+- **includers/openapi:** add data-attribute in link ([5933c79](https://github.com/yandex-cloud/yfm-docs/commit/5933c79edbf919bb9f6719f81e5da52c9a8b6053))
+- **includers/openapi:** add default type for enum ([ad4ddae](https://github.com/yandex-cloud/yfm-docs/commit/ad4ddae0bb309a969fa22946da6241bfd90e3662))
+- **includers/openapi:** add possible reasons ([060497a](https://github.com/yandex-cloud/yfm-docs/commit/060497a7244e581be31275333faa2587fc11b1c7))
+- **includers/openapi:** download link ([2820e86](https://github.com/yandex-cloud/yfm-docs/commit/2820e865ed9da0a819d327b051203d05832fdb01))
+- **includers/openapi:** replace strong to red \* ([43a1a5b](https://github.com/yandex-cloud/yfm-docs/commit/43a1a5bc785b8f40da2cad6abdff1aac7db4cc19))
 
 ## [2.4.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.4.0...v2.4.1) (2023-02-13)
 
-
 ### Bug Fixes
 
-* bump yfm-transform version ([9d10863](https://github.com/yandex-cloud/yfm-docs/commit/9d108636a46ff17290cfaf300683ccd2075c2371))
-* **includers/openapi:** add unwrapping items ([f2222b8](https://github.com/yandex-cloud/yfm-docs/commit/f2222b809c7273a8bd763bb6566dec2b33d19ba4))
-* **openapi:** Cannot read property 'additionalProperties' of undefined ([c0bd6c6](https://github.com/yandex-cloud/yfm-docs/commit/c0bd6c64fd72002059cacdf3f3b2e0c03e052090))
+- bump yfm-transform version ([9d10863](https://github.com/yandex-cloud/yfm-docs/commit/9d108636a46ff17290cfaf300683ccd2075c2371))
+- **includers/openapi:** add unwrapping items ([f2222b8](https://github.com/yandex-cloud/yfm-docs/commit/f2222b809c7273a8bd763bb6566dec2b33d19ba4))
+- **openapi:** Cannot read property 'additionalProperties' of undefined ([c0bd6c6](https://github.com/yandex-cloud/yfm-docs/commit/c0bd6c64fd72002059cacdf3f3b2e0c03e052090))
 
 ## [2.4.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.7...v2.4.0) (2023-02-08)
 
-
 ### Features
 
-* **includers/openapi:** sandbox plugin ([455272a](https://github.com/yandex-cloud/yfm-docs/commit/455272ad5d47f3eb2741919f1eae3bfedc27a1df))
-* **includers/openapi:** sandbox plugin ([455272a](https://github.com/yandex-cloud/yfm-docs/commit/455272ad5d47f3eb2741919f1eae3bfedc27a1df))
-
+- **includers/openapi:** sandbox plugin ([455272a](https://github.com/yandex-cloud/yfm-docs/commit/455272ad5d47f3eb2741919f1eae3bfedc27a1df))
+- **includers/openapi:** sandbox plugin ([455272a](https://github.com/yandex-cloud/yfm-docs/commit/455272ad5d47f3eb2741919f1eae3bfedc27a1df))
 
 ### Bug Fixes
 
-* **includers/openapi:** some enums are not printed in separate tables ([4e0a89f](https://github.com/yandex-cloud/yfm-docs/commit/4e0a89f6a292e693241577576d0d8ad2880c515b))
+- **includers/openapi:** some enums are not printed in separate tables ([4e0a89f](https://github.com/yandex-cloud/yfm-docs/commit/4e0a89f6a292e693241577576d0d8ad2880c515b))
 
 ## [2.3.7](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.6...v2.3.7) (2023-02-05)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** enpoint method in capslock ([a6fc2ca](https://github.com/yandex-cloud/yfm-docs/commit/a6fc2ca0cef6fe70d9c700a206778cda9d95f258))
-* **includers/openapi:** inline enums in array ([e30c266](https://github.com/yandex-cloud/yfm-docs/commit/e30c2663b1cf2e855539989fdb36eb57edc4123c))
-* **includers/openapi:** response status text ([3aa0093](https://github.com/yandex-cloud/yfm-docs/commit/3aa0093f2f65a9b2d34b2bedb2da8095d9ed778e))
-* **includers/openapi:** table columns names in bold ([67e5a08](https://github.com/yandex-cloud/yfm-docs/commit/67e5a08e3b33389f41709564007cdfdbec2a75a0))
+- **includers/openapi:** enpoint method in capslock ([a6fc2ca](https://github.com/yandex-cloud/yfm-docs/commit/a6fc2ca0cef6fe70d9c700a206778cda9d95f258))
+- **includers/openapi:** inline enums in array ([e30c266](https://github.com/yandex-cloud/yfm-docs/commit/e30c2663b1cf2e855539989fdb36eb57edc4123c))
+- **includers/openapi:** response status text ([3aa0093](https://github.com/yandex-cloud/yfm-docs/commit/3aa0093f2f65a9b2d34b2bedb2da8095d9ed778e))
+- **includers/openapi:** table columns names in bold ([67e5a08](https://github.com/yandex-cloud/yfm-docs/commit/67e5a08e3b33389f41709564007cdfdbec2a75a0))
 
 ## [2.3.6](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.5...v2.3.6) (2023-02-01)
 
-
 ### Bug Fixes
 
-* **cmd/yfm2xliff:** fence block comments parsing ([c8edd69](https://github.com/yandex-cloud/yfm-docs/commit/c8edd6902dfe6746f93f9b4c5cc3d2341c580106))
-* update hightlight.js version ([26cb199](https://github.com/yandex-cloud/yfm-docs/commit/26cb199e8ad5b7f1181c07133e9acacf4a5fc10f))
+- **cmd/yfm2xliff:** fence block comments parsing ([c8edd69](https://github.com/yandex-cloud/yfm-docs/commit/c8edd6902dfe6746f93f9b4c5cc3d2341c580106))
+- update hightlight.js version ([26cb199](https://github.com/yandex-cloud/yfm-docs/commit/26cb199e8ad5b7f1181c07133e9acacf4a5fc10f))
 
 ## [2.3.5](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.4...v2.3.5) (2023-01-30)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** default value in query ([cdc00a3](https://github.com/yandex-cloud/yfm-docs/commit/cdc00a3cf95c72540bbd53f4796af563ea0286f2))
-* **includers/openapi:** excess properties in allOf ([ca120ee](https://github.com/yandex-cloud/yfm-docs/commit/ca120ee74dfcadc307c95137054b96e2dc7b0263))
-* **includers/openapi:** table for enums ([ca36fef](https://github.com/yandex-cloud/yfm-docs/commit/ca36fef23237cd077489f7404d62e5289e9de044))
+- **includers/openapi:** default value in query ([cdc00a3](https://github.com/yandex-cloud/yfm-docs/commit/cdc00a3cf95c72540bbd53f4796af563ea0286f2))
+- **includers/openapi:** excess properties in allOf ([ca120ee](https://github.com/yandex-cloud/yfm-docs/commit/ca120ee74dfcadc307c95137054b96e2dc7b0263))
+- **includers/openapi:** table for enums ([ca36fef](https://github.com/yandex-cloud/yfm-docs/commit/ca36fef23237cd077489f7404d62e5289e9de044))
 
 ## [2.3.4](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.3...v2.3.4) (2023-01-29)
 
-
 ### Bug Fixes
 
-* **cmd/yfm2xliff:** update to newer lib version ([daecff8](https://github.com/yandex-cloud/yfm-docs/commit/daecff8b42a2cff7fc414638ab78fda3a3d1db23))
+- **cmd/yfm2xliff:** update to newer lib version ([daecff8](https://github.com/yandex-cloud/yfm-docs/commit/daecff8b42a2cff7fc414638ab78fda3a3d1db23))
 
 ## [2.3.3](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.2...v2.3.3) (2023-01-26)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** ref with custom description fix (2nd try) ([39923fb](https://github.com/yandex-cloud/yfm-docs/commit/39923fba47b2ab74953e6104d6f3108b26d1432a))
+- **includers/openapi:** ref with custom description fix (2nd try) ([39923fb](https://github.com/yandex-cloud/yfm-docs/commit/39923fba47b2ab74953e6104d6f3108b26d1432a))
 
 ## [2.3.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.1...v2.3.2) (2023-01-23)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** move disable lint directive ([d77b9e1](https://github.com/yandex-cloud/yfm-docs/commit/d77b9e18aea3669322df99ef2214109a6c00c1f2))
+- **includers/openapi:** move disable lint directive ([d77b9e1](https://github.com/yandex-cloud/yfm-docs/commit/d77b9e18aea3669322df99ef2214109a6c00c1f2))
 
 ## [2.3.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.0...v2.3.1) (2023-01-21)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** appropriate leading page title ([f112c1b](https://github.com/yandex-cloud/yfm-docs/commit/f112c1bfb06d61fca6bb391478c0bc685dcdd002))
-* **includers/openapi:** display req/res schema type ([111dc02](https://github.com/yandex-cloud/yfm-docs/commit/111dc02a24bcaf0ad0aa590d79a1d78422d2df9b))
+- **includers/openapi:** appropriate leading page title ([f112c1b](https://github.com/yandex-cloud/yfm-docs/commit/f112c1bfb06d61fca6bb391478c0bc685dcdd002))
+- **includers/openapi:** display req/res schema type ([111dc02](https://github.com/yandex-cloud/yfm-docs/commit/111dc02a24bcaf0ad0aa590d79a1d78422d2df9b))
 
 ## [2.3.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.2.0...v2.3.0) (2023-01-19)
 
-
 ### Features
 
-* **includer/openapi:** full spec render mode parameter ([4d9c9a4](https://github.com/yandex-cloud/yfm-docs/commit/4d9c9a46dc7637500e3bc4c990f53f683125b926))
-
+- **includer/openapi:** full spec render mode parameter ([4d9c9a4](https://github.com/yandex-cloud/yfm-docs/commit/4d9c9a46dc7637500e3bc4c990f53f683125b926))
 
 ### Bug Fixes
 
-* **includers/openapi:** delete Description title ([bae04e9](https://github.com/yandex-cloud/yfm-docs/commit/bae04e9567dfedad519902e8fc43bc196eb37f2f))
+- **includers/openapi:** delete Description title ([bae04e9](https://github.com/yandex-cloud/yfm-docs/commit/bae04e9567dfedad519902e8fc43bc196eb37f2f))
 
 ## [2.2.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.3...v2.2.0) (2023-01-18)
 
-
 ### Features
 
-* **includers/openapi:** parse server description ([d594de6](https://github.com/yandex-cloud/yfm-docs/commit/d594de60889f4f1eb88c5a948006a4cd88f62eee))
-* **includers/openapi:** render server desription ([de6eab2](https://github.com/yandex-cloud/yfm-docs/commit/de6eab2acfe39cb6a367a6456e25f9c1c3f4392e))
-
+- **includers/openapi:** parse server description ([d594de6](https://github.com/yandex-cloud/yfm-docs/commit/d594de60889f4f1eb88c5a948006a4cd88f62eee))
+- **includers/openapi:** render server desription ([de6eab2](https://github.com/yandex-cloud/yfm-docs/commit/de6eab2acfe39cb6a367a6456e25f9c1c3f4392e))
 
 ### Bug Fixes
 
-* **includers/openapi:** disable markdownlint ([a4fc501](https://github.com/yandex-cloud/yfm-docs/commit/a4fc5015029e21ec0fd8571b1d0dad97e23506ca))
+- **includers/openapi:** disable markdownlint ([a4fc501](https://github.com/yandex-cloud/yfm-docs/commit/a4fc5015029e21ec0fd8571b1d0dad97e23506ca))
 
 ## [2.1.3](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.2...v2.1.3) (2023-01-17)
 
-
 ### chore
 
-* release 2.1.3 ([9fd384c](https://github.com/yandex-cloud/yfm-docs/commit/9fd384c50284c186f863b10cfc9fce17db8c0095))
+- release 2.1.3 ([9fd384c](https://github.com/yandex-cloud/yfm-docs/commit/9fd384c50284c186f863b10cfc9fce17db8c0095))
 
 ## [2.1.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.1...v2.1.2) (2023-01-17)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** no nulls in samples ([c2cb36e](https://github.com/yandex-cloud/yfm-docs/commit/c2cb36e1b004a81bed4c58a1420a1964941f550d))
+- **includers/openapi:** no nulls in samples ([c2cb36e](https://github.com/yandex-cloud/yfm-docs/commit/c2cb36e1b004a81bed4c58a1420a1964941f550d))
 
 ## [2.1.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.0...v2.1.1) (2023-01-16)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** no default values in description ([d821d80](https://github.com/yandex-cloud/yfm-docs/commit/d821d80f0abcc6e48d6d6401d1de18fb2fed78c0))
-* **includers/openapi:** ref with custom description fix ([d77592d](https://github.com/yandex-cloud/yfm-docs/commit/d77592db956a2ec9d20bb668a2747442b2be4fcf))
-* **includers/openapi:** undefined[] fix ([a055a3d](https://github.com/yandex-cloud/yfm-docs/commit/a055a3d0bff36ceb1466aab750cdee76bca8f8e2))
+- **includers/openapi:** no default values in description ([d821d80](https://github.com/yandex-cloud/yfm-docs/commit/d821d80f0abcc6e48d6d6401d1de18fb2fed78c0))
+- **includers/openapi:** ref with custom description fix ([d77592d](https://github.com/yandex-cloud/yfm-docs/commit/d77592db956a2ec9d20bb668a2747442b2be4fcf))
+- **includers/openapi:** undefined[] fix ([a055a3d](https://github.com/yandex-cloud/yfm-docs/commit/a055a3d0bff36ceb1466aab750cdee76bca8f8e2))
 
 ## [2.1.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.0.1...v2.1.0) (2023-01-10)
 
-
 ### Features
 
-* **includers/openapi:** request and response body params ([66372e9](https://github.com/yandex-cloud/yfm-docs/commit/66372e9e7e328e5694392bba192d5f1e73361c87))
+- **includers/openapi:** request and response body params ([66372e9](https://github.com/yandex-cloud/yfm-docs/commit/66372e9e7e328e5694392bba192d5f1e73361c87))
 
 ## [2.0.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.0.0...v2.0.1) (2023-01-09)
 
-
 ### Bug Fixes
 
-* **interceptors:** intercept links without extension ([7f866c4](https://github.com/yandex-cloud/yfm-docs/commit/7f866c4087ee05af5be6b700b2485510eec423e6))
+- **interceptors:** intercept links without extension ([7f866c4](https://github.com/yandex-cloud/yfm-docs/commit/7f866c4087ee05af5be6b700b2485510eec423e6))
 
 ## [2.0.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.4...v2.0.0) (2022-12-29)
 
-
 ### ⚠ BREAKING CHANGES
 
-* **services/includers:** includers now have new toc interface
+- **services/includers:** includers now have new toc interface
 
 ### Features
 
-* **includers/generic:** include markdown content ([4d4514c](https://github.com/yandex-cloud/yfm-docs/commit/4d4514cd40d40e087a0340591afbce94e0bdae17))
-* **includers/openapi:** rewrite ([509dbf9](https://github.com/yandex-cloud/yfm-docs/commit/509dbf990e246034657dea0936a85a2f30dcc189))
-* **includers/sourcedoc:** rewrite ([b03fbee](https://github.com/yandex-cloud/yfm-docs/commit/b03fbeeae02fe50dda5eef07bf00c3a5105ddb39))
-* **includers/unarchive:** unarchive input ([4801dc5](https://github.com/yandex-cloud/yfm-docs/commit/4801dc53ba0c56e781c525eb81644ce115796cf1))
-* **services/includers:** new architecture ([06d9b0c](https://github.com/yandex-cloud/yfm-docs/commit/06d9b0cb438b2f5abd87bcd333d4d1e0f30d0298))
-* **services/includers:** pass includer its index ([5bb3ce7](https://github.com/yandex-cloud/yfm-docs/commit/5bb3ce73d7ca5b8d7729d8362c944fc04dd6b805))
-* **utils/logger:** add warning message ([8071d26](https://github.com/yandex-cloud/yfm-docs/commit/8071d26ed627c2be12b5a6d2d0422c106e571c79))
-
+- **includers/generic:** include markdown content ([4d4514c](https://github.com/yandex-cloud/yfm-docs/commit/4d4514cd40d40e087a0340591afbce94e0bdae17))
+- **includers/openapi:** rewrite ([509dbf9](https://github.com/yandex-cloud/yfm-docs/commit/509dbf990e246034657dea0936a85a2f30dcc189))
+- **includers/sourcedoc:** rewrite ([b03fbee](https://github.com/yandex-cloud/yfm-docs/commit/b03fbeeae02fe50dda5eef07bf00c3a5105ddb39))
+- **includers/unarchive:** unarchive input ([4801dc5](https://github.com/yandex-cloud/yfm-docs/commit/4801dc53ba0c56e781c525eb81644ce115796cf1))
+- **services/includers:** new architecture ([06d9b0c](https://github.com/yandex-cloud/yfm-docs/commit/06d9b0cb438b2f5abd87bcd333d4d1e0f30d0298))
+- **services/includers:** pass includer its index ([5bb3ce7](https://github.com/yandex-cloud/yfm-docs/commit/5bb3ce73d7ca5b8d7729d8362c944fc04dd6b805))
+- **utils/logger:** add warning message ([8071d26](https://github.com/yandex-cloud/yfm-docs/commit/8071d26ed627c2be12b5a6d2d0422c106e571c79))
 
 ### Bug Fixes
 
-* **includers/generic:** resolve generated input ([376068b](https://github.com/yandex-cloud/yfm-docs/commit/376068bf1feabd374c21d9dee3cc64089884bda0))
-* **includers/openapi:** resolve generated input ([65f0297](https://github.com/yandex-cloud/yfm-docs/commit/65f0297830a414ff6061feab8c5b9cca1318a1c1))
-* **includers/sourcedocs:** paths resolution ([cca8ceb](https://github.com/yandex-cloud/yfm-docs/commit/cca8ceb739f17f7720ffc5b58abbc57dfb1028dc))
-* **utils/logger:** write warnings to the final log ([5fd7876](https://github.com/yandex-cloud/yfm-docs/commit/5fd7876e64b5ce419b81af45b40f01cba87a0001))
+- **includers/generic:** resolve generated input ([376068b](https://github.com/yandex-cloud/yfm-docs/commit/376068bf1feabd374c21d9dee3cc64089884bda0))
+- **includers/openapi:** resolve generated input ([65f0297](https://github.com/yandex-cloud/yfm-docs/commit/65f0297830a414ff6061feab8c5b9cca1318a1c1))
+- **includers/sourcedocs:** paths resolution ([cca8ceb](https://github.com/yandex-cloud/yfm-docs/commit/cca8ceb739f17f7720ffc5b58abbc57dfb1028dc))
+- **utils/logger:** write warnings to the final log ([5fd7876](https://github.com/yandex-cloud/yfm-docs/commit/5fd7876e64b5ce419b81af45b40f01cba87a0001))
 
 ## [1.31.4](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.3...v1.31.4) (2022-12-21)
 
-
 ### Bug Fixes
 
-* **includers/openapi:** openapi generator skips path without tags ([c533921](https://github.com/yandex-cloud/yfm-docs/commit/c53392171534d7089a00605664815baf2243bcdb))
-* parse JSON schema ([edf0e74](https://github.com/yandex-cloud/yfm-docs/commit/edf0e7423ce0115ba964f2de5af86abe2b78ea0a))
+- **includers/openapi:** openapi generator skips path without tags ([c533921](https://github.com/yandex-cloud/yfm-docs/commit/c53392171534d7089a00605664815baf2243bcdb))
+- parse JSON schema ([edf0e74](https://github.com/yandex-cloud/yfm-docs/commit/edf0e7423ce0115ba964f2de5af86abe2b78ea0a))
 
 ## [1.31.3](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.2...v1.31.3) (2022-11-24)
 
-
 ### Bug Fixes
 
-* **cmd/translate:** handle single line files ([7ab6cb1](https://github.com/yandex-cloud/yfm-docs/commit/7ab6cb15f57f36275ae9b235e02274afd342f071))
+- **cmd/translate:** handle single line files ([7ab6cb1](https://github.com/yandex-cloud/yfm-docs/commit/7ab6cb15f57f36275ae9b235e02274afd342f071))
 
 ## [1.31.2](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.1...v1.31.2) (2022-11-17)
 
-
 ### Bug Fixes
 
-* **openapi:** generate docs without tags section ([5f5f1b5](https://github.com/yandex-cloud/yfm-docs/commit/5f5f1b5fe75ecf48cba63a145a90bd8933aa7fdf))
+- **openapi:** generate docs without tags section ([5f5f1b5](https://github.com/yandex-cloud/yfm-docs/commit/5f5f1b5fe75ecf48cba63a145a90bd8933aa7fdf))
 
 ## [1.31.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.0...v1.31.1) (2022-11-10)
 
-
 ### chore
 
-* release 1.31.1 ([37ed298](https://github.com/yandex-cloud/yfm-docs/commit/37ed2981ca3719d3c4be430365114190571f8db9))
+- release 1.31.1 ([37ed298](https://github.com/yandex-cloud/yfm-docs/commit/37ed2981ca3719d3c4be430365114190571f8db9))
 
 ## [1.31.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.30.2...v1.31.0) (2022-11-09)
 
-
 ### Features
 
-* add term plugin ([#182](https://github.com/yandex-cloud/yfm-docs/issues/182)) ([8608b58](https://github.com/yandex-cloud/yfm-docs/commit/8608b58df5acfc0f30619716d7d2176eedfedb89))
+- add term plugin ([#182](https://github.com/yandex-cloud/yfm-docs/issues/182)) ([8608b58](https://github.com/yandex-cloud/yfm-docs/commit/8608b58df5acfc0f30619716d7d2176eedfedb89))
 
 ## [1.30.2](https://github.com/yandex-cloud/yfm-docs/compare/v1.30.1...v1.30.2) (2022-11-03)
 
-
 ### Bug Fixes
 
-* **services/tocs:** includes with when ([f939ec4](https://github.com/yandex-cloud/yfm-docs/commit/f939ec42fd4855a79559f18410f308dcdacefb0a))
-* **services/utils:** handle null items filtering ([e5d14b5](https://github.com/yandex-cloud/yfm-docs/commit/e5d14b5b7fac64ccbc618dd6c1eef5ea2a4429fd))
+- **services/tocs:** includes with when ([f939ec4](https://github.com/yandex-cloud/yfm-docs/commit/f939ec42fd4855a79559f18410f308dcdacefb0a))
+- **services/utils:** handle null items filtering ([e5d14b5](https://github.com/yandex-cloud/yfm-docs/commit/e5d14b5b7fac64ccbc618dd6c1eef5ea2a4429fd))
 
 ## [1.30.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.30.0...v1.30.1) (2022-10-31)
 
-
 ### Bug Fixes
 
-* Revert "fix(services/tocs): fix `when` processing order" ([54134ab](https://github.com/yandex-cloud/yfm-docs/commit/54134abae0a1ca0883662da71233e30ffba54c18))
+- Revert "fix(services/tocs): fix `when` processing order" ([54134ab](https://github.com/yandex-cloud/yfm-docs/commit/54134abae0a1ca0883662da71233e30ffba54c18))
 
 ## [1.30.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.29.1...v1.30.0) (2022-10-31)
 
-
 ### Features
 
-* **cmd/translate:** translate documentation ([0b5c6b4](https://github.com/yandex-cloud/yfm-docs/commit/0b5c6b492234c081566934e1c2fa36ec92b08715))
-
+- **cmd/translate:** translate documentation ([0b5c6b4](https://github.com/yandex-cloud/yfm-docs/commit/0b5c6b492234c081566934e1c2fa36ec92b08715))
 
 ### Bug Fixes
 
-* **services/tocs:** fix `when` processing order ([19ff064](https://github.com/yandex-cloud/yfm-docs/commit/19ff0642e43abb1001300f2c24d19928130ce852))
+- **services/tocs:** fix `when` processing order ([19ff064](https://github.com/yandex-cloud/yfm-docs/commit/19ff0642e43abb1001300f2c24d19928130ce852))
 
 ## [1.29.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.29.0...v1.29.1) (2022-10-28)
 
-
 ### Bug Fixes
 
-* exclude external dependencies from build ([df415bc](https://github.com/yandex-cloud/yfm-docs/commit/df415bc61809e1ffd4933c1676139e4442c32865))
+- exclude external dependencies from build ([df415bc](https://github.com/yandex-cloud/yfm-docs/commit/df415bc61809e1ffd4933c1676139e4442c32865))
 
 ## [1.29.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.28.0...v1.29.0) (2022-10-27)
 
-
 ### Features
 
-* limit async operations to avoid heap out of memory ([e3ca5b6](https://github.com/yandex-cloud/yfm-docs/commit/e3ca5b65087584268e83c37e3b969dde4de2ae47))
+- limit async operations to avoid heap out of memory ([e3ca5b6](https://github.com/yandex-cloud/yfm-docs/commit/e3ca5b65087584268e83c37e3b969dde4de2ae47))
 
 ## [1.28.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.27.1...v1.28.0) (2022-10-27)
 
-
 ### Features
 
-* allow load custom resources ([#184](https://github.com/yandex-cloud/yfm-docs/issues/184)) ([80c6624](https://github.com/yandex-cloud/yfm-docs/commit/80c66240409fefe3354b19a06ebffdc134abd358))
+- allow load custom resources ([#184](https://github.com/yandex-cloud/yfm-docs/issues/184)) ([80c6624](https://github.com/yandex-cloud/yfm-docs/commit/80c66240409fefe3354b19a06ebffdc134abd358))
 
 ## [1.27.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.27.0...v1.27.1) (2022-10-26)
 
-
 ### Bug Fixes
 
-* **cmd/xliff/compose:** error reporting ([338423a](https://github.com/yandex-cloud/yfm-docs/commit/338423a92e7b96458c19f897faf07316e86e5608))
-* **cmd/xliff/extract:** error reporting ([57c2d93](https://github.com/yandex-cloud/yfm-docs/commit/57c2d93303bca2b67c64be84f3a660943ff338ef))
+- **cmd/xliff/compose:** error reporting ([338423a](https://github.com/yandex-cloud/yfm-docs/commit/338423a92e7b96458c19f897faf07316e86e5608))
+- **cmd/xliff/extract:** error reporting ([57c2d93](https://github.com/yandex-cloud/yfm-docs/commit/57c2d93303bca2b67c64be84f3a660943ff338ef))
 
 ## [1.27.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.26.1...v1.27.0) (2022-09-23)
 
-
 ### Features
 
-* **cmd/xliff/compose:** compose xlf and skl into documentation ([2681cbb](https://github.com/yandex-cloud/yfm-docs/commit/2681cbb437328e180e80f1c2186e881685647c56))
-* **cmd/xliff/extract:** xliff extraction from documentation ([f4f4aaa](https://github.com/yandex-cloud/yfm-docs/commit/f4f4aaadb55169b7a9f79a4e3dfa5f32b0f16d7e))
-
+- **cmd/xliff/compose:** compose xlf and skl into documentation ([2681cbb](https://github.com/yandex-cloud/yfm-docs/commit/2681cbb437328e180e80f1c2186e881685647c56))
+- **cmd/xliff/extract:** xliff extraction from documentation ([f4f4aaa](https://github.com/yandex-cloud/yfm-docs/commit/f4f4aaadb55169b7a9f79a4e3dfa5f32b0f16d7e))
 
 ### Bug Fixes
 
-* linting errors ([e1a66a3](https://github.com/yandex-cloud/yfm-docs/commit/e1a66a3fa518ebace40c97ae61287bb13991a58f))
+- linting errors ([e1a66a3](https://github.com/yandex-cloud/yfm-docs/commit/e1a66a3fa518ebace40c97ae61287bb13991a58f))
 
 ## [1.26.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.26.0...v1.26.1) (2022-09-20)
 
-
 ### Bug Fixes
 
-* **services/tocs:** fix format title ([#183](https://github.com/yandex-cloud/yfm-docs/issues/183)) ([9d2ab53](https://github.com/yandex-cloud/yfm-docs/commit/9d2ab5336ec64442fd43a1440d6f715e256c7021))
+- **services/tocs:** fix format title ([#183](https://github.com/yandex-cloud/yfm-docs/issues/183)) ([9d2ab53](https://github.com/yandex-cloud/yfm-docs/commit/9d2ab5336ec64442fd43a1440d6f715e256c7021))
 
 ## [1.25.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.25.0...v1.25.1) (2022-09-06)
 
-
 ### Bug Fixes
 
-* **services/tocs:** apply includers recursively ([b3fdc38](https://github.com/yandex-cloud/yfm-docs/commit/b3fdc384ba4bee7440369d902721646623f28d41))
-* **services/tocs:** apply includers toc paths ([c5630e5](https://github.com/yandex-cloud/yfm-docs/commit/c5630e5d4d79409e5ab88bdbba45a95d4d620eda))
-
+- **services/tocs:** apply includers recursively ([b3fdc38](https://github.com/yandex-cloud/yfm-docs/commit/b3fdc384ba4bee7440369d902721646623f28d41))
+- **services/tocs:** apply includers toc paths ([c5630e5](https://github.com/yandex-cloud/yfm-docs/commit/c5630e5d4d79409e5ab88bdbba45a95d4d620eda))
 
 ### chore
 
-* release 1.25.0 ([cb6a333](https://github.com/yandex-cloud/yfm-docs/commit/cb6a33335ec3cbe61be099abdc758e2256ecfbe8))
-* release 1.25.1 ([3c3c097](https://github.com/yandex-cloud/yfm-docs/commit/3c3c097bd15e081ae1b39f86aaf4ce5970282a38))
+- release 1.25.0 ([cb6a333](https://github.com/yandex-cloud/yfm-docs/commit/cb6a33335ec3cbe61be099abdc758e2256ecfbe8))
+- release 1.25.1 ([3c3c097](https://github.com/yandex-cloud/yfm-docs/commit/3c3c097bd15e081ae1b39f86aaf4ce5970282a38))
 
 ## [1.25.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.24.1...v1.25.0) (2022-09-06)
 
-
 ### chore
 
-* release 1.25.0 ([cb6a333](https://github.com/yandex-cloud/yfm-docs/commit/cb6a33335ec3cbe61be099abdc758e2256ecfbe8))
+- release 1.25.0 ([cb6a333](https://github.com/yandex-cloud/yfm-docs/commit/cb6a33335ec3cbe61be099abdc758e2256ecfbe8))
 
 ## [1.24.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.24.0...v1.24.1) (2022-09-06)
 
-
 ### Bug Fixes
 
-* **services/tocs:** apply includers recursively ([b3fdc38](https://github.com/yandex-cloud/yfm-docs/commit/b3fdc384ba4bee7440369d902721646623f28d41))
-* **services/tocs:** apply includers toc paths ([c5630e5](https://github.com/yandex-cloud/yfm-docs/commit/c5630e5d4d79409e5ab88bdbba45a95d4d620eda))
+- **services/tocs:** apply includers recursively ([b3fdc38](https://github.com/yandex-cloud/yfm-docs/commit/b3fdc384ba4bee7440369d902721646623f28d41))
+- **services/tocs:** apply includers toc paths ([c5630e5](https://github.com/yandex-cloud/yfm-docs/commit/c5630e5d4d79409e5ab88bdbba45a95d4d620eda))
 
 ## [1.24.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.23.2...v1.24.0) (2022-09-01)
 
-
 ### Features
 
-* **includers/openapi:** toc, content, leading pages ([f3bb43b](https://github.com/yandex-cloud/yfm-docs/commit/f3bb43b2a6b57eca09dc9f189721c22ca7932a2d))
-* **services/includers:** generatePath ([8e63577](https://github.com/yandex-cloud/yfm-docs/commit/8e63577826b089b7f543c88b032e68fc1f508c4c))
+- **includers/openapi:** toc, content, leading pages ([f3bb43b](https://github.com/yandex-cloud/yfm-docs/commit/f3bb43b2a6b57eca09dc9f189721c22ca7932a2d))
+- **services/includers:** generatePath ([8e63577](https://github.com/yandex-cloud/yfm-docs/commit/8e63577826b089b7f543c88b032e68fc1f508c4c))
 
 ## [1.23.2](https://github.com/yandex-cloud/yfm-docs/compare/v1.23.1...v1.23.2) (2022-08-26)
 
-
 ### Bug Fixes
 
-* Fix linters warnings ([441fe8c](https://github.com/yandex-cloud/yfm-docs/commit/441fe8ce3f963eb9422606520b97ef316a810ee8))
-* Fix tests ([b5b1909](https://github.com/yandex-cloud/yfm-docs/commit/b5b19094c64b346fab140e1c0238d1b0ea263f17))
+- Fix linters warnings ([441fe8c](https://github.com/yandex-cloud/yfm-docs/commit/441fe8ce3f963eb9422606520b97ef316a810ee8))
+- Fix tests ([b5b1909](https://github.com/yandex-cloud/yfm-docs/commit/b5b19094c64b346fab140e1c0238d1b0ea263f17))

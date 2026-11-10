@@ -6,7 +6,7 @@ import type {Meta} from '~/core/meta';
 import type {VFile} from '~/core/utils';
 
 import {dirname, join} from 'node:path';
-import {flow} from 'lodash';
+import {flow, omit} from 'lodash';
 
 import {THEME_ASSETS_PATH} from '~/constants';
 import {getPublicMeta} from '~/core/meta';
@@ -20,6 +20,7 @@ type MetaSource = 'hooks' | 'snapshot';
 
 type RendererOptions = {
     metaSource?: MetaSource;
+    omitMarkdownMetaFields?: string[];
     audience?: ContentAudience;
     collectConfig?: Partial<CollectConfig>;
 };
@@ -104,7 +105,10 @@ export class MarkdownOutputRenderer {
             }
         }
 
-        const meta = getPublicMeta(await this.resolveMeta(vfile.path));
+        const meta = omit(
+            getPublicMeta(await this.resolveMeta(vfile.path)),
+            this.options.omitMarkdownMetaFields || [],
+        );
         const lineWidth = config.disableMetaMaxLineWidth ? Infinity : undefined;
         vfile.data = addMetaFrontmatter(vfile.data, meta, lineWidth);
 

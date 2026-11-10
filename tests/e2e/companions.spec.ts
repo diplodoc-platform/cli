@@ -1,30 +1,50 @@
 import {access, readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {describe, expect, test} from 'vitest';
+import {extractFrontMatter} from '@diplodoc/transform/lib/frontmatter';
 
 import {TestAdapter, cleanupDirectory, getTestPaths} from '../fixtures';
 
 const PAGE_PATHS = ['index.md', 'nested/article.md', 'landing.yaml'];
 
 describe('static Markdown companions', () => {
-    test('renders md2md-equivalent companions during one HTML build', async () => {
+    test('renders md2md content without HTML resource metadata during one HTML build', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/companions');
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,
             md2html: true,
-            args: '--llms --base-href https://example.com/docs/',
+            args: '--llms --base-href https://example.com/docs/ --allow-custom-resources',
         });
 
         for (const path of PAGE_PATHS) {
             const expected = await readFile(join(outputPath, path), 'utf8');
             const actual = await readFile(join(`${outputPath}-html`, path), 'utf8');
-            expect(actual).toBe(expected);
+
+            if (path === 'index.md') {
+                const [metadata, body] = extractFrontMatter(actual);
+                const [sourceMetadata, sourceBody] = extractFrontMatter(expected);
+                const {style, script, csp, ...contentMetadata} = sourceMetadata;
+
+                expect(style).toContain('https://example.com/custom.css');
+                expect(script).toContain('https://example.com/custom.js');
+                expect(csp).toContainEqual({'connect-src': ['https://api.example.com']});
+                expect(metadata).not.toHaveProperty('style');
+                expect(metadata).not.toHaveProperty('script');
+                expect(metadata).not.toHaveProperty('csp');
+                expect(metadata).toEqual(contentMetadata);
+                expect(body).toBe(sourceBody);
+            } else {
+                expect(actual).toBe(expected);
+            }
         }
 
         await expect(access(join(`${outputPath}-html`, '_includes/shared.md'))).rejects.toThrow();
 
         const html = await readFile(join(`${outputPath}-html`, 'index.html'), 'utf8');
+        expect(html).toContain('https://example.com/custom.css');
+        expect(html).toContain('https://example.com/custom.js');
+        expect(html).toContain('https://api.example.com');
         expect(html).toContain(
             '<link rel="alternate" href="https://example.com/docs/index.md" type="text/markdown" title="Markdown version" />',
         );
