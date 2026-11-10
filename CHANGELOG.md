@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.67.0](https://github.com/diplodoc-platform/cli/compare/v5.66.1...v5.67.0) (2026-11-10)
+
+
+### Features
+
+* added generate metadata command ([#2393](https://github.com/diplodoc-platform/cli/issues/2393)) ([df0cbc8](https://github.com/diplodoc-platform/cli/commit/df0cbc8b2b82c77eabce0d95b5a1b05be12e752f))
+
+
+### Bug Fixes
+
+* **deps:** align patched transitive dependencies and pin policy ([7fda7fc](https://github.com/diplodoc-platform/cli/commit/7fda7fc4c62d552394357f79232c3a4d89b7ae04))
+* **deps:** consume the released runtime baseline ([70b53ad](https://github.com/diplodoc-platform/cli/commit/70b53ad01835feaeda7856cb96b7ba403213090a))
+* **deps:** pin a consistent runtime baseline for candidate train ([f787c64](https://github.com/diplodoc-platform/cli/commit/f787c64f3b38424f643cb4d6bb18b488c416f5dd))
+
 ## [5.66.1](https://github.com/diplodoc-platform/cli/compare/v5.66.0...v5.66.1) (2026-11-08)
 
 
