@@ -15,7 +15,7 @@ export type MetadataSettings = {
 };
 
 export type MetadataConfig = BaseConfig &
-    Partial<MetadataSettings> &
+    MetadataSettings &
     Partial<LLMClientConfig> & {
         skipInteractive?: boolean;
         retry?: number;

@@ -42,7 +42,7 @@ export class Metadata extends BaseProgram<MetadataConfig, MetadataArgs> {
     }
 
     async action() {
-        const {input, mode = 'missing', provider = 'yandexgpt', model} = this.config;
+        const {input, fields, mode, provider, model} = this.config;
 
         ok(MODES.includes(mode), `Unknown metadata mode: ${mode}`);
         ok(PROVIDERS.includes(provider), `Unknown metadata provider: ${provider}`);
@@ -62,7 +62,7 @@ export class Metadata extends BaseProgram<MetadataConfig, MetadataArgs> {
 
         let settings: MetadataSettings = {
             input,
-            fields: resolveFields(this.config.fields),
+            fields,
             mode,
             provider,
             model,
