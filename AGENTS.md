@@ -223,6 +223,11 @@ The same rules apply to `core/` as to commands:
 
 ### Testing
 
+`npm run typecheck` and `npm run build:types` have different contracts. The declaration
+build script suppresses compiler failures with `|| true`, so its exit code does not prove
+that declarations were generated successfully. Inspect its diagnostics separately and
+compare with the unchanged dependency set before attributing failures to an update.
+
 CLI diagnostics share the YFM numbering namespace with yfmlint. YFM024 is the
 published empty-heading-ID rule; YFM025 is the CLI-only missing-local-anchor rule.
 Check both registries before assigning a number and keep their configuration independent.

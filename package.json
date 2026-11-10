@@ -83,8 +83,8 @@
     ]
   },
   "dependencies": {
-    "@diplodoc/ajv": "^0.11.0",
-    "@diplodoc/client": "^5.14.9",
+    "@diplodoc/ajv": "^0.13.0",
+    "@diplodoc/client": "^5.14.10",
     "@diplodoc/color-extension": "^1.0.0",
     "@diplodoc/liquid": "^1.5.3",
     "@diplodoc/transform": "^4.78.12",
