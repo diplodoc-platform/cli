@@ -1,5 +1,16 @@
 export type ChatRole = 'system' | 'user' | 'assistant';
 
+export type LLMProvider = 'yandexgpt' | 'openai' | 'openrouter' | 'anthropic';
+
+export type LLMClientConfig = {
+    auth?: string;
+    model: string;
+    folder?: string;
+    apiBase?: string;
+    apiHeaders?: Record<string, string>;
+    timeout?: number;
+};
+
 export type ChatMessage = {
     role: ChatRole;
     content: string;
