@@ -24,6 +24,7 @@ import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
 import {AnchorsService, collectAnchorIds} from './services/anchors';
+import {AnchorRenderCache} from './services/anchors/RenderCache';
 import {extractIncludedBlocks} from './extract-included';
 import {getLocalAnchorRuleConfig, lintWithLocalAnchors} from './lint';
 import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
@@ -78,6 +79,8 @@ export class Run extends BaseRun<BuildConfig> {
 
     private readonly anchors: AnchorsService;
 
+    private readonly anchorRenders = new AnchorRenderCache<ReturnType<typeof transformer>['env']>();
+
     private entriesCache?: {index: ReadonlySet<NormalizedPath>; paths: NormalizedPath[]};
 
     get configPath() {
@@ -127,50 +130,18 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
-        const {deps, anchorIds, reportErrors = true} = options;
-        const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
+        return this.render(file, markdown, options, false);
+    }
 
-        const {
-            content: cleanMarkdown,
-            files: includedFiles,
-            errors,
-        } = extractIncludedBlocks(markdown, file);
-        if (reportErrors) {
-            for (const error of errors) {
-                this.logger.error(error);
-            }
-        }
+    async collectAnchors(
+        file: NormalizedPath,
+        markdown: string,
+        options: TransformOptions,
+    ): Promise<ReadonlySet<string>> {
+        const anchorIds = new Set<string>();
+        await this.render(file, markdown, {...options, anchorIds, reportErrors: false}, true);
 
-        const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
-        const assetsRemap = await remap(assets.map(get('path')), async (path) => {
-            if (path?.endsWith('.svg')) {
-                return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
-            } else {
-                return true;
-            }
-        });
-
-        const depFiles = await remap(deps.map(get('path')), (path) => {
-            const embedded = includedFiles[path];
-            if (typeof embedded === 'string') {
-                return embedded;
-            }
-            return this.files(path, file);
-        });
-
-        const {parse, compile, env} = transformer({
-            ...this.transformConfig(file, assetsRemap),
-            files: {...depFiles, ...includedFiles},
-            titles: await remap(titles, this.titles),
-            assets: assetsRemap,
-        });
-
-        const result = compile(parse(cleanMarkdown));
-        if (anchorIds) {
-            collectAnchorIds(result, anchorIds);
-        }
-
-        return [result, env] as const;
+        return anchorIds;
     }
 
     async lint(
@@ -237,6 +208,85 @@ export class Run extends BaseRun<BuildConfig> {
         }
 
         return alternates[base] || [];
+    }
+
+    private async render(
+        file: NormalizedPath,
+        markdown: string,
+        options: TransformOptions,
+        forAnchors: boolean,
+    ) {
+        const revision = this.markdown.revision;
+        const {deps, anchorIds, reportErrors = true} = options;
+        const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
+
+        const {
+            content: cleanMarkdown,
+            files: includedFiles,
+            errors,
+        } = extractIncludedBlocks(markdown, file);
+        if (reportErrors) {
+            for (const error of errors) {
+                this.logger.error(error);
+            }
+        }
+
+        const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
+        const assetsRemap = await remap(assets.map(get('path')), async (path) => {
+            if (path?.endsWith('.svg')) {
+                return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
+            } else {
+                return true;
+            }
+        });
+
+        const depFiles = await remap(deps.map(get('path')), (path) => {
+            const embedded = includedFiles[path];
+            if (typeof embedded === 'string') {
+                return embedded;
+            }
+            return this.files(path, file);
+        });
+
+        const transformOptions = {
+            ...this.transformConfig(file, assetsRemap),
+            files: {...depFiles, ...includedFiles},
+            titles: await remap(titles, this.titles),
+            assets: assetsRemap,
+        };
+        this.anchorRenders.reset(this.markdown.revision);
+        const signature =
+            this.config.outputFormat !== 'md' &&
+            revision === this.markdown.revision &&
+            (forAnchors || this.anchorRenders.size)
+                ? this.anchorRenders.signature(
+                      cleanMarkdown,
+                      transformOptions,
+                      this.config.idGenerator,
+                  )
+                : undefined;
+        const cached = !forAnchors && signature ? this.anchorRenders.take(signature) : undefined;
+        if (cached) {
+            if (anchorIds) {
+                collectAnchorIds(cached[0], anchorIds);
+            }
+
+            return cached;
+        }
+
+        const {parse, compile, env} = transformer(transformOptions);
+
+        const result = compile(parse(cleanMarkdown));
+        if (anchorIds) {
+            collectAnchorIds(result, anchorIds);
+        }
+
+        const output = [result, env] as const;
+        if (forAnchors && signature && revision === this.markdown.revision) {
+            this.anchorRenders.set(signature, output);
+        }
+
+        return output;
     }
 
     private transformConfig(path: NormalizedPath, assets: Record<string, unknown>) {

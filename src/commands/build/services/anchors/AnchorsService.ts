@@ -107,17 +107,12 @@ export class AnchorsService {
     }
 
     private async collect(path: NormalizedPath, graph: EntryGraph): Promise<ReadonlySet<string>> {
-        const anchorIds = new Set<string>();
         const {deps, assets} = flattenGraph(graph);
 
-        await this.run.transform(path, graph.content, {
+        return this.run.collectAnchors(path, graph.content, {
             deps,
             assets,
-            anchorIds,
-            reportErrors: false,
         });
-
-        return anchorIds;
     }
 
     private exists(path: NormalizedPath) {
