@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.69.0](https://github.com/diplodoc-platform/cli/compare/v5.68.0...v5.69.0) (2026-11-11)
+
+
+### Features
+
+* **search:** support generic external HTTP search ([#2378](https://github.com/diplodoc-platform/cli/issues/2378)) ([74e20e4](https://github.com/diplodoc-platform/cli/commit/74e20e488089e1961f3dfe78f0e05ab66259abbd))
+
 ## [5.68.0](https://github.com/diplodoc-platform/cli/compare/v5.67.2...v5.68.0) (2026-11-10)
 
 
