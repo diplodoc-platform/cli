@@ -3,6 +3,7 @@ import type * as ExecaModule from 'execa';
 import type * as FsModule from 'node:fs/promises';
 
 import {stat} from 'node:fs/promises';
+import {join} from 'node:path';
 import {setTimeout} from 'node:timers/promises';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
@@ -739,7 +740,7 @@ describe('ArcClient JSON modification times', () => {
     beforeEach(() => vi.clearAllMocks());
     function mockFiles(files: string[], scopes: string[] = []) {
         vi.mocked(stat).mockImplementation((async (path: string) => ({
-            isDirectory: () => path === `${baseDir}/docs`,
+            isDirectory: () => path === join(baseDir, 'docs'),
         })) as unknown as typeof stat);
         vi.mocked(execa).mockImplementation((async (_command: string, args: string[]) => {
             if (args[0] === 'root') {
