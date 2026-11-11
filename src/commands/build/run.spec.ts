@@ -80,6 +80,7 @@ describe('Renders prepared for anchor validation', () => {
             langs: ['en'],
             idGenerator: 'constant',
             content: {maxInlineSvgSize: 0},
+            template: {enabled: false, features: {substitutions: false}, scopes: {code: false}},
             allowHtml: true,
             sanitizeHtml: false,
         });
@@ -168,6 +169,26 @@ describe('Renders prepared for anchor validation', () => {
         expect(renders()).toBe(2);
         await run.transform(file, 'Text', options);
         expect(renders()).toBe(3);
+    });
+
+    it('reports embedded-source errors for output and lint but suppresses anchor probes', async () => {
+        const {run} = setupRenderer();
+        run.config.lint = {enabled: true, config: {}};
+        vi.spyOn(run['anchors'], 'index').mockResolvedValue(new Map());
+        const file = normalizePath('en/page.md');
+        const source = '# Page\n\n{% included (broken.md) %}\nUnclosed source';
+        const options = {deps: [], assets: []};
+
+        await run.collectAnchors(file, source, options);
+        expect(run.logger.error).not.toHaveBeenCalled();
+        await run.transform(file, source, {...options, reportErrors: false});
+        expect(run.logger.error).not.toHaveBeenCalled();
+
+        await run.transform(file, source, options);
+        expect(run.logger.error).toHaveBeenCalledTimes(1);
+        vi.mocked(run.logger.error).mockClear();
+        await run.lint(file, source, {...options, reportErrors: false}, []);
+        expect(run.logger.error).toHaveBeenCalledTimes(1);
     });
 
     it('keeps Markdown rendering outside the HTML reuse cache', async () => {

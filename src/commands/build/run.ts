@@ -150,50 +150,23 @@ export class Run extends BaseRun<BuildConfig> {
         options: TransformOptions,
         plugins = this.markdown.plugins,
     ) {
-        const {deps} = options;
-        const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
-
-        const {
-            content: cleanMarkdown,
-            files: includedFiles,
-            errors,
-        } = extractIncludedBlocks(markdown, file);
-        for (const error of errors) {
-            this.logger.error(error);
-        }
-
-        const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
-        const assetsRemap = await remap(assets.map(get('path')), async (path) => {
-            if (path?.endsWith('.svg')) {
-                return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
-            } else {
-                return true;
-            }
-        });
-
-        const depFiles = await remap(deps.map(get('path')), (path) => {
-            const embedded = includedFiles[path];
-            if (typeof embedded === 'string') {
-                return embedded;
-            }
-            return this.files(path, file);
-        });
-
-        const pluginOptions = {
-            ...this.transformConfig(file, assetsRemap),
+        const {source, assets, pluginOptions} = await this.prepareTransform(
+            file,
+            markdown,
+            options,
+        );
+        const lintOptions = {
+            ...pluginOptions,
             plugins,
-            files: {...depFiles, ...includedFiles},
-            titles: await remap(titles, this.titles),
             anchorIndex:
                 getLocalAnchorRuleConfig(this.config.lint.config) === false
                     ? undefined
                     : await this.anchors.index(file, assets),
-            assets: assetsRemap,
         };
 
-        return lintWithLocalAnchors(cleanMarkdown, file, {
+        return lintWithLocalAnchors(source, file, {
             lintConfig: this.config.lint.config,
-            pluginOptions,
+            pluginOptions: lintOptions,
             plugins,
         });
     }
@@ -217,7 +190,51 @@ export class Run extends BaseRun<BuildConfig> {
         forAnchors: boolean,
     ) {
         const revision = this.markdown.revision;
-        const {deps, anchorIds, reportErrors = true} = options;
+        const {anchorIds, reportErrors = true} = options;
+        const {source, pluginOptions: transformOptions} = await this.prepareTransform(
+            file,
+            markdown,
+            options,
+            reportErrors,
+        );
+        this.anchorRenders.reset(this.markdown.revision);
+        const signature =
+            this.config.outputFormat !== 'md' &&
+            revision === this.markdown.revision &&
+            (forAnchors || this.anchorRenders.size)
+                ? this.anchorRenders.signature(source, transformOptions, this.config.idGenerator)
+                : undefined;
+        const cached = !forAnchors && signature ? this.anchorRenders.take(signature) : undefined;
+        if (cached) {
+            if (anchorIds) {
+                collectAnchorIds(cached[0], anchorIds);
+            }
+
+            return cached;
+        }
+
+        const {parse, compile, env} = transformer(transformOptions);
+
+        const result = compile(parse(source));
+        if (anchorIds) {
+            collectAnchorIds(result, anchorIds);
+        }
+
+        const output = [result, env] as const;
+        if (forAnchors && signature && revision === this.markdown.revision) {
+            this.anchorRenders.set(signature, output);
+        }
+
+        return output;
+    }
+
+    private async prepareTransform(
+        file: NormalizedPath,
+        markdown: string,
+        options: TransformOptions,
+        reportErrors = true,
+    ) {
+        const {deps} = options;
         const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
 
         const {
@@ -254,39 +271,7 @@ export class Run extends BaseRun<BuildConfig> {
             titles: await remap(titles, this.titles),
             assets: assetsRemap,
         };
-        this.anchorRenders.reset(this.markdown.revision);
-        const signature =
-            this.config.outputFormat !== 'md' &&
-            revision === this.markdown.revision &&
-            (forAnchors || this.anchorRenders.size)
-                ? this.anchorRenders.signature(
-                      cleanMarkdown,
-                      transformOptions,
-                      this.config.idGenerator,
-                  )
-                : undefined;
-        const cached = !forAnchors && signature ? this.anchorRenders.take(signature) : undefined;
-        if (cached) {
-            if (anchorIds) {
-                collectAnchorIds(cached[0], anchorIds);
-            }
-
-            return cached;
-        }
-
-        const {parse, compile, env} = transformer(transformOptions);
-
-        const result = compile(parse(cleanMarkdown));
-        if (anchorIds) {
-            collectAnchorIds(result, anchorIds);
-        }
-
-        const output = [result, env] as const;
-        if (forAnchors && signature && revision === this.markdown.revision) {
-            this.anchorRenders.set(signature, output);
-        }
-
-        return output;
+        return {source: cleanMarkdown, assets, pluginOptions: transformOptions};
     }
 
     private transformConfig(path: NormalizedPath, assets: Record<string, unknown>) {
