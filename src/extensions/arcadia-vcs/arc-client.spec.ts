@@ -1,8 +1,10 @@
 import type {LogConfig} from './types';
 import type * as ExecaModule from 'execa';
+import type * as FsModule from 'node:fs/promises';
 
+import {stat} from 'node:fs/promises';
 import {setTimeout} from 'node:timers/promises';
-import {afterEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 import {ExecaError, execa} from 'execa';
 import {dedent} from 'ts-dedent';
@@ -17,6 +19,11 @@ const baseDir = __dirname;
 vi.mock('execa', async (importOriginal) => ({
     ...(await importOriginal<typeof ExecaModule>()),
     execa: vi.fn(),
+}));
+
+vi.mock('node:fs/promises', async (importOriginal) => ({
+    ...(await importOriginal<typeof FsModule>()),
+    stat: vi.fn(),
 }));
 
 vi.mock('node:timers/promises', () => ({setTimeout: vi.fn().mockResolvedValue(undefined)}));
@@ -227,7 +234,9 @@ describe('ArcClient', () => {
             args[0] === 'root' ? Promise.resolve({stdout: baseDir}) : log()) as typeof execa);
         const client = new ArcClient({vcs: {}}, baseDir);
 
-        expect(await client.getMTimes()).toEqual({'file1.md': 1735689600});
+        expect(await client.getAuthors()).toEqual({
+            'file1.md': {login: 'login1', commit: 'abcdef1234567890'},
+        });
         expect(log).toHaveBeenCalledTimes(2);
         expect(setTimeout).toHaveBeenCalledWith(2000);
     });
@@ -242,7 +251,7 @@ describe('ArcClient', () => {
             args[0] === 'root' ? Promise.resolve({stdout: baseDir}) : log()) as typeof execa);
         const client = new ArcClient({vcs: {}}, baseDir);
 
-        await expect(client.getMTimes()).rejects.toBe(error);
+        await expect(client.getAuthors()).rejects.toBe(error);
         expect(log).toHaveBeenCalledTimes(2);
         expect(setTimeout).toHaveBeenCalledTimes(1);
     });
@@ -257,7 +266,7 @@ describe('ArcClient', () => {
             args[0] === 'root' ? Promise.resolve({stdout: baseDir}) : log()) as typeof execa);
         const client = new ArcClient({vcs: {}}, baseDir);
 
-        await expect(client.getMTimes()).rejects.toBe(error);
+        await expect(client.getAuthors()).rejects.toBe(error);
         expect(log).toHaveBeenCalledTimes(1);
         expect(setTimeout).not.toHaveBeenCalled();
     });
@@ -285,15 +294,6 @@ describe('ArcClient', () => {
                     commit: 'abcdef1234567890',
                 },
             ],
-        });
-    });
-
-    it('should parse mtimes as unix timestamps', async () => {
-        const client = createClientWithSampleData(BASIC_COMMIT_SAMPLE);
-
-        const mtimes = await client.getMTimes();
-        expect(mtimes).toEqual({
-            'file1.md': Math.floor(new Date('2025-01-01T00:00:00Z').getTime() / 1000),
         });
     });
 
@@ -410,18 +410,6 @@ describe('ArcClient', () => {
         });
     });
 
-    it('should respect initialCommit for mtimes', async () => {
-        const client = createClientWithSampleData(MULTIPLE_COMMITS_SAMPLE, {
-            vcs: {initialCommit: 'commit2'},
-        });
-
-        const mtimes = await client.getMTimes();
-
-        // Modification time should be from commit3 (last commit in limited history)
-        const expectedTime = Math.floor(new Date('2025-01-03T00:00:00Z').getTime() / 1000);
-        expect(mtimes['file1.md']).toBe(expectedTime);
-    });
-
     it('should handle initialCommit with partial commit hash', async () => {
         const client = createClientWithSampleData(BASIC_COMMIT_SAMPLE, {
             vcs: {initialCommit: 'abcdef'},
@@ -490,11 +478,9 @@ describe('ArcClient', () => {
 
         const authors = await client.getAuthors();
         const contributors = await client.getContributors();
-        const mtimes = await client.getMTimes();
 
         expect(authors).toEqual({});
         expect(contributors).toEqual({});
-        expect(mtimes).toEqual({});
     });
 
     it('should ignore authors by pattern', async () => {
@@ -746,5 +732,94 @@ describe('ArcClient', () => {
                 commit: 'commit1',
             },
         ]);
+    });
+});
+
+describe('ArcClient JSON modification times', () => {
+    beforeEach(() => vi.clearAllMocks());
+    function mockFiles(files: string[], scopes: string[] = []) {
+        vi.mocked(stat).mockImplementation((async (path: string) => ({
+            isDirectory: () => path === `${baseDir}/docs`,
+        })) as unknown as typeof stat);
+        vi.mocked(execa).mockImplementation((async (_command: string, args: string[]) => {
+            if (args[0] === 'root') {
+                return {stdout: baseDir};
+            }
+            if (args[0] === 'ls-tree') {
+                return {stdout: files.join('\n')};
+            }
+            expect(args.slice(0, 5)).toEqual([
+                'log',
+                '--json-lines',
+                '--no-decorate',
+                'HEAD',
+                '--',
+            ]);
+            return {
+                stdout: [
+                    {date: '2026-01-02T00:00:00Z', paths: [...args.slice(5), 'unrelated.md']},
+                    {date: '2026-01-01T00:00:00Z', paths: args.slice(5)},
+                ]
+                    .map((commit) => JSON.stringify(commit))
+                    .join('\n'),
+            };
+        }) as unknown as typeof execa);
+        return new ArcClient({vcs: {scopes}}, `${baseDir}/docs` as AbsolutePath);
+    }
+
+    it('groups exact documentation files and keeps their first date', async () => {
+        const files = Array.from({length: 200}, (_, i) => `docs/${i}.md`);
+        const client = mockFiles(
+            [...files, 'docs/toc.yaml', 'docs/image.png', 'docs/ignored.yml'],
+            ['external/page.md', 'external/page.md', 'external/image.png'],
+        );
+
+        expect(await client.getMTimes()).toEqual(
+            Object.fromEntries(
+                [...files, 'docs/toc.yaml', 'external/page.md'].map((path) => [path, 1767312000]),
+            ),
+        );
+        const requests = vi.mocked(execa).mock.calls.map((call) => call[1] as string[]);
+        expect(requests.filter((args) => args[0] === 'log').map((args) => args.length - 5)).toEqual(
+            [100, 100, 2],
+        );
+        expect(requests.filter((args) => args[0] === 'ls-tree')).toHaveLength(1);
+    });
+
+    it('does not query history when there are no documentation files', async () => {
+        expect(await mockFiles(['docs/image.png']).getMTimes()).toEqual({});
+        expect(
+            vi.mocked(execa).mock.calls.some((call) => (call[1] as string[])?.[0] === 'log'),
+        ).toBe(false);
+    });
+
+    it('falls back to the original history when JSON dates are invalid', async () => {
+        const client = mockFiles(['docs/page.md']);
+        const mock = vi.mocked(execa).getMockImplementation() as unknown as (
+            command: string,
+            args: string[],
+        ) => Promise<unknown>;
+        vi.mocked(execa).mockImplementation((async (command: string, args: string[]) => {
+            if (args[1] === '--json-lines') {
+                return {stdout: JSON.stringify({date: 'invalid', paths: ['docs/page.md']})};
+            }
+            if (args[1] === '--name-status') {
+                return {stdout: BASIC_COMMIT_SAMPLE};
+            }
+            return mock(command, args);
+        }) as unknown as typeof execa);
+
+        expect(await client.getMTimes()).toEqual({'file1.md': 1735689600});
+    });
+
+    it('preserves the original history behavior with initialCommit', async () => {
+        const client = createClientWithSampleData(MULTIPLE_COMMITS_SAMPLE, {
+            vcs: {initialCommit: 'commit2'},
+        });
+
+        expect(await client.getMTimes()).toEqual({'file1.md': 1735862400});
+        expect(
+            vi.mocked(execa).mock.calls.some((call) => (call[1] as string[])?.[0] === 'ls-tree'),
+        ).toBe(false);
     });
 });

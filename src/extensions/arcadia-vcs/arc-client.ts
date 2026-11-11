@@ -1,13 +1,17 @@
 import type {LogConfig} from './types';
 
-import {relative} from 'node:path';
+import {stat} from 'node:fs/promises';
+import {join, relative} from 'node:path';
 import {setTimeout} from 'node:timers/promises';
 import {ExecaError, execa} from 'execa';
 import {minimatch} from 'minimatch';
+import pMap from 'p-map';
 
 import {memoize, normalizePath} from '@diplodoc/cli/lib/utils';
 
 const RETRY_DELAY_MS = 2000;
+const MAX_FILES_PER_LOG_REQUEST = 100;
+const MAX_PARALLEL_LOG_REQUESTS = 16;
 
 export interface AuthorInfo {
     login: string;
@@ -91,6 +95,79 @@ export class ArcClient {
     async getMTimes() {
         const base = await this.getBase();
         const scopes = [base, ...(this.config.vcs.scopes || [])].map(normalizePath);
+
+        if (!this.config.vcs.initialCommit) {
+            try {
+                const root = (await this.run('root')).trim();
+                const files = new Set<string>();
+
+                for (const scope of new Set(scopes)) {
+                    const info = await stat(join(root, scope));
+                    const paths = info.isDirectory()
+                        ? await this.run(
+                              'ls-tree',
+                              '-r',
+                              '--name-only',
+                              '--full-name',
+                              'HEAD',
+                              scope,
+                          )
+                        : scope;
+
+                    for (const path of paths.trim().split('\n')) {
+                        if (isUsefullPath(path)) {
+                            files.add(path);
+                        }
+                    }
+                }
+
+                const filePaths = Array.from(files);
+                const fileGroups: string[][] = [];
+                const result: Record<string, number> = {};
+
+                for (let i = 0; i < filePaths.length; i += MAX_FILES_PER_LOG_REQUEST) {
+                    fileGroups.push(filePaths.slice(i, i + MAX_FILES_PER_LOG_REQUEST));
+                }
+
+                await pMap(
+                    fileGroups,
+                    async (fileGroup) => {
+                        const requestedPaths = new Set(fileGroup);
+                        const output = await this.run(
+                            'log',
+                            '--json-lines',
+                            '--no-decorate',
+                            'HEAD',
+                            '--',
+                            ...fileGroup,
+                        );
+
+                        for (const line of output.split('\n').filter(Boolean)) {
+                            const commit: {date: string; paths?: string[]} = JSON.parse(line);
+                            const seconds = Date.parse(commit.date) / 1000;
+
+                            if (!Number.isFinite(seconds)) {
+                                throw new Error('Invalid date in Arc history');
+                            }
+
+                            for (const path of commit.paths ?? []) {
+                                if (requestedPaths.has(path)) {
+                                    result[path] ??= seconds;
+                                }
+                            }
+                        }
+                    },
+                    {concurrency: MAX_PARALLEL_LOG_REQUESTS, stopOnError: false},
+                );
+
+                return result;
+            } catch (error) {
+                console.warn(
+                    'Failed to get file modification times in groups; retrying by scopes',
+                    error,
+                );
+            }
+        }
 
         const result: Record<string, number> = {};
 
@@ -206,8 +283,8 @@ export class ArcClient {
         return commit;
     }
 
-    private async log(scope: RelativePath): Promise<string> {
-        const filter: string[] = [scope];
+    private async log(scope: string | string[]): Promise<string> {
+        const filter = Array.isArray(scope) ? [...scope] : [scope];
         if (this.config.vcs.initialCommit) {
             filter.unshift(`${await this.lastCommit()}..${this.config.vcs.initialCommit}`);
         }
