@@ -19,7 +19,7 @@ jobs:
        (github.event.workflow_run.event == 'workflow_dispatch' &&
         github.event.workflow_run.display_title == 'Release Package to npm'))
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Resolve published stable version
         id: release
@@ -82,13 +82,13 @@ jobs:
             echo 'Expected an exact stable version'
             exit 1
           }
-          for attempt in 1 2 3; do
+          for attempt in {1..10}; do
             cd "$(mktemp -d)"
             printf '{"private":true}\n' > package.json
             if npm install "@diplodoc/cli@$CLI_VERSION" --no-audit --no-fund --fetch-retries=1 --fetch-timeout=30000; then
               ./node_modules/.bin/yfm --version
               exit 0
             fi
-            if [[ "$attempt" == 3 ]]; then exit 1; fi
-            sleep 15
+            if [[ "$attempt" == 10 ]]; then exit 1; fi
+            sleep 60
           done
