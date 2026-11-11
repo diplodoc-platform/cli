@@ -242,6 +242,11 @@ The same rules apply to `core/` as to commands:
 
 ### Testing
 
+`npm run typecheck` and `npm run build:types` have different contracts. The declaration
+build script suppresses compiler failures with `|| true`, so its exit code does not prove
+that declarations were generated successfully. Inspect its diagnostics separately and
+compare with the unchanged dependency set before attributing failures to an update.
+
 CLI diagnostics share the YFM numbering namespace with yfmlint. YFM024 is the
 published empty-heading-ID rule; YFM025 is the CLI-only missing-local-anchor rule.
 Check both registries before assigning a number and keep their configuration independent.
@@ -293,6 +298,23 @@ Main build logic is located in:
 - `src/commands/build/handler.ts` — command handler
 - `src/commands/build/run.ts` — command execution
 - `src/commands/build/features/` — various build features
+
+### Static search integration
+
+Search extensions may share the provider flag and supply a default. Commander includes
+these defaults in `optsWithGlobals()`, so check the option source before overriding a
+configured provider: a `default` source is not an explicit CLI or environment choice.
+
+The client loads `search.api` as a classic script inside its own Web Worker, after setting
+`self.config`. A script implements `self.api.suggest(query, count)` and
+`self.api.search(query, count, page, tags)`; the argument order differs from the UI provider.
+Browser search runtime sources must be bundled separately by `scripts/assets.js`, without
+Node dependencies. Build providers generate language-specific result pages in `release()`.
+Header suggestions require `toc.navigation`; a plain TOC without extended navigation has no
+search header even when search configuration is present. Search pages use a documentation-root
+`<base>`, so client history updates must include the current pathname instead of only a query.
+Do not introduce a restrictive `connect-src` merely to enable search: it can block existing
+feedback and other project integrations.
 
 ### Static Markdown companions
 

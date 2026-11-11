@@ -252,6 +252,7 @@ export class OutputHtml {
                 // they must not be shipped into every doc's `_bundle` (mirrors `search-extension/**`).
                 await run.copy(ASSETS_FOLDER, run.bundlePath, [
                     'search-extension/**',
+                    'external-search/**',
                     'highlight-styles/**',
                 ]);
 

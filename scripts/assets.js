@@ -62,3 +62,11 @@ for (const file of highlightStyles) {
     mkdirSync(dirname(dest), {recursive: true});
     copyFileSync(join(HIGHLIGHT_STYLES_PATH, file), dest);
 }
+
+require('esbuild').buildSync({
+    entryPoints: [resolve(__dirname, '../src/commands/build/services/search/external/worker.ts')],
+    outfile: join(ASSETS_PATH, 'external-search/api.js'),
+    bundle: true,
+    platform: 'browser',
+    target: 'es2019',
+});
