@@ -2,29 +2,25 @@
 
 ## [5.69.0](https://github.com/diplodoc-platform/cli/compare/v5.68.0...v5.69.0) (2026-11-11)
 
-
 ### Features
 
-* **search:** support generic external HTTP search ([#2378](https://github.com/diplodoc-platform/cli/issues/2378)) ([74e20e4](https://github.com/diplodoc-platform/cli/commit/74e20e488089e1961f3dfe78f0e05ab66259abbd))
+- **search:** support generic external HTTP search ([#2378](https://github.com/diplodoc-platform/cli/issues/2378)) ([74e20e4](https://github.com/diplodoc-platform/cli/commit/74e20e488089e1961f3dfe78f0e05ab66259abbd))
 
 ## [5.68.0](https://github.com/diplodoc-platform/cli/compare/v5.67.2...v5.68.0) (2026-11-10)
 
-
 ### Features
 
-* **search:** export backend-neutral JSON corpus ([#2398](https://github.com/diplodoc-platform/cli/issues/2398)) ([93f5670](https://github.com/diplodoc-platform/cli/commit/93f56704dedf783f31491c38cb380e843a9e7438))
-
+- **search:** export backend-neutral JSON corpus ([#2398](https://github.com/diplodoc-platform/cli/issues/2398)) ([93f5670](https://github.com/diplodoc-platform/cli/commit/93f56704dedf783f31491c38cb380e843a9e7438))
 
 ### Bug Fixes
 
-* default fields added to the metadata generator ([#2401](https://github.com/diplodoc-platform/cli/issues/2401)) ([e48bbdd](https://github.com/diplodoc-platform/cli/commit/e48bbdd94a21ca8f8275dba1fae9e5cc74dc90d9))
+- default fields added to the metadata generator ([#2401](https://github.com/diplodoc-platform/cli/issues/2401)) ([e48bbdd](https://github.com/diplodoc-platform/cli/commit/e48bbdd94a21ca8f8275dba1fae9e5cc74dc90d9))
 
 ## [5.67.2](https://github.com/diplodoc-platform/cli/compare/v5.67.1...v5.67.2) (2026-11-10)
 
-
 ### Bug Fixes
 
-* **companions:** omit HTML resource metadata ([#2389](https://github.com/diplodoc-platform/cli/issues/2389)) ([e7097d8](https://github.com/diplodoc-platform/cli/commit/e7097d8c848b460d99bb782996867f456c406d7a))
+- **companions:** omit HTML resource metadata ([#2389](https://github.com/diplodoc-platform/cli/issues/2389)) ([e7097d8](https://github.com/diplodoc-platform/cli/commit/e7097d8c848b460d99bb782996867f456c406d7a))
 
 ## [5.67.1](https://github.com/diplodoc-platform/cli/compare/v5.67.0...v5.67.1) (2026-11-10)
 
