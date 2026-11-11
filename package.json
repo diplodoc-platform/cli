@@ -133,7 +133,7 @@
     "@diplodoc/infra": "2.3.0",
     "@diplodoc/latex-extension": "^2.0.2",
     "@diplodoc/mermaid-extension": "^2.2.3",
-    "@diplodoc/openapi-extension": "^5.3.1",
+    "@diplodoc/openapi-extension": "^5.3.2",
     "@diplodoc/page-constructor-extension": "^0.13.17",
     "@diplodoc/search-extension": "^3.1.5",
     "@diplodoc/yfmlint": "^1.11.2",
