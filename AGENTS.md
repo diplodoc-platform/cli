@@ -66,6 +66,16 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    counters; a preservation run that makes zero model requests is not a quality
    check of newly translated text.
 
+   Structural validation must distinguish document markup from extraction placement.
+   A protected inline can be hoisted into the skeleton at the beginning of prose;
+   moving that same XML placeholder there is not a new directive. Normalize only
+   typed opaque placeholders in plain units for comparison, never matching literals
+   inside URLs, code or escaped text. Keep other formatting and opaque guards strict.
+   Valid XML emphasis can still compose into invalid Markdown when translated
+   punctuation touches following prose. Repair only fresh model-response delimiter
+   boundaries with the Markdown parser's own flanking rules, then validate and store
+   the repaired response. Approved seed formatting must not enter this repair path.
+
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).

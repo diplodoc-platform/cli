@@ -115,3 +115,69 @@ describe('markupStructureIssue', () => {
         }
     });
 });
+
+describe('inline extraction boundaries', () => {
+    it('allows an unchanged opaque inline to move to the beginning of prose', () => {
+        const first =
+            '<x ctype="no_translate_inline" equiv-text=":no-translate[Code A]" id="x-1"/>';
+        const second =
+            '<x ctype="no_translate_inline" equiv-text=":no-translate[Code B]" id="x-2"/>';
+        expect(
+            markupStructureIssue(
+                `Use ${first} or ${second}.`,
+                `${first} or ${second} can be used.`,
+            ),
+        ).toBeUndefined();
+    });
+
+    it.each([
+        ['A **label** and details.', '**标签**以及详细信息。'],
+        [
+            'Use `code` and a [link](https://example.com).',
+            '[链接](https://example.com)和 `code` 可使用。',
+        ],
+    ])('allows inline word order without changing structure: %s', (source, target) => {
+        expect(markupStructureIssue(source, target)).toBeUndefined();
+    });
+
+    it.each([
+        ['Use :no-translate[CODE].', ':no-translate[OTHER] is used.'],
+        ['Use :no-translate[CODE].', ':no-translate[CODE] and :no-translate[CODE] are used.'],
+        ['Plain prose.', ':no-translate[CODE] is used.'],
+        ['A **label** and text.', '**标签及*嵌套***文本。'],
+        ['A [link](https://example.com).', '[链接](https://other.example.com)。'],
+        ['A paragraph.', '# 新标题'],
+        ['A paragraph.', '- 新列表项'],
+        ['A paragraph.', '第一段。\n\n第二段。'],
+        ['A paragraph.', '{{new_variable}} text.'],
+    ])('still rejects changed structure or protected content: %s', (source, target) => {
+        expect(markupStructureIssue(source, target)).toBeDefined();
+    });
+});
+
+describe('opaque inline comparison context', () => {
+    const opaque = '<x ctype="no_translate_inline" equiv-text=":no-translate[A]" id="x-1"/>';
+    it('allows a leading placeholder to move inside prose', () => {
+        expect(markupStructureIssue(opaque + ' is used.', 'Use ' + opaque + '.')).toBeUndefined();
+    });
+    it.each([
+        [
+            'See [link](https://example.test/:no-translate[A]).',
+            'See [link](https://evil.test/:no-translate[A]).',
+        ],
+        [String.raw`Keep \:no-translate[A].`, 'Keep :no-translate[A].'],
+        ['Keep `:no-translate[A]`.', 'Keep :no-translate[A].'],
+    ])('does not normalize matching literals in other syntax: %s', (source, target) => {
+        expect(
+            markupStructureIssue('Use ' + opaque + '. ' + source, 'Use ' + opaque + '. ' + target),
+        ).toBeDefined();
+    });
+    it('preserves opaque nesting inside existing formatting', () => {
+        expect(
+            markupStructureIssue(
+                '<g ctype="bold" x-begin="**" x-end="**" id="g-1">' + opaque + '</g> text.',
+                opaque + ' <g ctype="bold" x-begin="**" x-end="**" id="g-1">text</g>.',
+            ),
+        ).toBeDefined();
+    });
+});
