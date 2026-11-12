@@ -22,6 +22,22 @@ export function hasSourceProse(text: string, marker: RegExp | null): boolean {
     return Boolean(marker && proseWords(text).some((word) => marker.test(word)));
 }
 
+/** Punctuation, spacing or case changes alone do not translate source prose. */
+export function isProseEcho(source: string, translation: string, marker: RegExp | null): boolean {
+    if (!marker) {
+        return false;
+    }
+    const words = proseWords(source);
+    if (!words.some((word) => marker.test(word))) {
+        return false;
+    }
+    const translated = proseWords(translation);
+    return (
+        words.length === translated.length &&
+        words.every((word, index) => word === translated[index])
+    );
+}
+
 /** Detect copied new prose, not old localized names or protected literal text. */
 export function hasCopiedEdit(
     source: string,

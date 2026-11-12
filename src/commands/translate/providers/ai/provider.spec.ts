@@ -1974,6 +1974,74 @@ describe('translate ai provider', () => {
             expect(stat.untranslatedRetried).toBe(1);
         });
 
+        it('retries a source prose echo with localized punctuation before caching it', async () => {
+            const unit = wrap('Значение всегда ' + CODE_OPEN + 'false' + CODE_CLOSE + '.');
+            const client = makeClient((fragments, call) =>
+                fragments.map((part) =>
+                    call === 0
+                        ? part.replace(/\.$/, '。')
+                        : part.replace('Значение всегда', '值始终为').replace(/\.$/, '。'),
+                ),
+            );
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-prose-echo-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            const result = await makeTranslator(params)('ru/echo.md', [unit]);
+            expect(result).toEqual([wrap('值始终为 ' + CODE_OPEN + 'false' + CODE_CLOSE + '。')]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(result[0]);
+        });
+
+        it('counts a punctuation-only echo that survives retry and keeps it out of the store', async () => {
+            const unit = wrap('Исходный текст.');
+            const client = makeClient((fragments) =>
+                fragments.map((part) => part.replace(/\.$/, '。')),
+            );
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-echo-refusal-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            await makeTranslator(params)('ru/echo.md', [unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('retranslates a punctuation-only echo from generated cache', async () => {
+            const unit = wrap('Исходный текст.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-echo-cache-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, wrap('Исходный текст。'));
+            const client = makeClient(() => ['Source text.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            expect(await makeTranslator(params)('ru/echo.md', [unit])).toEqual([
+                wrap('Source text.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.cached).toBe(0);
+        });
+
+        it('preserves an approved localized name with different punctuation', async () => {
+            const unit = wrap('Яндекс.'),
+                approved = wrap('Яндекс!');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-approved-name-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+            seeds.record('ru/name.md', [[unit, approved]]);
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+            const client = makeClient(() => ['Yandex.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            expect(await makeTranslator(params)('ru/name.md', [unit])).toEqual([approved]);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
         it('should accept a changed retry answer even when it keeps source-script text', async () => {
             const unit = wrap('Исходный текст');
             const retryAnswer = 'Source text. Пример на исходном языке.';
