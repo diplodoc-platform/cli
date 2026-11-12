@@ -115,6 +115,12 @@ npm run lint
 npm run lint:fix
 ```
 
+Run lint through npm. The infra ESLint configuration enables its Prettier layer
+only when `npm_command` is set; a direct ESLint invocation can miss formatting
+errors and report unavailable legacy rules. For a scoped CI-equivalent check,
+set `npm_command=run-script` without disabling rules. After switching between
+branches with different lockfiles, install the selected branch's dependencies.
+
 ## Working with Code
 
 ### Imports
