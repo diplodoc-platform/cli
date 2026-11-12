@@ -2444,6 +2444,32 @@ describe('translate ai provider', () => {
 });
 
 describe('inline boundary preservation in model responses', () => {
+    it('preserves paired bold placeholders inside a paragraph without retrying', async () => {
+        const extracted = extract('Описание. **Метка:** продолжение.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'zh', locale: 'CN'},
+        });
+        expect(extracted.units.join('')).toContain('ctype="bold_open"');
+        const client = makeClient((parts) =>
+            parts.map((part) =>
+                part
+                    .replace('Описание.', '说明。')
+                    .replace('Метка:', '标签：')
+                    .replace('продолжение.', '后续内容。')
+                    .replace(/(ctype="bold_close"[^>]*\/>)\s+/g, '$1'),
+            ),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        params.targetLanguage = 'zh';
+        const translated = await makeTranslator(params)('ru/paired.md', extracted.units);
+        expect(String(compose(extracted.skeleton, translated, {useSource: true}))).toBe(
+            '说明。 **标签：** 后续内容。',
+        );
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupRetried).toBe(0);
+        expect(stat.untranslated).toBe(0);
+    });
     it('keeps opaque-inline word order without a markup retry', async () => {
         const extracted = extract('Используйте :no-translate[FORMAT-A] здесь.', {
             compact: true,
