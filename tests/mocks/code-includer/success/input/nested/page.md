@@ -12,6 +12,12 @@ Indentation is preserved:
 
 {% code "./examples/indented.txt" lang="text" keep-indents %}
 
+Named regions with nested markers in both formats:
+
+{% code "./examples/regions.ts#outer" lang="typescript" %}
+
+{% code "./examples/regions.ts#inner-v2" lang="typescript" %}
+
 A fenced example is not executed:
 
 ````markdown

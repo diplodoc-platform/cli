@@ -1,3 +1,5 @@
+import {REGION_NAME} from './regions';
+
 export type CodeDirective = {
     path: string;
     lang: string;
@@ -76,6 +78,26 @@ export function parseCodeDirective(source: string): ParseResult {
             keepIndents: attributes.has('keep-indents'),
         },
     };
+}
+
+/** Parses a selector only after the complete literal file path was not found. */
+export function parseCodeTarget(
+    value: string,
+    lines?: string,
+): {path: string; region?: string} | {error: string} {
+    const separator = value.lastIndexOf('#');
+    const path = separator < 0 ? value : value.slice(0, separator);
+    const region = separator < 0 ? undefined : value.slice(separator + 1);
+    if (!path) {
+        return {error: 'source path is required'};
+    }
+    if (region !== undefined && !REGION_NAME.test(region)) {
+        return {error: `invalid region name "${region}"`};
+    }
+    if (region !== undefined && lines !== undefined) {
+        return {error: 'a region and attribute "lines" cannot be combined'};
+    }
+    return region === undefined ? {path} : {path, region};
 }
 
 function getDirectiveArguments(source: string): string | undefined {
