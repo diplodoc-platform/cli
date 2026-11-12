@@ -89,8 +89,9 @@ export function repairInlineSpacing(text: string): string {
                     parents.pop(),
                     index,
                     index + tag.length,
-                ))
-                    {spaces.add(position);}
+                )) {
+                    spaces.add(position);
+                }
             }
         }
         if (parents.length) {

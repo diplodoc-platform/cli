@@ -1160,9 +1160,13 @@ describe('translate ai provider', () => {
                     const source = markTableTitle(wrap('Имя'));
                     const bad = markTableTitle(wrap('Example } details'));
                     const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
-                    if (seeded) {seeds.record('ru/a.md', [[source, bad]]);}
+                    if (seeded) {
+                        seeds.record('ru/a.md', [[source, bad]]);
+                    }
                     const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
-                    if (!seeded) {store.set(source, bad);}
+                    if (!seeded) {
+                        store.set(source, bad);
+                    }
                     const client = makeClient(() => ['Table title']);
                     const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
                     expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([
@@ -2227,10 +2231,15 @@ describe('translate ai provider', () => {
                 wrap,
             );
             const client = makeClient((_, call) => {
-                if (call === 0)
-                    {return ['- First text', '- Second text', '- Third text', '- Fourth text'];}
-                if (call === 1) {return ['merged'];}
-                if (call === 2) {return new LLMAuthError('denied');}
+                if (call === 0) {
+                    return ['- First text', '- Second text', '- Third text', '- Fourth text'];
+                }
+                if (call === 1) {
+                    return ['merged'];
+                }
+                if (call === 2) {
+                    return new LLMAuthError('denied');
+                }
                 return ['Third text', 'Fourth text'];
             });
             const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
