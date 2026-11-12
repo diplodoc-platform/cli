@@ -63,6 +63,7 @@ import {untranslatedMarker} from './utils/script';
 import {hasCopiedEdit, hasSourceProse} from './utils/edited-prose';
 import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
+import {repairInlineSpacing} from './utils/inline-spacing';
 import {documentFingerprint} from './utils/cache';
 import {localizedUrls, restoreLocalizedUrls, revertedUrls} from './utils/links';
 import {restoreFragments} from './utils/skeleton';
@@ -567,7 +568,7 @@ function makeProcessor(params: ProcessorParams) {
         const parts = translated.map((part) => restoreLocalizedUrls(part, localized));
         for (const ids of tableTitles) {
             if (ids.some((id) => isTableTitleFallback(parts[id]))) {
-                for (const id of ids) parts[id] = units[id];
+                for (const id of ids) {parts[id] = units[id];}
                 const warning =
                     'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
                 logger?.warn(path, warning);
@@ -1019,7 +1020,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             // the text and its repair.
             repairs.set(fragments[index], repair.stripped);
 
-            const restored = open + repair.text + close;
+            const restored =
+                open +
+                (isCodeUnit(fragments[index]) || isTableTitleUnit(fragments[index])
+                    ? repair.text
+                    : repairInlineSpacing(repair.text)) +
+                close;
             const literalKey = JSON.stringify([fragments[index], restored]);
             if (keepsLiteralCode(masked[index], answer)) {
                 invalidLiterals.delete(literalKey);

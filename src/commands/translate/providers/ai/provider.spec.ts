@@ -7,7 +7,7 @@ import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'n
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
-import {extract} from '@diplodoc/translation';
+import {compose, extract} from '@diplodoc/translation';
 
 import {createTargetStat} from '../../report';
 import {markTableTitle} from '../../utils/table-title';
@@ -1160,9 +1160,9 @@ describe('translate ai provider', () => {
                     const source = markTableTitle(wrap('Имя'));
                     const bad = markTableTitle(wrap('Example } details'));
                     const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
-                    if (seeded) seeds.record('ru/a.md', [[source, bad]]);
+                    if (seeded) {seeds.record('ru/a.md', [[source, bad]]);}
                     const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
-                    if (!seeded) store.set(source, bad);
+                    if (!seeded) {store.set(source, bad);}
                     const client = makeClient(() => ['Table title']);
                     const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
                     expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([
@@ -2228,9 +2228,9 @@ describe('translate ai provider', () => {
             );
             const client = makeClient((_, call) => {
                 if (call === 0)
-                    return ['- First text', '- Second text', '- Third text', '- Fourth text'];
-                if (call === 1) return ['merged'];
-                if (call === 2) return new LLMAuthError('denied');
+                    {return ['- First text', '- Second text', '- Third text', '- Fourth text'];}
+                if (call === 1) {return ['merged'];}
+                if (call === 2) {return new LLMAuthError('denied');}
                 return ['Third text', 'Fourth text'];
             });
             const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
@@ -2431,5 +2431,51 @@ describe('translate ai provider', () => {
             expect(stat.requests).toBe(1);
             expect(stat.inputTokens).toBeGreaterThan(0);
         });
+    });
+});
+
+describe('inline boundary preservation in model responses', () => {
+    it('keeps opaque-inline word order without a markup retry', async () => {
+        const extracted = extract('Используйте :no-translate[FORMAT-A] здесь.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'en', locale: 'US'},
+        });
+        const client = makeClient((parts) =>
+            parts.map((p) => p.replace('Используйте ', '').replace('здесь.', 'is used here.')),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        const translated = await makeTranslator(params)('ru/opaque.md', extracted.units);
+        expect(String(compose(extracted.skeleton, translated, {useSource: true}))).toBe(
+            ':no-translate[FORMAT-A] is used here.',
+        );
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupRetried).toBe(0);
+        expect(stat.markupDamaged).toBe(0);
+    });
+    it('preserves rendered bold at a punctuation boundary and reuses the repaired response', async () => {
+        const extracted = extract('**Для токена:** возвращает список.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'zh', locale: 'CN'},
+        });
+        const client = makeClient((parts) =>
+            parts.map((p) =>
+                p
+                    .replace('Для токена:', '对于令牌：')
+                    .replace('возвращает список.', '返回列表。')
+                    .replace(/<\/g>\s+/g, '</g>'),
+            ),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        params.targetLanguage = 'zh';
+        const translate = makeTranslator(params),
+            translated = await translate('ru/bold.md', extracted.units);
+        const rendered = String(compose(extracted.skeleton, translated, {useSource: true}));
+        expect(rendered).toBe('**对于令牌：** 返回列表。');
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupDamaged).toBe(0);
+        expect(await translate('ru/bold.md', extracted.units)).toEqual(translated);
+        expect(client.complete).toHaveBeenCalledTimes(1);
     });
 });
