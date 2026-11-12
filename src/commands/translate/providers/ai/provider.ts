@@ -60,7 +60,7 @@ import {
     splitFragments,
 } from './prompts';
 import {untranslatedMarker} from './utils/script';
-import {hasCopiedEdit, hasSourceProse} from './utils/edited-prose';
+import {hasCopiedEdit, isProseEcho} from './utils/edited-prose';
 import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
 import {repairInlineSpacing} from './utils/inline-spacing';
@@ -841,7 +841,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
         hasCopiedEdit(fragment, part, hint, marker, allowedSpellings);
     const refusedTranslation = (fragment: string, part: string | undefined, hint?: SeedHint) =>
         part !== undefined &&
-        ((part === fragment && hasSourceProse(part, marker)) || copiedEdit(fragment, part, hint));
+        (isProseEcho(fragment, part, marker) || copiedEdit(fragment, part, hint));
+    const cachedProseEcho = (text: string, normalized: string, seeded: boolean) =>
+        (!seeded || normalized === text) && isProseEcho(text, normalized, marker);
     const cachedRepair = (text: string, stored: string, seeded: boolean): CachedRepair => {
         if (!seeded) {
             return healCached(text, stored);
@@ -1386,12 +1388,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             if (stored !== undefined) {
                 const seeded = Boolean(store?.isSeeded(path, text, stored));
                 const {text: healed, normalized, stripped} = cachedRepair(text, stored, seeded);
-                // Identity entries for units that still contain source-script
-                // characters were cached by older runs that stored untranslated
-                // responses. Treat them as misses so the unit gets another chance.
+                // Generated source-prose echoes can differ only in punctuation.
+                // Treat them as misses, while retaining the existing identity
+                // rule for approved seed and preserving other approved wording.
                 const refused =
                     tableTitleIssue(text, healed) ||
-                    (normalized === text && hasSourceProse(text, marker)) ||
+                    cachedProseEcho(text, normalized, seeded) ||
                     (!store?.isFileSeeded(path, text, stored) &&
                         Boolean(
                             markupIssueForUnit(

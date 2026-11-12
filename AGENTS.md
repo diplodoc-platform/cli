@@ -66,6 +66,12 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    counters; a preservation run that makes zero model requests is not a quality
    check of newly translated text.
 
+   A punctuation, spacing or case-only change is still a source-prose echo.
+   Compare prose words outside protected data before accepting fresh responses
+   or generated cache entries. Keep approved seed preservation separate. Reuse
+   the isolated untranslated retry without describing the failed attempt in its
+   prompt; such feedback can reproduce the echo.
+
    Structural validation must distinguish document markup from extraction placement.
    A protected inline can be hoisted into the skeleton at the beginning of prose;
    moving that same XML placeholder there is not a new directive. Normalize only
