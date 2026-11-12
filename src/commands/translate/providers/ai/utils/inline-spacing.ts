@@ -17,6 +17,14 @@ interface InlineFrame {
     content: number;
     marker?: string;
     code: boolean;
+    kind: 'g' | 'bold' | 'italic';
+}
+
+interface InlineTag {
+    open: boolean;
+    kind: InlineFrame['kind'];
+    marker?: string;
+    code?: boolean;
 }
 
 function flanking(marker: string, before: string | undefined, after: string | undefined) {
@@ -38,6 +46,50 @@ function emphasisMarker(tag: string): string | undefined {
     return attr(tag, 'x-end') ?? (type === 'bold' ? '**' : '*');
 }
 
+function inlineTag(tag: string): InlineTag | undefined {
+    if (tag.startsWith('<g')) {
+        return {
+            open: true,
+            kind: 'g',
+            marker: emphasisMarker(tag),
+            code: attr(tag, 'ctype') === 'code',
+        };
+    }
+    if (tag.startsWith('</g')) {
+        return {open: false, kind: 'g'};
+    }
+    const pair = /^(bold|italic)_(open|close)$/.exec(attr(tag, 'ctype') ?? '');
+    if (!pair) {
+        return undefined;
+    }
+    const marker = attr(tag, 'equiv-text');
+    const valid =
+        pair[1] === 'bold' ? /^(?:\*\*|__)$/.test(marker ?? '') : /^(?:\*|_)$/.test(marker ?? '');
+    if (!valid) {
+        return undefined;
+    }
+    return {open: pair[2] === 'open', kind: pair[1] as 'bold' | 'italic', marker};
+}
+
+function matchesClose(frame: InlineFrame | undefined, close: InlineTag): frame is InlineFrame {
+    return Boolean(
+        frame && frame.kind === close.kind && (close.kind === 'g' || frame.marker === close.marker),
+    );
+}
+
+function delimiterContent(content: string, character: string): string {
+    let start = 0,
+        end = content.length;
+    // Nested markers of the same character merge into one Markdown delimiter run.
+    while (start < end && content.charAt(start) === character) {
+        start++;
+    }
+    while (end > start && content.charAt(end - 1) === character) {
+        end--;
+    }
+    return content.slice(start, end);
+}
+
 function boundarySpaces(
     text: string,
     parent: InlineFrame | undefined,
@@ -47,7 +99,10 @@ function boundarySpaces(
     if (!parent || parent.code || !parent.marker || !/^(?:\*{1,3}|_{1,3})$/.test(parent.marker)) {
         return [];
     }
-    const content = render(text.slice(parent.content, closeStart));
+    const content = delimiterContent(
+        render(text.slice(parent.content, closeStart)),
+        parent.marker[0],
+    );
     if (!content.length) {
         return [];
     }
@@ -76,20 +131,24 @@ export function repairInlineSpacing(text: string): string {
         for (const match of text.matchAll(XML_TAG)) {
             const tag = match[0],
                 index = match.index ?? 0;
-            if (tag.startsWith('<g')) {
+            const description = inlineTag(tag);
+            if (!description) {
+                continue;
+            }
+            if (description.open) {
                 parents.push({
                     start: index,
                     content: index + tag.length,
-                    marker: emphasisMarker(tag),
-                    code: attr(tag, 'ctype') === 'code' || parents.some((p) => p.code),
+                    marker: description.marker,
+                    kind: description.kind,
+                    code: Boolean(description.code) || parents.some((p) => p.code),
                 });
-            } else if (tag.startsWith('</g')) {
-                for (const position of boundarySpaces(
-                    text,
-                    parents.pop(),
-                    index,
-                    index + tag.length,
-                )) {
+            } else {
+                const parent = parents.pop();
+                if (!matchesClose(parent, description)) {
+                    return text;
+                }
+                for (const position of boundarySpaces(text, parent, index, index + tag.length)) {
                     spaces.add(position);
                 }
             }
