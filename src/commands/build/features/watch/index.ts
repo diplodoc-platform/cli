@@ -10,6 +10,7 @@ import {MAIN_TIMER_ID} from '~/constants';
 import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
+import {resolveLlmsConfig} from '~/core/toc';
 import {compareJson, console, normalizePath} from '~/core/utils';
 import * as threads from '~/commands/threads';
 
@@ -139,8 +140,10 @@ export class Watch {
     }
 
     private async handleChange(state: WatchState, {hasNewContent = true} = {}) {
+        const files = new Set<NormalizedPath>();
         for (const file of state.changed) {
             state.changed.delete(file);
+            files.add(file);
 
             const isTocGraphPart = state.isGraphPart('toc', file);
             const isEntryGraphPart = state.isGraphPart('entry', file);
@@ -207,6 +210,7 @@ export class Watch {
             hasNewContent = true;
         }
 
+        await state.complete(files);
         this.update();
     }
 
@@ -257,7 +261,11 @@ export class Watch {
         const oldDeps = state.getChilds('toc', file) as NormalizedPath[];
         // This is a list of tocs which should be updated.
         const oldTocsPaths = oldFiles.filter(state.isKnownToc);
+        oldTocsPaths.forEach((path) => state.affectedTocs.add(path));
         const oldEntries = await state.getEntries(oldTocsPaths);
+        const getLlmsUrl = (path: NormalizedPath) =>
+            resolveLlmsConfig(state.run.config.llms, state.run.toc.for(path)).url || '';
+        const oldLlmsUrls = new Map(oldTocsPaths.map((path) => [path, getLlmsUrl(path)]));
 
         // Drop cache for all related files.
         for (const file of oldFiles) {
@@ -288,6 +296,13 @@ export class Watch {
             .filter(isExistedToc);
         const newEntries = await state.getEntries(newTocsPaths);
 
+        // TOC-only URL edits also affect existing page metadata. Check ownership
+        // only when a resolved URL changed, preserving nested TOC overrides.
+        const changedLlmsTocs = new Set(
+            newTocsPaths.filter((path) => oldLlmsUrls.get(path) !== getLlmsUrl(path)),
+        );
+        this.invalidateLlmsEntries(state, newEntries, changedLlmsTocs);
+
         const entriesDiff = diff(oldEntries, newEntries);
 
         // Update added to toc entries
@@ -316,6 +331,21 @@ export class Watch {
         // If entries was generated, then we expect that any existed entry can be updated.
         if (isGenerator) {
             for (const entry of entriesDiff.rest) {
+                state.invalidateEntry(entry);
+            }
+        }
+    }
+
+    private invalidateLlmsEntries(
+        state: WatchState,
+        entries: NormalizedPath[],
+        changedTocs: ReadonlySet<NormalizedPath>,
+    ) {
+        if (!changedTocs.size) {
+            return;
+        }
+        for (const entry of entries) {
+            if (changedTocs.has(state.run.toc.for(entry).path)) {
                 state.invalidateEntry(entry);
             }
         }

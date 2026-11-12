@@ -4,6 +4,7 @@ import type {EntryTocItem, Toc} from '~/core/toc';
 import {dirname, join} from 'node:path';
 
 import {Graph, bounded, normalizePath} from '~/core/utils';
+import {getHooks as getBuildHooks} from '~/commands/build/hooks';
 
 export class WatchState {
     readonly changed = new Set<NormalizedPath>();
@@ -11,6 +12,10 @@ export class WatchState {
     readonly invalide = new Set<NormalizedPath>();
 
     readonly detachedEntries: Graph = new Graph();
+
+    readonly affectedTocs = new Set<NormalizedPath>();
+
+    readonly rebuiltEntries = new Set<NormalizedPath>();
 
     readonly run: Run;
 
@@ -35,7 +40,8 @@ export class WatchState {
     }
 
     async processToc(...args: Parameters<Build['processToc']>) {
-        return this.program.processToc(...args);
+        await this.program.processToc(...args);
+        this.affectedTocs.add(args[0].path);
     }
 
     async processEntry(entry: NormalizedPath) {
@@ -43,6 +49,20 @@ export class WatchState {
         this.releaseEntryDependencies(entry);
         await this.program.processEntry(entry);
         this.detachedEntries.release(entry);
+        this.rebuiltEntries.add(entry);
+    }
+
+    async complete(files: ReadonlySet<NormalizedPath>) {
+        try {
+            await getBuildHooks(this.program).AfterRebuild.promise(this.run, {
+                files,
+                tocs: new Set(this.affectedTocs),
+                entries: new Set(this.rebuiltEntries),
+            });
+        } finally {
+            this.affectedTocs.clear();
+            this.rebuiltEntries.clear();
+        }
     }
 
     @bounded isKnownEntry(path: NormalizedPath) {

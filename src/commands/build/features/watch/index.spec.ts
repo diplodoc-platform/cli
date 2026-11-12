@@ -5,10 +5,11 @@ import type {MockInstance} from 'vitest';
 import {join} from 'node:path';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {load} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
 import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getBaseHooks} from '~/core/program';
 import {normalizePath} from '~/core/utils';
 
 import {run, runBuild, setupBuild} from '../../__tests__';
@@ -102,10 +103,13 @@ const args = (...args: string[]) => '-i /dev/null/input -o /dev/null/output -w '
 describe('Build watch feature', () => {
     let build: Build, promise: Promise<void>, processEntry: MockInstance;
 
-    async function setup() {
-        build = setupBuild();
+    async function setup(extraArgs = '', state?: Parameters<typeof setupBuild>[0]) {
+        build = setupBuild(state);
+        getBaseHooks(build).BeforeAnyRun.tap('Watch tests', (currentRun) => {
+            vi.mocked(currentRun.copy).mockResolvedValue([]);
+        });
         promise = runBuild(
-            args('-f', 'html', '--vars-preset', 'internal', '--allow-custom-resources'),
+            args('-f', 'html', '--vars-preset', 'internal', '--allow-custom-resources', extraArgs),
             build,
         );
 
@@ -190,6 +194,267 @@ describe('Build watch feature', () => {
     });
 
     describe('toc', () => {
+        it.each(['html', 'md'])(
+            'refreshes every LLMS metadata field and only its dependent outputs (%s)',
+            async (format) => {
+                watch.end();
+                await promise;
+                watch.reset();
+                const initial = {description: 'Initial summary', details: 'Initial details'};
+                const toc = (llms: typeof initial | Record<string, string>) =>
+                    dump({
+                        title: 'Docs',
+                        llms,
+                        items: [
+                            {href: 'index.md'},
+                            {include: {path: '_includes/toc.yaml', mode: 'root_merge'}},
+                        ],
+                    });
+                const included = (description: string) =>
+                    dump({llms: {description}, items: [{href: '_includes/extra.md'}]});
+                await setup(`-f ${format} --llms --ai-md-companions`, {
+                    globs: {'**/toc.yaml': ['toc.yaml', 'nested/toc.yaml'] as NormalizedPath[]},
+                    files: {
+                        'toc.yaml': toc(initial),
+                        'index.md': '# Introduction\n\nArticle body.',
+                        '_includes/toc.yaml': included('Ignored summary'),
+                        '_includes/extra.md': '# Included\n\nIncluded body.',
+                        'nested/toc.yaml': dump({items: [{href: 'page.md'}]}),
+                        'nested/page.md': '# Nested\n\nNested body.',
+                    },
+                });
+                const currentRun = run(build);
+                Object.assign(currentRun.config.llms, {
+                    description: 'Default summary',
+                    details: 'Default details',
+                    url: 'https://example.com/default.txt',
+                });
+                await register('./index.md', '# Introduction\n\nArticle body.');
+                const writes = vi.mocked(currentRun.write);
+                const written = (file: string) =>
+                    writes.mock.calls.filter(([path]) => path === join(currentRun.output, file));
+                const index = () => String(written('llms.txt').at(-1)?.[1]);
+                expect(index()).toContain('> Initial summary\n\nInitial details');
+                const originalIndex = index();
+
+                for (const [metadata, expectedHeader] of [
+                    [
+                        {...initial, description: 'Updated summary'},
+                        '> Updated summary\n\nInitial details',
+                    ],
+                    [
+                        {...initial, details: 'Updated details'},
+                        '> Initial summary\n\nUpdated details',
+                    ],
+                    [{details: 'Details only'}, '> Default summary\n\nDetails only'],
+                    [{description: 'Summary only'}, '> Summary only\n\nDefault details'],
+                    [{}, '> Default summary\n\nDefault details'],
+                    [{description: '', details: ''}, '# Docs\n\n## Documentation'],
+                ] as const) {
+                    writes.mockClear();
+                    processEntry.mockClear();
+                    vi.mocked(currentRun.read).mockClear();
+                    await change('./toc.yaml', toc(metadata));
+
+                    expect(index()).toContain(expectedHeader);
+                    expect(index().slice(index().indexOf('## Documentation'))).toBe(
+                        originalIndex.slice(originalIndex.indexOf('## Documentation')),
+                    );
+                    expect(written('llms.txt')).toHaveLength(1);
+                    expect(written('llms-full.txt')).toHaveLength(0);
+                    expect(written('llms-full-agent.txt')).toHaveLength(0);
+                    expect(processEntry).not.toHaveBeenCalled();
+                    expect(writes.mock.calls.some(([path]) => path.includes('/nested/'))).toBe(
+                        false,
+                    );
+                    expect(currentRun.read).not.toHaveBeenCalledWith(
+                        normalizePath(join(currentRun.input, 'index.md')),
+                    );
+                    expect(currentRun.logger.error).not.toHaveBeenCalled();
+                }
+
+                writes.mockClear();
+                await change('./toc.yaml', toc({description: '', details: ''}));
+                expect(written('llms.txt')).toHaveLength(0);
+
+                writes.mockClear();
+                await register('./nested/page.md', '# Nested\n\nNested body.');
+                await change(
+                    './nested/toc.yaml',
+                    dump({llms: {details: 'Nested details'}, items: [{href: 'page.md'}]}),
+                );
+                expect(String(written('nested/llms.txt').at(-1)?.[1])).toContain(
+                    '> Default summary\n\nNested details',
+                );
+                expect(written('llms.txt')).toHaveLength(0);
+                expect(written('nested/llms-full.txt')).toHaveLength(0);
+                expect(currentRun.logger.error).not.toHaveBeenCalled();
+
+                writes.mockClear();
+                await change('./_includes/toc.yaml', included('Another ignored summary'));
+                expect(written('llms.txt')).toHaveLength(0);
+                expect(written('llms-full.txt')).toHaveLength(0);
+                expect(currentRun.logger.error).not.toHaveBeenCalled();
+            },
+        );
+
+        it.each(['html', 'md'])(
+            'refreshes index links and full corpora after content or TOC structure changes (%s)',
+            async (format) => {
+                watch.end();
+                await promise;
+                watch.reset();
+                const article =
+                    '# Original title\n\n{% include [body](_includes/body.md) %}\n\n' +
+                    ':::visibility agent\nAgent body.\n:::\n';
+                const toc = (items: string[], description = 'Summary') =>
+                    dump({
+                        title: 'Docs',
+                        llms: {description},
+                        items: items.map((href) => ({href})),
+                    });
+                await setup(`-f ${format} --llms --ai-md-companions`, {
+                    globs: {'**/toc.yaml': ['toc.yaml', 'nested/toc.yaml'] as NormalizedPath[]},
+                    files: {
+                        'toc.yaml': toc(['index.md']),
+                        'index.md': article,
+                        '_includes/body.md': 'Old body.',
+                        'nested/toc.yaml': dump({items: [{href: '../index.md'}]}),
+                    },
+                });
+                const currentRun = run(build);
+                const writes = vi.mocked(currentRun.write);
+                const content = (file: string) =>
+                    String(
+                        writes.mock.calls
+                            .filter(([path]) => path === join(currentRun.output, file))
+                            .at(-1)?.[1],
+                    );
+                if (format === 'md') {
+                    expect(content('llms-full-agent.txt')).toContain('Agent body.');
+                }
+                writes.mockClear();
+                await change('./_includes/body.md', 'New included body.');
+                expect(content('llms-full.txt')).toContain('New included body.');
+                expect(content('nested/llms-full.txt')).toContain('New included body.');
+                writes.mockClear();
+                await change('./index.md', '# Updated title\n\nNew body.');
+                expect(content('llms.txt')).toContain('[Updated title]');
+                expect(content('llms-full.txt')).toContain('New body.');
+                expect(content('llms-full.txt')).not.toContain('Old body.');
+                if (format === 'md') {
+                    expect(currentRun.remove).toHaveBeenCalledWith(
+                        join(currentRun.output, 'llms-full-agent.txt'),
+                    );
+                }
+
+                writes.mockClear();
+                await register('./second.md', '# Second\n\nSecond body.');
+                await change('./toc.yaml', toc(['index.md', 'second.md'], 'New summary'));
+                expect(content('llms.txt')).toContain('> New summary');
+                expect(content('llms.txt')).toContain('[Second]');
+                expect(content('llms-full.txt')).toContain('New body.');
+                expect(content('llms-full.txt')).toContain('Second body.');
+
+                vi.mocked(currentRun.remove).mockClear();
+                await change('./toc.yaml', toc([]));
+                for (const file of ['llms.txt', 'llms-full.txt', 'llms-full-agent.txt']) {
+                    expect(currentRun.remove).toHaveBeenCalledWith(join(currentRun.output, file));
+                }
+                await change('./toc.yaml', toc(['index.md']));
+                vi.mocked(currentRun.remove).mockClear();
+                await remove('./toc.yaml');
+                for (const file of ['llms.txt', 'llms-full.txt', 'llms-full-agent.txt']) {
+                    expect(currentRun.remove).toHaveBeenCalledWith(join(currentRun.output, file));
+                }
+                expect(currentRun.logger.error).not.toHaveBeenCalled();
+            },
+        );
+
+        it.each([true, false])(
+            'refreshes HTML and Markdown LLMS links without changing entries (enabled: %s)',
+            async (enabled) => {
+                watch.end();
+                await promise;
+                watch.reset();
+                await setup('--ai-md-companions');
+
+                const currentRun = run(build);
+                currentRun.config.llms.enabled = enabled;
+                currentRun.config.llms.url = 'https://example.com/default.txt';
+
+                await register('./index.md', '# Introduction');
+                await register('./nested/page.md', '# Nested');
+                await create(
+                    './nested/toc.yaml',
+                    dump({
+                        llms: {url: 'https://example.com/nested.txt'},
+                        items: [{href: 'page.md'}],
+                    }),
+                );
+
+                const toc = (url?: string, description = 'Summary') =>
+                    dump({
+                        llms: {url, description},
+                        items: [{href: 'index.md'}, {href: 'nested/page.md'}],
+                    });
+                const expectLinks = (url?: string) => {
+                    for (const extension of ['html', 'md']) {
+                        const output = vi
+                            .mocked(currentRun.write)
+                            .mock.calls.find(
+                                ([path]) => path === join(currentRun.output, `index.${extension}`),
+                            );
+                        expect(output, `index.${extension} was rewritten`).toBeDefined();
+                        const content = String(output?.[1]);
+                        if (url) {
+                            expect(content).toContain(
+                                extension === 'html'
+                                    ? `rel="describedby" href="${url}"`
+                                    : `href: ${url}\n    rel: describedby`,
+                            );
+                        } else {
+                            expect(content).not.toContain(
+                                extension === 'html' ? 'rel="describedby"' : 'rel: describedby',
+                            );
+                        }
+                    }
+                };
+
+                await create('./toc.yaml', toc('https://example.com/first.txt'));
+                expectLinks('https://example.com/first.txt');
+
+                for (const [url, expected] of [
+                    ['https://example.com/second.txt', 'https://example.com/second.txt'],
+                    [undefined, 'https://example.com/default.txt'],
+                    ['', enabled ? 'llms.txt' : undefined],
+                    ['https://example.com/default.txt', 'https://example.com/default.txt'],
+                ]) {
+                    processEntry.mockClear();
+                    vi.mocked(currentRun.write).mockClear();
+                    await change('./toc.yaml', toc(url));
+
+                    expect(processEntry).toHaveBeenCalledExactlyOnceWith('index.md');
+                    expectLinks(expected);
+                    if (!enabled) {
+                        expect(
+                            vi
+                                .mocked(currentRun.write)
+                                .mock.calls.some(([path]) =>
+                                    /\/llms(?:-full(?:-agent)?)?\.txt$/.test(normalizePath(path)),
+                                ),
+                        ).toBe(false);
+                    }
+                }
+
+                processEntry.mockClear();
+                // Removing an override equal to the default, or editing its summary,
+                // does not change the page link and must not rebuild pages.
+                await change('./toc.yaml', toc(undefined, 'Updated summary'));
+                expect(processEntry).not.toHaveBeenCalled();
+            },
+        );
+
         it('should handle new empty toc', async () => {
             expect(run(build).toc.relations.hasNode('toc.yaml')).toBe(false);
 

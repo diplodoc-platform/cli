@@ -1,5 +1,5 @@
 import type {Run} from './run';
-import type {EntryInfo} from './types';
+import type {EntryInfo, RebuildChanges} from './types';
 import type {OutputFormat} from './config';
 
 import {AsyncSeriesHook, HookMap} from 'tapable';
@@ -8,6 +8,11 @@ import {generateHooksAccess} from '~/core/utils';
 
 export function hooks(name: string) {
     return {
+        /** Runs once after all TOCs and pages affected by a watch event are rebuilt. */
+        AfterRebuild: new AsyncSeriesHook<[Run, RebuildChanges]>(
+            ['run', 'changes'],
+            `${name}.AfterRebuild`,
+        ),
         /**
          * Async series hook map (md|html) which runs before start of target Run type.<br/><br/>
          *
