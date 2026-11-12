@@ -1,6 +1,13 @@
-import type {Build, BuildArgs, EntryInfo, OpenapiCompanionEntry, Run} from '~/commands/build';
+import type {
+    Build,
+    BuildArgs,
+    EntryInfo,
+    OpenapiCompanionEntry,
+    RebuildChanges,
+    Run,
+} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {Toc} from '~/core/toc';
+import type {Toc, TocLlmsConfig} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 import {eachSeries} from 'async';
@@ -11,6 +18,7 @@ import {
 } from '@diplodoc/transform/lib/plugins/visibility';
 
 import {defined} from '~/core/config';
+import {resolveLlmsConfig} from '~/core/toc';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
@@ -37,9 +45,8 @@ export type LlmsArgs = {
 };
 
 export type LlmsConfig = {
-    llms: {
+    llms: TocLlmsConfig & {
         enabled: boolean;
-        description?: string;
         llmsFullMaxSize: number;
         /**
          * Override URL for `llms.txt` used in md companion AI hints.
@@ -75,6 +82,13 @@ type CollectionOptions = {
     pageTitles?: Map<NormalizedPath, string>;
 };
 
+type CachedIndex = {
+    header: string;
+    body: string;
+    tocShape: string;
+    agent: boolean;
+};
+
 /**
  * Generates `llms.txt` (a compact index) and `llms-full.txt` (the whole
  * documentation concatenated) per toc, following the https://llmstxt.org spec.
@@ -101,6 +115,8 @@ export class Llms {
     >();
 
     private readonly collections = new WeakMap<Run, CollectedContentCache>();
+
+    private readonly indexes = new WeakMap<Run, Map<NormalizedPath, CachedIndex>>();
 
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Llms', (command: Command) => {
@@ -187,6 +203,103 @@ export class Llms {
                 }
             }
         });
+
+        getBuildHooks(program).AfterRebuild.tapPromise('Llms', (run, changes) =>
+            this.refresh(run, changes),
+        );
+    }
+
+    private async refresh(run: Run, changes: RebuildChanges) {
+        if (!run.config.llms?.enabled) {
+            return;
+        }
+
+        // Merged toc.yaml includes are TOC sources too, but not standalone TOCs.
+        const metadataOnly = [...changes.files].every(
+            (path) => /(^|\/)toc\.yaml$/.test(path) && !run.toc.isGenerator(path),
+        );
+        const affected = new Set(changes.tocs);
+        if (!metadataOnly) {
+            this.addReferencingTocs(run, changes.entries, affected);
+            // Bound retained collection data across repeated watch edits.
+            this.collections.delete(run);
+        }
+
+        await eachSeries(affected.values(), async (path) => {
+            try {
+                await this.refreshToc(run, path, metadataOnly);
+            } catch (error) {
+                run.logger.error(`Unable to generate llms.txt for ${path}: ${error}`);
+            }
+        });
+    }
+
+    private addReferencingTocs(
+        run: Run,
+        entries: RebuildChanges['entries'],
+        affected: Set<NormalizedPath>,
+    ) {
+        // Page/include/preset edits can affect every TOC that references a page,
+        // not just the nearest TOC used by its navigation and describedby link.
+        const pending: string[] = [...entries];
+        const visited = new Set<string>();
+        for (const entry of pending) {
+            if (visited.has(entry) || !run.toc.relations.hasNode(entry)) {
+                continue;
+            }
+            visited.add(entry);
+            for (const path of run.toc.relations.directDependentsOf(entry)) {
+                if (run.toc.isToc(path as NormalizedPath)) {
+                    affected.add(path as NormalizedPath);
+                }
+                pending.push(path);
+            }
+        }
+    }
+
+    private async refreshToc(run: Run, path: NormalizedPath, metadataOnly: boolean) {
+        if (!run.toc.isToc(path)) {
+            await this.removeArtifacts(run, path);
+            return;
+        }
+        const toc = run.toc.for(path);
+        const cached = this.indexes.get(run)?.get(path);
+        if (metadataOnly && cached?.tocShape === this.tocShape(toc)) {
+            // Summary/details affect only the index header. Reuse the links
+            // and full corpora instead of reading and collecting every article.
+            const header = this.renderIndexHeader(
+                toc.title || '',
+                resolveLlmsConfig(run.config.llms, toc),
+            );
+            if (header !== cached.header) {
+                await run.write(
+                    join(run.output, dirname(path), LLMS_INDEX_FILENAME),
+                    header + cached.body,
+                    true,
+                );
+                cached.header = header;
+            }
+        } else {
+            await this.generate(run, toc);
+        }
+    }
+
+    private tocShape(toc: Toc) {
+        return JSON.stringify({...toc, llms: undefined});
+    }
+
+    private async removeArtifacts(run: Run, path: NormalizedPath) {
+        const indexes = this.indexes.get(run);
+        if (!indexes?.has(path)) {
+            return;
+        }
+        await eachSeries(
+            [LLMS_INDEX_FILENAME, LLMS_FULL_FILENAME, LLMS_FULL_AGENT_FILENAME],
+            async (file) => {
+                await run.remove(join(run.output, dirname(path), file));
+            },
+        );
+        indexes.delete(path);
     }
 
     private collectionCache(run: Run) {
@@ -218,6 +331,7 @@ export class Llms {
         const entries = await this.excludeNoIndex(run, this.collectEntries(toc, tocDir));
 
         if (!entries.length) {
+            await this.removeArtifacts(run, toc.path);
             return;
         }
 
@@ -233,7 +347,14 @@ export class Llms {
             audienceSpecificContent,
             pageTitles,
         });
-        const index = await this.renderIndex(run, title, entries, tocDir, pageTitles);
+        const index = await this.renderIndex(
+            run,
+            title,
+            entries,
+            tocDir,
+            resolveLlmsConfig(run.config.llms, toc),
+            pageTitles,
+        );
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
@@ -242,13 +363,32 @@ export class Llms {
         // corpus there so the runtime endpoint can select an audience without buffering and
         // reparsing the whole llms-full file on every request. Static html builds only expose the
         // canonical human corpus above.
-        if (run.config.outputFormat === OutputFormat.md && audienceSpecificContent.size > 0) {
+        const agent =
+            run.config.outputFormat === OutputFormat.md && audienceSpecificContent.size > 0;
+        if (agent) {
             const agentFull = await this.renderFull(run, title, entries, {
                 audience: 'agent',
                 fileName: LLMS_FULL_AGENT_FILENAME,
                 reportErrors: false,
             });
             await run.write(join(run.output, tocDir, LLMS_FULL_AGENT_FILENAME), agentFull, true);
+        } else if (this.indexes.get(run)?.get(toc.path)?.agent) {
+            await run.remove(join(run.output, tocDir, LLMS_FULL_AGENT_FILENAME));
+        }
+
+        if (run.config.watch) {
+            let indexes = this.indexes.get(run);
+            if (!indexes) {
+                indexes = new Map();
+                this.indexes.set(run, indexes);
+            }
+            const header = this.renderIndexHeader(title, resolveLlmsConfig(run.config.llms, toc));
+            indexes.set(toc.path, {
+                header,
+                body: index.slice(header.length),
+                tocShape: this.tocShape(toc),
+                agent,
+            });
         }
     }
 
@@ -349,22 +489,11 @@ export class Llms {
         title: string,
         entries: LlmsEntry[],
         tocDir: string,
+        config: TocLlmsConfig = run.config.llms,
         pageTitles?: ReadonlyMap<NormalizedPath, string>,
     ) {
         const html = run.config.outputFormat === OutputFormat.html;
-        const lines: string[] = [];
-
-        if (title) {
-            lines.push(`# ${title}`, '');
-        }
-
-        const description = run.config.llms?.description || '';
-
-        if (description) {
-            lines.push(`> ${description}`, '');
-        }
-
-        lines.push('## Documentation', '');
+        const lines: string[] = ['## Documentation', ''];
 
         const seenOpenapiCompanions = new Set<string>();
         // Loading includes can replace shared page metadata. Finish each entry
@@ -413,7 +542,21 @@ export class Llms {
             `For more comprehensive documentation, see [${LLMS_FULL_FILENAME}](${fullHref})`,
         );
 
-        return lines.join('\n') + '\n';
+        return this.renderIndexHeader(title, config) + lines.join('\n') + '\n';
+    }
+
+    private renderIndexHeader(title: string, config: TocLlmsConfig) {
+        const lines: string[] = [];
+        if (title) {
+            lines.push(`# ${title}`, '');
+        }
+        if (config.description) {
+            lines.push(`> ${config.description}`, '');
+        }
+        if (config.details) {
+            lines.push(config.details.trimEnd(), '');
+        }
+        return lines.length ? lines.join('\n') + '\n' : '';
     }
 
     private async loadPageTitle(

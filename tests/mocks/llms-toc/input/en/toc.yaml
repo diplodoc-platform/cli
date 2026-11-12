@@ -1,0 +1,12 @@
+title: English docs
+llms:
+  description: English summary.
+  url: https://example.com/en/llms.txt
+items:
+  - name: Introduction
+    href: index.md
+  - name: Nested
+    href: nested/page.md
+  - include:
+      path: en/_includes/toc.yaml
+      mode: root_merge

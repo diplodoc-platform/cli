@@ -104,6 +104,13 @@ export type OpenapiCompanionEntry = {
 
 export type {IDGeneratorStrategy};
 
+/** Inputs and outputs affected by one completed watch rebuild. */
+export type RebuildChanges = {
+    files: ReadonlySet<NormalizedPath>;
+    tocs: ReadonlySet<NormalizedPath>;
+    entries: ReadonlySet<NormalizedPath>;
+};
+
 type BaseConfig = {
     lang: string;
     // TODO(patch): exetend langs list by newly supported langs or change type to string
