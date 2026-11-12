@@ -75,6 +75,10 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    punctuation touches following prose. Repair only fresh model-response delimiter
    boundaries with the Markdown parser's own flanking rules, then validate and store
    the repaired response. Approved seed formatting must not enter this repair path.
+   Sentence splitting can represent that emphasis as paired `x` placeholders with
+   `bold_open`/`bold_close` or `italic_open`/`italic_close`, rather than one `g`.
+   Match their nesting, type and delimiter before repairing a boundary; unmatched
+   cross-unit markers and markers inside code must remain unchanged.
 
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
