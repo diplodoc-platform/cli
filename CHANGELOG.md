@@ -1,5 +1,25 @@
 # Changelog
 
+## [5.70.0](https://github.com/diplodoc-platform/cli/compare/v5.69.0...v5.70.0) (2026-11-12)
+
+
+### Features
+
+* **build:** support named code regions #DOCSTOOLS-6667 ([cc520ea](https://github.com/diplodoc-platform/cli/commit/cc520ea15e1db8a5ebc607d1b8d87c266b82c47e))
+* **llms:** support per-TOC metadata and watch updates ([ab7f081](https://github.com/diplodoc-platform/cli/commit/ab7f08109c31807deff08bdcd028310a778883f1))
+
+
+### Bug Fixes
+
+* **build:** skip disabled anchor indexing ([b8369e5](https://github.com/diplodoc-platform/cli/commit/b8369e57caf4096a5957db28477a196f26ac5e81))
+* **deps:** Update @diplodoc/ajv@0.14.0 ([e81180b](https://github.com/diplodoc-platform/cli/commit/e81180be667fae4f69bbb9311ff85068798f996c))
+* **deps:** Update @diplodoc/openapi-extension@5.3.2 ([14e2b58](https://github.com/diplodoc-platform/cli/commit/14e2b581f7113adb19ce103f05c2820b88a42de5))
+
+
+### Performance Improvements
+
+* **build:** reuse anchor-index renders for HTML output ([7704612](https://github.com/diplodoc-platform/cli/commit/7704612a6fbe2e672a414a1d0ef93a7e8c784edd))
+
 ## [5.69.0](https://github.com/diplodoc-platform/cli/compare/v5.68.0...v5.69.0) (2026-11-11)
 
 ### Features
