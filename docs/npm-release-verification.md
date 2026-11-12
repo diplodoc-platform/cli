@@ -13,10 +13,19 @@ without allocating a runner. The step-result check also rejects older manual run
 whose names did not distinguish release types. Keep the source workflow/job/step
 names in sync if the common release template renames them.
 
-The check runs on Ubuntu / Node.js 24 without checkout, build or tests. It installs
-from public npm in a fresh directory, retries installation at most three times,
-and runs the installed `yfm --version`. Its timeout is ten minutes. Use **Re-run
-jobs** on an existing verification run to check that publication again.
+The check runs on Ubuntu / Node.js 24 without checkout, build or tests. A successful
+`npm publish` can precede public availability while npm performs its
+[publish-time scan](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/).
+The check polls the exact version in public npm every 30 seconds for up to
+20 minutes, forcing metadata revalidation. Each registry request has a ten-second
+timeout and no internal retries. A version that remains unavailable fails the job
+with a separate availability error.
+
+Once available, it installs from public npm in a fresh directory, retries
+installation at most three times, and runs the installed `yfm --version`.
+Installation and startup errors still fail the job. The overall timeout is
+30 minutes. Use **Re-run jobs** on an existing verification run to check that
+publication again; do not rerun publication to address a scan delay.
 
 The existing signed docs-api webhook already receives `check_run` events. Only a
 failed or timed-out GitHub Actions job named `Verify published CLI installation`

@@ -120,9 +120,10 @@ npm runs a [publish-time scan](https://github.blog/changelog/2026-07-28-npm-publ
 before making new versions available. Wait for the exact version to appear in
 `npm view @diplodoc/cli@<version> version --registry=https://registry.npmjs.org`, then install it
 in a fresh directory and run the packaged CLI. If `Verify published CLI`
-(`.github/workflows/verify-npm-release.yml`) fails with `ETARGET` immediately after publication,
-rerun that verification once the version is available. Retry the verification workflow rather
-than the publishing workflow.
+(`.github/workflows/verify-npm-release.yml`) waits up to 20 minutes for public availability
+before checking installation and startup. If the version remains unavailable after that window,
+rerun verification once it is available. Retry the verification workflow rather than the
+publishing workflow.
 
 ## Working with Code
 
