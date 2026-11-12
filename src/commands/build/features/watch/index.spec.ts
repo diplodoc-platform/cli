@@ -127,14 +127,18 @@ describe('Build watch feature', () => {
                 .thenReturn(!(content instanceof Error));
         }
 
-        if (content instanceof Error) {
-            when(run(build).read)
-                .calledWith(normalizePath(input) as AbsolutePath)
-                .thenReject(content);
-        } else {
-            when(run(build).read)
-                .calledWith(normalizePath(input) as AbsolutePath)
-                .thenResolve(content);
+        // The Markdown loader joins paths with the platform's native separator.
+        // Match both spellings for reads too, rather than returning undefined on Windows.
+        for (const file of new Set([input, normalizePath(input)])) {
+            if (content instanceof Error) {
+                when(run(build).read)
+                    .calledWith(file as AbsolutePath)
+                    .thenReject(content);
+            } else {
+                when(run(build).read)
+                    .calledWith(file as AbsolutePath)
+                    .thenResolve(content);
+            }
         }
     }
 
@@ -149,7 +153,7 @@ describe('Build watch feature', () => {
     }
 
     async function remove(path: RelativePath) {
-        await register(path, new Error('ENOENT'));
+        await register(path, Object.assign(new Error('ENOENT'), {code: 'ENOENT'}));
         await watch.event({type: 'unlink', file: path});
     }
 
@@ -1375,6 +1379,43 @@ describe('Build watch feature', () => {
 
             expect(processEntry).toBeCalledTimes(2);
             expect(processEntry).toHaveBeenLastCalledWith('index.md');
+        });
+
+        it('should refresh cached code regions and track both file candidates', async () => {
+            await register('./index.md', "{% code './example.ts#r' %}");
+            await register('./example.ts#r', Object.assign(new Error('ENOENT'), {code: 'ENOENT'}));
+            await register('./example.ts', '// #region r\nold();\n// #endregion');
+            const nativeSourcePath = join(run(build).input, 'example.ts') as AbsolutePath;
+            expect(await run(build).read(nativeSourcePath)).toContain('old();');
+            await create('./toc.yaml', 'href: index.md');
+
+            depends('entry', 'index.md', 'example.ts');
+            expect(await run(build).markdown.load('index.md' as RelativePath)).toContain('old();');
+            await change('./example.ts', '// [START r]\nnew();\n// [END r]');
+            const content = await run(build).markdown.load('index.md' as RelativePath);
+            expect(content).toContain('new();');
+            expect(content).not.toContain('old();');
+            expect(processEntry).toBeCalledTimes(2);
+        });
+
+        it('should refresh literal-path precedence when a hash-containing file is created or removed', async () => {
+            await register('./index.md', "{% code './example.ts#r' %}");
+            await register('./example.ts#r', Object.assign(new Error('ENOENT'), {code: 'ENOENT'}));
+            await register('./example.ts', '// #region r\nregion();\n// #endregion');
+            await create('./toc.yaml', 'href: index.md');
+            expect(await run(build).markdown.load('index.md' as RelativePath)).toContain(
+                'region();',
+            );
+            depends('entry', 'index.md', 'example.ts#r');
+            await create('./example.ts#r', 'literal();');
+            expect(await run(build).markdown.load('index.md' as RelativePath)).toContain(
+                'literal();',
+            );
+            await remove('./example.ts#r');
+            expect(await run(build).markdown.load('index.md' as RelativePath)).toContain(
+                'region();',
+            );
+            expect(processEntry).toBeCalledTimes(3);
         });
 
         it('should handle asset change without releasing markdown includes', async () => {

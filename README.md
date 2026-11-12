@@ -163,6 +163,25 @@ Presets (`presets.yaml`), includes and variables are resolved relative to a proj
 | `--id-generator <strategy>`              | `random`  | Element id strategy: `random`, `deterministic`, etc.      |
 | `-s, --strict`                           | `false`   | Exit with a non-zero code on warnings                     |
 
+### Legacy code selector notices
+
+The legacy `{% code "./example.ts" lines="BEGIN-END" %}` selector remains supported.
+It emits an informational `INFO` notice recommending named regions. This notice
+does not fail a `--strict` build and is hidden by `--quiet`. Other warnings, including
+missing substring markers and ignored directive attributes, still fail strict builds.
+
+Code paths may contain literal `#` characters, for example `./C#/Program.cs`.
+Normally, the complete existing file path takes precedence. Only when it does not name a
+file is the final `#` interpreted as a named-region selector, so
+`./C#/Program#v2.cs#auth` selects `auth` from `./C#/Program#v2.cs`.
+Suffixes after the final `#` with `/./` or `/../` segments (including a trailing
+`/.` or `/..`) are treated as region names without probing a literal path. These
+segments are never normalized as part of the file path.
+
+Hash region markers require a space, tab, end of line or block-comment terminator
+after `#region` or `#endregion`. Text such as `#region-banner` or `#endregion-old`
+remains ordinary source text.
+
 ### Local anchor diagnostics
 
 HTML builds report a missing local link anchor as `YFM025 / missing-local-anchor`. It is a
