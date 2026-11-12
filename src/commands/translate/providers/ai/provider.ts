@@ -568,7 +568,9 @@ function makeProcessor(params: ProcessorParams) {
         const parts = translated.map((part) => restoreLocalizedUrls(part, localized));
         for (const ids of tableTitles) {
             if (ids.some((id) => isTableTitleFallback(parts[id]))) {
-                for (const id of ids) {parts[id] = units[id];}
+                for (const id of ids) {
+                    parts[id] = units[id];
+                }
                 const warning =
                     'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
                 logger?.warn(path, warning);
