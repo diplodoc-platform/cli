@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.70.1](https://github.com/diplodoc-platform/cli/compare/v5.70.0...v5.70.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/ajv@0.15.0 ([d90b2e5](https://github.com/diplodoc-platform/cli/commit/d90b2e5ef634a79a3043618fcff87ada3b23d84f))
+
 ## [5.70.0](https://github.com/diplodoc-platform/cli/compare/v5.69.0...v5.70.0) (2026-11-12)
 
 
