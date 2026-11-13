@@ -72,6 +72,12 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    the isolated untranslated retry without describing the failed attempt in its
    prompt; such feedback can reproduce the echo.
 
+   A received answer that still fails the first markup retry gets one final
+   single-unit request without document context or memory hints. Missing answers
+   do not extend the retry budget. Keep every validation guard and the source
+   fallback/cache exclusion after the limit. `markupRetried` counts distinct
+   units; the requests metrics include the additional attempts.
+
    Structural validation must distinguish document markup from extraction placement.
    A protected inline can be hoisted into the skeleton at the beginning of prose;
    moving that same XML placeholder there is not a new directive. Normalize only

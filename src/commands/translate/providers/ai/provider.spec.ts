@@ -1612,6 +1612,97 @@ describe('translate ai provider', () => {
             );
         });
 
+        it('isolates one final markup retry without the document title', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const answer = 'Connection setup - details.';
+            const title = 'Исходный заголовок страницы';
+            const client = makeClient((_, call) => [
+                call < 2 ? '*Connection setup* - details.' : answer,
+            ]);
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'isolated-markup-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(
+                client,
+                {maxBatchTokens: 500, userPrompt: undefined},
+                store,
+            );
+
+            expect(await makeTranslator(params)('file.md', [unit], {title})).toEqual([
+                wrap(answer),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls[1][0].at(-1)?.content).toContain(title);
+            expect(calls[2][0].at(-1)?.content).not.toContain(title);
+            expect(calls[2][0].at(-1)?.content).toContain('Установка соединения');
+            expect(calls[2][0][0].content).toContain('Formatting correction:');
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(wrap(answer));
+        });
+
+        it('resends only the unresolved markup unit on the final retry', async () => {
+            const bad = wrap('Установка соединения - подробности.');
+            const good = wrap('Другой раздел.');
+            const client = makeClient((_, call) =>
+                call === 0
+                    ? ['*Connection setup* - details.', 'Another section.']
+                    : [
+                          call === 1
+                              ? '*Connection setup* - details.'
+                              : 'Connection setup - details.',
+                      ],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [bad, good])).toEqual([
+                wrap('Connection setup - details.'),
+                wrap('Another section.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(vi.mocked(client.complete).mock.calls[2][0].at(-1)?.content).toBe(
+                'Установка соединения - подробности.',
+            );
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('keeps a source echo returned by the final markup request out of cache', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'markup-echo-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient((_, call) => [
+                call < 2 ? '*Connection setup* - details.' : 'Установка соединения - подробности.',
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.translatedUnits).toBe(0);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('does not add a final markup request after a retry transport failure', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) =>
+                call === 0 ? ['*Connection setup* - details.'] : new Error('Service unavailable'),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+        });
+
         it('should not cache a translation that keeps inventing formatting', async () => {
             const unit = wrap('Установка соединения - подробности.');
             const store = new TranslationStore(
@@ -1621,6 +1712,7 @@ describe('translate ai provider', () => {
             const client = makeClient(() => ['*Connection setup* - details.']);
             const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
             expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
             expect(stat.markupDamaged).toBe(1);
             expect(stat.untranslated).toBe(1);
             expect(store.get(unit)).toBeUndefined();

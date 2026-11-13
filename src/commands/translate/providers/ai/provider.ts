@@ -1097,9 +1097,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
      * loses the formatting or leaves an unpaired delimiter in the line,
      * and a link placeholder lost or repeated breaks the link.
      *
-     * One more request is cheaper than a broken line, and a fragment the
-     * retry does not fix keeps its source text: untranslated composes
-     * cleanly, damaged markup does not.
+     * Retry together once, then give a still-invalid answer one final
+     * isolated request without document context or memory hints. Missing
+     * answers do not trigger that extra request. A fragment that still
+     * fails keeps its source text: untranslated composes cleanly, damaged
+     * markup does not.
      */
     async function repairDamaged(
         path: string,
@@ -1138,27 +1140,43 @@ export function makeTranslator(params: TranslatorParams): Translate {
             `${indexes.length} fragment(s) came back with damaged markup; retrying them.`,
         );
 
+        const feedback =
+            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
+            (indexes.some((index) => tableTitleIssue(fragments[index], parts[index]))
+                ? ' For a wide-table title, rephrase the translation without double quotes, literal closing braces or line breaks. Preserve variable placeholders exactly. Do not use backslash or HTML entity escaping.'
+                : '');
         const retried = await retryFragments(
             path,
             indexes.map((index) => fragments[index]),
             context,
             'Markup retry',
             indexes.map((index) => hints[index]),
-            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
-                (indexes.some((index) => tableTitleIssue(fragments[index], parts[index]))
-                    ? ' For a wide-table title, rephrase the translation without double quotes, literal closing braces or line breaks. Preserve variable placeholders exactly. Do not use backslash or HTML entity escaping.'
-                    : ''),
+            feedback,
         );
 
         const result = [...parts];
         let unfixed = 0;
 
-        indexes.forEach((index, position) => {
-            const candidate = retried[position];
+        for (const [position, index] of indexes.entries()) {
+            let candidate = retried[position];
+
+            if (candidate !== undefined && !kept(fragments[index], candidate)) {
+                logger.warn(path, '1 fragment(s) came back with damaged markup; retrying them.');
+                // The counter above counts distinct units; requests records
+                // the additional attempt. Retain the same validation guards.
+                [candidate] = await retryFragments(
+                    path,
+                    [fragments[index]],
+                    '',
+                    'Markup retry',
+                    [],
+                    feedback,
+                );
+            }
 
             if (candidate !== undefined && kept(fragments[index], candidate)) {
                 result[index] = candidate;
-                return;
+                continue;
             }
 
             unfixed++;
@@ -1166,7 +1184,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             damaged.add(fragments[index]);
             repairs.set(fragments[index], 0);
             result[index] = tableTitleFallback(fragments[index]);
-        });
+        }
 
         if (unfixed) {
             logger.warn(
