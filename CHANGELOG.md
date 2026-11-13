@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.70.2](https://github.com/diplodoc-platform/cli/compare/v5.70.1...v5.70.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* deduplicate csp metadata ([#2413](https://github.com/diplodoc-platform/cli/issues/2413)) ([d28bcb9](https://github.com/diplodoc-platform/cli/commit/d28bcb9108fecdde79a1e4cf2548ae37fefd124a))
+
 ## [5.70.1](https://github.com/diplodoc-platform/cli/compare/v5.70.0...v5.70.1) (2026-11-12)
 
 
