@@ -77,7 +77,10 @@ export class Sitemap {
                     return;
                 }
 
-                const paths = await this.excludeNoIndex(run, run.toc.entries);
+                const paths = await this.excludeNoIndex(
+                    run,
+                    run.toc.entries.filter((entry) => run.toc.audience(entry) !== 'agent'),
+                );
                 const urls = paths.map((entry) =>
                     resolveAbsoluteHref(setExt(entry, '.html'), baseHref),
                 );

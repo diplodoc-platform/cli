@@ -30,6 +30,7 @@ export type TocLlmsConfig = {
 };
 
 export type RawToc = {
+    visibility?: 'agent';
     path: NormalizedPath;
     noIndex?: boolean;
     llms?: TocLlmsConfig;
@@ -78,6 +79,7 @@ export type Navigation = {
 };
 
 export type RawTocItem = Filter & {
+    visibility?: 'agent';
     hidden?: boolean;
     noIndex?: boolean;
     items?: RawTocItem[];
@@ -123,6 +125,7 @@ export type IncludeInfo = {
 };
 
 export type Toc = {
+    visibility?: 'agent';
     path: NormalizedPath;
     noIndex?: boolean;
     llms?: TocLlmsConfig;
@@ -143,7 +146,11 @@ export type Toc = {
     items?: TocItem[];
 };
 
-export type TocItem = (NamedTocItem | EntryTocItem) & {hidden?: boolean; noIndex?: boolean} & {
+export type TocItem = (NamedTocItem | EntryTocItem) & {
+    hidden?: boolean;
+    noIndex?: boolean;
+    visibility?: 'agent';
+} & {
     id: string;
     items?: TocItem[];
 };

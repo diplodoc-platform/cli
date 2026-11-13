@@ -61,6 +61,7 @@ function createMockRun(options: MockRunOptions = {}): Run {
         input: '/input',
         output: '/output',
         toc: {
+            audience: vi.fn().mockReturnValue('common'),
             entries: options.entries ?? ['ru/index.md', 'ru/guide.md'],
         },
         meta: {

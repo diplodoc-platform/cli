@@ -33,6 +33,7 @@ import {
 import {getHooks, withHooks} from './hooks';
 import {isEntryItem, resolveNoIndex} from './utils';
 import {isMergeMode, loader} from './loader';
+import {collectPageAudiences} from './audience';
 
 export type TocServiceConfig = {
     ignore: string[];
@@ -122,6 +123,11 @@ export class TocService {
 
     private entryIndex?: {revision: number; value: ReadonlySet<NormalizedPath>};
 
+    private audienceIndex?: {
+        revision: number;
+        value: ReadonlyMap<NormalizedPath, 'agent' | 'common'>;
+    };
+
     private run: Run;
 
     private logger: Run['logger'];
@@ -150,10 +156,24 @@ export class TocService {
         };
     }
 
+    /** Returns the inherited page audience without scanning TOCs for each page or link. */
+    audience(path: NormalizedPath): 'agent' | 'common' | undefined {
+        if (this.audienceIndex?.revision !== this.relations.revision) {
+            this.audienceIndex = {
+                revision: this.relations.revision,
+                value: collectPageAudiences(this.tocs),
+            };
+        }
+        return this.audienceIndex.value.get(path);
+    }
+
     async init(paths: NormalizedPath[]) {
         for (const path of paths) {
             await this.load(path);
         }
+
+        // Validate conflicts before writing any audience-dependent build artifacts.
+        this.audience(paths[0]);
 
         return this.tocs.filter((toc) => paths.includes(toc.path));
     }

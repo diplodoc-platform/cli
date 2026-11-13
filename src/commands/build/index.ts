@@ -328,6 +328,11 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     @bounded async processEntry(entry: NormalizedPath) {
         const {outputFormat} = this.config;
 
+        const agentOnly = this.run.toc.audience(entry) === 'agent';
+        if (agentOnly && outputFormat === 'html') {
+            return;
+        }
+
         const startTime = Date.now();
         this.run.logger.proc(entry);
 

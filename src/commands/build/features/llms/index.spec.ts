@@ -79,6 +79,7 @@ function createMockRun(
     } = {},
 ): Run {
     return {
+        toc: {audience: vi.fn().mockReturnValue('common')},
         config: {
             outputFormat: options.outputFormat ?? OutputFormat.html,
             llms: {

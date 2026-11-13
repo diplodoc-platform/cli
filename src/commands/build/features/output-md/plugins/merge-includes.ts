@@ -184,6 +184,7 @@ export function resolveAbsolutePaths(
     content: string,
     fromPath: NormalizedPath,
     baseHref: string,
+    resolveLink: (href: string) => string = (href) => href,
 ): string {
     const fromDir = dirname(fromPath) || '.';
     const lines = content.split('\n');
@@ -195,7 +196,9 @@ export function resolveAbsolutePaths(
                 return line;
             }
 
-            return rewriteLinksInLine(line, (url) => resolveAbsoluteHref(url, baseHref, fromDir));
+            return rewriteLinksInLine(line, (url) =>
+                resolveAbsoluteHref(resolveLink(url), baseHref, fromDir),
+            );
         })
         .join('\n');
 }
