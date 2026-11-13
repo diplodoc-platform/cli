@@ -66,6 +66,38 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    counters; a preservation run that makes zero model requests is not a quality
    check of newly translated text.
 
+   A punctuation, spacing or case-only change is still a source-prose echo.
+   Changing a product name can also leave an ordinary Russian sentence behind.
+   For Russian sources targeting a different script, reject unprotected lowercase
+   source-script word runs in fresh answers and generated cache. Count only
+   source-script letters when recognizing single-letter symbols next to CJK.
+   Protect the union of glossary matches in the original prose so overlapping
+   required spellings do not depend on glossary order. Keep titlecase names,
+   acronyms, protected literals, exact glossary spellings and approved seed
+   preservation separate from ordinary prose. Reuse the isolated untranslated
+   retry without describing the failed attempt in its prompt; such feedback can
+   reproduce the echo. Zero counters still require inspection of native output.
+
+   A received answer that still fails the first markup retry gets one final
+   single-unit request without document context or memory hints. Missing answers
+   do not extend the retry budget. Keep every validation guard and the source
+   fallback/cache exclusion after the limit. `markupRetried` counts distinct
+   units; the requests metrics include the additional attempts.
+
+   Structural validation must distinguish document markup from extraction placement.
+   A protected inline can be hoisted into the skeleton at the beginning of prose;
+   moving that same XML placeholder there is not a new directive. Normalize only
+   typed opaque placeholders in plain units for comparison, never matching literals
+   inside URLs, code or escaped text. Keep other formatting and opaque guards strict.
+   Valid XML emphasis can still compose into invalid Markdown when translated
+   punctuation touches following prose. Repair only fresh model-response delimiter
+   boundaries with the Markdown parser's own flanking rules, then validate and store
+   the repaired response. Approved seed formatting must not enter this repair path.
+   Sentence splitting can represent that emphasis as paired `x` placeholders with
+   `bold_open`/`bold_close` or `italic_open`/`italic_close`, rather than one `g`.
+   Match their nesting, type and delimiter before repairing a boundary; unmatched
+   cross-unit markers and markers inside code must remain unchanged.
+
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).
@@ -112,6 +144,12 @@ npm run typecheck
 npm run lint
 npm run lint:fix
 ```
+
+Run lint through npm. The infra ESLint configuration enables its Prettier layer
+only when `npm_command` is set; a direct ESLint invocation can miss formatting
+errors and report unavailable legacy rules. For a scoped CI-equivalent check,
+set `npm_command=run-script` without disabling rules. After switching between
+branches with different lockfiles, install the selected branch's dependencies.
 
 ## Release verification
 

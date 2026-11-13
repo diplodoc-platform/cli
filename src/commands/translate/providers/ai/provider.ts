@@ -60,9 +60,10 @@ import {
     splitFragments,
 } from './prompts';
 import {untranslatedMarker} from './utils/script';
-import {hasCopiedEdit, hasSourceProse} from './utils/edited-prose';
+import {hasCopiedEdit, hasLowercaseSourceProse, isProseEcho} from './utils/edited-prose';
 import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
+import {repairInlineSpacing} from './utils/inline-spacing';
 import {documentFingerprint} from './utils/cache';
 import {localizedUrls, restoreLocalizedUrls, revertedUrls} from './utils/links';
 import {restoreFragments} from './utils/skeleton';
@@ -567,7 +568,9 @@ function makeProcessor(params: ProcessorParams) {
         const parts = translated.map((part) => restoreLocalizedUrls(part, localized));
         for (const ids of tableTitles) {
             if (ids.some((id) => isTableTitleFallback(parts[id]))) {
-                for (const id of ids) parts[id] = units[id];
+                for (const id of ids) {
+                    parts[id] = units[id];
+                }
                 const warning =
                     'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
                 logger?.warn(path, warning);
@@ -678,7 +681,7 @@ export function makeStore(
     const fingerprint = cacheFingerprint({
         // Old generated answers may contain copied edits or translated code.
         // Approved repository translations use the separately versioned seed.
-        validationPolicy: 3,
+        validationPolicy: 4,
         provider: client.name,
         model: config.model,
         source: sourceLanguage,
@@ -834,11 +837,19 @@ export function makeTranslator(params: TranslatorParams): Translate {
     let temperatureWarned = false;
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
     const allowedSpellings = glossaryPairs.map((pair) => pair.translatedText);
+    const residualProse = (text: string) =>
+        sourceLanguage.split('-')[0].toLowerCase() === 'ru' &&
+        hasLowercaseSourceProse(text, marker, allowedSpellings);
     const copiedEdit = (fragment: string, part: string, hint?: SeedHint) =>
         hasCopiedEdit(fragment, part, hint, marker, allowedSpellings);
     const refusedTranslation = (fragment: string, part: string | undefined, hint?: SeedHint) =>
         part !== undefined &&
-        ((part === fragment && hasSourceProse(part, marker)) || copiedEdit(fragment, part, hint));
+        (isProseEcho(fragment, part, marker) ||
+            residualProse(part) ||
+            copiedEdit(fragment, part, hint));
+    const cachedProseEcho = (text: string, normalized: string, seeded: boolean) =>
+        ((!seeded || normalized === text) && isProseEcho(text, normalized, marker)) ||
+        (!seeded && residualProse(normalized));
     const cachedRepair = (text: string, stored: string, seeded: boolean): CachedRepair => {
         if (!seeded) {
             return healCached(text, stored);
@@ -1019,7 +1030,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             // the text and its repair.
             repairs.set(fragments[index], repair.stripped);
 
-            const restored = open + repair.text + close;
+            const restored =
+                open +
+                (isCodeUnit(fragments[index]) || isTableTitleUnit(fragments[index])
+                    ? repair.text
+                    : repairInlineSpacing(repair.text)) +
+                close;
             const literalKey = JSON.stringify([fragments[index], restored]);
             if (keepsLiteralCode(masked[index], answer)) {
                 invalidLiterals.delete(literalKey);
@@ -1087,9 +1103,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
      * loses the formatting or leaves an unpaired delimiter in the line,
      * and a link placeholder lost or repeated breaks the link.
      *
-     * One more request is cheaper than a broken line, and a fragment the
-     * retry does not fix keeps its source text: untranslated composes
-     * cleanly, damaged markup does not.
+     * Retry together once, then give a still-invalid answer one final
+     * isolated request without document context or memory hints. Missing
+     * answers do not trigger that extra request. A fragment that still
+     * fails keeps its source text: untranslated composes cleanly, damaged
+     * markup does not.
      */
     async function repairDamaged(
         path: string,
@@ -1128,27 +1146,43 @@ export function makeTranslator(params: TranslatorParams): Translate {
             `${indexes.length} fragment(s) came back with damaged markup; retrying them.`,
         );
 
+        const feedback =
+            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
+            (indexes.some((index) => tableTitleIssue(fragments[index], parts[index]))
+                ? ' For a wide-table title, rephrase the translation without double quotes, literal closing braces or line breaks. Preserve variable placeholders exactly. Do not use backslash or HTML entity escaping.'
+                : '');
         const retried = await retryFragments(
             path,
             indexes.map((index) => fragments[index]),
             context,
             'Markup retry',
             indexes.map((index) => hints[index]),
-            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
-                (indexes.some((index) => tableTitleIssue(fragments[index], parts[index]))
-                    ? ' For a wide-table title, rephrase the translation without double quotes, literal closing braces or line breaks. Preserve variable placeholders exactly. Do not use backslash or HTML entity escaping.'
-                    : ''),
+            feedback,
         );
 
         const result = [...parts];
         let unfixed = 0;
 
-        indexes.forEach((index, position) => {
-            const candidate = retried[position];
+        for (const [position, index] of indexes.entries()) {
+            let candidate = retried[position];
+
+            if (candidate !== undefined && !kept(fragments[index], candidate)) {
+                logger.warn(path, '1 fragment(s) came back with damaged markup; retrying them.');
+                // The counter above counts distinct units; requests records
+                // the additional attempt. Retain the same validation guards.
+                [candidate] = await retryFragments(
+                    path,
+                    [fragments[index]],
+                    '',
+                    'Markup retry',
+                    [],
+                    feedback,
+                );
+            }
 
             if (candidate !== undefined && kept(fragments[index], candidate)) {
                 result[index] = candidate;
-                return;
+                continue;
             }
 
             unfixed++;
@@ -1156,7 +1190,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             damaged.add(fragments[index]);
             repairs.set(fragments[index], 0);
             result[index] = tableTitleFallback(fragments[index]);
-        });
+        }
 
         if (unfixed) {
             logger.warn(
@@ -1217,8 +1251,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         const result = [...parts];
 
-        // Reject echoes and copied new prose, not every source-script word:
-        // existing localized names and literal code can legitimately survive.
+        // Refuse partial Russian prose as well as echoes and copied edits.
+        // Proper names, acronyms, protected code and glossary spellings survive.
         indexes.forEach((index, position) => {
             const candidate = retried[position];
 
@@ -1378,12 +1412,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             if (stored !== undefined) {
                 const seeded = Boolean(store?.isSeeded(path, text, stored));
                 const {text: healed, normalized, stripped} = cachedRepair(text, stored, seeded);
-                // Identity entries for units that still contain source-script
-                // characters were cached by older runs that stored untranslated
-                // responses. Treat them as misses so the unit gets another chance.
+                // Generated answers can retain source prose after translating only
+                // a product name or part of a sentence. Treat refusals as misses;
+                // approved seed keeps its existing identity contract.
                 const refused =
                     tableTitleIssue(text, healed) ||
-                    (normalized === text && hasSourceProse(text, marker)) ||
+                    cachedProseEcho(text, normalized, seeded) ||
                     (!store?.isFileSeeded(path, text, stored) &&
                         Boolean(
                             markupIssueForUnit(

@@ -7,7 +7,7 @@ import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'n
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
-import {extract} from '@diplodoc/translation';
+import {compose, extract} from '@diplodoc/translation';
 
 import {createTargetStat} from '../../report';
 import {markTableTitle} from '../../utils/table-title';
@@ -302,7 +302,7 @@ describe('translate ai provider', () => {
             const input = join(root, 'docs');
             const output = join(root, 'out');
             mkdirSync(join(input, 'ru'), {recursive: true});
-            writeFileSync(join(input, 'ru', 'test.md'), '# Заголовок\n\nПривет, мир.\n');
+            writeFileSync(join(input, 'ru', 'test.md'), '# Title\n\nHello, world.\n');
 
             const inner = makeFullClient();
             const client: LLMClient = {
@@ -644,7 +644,7 @@ describe('translate ai provider', () => {
             const input = join(root, 'docs');
             const output = join(root, 'out');
             mkdirSync(join(input, 'ru'), {recursive: true});
-            writeFileSync(join(input, 'ru', 'test.md'), '# Заголовок\n\nПривет, мир.\n');
+            writeFileSync(join(input, 'ru', 'test.md'), '# Title\n\nHello, world.\n');
 
             const primary: LLMClient = {
                 name: 'fake',
@@ -690,7 +690,7 @@ describe('translate ai provider', () => {
             } as unknown as AITranslationConfig);
 
             const result = readFileSync(join(output, 'en', 'test.md'), 'utf8');
-            expect(result).toContain('T:Привет, мир.');
+            expect(result).toContain('T:Hello, world.');
             expect(logger.error).not.toHaveBeenCalled();
             expect(logger.warn).toHaveBeenCalledWith(
                 'ru/test.md',
@@ -1160,9 +1160,13 @@ describe('translate ai provider', () => {
                     const source = markTableTitle(wrap('Имя'));
                     const bad = markTableTitle(wrap('Example } details'));
                     const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
-                    if (seeded) seeds.record('ru/a.md', [[source, bad]]);
+                    if (seeded) {
+                        seeds.record('ru/a.md', [[source, bad]]);
+                    }
                     const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
-                    if (!seeded) store.set(source, bad);
+                    if (!seeded) {
+                        store.set(source, bad);
+                    }
                     const client = makeClient(() => ['Table title']);
                     const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
                     expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([
@@ -1554,6 +1558,8 @@ describe('translate ai provider', () => {
                       ),
             );
             const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            params.sourceLanguage = 'en';
+            params.targetLanguage = 'ru';
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
@@ -1576,6 +1582,8 @@ describe('translate ai provider', () => {
                     : [`Включите с помощью ${CODE_OPEN}a.b.c`],
             );
             const {params, stat, warn} = makeParams(client, {maxBatchTokens: 500});
+            params.sourceLanguage = 'en';
+            params.targetLanguage = 'ru';
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
@@ -1608,6 +1616,97 @@ describe('translate ai provider', () => {
             );
         });
 
+        it('isolates one final markup retry without the document title', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const answer = 'Connection setup - details.';
+            const title = 'Исходный заголовок страницы';
+            const client = makeClient((_, call) => [
+                call < 2 ? '*Connection setup* - details.' : answer,
+            ]);
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'isolated-markup-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(
+                client,
+                {maxBatchTokens: 500, userPrompt: undefined},
+                store,
+            );
+
+            expect(await makeTranslator(params)('file.md', [unit], {title})).toEqual([
+                wrap(answer),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls[1][0].at(-1)?.content).toContain(title);
+            expect(calls[2][0].at(-1)?.content).not.toContain(title);
+            expect(calls[2][0].at(-1)?.content).toContain('Установка соединения');
+            expect(calls[2][0][0].content).toContain('Formatting correction:');
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(wrap(answer));
+        });
+
+        it('resends only the unresolved markup unit on the final retry', async () => {
+            const bad = wrap('Установка соединения - подробности.');
+            const good = wrap('Другой раздел.');
+            const client = makeClient((_, call) =>
+                call === 0
+                    ? ['*Connection setup* - details.', 'Another section.']
+                    : [
+                          call === 1
+                              ? '*Connection setup* - details.'
+                              : 'Connection setup - details.',
+                      ],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [bad, good])).toEqual([
+                wrap('Connection setup - details.'),
+                wrap('Another section.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(vi.mocked(client.complete).mock.calls[2][0].at(-1)?.content).toBe(
+                'Установка соединения - подробности.',
+            );
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('keeps a source echo returned by the final markup request out of cache', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'markup-echo-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient((_, call) => [
+                call < 2 ? '*Connection setup* - details.' : 'Установка соединения - подробности.',
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.translatedUnits).toBe(0);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('does not add a final markup request after a retry transport failure', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) =>
+                call === 0 ? ['*Connection setup* - details.'] : new Error('Service unavailable'),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+        });
+
         it('should not cache a translation that keeps inventing formatting', async () => {
             const unit = wrap('Установка соединения - подробности.');
             const store = new TranslationStore(
@@ -1617,6 +1716,7 @@ describe('translate ai provider', () => {
             const client = makeClient(() => ['*Connection setup* - details.']);
             const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
             expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
             expect(stat.markupDamaged).toBe(1);
             expect(stat.untranslated).toBe(1);
             expect(store.get(unit)).toBeUndefined();
@@ -1937,14 +2037,14 @@ describe('translate ai provider', () => {
             const unit1 = wrap('Первый текст');
             const unit2 = wrap('Второй текст');
             const client = makeClient((fragments, call) =>
-                call === 0 ? [`T:${fragments[0]}`, fragments[1]] : [`T:${fragments[0]}`],
+                call === 0 ? ['First text', fragments[1]] : ['Second text'],
             );
             const {params, stat} = makeParams(client, {maxBatchTokens: 500});
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit1, unit2]);
 
-            expect(result).toEqual([wrap('T:Первый текст'), wrap('T:Второй текст')]);
+            expect(result).toEqual([wrap('First text'), wrap('Second text')]);
             expect(stat.untranslatedRetried).toBe(1);
             expect(client.complete).toHaveBeenCalledTimes(2);
 
@@ -1970,7 +2070,128 @@ describe('translate ai provider', () => {
             expect(stat.untranslatedRetried).toBe(1);
         });
 
-        it('should accept a changed retry answer even when it keeps source-script text', async () => {
+        it('retries a source prose echo with localized punctuation before caching it', async () => {
+            const unit = wrap('Значение всегда ' + CODE_OPEN + 'false' + CODE_CLOSE + '.');
+            const client = makeClient((fragments, call) =>
+                fragments.map((part) =>
+                    call === 0
+                        ? part.replace(/\.$/, '。')
+                        : part.replace('Значение всегда', '值始终为').replace(/\.$/, '。'),
+                ),
+            );
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-prose-echo-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            const result = await makeTranslator(params)('ru/echo.md', [unit]);
+            expect(result).toEqual([wrap('值始终为 ' + CODE_OPEN + 'false' + CODE_CLOSE + '。')]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(result[0]);
+        });
+
+        it('retries residual source prose after a product name changes', async () => {
+            const unit = wrap('Для модели Экспресс коды не проверяются.');
+            const partial = 'Для модели Express коды не проверяются。';
+            const translated = 'Express 模式不检查代码。';
+            const client = makeClient((_, call) => [call === 0 ? partial : translated]);
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-partial-prose-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([wrap(translated)]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(wrap(translated));
+        });
+
+        it('counts a partial source-language answer that survives retry without caching it', async () => {
+            const unit = wrap('Откройте кабинет продавца.');
+            const partial = '打开 кабинет。';
+            const client = makeClient(() => [partial]);
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-partial-refusal-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([wrap(partial)]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('rejects a partial source-language answer from generated cache', async () => {
+            const unit = wrap('Откройте кабинет продавца.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-partial-cache-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, wrap('打开 кабинет。'));
+            const client = makeClient(() => ['打开卖家账户。']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('打开卖家账户。'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.cached).toBe(0);
+        });
+
+        it('counts a punctuation-only echo that survives retry and keeps it out of the store', async () => {
+            const unit = wrap('Исходный текст.');
+            const client = makeClient((fragments) =>
+                fragments.map((part) => part.replace(/\.$/, '。')),
+            );
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-echo-refusal-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            await makeTranslator(params)('ru/echo.md', [unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('retranslates a punctuation-only echo from generated cache', async () => {
+            const unit = wrap('Исходный текст.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-echo-cache-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, wrap('Исходный текст。'));
+            const client = makeClient(() => ['Source text.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            expect(await makeTranslator(params)('ru/echo.md', [unit])).toEqual([
+                wrap('Source text.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.cached).toBe(0);
+        });
+
+        it('preserves an approved localized name with different punctuation', async () => {
+            const unit = wrap('Яндекс.'),
+                approved = wrap('Яндекс!');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-approved-name-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+            seeds.record('ru/name.md', [[unit, approved]]);
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+            const client = makeClient(() => ['Yandex.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            expect(await makeTranslator(params)('ru/name.md', [unit])).toEqual([approved]);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
+        it('rejects a changed retry answer that retains ordinary source prose', async () => {
             const unit = wrap('Исходный текст');
             const retryAnswer = 'Source text. Пример на исходном языке.';
             const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
@@ -1984,13 +2205,39 @@ describe('translate ai provider', () => {
 
             const result = await translate('file.md', [unit]);
 
-            // Deliberate: see the acceptance-rule rationale comment in
-            // provider.ts (`retryUntranslated`) - a changed answer is a
-            // translation even if it still carries source-script text.
-            expect(result).toEqual([wrap(retryAnswer)]);
-            expect(store.get(unit)).toBe(wrap(retryAnswer));
-            expect(stat.untranslated).toBe(0);
-            expect(stat.untranslatedKept).toBe(0);
+            // A changed prefix does not translate the remaining ordinary prose.
+            expect(result).toEqual([unit]);
+            expect(store.get(unit)).toBeUndefined();
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+        });
+
+        it('preserves lowercase source wording in an approved seed', async () => {
+            const unit = wrap('Название системы.');
+            const approved = wrap('The system название.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-approved-partial-name-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+            seeds.record('ru/name.md', [[unit, approved]]);
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+            const client = makeClient(() => ['A translated name.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            expect(await makeTranslator(params)('ru/name.md', [unit])).toEqual([approved]);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
+        it('accepts an explicit lowercase source-script glossary spelling', async () => {
+            const unit = wrap('Используйте название.');
+            const client = makeClient(() => ['Use название.']);
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 1000,
+                glossaryPairs: [{sourceText: 'название', translatedText: 'название'}],
+            });
+            expect(await makeTranslator(params)('ru/name.md', [unit])).toEqual([
+                wrap('Use название.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslatedRetried).toBe(0);
         });
 
         it('should not retry an identity response without source-script text', async () => {
@@ -2057,13 +2304,13 @@ describe('translate ai provider', () => {
             const store = new TranslationStore(join(dir, 'store.json'), 'fp');
             store.load();
             store.set(unit, unit);
-            const client = makeClient(translated);
+            const client = makeClient(() => ['Source text']);
             const {params, stat} = makeParams(client, {maxBatchTokens: 100}, store);
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
 
-            const retranslated = '<source xml:space="preserve">T:Исходный текст</source>';
+            const retranslated = '<source xml:space="preserve">Source text</source>';
             expect(client.complete).toHaveBeenCalledTimes(1);
             expect(result).toEqual([retranslated]);
             expect(store.get(unit)).toBe(retranslated);
@@ -2227,10 +2474,15 @@ describe('translate ai provider', () => {
                 wrap,
             );
             const client = makeClient((_, call) => {
-                if (call === 0)
+                if (call === 0) {
                     return ['- First text', '- Second text', '- Third text', '- Fourth text'];
-                if (call === 1) return ['merged'];
-                if (call === 2) return new LLMAuthError('denied');
+                }
+                if (call === 1) {
+                    return ['merged'];
+                }
+                if (call === 2) {
+                    return new LLMAuthError('denied');
+                }
                 return ['Third text', 'Fourth text'];
             });
             const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
@@ -2431,5 +2683,77 @@ describe('translate ai provider', () => {
             expect(stat.requests).toBe(1);
             expect(stat.inputTokens).toBeGreaterThan(0);
         });
+    });
+});
+
+describe('inline boundary preservation in model responses', () => {
+    it('preserves paired bold placeholders inside a paragraph without retrying', async () => {
+        const extracted = extract('Описание. **Метка:** продолжение.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'zh', locale: 'CN'},
+        });
+        expect(extracted.units.join('')).toContain('ctype="bold_open"');
+        const client = makeClient((parts) =>
+            parts.map((part) =>
+                part
+                    .replace('Описание.', '说明。')
+                    .replace('Метка:', '标签：')
+                    .replace('продолжение.', '后续内容。')
+                    .replace(/(ctype="bold_close"[^>]*\/>)\s+/g, '$1'),
+            ),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        params.targetLanguage = 'zh';
+        const translated = await makeTranslator(params)('ru/paired.md', extracted.units);
+        expect(String(compose(extracted.skeleton, translated, {useSource: true}))).toBe(
+            '说明。 **标签：** 后续内容。',
+        );
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupRetried).toBe(0);
+        expect(stat.untranslated).toBe(0);
+    });
+    it('keeps opaque-inline word order without a markup retry', async () => {
+        const extracted = extract('Используйте :no-translate[FORMAT-A] здесь.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'en', locale: 'US'},
+        });
+        const client = makeClient((parts) =>
+            parts.map((p) => p.replace('Используйте ', '').replace('здесь.', 'is used here.')),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        const translated = await makeTranslator(params)('ru/opaque.md', extracted.units);
+        expect(String(compose(extracted.skeleton, translated, {useSource: true}))).toBe(
+            ':no-translate[FORMAT-A] is used here.',
+        );
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupRetried).toBe(0);
+        expect(stat.markupDamaged).toBe(0);
+    });
+    it('preserves rendered bold at a punctuation boundary and reuses the repaired response', async () => {
+        const extracted = extract('**Для токена:** возвращает список.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'zh', locale: 'CN'},
+        });
+        const client = makeClient((parts) =>
+            parts.map((p) =>
+                p
+                    .replace('Для токена:', '对于令牌：')
+                    .replace('возвращает список.', '返回列表。')
+                    .replace(/<\/g>\s+/g, '</g>'),
+            ),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        params.targetLanguage = 'zh';
+        const translate = makeTranslator(params),
+            translated = await translate('ru/bold.md', extracted.units);
+        const rendered = String(compose(extracted.skeleton, translated, {useSource: true}));
+        expect(rendered).toBe('**对于令牌：** 返回列表。');
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupDamaged).toBe(0);
+        expect(await translate('ru/bold.md', extracted.units)).toEqual(translated);
+        expect(client.complete).toHaveBeenCalledTimes(1);
     });
 });
