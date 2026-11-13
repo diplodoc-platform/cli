@@ -1301,8 +1301,9 @@ describe('Build command', () => {
                 style: ['custom.css'],
                 csp: [{'frame-src': ['https://example.com']}],
             };
-            const incomingMeta = {...run.meta.snapshot(file), title: 'Page'};
             run.meta.addResources(file, resources);
+            const incomingMeta = {...run.meta.snapshot(file), title: 'Page'};
+            run.meta.addResources(file, {style: ['cached.css']});
 
             vi.spyOn(run.entry, 'dump').mockResolvedValue({
                 path: file,
@@ -1313,7 +1314,11 @@ describe('Build command', () => {
 
             await build.process(file, incomingMeta);
 
-            expect(run.meta.snapshot(file)).toMatchObject({title: 'Page', ...resources});
+            expect(run.meta.snapshot(file)).toMatchObject({
+                title: 'Page',
+                ...resources,
+                style: ['custom.css', 'cached.css'],
+            });
         });
     });
 });

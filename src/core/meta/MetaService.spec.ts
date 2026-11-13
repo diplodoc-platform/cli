@@ -52,6 +52,26 @@ describe('MetaService', () => {
         metaService = new MetaService(createMockRun());
     });
 
+    it('deduplicates equal CSP records while preserving distinct rules', async () => {
+        const file = 'page.md' as NormalizedPath;
+        metaService.addResources(file, {
+            csp: [{'img-src': 'https://images.example.com', 'frame-src': ['https://example.com']}],
+        });
+        metaService.addResources(file, {
+            csp: [
+                {'frame-src': ['https://example.com'], 'img-src': ['https://images.example.com']},
+                {'frame-src': ['https://other.example.com']},
+            ],
+        });
+
+        await expect(metaService.dump(file)).resolves.toMatchObject({
+            csp: [
+                {'img-src': ['https://images.example.com'], 'frame-src': ['https://example.com']},
+                {'frame-src': ['https://other.example.com']},
+            ],
+        });
+    });
+
     describe('dump()', () => {
         it('preserves an empty tags array', async () => {
             const file = 'test/file.md' as NormalizedPath;
