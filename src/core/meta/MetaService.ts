@@ -1,7 +1,7 @@
 import type {Run} from '~/core/run';
 import type {Alternate, Meta, RawResources} from './types';
 
-import {flow, omit} from 'lodash';
+import {flow, isEqual, omit, uniqWith} from 'lodash';
 
 import {copyJson, get, normalizePath, shortLink, zip} from '~/core/utils';
 
@@ -215,7 +215,7 @@ export class MetaService {
      * Adds page resources (scripts, styles, CSP) for a path.
      *
      * Scripts and styles are merged as unique arrays.
-     * CSP records are normalized (strings converted to arrays).
+     * CSP records are normalized (strings converted to arrays) and deduplicated by value.
      *
      * @param path - Relative path to the document
      * @param resources - Raw resources to add (undefined is ignored)
@@ -247,7 +247,7 @@ export class MetaService {
                 records.push(record);
             }
 
-            meta.csp = [...(meta.csp || []), ...records];
+            meta.csp = uniqWith([...(meta.csp || []), ...records], isEqual);
         }
 
         this.meta.set(file, meta);
