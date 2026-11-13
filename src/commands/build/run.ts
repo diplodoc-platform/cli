@@ -201,12 +201,12 @@ export class Run extends BaseRun<BuildConfig> {
             reportErrors,
         );
         this.anchorRenders.reset(this.markdown.revision);
-        const signature =
-            this.config.outputFormat !== 'md' &&
-            revision === this.markdown.revision &&
-            (forAnchors || this.anchorRenders.size)
-                ? this.anchorRenders.signature(source, transformOptions, this.config.idGenerator)
-                : undefined;
+        const signature = this.anchorRenderSignature(
+            source,
+            transformOptions,
+            revision,
+            forAnchors,
+        );
         const cached = !forAnchors && signature ? this.anchorRenders.take(signature) : undefined;
         if (cached) {
             if (reportErrors) {
@@ -240,6 +240,22 @@ export class Run extends BaseRun<BuildConfig> {
         }
 
         return output;
+    }
+
+    private anchorRenderSignature(
+        source: string,
+        options: Record<string, unknown>,
+        revision: number,
+        forAnchors: boolean,
+    ) {
+        if (
+            this.config.outputFormat === 'md' ||
+            revision !== this.markdown.revision ||
+            (!forAnchors && !this.anchorRenders.size)
+        ) {
+            return undefined;
+        }
+        return this.anchorRenders.signature(source, options, this.config.idGenerator);
     }
 
     private reportAgentPageLinks(file: NormalizedPath, targets?: ReadonlySet<NormalizedPath>) {

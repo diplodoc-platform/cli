@@ -1312,6 +1312,7 @@ describe('LLMs Plugin Architecture', () => {
         it('should stop adding articles and log YFM022 when limit is exceeded', async () => {
             // Set a very small limit so the first article already exceeds it
             const run = createMockRun({llmsFullMaxSize: 10});
+            const collectBody = vi.spyOn(llmsInstance, 'collectBody');
             const entries = [
                 {
                     href: normalizedPath('page1.md'),
@@ -1334,6 +1335,8 @@ describe('LLMs Plugin Architecture', () => {
             expect(result).toContain('# Full Book');
             // The first article should NOT be added (it exceeds the 10-byte limit)
             expect(result).not.toContain('Collected Markdown Content');
+            expect(collectBody).toHaveBeenCalledTimes(1);
+            expect(collectBody.mock.calls[0][2]).toBe('docs/page1.md');
             // YFM022 should be logged as info
             expect(run.logger.info).toHaveBeenCalledWith(
                 'YFM022',
