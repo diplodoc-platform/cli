@@ -67,10 +67,16 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    check of newly translated text.
 
    A punctuation, spacing or case-only change is still a source-prose echo.
-   Compare prose words outside protected data before accepting fresh responses
-   or generated cache entries. Keep approved seed preservation separate. Reuse
-   the isolated untranslated retry without describing the failed attempt in its
-   prompt; such feedback can reproduce the echo.
+   Changing a product name can also leave an ordinary Russian sentence behind.
+   For Russian sources targeting a different script, reject unprotected lowercase
+   source-script word runs in fresh answers and generated cache. Count only
+   source-script letters when recognizing single-letter symbols next to CJK.
+   Protect the union of glossary matches in the original prose so overlapping
+   required spellings do not depend on glossary order. Keep titlecase names,
+   acronyms, protected literals, exact glossary spellings and approved seed
+   preservation separate from ordinary prose. Reuse the isolated untranslated
+   retry without describing the failed attempt in its prompt; such feedback can
+   reproduce the echo. Zero counters still require inspection of native output.
 
    A received answer that still fails the first markup retry gets one final
    single-unit request without document context or memory hints. Missing answers

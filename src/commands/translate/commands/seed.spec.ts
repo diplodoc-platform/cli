@@ -454,7 +454,11 @@ describe('translate seed', () => {
             '',
         ].join('\n');
 
-        async function translate(input: AbsolutePath, cacheDir: AbsolutePath, answers: Hash) {
+        async function translate(
+            input: AbsolutePath,
+            cacheDir: AbsolutePath,
+            answers: Hash | ((text: string) => string),
+        ) {
             const output = mkdtempSync(join(tmpdir(), 'yfm-seed-out-'));
             const requests: string[] = [];
             const client: LLMClient = {
@@ -464,7 +468,11 @@ describe('translate seed', () => {
                     requests.push(...fragments);
                     return {
                         text: fragments
-                            .map((text) => answers[text] ?? `T:${text}`)
+                            .map((text) =>
+                                typeof answers === 'function'
+                                    ? answers(text)
+                                    : (answers[text] ?? `T:${text}`),
+                            )
                             .join(`\n${FRAGMENT_SEPARATOR}\n`),
                     };
                 }),
@@ -557,7 +565,13 @@ describe('translate seed', () => {
                     .replace('О реформе читайте', 'Подробнее о реформе читайте'),
             );
 
-            const {page, warn} = await translate(input, cacheDir, {});
+            const {page, warn} = await translate(input, cacheDir, (text) =>
+                text
+                    .replace('Подробнее о реформе читайте', 'Read more about the reform')
+                    .replace('статье вики', 'wiki article')
+                    .replace(' в ', ' in ')
+                    .replace('Что почитать', 'What to read'),
+            );
 
             // The changed code block and heading come from the source; the
             // changed sentence went to the model but kept the localized link.
