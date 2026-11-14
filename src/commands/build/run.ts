@@ -27,6 +27,7 @@ import {AnchorsService, collectAnchorIds} from './services/anchors';
 import {AnchorRenderCache} from './services/anchors/RenderCache';
 import {extractIncludedBlocks} from './extract-included';
 import {getLocalAnchorRuleConfig, lintWithLocalAnchors} from './lint';
+import {findAgentPageLinks} from './page-audience-links';
 import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
 
 type TransformOptions = {
@@ -80,6 +81,8 @@ export class Run extends BaseRun<BuildConfig> {
     private readonly anchors: AnchorsService;
 
     private readonly anchorRenders = new AnchorRenderCache<ReturnType<typeof transformer>['env']>();
+
+    private readonly agentPageLinks = new WeakMap<object, ReadonlySet<NormalizedPath>>();
 
     private entriesCache?: {index: ReadonlySet<NormalizedPath>; paths: NormalizedPath[]};
 
@@ -198,14 +201,17 @@ export class Run extends BaseRun<BuildConfig> {
             reportErrors,
         );
         this.anchorRenders.reset(this.markdown.revision);
-        const signature =
-            this.config.outputFormat !== 'md' &&
-            revision === this.markdown.revision &&
-            (forAnchors || this.anchorRenders.size)
-                ? this.anchorRenders.signature(source, transformOptions, this.config.idGenerator)
-                : undefined;
+        const signature = this.anchorRenderSignature(
+            source,
+            transformOptions,
+            revision,
+            forAnchors,
+        );
         const cached = !forAnchors && signature ? this.anchorRenders.take(signature) : undefined;
         if (cached) {
+            if (reportErrors) {
+                this.reportAgentPageLinks(file, this.agentPageLinks.get(cached[1]));
+            }
             if (anchorIds) {
                 collectAnchorIds(cached[0], anchorIds);
             }
@@ -215,7 +221,15 @@ export class Run extends BaseRun<BuildConfig> {
 
         const {parse, compile, env} = transformer(transformOptions);
 
-        const result = compile(parse(source));
+        const tokens = parse(source);
+        if ((reportErrors || forAnchors) && this.toc.audience(file) !== 'agent') {
+            const targets = findAgentPageLinks(tokens, (path) => this.toc.audience(path));
+            this.agentPageLinks.set(env, targets);
+            if (reportErrors) {
+                this.reportAgentPageLinks(file, targets);
+            }
+        }
+        const result = compile(tokens);
         if (anchorIds) {
             collectAnchorIds(result, anchorIds);
         }
@@ -226,6 +240,30 @@ export class Run extends BaseRun<BuildConfig> {
         }
 
         return output;
+    }
+
+    private anchorRenderSignature(
+        source: string,
+        options: Record<string, unknown>,
+        revision: number,
+        forAnchors: boolean,
+    ) {
+        if (
+            this.config.outputFormat === 'md' ||
+            revision !== this.markdown.revision ||
+            (!forAnchors && !this.anchorRenders.size)
+        ) {
+            return undefined;
+        }
+        return this.anchorRenders.signature(source, options, this.config.idGenerator);
+    }
+
+    private reportAgentPageLinks(file: NormalizedPath, targets?: ReadonlySet<NormalizedPath>) {
+        for (const target of targets || []) {
+            this.logger.error(
+                `Human page ${file} links to agent-only page ${target}. Put this link inside a visibility agent block.`,
+            );
+        }
     }
 
     private async prepareTransform(

@@ -16,6 +16,28 @@ Yfm-docs lets you build a full-fledged documentation project: with navigation, i
 
 ![Example of displaying a documentation page](.github/assets/overview.jpg)
 
+## Agent-only pages
+
+Set `visibility: agent` on a `toc.yaml` page, group, include, or root to restrict the
+whole subtree to the agent representation. The restriction cannot be reset below
+that ancestor; omit the field for shared pages. Conflicting shared/agent references
+to the same document fail the build. Other explicit values are invalid.
+
+Human HTML, navigation, search, sitemap, single-page and PDF omit agent-only pages.
+Markdown builds preserve the source and emit generated `pageAudience: agent` metadata
+for the Viewer. Page restrictions combine with `:::visibility human|agent` blocks.
+Human-visible links to agent-only pages are diagnosed; place them in agent blocks.
+
+With `--llms`, projects using page visibility also produce `llms-agent.txt` and
+`llms-full-agent.txt`. Viewer serves these through the canonical LLMS endpoints with
+`?audience=agent`; matching Viewer/MCP support and a documentation rebuild are required.
+Static hosting uses the separate filenames and filtered `.agent.md`/`.agent.yaml`
+source artifacts because it cannot select content by query parameters.
+Links inside these artifacts select the target's agent artifact, including YAML
+links. Linked hidden/noIndex pages get individual artifacts without being added
+to LLMS indexes or corpora. Each target is generated once per owning TOC, including
+cyclic references.
+
 ## Documentation
 
 To export resolved documentation as backend-neutral JSON for external indexing, see

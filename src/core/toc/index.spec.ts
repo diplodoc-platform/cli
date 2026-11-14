@@ -88,6 +88,47 @@ function test(
 }
 
 describe('toc-loader', () => {
+    describe('page audience validation', () => {
+        it.each(['agents', 'human', 'false', 'null'])(
+            'rejects invalid visibility %s before generation',
+            async (value) => {
+                const {run, toc} = setupService();
+                mockData(run, `items:\n  - href: agent.md\n    visibility: ${value}\n`, {}, {}, []);
+                await expect(toc.init(['toc.yaml'] as NormalizedPath[])).rejects.toThrow(
+                    'Invalid visibility',
+                );
+            },
+        );
+
+        it('inherits agent visibility from an unnamed included TOC', async () => {
+            const {run, toc} = setupService();
+            mockData(
+                run,
+                'items:\n  - include:\n      path: nested/toc.yaml\n      mode: link\n',
+                {},
+                {
+                    'nested/toc.yaml': 'visibility: agent\nitems:\n  - href: agent.md\n',
+                },
+                [],
+            );
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
+            expect(toc.audience('nested/agent.md' as NormalizedPath)).toBe('agent');
+        });
+
+        it('rejects a shared alias of an agent-only document', async () => {
+            const {run, toc} = setupService();
+            mockData(
+                run,
+                'items:\n  - href: agent.md\n  - href: agent.md\n    visibility: agent\n',
+                {},
+                {},
+                [],
+            );
+            await expect(toc.init(['toc.yaml'] as NormalizedPath[])).rejects.toThrow(
+                'Conflicting visibility',
+            );
+        });
+    });
     describe('entry index', () => {
         it('shares the reachable entry set and keeps the array API independent', () => {
             const {toc} = setupService();

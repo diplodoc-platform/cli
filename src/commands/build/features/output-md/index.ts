@@ -111,6 +111,11 @@ export class OutputMd {
                 const renderer = new MarkdownOutputRenderer(run);
 
                 getMetaHooks(run.meta).Dump.tap('Build.Md', (meta, file) => {
+                    if (run.toc.audience(file) === 'agent') {
+                        meta.pageAudience = 'agent';
+                    } else {
+                        delete meta.pageAudience;
+                    }
                     return prepareMarkdownMeta(run, meta, file);
                 });
 

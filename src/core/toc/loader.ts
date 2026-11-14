@@ -67,6 +67,13 @@ export function isMergeMode(include: IncludeInfo | LoaderContext): include is Me
 
 // Designed to be isolated loaders in future
 export async function loader(this: LoaderContext, toc: RawToc): Promise<RawToc> {
+    await this.toc.walkItems<RawToc | RawTocItem>([toc], (item) => {
+        if (own(item, 'visibility') && item.visibility !== 'agent') {
+            throw new Error(`Invalid visibility in ${this.path}: expected "agent".`);
+        }
+        return item;
+    });
+
     // Resolves toc fields which can be filterable arrays.
     // Apply when filter in some toc fields
     toc = await resolveFields.call(this, toc);
@@ -429,6 +436,13 @@ function mergeIncludedItems(
 ) {
     const includedNoIndex = resolveNoIndex(toc, item.noIndex === true, includedPath, this.logger);
     const noIndex = resolveNoIndex(item, includedNoIndex, this.path, this.logger);
+
+    if (item.visibility === 'agent' || toc.visibility === 'agent') {
+        item.visibility = 'agent';
+        toc.items?.forEach((child) => {
+            child.visibility = 'agent';
+        });
+    }
 
     if (item.name) {
         if (noIndex) {

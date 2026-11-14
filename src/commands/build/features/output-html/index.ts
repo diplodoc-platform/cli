@@ -52,7 +52,14 @@ export class OutputHtml {
                 getSearchHooks(run.search).Page.tap('Html.BaseHref', setBaseHref);
 
                 getTocHooks(run.toc).Dump.tapPromise('Html', async (vfile) => {
+                    if (vfile.data.visibility === 'agent') {
+                        delete vfile.data.href;
+                        vfile.data.items = [];
+                    }
                     await run.toc.walkItems([vfile.data as Toc], (item: Toc | TocItem) => {
+                        if (item.visibility === 'agent') {
+                            return undefined;
+                        }
                         if (own(item, 'hidden') && item.hidden) {
                             return undefined;
                         }
