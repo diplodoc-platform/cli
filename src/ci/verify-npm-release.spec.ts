@@ -30,6 +30,9 @@ function runSteps(names: string[], overrides: Record<string, string> = {}) {
                 npm() {
                     echo "npm:$*" >&2
                     if [[ "$1" == view ]]; then
+                        if ((SECONDS == 0 && MOCK_FIRST_PROBE_DELAY > 0)); then
+                            command sleep "$MOCK_FIRST_PROBE_DELAY"
+                        fi
                         if ((SECONDS < MOCK_READY_AFTER)); then return 1; fi
                         echo "$MOCK_VISIBLE_VERSION"
                         return 0
@@ -41,6 +44,8 @@ function runSteps(names: string[], overrides: Record<string, string> = {}) {
                 }
                 sleep() { echo "sleep:$1"; SECONDS=$((SECONDS + $1)); }
                 mktemp() { command mktemp -d "$MOCK_DIRECTORY/install.XXXXXX"; }
+                # Remove Bash's special clock so only mock sleep advances test time.
+                unset SECONDS
                 SECONDS=0
                 ${scripts.join('\n')}
                 `,
@@ -52,6 +57,7 @@ function runSteps(names: string[], overrides: Record<string, string> = {}) {
                     CLI_VERSION: '5.67.0',
                     MOCK_VISIBLE_VERSION: '5.67.0',
                     MOCK_READY_AFTER: '0',
+                    MOCK_FIRST_PROBE_DELAY: '0',
                     MOCK_INSTALL_EXIT: '0',
                     MOCK_START_EXIT: '0',
                     MOCK_DIRECTORY: directory,
@@ -85,7 +91,11 @@ describe.skipIf(process.platform === 'win32')('published CLI verification shell 
         expect(result.stderr).toContain('npm:install @diplodoc/cli@5.67.0');
     });
 
-    it.each<Record<string, string>>([{MOCK_READY_AFTER: '1201'}, {MOCK_VISIBLE_VERSION: '5.66.1'}])(
+    it.each<Record<string, string>>([
+        {MOCK_READY_AFTER: '1201'},
+        {MOCK_VISIBLE_VERSION: '5.66.1'},
+        {MOCK_READY_AFTER: '1201', MOCK_FIRST_PROBE_DELAY: '1'},
+    ])(
         'fails after twenty minutes without installing an unavailable exact version: %j',
         (overrides) => {
             const result = runSteps([availability, installation], overrides);
