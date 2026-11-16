@@ -87,12 +87,17 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    English or source-language prose that composition exposes again. Approved seed
    retains its separate preservation contract. This conservative check does not
    classify single words, titlecase names or mixed Latin/Han prose completely.
+   A blanket lowercase-Latin refusal inside Han also rejects legitimate technical
+   terms such as slug, offer and campaign. Latin source terms can adjoin Cyrillic
+   after a hyphen (`boolean-значения`). Inspect actual source context before
+   treating such words as ordinary English leftovers.
 
-   A received answer that still fails the first markup retry gets one final
-   single-unit request without document context or memory hints. Missing answers
-   do not extend the retry budget. Keep every validation guard and the source
-   fallback/cache exclusion after the limit. `markupRetried` counts distinct
-   units; the requests metrics include the additional attempts.
+   A received answer that still fails the first markup retry gets up to two
+   isolated single-unit requests without document context or memory hints. Only
+   another received invalid answer authorizes the second isolated request;
+   missing or failed answers do not extend the budget. Keep every validation
+   guard and the source fallback/cache exclusion after the limit. `markupRetried`
+   counts distinct units; request metrics include the additional attempts.
 
    Structural validation must distinguish document markup from extraction placement.
    A protected inline can be hoisted into the skeleton at the beginning of prose;

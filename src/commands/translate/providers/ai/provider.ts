@@ -890,6 +890,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         context: string,
         hints: (SeedHint | undefined)[] = [],
         markupFeedback?: string,
+        missingAnswers?: Set<number>,
     ): Promise<string[]> {
         if (!fragments.length) {
             return [];
@@ -1030,6 +1031,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
         return parts.map((part, index) => {
             const {open, text, close} = wrappers[index];
             const answer = unwrapUnit(stripFence(part)).text;
+            if (!answer.trim()) {
+                missingAnswers?.add(index);
+            }
             const translation = answer
                 ? unmaskAddresses(text, unmaskLiteralCode(text, answer))
                 : text;
@@ -1075,7 +1079,18 @@ export function makeTranslator(params: TranslatorParams): Translate {
         markupFeedback?: string,
     ): Promise<(string | undefined)[]> {
         try {
-            return await translateBatch(path, fragments, context, hints, markupFeedback);
+            // Only markup retries distinguish a missing answer from the source
+            // fallback translateBatch keeps for ordinary translation requests.
+            const missing = markupFeedback === undefined ? undefined : new Set<number>();
+            const parts = await translateBatch(
+                path,
+                fragments,
+                context,
+                hints,
+                markupFeedback,
+                missing,
+            );
+            return parts.map((part, index) => (missing?.has(index) ? undefined : part));
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             logger.warn(path, `${what} failed (${error.message}).`);
@@ -1115,9 +1130,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
      * loses the formatting or leaves an unpaired delimiter in the line,
      * and a link placeholder lost or repeated breaks the link.
      *
-     * Retry together once, then give a still-invalid answer one final
-     * isolated request without document context or memory hints. Missing
-     * answers do not trigger that extra request. A fragment that still
+     * Retry together once, then give received, still-invalid answers up to
+     * two isolated requests without document context or memory hints. Missing
+     * answers do not trigger another request. A fragment that still
      * fails keeps its source text: untranslated composes cleanly, damaged
      * markup does not.
      */
@@ -1178,10 +1193,14 @@ export function makeTranslator(params: TranslatorParams): Translate {
         for (const [position, index] of indexes.entries()) {
             let candidate = retried[position];
 
-            if (candidate !== undefined && !kept(fragments[index], candidate)) {
+            for (
+                let isolated = 0;
+                isolated < 2 && candidate !== undefined && !kept(fragments[index], candidate);
+                isolated++
+            ) {
                 logger.warn(path, '1 fragment(s) came back with damaged markup; retrying them.');
                 // The counter above counts distinct units; requests records
-                // the additional attempt. Retain the same validation guards.
+                // the additional attempts. Retain the same validation guards.
                 [candidate] = await retryFragments(
                     path,
                     [fragments[index]],
