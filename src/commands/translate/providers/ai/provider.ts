@@ -489,7 +489,11 @@ function markupGroups(text: string, name: 'g' | 'x'): MarkupGroup[] {
 }
 
 /** Promote only generated structural metadata, never source attributes, into feedback. */
-function markupGroupChecklist(fragment: string, name: 'g' | 'x'): string[] {
+function markupGroupChecklist(
+    fragment: string,
+    name: 'g' | 'x',
+    hiddenIds?: ReadonlySet<string>,
+): string[] {
     const text = unwrapUnit(fragment).text;
     const original = markupGroups(maskLiteralCode(text), name);
     const groups = markupGroups(maskLiteralCode(maskAddresses(text)), name);
@@ -514,6 +518,7 @@ function markupGroupChecklist(fragment: string, name: 'g' | 'x'): string[] {
             originalCounts.get(id) !== 1
         )
             return [];
+        if (hiddenIds?.has(id)) return [];
         if (name === 'x') return type === 'lb' ? [`- lb placeholder ${id}`] : [];
         return type === 'link' || type === 'bold' || type === 'italic'
             ? [`- ${type} group ${id}`]
@@ -521,17 +526,18 @@ function markupGroupChecklist(fragment: string, name: 'g' | 'x'): string[] {
     });
 }
 
-type LiteralBacktickMask = {
+type FinalLiteralMask = {
     text: string;
+    hiddenSourceIds: ReadonlySet<string>;
     restore: (answer: string) => {text: string; valid: boolean};
 };
 
-function keepsLiteralBacktickResidue(source: string, translation: string): boolean {
+function keepsLiteralResidue(source: string, translation: string): boolean {
     const counts = new Map<string, number>();
-    for (const id of source.match(/literal-backtick-\d+/g) ?? []) {
+    for (const id of source.match(/literal-(?:backtick|linebreak)-\d+/g) ?? []) {
         counts.set(id, (counts.get(id) ?? 0) + 1);
     }
-    for (const id of translation.match(/literal-backtick-\d+/g) ?? []) {
+    for (const id of translation.match(/literal-(?:backtick|linebreak)-\d+/g) ?? []) {
         const remaining = counts.get(id) ?? 0;
         if (!remaining) return false;
         counts.set(id, remaining - 1);
@@ -582,49 +588,116 @@ function literalBacktickOffset(text: string): number | undefined {
     return opened.length ? undefined : position;
 }
 
-/** A final-request transport mask, never a source or translation repair. */
-function maskLiteralBacktick(fragment: string, text: string): LiteralBacktickMask | undefined {
+type StructuralNode = {tag: string; start: number; name: string; attributes: Map<string, string>};
+
+function linebreakNodes(text: string): StructuralNode[] | undefined {
+    const rawTicks = text.replace(STRUCTURAL_TAG, ' ').match(/`/g)?.length ?? 0;
+    if (rawTicks > 1) return undefined;
+    const nodes: StructuralNode[] = [];
+    const opened: string[] = [];
+    let end = 0;
+    for (const match of text.matchAll(STRUCTURAL_TAG)) {
+        const tag = match[0];
+        if (text.slice(end, match.index).includes('<')) return undefined;
+        end = match.index + tag.length;
+        const name = /^<(\/?)([A-Za-z][\w:-]*)\b/.exec(tag);
+        if (!name || /^(?:code|pre)$/i.test(name[2])) return undefined;
+        if (name[1]) {
+            if (!/^<\/[A-Za-z][\w:-]*\s*>$/.test(tag) || opened.pop() !== name[2]) return undefined;
+            continue;
+        }
+        const attributes = structuralAttributes(tag);
+        if (!attributes || attributes.get('ctype')?.startsWith('code')) return undefined;
+        if (!tag.endsWith('/>')) {
+            if (name[2] === 'x') return undefined;
+            opened.push(name[2]);
+        }
+        nodes.push({tag, start: match.index, name: name[2], attributes});
+    }
+    return opened.length || text.slice(end).includes('<') ? undefined : nodes;
+}
+
+function eligibleLinebreak(fragment: string, text: string): StructuralNode | undefined {
+    const original = linebreakNodes(unwrapUnit(fragment).text);
+    const masked = linebreakNodes(text);
+    if (!original || !masked) return undefined;
+    const lb = (nodes: StructuralNode[]) =>
+        nodes.filter((node) => node.name === 'x' && node.attributes.get('ctype') === 'lb');
+    const before = lb(original),
+        after = lb(masked);
+    if (before.length !== 1 || after.length !== 1 || before[0].tag !== after[0].tag)
+        return undefined;
+    const id = before[0].attributes.get('id');
+    if (!id || !/^x-\d+$/.test(id)) return undefined;
+    const unique = (nodes: StructuralNode[]) =>
+        nodes.filter((node) => node.attributes.get('id') === id).length === 1;
+    return unique(original) && unique(masked) ? after[0] : undefined;
+}
+
+/** Final-request transport masks, never source or translation repairs. */
+function maskFinalLiterals(fragment: string, text: string): FinalLiteralMask | undefined {
     if (isCodeUnit(fragment) || isTableTitleUnit(fragment)) return undefined;
     const position = literalBacktickOffset(text);
-    if (position === undefined) return undefined;
-    let serial = 1;
-    while (
-        fragment.includes(`literal-backtick-${serial}`) ||
-        text.includes(`literal-backtick-${serial}`)
-    )
-        serial++;
-    const id = `literal-backtick-${serial}`;
-    const token = `<x ctype="code_literal" id="${id}"/>`;
+    const linebreak = eligibleLinebreak(fragment, text);
+    const entries: {start: number; raw: string; id: string; token: string}[] = [];
+    const add = (family: string, start: number, raw: string) => {
+        let serial = 1;
+        while (
+            fragment.includes(`literal-${family}-${serial}`) ||
+            text.includes(`literal-${family}-${serial}`)
+        )
+            serial++;
+        const id = `literal-${family}-${serial}`;
+        entries.push({start, raw, id, token: `<x ctype="code_literal" id="${id}"/>`});
+    };
+    if (position !== undefined) add('backtick', position, '`');
+    if (linebreak) add('linebreak', linebreak.start, linebreak.tag);
+    if (!entries.length) return undefined;
+    let masked = text;
+    for (const entry of entries.slice().sort((left, right) => right.start - left.start)) {
+        masked =
+            masked.slice(0, entry.start) +
+            entry.token +
+            masked.slice(entry.start + entry.raw.length);
+    }
     const sourceIds = new Set(
         [...fragment.matchAll(STRUCTURAL_TAG), ...text.matchAll(STRUCTURAL_TAG)].map(([tag]) =>
             structuralAttributes(tag)?.get('id'),
         ),
     );
     return {
-        text: text.slice(0, position) + token + text.slice(position + 1),
+        text: masked,
+        hiddenSourceIds: new Set(linebreak ? [String(linebreak.attributes.get('id'))] : []),
         restore(answer) {
-            let found: number | undefined;
+            const found = new Map<string, number>();
             for (const match of answer.matchAll(STRUCTURAL_TAG)) {
                 const attributes = structuralAttributes(match[0]);
                 if (/^<[A-Za-z]/.test(match[0]) && !attributes) return {text: answer, valid: false};
                 const candidate = attributes?.get('id');
-                if (candidate === id) {
-                    if (found !== undefined || match[0] !== token)
+                const entry = entries.find((item) => item.id === candidate);
+                if (entry) {
+                    if (found.has(entry.id) || match[0] !== entry.token)
                         return {text: answer, valid: false};
-                    found = match.index;
+                    found.set(entry.id, match.index);
                 } else if (
-                    candidate?.startsWith('literal-backtick-') &&
+                    /^literal-(?:backtick|linebreak)-/.test(candidate ?? '') &&
                     !sourceIds.has(candidate)
                 ) {
                     return {text: answer, valid: false};
                 }
             }
-            return found === undefined
-                ? {text: answer, valid: false}
-                : {
-                      text: answer.slice(0, found) + '`' + answer.slice(found + token.length),
-                      valid: true,
-                  };
+            if (found.size !== entries.length) return {text: answer, valid: false};
+            let restored = answer;
+            for (const entry of entries
+                .slice()
+                .sort((left, right) => Number(found.get(right.id)) - Number(found.get(left.id)))) {
+                const start = Number(found.get(entry.id));
+                restored =
+                    restored.slice(0, start) +
+                    entry.raw +
+                    restored.slice(start + entry.token.length);
+            }
+            return {text: restored, valid: true};
         },
     };
 }
@@ -632,6 +705,7 @@ function maskLiteralBacktick(fragment: string, text: string): LiteralBacktickMas
 function finalMarkupFeedback(
     fragment: string,
     text = maskLiteralCode(maskAddresses(unwrapUnit(fragment).text)),
+    hiddenIds?: ReadonlySet<string>,
 ): string {
     // Only raw prose delimiters are relevant. Attributes, protected literals,
     // addresses, escapes and complete raw code spans must not supply this fact.
@@ -644,7 +718,7 @@ function finalMarkupFeedback(
         isCodeUnit(fragment) || isTableTitleUnit(fragment) ? 0 : (prose.match(/`/g)?.length ?? 0);
     const checklist = [
         ...markupGroupChecklist(fragment, 'g'),
-        ...markupGroupChecklist(fragment, 'x'),
+        ...markupGroupChecklist(fragment, 'x', hiddenIds),
         ...(backticks ? [`- literal unmatched backtick characters: ${backticks}`] : []),
     ];
     return (
@@ -1109,7 +1183,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // with the ids of the fragment it goes with.
         const baseMasked = wrappers.map((wrapper) => maskLiteralCode(maskAddresses(wrapper.text)));
         const literalMasks = baseMasked.map((text, index) =>
-            finalMarkup ? maskLiteralBacktick(fragments[index], text) : undefined,
+            finalMarkup ? maskFinalLiterals(fragments[index], text) : undefined,
         );
         const masked = baseMasked.map((text, index) => literalMasks[index]?.text ?? text);
         const sent = wrappers.map(({open, close}, index) => open + masked[index] + close);
@@ -1146,7 +1220,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
             messages[0].content +=
                 '\n\nFormatting correction: ' +
                 markupFeedback +
-                (finalMarkup ? finalMarkupFeedback(fragments[0], masked[0]) : '');
+                (finalMarkup
+                    ? finalMarkupFeedback(fragments[0], masked[0], literalMasks[0]?.hiddenSourceIds)
+                    : '');
         }
 
         if (dryRun) {
@@ -1270,7 +1346,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             const literalKey = JSON.stringify([fragments[index], restored]);
             if (
                 literal.valid &&
-                (!literalMasks[index] || keepsLiteralBacktickResidue(text, translation)) &&
+                (!literalMasks[index] || keepsLiteralResidue(text, translation)) &&
                 keepsLiteralCode(baseMasked[index], literal.text)
             ) {
                 invalidLiterals.delete(literalKey);
