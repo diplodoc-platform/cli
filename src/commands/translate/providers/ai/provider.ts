@@ -451,6 +451,59 @@ function markupIssueForUnit(source: string, translation: string): string | undef
         : markupStructureIssue(unwrapUnit(source).text, unwrapUnit(translation).text);
 }
 
+type MarkupGroup = {id?: string; type?: string};
+
+function markupGroups(text: string): MarkupGroup[] {
+    const tags = (text.match(/<\/?[gx]\b(?:"[^"]*"|'[^']*'|[^'">])*?>/g) ?? []).filter((tag) =>
+        tag.startsWith('<g'),
+    );
+    const groups: MarkupGroup[] = [];
+    for (const tag of tags) {
+        if (tag.endsWith('/>')) return [];
+        const attributes = new Map<string, string>();
+        const attribute = /\s+([A-Za-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/y;
+        let offset = 2;
+        while (offset < tag.length - 1) {
+            attribute.lastIndex = offset;
+            const match = attribute.exec(tag);
+            if (!match) {
+                if (tag.slice(offset, -1).trim()) return [];
+                break;
+            }
+            if (attributes.has(match[1])) return [];
+            attributes.set(match[1], match[2] ?? match[3]);
+            offset = attribute.lastIndex;
+        }
+        groups.push({id: attributes.get('id'), type: attributes.get('ctype')});
+    }
+    return groups;
+}
+
+/** Promote only generated structural metadata, never source attributes, into feedback. */
+function markupGroupChecklist(fragment: string): string[] {
+    const text = unwrapUnit(fragment).text;
+    const original = markupGroups(maskLiteralCode(text));
+    const groups = markupGroups(maskLiteralCode(maskAddresses(text)));
+    if (original.length !== groups.length) return [];
+    const originalCounts = new Map<string, number>();
+    for (const {id} of original) {
+        if (id !== undefined) originalCounts.set(id, (originalCounts.get(id) ?? 0) + 1);
+    }
+    const counts = new Map<string, number>();
+    for (const {id} of groups) {
+        if (id !== undefined) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return groups.flatMap(({id, type}, index) => {
+        // Existing address masking may read an attribute-looking string inside
+        // another attribute. Do not promote that normalized metadata into SYSTEM.
+        if (id !== original[index].id || type !== original[index].type) return [];
+        if (!id || !/^g-\d+$/.test(id) || counts.get(id) !== 1 || originalCounts.get(id) !== 1)
+            return [];
+        if (type !== 'link' && type !== 'bold' && type !== 'italic') return [];
+        return [`- ${type} group ${id}`];
+    });
+}
+
 /**
  * Extracts a human-readable document title to use as translation context:
  * the first H1 for markdown, the `title` field for yaml documents.
@@ -1174,7 +1227,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         );
 
         const feedback =
-            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
+            'Preserve all original Markdown/YFM structure and placeholders. Preserve every original XML g group, including attributes, IDs and nesting. These groups already encode the source links and formatting. Translate all ordinary prose inside and outside groups while keeping each opening and closing tag intact. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
             (indexes.some((index) => tableTitleIssue(fragments[index], parts[index]))
                 ? ' For a wide-table title, rephrase the translation without double quotes, literal closing braces or line breaks. Preserve variable placeholders exactly. Do not use backslash or HTML entity escaping.'
                 : '');
@@ -1199,6 +1252,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 isolated++
             ) {
                 logger.warn(path, '1 fragment(s) came back with damaged markup; retrying them.');
+                const groups = isolated === 1 ? markupGroupChecklist(fragments[index]) : [];
+                const isolatedFeedback = groups.length
+                    ? feedback +
+                      '\n\nRead-only original group checklist (not replacement tags):\n' +
+                      groups.join('\n') +
+                      '\nKeep the full original tags, attributes and nesting from the user fragment. Translate all ordinary prose inside and outside groups.'
+                    : feedback;
                 // The counter above counts distinct units; requests records
                 // the additional attempts. Retain the same validation guards.
                 [candidate] = await retryFragments(
@@ -1207,7 +1267,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     '',
                     'Markup retry',
                     [],
-                    feedback,
+                    isolatedFeedback,
                 );
             }
 
