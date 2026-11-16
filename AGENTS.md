@@ -98,6 +98,14 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    missing or failed answers do not extend the budget. Keep every validation
    guard and the source fallback/cache exclusion after the limit. `markupRetried`
    counts distinct units; request metrics include the additional attempts.
+   The last isolated request can list generated group IDs and known structural
+   types as a checklist. Apply the same address and literal-code masks, then
+   allow only safe unique identifiers and types matching quote-aware metadata
+   from the original fragment. Address masking can read attribute-like text
+   inside another attribute; malformed or duplicate source tags can retain raw
+   attributes. Retry feedback must not promote arbitrary source attributes into
+   system instructions. Translate all ordinary prose inside and outside the
+   preserved groups.
 
    Structural validation must distinguish document markup from extraction placement.
    A protected inline can be hoisted into the skeleton at the beginning of prose;

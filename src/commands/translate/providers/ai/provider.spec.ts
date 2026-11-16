@@ -1716,6 +1716,162 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(4);
         });
 
+        it('adds only safe group types and IDs to the last isolated markup request', async () => {
+            const url = 'https://example.test/guide?private_key=hidden-query';
+            const literal = 'PRIVATE_LITERAL_VALUE';
+            const bold =
+                '<g ctype="bold" data-note=\'private-note id="g-999" https://bold.test/?private=bold\' equiv-text="**{{text}}**" id="g-700" x-begin="**" x-end="**">';
+            const link = `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-701" x-begin="[" x-end="](${url})" data-hidden="hidden-attribute">`;
+            const unit = wrap(
+                `Читайте ${bold}${link}описание</g></g> с ${CODE_OPEN}${literal}${CODE_CLOSE}.`,
+            );
+            // Fixed replies exercise request construction, not model quality.
+            const client = makeClient((fragments, call) =>
+                fragments.map((fragment) => {
+                    const translated = fragment
+                        .replace('Читайте ', 'Read ')
+                        .replace('описание', 'the guide')
+                        .replace(' с ', ' with ');
+                    return call < 3 ? translated.replace(/<\/?g\b[^>]*>/g, '') : translated;
+                }),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap(
+                    `Read ${bold}${link}the guide</g></g> with ${CODE_OPEN}${literal}${CODE_CLOSE}.`,
+                ),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const calls = vi.mocked(client.complete).mock.calls;
+            const firstIsolated = calls[2][0][0].content;
+            const lastIsolated = calls[3][0][0].content;
+            expect(calls[3][0]).not.toEqual(calls[2][0]);
+            expect(lastIsolated).not.toBe(firstIsolated);
+            expect(calls[1][0][0].content).toContain('Preserve every original XML g group');
+            expect(calls[1][0][0].content).toContain('attributes, IDs and nesting');
+            expect(lastIsolated).toContain('- bold group g-700\n- link group g-701');
+            expect(lastIsolated).toContain('not replacement tags');
+            expect(lastIsolated).toContain('full original tags, attributes and nesting');
+            expect(lastIsolated).toContain(
+                'Translate all ordinary prose inside and outside groups',
+            );
+            expect(lastIsolated.match(/<g\b[^>]*>/g)).toBeNull();
+            expect(firstIsolated.match(/<g\b[^>]*>/g)).toBeNull();
+            expect(calls[1][0][0].content.match(/<g\b[^>]*>/g)).toBeNull();
+            expect(calls[0][0][0].content).not.toContain('Formatting correction:');
+            for (const hidden of [
+                url,
+                'private_key',
+                'hidden-query',
+                'hidden-attribute',
+                'private-note',
+                'g-999',
+                'bold.test',
+                literal,
+            ]) {
+                for (const [messages] of calls) {
+                    expect(messages[0].content).not.toContain(hidden);
+                }
+            }
+            for (const prose of ['Читайте', 'описание', 'the guide']) {
+                expect(lastIsolated).not.toContain(prose);
+            }
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it.each<[string, string, string, boolean]>([
+            ['missing ID', '', 'link', false],
+            ['duplicate ID', ' id="g-701"', 'link', true],
+            ['non-generated ID', ' id="private-group-id"', 'link', false],
+            ['unknown type', ' id="g-701"', 'private-group-type', false],
+        ])(
+            'does not promote private source attributes for a group with %s',
+            async (_, id, type, duplicate) => {
+                const url = 'https://example.test/guide?private_key=PRIVATE_QUERY';
+                const group = `<g ctype="${type}" equiv-text="[{{text}}](${url})"${id} x-begin="[" x-end="](${url})">`;
+                const unit = wrap(
+                    `Читайте ${group}описание</g>.` + (duplicate ? ` См. ${group}раздел</g>.` : ''),
+                );
+                const client = makeClient(() => ['Read the guide.']);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const calls = vi.mocked(client.complete).mock.calls;
+                for (const [messages] of calls) {
+                    const system = messages[0].content;
+                    for (const hidden of [
+                        url,
+                        'PRIVATE_QUERY',
+                        'private-group-id',
+                        'private-group-type',
+                    ]) {
+                        expect(system).not.toContain(hidden);
+                    }
+                }
+                expect(calls[3][0][0].content).toBe(calls[2][0][0].content);
+                if (type !== 'link' || !id || duplicate) {
+                    expect(calls[3][0].at(-1)?.content).toContain(url);
+                }
+                expect(stat.markupRetried).toBe(1);
+                expect(stat.markupDamaged).toBe(1);
+            },
+        );
+
+        it.each([
+            [
+                'ID',
+                '<g ctype="link" data-note=\'text id="g-424242"\' id="g-12" x-begin="[" x-end="](https://example.test)">',
+                'id="g-424242"',
+            ],
+            [
+                'type',
+                '<g data-note=\'text ctype="link"\' ctype="bold" id="g-12" x-begin="**" x-end="**">',
+                'ctype="link"',
+            ],
+        ])(
+            'omits a group when address masking changed its structural %s',
+            async (_, group, fake) => {
+                const unit = wrap(`Читайте ${group}описание</g>.`);
+                const client = makeClient(() => ['Read the guide.']);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const calls = vi.mocked(client.complete).mock.calls;
+                expect(calls[0][0].at(-1)?.content).toContain(fake);
+                expect(calls[3][0][0].content).toBe(calls[2][0][0].content);
+                expect(calls[3][0][0].content).not.toContain('group g-424242');
+                expect(calls[3][0][0].content).not.toContain('link group g-12');
+                expect(stat.markupRetried).toBe(1);
+                expect(stat.markupDamaged).toBe(1);
+            },
+        );
+
+        it('does not invent group inventory without source formatting groups', async () => {
+            const literal = 'PRIVATE_LITERAL_VALUE';
+            const unit = wrap(`Выполните ${CODE_OPEN}${literal}${CODE_CLOSE}.`);
+            const client = makeClient((fragments, call) =>
+                call < 3
+                    ? ['Run another value.']
+                    : fragments.map((text) => text.replace('Выполните', 'Run')),
+            );
+            const {params} = makeParams(client, {maxBatchTokens: 1000});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap(`Run ${CODE_OPEN}${literal}${CODE_CLOSE}.`),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const calls = vi.mocked(client.complete).mock.calls;
+            const lastIsolated = calls[3][0][0].content;
+            expect(lastIsolated).toBe(calls[2][0][0].content);
+            expect(lastIsolated.match(/<g\b[^>]*>/g)).toBeNull();
+            expect(lastIsolated).not.toContain(literal);
+        });
+
         it.each<[string, Error]>([
             ['transport failure', new Error('Service unavailable')],
             ['missing fragment', new LLMResponseError('Expected one fragment, received none')],
