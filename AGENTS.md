@@ -78,6 +78,16 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    retry without describing the failed attempt in its prompt; such feedback can
    reproduce the echo. Zero counters still require inspection of native output.
 
+   For Cyrillic Russian to a Han Chinese target, an ordinary Latin phrase with
+   no unprotected Han is also a refusal when both source and target contain at
+   least two prose words and the target has lowercase wording. Respect explicit
+   scripts such as zh-Latn, technical names, identifiers and address components.
+   Exempt glossary spellings only when their source term occurs in this fragment.
+   Generated cache must be validated after healing: added backticks cannot hide
+   English or source-language prose that composition exposes again. Approved seed
+   retains its separate preservation contract. This conservative check does not
+   classify single words, titlecase names or mixed Latin/Han prose completely.
+
    A received answer that still fails the first markup retry gets one final
    single-unit request without document context or memory hints. Missing answers
    do not extend the retry budget. Keep every validation guard and the source
