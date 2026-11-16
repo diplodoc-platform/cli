@@ -114,12 +114,17 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    attributes. Retry feedback must not promote arbitrary source attributes into
    system instructions. Translate all ordinary prose inside and outside the
    preserved groups.
-   A single provable unmatched prose backtick can be transported as a local
-   opaque placeholder only in that last request. Restore its exact source byte
+   A single provable unmatched prose backtick and at most one valid original
+   `x/lb` can use local opaque placeholders only in that last request. A line
+   break needs a unique original ID, exact original/masked tag equality and an
+   unambiguous balanced fragment. Omit its replaced ID from the retry checklist.
+   Restore the exact source bytes
    before the original guards and cache validation; reject missing, changed or
    repeated placeholders and additional synthetic IDs, including plain text and
    incomplete tags. Compare residue counts after all masks are restored so an
    existing literal ID in source code or an address is not a false refusal.
+   Do not infer or repair line-break positions: a restored marker moved to an
+   edge or another group must still fail the original structural guard.
    Ambiguous delimiters, code, addresses and malformed XML keep their original
    path and budget. This does not repair the source or authorize target editing.
 

@@ -2114,19 +2114,173 @@ describe('translate ai provider', () => {
             );
             const bad = `无论订单由谁配送\u2014\u2014Market还是卖家自行配送，配送费用都将相同。${lb}`;
             const good = `配送费用相同，无论${lb}订单由谁配送：Market 还是卖家自行配送。`;
-            const client = makeClient((_, call) => [call < 3 ? bad : good]);
-            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return [call === 0 ? bad : '无论订单由谁配送，配送费用都是相同的。'];
+                const token = fragments[0].match(
+                    /<x ctype="code_literal" id="literal-linebreak-\d+"\/>/,
+                )?.[0];
+                return [token ? good.replace(lb, token) : good];
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'linebreak-recovery-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
             params.targetLanguage = 'zh';
 
             expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(good)]);
             expect(client.complete).toHaveBeenCalledTimes(4);
             const calls = vi.mocked(client.complete).mock.calls;
             expect(calls[3][0]).not.toEqual(calls[2][0]);
-            expect(calls[3][0][0].content).toContain('- lb placeholder x-1');
+            expect(calls[3][0][0].content).not.toContain('- lb placeholder x-1');
+            expect(calls[3][0].at(-1)?.content).not.toContain(lb);
+            expect(calls[3][0].at(-1)?.content).toContain(
+                '<x ctype="code_literal" id="literal-linebreak-1"/>',
+            );
             expect(calls[3][0][0].content).toContain('between translated prose');
             expect(stat.markupRetried).toBe(1);
             expect(stat.markupDamaged).toBe(0);
+            expect(store.get(unit)).toBe(wrap(good));
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(good)]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
         });
+
+        it.each([
+            'missing',
+            'duplicate',
+            'attrs',
+            'attribute lookalike',
+            'comment lookalike',
+            'CDATA lookalike',
+            'residue',
+            'malformed residue',
+            'hoisted',
+            'echo',
+        ])('keeps final line-break transport strict for %s', async (fault) => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const unit = wrap(`Текст до${lb}и после.`);
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['文本前后。'];
+                const token =
+                    fragments[0].match(
+                        /<x ctype="code_literal" id="literal-linebreak-\d+"\/>/,
+                    )?.[0] ?? '';
+                if (fault === 'echo') return fragments;
+                let opaque = token;
+                if (fault === 'missing') opaque = lb;
+                if (fault === 'duplicate') opaque += token;
+                if (fault === 'attrs') opaque = token.replace('/>', ' data-note="changed"/>');
+                if (fault === 'attribute lookalike')
+                    opaque = `<g ctype="bold" data-note='${token}'>值</g>`;
+                if (fault === 'comment lookalike') opaque = `<!-- ${token} -->`;
+                if (fault === 'CDATA lookalike') opaque = `<![CDATA[${token}]]>`;
+                const suffix = fault === 'residue' ? 'literal-linebreak-1' : '';
+                if (fault === 'malformed residue')
+                    return [`文本前${opaque}和后。<x id="literal-linebreak-999`];
+                return [
+                    fault === 'hoisted'
+                        ? `${opaque}文本前和后。`
+                        : `文本前${opaque}和后。${suffix}`,
+                ];
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'linebreak-strict-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).toContain(
+                'literal-linebreak-',
+            );
+            expect(stat.markupDamaged).toBe(fault === 'echo' ? 0 : 1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('rejects moving a restored line break outside its formatting parent', async () => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const open = '<g ctype="bold" id="g-1" x-begin="**" x-end="**">';
+            const unit = wrap(`${open}Текст${lb}внутри</g> снаружи.`);
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['文本内外。'];
+                const token =
+                    fragments[0].match(
+                        /<x ctype="code_literal" id="literal-linebreak-\d+"\/>/,
+                    )?.[0] ?? '';
+                return [`${open}内部文本</g>${token}外部文本。`];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0][0].content).toContain(
+                '- bold group g-1',
+            );
+            expect(stat.markupDamaged).toBe(1);
+        });
+
+        it.each(['', '\\'])(
+            'does not capture a line-break-looking node inside raw code: %j',
+            async (suffix) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const unit = wrap(`Текст \`до${lb}после${suffix}\`.`);
+                const client = makeClient(() => ['文本内容。']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).not.toContain(
+                    'literal-linebreak-',
+                );
+            },
+        );
+
+        it('restores backtick and line-break tokens atomically with noisy source collisions', async () => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const source = `Значения literal-linebreak-1 и literal-backtick-1: \`первое ${lb}и второе.`;
+            const translated = `值 literal-linebreak-1 和 literal-backtick-1：\`第一个 ${lb}和第二个。`;
+            const unit = wrap(source);
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['值不正确。'];
+                const tick = fragments[0].match(
+                    /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                )?.[0];
+                const line = fragments[0].match(
+                    /<x ctype="code_literal" id="literal-linebreak-\d+"\/>/,
+                )?.[0];
+                return [translated.replace('`', tick ?? '`').replace(lb, line ?? lb)];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(translated)]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const sent = vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content;
+            expect(sent).toContain('id="literal-backtick-2"');
+            expect(sent).toContain('id="literal-linebreak-2"');
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it.each([
+            '<x ctype="lb" id="x-1"/>текст<x ctype="lb" id="x-2"/>',
+            '<g ctype="bold" id="x-1" x-begin="**" x-end="**">текст</g><x ctype="lb" id="x-1"/>',
+            '<x data-note=\'private ctype="link_attributes_href" id="x-99"\' ctype="lb" id="x-1"/>',
+        ])(
+            'skips an ineligible line break without disabling the backtick mask: %s',
+            async (middle) => {
+                const unit = wrap(`Значение \`первое ${middle} второе.`);
+                const client = makeClient(() => ['文本内容。']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const sent = vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content;
+                expect(sent).toContain('id="literal-backtick-1"');
+                expect(sent).not.toContain('id="literal-linebreak-');
+            },
+        );
 
         it.each<[string, string, boolean, string | undefined]>([
             [
@@ -2162,7 +2316,14 @@ describe('translate ai provider', () => {
                 expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
                 expect(client.complete).toHaveBeenCalledTimes(4);
                 const last = vi.mocked(client.complete).mock.calls[3][0][0].content;
-                if (expected) expect(last).toContain(expected);
+                if (
+                    vi
+                        .mocked(client.complete)
+                        .mock.calls[3][0].at(-1)
+                        ?.content.includes('id="literal-linebreak-')
+                )
+                    expect(last).not.toContain('- lb placeholder');
+                else if (expected) expect(last).toContain(expected);
                 else expect(last).not.toContain('- lb placeholder');
                 for (const hidden of [
                     'x-424242',

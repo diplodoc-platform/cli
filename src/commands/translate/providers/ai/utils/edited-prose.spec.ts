@@ -201,6 +201,9 @@ describe('quoted words in an explicit prohibition', () => {
 
     it.each([
         chinese,
+        '不要使用「скидка」（折扣）、「подарок」（礼品）、「специальная цена」（特价）和「new」。',
+        '不要使用«скидка»、«подарок»、«специальная цена»或«new»这些词。',
+        '请勿使用「скидка」、「подарок」、「специальная цена」或「new」这些词语。',
         'Do not use "скидка", "подарок" (except gift categories), "специальная цена" or "new".',
         '请勿使用«скидка»、«подарок»、«специальная цена»或«new»。',
     ])('preserves exact named words inside a translated prohibition: %s', (target) => {
@@ -237,6 +240,9 @@ describe('quoted words in an explicit prohibition', () => {
         'Не используйте слова “скидка”、“подарок”、“специальная цена”。',
         '不要使用“скидка”、“подарок”和“специальная цена”。 Исходный текст остался.',
         '不要使用“скидка、подарок”和“специальная цена”。',
+        '不要使用「скидка」、「подарок」这些词。 继续使用。',
+        '不要使用「скидка」、「подарок」、「подарок」这些词。',
+        '不要使用「скидка「подарок」」和「специальная цена」。',
     ])('does not hide missing instructions or unprotected prose: %s', (target) => {
         expect(hasLowercaseSourceProse(target, marker, [], source)).toBe(true);
     });

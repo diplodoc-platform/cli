@@ -44,13 +44,15 @@ function unprotectedProse(translation: string, marker: RegExp, allowed: readonly
 type QuotedWord = {value: string; start: number; end: number};
 
 function quotedWords(text: string): QuotedWord[] {
-    return [...text.matchAll(/«([^«»\n]*)»|“([^“”\n]*)”|"([^"\n]*)"|&quot;([^\n]*?)&quot;/g)].map(
-        (match) => ({
-            value: match[1] ?? match[2] ?? match[3] ?? match[4],
-            start: match.index,
-            end: match.index + match[0].length,
-        }),
-    );
+    return [
+        ...text.matchAll(
+            /«([^«»\n]*)»|“([^“”\n]*)”|"([^"\n]*)"|&quot;([^\n]*?)&quot;|「([^「」\n]*)」/g,
+        ),
+    ].map((match) => ({
+        value: match[1] ?? match[2] ?? match[3] ?? match[4] ?? match[5],
+        start: match.index,
+        end: match.index + match[0].length,
+    }));
 }
 
 /** Exact quoted examples are data only in a complete, explicit prohibition. */
@@ -66,7 +68,7 @@ function prohibitedWords(source: string): QuotedWord[] {
         const gap = original.slice(cursor, word.start);
         if (index && !/^\s*(?:\(кроме [^()\n]*\)\s*)?,\s*(?:и\s+)?$/u.test(gap)) return [];
         const count = word.value.match(/[\p{L}\p{M}]+/gu)?.length ?? 0;
-        if (!count || count > 3 || /[.!?;\r\n<>«»“”"]|&quot;/u.test(word.value)) return [];
+        if (!count || count > 3 || /[.!?;\r\n<>«»“”"「」]|&quot;/u.test(word.value)) return [];
         cursor = word.end;
     }
     if (!/^\s*(?:\(кроме [^()\n]*\)\s*)?[.!]?\s*$/u.test(original.slice(cursor))) return [];
@@ -93,7 +95,10 @@ function maskProhibitedWords(source: string, translation: string): string {
         `^\\s*(?:${gloss}\\s*)?(?:[,，、]\\s*(?:(?:and|or|和|或)\\s*)?|(?:and|or)\\s+|[和或])\\s*$`,
         'iu',
     );
-    const ending = new RegExp(`^\\s*(?:${gloss}\\s*)?(?:等(?:词语|单词|词)?)?[.。!！]?\\s*$`, 'u');
+    const ending = new RegExp(
+        `^\\s*(?:${gloss}\\s*)?(?:等(?:词语|单词|词)?|这些(?:词语|单词|词))?[.。!！]?\\s*$`,
+        'u',
+    );
     const remaining = new Map<string, number>();
     for (const {value} of words) remaining.set(value, (remaining.get(value) ?? 0) + 1);
     let result = '';
