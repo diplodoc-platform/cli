@@ -2092,6 +2092,168 @@ describe('translate ai provider', () => {
             expect(store.get(unit)).toBe(result[0]);
         });
 
+        it.each([
+            ['Возможные значения.', 'Possible values.', '可能的值。'],
+            [
+                'Курьер передает код продавцу для получения заказа.',
+                'The courier gives the code to the seller to receive the order.',
+                '快递员将代码交给卖家以取走订单。',
+            ],
+        ])(
+            'retries English prose returned for a Chinese target: %s',
+            async (source, english, chinese) => {
+                const unit = wrap(source);
+                const client = makeClient((_, call) => [call === 0 ? english : chinese]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                    wrap(chinese),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(2);
+                expect(stat.untranslatedRetried).toBe(1);
+                expect(stat.untranslated).toBe(0);
+            },
+        );
+
+        it.each(['zh-Hans', 'zh-Hant'])('checks the Han target script for %s', async (target) => {
+            const unit = wrap('Возможные значения.');
+            const client = makeClient((_, call) => [
+                call === 0 ? 'Possible values.' : '可能的值。',
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = target;
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('可能的值。'),
+            ]);
+            expect(stat.untranslatedRetried).toBe(1);
+        });
+        it('limits the source-language heuristic to Cyrillic Russian', async () => {
+            const unit = wrap('هذا نص');
+            const client = makeClient(() => ['Possible values.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.sourceLanguage = 'ru-Arab';
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('Possible values.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('preserves a requested Chinese Latin script', async () => {
+            const unit = wrap('Код подтверждения.');
+            const client = makeClient(() => ['Que ren ma.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh-Latn';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('Que ren ma.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslated).toBe(0);
+        });
+        it('preserves the applicable required target glossary phrase', async () => {
+            const unit = wrap('Название системы.');
+            const client = makeClient(() => ['some lower name']);
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 1000,
+                glossaryPairs: [
+                    {sourceText: 'Название системы', translatedText: 'some lower name'},
+                ],
+            });
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('some lower name'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('counts persistent English prose for Chinese without caching it', async () => {
+            const unit = wrap('Возможные значения.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-wrong-language-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const client = makeClient(() => ['Possible values.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('Possible values.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it.each([
+            ['Возможные значения.', 'Possible values.', '可能的值。'],
+            ['Откройте кабинет продавца.', 'Откройте кабинет продавца.', '打开卖家账户。'],
+        ])(
+            'validates generated cache prose after removing added code markup: %s',
+            async (source, stored, translated) => {
+                const unit = wrap(source);
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-healed-language-cache-'));
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+                store.load();
+                store.set(unit, wrap(String.fromCharCode(96) + stored + String.fromCharCode(96)));
+                const client = makeClient(() => [translated]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                    wrap(translated),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+                expect(stat.cached).toBe(0);
+            },
+        );
+
+        it('rejects English prose from generated Chinese cache', async () => {
+            const unit = wrap('Возможные значения.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-wrong-language-cache-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, wrap('Possible values.'));
+            const client = makeClient(() => ['可能的值。']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('可能的值。'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.cached).toBe(0);
+        });
+
+        it('does not let an unrelated glossary target hide English prose for Chinese', async () => {
+            const unit = wrap('Возможные значения.');
+            const client = makeClient((_, call) => [
+                call === 0 ? 'Possible values.' : '可能的值。',
+            ]);
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 1000,
+                glossaryPairs: [{sourceText: 'другое значение', translatedText: 'values'}],
+            });
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('可能的值。'),
+            ]);
+            expect(stat.untranslatedRetried).toBe(1);
+        });
+
+        it('preserves an approved English spelling in a Chinese seed', async () => {
+            const unit = wrap('Название системы.');
+            const approved = wrap('A seller account.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-approved-wrong-language-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/name.md', [[unit, approved]]);
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+            const client = makeClient(() => ['卖家账户。']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/name.md', [unit])).toEqual([approved]);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
         it('retries residual source prose after a product name changes', async () => {
             const unit = wrap('Для модели Экспресс коды не проверяются.');
             const partial = 'Для модели Express коды не проверяются。';

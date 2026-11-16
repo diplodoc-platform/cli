@@ -1,6 +1,11 @@
 import {describe, expect, it} from 'vitest';
 
-import {hasCopiedEdit, hasLowercaseSourceProse, isProseEcho} from './edited-prose';
+import {
+    hasCopiedEdit,
+    hasLowercaseSourceProse,
+    hasUnexpectedEnglishProse,
+    isProseEcho,
+} from './edited-prose';
 import {untranslatedMarker} from './script';
 
 describe('source prose identity', () => {
@@ -183,5 +188,91 @@ describe('lowercase residual source prose', () => {
             false,
         );
         expect(hasLowercaseSourceProse('source text', untranslatedMarker('en', 'zh'))).toBe(false);
+    });
+});
+
+describe('English prose without target Han', () => {
+    const marker = untranslatedMarker('ru', 'zh');
+    it.each([
+        'Possible values.',
+        'The courier gives the code to the seller to receive the order.',
+        '<code>Possible values.</code>',
+        '<source data-yfm-context="code">Possible values.</source>',
+        'Possible values. <g ctype="code">中文</g>',
+        'Possible values. https://example.com/中文',
+        '<g data-label="中文">Possible values.</g>',
+    ])('finds an ordinary wrong-language phrase: %s', (target) => {
+        expect(hasUnexpectedEnglishProse('Возможные значения.', target, marker)).toBe(true);
+    });
+    it.each([
+        '可能的值。',
+        'Yandex Market',
+        'Chestny ZNAK',
+        'МКК, ЭАПП, УПД-1',
+        '<g ctype="code">Possible values.</g>',
+        'support@example.com',
+        'support.example.com',
+        '/v1/orders/{some}/{id}',
+        'Yandex Market support@example.com',
+    ])('preserves translated prose and technical names/literals: %s', (target) => {
+        expect(hasUnexpectedEnglishProse('Возможные значения.', target, marker)).toBe(false);
+    });
+    it('keeps a domain from hiding an actual English sentence', () => {
+        expect(
+            hasUnexpectedEnglishProse(
+                'Контактный адрес support.example.com.',
+                'Wrong sentence support.example.com.',
+                marker,
+            ),
+        ).toBe(true);
+    });
+    it('checks uppercase source headings but skips single-word names and shared scripts', () => {
+        expect(hasUnexpectedEnglishProse('ВОЗМОЖНЫЕ ЗНАЧЕНИЯ', 'Possible values', marker)).toBe(
+            true,
+        );
+        expect(hasUnexpectedEnglishProse('Значения', 'Possible values', marker)).toBe(false);
+        expect(hasUnexpectedEnglishProse('Возможные значения', 'Possible values', null)).toBe(
+            false,
+        );
+    });
+    it('exempts an exact target term only when its source term occurs in prose', () => {
+        const pair = {sourceText: 'Название системы', translatedText: 'some lower name'};
+        expect(
+            hasUnexpectedEnglishProse('Название системы.', 'some lower name', marker, [pair]),
+        ).toBe(false);
+        expect(
+            hasUnexpectedEnglishProse('Возможные значения.', 'Possible values.', marker, [
+                {sourceText: 'другое значение', translatedText: 'values'},
+            ]),
+        ).toBe(true);
+        expect(
+            hasUnexpectedEnglishProse('Возможные значения.', 'Possible values.', marker, [
+                {sourceText: 'значение', translatedText: 'values'},
+            ]),
+        ).toBe(true);
+        expect(
+            hasUnexpectedEnglishProse('Название имя+код.', 'some lower name', marker, [
+                {sourceText: 'имя+код', translatedText: 'some lower name'},
+            ]),
+        ).toBe(false);
+    });
+    it('keeps one accented source word from becoming two ordinary words', () => {
+        expect(hasUnexpectedEnglishProse('Назва́ние', 'Possible values', marker)).toBe(false);
+    });
+    it('does not match a glossary source prefix inside another word', () => {
+        expect(
+            hasUnexpectedEnglishProse('Возможные значения.', 'Possible values.', marker, [
+                {sourceText: 'значен', translatedText: 'values'},
+            ]),
+        ).toBe(true);
+    });
+
+    it('does not let a source term hidden in code exempt English prose', () => {
+        const source = 'Возможные значения: <g ctype="code">другой термин</g>.';
+        expect(
+            hasUnexpectedEnglishProse(source, 'Possible values.', marker, [
+                {sourceText: 'другой термин', translatedText: 'values'},
+            ]),
+        ).toBe(true);
     });
 });

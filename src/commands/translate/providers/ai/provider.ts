@@ -59,8 +59,13 @@ import {
     renderMemoryEntry,
     splitFragments,
 } from './prompts';
-import {untranslatedMarker} from './utils/script';
-import {hasCopiedEdit, hasLowercaseSourceProse, isProseEcho} from './utils/edited-prose';
+import {scriptsOf, untranslatedMarker} from './utils/script';
+import {
+    hasCopiedEdit,
+    hasLowercaseSourceProse,
+    hasUnexpectedEnglishProse,
+    isProseEcho,
+} from './utils/edited-prose';
 import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
 import {repairInlineSpacing} from './utils/inline-spacing';
@@ -681,7 +686,7 @@ export function makeStore(
     const fingerprint = cacheFingerprint({
         // Old generated answers may contain copied edits or translated code.
         // Approved repository translations use the separately versioned seed.
-        validationPolicy: 4,
+        validationPolicy: 5,
         provider: client.name,
         model: config.model,
         source: sourceLanguage,
@@ -840,16 +845,23 @@ export function makeTranslator(params: TranslatorParams): Translate {
     const residualProse = (text: string) =>
         sourceLanguage.split('-')[0].toLowerCase() === 'ru' &&
         hasLowercaseSourceProse(text, marker, allowedSpellings);
+    const wrongTargetProse = (fragment: string, part: string) =>
+        sourceLanguage.split('-')[0].toLowerCase() === 'ru' &&
+        scriptsOf(sourceLanguage).includes('Cyrl') &&
+        targetLanguage.split('-')[0].toLowerCase() === 'zh' &&
+        scriptsOf(targetLanguage).includes('Han') &&
+        hasUnexpectedEnglishProse(fragment, part, marker, glossaryPairs);
     const copiedEdit = (fragment: string, part: string, hint?: SeedHint) =>
         hasCopiedEdit(fragment, part, hint, marker, allowedSpellings);
     const refusedTranslation = (fragment: string, part: string | undefined, hint?: SeedHint) =>
         part !== undefined &&
         (isProseEcho(fragment, part, marker) ||
             residualProse(part) ||
+            wrongTargetProse(fragment, part) ||
             copiedEdit(fragment, part, hint));
     const cachedProseEcho = (text: string, normalized: string, seeded: boolean) =>
         ((!seeded || normalized === text) && isProseEcho(text, normalized, marker)) ||
-        (!seeded && residualProse(normalized));
+        (!seeded && (residualProse(normalized) || wrongTargetProse(text, normalized)));
     const cachedRepair = (text: string, stored: string, seeded: boolean): CachedRepair => {
         if (!seeded) {
             return healCached(text, stored);
@@ -1417,7 +1429,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 // approved seed keeps its existing identity contract.
                 const refused =
                     tableTitleIssue(text, healed) ||
-                    cachedProseEcho(text, normalized, seeded) ||
+                    cachedProseEcho(text, seeded ? normalized : healed, seeded) ||
                     (!store?.isFileSeeded(path, text, stored) &&
                         Boolean(
                             markupIssueForUnit(
