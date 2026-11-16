@@ -23,11 +23,12 @@ export async function upload(run: Run): Promise<void> {
         100,
         asyncify(async (pathToFile: string) => {
             const mimeType = mime.lookup(pathToFile);
+            const contentType = mimeType && mime.contentType(mimeType);
 
             logUpload(pathToFile);
 
             try {
-                await run.send(pathToFile, mimeType);
+                await run.send(pathToFile, contentType);
                 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 run.logger.error(pathToFile, error.message);
