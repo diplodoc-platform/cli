@@ -453,38 +453,47 @@ function markupIssueForUnit(source: string, translation: string): string | undef
 
 type MarkupGroup = {id?: string; type?: string};
 
-function markupGroups(text: string): MarkupGroup[] {
-    const tags = (text.match(/<\/?[gx]\b(?:"[^"]*"|'[^']*'|[^'">])*?>/g) ?? []).filter((tag) =>
-        tag.startsWith('<g'),
+const STRUCTURAL_TAG =
+    /<!--[\s\S]*?(?:-->|$)|<!\[CDATA\[[\s\S]*?(?:\]\]>|$)|<\?[\s\S]*?(?:\?>|$)|<\/?[A-Za-z][\w:-]*\b(?:"[^"]*"|'[^']*'|[^'">])*?>/g;
+
+function structuralAttributes(tag: string): Map<string, string> | undefined {
+    const opening = /^<[A-Za-z][\w:-]*/.exec(tag);
+    if (!opening) return undefined;
+    const end = tag.length - (tag.endsWith('/>') ? 2 : 1);
+    const attributes = new Map<string, string>();
+    const attribute = /\s+([A-Za-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/y;
+    let offset = opening[0].length;
+    while (offset < end) {
+        attribute.lastIndex = offset;
+        const match = attribute.exec(tag);
+        if (!match) return tag.slice(offset, end).trim() ? undefined : attributes;
+        if (attributes.has(match[1])) return undefined;
+        attributes.set(match[1], match[2] ?? match[3]);
+        offset = attribute.lastIndex;
+    }
+    return attributes;
+}
+
+function markupGroups(text: string, name: 'g' | 'x'): MarkupGroup[] {
+    const tags = (text.match(STRUCTURAL_TAG) ?? []).filter((tag) =>
+        new RegExp(`^<${name}\\b`).test(tag),
     );
     const groups: MarkupGroup[] = [];
     for (const tag of tags) {
-        if (tag.endsWith('/>')) return [];
-        const attributes = new Map<string, string>();
-        const attribute = /\s+([A-Za-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/y;
-        let offset = 2;
-        while (offset < tag.length - 1) {
-            attribute.lastIndex = offset;
-            const match = attribute.exec(tag);
-            if (!match) {
-                if (tag.slice(offset, -1).trim()) return [];
-                break;
-            }
-            if (attributes.has(match[1])) return [];
-            attributes.set(match[1], match[2] ?? match[3]);
-            offset = attribute.lastIndex;
-        }
+        if (tag.endsWith('/>') !== (name === 'x')) return [];
+        const attributes = structuralAttributes(tag);
+        if (!attributes) return [];
         groups.push({id: attributes.get('id'), type: attributes.get('ctype')});
     }
     return groups;
 }
 
 /** Promote only generated structural metadata, never source attributes, into feedback. */
-function markupGroupChecklist(fragment: string): string[] {
+function markupGroupChecklist(fragment: string, name: 'g' | 'x'): string[] {
     const text = unwrapUnit(fragment).text;
-    const original = markupGroups(maskLiteralCode(text));
-    const groups = markupGroups(maskLiteralCode(maskAddresses(text)));
-    if (original.length !== groups.length) return [];
+    const original = markupGroups(maskLiteralCode(text), name);
+    const groups = markupGroups(maskLiteralCode(maskAddresses(text)), name);
+    if (name === 'g' && original.length !== groups.length) return [];
     const originalCounts = new Map<string, number>();
     for (const {id} of original) {
         if (id !== undefined) originalCounts.set(id, (originalCounts.get(id) ?? 0) + 1);
@@ -496,12 +505,156 @@ function markupGroupChecklist(fragment: string): string[] {
     return groups.flatMap(({id, type}, index) => {
         // Existing address masking may read an attribute-looking string inside
         // another attribute. Do not promote that normalized metadata into SYSTEM.
-        if (id !== original[index].id || type !== original[index].type) return [];
-        if (!id || !/^g-\d+$/.test(id) || counts.get(id) !== 1 || originalCounts.get(id) !== 1)
+        const source = name === 'g' ? original[index] : original.find((group) => group.id === id);
+        if (id !== source?.id || type !== source?.type) return [];
+        if (
+            !id ||
+            !(name === 'g' ? /^g-\d+$/ : /^x-\d+$/).test(id) ||
+            counts.get(id) !== 1 ||
+            originalCounts.get(id) !== 1
+        )
             return [];
-        if (type !== 'link' && type !== 'bold' && type !== 'italic') return [];
-        return [`- ${type} group ${id}`];
+        if (name === 'x') return type === 'lb' ? [`- lb placeholder ${id}`] : [];
+        return type === 'link' || type === 'bold' || type === 'italic'
+            ? [`- ${type} group ${id}`]
+            : [];
     });
+}
+
+type LiteralBacktickMask = {
+    text: string;
+    restore: (answer: string) => {text: string; valid: boolean};
+};
+
+function keepsLiteralBacktickResidue(source: string, translation: string): boolean {
+    const counts = new Map<string, number>();
+    for (const id of source.match(/literal-backtick-\d+/g) ?? []) {
+        counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    for (const id of translation.match(/literal-backtick-\d+/g) ?? []) {
+        const remaining = counts.get(id) ?? 0;
+        if (!remaining) return false;
+        counts.set(id, remaining - 1);
+    }
+    return true;
+}
+
+function backtickWord(text: string, offset: number): string {
+    return (
+        (text.slice(0, offset).match(/\S*$/)?.[0] ?? '') +
+        (text.slice(offset).match(/^\S*/)?.[0] ?? '')
+    );
+}
+
+function literalBacktickOffset(text: string): number | undefined {
+    const tags = new Map(
+        [...text.matchAll(STRUCTURAL_TAG)].map((match) => [match.index, match[0]]),
+    );
+    const opened: string[] = [];
+    let position: number | undefined;
+    for (let offset = 0; offset < text.length; offset++) {
+        if (text[offset] === '<') {
+            const tag = tags.get(offset);
+            if (!tag) return undefined;
+            const name = /^<(\/?)([A-Za-z][\w:-]*)\b/.exec(tag);
+            if (!name || /^(?:code|pre)$/i.test(name[2])) return undefined;
+            if (name[1]) {
+                if (!/^<\/[A-Za-z][\w:-]*\s*>$/.test(tag) || opened.pop() !== name[2])
+                    return undefined;
+            } else {
+                const attributes = structuralAttributes(tag);
+                if (!attributes) return undefined;
+                const type = attributes.get('ctype');
+                if (type?.startsWith('code') && type !== 'code_literal') return undefined;
+                if (!tag.endsWith('/>')) opened.push(name[2]);
+            }
+            offset += tag.length - 1;
+        } else if (text[offset] === '\\') {
+            if (++offset === text.length) return undefined;
+        } else if (text[offset] === '`') {
+            if (position !== undefined || text[offset + 1] === '`') return undefined;
+            // A bare address or ambiguous destination must stay untouched.
+            if (/[/:@<>\\]|[\p{L}\p{N}]\.[\p{L}\p{N}]/u.test(backtickWord(text, offset)))
+                return undefined;
+            position = offset;
+        }
+    }
+    return opened.length ? undefined : position;
+}
+
+/** A final-request transport mask, never a source or translation repair. */
+function maskLiteralBacktick(fragment: string, text: string): LiteralBacktickMask | undefined {
+    if (isCodeUnit(fragment) || isTableTitleUnit(fragment)) return undefined;
+    const position = literalBacktickOffset(text);
+    if (position === undefined) return undefined;
+    let serial = 1;
+    while (
+        fragment.includes(`literal-backtick-${serial}`) ||
+        text.includes(`literal-backtick-${serial}`)
+    )
+        serial++;
+    const id = `literal-backtick-${serial}`;
+    const token = `<x ctype="code_literal" id="${id}"/>`;
+    const sourceIds = new Set(
+        [...fragment.matchAll(STRUCTURAL_TAG), ...text.matchAll(STRUCTURAL_TAG)].map(([tag]) =>
+            structuralAttributes(tag)?.get('id'),
+        ),
+    );
+    return {
+        text: text.slice(0, position) + token + text.slice(position + 1),
+        restore(answer) {
+            let found: number | undefined;
+            for (const match of answer.matchAll(STRUCTURAL_TAG)) {
+                const attributes = structuralAttributes(match[0]);
+                if (/^<[A-Za-z]/.test(match[0]) && !attributes) return {text: answer, valid: false};
+                const candidate = attributes?.get('id');
+                if (candidate === id) {
+                    if (found !== undefined || match[0] !== token)
+                        return {text: answer, valid: false};
+                    found = match.index;
+                } else if (
+                    candidate?.startsWith('literal-backtick-') &&
+                    !sourceIds.has(candidate)
+                ) {
+                    return {text: answer, valid: false};
+                }
+            }
+            return found === undefined
+                ? {text: answer, valid: false}
+                : {
+                      text: answer.slice(0, found) + '`' + answer.slice(found + token.length),
+                      valid: true,
+                  };
+        },
+    };
+}
+
+function finalMarkupFeedback(
+    fragment: string,
+    text = maskLiteralCode(maskAddresses(unwrapUnit(fragment).text)),
+): string {
+    // Only raw prose delimiters are relevant. Attributes, protected literals,
+    // addresses, escapes and complete raw code spans must not supply this fact.
+    const prose = text
+        .replace(STRUCTURAL_TAG, ' ')
+        .replace(/(?:https?:\/\/|mailto:)[^\s<>]*/gi, ' ')
+        .replace(/\\[\s\S]/g, ' ')
+        .replace(/(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g, ' ');
+    const backticks =
+        isCodeUnit(fragment) || isTableTitleUnit(fragment) ? 0 : (prose.match(/`/g)?.length ?? 0);
+    const checklist = [
+        ...markupGroupChecklist(fragment, 'g'),
+        ...markupGroupChecklist(fragment, 'x'),
+        ...(backticks ? [`- literal unmatched backtick characters: ${backticks}`] : []),
+    ];
+    return (
+        '\n\nFinal structural check: preserve the source structure exactly, including literal unmatched backticks. Do not balance or repair source delimiters. Keep each original line-break placeholder between translated prose when it occurs inside source prose; do not move it to a fragment edge. Translate all ordinary prose inside and outside groups.' +
+        (checklist.length
+            ? '\nRead-only original structural checklist (not replacement tags):\n' +
+              checklist.join('\n') +
+              '\nKeep the full original tags, attributes and nesting from the user fragment.'
+            : '')
+    );
 }
 
 /**
@@ -895,9 +1048,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
     let temperatureWarned = false;
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
     const allowedSpellings = glossaryPairs.map((pair) => pair.translatedText);
-    const residualProse = (text: string) =>
+    const residualProse = (source: string, text: string) =>
         sourceLanguage.split('-')[0].toLowerCase() === 'ru' &&
-        hasLowercaseSourceProse(text, marker, allowedSpellings);
+        hasLowercaseSourceProse(text, marker, allowedSpellings, source);
     const wrongTargetProse = (fragment: string, part: string) =>
         sourceLanguage.split('-')[0].toLowerCase() === 'ru' &&
         scriptsOf(sourceLanguage).includes('Cyrl') &&
@@ -909,12 +1062,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
     const refusedTranslation = (fragment: string, part: string | undefined, hint?: SeedHint) =>
         part !== undefined &&
         (isProseEcho(fragment, part, marker) ||
-            residualProse(part) ||
+            residualProse(fragment, part) ||
             wrongTargetProse(fragment, part) ||
             copiedEdit(fragment, part, hint));
     const cachedProseEcho = (text: string, normalized: string, seeded: boolean) =>
         ((!seeded || normalized === text) && isProseEcho(text, normalized, marker)) ||
-        (!seeded && (residualProse(normalized) || wrongTargetProse(text, normalized)));
+        (!seeded && (residualProse(text, normalized) || wrongTargetProse(text, normalized)));
     const cachedRepair = (text: string, stored: string, seeded: boolean): CachedRepair => {
         if (!seeded) {
             return healCached(text, stored);
@@ -944,6 +1097,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         hints: (SeedHint | undefined)[] = [],
         markupFeedback?: string,
         missingAnswers?: Set<number>,
+        finalMarkup = false,
     ): Promise<string[]> {
         if (!fragments.length) {
             return [];
@@ -953,7 +1107,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // Link and image addresses stay out of the request, see
         // `maskAddresses`. The memory reads the same way as the fragments,
         // with the ids of the fragment it goes with.
-        const masked = wrappers.map((wrapper) => maskLiteralCode(maskAddresses(wrapper.text)));
+        const baseMasked = wrappers.map((wrapper) => maskLiteralCode(maskAddresses(wrapper.text)));
+        const literalMasks = baseMasked.map((text, index) =>
+            finalMarkup ? maskLiteralBacktick(fragments[index], text) : undefined,
+        );
+        const masked = baseMasked.map((text, index) => literalMasks[index]?.text ?? text);
         const sent = wrappers.map(({open, close}, index) => open + masked[index] + close);
         const messages = buildMessages(masked, {
             systemPrompt,
@@ -985,7 +1143,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
         });
 
         if (markupFeedback) {
-            messages[0].content += '\n\nFormatting correction: ' + markupFeedback;
+            messages[0].content +=
+                '\n\nFormatting correction: ' +
+                markupFeedback +
+                (finalMarkup ? finalMarkupFeedback(fragments[0], masked[0]) : '');
         }
 
         if (dryRun) {
@@ -1087,8 +1248,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
             if (!answer.trim()) {
                 missingAnswers?.add(index);
             }
+            const literal = literalMasks[index]?.restore(answer) ?? {text: answer, valid: true};
             const translation = answer
-                ? unmaskAddresses(text, unmaskLiteralCode(text, answer))
+                ? unmaskAddresses(text, unmaskLiteralCode(text, literal.text))
                 : text;
             const repair =
                 isCodeUnit(fragments[index]) || isTableTitleUnit(fragments[index])
@@ -1106,7 +1268,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     : repairInlineSpacing(repair.text)) +
                 close;
             const literalKey = JSON.stringify([fragments[index], restored]);
-            if (keepsLiteralCode(masked[index], answer)) {
+            if (
+                literal.valid &&
+                (!literalMasks[index] || keepsLiteralBacktickResidue(text, translation)) &&
+                keepsLiteralCode(baseMasked[index], literal.text)
+            ) {
                 invalidLiterals.delete(literalKey);
             } else {
                 invalidLiterals.add(literalKey);
@@ -1130,6 +1296,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         what: string,
         hints: (SeedHint | undefined)[] = [],
         markupFeedback?: string,
+        finalMarkup = false,
     ): Promise<(string | undefined)[]> {
         try {
             // Only markup retries distinguish a missing answer from the source
@@ -1142,6 +1309,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 hints,
                 markupFeedback,
                 missing,
+                finalMarkup,
             );
             return parts.map((part, index) => (missing?.has(index) ? undefined : part));
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1170,6 +1338,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     what,
                     hints.slice(start, end),
                     markupFeedback,
+                    finalMarkup,
                 )),
             );
         }
@@ -1252,13 +1421,6 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 isolated++
             ) {
                 logger.warn(path, '1 fragment(s) came back with damaged markup; retrying them.');
-                const groups = isolated === 1 ? markupGroupChecklist(fragments[index]) : [];
-                const isolatedFeedback = groups.length
-                    ? feedback +
-                      '\n\nRead-only original group checklist (not replacement tags):\n' +
-                      groups.join('\n') +
-                      '\nKeep the full original tags, attributes and nesting from the user fragment. Translate all ordinary prose inside and outside groups.'
-                    : feedback;
                 // The counter above counts distinct units; requests records
                 // the additional attempts. Retain the same validation guards.
                 [candidate] = await retryFragments(
@@ -1267,7 +1429,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     '',
                     'Markup retry',
                     [],
-                    isolatedFeedback,
+                    feedback,
+                    isolated === 1,
                 );
             }
 

@@ -41,6 +41,77 @@ function unprotectedProse(translation: string, marker: RegExp, allowed: readonly
     return unprotected;
 }
 
+type QuotedWord = {value: string; start: number; end: number};
+
+function quotedWords(text: string): QuotedWord[] {
+    return [...text.matchAll(/«([^«»\n]*)»|“([^“”\n]*)”|"([^"\n]*)"|&quot;([^\n]*?)&quot;/g)].map(
+        (match) => ({
+            value: match[1] ?? match[2] ?? match[3] ?? match[4],
+            start: match.index,
+            end: match.index + match[0].length,
+        }),
+    );
+}
+
+/** Exact quoted examples are data only in a complete, explicit prohibition. */
+function prohibitedWords(source: string): QuotedWord[] {
+    if ((source.match(/<source\b/g) ?? []).length > 1) return [];
+    const original = proseText(source).trim();
+    const prefix = /^Не\s+используйте\s+слова\s+/iu.exec(original);
+    if (!prefix) return [];
+    const words = quotedWords(original);
+    if (words.length < 2 || words[0].start !== prefix[0].length) return [];
+    let cursor = prefix[0].length;
+    for (const [index, word] of words.entries()) {
+        const gap = original.slice(cursor, word.start);
+        if (index && !/^\s*(?:\(кроме [^()\n]*\)\s*)?,\s*(?:и\s+)?$/u.test(gap)) return [];
+        const count = word.value.match(/[\p{L}\p{M}]+/gu)?.length ?? 0;
+        if (!count || count > 3 || /[.!?;\r\n<>«»“”"]|&quot;/u.test(word.value)) return [];
+        cursor = word.end;
+    }
+    if (!/^\s*(?:\(кроме [^()\n]*\)\s*)?[.!]?\s*$/u.test(original.slice(cursor))) return [];
+    return words;
+}
+
+function maskProhibitedWords(source: string, translation: string): string {
+    const words = prohibitedWords(source);
+    if (!words.length) return translation;
+    const prose = proseText(translation);
+    const mentions = quotedWords(prose);
+    if (!mentions.length) return translation;
+    const instruction = prose.slice(0, mentions[0].start).trim();
+    const chinese = /^(?:请)?(?:不要|勿|不应|禁止)\s*使用(?:以下)?(?:词语|单词|文字)?[:：]?$/u.test(
+        instruction,
+    );
+    const english =
+        /^(?:(?:please\s+)?(?:do not|don't|must not|never)\s+use|avoid\s+using)(?:\s+(?:(?:the|these)\s+)?(?:following\s+)?words?)?\s*[:：]?$/iu.test(
+            instruction,
+        );
+    if (!chinese && !english) return translation;
+    const gloss = '(?:\\([^()\\r\\n]*\\)|（[^（）\\r\\n]*）)';
+    const separator = new RegExp(
+        `^\\s*(?:${gloss}\\s*)?(?:[,，、]\\s*(?:(?:and|or|和|或)\\s*)?|(?:and|or)\\s+|[和或])\\s*$`,
+        'iu',
+    );
+    const ending = new RegExp(`^\\s*(?:${gloss}\\s*)?(?:等(?:词语|单词|词)?)?[.。!！]?\\s*$`, 'u');
+    const remaining = new Map<string, number>();
+    for (const {value} of words) remaining.set(value, (remaining.get(value) ?? 0) + 1);
+    let result = '';
+    let cursor = 0;
+    let previousEnd = mentions[0].start;
+    for (const [index, mention] of mentions.entries()) {
+        if (index && !separator.test(prose.slice(previousEnd, mention.start))) return translation;
+        const count = remaining.get(mention.value) ?? 0;
+        if (!count) return translation;
+        result += prose.slice(cursor, mention.start) + ' ';
+        cursor = mention.end;
+        previousEnd = mention.end;
+        remaining.set(mention.value, count - 1);
+    }
+    if (!ending.test(prose.slice(cursor))) return translation;
+    return result + prose.slice(cursor);
+}
+
 /** Words in prose, excluding literal code, addresses and placeholder attributes. */
 function proseWords(text: string): string[] {
     return (
@@ -60,11 +131,13 @@ export function hasLowercaseSourceProse(
     translation: string,
     marker: RegExp | null,
     allowed: string[] = [],
+    source?: string,
 ): boolean {
     if (!marker) {
         return false;
     }
-    const unprotected = unprotectedProse(translation, marker, allowed);
+    const text = source === undefined ? translation : maskProhibitedWords(source, translation);
+    const unprotected = unprotectedProse(text, marker, allowed);
     const sourceWords = new RegExp(`(?:${marker.source})(?:${marker.source}|\\p{M})*`, 'gu');
     return (unprotected.match(sourceWords) || []).some(
         (word) =>

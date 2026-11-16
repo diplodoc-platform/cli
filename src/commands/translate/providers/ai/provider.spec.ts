@@ -1705,8 +1705,10 @@ describe('translate ai provider', () => {
                 expect(user).not.toContain(title);
                 expect(user).not.toContain('Translation memory.');
                 expect(user).not.toContain(`\n${FRAGMENT_SEPARATOR}\n`);
-                expect(calls[index][0][0].content).toBe(calls[1][0][0].content);
+                expect(calls[index][0][0].content).toContain('Formatting correction:');
             }
+            expect(calls[2][0][0].content).toBe(calls[1][0][0].content);
+            expect(calls[3][0][0].content).not.toBe(calls[2][0][0].content);
             expect(stat.requests).toBe(4);
             expect(stat.markupRetried).toBe(1);
             expect(stat.markupDamaged).toBe(0);
@@ -1812,7 +1814,7 @@ describe('translate ai provider', () => {
                         expect(system).not.toContain(hidden);
                     }
                 }
-                expect(calls[3][0][0].content).toBe(calls[2][0][0].content);
+                expect(calls[3][0][0].content).not.toBe(calls[2][0][0].content);
                 if (type !== 'link' || !id || duplicate) {
                     expect(calls[3][0].at(-1)?.content).toContain(url);
                 }
@@ -1843,7 +1845,7 @@ describe('translate ai provider', () => {
                 expect(client.complete).toHaveBeenCalledTimes(4);
                 const calls = vi.mocked(client.complete).mock.calls;
                 expect(calls[0][0].at(-1)?.content).toContain(fake);
-                expect(calls[3][0][0].content).toBe(calls[2][0][0].content);
+                expect(calls[3][0][0].content).not.toBe(calls[2][0][0].content);
                 expect(calls[3][0][0].content).not.toContain('group g-424242');
                 expect(calls[3][0][0].content).not.toContain('link group g-12');
                 expect(stat.markupRetried).toBe(1);
@@ -1867,10 +1869,337 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(4);
             const calls = vi.mocked(client.complete).mock.calls;
             const lastIsolated = calls[3][0][0].content;
-            expect(lastIsolated).toBe(calls[2][0][0].content);
+            expect(lastIsolated).not.toBe(calls[2][0][0].content);
             expect(lastIsolated.match(/<g\b[^>]*>/g)).toBeNull();
             expect(lastIsolated).not.toContain(literal);
         });
+
+        it.each([false, true])(
+            'preserves a literal unmatched backtick with bounded retries (valid fourth=%s)',
+            async (validFourth) => {
+                const unit = wrap(
+                    'В запросе можно указать либо фильтр `offerIds, либо любые другие фильтры товаров.',
+                );
+                // Recorded bad replies all balanced a source backtick that is literal text.
+                // The valid control changes only that punctuation, independently of prompts.
+                const replies = [
+                    '在请求中可以指定 `offerIds` 筛选器，或者任意其他商品筛选器。',
+                    '在请求中可以指定 `offerIds` 过滤器，或者指定任何其他商品过滤器。',
+                    '在请求中可以指定 `offerIds` 过滤器，或者任意其他商品过滤器。',
+                    '在请求中可以指定 `offerIds` 过滤器，或者指定任意其他商品过滤器。',
+                ];
+                if (validFourth) replies[3] = replies[3].replace('`offerIds`', '`offerIds');
+                const client = makeClient((fragments, call) => {
+                    const token = fragments[0].match(
+                        /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                    )?.[0];
+                    return [
+                        validFourth && call === 3 && token
+                            ? replies[call].replace('`', token)
+                            : replies[call],
+                    ];
+                });
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'literal-backtick-retry-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                    validFourth ? wrap(replies[3]) : unit,
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const calls = vi.mocked(client.complete).mock.calls;
+                expect(calls[3][0]).not.toEqual(calls[2][0]);
+                const last = calls[3][0][0].content;
+                expect(last).not.toContain('literal unmatched backtick characters:');
+                expect(last).not.toContain('offerIds');
+                expect(last).not.toContain('В запросе');
+                for (let call = 0; call < 3; call++) {
+                    expect(calls[call][0].at(-1)?.content).not.toContain('literal-backtick-');
+                }
+                expect(calls[3][0].at(-1)?.content).toContain(
+                    '<x ctype="code_literal" id="literal-backtick-1"/>',
+                );
+                expect(calls[3][0].at(-1)?.content).not.toContain('`');
+                expect(stat.markupRetried).toBe(1);
+                expect(stat.markupDamaged).toBe(validFourth ? 0 : 1);
+                expect(stat.untranslated).toBe(validFourth ? 0 : 1);
+                expect(store.get(unit)).toBe(validFourth ? wrap(replies[3]) : undefined);
+            },
+        );
+
+        it.each([
+            'missing',
+            'duplicate',
+            'changed attrs',
+            'unknown ID',
+            'unknown malformed node',
+            'attribute lookalike',
+            'comment lookalike',
+            'CDATA lookalike',
+        ])('rejects a final literal token with %s without extending the budget', async (fault) => {
+            const unit = wrap('В запросе укажите `offerIds либо другой фильтр.');
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['在请求中指定 `offerIds` 或其他筛选器。'];
+                const token =
+                    fragments[0].match(
+                        /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                    )?.[0] ?? '';
+                let opaque = token;
+                if (fault === 'missing') opaque = '`';
+                if (fault === 'duplicate') opaque += token;
+                if (fault === 'changed attrs')
+                    opaque = token.replace('/>', ' data-note="changed"/>');
+                if (fault === 'unknown ID')
+                    opaque += '<x ctype="code_literal" id="literal-backtick-999"/>';
+                if (fault === 'unknown malformed node')
+                    opaque +=
+                        '<x ctype="no_translate_inline" id="literal-backtick-999" id="literal-backtick-999"/>';
+                if (fault === 'attribute lookalike')
+                    opaque = `<g ctype="bold" data-note='${token}'>值</g>\``;
+                if (fault === 'comment lookalike') opaque = `<!-- ${token} -->`;
+                if (fault === 'CDATA lookalike') opaque = `<![CDATA[${token}]]>`;
+                return [`在请求中指定 ${opaque}offerIds 或其他筛选器。`];
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'backtick-token-refusal-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).toContain(
+                'literal-backtick-',
+            );
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('keeps a source echo untranslated after restoring the final literal token', async () => {
+            const unit = wrap('В запросе укажите `offerIds либо другой фильтр.');
+            const client = makeClient((fragments, call) =>
+                call < 3 ? ['在请求中指定 `offerIds` 或其他筛选器。'] : fragments,
+            );
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'backtick-token-echo-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).toContain(
+                'literal-backtick-',
+            );
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('allocates a final literal token outside the original fragment IDs', async () => {
+            const existing =
+                '<x ctype="no_translate_inline" equiv-text="VALUE" id="literal-backtick-1"/>';
+            const unit = wrap(`Текст ${existing} с \`значением.`);
+            const translated = `Text ${existing} with \`a value.`;
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['*Some text*.'];
+                const token = fragments[0].match(
+                    /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                )?.[0];
+                return [token ? translated.replace('`', token) : translated];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(translated)]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const last = vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content;
+            expect(last).toContain(existing);
+            expect(last).toContain('<x ctype="code_literal" id="literal-backtick-2"/>');
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it.each(['<x id="literal-backtick-999', ' literal-backtick-1'])(
+            'rejects synthetic residue after a valid final literal token: %s',
+            async (suffix) => {
+                const unit = wrap('В запросе укажите `offerIds либо другой фильтр.');
+                const client = makeClient((fragments, call) => {
+                    if (call < 3) return ['在请求中指定 `offerIds` 或其他筛选器。'];
+                    const token =
+                        fragments[0].match(
+                            /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                        )?.[0] ?? '';
+                    return [`在请求中指定 ${token}offerIds 或其他筛选器。${suffix}`];
+                });
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'backtick-residue-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.markupDamaged).toBe(1);
+                expect(stat.untranslated).toBe(1);
+                expect(store.get(unit)).toBeUndefined();
+            },
+        );
+
+        it.each(['', ' literal-backtick-10', ' literal-backtick-1'])(
+            'bounds preexisting literal-ID spelling by exact source counts: %s',
+            async (suffix) => {
+                const unit = wrap('Значение literal-backtick-10 и `другие значения.');
+                const translated = '值 literal-backtick-10 和 `其他值。';
+                const client = makeClient((fragments, call) => {
+                    if (call < 3) return ['值 literal-backtick-10 和 `其他值`。'];
+                    const token =
+                        fragments[0].match(
+                            /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                        )?.[0] ?? '';
+                    return [translated.replace('`', token) + suffix];
+                });
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'backtick-existing-residue-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                    suffix ? unit : wrap(translated),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.markupDamaged).toBe(suffix ? 1 : 0);
+                expect(store.get(unit)).toBe(suffix ? undefined : wrap(translated));
+            },
+        );
+
+        it.each([
+            'Текст \\`значение.',
+            'Текст https://example.test/private`value.',
+            'Текст <g ctype="link" id="g-1" x-end="](https://private.test/`value)">ссылка</g>.',
+            'Текст <x ctype="lb" data-note="private `value" id="x-1"/>продолжение.',
+            'Текст <x ctype="code_open" equiv-text="``" id="x-1"/>private`value<x ctype="code_close" equiv-text="``" id="x-2"/>.',
+            'Текст <x ctype="code_open" equiv-text="``" id="x-1"/>private`value.',
+            'Текст <g ctype="bold" data-note="private `value',
+            'Текст <g ctype="bold" id="g-1"> продолжение `значение.',
+            'Текст </g> `значение.',
+            'Текст <g ctype="bold" id="g-1">часть</g data-note="x"> `значение.',
+            'Текст </code> `значение.',
+            'Текст ``непарное значение.',
+            'Текст `код` и \\`значение.',
+        ])('does not mask protected or ambiguous raw backticks: %s', async (source) => {
+            const unit = wrap(source);
+            const client = makeClient(() => ['*See* details.']);
+            const {params} = makeParams(client, {maxBatchTokens: 1000});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).not.toContain(
+                'literal-backtick-',
+            );
+        });
+
+        it('keeps an internal line break inside translated prose on the final retry', async () => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const unit = wrap(
+                `Стоимость доставки будет одинакова независимо${lb}от того, кто доставляет заказ: Маркет или сам продавец.`,
+            );
+            const bad = `无论订单由谁配送\u2014\u2014Market还是卖家自行配送，配送费用都将相同。${lb}`;
+            const good = `配送费用相同，无论${lb}订单由谁配送：Market 还是卖家自行配送。`;
+            const client = makeClient((_, call) => [call < 3 ? bad : good]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(good)]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls[3][0]).not.toEqual(calls[2][0]);
+            expect(calls[3][0][0].content).toContain('- lb placeholder x-1');
+            expect(calls[3][0][0].content).toContain('between translated prose');
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it.each<[string, string, boolean, string | undefined]>([
+            [
+                'quoted fake ID',
+                '<x ctype="lb" data-note=\'private `note id="x-424242"\' data-url="https://private.test/?key=SECRET" id="x-12" equiv-text="&amp;#10;"/>',
+                false,
+                '- lb placeholder x-12',
+            ],
+            ['duplicate ID', '<x ctype="lb" id="x-12" equiv-text="&amp;#10;"/>', true, undefined],
+            ['missing ID', '<x ctype="lb" equiv-text="&amp;#10;"/>', false, undefined],
+            [
+                'malformed ID',
+                '<x ctype="lb" id="private-lb-id" equiv-text="&amp;#10;"/>',
+                false,
+                undefined,
+            ],
+            [
+                'masked fake type',
+                '<x data-note=\'private ctype="link_attributes_href" id="x-424242" private `note\' ctype="lb" id="x-12" equiv-text="&amp;#10;"/>',
+                false,
+                undefined,
+            ],
+        ])(
+            'keeps line-break checklist metadata safe for %s',
+            async (_, lb, duplicate, expected) => {
+                const unit = wrap(
+                    `Порядок${lb}идентификаторов${duplicate ? lb : ''}не имеет значения.`,
+                );
+                const client = makeClient(() => ['标识符的顺序无关紧要。']);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const last = vi.mocked(client.complete).mock.calls[3][0][0].content;
+                if (expected) expect(last).toContain(expected);
+                else expect(last).not.toContain('- lb placeholder');
+                for (const hidden of [
+                    'x-424242',
+                    'private-lb-id',
+                    'private `note',
+                    'private.test',
+                    'SECRET',
+                    'literal unmatched backtick characters:',
+                ])
+                    expect(last).not.toContain(hidden);
+                expect(stat.markupDamaged).toBe(1);
+            },
+        );
+
+        it.each([
+            `См. https://example.test/private\`address для деталей.`,
+            `Используйте <x ctype="code_open" equiv-text="\`\`" id="x-1"/>PRIVATE\`VALUE <x ctype="lb" id="x-99"/><x ctype="code_close" equiv-text="\`\`" id="x-2"/> для деталей.`,
+            'Используйте `PRIVATE_VALUE` для деталей.',
+        ])(
+            'does not derive literal backtick feedback from protected code or addresses: %s',
+            async (source) => {
+                const unit = wrap(source);
+                const client = makeClient(() => ['*See* details.']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const last = vi.mocked(client.complete).mock.calls[3][0][0].content;
+                for (const hidden of [
+                    'literal unmatched backtick characters:',
+                    'PRIVATE',
+                    'example.test',
+                    'lb placeholder',
+                ])
+                    expect(last).not.toContain(hidden);
+            },
+        );
 
         it.each<[string, Error]>([
             ['transport failure', new Error('Service unavailable')],
@@ -2639,6 +2968,61 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(1);
             expect(stat.cached).toBe(0);
         });
+
+        it.each([
+            ['zh', '不要使用“скидка”和“подарок”。'],
+            ['en', 'Do not use "скидка" or "подарок".'],
+        ])(
+            'preserves exact prohibited examples in a translated %s instruction and cache',
+            async (language, translated) => {
+                const unit = wrap('Не используйте слова «скидка», «подарок».');
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-prohibited-examples-'));
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+                store.load();
+                const client = makeClient(() => [translated]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = language;
+
+                expect(await makeTranslator(params)('ru/examples.md', [unit])).toEqual([
+                    wrap(translated),
+                ]);
+                expect(store.get(unit)).toBe(wrap(translated));
+                expect(await makeTranslator(params)('ru/examples.md', [unit])).toEqual([
+                    wrap(translated),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+                expect(stat.untranslatedRetried).toBe(0);
+                expect(stat.untranslated).toBe(0);
+                expect(stat.cached).toBe(1);
+            },
+        );
+
+        it.each([
+            '不要使用“скидка”和“подарок”。 Исходный текст остался.',
+            '不要使用“скидка”和“новинка”。',
+            'Не используйте слова“скидка”和“подарок”。',
+        ])(
+            'rejects unprotected source prose in a healed prohibited-list cache: %s',
+            async (stored) => {
+                const unit = wrap('Не используйте слова «скидка», «подарок».');
+                const translated = '不要使用“скидка”和“подарок”。';
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-prohibited-cache-'));
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+                store.load();
+                store.set(unit, wrap('`' + stored + '`'));
+                const client = makeClient(() => [translated]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('ru/examples.md', [unit])).toEqual([
+                    wrap(translated),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+                expect(stat.cached).toBe(0);
+                expect(stat.untranslated).toBe(0);
+                expect(store.get(unit)).toBe(wrap(translated));
+            },
+        );
 
         it('counts a punctuation-only echo that survives retry and keeps it out of the store', async () => {
             const unit = wrap('Исходный текст.');
