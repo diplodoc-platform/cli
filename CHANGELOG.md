@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.70.3](https://github.com/diplodoc-platform/cli/compare/v5.70.2...v5.70.3) (2026-11-16)
+
+
+### Bug Fixes
+
+* **ci:** freeze the mocked npm verification clock ([0740e78](https://github.com/diplodoc-platform/cli/commit/0740e781fc4899a4b987fb903a5793b641bf9d53))
+* **deps:** update Transform to 4.78.14 ([9c54ecd](https://github.com/diplodoc-platform/cli/commit/9c54ecd809d63f4c0a6ebd82422e3bb161e82dd9))
+* **publish:** include charset in text content types ([ea6e1fe](https://github.com/diplodoc-platform/cli/commit/ea6e1fe6190917945c3b47ed3a336eddba6039f7))
+
 ## [5.70.2](https://github.com/diplodoc-platform/cli/compare/v5.70.1...v5.70.2) (2026-11-13)
 
 
