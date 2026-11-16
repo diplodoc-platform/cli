@@ -31,6 +31,7 @@ import {
 import {
     LLMAuthError,
     LLMRateLimitError,
+    LLMResponseError,
     SeedStore,
     TranslationStore,
     cacheFingerprint,
@@ -1674,6 +1675,180 @@ describe('translate ai provider', () => {
             expect(stat.markupDamaged).toBe(0);
         });
 
+        it('recovers on a second isolated markup answer without document context or memory', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const previous = wrap('Установка соединения - сведения.');
+            const answer = wrap('Connection setup - details.');
+            const title = 'Исходный заголовок страницы';
+            const dir = mkdtempSync(join(tmpdir(), 'second-isolated-markup-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+            seeds.record('ru/a.md', [[previous, wrap('Connection setup - information.')]]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient((_, call) => [
+                call < 3 ? '*Connection setup* - details.' : 'Connection setup - details.',
+            ]);
+            const {params, stat} = makeParams(
+                client,
+                {maxBatchTokens: 500, userPrompt: undefined},
+                store,
+            );
+            const translate = makeTranslator(params);
+
+            expect(await translate('ru/a.md', [unit], {title})).toEqual([answer]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls[1][0].at(-1)?.content).toContain(title);
+            expect(calls[1][0].at(-1)?.content).toContain('Translation memory.');
+            for (const index of [2, 3]) {
+                const user = calls[index][0].at(-1)?.content;
+                expect(user).toContain('Установка соединения - подробности.');
+                expect(user).not.toContain(title);
+                expect(user).not.toContain('Translation memory.');
+                expect(user).not.toContain(`\n${FRAGMENT_SEPARATOR}\n`);
+                expect(calls[index][0][0].content).toBe(calls[1][0][0].content);
+            }
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(answer);
+            expect(await translate('ru/a.md', [unit], {title})).toEqual([answer]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+        });
+
+        it.each<[string, Error]>([
+            ['transport failure', new Error('Service unavailable')],
+            ['missing fragment', new LLMResponseError('Expected one fragment, received none')],
+        ])('does not extend the budget after an isolated %s', async (_, missing) => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) =>
+                call < 2 ? ['*Connection setup* - details.'] : missing,
+            );
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'missing-isolated-markup-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it.each<[string, number, string]>([
+            ['empty wrapper in the ordinary retry', 1, wrap('')],
+            ['whitespace wrapper in the ordinary retry', 1, wrap(' \n ')],
+            ['separator only in the ordinary retry', 1, FRAGMENT_SEPARATOR],
+            ['empty wrapper in the first isolated retry', 2, wrap('')],
+            ['whitespace wrapper in the first isolated retry', 2, wrap(' \n ')],
+            ['separator only in the first isolated retry', 2, FRAGMENT_SEPARATOR],
+        ])(
+            'stops after %s instead of treating source fallback as an answer',
+            async (_, at, empty) => {
+                const unit = wrap(`Используйте ${CODE_OPEN}A${CODE_CLOSE}.`);
+                const client = makeClient((_, call) => [
+                    call === at ? empty : 'Use another value.',
+                ]);
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'empty-markup-answer-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(at + 1);
+                expect(stat.requests).toBe(at + 1);
+                expect(stat.markupRetried).toBe(1);
+                expect(stat.markupDamaged).toBe(1);
+                expect(stat.untranslated).toBe(1);
+                expect(store.get(unit)).toBeUndefined();
+            },
+        );
+
+        it('retains a valid sibling when another markup retry answer is empty', async () => {
+            const empty = wrap(`Используйте ${CODE_OPEN}A${CODE_CLOSE}.`);
+            const sibling = wrap('Подробности подключения.');
+            const translated = wrap('Connection details.');
+            const client = makeClient((_, call) =>
+                call === 0
+                    ? ['Use another value.', '*Connection* details.']
+                    : [wrap(''), 'Connection details.'],
+            );
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'partly-empty-markup-answer-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+
+            expect(await makeTranslator(params)('file.md', [empty, sibling])).toEqual([
+                empty,
+                translated,
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.requests).toBe(2);
+            expect(stat.markupRetried).toBe(2);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(empty)).toBeUndefined();
+            expect(store.get(sibling)).toBe(translated);
+        });
+
+        it.each([
+            ['literal code', wrap(`Используйте ${CODE_OPEN}A${CODE_CLOSE}.`), 'Use another value.'],
+            ['link placeholders', wrap(`Читайте ${LINK_OPEN}документацию</g>.`), 'Read the guide.'],
+            [
+                'document structure',
+                wrap('Установка соединения - подробности.'),
+                'Setup.\n\nDetails.',
+            ],
+            ['table title', markTableTitle(wrap('Имя')), 'The "table" name'],
+        ])('still validates %s on the fourth markup answer', async (_, unit, last) => {
+            const invalid = unit.includes('data-yfm-context="wide-table-title"')
+                ? 'Invalid "title".'
+                : '*Invalid* formatting.';
+            const client = makeClient((_, call) => [call < 3 ? invalid : last]);
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'fourth-markup-guard-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            const expected = unit.includes('data-yfm-context="wide-table-title"')
+                ? '<source data-yfm-title-fallback="true" data-yfm-context="wide-table-title" xml:space="preserve">Имя</source>'
+                : unit;
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([expected]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('keeps a source echo on the fourth markup answer out of cache', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'fourth-markup-echo-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient((_, call) => [
+                call < 3 ? '*Connection setup* - details.' : unwrapUnit(unit).text,
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.translatedUnits).toBe(0);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
         it('keeps a source echo returned by the final markup request out of cache', async () => {
             const unit = wrap('Установка соединения - подробности.');
             const store = new TranslationStore(
@@ -1716,7 +1891,9 @@ describe('translate ai provider', () => {
             const client = makeClient(() => ['*Connection setup* - details.']);
             const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
             expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
-            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
             expect(stat.markupDamaged).toBe(1);
             expect(stat.untranslated).toBe(1);
             expect(store.get(unit)).toBeUndefined();
