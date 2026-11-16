@@ -1,4 +1,5 @@
 import {describe, expect, it} from 'vitest';
+import {extract} from '@diplodoc/translation';
 
 import {
     hasCopiedEdit,
@@ -188,6 +189,97 @@ describe('lowercase residual source prose', () => {
             false,
         );
         expect(hasLowercaseSourceProse('source text', untranslatedMarker('en', 'zh'))).toBe(false);
+    });
+});
+
+describe('quoted words in an explicit prohibition', () => {
+    const marker = untranslatedMarker('ru', 'zh');
+    const source =
+        'Не используйте слова «скидка», «подарок» (кроме подарочных категорий), «специальная цена», «new».';
+    const chinese =
+        '不要使用“скидка”（折扣）、“подарок”（礼品，礼品类别除外）、“специальная цена”（特价）、"new"。';
+
+    it.each([
+        chinese,
+        'Do not use "скидка", "подарок" (except gift categories), "специальная цена" or "new".',
+        '请勿使用«скидка»、«подарок»、«специальная цена»或«new»。',
+    ])('preserves exact named words inside a translated prohibition: %s', (target) => {
+        expect(hasLowercaseSourceProse(target, marker, [], source)).toBe(false);
+        expect(hasLowercaseSourceProse(target, marker)).toBe(true);
+    });
+
+    it('bounds repeated target mentions by their exact source occurrences', () => {
+        const repeated = 'Не используйте слова «скидка», «скидка», «подарок».';
+        const target = '不要使用“скидка”、“скидка”和“подарок”。';
+        expect(hasLowercaseSourceProse(target, marker, [], repeated)).toBe(false);
+        expect(hasLowercaseSourceProse(target, marker, [], source)).toBe(true);
+    });
+
+    it.each([
+        '请使用“скидка”、“подарок”和“специальная цена”。',
+        '不要忘记使用“скидка”和“подарок”。',
+        'Do not forget to use “скидка” and “подарок”.',
+        '不要翻译“скидка”和“подарок”。',
+        'Do not translate “скидка” and “подарок”.',
+        '不要使用其他词。请使用“скидка”和“подарок”。',
+        'Do not use other words. Use “скидка” and “подарок”.',
+        '不要使用“скидка”，但请务必使用“подарок”。',
+        'Do not use "скидка", but always use "подарок".',
+        '不要使用“скидка”和“подарок”。但必须使用这些词语。',
+        'Do not use "скидка" or "подарок". Always use them.',
+        '“скидка”、“подарок”、“специальная цена”。',
+        '“скидка”（折扣）、“подарок”（礼品）、“специальная цена”（特价）。',
+        '不要使用 скидка、подарок 或 специальная цена。',
+        '不要使用“скидками”、“подарок”和“специальная цена”。',
+        '不要使用“скидка”、“подарок”和“специальная цены”。',
+        '不要使用“скидка”、“подарок”和“новинка”。',
+        '不要使用“скидка”、“подарок”（кроме подарочных категорий）和“специальная цена”。',
+        'Не используйте слова “скидка”、“подарок”、“специальная цена”。',
+        '不要使用“скидка”、“подарок”和“специальная цена”。 Исходный текст остался.',
+        '不要使用“скидка、подарок”和“специальная цена”。',
+    ])('does not hide missing instructions or unprotected prose: %s', (target) => {
+        expect(hasLowercaseSourceProse(target, marker, [], source)).toBe(true);
+    });
+
+    it.each([
+        'Используйте слова «скидка», «подарок», «специальная цена», «new».',
+        'Примеры для локализации: слова «скидка», «подарок» должны быть только на языке читателя.',
+        'Не используйте слово «скидка».',
+        'Не используйте слова «скидка», «подарок». Приведите примеры без оригинала.',
+        'Не используйте слова «нельзя использовать исходную длинную фразу», «подарок».',
+        'Не используйте слова «скидка", «подарок».',
+        '<g ctype="code">Не используйте слова «скидка», «подарок».</g>',
+        '<g data-note="Не используйте слова «скидка», «подарок».">Переведите текст.</g>',
+        '<source>Не используйте слова «скидка»,</source><source>«подарок».</source>',
+    ])('does not infer a literal list from unrelated source context: %s', (original) => {
+        expect(hasLowercaseSourceProse(chinese, marker, [], original)).toBe(true);
+    });
+
+    it('does not promote an unrelated quoted brand to a protected word list', () => {
+        expect(
+            hasLowercaseSourceProse(
+                '«Честный знак» 标识码。',
+                marker,
+                [],
+                'Коды «Честного знака» возвращаются в двух вариантах.',
+            ),
+        ).toBe(true);
+    });
+
+    it.each([
+        ['Не используйте слова «скидка», «подарок».', 'Do not use "скидка" or "подарок".'],
+        ['Не используйте слова "скидка", "подарок".', '不要使用“скидка”和“подарок”。'],
+    ])('recognizes quote entities in real extracted units', (original, target) => {
+        const unit = (text: string) => {
+            const result = extract(text, {
+                compact: false,
+                source: {language: 'ru', locale: 'RU'},
+                target: {language: 'zh', locale: 'CN'},
+            });
+            expect(result.units).toHaveLength(1);
+            return result.units[0];
+        };
+        expect(hasLowercaseSourceProse(unit(target), marker, [], unit(original))).toBe(false);
     });
 });
 

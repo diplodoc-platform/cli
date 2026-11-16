@@ -78,6 +78,13 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    retry without describing the failed attempt in its prompt; such feedback can
    reproduce the echo. Zero counters still require inspection of native output.
 
+   An explicit prohibition can name literal words as data. Exempt only exact
+   quoted mentions from the same complete source unit, bounded by their source
+   occurrence counts and a translated prohibition/list structure. Keep checking
+   the surrounding prose and explanations. Ordinary quoted prose, a bare list,
+   new spellings and later instructions do not create a general quote exemption.
+   Apply the same source-aware check to generated cache after healing.
+
    For Cyrillic Russian to a Han Chinese target, an ordinary Latin phrase with
    no unprotected Han is also a refusal when both source and target contain at
    least two prose words and the target has lowercase wording. Respect explicit
@@ -98,14 +105,23 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    missing or failed answers do not extend the budget. Keep every validation
    guard and the source fallback/cache exclusion after the limit. `markupRetried`
    counts distinct units; request metrics include the additional attempts.
-   The last isolated request can list generated group IDs and known structural
-   types as a checklist. Apply the same address and literal-code masks, then
+   The last isolated request must differ even without groups. It can list
+   generated group/line-break IDs and known structural types as a checklist.
+   Apply the same address and literal-code masks, then
    allow only safe unique identifiers and types matching quote-aware metadata
    from the original fragment. Address masking can read attribute-like text
    inside another attribute; malformed or duplicate source tags can retain raw
    attributes. Retry feedback must not promote arbitrary source attributes into
    system instructions. Translate all ordinary prose inside and outside the
    preserved groups.
+   A single provable unmatched prose backtick can be transported as a local
+   opaque placeholder only in that last request. Restore its exact source byte
+   before the original guards and cache validation; reject missing, changed or
+   repeated placeholders and additional synthetic IDs, including plain text and
+   incomplete tags. Compare residue counts after all masks are restored so an
+   existing literal ID in source code or an address is not a false refusal.
+   Ambiguous delimiters, code, addresses and malformed XML keep their original
+   path and budget. This does not repair the source or authorize target editing.
 
    Structural validation must distinguish document markup from extraction placement.
    A protected inline can be hoisted into the skeleton at the beginning of prose;
