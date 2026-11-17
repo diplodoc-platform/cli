@@ -111,6 +111,7 @@ const translated = (fragments: string[]) => fragments.map((text) => `T:${text}`)
 const BOLD_CLOSE = '<x ctype="bold_close" equiv-text="**" id="x-1"/>';
 const CODE_OPEN = '<x ctype="code_open" equiv-text="`" id="x-1"/>';
 const CODE_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-2"/>';
+const IDENTIFIER_CODE = CODE_OPEN + 'COURIER_TO_MERCHANT' + CODE_CLOSE;
 
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
 const codeWrap = (text: string) =>
@@ -1882,6 +1883,133 @@ describe('translate ai provider', () => {
             expect(lastIsolated).not.toBe(calls[2][0][0].content);
             expect(lastIsolated.match(/<g\b[^>]*>/g)).toBeNull();
             expect(lastIsolated).not.toContain(literal);
+        });
+
+        it('exposes protected identifier identities only as read-only request context', async () => {
+            const code = IDENTIFIER_CODE;
+            const unit = wrap(code + ' — курьер передает код продавцу для получения заказа.');
+            const translated = code + ' — 快递员将代码交给卖家以领取订单。';
+            const client = makeClient((parts) => [
+                parts[0].replace(
+                    ' — курьер передает код продавцу для получения заказа.',
+                    ' — 快递员将代码交给卖家以领取订单。',
+                ),
+            ]);
+            const {params} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(translated)]);
+            const messages = vi.mocked(client.complete).mock.calls[0][0];
+            expect(messages[0].content).toContain('literal-eb129a3d34307c7a');
+            expect(messages[0].content).toContain('COURIER_TO_MERCHANT');
+            expect(messages.at(-1)?.content).not.toContain('COURIER_TO_MERCHANT');
+            expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it.each(['COURIER_TO_MERCHANT', '&#67;OURIER_TO_MERCHANT', '`COURIER_TO_MERCHANT`'])(
+            'rejects an echoed protected identifier without expanding the retry budget: %s',
+            async (echo) => {
+                const code = IDENTIFIER_CODE;
+                const unit = wrap(code + ' — курьер получает заказ.');
+                const client = makeClient((parts) => [
+                    parts[0].replace(
+                        ' — курьер получает заказ.',
+                        ' ' + echo + ' — 快递员领取订单。',
+                    ),
+                ]);
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'identifier-echo-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.markupDamaged).toBe(1);
+                expect(stat.untranslated).toBe(1);
+                expect(store.get(unit)).toBeUndefined();
+            },
+        );
+
+        it('keeps the identifier echo guard across isolated retries of another batch unit', async () => {
+            const code = IDENTIFIER_CODE;
+            const unit = wrap(code + ' — курьер получает заказ.');
+            const prose = wrap('Описание поля.');
+            const client = makeClient((parts) =>
+                parts.map((part) =>
+                    part.includes('literal-')
+                        ? part.replace(' — курьер получает заказ.', ' — 快递员领取订单。')
+                        : 'COURIER_TO_MERCHANT 字段说明。',
+                ),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit, prose])).toEqual([
+                wrap(code + ' — 快递员领取订单。'),
+                prose,
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+        });
+
+        it('rejects identifier echoes in generated cache after healing', async () => {
+            const code = IDENTIFIER_CODE;
+            const unit = wrap(code + ' — курьер получает заказ.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'identifier-cache-')), 'cache.json'),
+                'fp',
+            );
+            store.set(unit, wrap(code + ' COURIER_TO_MERCHANT — 快递员领取订单。'));
+            const client = makeClient((parts) => [
+                parts[0].replace(' — курьер получает заказ.', ' — 快递员领取订单。'),
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap(code + ' — 快递员领取订单。'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.cached).toBe(0);
+        });
+
+        it('keeps approved identifier wording outside the new model-response guard', async () => {
+            const unit = wrap(IDENTIFIER_CODE + ' — курьер получает заказ.');
+            const approved = wrap(IDENTIFIER_CODE + ' COURIER_TO_MERCHANT — 快递员领取订单。');
+            const dir = mkdtempSync(join(tmpdir(), 'identifier-approved-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/a.md', [[unit, approved]]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient(() => ['新的翻译。']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/a.md', [unit])).toEqual([approved]);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
+        it('recovers an identifier echo while preserving a valid sibling', async () => {
+            const unit = wrap(IDENTIFIER_CODE + ' — курьер получает заказ.');
+            const sibling = wrap('Описание поля.');
+            const client = makeClient((parts, call) =>
+                parts.map((part) => {
+                    if (!part.includes('literal-')) return '字段说明。';
+                    return part.replace(
+                        ' — курьер получает заказ.',
+                        (call === 0 ? ' COURIER_TO_MERCHANT' : '') + ' — 快递员领取订单。',
+                    );
+                }),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit, sibling])).toEqual([
+                wrap(IDENTIFIER_CODE + ' — 快递员领取订单。'),
+                wrap('字段说明。'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.unitsTotal).toBe(2);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
         });
 
         it.each([false, true])(
