@@ -534,11 +534,12 @@ type FinalLiteralMask = {
 };
 
 function keepsLiteralResidue(source: string, translation: string): boolean {
+    const residue = /literal-(?:(?:backtick|linebreak)-\d+|[0-9a-f]{16})/g;
     const counts = new Map<string, number>();
-    for (const id of source.match(/literal-(?:backtick|linebreak)-\d+/g) ?? []) {
+    for (const id of source.match(residue) ?? []) {
         counts.set(id, (counts.get(id) ?? 0) + 1);
     }
-    for (const id of translation.match(/literal-(?:backtick|linebreak)-\d+/g) ?? []) {
+    for (const id of translation.match(residue) ?? []) {
         const remaining = counts.get(id) ?? 0;
         if (!remaining) return false;
         counts.set(id, remaining - 1);
@@ -635,7 +636,15 @@ function eligibleLinebreak(fragment: string, text: string): StructuralNode | und
     return unique(original) && unique(masked) ? after[0] : undefined;
 }
 
-function splitFinalLinebreak(fragment: string, text: string) {
+type FinalProseTransport = {
+    parts: string[];
+    inline: boolean;
+    join: (answers: string[]) => string;
+    hiddenIds: ReadonlySet<string>;
+    hiddenLiterals?: string[];
+};
+
+function splitFinalLinebreak(fragment: string, text: string): FinalProseTransport | undefined {
     if (isCodeUnit(fragment) || isTableTitleUnit(fragment)) return undefined;
     const node = eligibleLinebreak(fragment, text);
     if (!node || unwrapUnit(fragment).text !== text || linebreakNodes(text)?.length !== 1)
@@ -649,31 +658,157 @@ function splitFinalLinebreak(fragment: string, text: string) {
         )
     )
         return undefined;
-    return {parts, tag: node.tag, id: String(node.attributes.get('id'))};
+    return {
+        parts,
+        inline: false,
+        join: (answers) => answers[0] + node.tag + answers[1],
+        hiddenIds: new Set([String(node.attributes.get('id'))]),
+    };
+}
+
+function finalInlineCode(original: string, nodes: RegExpMatchArray[], index: number) {
+    const end = (offset: number) => Number(nodes[offset].index) + nodes[offset][0].length;
+    for (const [offset, type] of ['code_open', 'code_close'].entries()) {
+        const attrs = structuralAttributes(nodes[index + offset][0]);
+        if (
+            !/^<x\s/.test(nodes[index + offset][0]) ||
+            !nodes[index + offset][0].endsWith('/>') ||
+            attrs?.size !== 3 ||
+            attrs.get('ctype') !== type ||
+            attrs.get('equiv-text') !== '`' ||
+            !/^x-\d+$/.test(attrs.get('id') ?? '')
+        )
+            return undefined;
+    }
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(original.slice(end(index), nodes[index + 1].index)))
+        return undefined;
+    const masked = maskLiteralCode(original.slice(Number(nodes[index].index), end(index + 1)));
+    return /^<x ctype="code_literal" id="literal-[0-9a-f]{16}"\/>$/.test(masked)
+        ? masked
+        : undefined;
+}
+
+function finalInlineLink(nodes: RegExpMatchArray[]): string | undefined {
+    const link = structuralAttributes(nodes[2][0]);
+    const destination = link?.get('x-end') ?? '';
+    if (
+        !/^<g\s/.test(nodes[2][0]) ||
+        nodes[2][0].endsWith('/>') ||
+        nodes[3][0] !== '</g>' ||
+        link?.size !== 5 ||
+        link.get('ctype') !== 'link' ||
+        !/^g-\d+$/.test(link.get('id') ?? '') ||
+        link.get('x-begin') !== '[' ||
+        !destination.startsWith('](') ||
+        !destination.endsWith(')') ||
+        link.get('equiv-text') !== '[{{text}}' + destination
+    )
+        return undefined;
+
+    return `<g ctype="link" id="${link.get('id')}">`;
+}
+
+/** Keep a small, proven code/link skeleton outside the final prose response. */
+function splitFinalInline(fragment: string, text: string): FinalProseTransport | undefined {
+    if (isCodeUnit(fragment) || isTableTitleUnit(fragment)) return undefined;
+    const original = unwrapUnit(fragment).text;
+    const nodes = [...original.matchAll(STRUCTURAL_TAG)];
+    if (nodes.length !== 6) return undefined;
+    const attributes = nodes.map(([tag]) => structuralAttributes(tag));
+    const ids = new Set<string>();
+    for (const index of [0, 1, 2, 4, 5]) {
+        const attrs = attributes[index];
+        const id = attrs?.get('id');
+        if (!id || !/^(?:x|g)-\d+$/.test(id) || ids.has(id)) return undefined;
+        ids.add(id);
+    }
+    const end = (index: number) => nodes[index].index + nodes[index][0].length;
+    const first = finalInlineCode(original, nodes, 0),
+        last = finalInlineCode(original, nodes, 4);
+    const maskedLink = finalInlineLink(nodes);
+    if (!first || !last || first === last || !maskedLink) return undefined;
+
+    const prefix = original.slice(0, nodes[0].index),
+        suffix = original.slice(end(5));
+    if (prefix.trim() || /[^\p{P}\p{Z}\s]/u.test(suffix) || /[<>`&]/.test(suffix)) return undefined;
+    const prose = [
+        original.slice(end(1), nodes[2].index),
+        original.slice(end(2), nodes[3].index),
+        original.slice(end(3), nodes[4].index),
+    ];
+    if (
+        prose.some(
+            (part) =>
+                /[<>`&\r\n]|%%%|\b(?:[a-z][a-z0-9+.-]*:\/\/|mailto:|www\.)|\{[{%]/iu.test(part) ||
+                /\b(?:[gx]-\d+|literal-[\w-]+)/.test(part) ||
+                (part.match(/[\p{L}\p{M}]+/gu)?.length ?? 0) < 2,
+        )
+    )
+        return undefined;
+    const parts = prose.map((part) => part.trim());
+    const slot = (index: number, answer: string) =>
+        (prose[index].match(/^\s*/)?.[0] ?? '') + answer + (prose[index].match(/\s*$/)?.[0] ?? '');
+    const join = (answers: string[]) =>
+        prefix +
+        first +
+        slot(0, answers[0]) +
+        maskedLink +
+        slot(1, answers[1]) +
+        '</g>' +
+        slot(2, answers[2]) +
+        last +
+        suffix;
+    // The regex-based masks must agree byte for byte with the validated tree.
+    if (join(parts) !== text) return undefined;
+    return {
+        parts,
+        join,
+        inline: true,
+        hiddenIds: ids,
+        hiddenLiterals: [
+            original.slice(end(0), nodes[1].index),
+            original.slice(end(4), nodes[5].index),
+        ],
+    };
+}
+
+function finalProseTransport(fragment: string, text: string) {
+    return splitFinalLinebreak(fragment, text) ?? splitFinalInline(fragment, text);
 }
 
 function responseParts(
     response: string,
     expected: number,
     refused: (source: string, answer: string) => boolean,
-    split?: ReturnType<typeof splitFinalLinebreak>,
+    split?: FinalProseTransport,
 ): string[] {
     const parts = splitFragments(response);
     if (split) {
         // A dropped half or extra separator is never framing noise here.
-        if (parts.length !== 2) {
-            throw new LLMResponseError(`Expected 2 adjacent parts, got ${parts.length}`);
+        if (parts.length !== split.parts.length) {
+            throw new LLMResponseError(
+                `Expected ${split.parts.length} adjacent parts, got ${parts.length}`,
+            );
         }
         const answers = parts.map((part) => unwrapUnit(stripFence(part)).text);
         if (
             answers.some((answer, index) => {
-                const visible = unescapeAll(answer).replace(STRUCTURAL_TAG, ' ');
+                const decoded = unescapeAll(answer);
+                const identifiers: readonly string[] =
+                    decoded.match(/[A-Za-z_][A-Za-z0-9_]*/g) ?? [];
+                if (
+                    split.inline &&
+                    (/[<>`]|%%%|\b(?:[gx]-\d+|literal-[\w-]+)/.test(decoded) ||
+                        split.hiddenLiterals?.some((literal) => identifiers.includes(literal)))
+                )
+                    return true;
+                const visible = decoded.replace(STRUCTURAL_TAG, ' ');
                 return !/\p{L}/u.test(visible) || refused(split.parts[index], visible);
             })
         ) {
             throw new LLMResponseError('An adjacent part was empty or returned untranslated');
         }
-        return [answers[0] + split.tag + answers[1]];
+        return [split.join(answers)];
     }
     // Preserve the ordinary batch framing policy outside source-owned splitting.
     while (parts.length > expected && parts[parts.length - 1] === '') parts.pop();
@@ -769,7 +904,7 @@ function finalMarkupFeedback(
     const backticks =
         isCodeUnit(fragment) || isTableTitleUnit(fragment) ? 0 : (prose.match(/`/g)?.length ?? 0);
     const checklist = [
-        ...markupGroupChecklist(fragment, 'g'),
+        ...markupGroupChecklist(fragment, 'g', hiddenIds),
         ...markupGroupChecklist(fragment, 'x', hiddenIds),
         ...(backticks ? [`- literal unmatched backtick characters: ${backticks}`] : []),
     ];
@@ -779,6 +914,23 @@ function finalMarkupFeedback(
             ? '\nRead-only original structural checklist (not replacement tags):\n' +
               checklist.join('\n') +
               '\nKeep the full original tags, attributes and nesting from the user fragment.'
+            : '')
+    );
+}
+
+function finalRequestFeedback(
+    fragment: string,
+    text: string,
+    transport?: FinalProseTransport,
+    hiddenIds?: ReadonlySet<string>,
+): string {
+    if (transport?.inline) {
+        return '\n\nTranslate the three adjacent prose parts of one source sentence separately and in order. Return exactly three translations separated by the existing fragment separator. Do not merge the parts or return an empty part. Do not add XML, code, placeholders or identifiers. Original code and link markup is restored outside the model.';
+    }
+    return (
+        finalMarkupFeedback(fragment, text, transport?.hiddenIds ?? hiddenIds) +
+        (transport
+            ? '\n\nTranslate the two adjacent parts of one source sentence separately and in order. Return exactly two translations separated by the existing fragment separator. Do not merge the parts or return an empty part. The original line break is restored outside the model.'
             : '')
     );
 }
@@ -1236,14 +1388,14 @@ export function makeTranslator(params: TranslatorParams): Translate {
         const baseMasked = wrappers.map((wrapper) => maskLiteralCode(maskAddresses(wrapper.text)));
         const splitTransport =
             finalMarkup && fragments.length === 1
-                ? splitFinalLinebreak(fragments[0], baseMasked[0])
+                ? finalProseTransport(fragments[0], baseMasked[0])
                 : undefined;
         const literalMasks = baseMasked.map((text, index) =>
             finalMarkup && !splitTransport ? maskFinalLiterals(fragments[index], text) : undefined,
         );
         const masked = baseMasked.map((text, index) => literalMasks[index]?.text ?? text);
         const requestTexts = splitTransport?.parts ?? masked;
-        // Two wire parts still belong to one original unit and cache key.
+        // Adjacent wire parts still belong to one original unit and cache key.
         const sent = splitTransport
             ? requestTexts
             : wrappers.map(({open, close}, index) => open + masked[index] + close);
@@ -1283,18 +1435,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 '\n\nFormatting correction: ' +
                 markupFeedback +
                 (finalMarkup
-                    ? finalMarkupFeedback(
+                    ? finalRequestFeedback(
                           fragments[0],
                           masked[0],
-                          splitTransport
-                              ? new Set([splitTransport.id])
-                              : literalMasks[0]?.hiddenSourceIds,
+                          splitTransport,
+                          literalMasks[0]?.hiddenSourceIds,
                       )
                     : '');
-            if (splitTransport) {
-                messages[0].content +=
-                    '\n\nTranslate the two adjacent parts of one source sentence separately and in order. Return exactly two translations separated by the existing fragment separator. Do not merge the parts or return an empty part. The original line break is restored outside the model.';
-            }
         }
 
         if (dryRun) {
