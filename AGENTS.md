@@ -167,6 +167,12 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    When matching moved approved units outside the common subsequence, consume
    unused entries per source text, rather than advancing one global cursor.
 
+   Final line-break recovery can keep a single ordinary word on one side when
+   the other side has multiple prose words. Require the complete new shape to
+   contain only ordinary prose and sentence punctuation; finding letters inside
+   directives, identifiers or symbols is insufficient. Keep the exact two-part
+   response, original source-owned join and the existing four-request limit.
+
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).
