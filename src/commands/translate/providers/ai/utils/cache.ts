@@ -301,6 +301,12 @@ export class TranslationStore {
         return this.match(file, texts).translations;
     }
 
+    /** Include the indexes actually assigned by this file's approved sequence. */
+    resolveWithProvenance(file: string, texts: string[]) {
+        const {translations, fileMatchedIndices} = this.match(file, texts);
+        return {translations, fileMatchedIndices};
+    }
+
     /**
      * The previous version of every unit `resolve()` leaves without a
      * translation, see `lookup()`.
@@ -328,14 +334,20 @@ export class TranslationStore {
         file: string,
         texts: string[],
     ): {translations: (string | undefined)[]; hints: (SeedHint | undefined)[]} {
-        const {translations, unused} = this.match(file, texts);
+        const {translations, hints} = this.lookupWithProvenance(file, texts);
+        return {translations, hints};
+    }
+
+    /** Keep hint lookup and approved occurrence provenance in the same match. */
+    lookupWithProvenance(file: string, texts: string[], skipHints?: ReadonlySet<number>) {
+        const {translations, unused, fileMatchedIndices} = this.match(file, texts);
         const hints: (SeedHint | undefined)[] = texts.map(() => undefined);
         const memory = this.seeds?.memory(file) || [];
         const candidates = unused.map((j) => ({index: j, bag: bag(memory[j][0])}));
         const free = new Set(candidates);
 
         for (let i = 0; i < texts.length && free.size; i++) {
-            if (translations[i] !== undefined) {
+            if (translations[i] !== undefined || skipHints?.has(i)) {
                 continue;
             }
 
@@ -365,7 +377,7 @@ export class TranslationStore {
             }
         }
 
-        return {translations, hints};
+        return {translations, hints, fileMatchedIndices};
     }
 
     set(text: string, translation: string) {
@@ -398,12 +410,17 @@ export class TranslationStore {
     private match(
         file: string,
         texts: string[],
-    ): {translations: (string | undefined)[]; unused: number[]} {
+    ): {
+        translations: (string | undefined)[];
+        unused: number[];
+        fileMatchedIndices: ReadonlySet<number>;
+    } {
         const translations = texts.map((text) => this.get(text));
         const memory = this.seeds?.memory(file);
+        const fileMatchedIndices = new Set<number>();
 
         if (!memory?.length) {
-            return {translations, unused: []};
+            return {translations, unused: [], fileMatchedIndices};
         }
 
         const used = new Uint8Array(memory.length);
@@ -416,23 +433,28 @@ export class TranslationStore {
             translations[i] = memory[j][1];
             used[j] = 1;
             matched[i] = 1;
+            fileMatchedIndices.add(i);
         }
 
         // Units outside the common subsequence (a section moved as a whole)
         // still take the unused entries of the same text, in order.
-        let cursor = 0;
+        const available = new Map<string, {indices: number[]; cursor: number}>();
+        for (const [index, [text]] of memory.entries()) {
+            if (used[index]) continue;
+            const queue = available.get(text) ?? {indices: [], cursor: 0};
+            queue.indices.push(index);
+            available.set(text, queue);
+        }
         for (let i = 0; i < texts.length; i++) {
             if (matched[i]) {
                 continue;
             }
-            for (let j = cursor; j < memory.length; j++) {
-                if (!used[j] && memory[j][0] === texts[i]) {
-                    translations[i] = memory[j][1];
-                    used[j] = 1;
-                    cursor = j + 1;
-                    break;
-                }
-            }
+            const queue = available.get(texts[i]);
+            const index = queue?.indices[queue.cursor++];
+            if (index === undefined) continue;
+            translations[i] = memory[index][1];
+            used[index] = 1;
+            fileMatchedIndices.add(i);
         }
 
         const unused: number[] = [];
@@ -442,6 +464,6 @@ export class TranslationStore {
             }
         });
 
-        return {translations, unused};
+        return {translations, unused, fileMatchedIndices};
     }
 }
