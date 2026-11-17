@@ -11,6 +11,7 @@ import type {TargetStat, TranslateReportJudge} from '../../report';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
+import {unescapeAll} from 'markdown-it/lib/common/utils';
 
 import {LogLevel} from '~/core/logger';
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
@@ -634,6 +635,57 @@ function eligibleLinebreak(fragment: string, text: string): StructuralNode | und
     return unique(original) && unique(masked) ? after[0] : undefined;
 }
 
+function splitFinalLinebreak(fragment: string, text: string) {
+    if (isCodeUnit(fragment) || isTableTitleUnit(fragment)) return undefined;
+    const node = eligibleLinebreak(fragment, text);
+    if (!node || unwrapUnit(fragment).text !== text || linebreakNodes(text)?.length !== 1)
+        return undefined;
+    const parts = [text.slice(0, node.start), text.slice(node.start + node.tag.length)];
+    if (
+        parts.some(
+            (part) =>
+                /[<>`\r\n]|\b(?:[a-z][a-z0-9+.-]*:\/\/|mailto:|www\.)/iu.test(part) ||
+                (part.match(/[\p{L}\p{M}]+/gu)?.length ?? 0) < 2,
+        )
+    )
+        return undefined;
+    return {parts, tag: node.tag, id: String(node.attributes.get('id'))};
+}
+
+function responseParts(
+    response: string,
+    expected: number,
+    refused: (source: string, answer: string) => boolean,
+    split?: ReturnType<typeof splitFinalLinebreak>,
+): string[] {
+    const parts = splitFragments(response);
+    if (split) {
+        // A dropped half or extra separator is never framing noise here.
+        if (parts.length !== 2) {
+            throw new LLMResponseError(`Expected 2 adjacent parts, got ${parts.length}`);
+        }
+        const answers = parts.map((part) => unwrapUnit(stripFence(part)).text);
+        if (
+            answers.some((answer, index) => {
+                const visible = unescapeAll(answer).replace(STRUCTURAL_TAG, ' ');
+                return !/\p{L}/u.test(visible) || refused(split.parts[index], visible);
+            })
+        ) {
+            throw new LLMResponseError('An adjacent part was empty or returned untranslated');
+        }
+        return [answers[0] + split.tag + answers[1]];
+    }
+    // Preserve the ordinary batch framing policy outside source-owned splitting.
+    while (parts.length > expected && parts[parts.length - 1] === '') parts.pop();
+    while (parts.length > expected && parts[0] === '') parts.shift();
+    if (parts.length !== expected) {
+        throw new LLMResponseError(
+            `Expected ${expected} fragments in LLM response, got ${parts.length}`,
+        );
+    }
+    return parts;
+}
+
 /** Final-request transport masks, never source or translation repairs. */
 function maskFinalLiterals(fragment: string, text: string): FinalLiteralMask | undefined {
     if (isCodeUnit(fragment) || isTableTitleUnit(fragment)) return undefined;
@@ -1182,12 +1234,20 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // `maskAddresses`. The memory reads the same way as the fragments,
         // with the ids of the fragment it goes with.
         const baseMasked = wrappers.map((wrapper) => maskLiteralCode(maskAddresses(wrapper.text)));
+        const splitTransport =
+            finalMarkup && fragments.length === 1
+                ? splitFinalLinebreak(fragments[0], baseMasked[0])
+                : undefined;
         const literalMasks = baseMasked.map((text, index) =>
-            finalMarkup ? maskFinalLiterals(fragments[index], text) : undefined,
+            finalMarkup && !splitTransport ? maskFinalLiterals(fragments[index], text) : undefined,
         );
         const masked = baseMasked.map((text, index) => literalMasks[index]?.text ?? text);
-        const sent = wrappers.map(({open, close}, index) => open + masked[index] + close);
-        const messages = buildMessages(masked, {
+        const requestTexts = splitTransport?.parts ?? masked;
+        // Two wire parts still belong to one original unit and cache key.
+        const sent = splitTransport
+            ? requestTexts
+            : wrappers.map(({open, close}, index) => open + masked[index] + close);
+        const messages = buildMessages(requestTexts, {
             systemPrompt,
             userPrompt,
             promptMode,
@@ -1195,25 +1255,27 @@ export function makeTranslator(params: TranslatorParams): Translate {
             targetLanguage,
             glossaryPairs,
             contextFiles,
-            context,
-            hints: hints.map((hint, index) => {
-                if (!hint) {
-                    return undefined;
-                }
+            context: splitTransport ? '' : context,
+            hints: splitTransport
+                ? []
+                : hints.map((hint, index) => {
+                      if (!hint) {
+                          return undefined;
+                      }
 
-                const {source, translation} = renumberMemory(wrappers[index].text, hint);
+                      const {source, translation} = renumberMemory(wrappers[index].text, hint);
 
-                const memory = {
-                    source: maskLiteralCode(maskAddresses(source)),
-                    translation: maskLiteralCode(maskAddresses(translation)),
-                };
-                // An older locale may intentionally use other code literals.
-                // It cannot supply opaque identities for the current source.
-                return keepsLiteralCode(masked[index], memory.source) &&
-                    keepsLiteralCode(masked[index], memory.translation)
-                    ? memory
-                    : undefined;
-            }),
+                      const memory = {
+                          source: maskLiteralCode(maskAddresses(source)),
+                          translation: maskLiteralCode(maskAddresses(translation)),
+                      };
+                      // An older locale may intentionally use other code literals.
+                      // It cannot supply opaque identities for the current source.
+                      return keepsLiteralCode(masked[index], memory.source) &&
+                          keepsLiteralCode(masked[index], memory.translation)
+                          ? memory
+                          : undefined;
+                  }),
         });
 
         if (markupFeedback) {
@@ -1221,8 +1283,18 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 '\n\nFormatting correction: ' +
                 markupFeedback +
                 (finalMarkup
-                    ? finalMarkupFeedback(fragments[0], masked[0], literalMasks[0]?.hiddenSourceIds)
+                    ? finalMarkupFeedback(
+                          fragments[0],
+                          masked[0],
+                          splitTransport
+                              ? new Set([splitTransport.id])
+                              : literalMasks[0]?.hiddenSourceIds,
+                      )
                     : '');
+            if (splitTransport) {
+                messages[0].content +=
+                    '\n\nTranslate the two adjacent parts of one source sentence separately and in order. Return exactly two translations separated by the existing fragment separator. Do not merge the parts or return an empty part. The original line break is restored outside the model.';
+            }
         }
 
         if (dryRun) {
@@ -1296,23 +1368,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             stat.outputTokens += result.usage.outputTokens;
         }
 
-        const parts = splitFragments(result.text);
-
-        // Models sometimes emit stray edge delimiters (e.g. a lone separator
-        // for a fragment they decided to keep as is) - empty edge parts are
-        // framing noise, not translations.
-        while (parts.length > fragments.length && parts[parts.length - 1] === '') {
-            parts.pop();
-        }
-        while (parts.length > fragments.length && parts[0] === '') {
-            parts.shift();
-        }
-
-        if (parts.length !== fragments.length) {
-            throw new LLMResponseError(
-                `Expected ${fragments.length} fragments in LLM response, got ${parts.length}`,
-            );
-        }
+        const parts = responseParts(
+            result.text,
+            fragments.length,
+            refusedTranslation,
+            splitTransport,
+        );
 
         // Restore the wrapper; unwrap defensively in case the model echoed it.
         // An empty translation of a non-empty fragment is never valid - keep
@@ -1346,7 +1407,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
             const literalKey = JSON.stringify([fragments[index], restored]);
             if (
                 literal.valid &&
-                (!literalMasks[index] || keepsLiteralResidue(text, translation)) &&
+                (!(literalMasks[index] || splitTransport) ||
+                    keepsLiteralResidue(text, translation)) &&
                 keepsLiteralCode(baseMasked[index], literal.text)
             ) {
                 invalidLiterals.delete(literalKey);

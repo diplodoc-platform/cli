@@ -2107,10 +2107,85 @@ describe('translate ai provider', () => {
             );
         });
 
+        it.each(['配送费用相同，无论', '&#x914D;送费用相同，无论'])(
+            'translates two adjacent source parts in one final completion: %s',
+            async (firstAnswer) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const left = 'Стоимость доставки будет одинакова независимо';
+                const right = 'от того, кто доставляет заказ.';
+                const unit = wrap(left + lb + right);
+                let lastSent: string[] = [];
+                const client = makeClient((parts, call) => {
+                    if (call < 3) return ['配送费用相同。'];
+                    lastSent = parts;
+                    return [firstAnswer, '由谁配送订单。'];
+                });
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'split-linebreak-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+                const expected = wrap(firstAnswer + lb + '由谁配送订单。');
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([expected]);
+                expect(lastSent).toEqual([left, right]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.requests).toBe(4);
+                expect(stat.unitsTotal).toBe(1);
+                expect(stat.translatedUnits).toBe(1);
+                expect(stat.markupDamaged).toBe(0);
+                expect(stat.untranslated).toBe(0);
+                expect(store.get(unit)).toBe(expected);
+            },
+        );
+
+        it.each([
+            [],
+            ['只有一段。'],
+            ['甲', '乙', '丙'],
+            ['', '甲', '乙'],
+            ['甲', '乙', ''],
+            ['', '乙'],
+            ['甲', ''],
+            ['<source xml:space="preserve"></source>', '乙'],
+            ['Стоимость доставки одинакова', '由谁配送订单。'],
+            ['The delivery cost is the same', '由谁配送订单。'],
+            ['&amp;', '由谁配送订单。'],
+            ['&nbsp;', '由谁配送订单。'],
+            ['&#x20;', '由谁配送订单。'],
+            ['literal-linebreak-1', '由谁配送订单。'],
+            ['配送费用相同 literal-backtick-999', '由谁配送订单。'],
+        ])('rejects incomplete or refused final wire parts: %j', async (...answers) => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const left = 'Стоимость доставки будет одинакова независимо';
+            const right = 'от того, кто доставляет заказ.';
+            const unit = wrap(left + lb + right);
+            let lastSent: string[] = [];
+            const client = makeClient((parts, call) => {
+                if (call < 3) return ['配送费用相同。'];
+                lastSent = parts;
+                return answers;
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'invalid-split-linebreak-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(lastSent).toEqual([left, right]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.unitsTotal).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
         it('keeps an internal line break inside translated prose on the final retry', async () => {
             const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
             const unit = wrap(
-                `Стоимость доставки будет одинакова независимо${lb}от того, кто доставляет заказ: Маркет или сам продавец.`,
+                `Стоимость${lb}доставки одинакова независимо от того, кто доставляет заказ: Маркет или сам продавец.`,
             );
             const bad = `无论订单由谁配送\u2014\u2014Market还是卖家自行配送，配送费用都将相同。${lb}`;
             const good = `配送费用相同，无论${lb}订单由谁配送：Market 还是卖家自行配送。`;
@@ -2158,7 +2233,7 @@ describe('translate ai provider', () => {
             'echo',
         ])('keeps final line-break transport strict for %s', async (fault) => {
             const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
-            const unit = wrap(`Текст до${lb}и после.`);
+            const unit = wrap(`Текст${lb}после.`);
             const client = makeClient((fragments, call) => {
                 if (call < 3) return ['文本前后。'];
                 const token =

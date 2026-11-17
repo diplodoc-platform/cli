@@ -105,6 +105,12 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    missing or failed answers do not extend the budget. Keep every validation
    guard and the source fallback/cache exclusion after the limit. `markupRetried`
    counts distinct units; request metrics include the additional attempts.
+   A last retry for plain prose can keep one original internal line break out
+   of the model by sending its two adjacent source parts. Require exactly two
+   nonempty, translated replies, without pruning extra edge separators, then
+   rejoin them with the exact source tag before all original unit guards. These
+   are wire parts of one source unit, not two retry/cache units. Never infer a
+   missing boundary's position from translated prose or add a fifth request.
    The last isolated request must differ even without groups. It can list
    generated group/line-break IDs and known structural types as a checklist.
    Apply the same address and literal-code masks, then
