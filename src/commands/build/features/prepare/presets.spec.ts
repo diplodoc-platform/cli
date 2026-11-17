@@ -54,25 +54,28 @@ test('fails on a missing source', async () => {
     await expect(run([{from: 'missing.yaml'}])).rejects.toThrow();
 });
 
-test.each(['md', 'html'] as const)('prepares files and presets for %s output', async (outputFormat) => {
-    await writeFile(join(input, 'source.yaml'), 'title: Prepared');
-    await writeFile(join(input, 'target.yaml'), 'title: Original');
+test.each(['md', 'html'] as const)(
+    'prepares files and presets for %s output',
+    async (outputFormat) => {
+        await writeFile(join(input, 'source.yaml'), 'title: Prepared');
+        await writeFile(join(input, 'target.yaml'), 'title: Original');
 
-    await prepareInput({
-        input,
-        config: {
-            outputFormat,
-            prepare: {
-                moveFiles: [{from: 'source.yaml', to: 'target.yaml'}],
-                presets: [{to: 'presets.yaml', sources: [{from: 'keys.yaml'}]}],
+        await prepareInput({
+            input,
+            config: {
+                outputFormat,
+                prepare: {
+                    moveFiles: [{from: 'source.yaml', to: 'target.yaml'}],
+                    presets: [{to: 'presets.yaml', sources: [{from: 'keys.yaml'}]}],
+                },
             },
-        },
-    } as Run);
+        } as Run);
 
-    expect(await readFile(join(input, 'source.yaml'), 'utf8')).toBe('title: Prepared');
-    expect(await readFile(join(input, 'target.yaml'), 'utf8')).toBe('title: Prepared');
-    expect(load(await readFile(join(input, 'presets.yaml'), 'utf8'))).toEqual({
-        default: {name: 'final', nested: {old: true}},
-        cloud: {product: 'cloud', title: 'Cloud'},
-    });
-});
+        expect(await readFile(join(input, 'source.yaml'), 'utf8')).toBe('title: Prepared');
+        expect(await readFile(join(input, 'target.yaml'), 'utf8')).toBe('title: Prepared');
+        expect(load(await readFile(join(input, 'presets.yaml'), 'utf8'))).toEqual({
+            default: {name: 'final', nested: {old: true}},
+            cloud: {product: 'cloud', title: 'Cloud'},
+        });
+    },
+);
