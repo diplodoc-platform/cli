@@ -67,7 +67,13 @@ import {
     hasUnexpectedEnglishProse,
     isProseEcho,
 } from './utils/edited-prose';
-import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
+import {
+    keepsLiteralCode,
+    keepsLiteralCodeIdentities,
+    literalCodeIdentities,
+    maskLiteralCode,
+    unmaskLiteralCode,
+} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
 import {repairInlineSpacing} from './utils/inline-spacing';
 import {documentFingerprint} from './utils/cache';
@@ -942,6 +948,29 @@ function finalRequestFeedback(
     );
 }
 
+function protectedIdentifierReference(identities: ReadonlyMap<string, string>): string {
+    if (!identities.size) return '';
+    return (
+        '\n\nRead-only source identifier reference (not additional fragments):\n' +
+        [...identities].map(([id, value]) => `${id} = ${value}`).join('\n') +
+        '\nUse these original identifier identities only as context. Return the original opaque placeholders unchanged. Do not copy this reference or its identifier values into translated prose.'
+    );
+}
+
+function describedIdentifier(fragment: string): [string, string][] {
+    if (isCodeUnit(fragment)) return [];
+    const source = unwrapUnit(fragment).text;
+    // Only a leading identifier with a prose definition supplies this context.
+    // Values in ordinary inline examples remain opaque.
+    const label =
+        /^\s*<x ctype="code_literal" id="(literal-[0-9a-f]{16})"\/>\s*(?:\u2014|[-:])\s+\p{L}/u.exec(
+            maskLiteralCode(source),
+        );
+    if (!label) return [];
+    const value = literalCodeIdentities(source).get(label[1]);
+    return value === undefined ? [] : [[label[1], value]];
+}
+
 /**
  * Extracts a human-readable document title to use as translation context:
  * the first H1 for markdown, the `title` field for yaml documents.
@@ -1356,7 +1385,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
             copiedEdit(fragment, part, hint));
     const cachedProseEcho = (text: string, normalized: string, seeded: boolean) =>
         ((!seeded || normalized === text) && isProseEcho(text, normalized, marker)) ||
-        (!seeded && (residualProse(text, normalized) || wrongTargetProse(text, normalized)));
+        (!seeded &&
+            (residualProse(text, normalized) ||
+                wrongTargetProse(text, normalized) ||
+                !keepsLiteralCodeIdentities(text, normalized)));
     const cachedRepair = (text: string, stored: string, seeded: boolean): CachedRepair => {
         if (!seeded) {
             return healCached(text, stored);
@@ -1371,6 +1403,22 @@ export function makeTranslator(params: TranslatorParams): Translate {
     // Literal identities are stricter than formatting shape: replacing one
     // code value with another must fail even if the delimiters still match.
     const invalidLiterals = new Set<string>();
+    // Retain the identities exposed with a unit when a smaller retry no longer
+    // contains its original siblings. This also guards cross-unit hint echoes.
+    const identityContexts = new Map<string, ReadonlyMap<string, string>>();
+    const identifierContext = (fragments: string[], enabled: boolean) => {
+        const identities = new Map(enabled ? fragments.flatMap(describedIdentifier) : []);
+        for (const fragment of fragments) {
+            const previous = identityContexts.get(fragment);
+            if (identities.size) {
+                identityContexts.set(
+                    fragment,
+                    previous ? new Map([...previous, ...identities]) : identities,
+                );
+            }
+        }
+        return identities;
+    };
     // Markers cut from the answer currently held for a unit. A retry
     // overwrites the entry, so a repair on an answer that was thrown away
     // never reaches the report.
@@ -1406,6 +1454,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         );
         const masked = baseMasked.map((text, index) => literalMasks[index]?.text ?? text);
         const requestTexts = splitTransport?.parts ?? masked;
+        const identities = identifierContext(fragments, !finalMarkup);
         // Adjacent wire parts still belong to one original unit and cache key.
         const sent = splitTransport
             ? requestTexts
@@ -1440,6 +1489,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
                           : undefined;
                   }),
         });
+
+        messages[0].content += protectedIdentifierReference(identities);
 
         if (markupFeedback) {
             messages[0].content +=
@@ -1567,7 +1618,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 literal.valid &&
                 (!(literalMasks[index] || splitTransport) ||
                     keepsLiteralResidue(text, translation)) &&
-                keepsLiteralCode(baseMasked[index], literal.text)
+                keepsLiteralCode(baseMasked[index], literal.text) &&
+                keepsLiteralCodeIdentities(
+                    text,
+                    literal.text,
+                    identityContexts.get(fragments[index]),
+                )
             ) {
                 invalidLiterals.delete(literalKey);
             } else {

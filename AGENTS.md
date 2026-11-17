@@ -173,6 +173,16 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    directives, identifiers or symbols is insufficient. Keep the exact two-part
    response, original source-owned join and the existing four-request limit.
 
+   Opaque code can hide the identifier needed to interpret a value description.
+   Only a leading, proven uppercase underscore identifier followed by prose
+   supplies a read-only identity reference. Ordinary inline examples remain
+   opaque, and the final isolated markup request omits the reference. Reject
+   added prose copies of exposed identities, including copies in sibling units;
+   keep that batch scope across smaller and isolated retries. Validate generated
+   cache after healing while preserving approved seed wording. Unit and seed
+   keys stay unchanged. These guards do not establish semantic correctness;
+   inspect live output before accepting the change.
+
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).
