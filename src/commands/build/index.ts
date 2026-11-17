@@ -54,6 +54,7 @@ import {Llms} from './features/llms';
 import {Sitemap} from './features/sitemap';
 import {Companions} from './features/companions';
 import {CodeIncluder} from './features/code-includer';
+import {prepareInput} from './features/prepare';
 
 export type * from './types';
 
@@ -374,6 +375,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             ignore.push(`${relative(originalInput, output)}/**`);
         }
         await this.run.copy(originalInput, input, ignore);
+        await prepareInput(this.run);
     }
 
     private async prepareRun() {

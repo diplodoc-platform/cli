@@ -112,6 +112,13 @@ export type RebuildChanges = {
 };
 
 type BaseConfig = {
+    prepare?: {
+        moveFiles?: {from: string; to: string}[];
+        presets?: {
+            to: string;
+            sources: {from: string; select?: string[]; into?: string}[];
+        }[];
+    };
     lang: string;
     // TODO(patch): exetend langs list by newly supported langs or change type to string
     langs: Langs;
