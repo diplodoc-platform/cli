@@ -2431,6 +2431,70 @@ describe('translate ai provider', () => {
             },
         );
 
+        it.each([
+            ['Порядок', 'идентификаторов значения не имеет.', '标识符的顺序', '无关紧要。'],
+            ['Значения не зависят от', 'порядка.', '这些值不取决于', '顺序。'],
+        ])(
+            'transports a prose word next to a source line break: %s',
+            async (left, right, first, last) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const unit = wrap(left + lb + right);
+                let sent: string[] = [];
+                const bad = [lb + '标识符的顺序无关紧要。', '标识符的顺序无关紧要。'];
+                const client = makeClient((parts, call) => {
+                    if (call < 3) return [bad[Math.min(call, 1)]];
+                    sent = parts;
+                    return [first, last];
+                });
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                    wrap(first + lb + last),
+                ]);
+                expect(sent).toEqual([left, right]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.unitsTotal).toBe(1);
+                expect(stat.untranslated).toBe(0);
+                expect(stat.markupDamaged).toBe(0);
+            },
+        );
+
+        it.each(['A', 'я', '...', '123', '{{порядок}}', 'id123', '%%%порядок%%%', '/порядок/'])(
+            'does not split a symbol or non-prose line-break edge: %s',
+            async (left) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const unit = wrap(left + lb + 'идентификаторов значения не имеет.');
+                let sent: string[] = [];
+                const client = makeClient((parts, call) => {
+                    if (call === 3) sent = parts;
+                    return ['标识符的顺序无关紧要。'];
+                });
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(sent).toHaveLength(1);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+            },
+        );
+
+        it.each(['foo_bar', 'A+B', 'https://private.test', '<x id="x-2"/>', 'Порядок'])(
+            'does not broaden a word-only recovery into ambiguous prose: %s',
+            async (right) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const unit = wrap('Порядок' + lb + right);
+                let sent: string[] = [];
+                const client = makeClient((parts, call) => {
+                    if (call === 3) sent = parts;
+                    return ['标识符的顺序无关紧要。'];
+                });
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(sent).toHaveLength(1);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+            },
+        );
+
         it.each(['配送费用相同，无论', '&#x914D;送费用相同，无论'])(
             'translates two adjacent source parts in one final completion: %s',
             async (firstAnswer) => {
@@ -2509,10 +2573,10 @@ describe('translate ai provider', () => {
         it('keeps an internal line break inside translated prose on the final retry', async () => {
             const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
             const unit = wrap(
-                `Стоимость${lb}доставки одинакова независимо от того, кто доставляет заказ: Маркет или сам продавец.`,
+                `Стоимость${lb}доставки одинакова независимо от того, кто доставляет заказ: <g ctype="bold" id="g-2">Маркет</g> или сам продавец.`,
             );
             const bad = `无论订单由谁配送\u2014\u2014Market还是卖家自行配送，配送费用都将相同。${lb}`;
-            const good = `配送费用相同，无论${lb}订单由谁配送：Market 还是卖家自行配送。`;
+            const good = `配送费用相同，无论${lb}订单由谁配送：<g ctype="bold" id="g-2">Market</g> 还是卖家自行配送。`;
             const client = makeClient((fragments, call) => {
                 if (call < 3) return [call === 0 ? bad : '无论订单由谁配送，配送费用都是相同的。'];
                 const token = fragments[0].match(
@@ -2705,9 +2769,7 @@ describe('translate ai provider', () => {
         ])(
             'keeps line-break checklist metadata safe for %s',
             async (_, lb, duplicate, expected) => {
-                const unit = wrap(
-                    `Порядок${lb}идентификаторов${duplicate ? lb : ''}не имеет значения.`,
-                );
+                const unit = wrap(`A${lb}идентификаторов${duplicate ? lb : ''}не имеет значения.`);
                 const client = makeClient(() => ['标识符的顺序无关紧要。']);
                 const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
                 params.targetLanguage = 'zh';

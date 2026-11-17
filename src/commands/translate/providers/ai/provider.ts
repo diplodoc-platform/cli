@@ -652,11 +652,16 @@ function splitFinalLinebreak(fragment: string, text: string): FinalProseTranspor
     if (!node || unwrapUnit(fragment).text !== text || linebreakNodes(text)?.length !== 1)
         return undefined;
     const parts = [text.slice(0, node.start), text.slice(node.start + node.tag.length)];
+    const words = parts.map((part) => part.match(/[\p{L}\p{M}]+/gu) ?? []);
     if (
+        words.every((part) => part.length < 2) ||
+        (words.some((part) => part.length === 1) &&
+            parts.some((part) => !/^[\p{L}\p{M}\s.,!?;:…]+$/u.test(part))) ||
         parts.some(
-            (part) =>
+            (part, index) =>
                 /[<>`\r\n]|\b(?:[a-z][a-z0-9+.-]*:\/\/|mailto:|www\.)/iu.test(part) ||
-                (part.match(/[\p{L}\p{M}]+/gu)?.length ?? 0) < 2,
+                !words[index].length ||
+                (words[index].length === 1 && (words[index][0].match(/\p{L}/gu)?.length ?? 0) < 2),
         )
     )
         return undefined;
