@@ -121,6 +121,16 @@ const codeWrap = (text: string) =>
 const COMMIT = 'https://github.com/ytsaurus/ytsaurus/commit/8013fee';
 const ISSUE = 'https://github.com/ytsaurus/ytsaurus/issues/930';
 const LINK_OPEN = `<g ctype="link" equiv-text="[{{text}}](${COMMIT})" id="g-1" x-begin="[" x-end="](${COMMIT})">`;
+const thresholdUnit = () =>
+    wrap(
+        `${CODE_OPEN}MINIMUM_FOR_PROMOS${CODE_CLOSE} — товары с ` +
+            LINK_OPEN.split(COMMIT).join('*minimumForBestseller') +
+            'установленным минимумом по цене для акций</g>, который соответствует порогу ' +
+            CODE_OPEN.replace('x-1', 'x-3') +
+            'maxPromoPrice' +
+            CODE_CLOSE.replace('x-2', 'x-4') +
+            '.',
+    );
 const LINK_TAIL =
     '<x ctype="link_text_part_close" equiv-text="]" id="x-1"/>' +
     '<x ctype="link_attributes_part_open" equiv-text="(" id="x-2"/>' +
@@ -2106,6 +2116,163 @@ describe('translate ai provider', () => {
                 'literal-backtick-',
             );
         });
+
+        it('keeps a verified inline skeleton outside the final model response', async () => {
+            const unit = thresholdUnit();
+            let lastSent: string[] = [];
+            const client = makeClient((parts, call) => {
+                if (call < 3) return ['商品条件。'];
+                lastSent = parts;
+                return ['— 商品已设置', '促销最低价格', '，对应阈值'];
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'inline-skeleton-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            const expected = unit
+                .replace('— товары с', '— 商品已设置')
+                .replace('установленным минимумом по цене для акций', '促销最低价格')
+                .replace(', который соответствует порогу', '，对应阈值');
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([expected]);
+            expect(lastSent).toEqual([
+                '— товары с',
+                'установленным минимумом по цене для акций',
+                ', который соответствует порогу',
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.unitsTotal).toBe(1);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(expected);
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([expected]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+        });
+
+        it('does not confuse an ASCII code identifier with a prose substring', async () => {
+            const unit = thresholdUnit().replace('MINIMUM_FOR_PROMOS', 'id');
+            const client = makeClient((_parts, call) =>
+                call < 3
+                    ? ['商品条件。']
+                    : ['— items with', 'a valid minimum price', ', matching the threshold'],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                unit
+                    .replace('— товары с', '— items with')
+                    .replace('установленным минимумом по цене для акций', 'a valid minimum price')
+                    .replace(', который соответствует порогу', ', matching the threshold'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it.each([
+            ['仅一段。'],
+            ['甲', '乙'],
+            ['甲', '乙', '丙', '丁'],
+            ['', '甲', '乙', '丙'],
+            ['甲', '乙', '丙', ''],
+            ['甲', '', '丙'],
+            ['甲', '&amp;', '丙'],
+            ['甲', '<source></source>', '丙'],
+            ['甲', '<g ctype="link" id="g-1">价格</g>', '丙'],
+            ['甲', '&lt;x id="x-1"/&gt;', '丙'],
+            ['甲', 'literal-0123456789abcdef', '丙'],
+            ['товары с', '价格', '丙'],
+            ['甲', '价格', 'Goods with'],
+            ['MINIMUM_FOR_PROMOS 商品', '价格', '丙'],
+            ['甲', '价格', 'maxPromoPrice 阈值'],
+            ['甲', '促销最低价格 %%%1%%%', '丙'],
+            ['甲', '促销最低价格 &#37;&#37;&#37;0&#37;&#37;&#37;', '丙'],
+        ])('refuses incomplete or unsafe inline prose slots: %j', async (...answers) => {
+            const unit = thresholdUnit();
+            let lastSent: string[] = [];
+            const client = makeClient((parts, call) => {
+                if (call < 3) return ['商品条件。'];
+                lastSent = parts;
+                return answers;
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'bad-inline-skeleton-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(lastSent).toEqual([
+                '— товары с',
+                'установленным минимумом по цене для акций',
+                ', который соответствует порогу',
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.unitsTotal).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it.each([
+            ['duplicate ID', (unit: string) => unit.replace('id="x-4"', 'id="x-1"')],
+            [
+                'equal code identities',
+                (unit: string) => unit.replace('MINIMUM_FOR_PROMOS', 'maxPromoPrice'),
+            ],
+            [
+                'source unit reference',
+                (unit: string) => unit.replace('— товары с', '%%%1%%% — товары с'),
+            ],
+            [
+                'unknown attribute',
+                (unit: string) => unit.replace('ctype="link"', 'ctype="link" data-note="value"'),
+            ],
+            ['wrong link wrapper', (unit: string) => unit.replace('x-begin="["', 'x-begin="!["')],
+            [
+                'ambiguous code',
+                (unit: string) => unit.replace('MINIMUM_FOR_PROMOS', 'MINIMUM FOR PROMOS'),
+            ],
+            [
+                'wrong code delimiter',
+                (unit: string) => unit.replace('equiv-text="`"', 'equiv-text="``"'),
+            ],
+            [
+                'nested formatting',
+                (unit: string) =>
+                    unit.replace(
+                        'установленным минимумом',
+                        '<g ctype="bold" id="g-2">установленным</g> минимумом',
+                    ),
+            ],
+            ['comment', (unit: string) => unit.replace('— товары с', '<!-- note -->— товары с')],
+            [
+                'raw directive',
+                (unit: string) => unit.replace('— товары с', '{{private}} — товары с'),
+            ],
+            [
+                'raw address',
+                (unit: string) => unit.replace('— товары с', 'https://private.test — товары с'),
+            ],
+            ['stray angle bracket', (unit: string) => unit.replace('— товары с', '< — товары с')],
+            [
+                'prose outside the skeleton',
+                (unit: string) => unit.replace('</source>', ' Дополнительный текст.</source>'),
+            ],
+        ])(
+            'keeps an unproven inline skeleton on the ordinary final path: %s',
+            async (_fault, mutate) => {
+                const unit = mutate(thresholdUnit());
+                let lastSent: string[] = [];
+                const client = makeClient((parts, call) => {
+                    if (call === 3) lastSent = parts;
+                    return ['商品条件。'];
+                });
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(lastSent).toHaveLength(1);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+            },
+        );
 
         it.each(['配送费用相同，无论', '&#x914D;送费用相同，无论'])(
             'translates two adjacent source parts in one final completion: %s',

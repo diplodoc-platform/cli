@@ -111,6 +111,14 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    rejoin them with the exact source tag before all original unit guards. These
    are wire parts of one source unit, not two retry/cache units. Never infer a
    missing boundary's position from translated prose or add a fifth request.
+   A verified code/link/code sentence can similarly send three prose slots in
+   the final request. Accept only the narrow six-tag shape with unique generated
+   IDs, two distinct masked ASCII code identifiers and one nonnested link. Rebuilding
+   the masked source from quote-aware original nodes must match byte for byte.
+   Keep source whitespace and markup outside the model, reject added markup,
+   opaque IDs, translation-unit references and duplicated hidden code values in
+   replies, then apply every original whole-unit guard. Broader shapes retain
+   the ordinary retry path.
    The last isolated request must differ even without groups. It can list
    generated group/line-break IDs and known structural types as a checklist.
    Apply the same address and literal-code masks, then
