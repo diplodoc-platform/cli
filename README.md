@@ -12,7 +12,7 @@
 # yfm-docs
 
 Yfm-docs lets you build a full-fledged documentation project: with navigation, internal transitions, and full
-[Yandex Flavored Markdown (YFM)](https://diplodoc.com/docs/en/index-yfm) support.
+[Yandex Flavored Markdown (YFM)](https://diplodoc.com/docs/en/syntax/) support.
 
 ![Example of displaying a documentation page](.github/assets/overview.jpg)
 
