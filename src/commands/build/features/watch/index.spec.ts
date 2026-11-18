@@ -198,6 +198,156 @@ describe('Build watch feature', () => {
     });
 
     describe('toc', () => {
+        it.each(['md', 'html'])(
+            'updates page outputs when only inherited visibility changes (%s)',
+            async (format) => {
+                watch.end();
+                await promise;
+                watch.reset();
+                const toc = (agent: boolean, conflict = false) =>
+                    dump({
+                        items: [
+                            {name: 'Home', href: 'home.md'},
+                            ...(conflict ? [{name: 'Duplicate', href: '..steps.md'}] : []),
+                            {
+                                name: 'Operations',
+                                ...(agent && {visibility: 'agent'}),
+                                items: [
+                                    {name: 'Steps', href: '..steps.md'},
+                                    {name: 'Overview', href: 'overview.yaml'},
+                                ],
+                            },
+                        ],
+                    });
+                await setup(`-f ${format} --ai-md-companions --no-llms --static-content`, {
+                    globs: {'**/toc.yaml': ['toc.yaml'] as NormalizedPath[]},
+                    files: {
+                        'toc.yaml': toc(false),
+                        'home.md': '# Home',
+                        '..steps.md': '# Steps',
+                        'overview.yaml': 'title: Overview\nlinks: []',
+                    },
+                });
+
+                const currentRun = run(build);
+                const writes = vi.mocked(currentRun.write);
+                const output = (file: string) =>
+                    writes.mock.calls.find(([path]) => path === join(currentRun.output, file))?.[1];
+                const remove = vi.spyOn(currentRun.fs, 'rm').mockResolvedValue(undefined);
+                try {
+                    writes.mockClear();
+                    await change('./toc.yaml', toc(true, true));
+                    expect(currentRun.logger.error).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            message: expect.stringContaining('Conflicting visibility'),
+                        }),
+                    );
+                    expect(remove).not.toHaveBeenCalled();
+                    vi.mocked(currentRun.logger.error).mockClear();
+                    await change('./toc.yaml', toc(true));
+                    for (const file of ['..steps.md', 'overview.yaml']) {
+                        if (format === 'md') {
+                            expect(output(file)).toContain('pageAudience: agent');
+                            expect(output('home.md')).toBeUndefined();
+                        } else {
+                            expect(remove).toHaveBeenCalledWith(join(currentRun.output, file), {
+                                force: true,
+                            });
+                        }
+                    }
+                    if (format === 'html') {
+                        for (const file of ['..steps.html', 'overview.html']) {
+                            expect(remove).toHaveBeenCalledWith(join(currentRun.output, file), {
+                                force: true,
+                            });
+                            expect(output(file)).toBeUndefined();
+                        }
+                        expect(output('home.html')).toBeDefined();
+                        expect(output('home.html')).not.toContain('..steps.html');
+                    }
+
+                    writes.mockClear();
+                    await change('./toc.yaml', toc(false));
+                    for (const file of ['..steps.md', 'overview.yaml']) {
+                        expect(output(file)).toBeDefined();
+                        expect(output(file)).not.toContain('pageAudience: agent');
+                    }
+                    if (format === 'html') {
+                        expect(output('..steps.html')).toBeDefined();
+                        expect(output('overview.html')).toBeDefined();
+                        expect(output('home.html')).toContain('..steps.html');
+                    }
+                    expect(currentRun.logger.error).not.toHaveBeenCalled();
+                } finally {
+                    remove.mockRestore();
+                }
+            },
+        );
+
+        it('finishes pending page and TOC changes when another TOC resolves a conflict', async () => {
+            watch.end();
+            await promise;
+            watch.reset();
+            const toc = (hrefs: string[], agent = false) =>
+                dump({
+                    items: hrefs.map((href) => ({
+                        name: href,
+                        href,
+                        ...(agent && {visibility: 'agent'}),
+                    })),
+                });
+            const source = ['shared.md', 'other.md'];
+            const secondaryToc = (agent = false) =>
+                dump({
+                    items: [
+                        {name: 'Shared', href: '../shared.md', ...(agent && {visibility: 'agent'})},
+                        {name: 'Unchanged', href: '../unchanged.md'},
+                    ],
+                });
+            await setup('-f md --llms', {
+                globs: {'**/toc.yaml': ['toc.yaml', 'second/toc.yaml'] as NormalizedPath[]},
+                files: {
+                    'toc.yaml': toc(source),
+                    'second/toc.yaml': secondaryToc(),
+                    'unchanged.md': '# Unchanged\n\nOld body.',
+                    'shared.md': '# Shared',
+                    'other.md': '# Other',
+                },
+            });
+            const currentRun = run(build);
+            const writes = vi.mocked(currentRun.write);
+            writes.mockClear();
+            await change('./toc.yaml', toc(source, true));
+            expect(currentRun.logger.error).toHaveBeenCalled();
+            expect(writes).not.toHaveBeenCalled();
+            await change('./unrelated.txt', 'unrelated');
+            await change('./unchanged.md', '# Unchanged\n\nEdited during TOC conflict.');
+            expect(writes).not.toHaveBeenCalled();
+            vi.mocked(currentRun.logger.error).mockClear();
+
+            await change('./second/toc.yaml', secondaryToc(true));
+            for (const page of source) {
+                expect(writes).toHaveBeenCalledWith(
+                    join(currentRun.output, page),
+                    expect.stringContaining('pageAudience: agent'),
+                    true,
+                );
+            }
+            expect(writes).toHaveBeenCalledWith(
+                join(currentRun.output, 'toc.yaml'),
+                expect.stringContaining('visibility: agent'),
+                true,
+            );
+            for (const file of ['unchanged.md', 'second/llms-full.txt']) {
+                expect(writes).toHaveBeenCalledWith(
+                    join(currentRun.output, file),
+                    expect.stringContaining('Edited during TOC conflict.'),
+                    true,
+                );
+            }
+            expect(currentRun.logger.error).not.toHaveBeenCalled();
+        });
+
         it.each(['html', 'md'])(
             'refreshes every LLMS metadata field and only its dependent outputs (%s)',
             async (format) => {

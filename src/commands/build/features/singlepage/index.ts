@@ -104,6 +104,9 @@ export class SinglePage {
                 }
 
                 for (const toc of run.toc.tocs) {
+                    if (toc.visibility === 'agent') {
+                        continue;
+                    }
                     const entries: SinglePageResult[] = [];
                     await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
                         const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));

@@ -190,6 +190,11 @@ reading the articles or rebuilding pages and full corpora. Missing fields still
 fall back to `.yfm`; empty strings clear them. A metadata-only edit that preserves
 the resolved values does not rewrite LLMS artifacts or rebuild pages.
 
+When page-level `visibility: agent` produces `llms-agent.txt`, the same metadata
+and watch updates apply to its header. Its links and corpus remain separate from
+the human index. Removing the last agent-only page removes the obsolete agent
+index; empty or removed TOCs remove both audience indexes and corpora.
+
 LLMS updates run after the affected TOCs and pages finish rebuilding, before the
 browser reload notification. The build's `AfterRebuild` hook receives the changed
 input paths, affected TOC paths (including removed TOCs), and rebuilt page paths

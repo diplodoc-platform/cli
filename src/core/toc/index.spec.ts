@@ -88,6 +88,73 @@ function test(
 }
 
 describe('toc-loader', () => {
+    describe('page audience validation', () => {
+        it.each(['agents', 'human', 'false', 'null'])(
+            'rejects invalid visibility %s before generation',
+            async (value) => {
+                const {run, toc} = setupService();
+                mockData(run, `items:\n  - href: agent.md\n    visibility: ${value}\n`, {}, {}, []);
+                await expect(toc.init(['toc.yaml'] as NormalizedPath[])).rejects.toThrow(
+                    'Invalid visibility',
+                );
+            },
+        );
+
+        it('refreshes an initially empty audience index when a worker receives or replaces a TOC', async () => {
+            const {toc} = setupService();
+            const path = 'guide.md' as NormalizedPath;
+            expect(await toc.init([])).toEqual([]);
+            expect(toc.audience(path)).toBeUndefined();
+
+            const shared = {path: 'toc.yaml', href: path} as Toc;
+            toc.relations.consume({
+                nodes: [{name: 'toc.yaml', data: {type: 'toc', data: shared}}],
+                dependencies: [],
+            });
+            expect(toc.audience(path)).toBe('common');
+            const previousDump = await toc.dump(shared.path);
+            expect(await toc.dump(shared.path)).toBe(previousDump);
+
+            toc.relations.setNodeData('toc.yaml', {
+                type: 'toc',
+                data: {...shared, visibility: 'agent'},
+            });
+            expect(toc.audience(path)).toBe('agent');
+            toc.release(shared.path);
+            expect((await toc.dump(shared.path)).data.visibility).toBe('agent');
+            toc.relations.release('toc.yaml');
+            expect(toc.audience(path)).toBeUndefined();
+        });
+
+        it('inherits agent visibility from an unnamed included TOC', async () => {
+            const {run, toc} = setupService();
+            mockData(
+                run,
+                'items:\n  - include:\n      path: nested/toc.yaml\n      mode: link\n',
+                {},
+                {
+                    'nested/toc.yaml': 'visibility: agent\nitems:\n  - href: agent.md\n',
+                },
+                [],
+            );
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
+            expect(toc.audience('nested/agent.md' as NormalizedPath)).toBe('agent');
+        });
+
+        it('rejects a shared alias of an agent-only document', async () => {
+            const {run, toc} = setupService();
+            mockData(
+                run,
+                'items:\n  - href: agent.md\n  - href: agent.md\n    visibility: agent\n',
+                {},
+                {},
+                [],
+            );
+            await expect(toc.init(['toc.yaml'] as NormalizedPath[])).rejects.toThrow(
+                'common at toc.yaml.items[0] and agent at toc.yaml.items[1]',
+            );
+        });
+    });
     describe('entry index', () => {
         it('shares the reachable entry set and keeps the array API independent', () => {
             const {toc} = setupService();
