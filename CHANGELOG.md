@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.71.0](https://github.com/diplodoc-platform/cli/compare/v5.70.3...v5.71.0) (2026-11-18)
+
+
+### Features
+
+* **cli:** support page-level agent-only content #DOCSTOOLS-6733 ([14f8520](https://github.com/diplodoc-platform/cli/commit/14f8520be539c0242b6c17ea94f7cf591eb9ca98))
+
+
+### Bug Fixes
+
+* preserve immutable dependency candidate lockfiles ([db619d4](https://github.com/diplodoc-platform/cli/commit/db619d4e27f832d3554c2b220bb007543b527088))
+
 ## [5.70.3](https://github.com/diplodoc-platform/cli/compare/v5.70.2...v5.70.3) (2026-11-16)
 
 
