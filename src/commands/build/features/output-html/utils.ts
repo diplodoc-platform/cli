@@ -33,13 +33,32 @@ import * as openapi from '@diplodoc/openapi-extension';
 import * as pageConstructor from '@diplodoc/page-constructor-extension/plugin/csr';
 import {noTranslate} from '@diplodoc/translation';
 
-import {filterTokens} from '~/core/utils';
+import {filterTokens, getHrefTokenAttr} from '~/core/utils';
 
 import includes from './plugins/includes';
 import includesDetect from './plugins/includes-detect';
 import links from './plugins/links';
 import linksAutotitles from './plugins/links-autotitles';
 import linksExternal from './plugins/links-external';
+
+/** Syntax rules that can contain links or change which links are visible. */
+export function getPageLinkPlugins() {
+    return [
+        deflist,
+        includes,
+        includesDetect,
+        cut,
+        notes,
+        anchors,
+        tabs,
+        monospace,
+        table,
+        term,
+        inlineCode,
+        blockAnchor,
+        visibility,
+    ];
+}
 
 export function getBaseMdItPlugins() {
     return [
@@ -120,15 +139,6 @@ export function getCustomMdItPlugins() {
     } catch {
         return [];
     }
-}
-
-export function getHrefTokenAttr(token: Token) {
-    const href = token.attrGet('href') || '';
-    try {
-        return decodeURI(href);
-    } catch {}
-
-    return href;
 }
 
 /**

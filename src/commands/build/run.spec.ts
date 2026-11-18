@@ -224,3 +224,47 @@ describe('Renders prepared for anchor validation', () => {
         expect(renders()).toBe(2);
     });
 });
+
+describe('page audience link diagnostics', () => {
+    it.each([
+        {sourceAudience: 'common', reportErrors: true, errors: 1},
+        {sourceAudience: 'agent', reportErrors: true, errors: 0},
+        {sourceAudience: 'common', reportErrors: false, errors: 0},
+        {sourceAudience: 'agent', reportErrors: false, errors: 0},
+    ])(
+        'checks only human output, source=$sourceAudience, reportErrors=$reportErrors',
+        async ({sourceAudience, reportErrors, errors}) => {
+            const run = setupRun({
+                langs: ['ru'],
+                idGenerator: 'constant',
+                content: {maxInlineSvgSize: 0},
+                template: {enabled: false, features: {substitutions: false}, scopes: {code: false}},
+            });
+            vi.spyOn(run.markdown, 'titles').mockResolvedValue({});
+            vi.spyOn(run.toc, 'audience').mockImplementation((path) => {
+                if (path === 'ru/index.md') {
+                    return sourceAudience as 'agent' | 'common';
+                }
+                return path === 'ru/agent.md' ? 'agent' : undefined;
+            });
+            const error = run.logger.error;
+            const file = normalizePath('ru/index.md');
+            const source = '[Agent](/ru/agent.md)';
+            const options = {assets: [], deps: [], reportErrors};
+            await run.collectAnchors(file, source, options);
+            expect(error).not.toHaveBeenCalled();
+            expect(run['anchorRenders'].size).toBe(1);
+            await run.transform(file, source, options);
+            expect(run['anchorRenders'].size).toBe(0);
+
+            expect(error).toHaveBeenCalledTimes(errors);
+            if (errors) {
+                expect(error).toHaveBeenCalledWith(
+                    expect.stringContaining(
+                        'Human page ru/index.md links to agent-only page ru/agent.md',
+                    ),
+                );
+            }
+        },
+    );
+});

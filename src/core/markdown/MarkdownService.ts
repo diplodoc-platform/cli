@@ -222,6 +222,28 @@ export class MarkdownService {
         return this._deps(normalizePath(path));
     }
 
+    /** Resolves includes for either a complete article or an embedded Markdown field. */
+    async expandIncludes(deps: IncludeInfo[], from: NormalizedPath): Promise<IncludeInfo[]> {
+        const internals: IncludeInfo[][] = await all(
+            deps.map(async ({path}) => {
+                try {
+                    return await this._deps(path, from);
+                } catch (error) {
+                    const isMergedInput =
+                        this.config.outputFormat !== 'md' && this.config.preprocess?.mergeIncludes;
+                    const isFileNotFound =
+                        error instanceof Error && 'code' in error && error.code === 'ENOENT';
+                    if (isMergedInput && isFileNotFound) {
+                        return [];
+                    }
+                    throw error;
+                }
+            }),
+        );
+
+        return deps.concat(...internals);
+    }
+
     async graph(path: RelativePath) {
         return this._graph(normalizePath(path));
     }
@@ -346,25 +368,7 @@ export class MarkdownService {
 
         await this.load(file, from);
 
-        const deps = this.pathToDeps.get(key) || [];
-        const internals: IncludeInfo[][] = await all(
-            (this.pathToDeps.get(key) || []).map(async ({path}) => {
-                try {
-                    return await this._deps(path, from || file);
-                } catch (error) {
-                    const isMergedInput =
-                        this.config.outputFormat !== 'md' && this.config.preprocess?.mergeIncludes;
-                    const isFileNotFound =
-                        error instanceof Error && 'code' in error && error.code === 'ENOENT';
-                    if (isMergedInput && isFileNotFound) {
-                        return [];
-                    }
-                    throw error;
-                }
-            }),
-        );
-
-        return deps.concat(...internals);
+        return this.expandIncludes(this.pathToDeps.get(key) || [], from || file);
     }
 
     private async _graph(path: NormalizedPath, from?: NormalizedPath): Promise<EntryGraph> {

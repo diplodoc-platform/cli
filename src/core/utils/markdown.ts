@@ -36,3 +36,12 @@ export function filterTokens(tokens: Token[], type: string, handler: TokenWalker
         }
     }
 }
+
+export function getHrefTokenAttr(token: Token) {
+    const href = token.attrGet('href') || '';
+    try {
+        return decodeURI(href);
+    } catch {}
+
+    return href;
+}

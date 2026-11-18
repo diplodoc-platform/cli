@@ -112,6 +112,8 @@ export type Alternate = {
  * ```
  */
 export type Meta = {
+    /** Inherited page audience, resolved from toc.yaml rather than source front matter. */
+    pageAudience?: 'agent';
     /** Page title for HTML head and SEO */
     title?: string;
     /** Page description for meta tag and SEO */
