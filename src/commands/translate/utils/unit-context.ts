@@ -33,6 +33,31 @@ function inlineCode(text: string) {
     return result;
 }
 
+function matchProbedLiterals(
+    source: string,
+    probe: string,
+    sentinels: ReadonlyMap<string, number>,
+    units: readonly string[],
+): Set<number> {
+    const found = new Set<number>();
+    const before = inlineCode(source),
+        after = inlineCode(probe);
+    if (before.length !== after.length) return found;
+    for (const [index, token] of after.entries()) {
+        if (before[index].markup !== token.markup) return new Set();
+        const id = sentinels.get(token.content);
+        if (id === undefined) {
+            if (before[index].content !== token.content) return new Set();
+            continue;
+        }
+        if (probe.split(token.content).length !== 2) return new Set();
+        const original = String(compose('%%%0%%%', [units[id]], {useSource: true}));
+        if (before[index].content !== original) return new Set();
+        found.add(id);
+    }
+    return found.size === sentinels.size ? found : new Set();
+}
+
 function literalLeaf(source: string, skeleton: string, units: readonly string[]): Set<number> {
     const found = new Set<number>();
     if (/%%%\d+%%%/.test(source) || !skeleton.includes('`')) return found;
@@ -67,22 +92,7 @@ function literalLeaf(source: string, skeleton: string, units: readonly string[])
     );
     try {
         const probe = String(compose(localSkeleton, probeUnits, {useSource: true}));
-        const before = inlineCode(source),
-            after = inlineCode(probe);
-        if (before.length !== after.length) return found;
-        for (const [index, token] of after.entries()) {
-            if (before[index].markup !== token.markup) return new Set();
-            const id = sentinels.get(token.content);
-            if (id === undefined) {
-                if (before[index].content !== token.content) return new Set();
-                continue;
-            }
-            if (probe.split(token.content).length !== 2) return new Set();
-            const original = String(compose('%%%0%%%', [units[id]], {useSource: true}));
-            if (before[index].content !== original) return new Set();
-            found.add(id);
-        }
-        return found.size === candidates.size ? found : new Set();
+        return matchProbedLiterals(source, probe, sentinels, units);
     } catch {
         return new Set();
     }
