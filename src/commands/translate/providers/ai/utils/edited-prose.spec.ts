@@ -131,6 +131,7 @@ describe('lowercase residual source prose', () => {
         'размещения 合同',
         '<g ctype="link" equiv-text="[{{text}}](*quantum)">квант</g>',
         '账户（кабинет）',
+        '账户 < кабинет',
     ])('rejects an ordinary residual word in otherwise translated prose: %s', (text) => {
         expect(hasLowercaseSourceProse(text, marker)).toBe(true);
     });
