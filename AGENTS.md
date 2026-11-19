@@ -66,6 +66,17 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    counters; a preservation run that makes zero model requests is not a quality
    check of newly translated text.
 
+   Compact extraction can hoist inline-code delimiters into the skeleton while
+   leaving a bare word as a translation unit. Snapshot string leaves before
+   extraction mutates YAML/JSON, and prove whole-unit inline ownership per
+   occurrence by composing a probe and comparing parsed code spans. Preserve
+   the existing unit and seed keys. Such literals bypass generated cache,
+   in-flight reuse and model requests; only actual matches from that file's
+   approved sequence retain their approved wording. A shared dictionary hit is
+   insufficient provenance. Literal indexes must not consume prose seed hints.
+   When matching moved approved units outside the common subsequence, consume
+   unused entries per source text, rather than advancing one global cursor.
+
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).
