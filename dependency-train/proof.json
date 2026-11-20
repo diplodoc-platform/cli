@@ -1,0 +1,2676 @@
+{
+  "schema": 3,
+  "trainId": "784becfd74f8438f",
+  "toolSha": "31d24861c24dbd2859a536476e70e6d6ad346d5a",
+  "packages": [
+    {
+      "repo": "page-constructor-extension",
+      "name": "@diplodoc/page-constructor-extension",
+      "sourceSha": "916ad34987f7a33fcb77253e4860af4ca5ffc69e",
+      "archiveSha256": "1f4343756ed659b8ba600df749e37456ca2882de97750f5e1bfcf3895d6319ce",
+      "sourceLockSha256": "42799829a0bfd422312444f4eb72df32d41b799bfe76cdfa5ff860d32c7bb6d0",
+      "resolutions": [
+        {
+          "path": "node_modules/@diplodoc/directive",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive",
+          "version": "2.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/utils",
+          "version": "2.3.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor",
+          "version": "8.21.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@bem-react/classname",
+          "version": "1.7.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components",
+          "version": "4.23.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/@bem-react/classname",
+          "version": "1.7.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/@gravity-ui/date-utils",
+          "version": "2.6.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/@gravity-ui/date-utils/node_modules/dayjs",
+          "version": "1.11.10"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/@gravity-ui/date-utils/node_modules/lodash",
+          "version": "4.17.23"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/@gravity-ui/icons",
+          "version": "2.18.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/@gravity-ui/icons/node_modules/tslib",
+          "version": "2.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/lodash",
+          "version": "4.17.23"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/universal-cookie",
+          "version": "7.2.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/universal-cookie/node_modules/@types/cookie",
+          "version": "0.6.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/components/node_modules/universal-cookie/node_modules/cookie",
+          "version": "0.7.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms",
+          "version": "5.20.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@bem-react/classname",
+          "version": "1.7.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-components",
+          "version": "3.4.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-components/node_modules/@bem-react/classname",
+          "version": "1.7.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-components/node_modules/@gravity-ui/date-utils",
+          "version": "2.6.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-components/node_modules/@gravity-ui/date-utils/node_modules/dayjs",
+          "version": "1.11.10"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-components/node_modules/@gravity-ui/date-utils/node_modules/lodash",
+          "version": "4.17.23"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-components/node_modules/@gravity-ui/icons",
+          "version": "2.18.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-components/node_modules/@gravity-ui/icons/node_modules/tslib",
+          "version": "2.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-components/node_modules/tslib",
+          "version": "2.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-utils",
+          "version": "2.6.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-utils/node_modules/dayjs",
+          "version": "1.11.10"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/date-utils/node_modules/lodash",
+          "version": "4.17.23"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/i18n",
+          "version": "1.8.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/icons",
+          "version": "2.18.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/@gravity-ui/icons/node_modules/tslib",
+          "version": "2.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/ajv",
+          "version": "8.20.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/ajv/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/ajv/node_modules/fast-uri",
+          "version": "3.1.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/ajv/node_modules/json-schema-traverse",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/ajv/node_modules/require-from-string",
+          "version": "2.0.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/final-form",
+          "version": "4.20.10"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/final-form/node_modules/@babel/runtime",
+          "version": "7.28.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/lodash",
+          "version": "4.17.23"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/react-final-form",
+          "version": "6.5.9"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/react-final-form/node_modules/@babel/runtime",
+          "version": "7.28.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/react-final-form/node_modules/final-form",
+          "version": "4.20.10"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/dynamic-forms/node_modules/react-final-form/node_modules/final-form/node_modules/@babel/runtime",
+          "version": "7.28.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/i18n",
+          "version": "1.8.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/icons",
+          "version": "2.18.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@gravity-ui/icons/node_modules/tslib",
+          "version": "2.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/animated",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/animated/node_modules/@react-spring/shared",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/animated/node_modules/@react-spring/shared/node_modules/@react-spring/rafz",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/animated/node_modules/@react-spring/shared/node_modules/@react-spring/types",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/animated/node_modules/@react-spring/types",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core/node_modules/@react-spring/animated",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core/node_modules/@react-spring/animated/node_modules/@react-spring/shared",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core/node_modules/@react-spring/animated/node_modules/@react-spring/shared/node_modules/@react-spring/rafz",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core/node_modules/@react-spring/animated/node_modules/@react-spring/shared/node_modules/@react-spring/types",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core/node_modules/@react-spring/animated/node_modules/@react-spring/types",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core/node_modules/@react-spring/shared",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core/node_modules/@react-spring/shared/node_modules/@react-spring/rafz",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core/node_modules/@react-spring/shared/node_modules/@react-spring/types",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/core/node_modules/@react-spring/types",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/shared",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/shared/node_modules/@react-spring/rafz",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/shared/node_modules/@react-spring/types",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/@react-spring/types",
+          "version": "10.1.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web/node_modules/csstype",
+          "version": "3.2.3"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv",
+          "version": "8.20.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv/node_modules/fast-uri",
+          "version": "3.1.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv/node_modules/json-schema-traverse",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv/node_modules/require-from-string",
+          "version": "2.0.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv-keywords",
+          "version": "5.1.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv-keywords/node_modules/ajv",
+          "version": "8.20.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv-keywords/node_modules/ajv/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv-keywords/node_modules/ajv/node_modules/fast-uri",
+          "version": "3.1.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv-keywords/node_modules/ajv/node_modules/json-schema-traverse",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv-keywords/node_modules/ajv/node_modules/require-from-string",
+          "version": "2.0.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/ajv-keywords/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/final-form",
+          "version": "4.20.10"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/final-form/node_modules/@babel/runtime",
+          "version": "7.28.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/github-buttons",
+          "version": "2.23.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/js-yaml-source-map",
+          "version": "0.2.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/js-yaml-source-map/node_modules/js-yaml",
+          "version": "4.1.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/js-yaml-source-map/node_modules/js-yaml/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/lodash",
+          "version": "4.17.23"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/monaco-editor",
+          "version": "0.52.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-final-form",
+          "version": "6.5.9"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-final-form/node_modules/@babel/runtime",
+          "version": "7.28.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-final-form/node_modules/final-form",
+          "version": "4.20.10"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-final-form/node_modules/final-form/node_modules/@babel/runtime",
+          "version": "7.28.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-monaco-editor",
+          "version": "0.59.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-monaco-editor/node_modules/monaco-editor",
+          "version": "0.52.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player",
+          "version": "2.16.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player/node_modules/deepmerge",
+          "version": "4.3.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player/node_modules/load-script",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player/node_modules/memoize-one",
+          "version": "5.2.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player/node_modules/prop-types",
+          "version": "15.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player/node_modules/prop-types/node_modules/loose-envify",
+          "version": "1.4.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player/node_modules/prop-types/node_modules/loose-envify/node_modules/js-tokens",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player/node_modules/prop-types/node_modules/object-assign",
+          "version": "4.1.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player/node_modules/prop-types/node_modules/react-is",
+          "version": "16.13.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-player/node_modules/react-fast-compare",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-slick",
+          "version": "0.31.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-slick/node_modules/classnames",
+          "version": "2.5.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-slick/node_modules/json2mq",
+          "version": "0.2.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-slick/node_modules/json2mq/node_modules/string-convert",
+          "version": "0.2.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-slick/node_modules/lodash.debounce",
+          "version": "4.0.8"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-slick/node_modules/resize-observer-polyfill",
+          "version": "1.5.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group",
+          "version": "4.4.5"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/@babel/runtime",
+          "version": "7.28.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/dom-helpers",
+          "version": "5.2.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/dom-helpers/node_modules/@babel/runtime",
+          "version": "7.28.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/dom-helpers/node_modules/csstype",
+          "version": "3.2.3"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/loose-envify",
+          "version": "1.4.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/loose-envify/node_modules/js-tokens",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/prop-types",
+          "version": "15.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/prop-types/node_modules/loose-envify",
+          "version": "1.4.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/prop-types/node_modules/loose-envify/node_modules/js-tokens",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/prop-types/node_modules/object-assign",
+          "version": "4.1.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-transition-group/node_modules/prop-types/node_modules/react-is",
+          "version": "16.13.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint",
+          "version": "10.3.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint/node_modules/@babel/runtime",
+          "version": "7.28.6"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint/node_modules/consolidated-events",
+          "version": "2.0.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint/node_modules/prop-types",
+          "version": "15.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint/node_modules/prop-types/node_modules/loose-envify",
+          "version": "1.4.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint/node_modules/prop-types/node_modules/loose-envify/node_modules/js-tokens",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint/node_modules/prop-types/node_modules/object-assign",
+          "version": "4.1.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint/node_modules/prop-types/node_modules/react-is",
+          "version": "16.13.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint/node_modules/react-is",
+          "version": "18.3.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html",
+          "version": "2.12.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/deepmerge",
+          "version": "4.3.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/escape-string-regexp",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2",
+          "version": "8.0.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/htmlparser2/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/is-plain-object",
+          "version": "5.1.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/parse-srcset",
+          "version": "1.0.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/postcss",
+          "version": "8.5.32"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/postcss/node_modules/nanoid",
+          "version": "3.3.20"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/postcss/node_modules/picocolors",
+          "version": "1.1.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/sanitize-html/node_modules/postcss/node_modules/source-map-js",
+          "version": "1.2.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys",
+          "version": "5.5.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/map-obj",
+          "version": "4.3.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/snake-case",
+          "version": "3.0.4"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/snake-case/node_modules/dot-case",
+          "version": "3.0.4"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/snake-case/node_modules/dot-case/node_modules/no-case",
+          "version": "3.0.4"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/snake-case/node_modules/dot-case/node_modules/no-case/node_modules/lower-case",
+          "version": "2.0.2"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/snake-case/node_modules/dot-case/node_modules/no-case/node_modules/lower-case/node_modules/tslib",
+          "version": "2.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/snake-case/node_modules/dot-case/node_modules/no-case/node_modules/tslib",
+          "version": "2.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/snake-case/node_modules/dot-case/node_modules/tslib",
+          "version": "2.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/snake-case/node_modules/tslib",
+          "version": "2.8.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/snakecase-keys/node_modules/type-fest",
+          "version": "3.13.1"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/swiper",
+          "version": "12.2.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/typograf",
+          "version": "7.6.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/utility-types",
+          "version": "3.11.0"
+        },
+        {
+          "path": "node_modules/@gravity-ui/page-constructor/node_modules/uuid",
+          "version": "9.0.1"
+        },
+        {
+          "path": "node_modules/cheerio",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select",
+          "version": "2.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select",
+          "version": "5.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check",
+          "version": "2.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer",
+          "version": "0.2.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding",
+          "version": "3.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2",
+          "version": "10.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/entities",
+          "version": "7.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter",
+          "version": "7.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream",
+          "version": "7.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/undici",
+          "version": "7.21.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/whatwg-mimetype",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/js-yaml",
+          "version": "4.1.1"
+        },
+        {
+          "path": "node_modules/js-yaml/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/lodash",
+          "version": "4.17.23"
+        }
+      ]
+    },
+    {
+      "repo": "transform",
+      "name": "@diplodoc/transform",
+      "sourceSha": "4f1f831c96e7354e8e92953aa7639d8076dddad8",
+      "archiveSha256": "7859ba84016361156dc9afcc8226e5d805288c75274c29e5c89d2aff8746358e",
+      "sourceLockSha256": "e197c1fd84010e5e6b943071b66287eb0c00fe7085792bc83d0ccd0ef6575765",
+      "resolutions": [
+        {
+          "path": "node_modules/@diplodoc/cut-extension",
+          "version": "1.1.8"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive",
+          "version": "2.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/cut-extension/node_modules/@diplodoc/utils",
+          "version": "2.3.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive",
+          "version": "2.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension",
+          "version": "0.2.7"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive",
+          "version": "2.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/@diplodoc/directive/node_modules/markdown-it-directive/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/file-extension/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/tabs-extension",
+          "version": "3.10.7"
+        },
+        {
+          "path": "node_modules/@diplodoc/utils",
+          "version": "2.3.6"
+        },
+        {
+          "path": "node_modules/chalk",
+          "version": "4.1.2"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/ansi-styles",
+          "version": "4.3.0"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/ansi-styles/node_modules/color-convert",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/ansi-styles/node_modules/color-convert/node_modules/color-name",
+          "version": "1.1.4"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/supports-color",
+          "version": "7.2.0"
+        },
+        {
+          "path": "node_modules/chalk/node_modules/supports-color/node_modules/has-flag",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/cheerio",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select",
+          "version": "2.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select",
+          "version": "5.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check",
+          "version": "2.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer",
+          "version": "0.2.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding",
+          "version": "3.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2",
+          "version": "10.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/entities",
+          "version": "7.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter",
+          "version": "7.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream",
+          "version": "7.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/undici",
+          "version": "7.30.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/whatwg-mimetype",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/css",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/css/node_modules/inherits",
+          "version": "2.0.4"
+        },
+        {
+          "path": "node_modules/css/node_modules/source-map",
+          "version": "0.6.1"
+        },
+        {
+          "path": "node_modules/css/node_modules/source-map-resolve",
+          "version": "0.6.0"
+        },
+        {
+          "path": "node_modules/css/node_modules/source-map-resolve/node_modules/atob",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/css/node_modules/source-map-resolve/node_modules/decode-uri-component",
+          "version": "0.2.2"
+        },
+        {
+          "path": "node_modules/cssfilter",
+          "version": "0.0.10"
+        },
+        {
+          "path": "node_modules/get-root-node-polyfill",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/github-slugger",
+          "version": "1.5.0"
+        },
+        {
+          "path": "node_modules/js-yaml",
+          "version": "4.3.2"
+        },
+        {
+          "path": "node_modules/js-yaml/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/lodash",
+          "version": "4.18.1"
+        },
+        {
+          "path": "node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs",
+          "version": "4.3.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-attrs/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdown-it-deflist",
+          "version": "2.1.0"
+        },
+        {
+          "path": "node_modules/markdown-it-sup",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/markdownlint",
+          "version": "0.32.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it",
+          "version": "13.0.2"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/entities",
+          "version": "3.0.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/linkify-it",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/linkify-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/mdurl",
+          "version": "1.0.1"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdown-it/node_modules/uc.micro",
+          "version": "1.0.6"
+        },
+        {
+          "path": "node_modules/markdownlint/node_modules/markdownlint-micromark",
+          "version": "0.1.7"
+        },
+        {
+          "path": "node_modules/markdownlint-rule-helpers",
+          "version": "0.17.2"
+        },
+        {
+          "path": "node_modules/quick-lru",
+          "version": "5.1.1"
+        },
+        {
+          "path": "node_modules/sanitize-html",
+          "version": "2.18.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/deepmerge",
+          "version": "4.3.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/escape-string-regexp",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2",
+          "version": "12.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domhandler",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domhandler/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils",
+          "version": "4.0.2"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer",
+          "version": "3.1.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "8.1.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/htmlparser2/node_modules/entities",
+          "version": "8.1.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/is-plain-object",
+          "version": "5.1.0"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/launder",
+          "version": "1.7.2"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/launder/node_modules/dayjs",
+          "version": "1.11.23"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/parse-srcset",
+          "version": "1.0.2"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/postcss",
+          "version": "8.5.30"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/postcss/node_modules/nanoid",
+          "version": "3.3.20"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/postcss/node_modules/picocolors",
+          "version": "1.1.1"
+        },
+        {
+          "path": "node_modules/sanitize-html/node_modules/postcss/node_modules/source-map-js",
+          "version": "1.2.2"
+        },
+        {
+          "path": "node_modules/slugify",
+          "version": "1.6.6"
+        },
+        {
+          "path": "node_modules/ts-dedent",
+          "version": "2.2.0"
+        }
+      ]
+    },
+    {
+      "repo": "client",
+      "name": "@diplodoc/client",
+      "sourceSha": "3a148ce0a5b2043666b11a6a7b848e9d15a1d9ff",
+      "archiveSha256": "39bb3b1ba56ae7fb3047be3eb854e02f068c0e626715d490945b250f922b05fb",
+      "sourceLockSha256": "2dcf2d56b07a663743cf7ccfe8a56bb06e0831c1574b55c39bc8468836279560",
+      "resolutions": []
+    },
+    {
+      "repo": "translation",
+      "name": "@diplodoc/translation",
+      "sourceSha": "ae0ad7ee9893a684a86d8a2ae6b75c0f084a21a5",
+      "archiveSha256": "5e861aee91590409b76a34434a61c6f1ede45fcf02656f566a42ad5734d6293f",
+      "sourceLockSha256": "28c787898994404fc43f5652d3ac5377969b1d24877ac0c0207699ec8e9adf11",
+      "resolutions": [
+        {
+          "path": "node_modules/@cospired/i18n-iso-languages",
+          "version": "4.2.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/ajv",
+          "version": "0.11.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/ajv/node_modules/js-yaml",
+          "version": "4.3.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/ajv/node_modules/js-yaml/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/directive/node_modules/markdown-it-directive",
+          "version": "2.0.6"
+        },
+        {
+          "path": "node_modules/@diplodoc/sentenizer",
+          "version": "0.0.12"
+        },
+        {
+          "path": "node_modules/@diplodoc/sentenizer/node_modules/ramda",
+          "version": "0.28.0"
+        },
+        {
+          "path": "node_modules/@shellscape/i18n-iso-countries",
+          "version": "7.5.0-shellscape.v1"
+        },
+        {
+          "path": "node_modules/@shellscape/i18n-iso-countries/node_modules/diacritics",
+          "version": "1.3.0"
+        },
+        {
+          "path": "node_modules/ajv",
+          "version": "8.20.0"
+        },
+        {
+          "path": "node_modules/ajv/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/ajv/node_modules/fast-uri",
+          "version": "3.1.0"
+        },
+        {
+          "path": "node_modules/ajv/node_modules/json-schema-traverse",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/ajv/node_modules/require-from-string",
+          "version": "2.0.2"
+        },
+        {
+          "path": "node_modules/ajv-keywords",
+          "version": "5.1.0"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv",
+          "version": "8.20.0"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv/node_modules/fast-uri",
+          "version": "3.1.0"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv/node_modules/json-schema-traverse",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/ajv/node_modules/require-from-string",
+          "version": "2.0.2"
+        },
+        {
+          "path": "node_modules/ajv-keywords/node_modules/fast-deep-equal",
+          "version": "3.1.3"
+        },
+        {
+          "path": "node_modules/cheerio",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select",
+          "version": "2.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select",
+          "version": "5.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check",
+          "version": "2.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer",
+          "version": "0.2.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding",
+          "version": "3.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2",
+          "version": "10.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/entities",
+          "version": "7.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter",
+          "version": "7.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream",
+          "version": "7.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/undici",
+          "version": "7.30.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/whatwg-mimetype",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/fast-xml-parser",
+          "version": "4.5.3"
+        },
+        {
+          "path": "node_modules/fast-xml-parser/node_modules/strnum",
+          "version": "1.1.2"
+        },
+        {
+          "path": "node_modules/js-yaml",
+          "version": "4.3.2"
+        },
+        {
+          "path": "node_modules/js-yaml/node_modules/argparse",
+          "version": "2.0.1"
+        },
+        {
+          "path": "node_modules/json-schema",
+          "version": "0.4.0"
+        },
+        {
+          "path": "node_modules/lodash",
+          "version": "4.18.1"
+        },
+        {
+          "path": "node_modules/markdown-it-deflist",
+          "version": "3.0.0"
+        },
+        {
+          "path": "node_modules/markdown-it-meta",
+          "version": "0.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-meta/node_modules/js-yaml",
+          "version": "3.15.2"
+        },
+        {
+          "path": "node_modules/markdown-it-meta/node_modules/js-yaml/node_modules/argparse",
+          "version": "1.0.10"
+        },
+        {
+          "path": "node_modules/markdown-it-meta/node_modules/js-yaml/node_modules/argparse/node_modules/sprintf-js",
+          "version": "1.0.3"
+        },
+        {
+          "path": "node_modules/markdown-it-meta/node_modules/js-yaml/node_modules/esprima",
+          "version": "4.0.1"
+        },
+        {
+          "path": "node_modules/markdown-it-sup",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/node-html-parser",
+          "version": "6.1.13"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select",
+          "version": "5.2.2"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/nth-check",
+          "version": "2.1.1"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/css-select/node_modules/nth-check/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/node-html-parser/node_modules/he",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/openapi-types",
+          "version": "12.1.3"
+        },
+        {
+          "path": "node_modules/ts-dedent",
+          "version": "2.2.0"
+        },
+        {
+          "path": "node_modules/uri-js",
+          "version": "4.4.1"
+        },
+        {
+          "path": "node_modules/uri-js/node_modules/punycode",
+          "version": "2.3.1"
+        },
+        {
+          "path": "node_modules/xml-formatter",
+          "version": "3.6.7"
+        },
+        {
+          "path": "node_modules/xml-formatter/node_modules/xml-parser-xo",
+          "version": "4.1.5"
+        },
+        {
+          "path": "node_modules/xml-parser-xo",
+          "version": "4.1.5"
+        },
+        {
+          "path": "node_modules/yaml",
+          "version": "2.9.0"
+        }
+      ]
+    }
+  ],
+  "hostPeers": [
+    {
+      "repo": "page-constructor-extension",
+      "context": "",
+      "name": "markdown-it"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "",
+      "name": "react-dom"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@diplodoc/utils",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/components",
+      "name": "@gravity-ui/uikit"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/components",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/components",
+      "name": "react-dom"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/date-components",
+      "name": "@gravity-ui/uikit"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/date-components",
+      "name": "@types/react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/date-components",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/date-components",
+      "name": "react-dom"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/dynamic-forms",
+      "name": "@gravity-ui/uikit"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/dynamic-forms",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/dynamic-forms",
+      "name": "react-dom"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/dynamic-forms",
+      "name": "react-is"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/icons",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/page-constructor",
+      "name": "@gravity-ui/uikit"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/page-constructor",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/page-constructor/node_modules/@react-spring/web",
+      "name": "react-dom"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/page-constructor/node_modules/react-monaco-editor",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/page-constructor/node_modules/react-monaco-editor",
+      "name": "react-dom"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/page-constructor/node_modules/react-slick",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/page-constructor/node_modules/react-slick",
+      "name": "react-dom"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@gravity-ui/page-constructor/node_modules/react-waypoint",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@react-spring/animated",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@react-spring/core",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/@react-spring/shared",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/markdown-it-directive",
+      "name": "@types/markdown-it"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/markdown-it-directive",
+      "name": "markdown-it"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/react-final-form",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/react-player",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/react-transition-group",
+      "name": "react"
+    },
+    {
+      "repo": "page-constructor-extension",
+      "context": "node_modules/react-transition-group",
+      "name": "react-dom"
+    },
+    {
+      "repo": "transform",
+      "context": "",
+      "name": "highlight.js"
+    },
+    {
+      "repo": "transform",
+      "context": "node_modules/@diplodoc/tabs-extension",
+      "name": "react"
+    },
+    {
+      "repo": "transform",
+      "context": "node_modules/@diplodoc/utils",
+      "name": "react"
+    },
+    {
+      "repo": "transform",
+      "context": "node_modules/markdown-it-directive",
+      "name": "@types/markdown-it"
+    },
+    {
+      "repo": "translation",
+      "context": "",
+      "name": "markdown-it"
+    },
+    {
+      "repo": "translation",
+      "context": "node_modules/markdown-it-directive",
+      "name": "@types/markdown-it"
+    },
+    {
+      "repo": "translation",
+      "context": "node_modules/markdown-it-directive",
+      "name": "markdown-it"
+    }
+  ],
+  "cliBaseLockSha256": "d389f2c05856cecb588bebe7b028621e6150b44c37d71668d5506b60742ecd4e",
+  "builds": [
+    {
+      "scope": "package-build",
+      "repo": "components",
+      "sourceSha": "84b2911d4734679fe0903a399904e60f0700d10d",
+      "sourceLockSha256": "4cd00c5af555e062e028007f238d70074fca7d7392c0f9278d3fcc6cc5d413e1",
+      "archiveSha256": "e56c1af283f6b730e3727b4f2a9e538b4fec92c95f811a4e574739e3095b875a",
+      "inputs": [],
+      "cohortInput": {
+        "name": "esbuild-sass-plugin",
+        "version": "3.7.0"
+      }
+    },
+    {
+      "scope": "package-build",
+      "repo": "page-constructor-extension",
+      "sourceSha": "916ad34987f7a33fcb77253e4860af4ca5ffc69e",
+      "sourceLockSha256": "42799829a0bfd422312444f4eb72df32d41b799bfe76cdfa5ff860d32c7bb6d0",
+      "archiveSha256": "1f4343756ed659b8ba600df749e37456ca2882de97750f5e1bfcf3895d6319ce",
+      "inputs": [],
+      "cohortInput": {
+        "name": "esbuild-sass-plugin",
+        "version": "3.7.0"
+      }
+    },
+    {
+      "scope": "package-build",
+      "repo": "transform",
+      "sourceSha": "4f1f831c96e7354e8e92953aa7639d8076dddad8",
+      "sourceLockSha256": "e197c1fd84010e5e6b943071b66287eb0c00fe7085792bc83d0ccd0ef6575765",
+      "archiveSha256": "7859ba84016361156dc9afcc8226e5d805288c75274c29e5c89d2aff8746358e",
+      "inputs": [],
+      "cohortInput": {
+        "name": "esbuild-sass-plugin",
+        "version": "3.7.0"
+      }
+    },
+    {
+      "scope": "package-build",
+      "repo": "client",
+      "sourceSha": "3a148ce0a5b2043666b11a6a7b848e9d15a1d9ff",
+      "sourceLockSha256": "2dcf2d56b07a663743cf7ccfe8a56bb06e0831c1574b55c39bc8468836279560",
+      "archiveSha256": "39bb3b1ba56ae7fb3047be3eb854e02f068c0e626715d490945b250f922b05fb",
+      "inputs": [
+        {
+          "repo": "components",
+          "sourceSha": "84b2911d4734679fe0903a399904e60f0700d10d",
+          "archiveSha256": "e56c1af283f6b730e3727b4f2a9e538b4fec92c95f811a4e574739e3095b875a"
+        },
+        {
+          "repo": "page-constructor-extension",
+          "sourceSha": "916ad34987f7a33fcb77253e4860af4ca5ffc69e",
+          "archiveSha256": "1f4343756ed659b8ba600df749e37456ca2882de97750f5e1bfcf3895d6319ce"
+        },
+        {
+          "repo": "transform",
+          "sourceSha": "4f1f831c96e7354e8e92953aa7639d8076dddad8",
+          "archiveSha256": "7859ba84016361156dc9afcc8226e5d805288c75274c29e5c89d2aff8746358e"
+        }
+      ]
+    },
+    {
+      "scope": "package-build",
+      "repo": "translation",
+      "sourceSha": "ae0ad7ee9893a684a86d8a2ae6b75c0f084a21a5",
+      "sourceLockSha256": "28c787898994404fc43f5652d3ac5377969b1d24877ac0c0207699ec8e9adf11",
+      "archiveSha256": "5e861aee91590409b76a34434a61c6f1ede45fcf02656f566a42ad5734d6293f",
+      "inputs": [
+        {
+          "repo": "transform",
+          "sourceSha": "4f1f831c96e7354e8e92953aa7639d8076dddad8",
+          "archiveSha256": "7859ba84016361156dc9afcc8226e5d805288c75274c29e5c89d2aff8746358e"
+        }
+      ]
+    }
+  ],
+  "integrations": [],
+  "cliBaseSha": "39316d081a2fffd94aa50ace17df4db462b0454e"
+}
