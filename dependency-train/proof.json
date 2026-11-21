@@ -1,0 +1,33 @@
+{
+  "schema": 3,
+  "trainId": "9905705173e0351c",
+  "toolSha": "ba428531629cef35146e8112d7020de6036a0352",
+  "packages": [
+    {
+      "repo": "client",
+      "name": "@diplodoc/client",
+      "sourceSha": "e90338bca99ae0ec4950ed955d0a90795375ae31",
+      "archiveSha256": "c8de5ff375eb6361636f38ec647181cb9df6fb84cd297d4d7e98e1fcbd17909e",
+      "sourceLockSha256": "48a3ceeb65d5131a9eca095a236afe41a7b302ea64d3cc884b4730ea9237a692",
+      "resolutions": []
+    }
+  ],
+  "hostPeers": [],
+  "cliBaseLockSha256": "d389f2c05856cecb588bebe7b028621e6150b44c37d71668d5506b60742ecd4e",
+  "builds": [
+    {
+      "scope": "package-build",
+      "repo": "client",
+      "sourceSha": "e90338bca99ae0ec4950ed955d0a90795375ae31",
+      "sourceLockSha256": "48a3ceeb65d5131a9eca095a236afe41a7b302ea64d3cc884b4730ea9237a692",
+      "archiveSha256": "c8de5ff375eb6361636f38ec647181cb9df6fb84cd297d4d7e98e1fcbd17909e",
+      "inputs": [],
+      "cohortInput": {
+        "name": "postcss-loader",
+        "version": "8.2.1"
+      }
+    }
+  ],
+  "integrations": [],
+  "cliBaseSha": "39316d081a2fffd94aa50ace17df4db462b0454e"
+}
