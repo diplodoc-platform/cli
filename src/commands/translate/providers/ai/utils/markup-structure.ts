@@ -66,6 +66,27 @@ export function markupSignature(markdown: string): string[] {
     return result.sort((left, right) => left.localeCompare(right));
 }
 
+/** Keep protected inline nodes inside prose while inspecting extraction structure.
+ * The extractor otherwise hoists a leading opaque inline into its skeleton.
+ * Match whole XML tags so the same literal inside a URL/attribute stays untouched.
+ */
+const XML_TAG = /<\/?[gx]\b(?:"[^"]*"|'[^']*'|[^'">])*?>/g;
+function plainOpaqueUnit(text: string): boolean {
+    const tags = [...text.matchAll(XML_TAG)].map((match) => match[0]);
+    return (
+        tags.length > 0 &&
+        tags.every((tag) => tag.startsWith('<x') && attr(tag, 'ctype') === 'no_translate_inline') &&
+        !/[\\`*_~^#{}[\]<>]/.test(text.replace(XML_TAG, ''))
+    );
+}
+function inlineContext(text: string, carrier: string): string {
+    return text.replace(XML_TAG, (tag) =>
+        tag.startsWith('<x') && attr(tag, 'ctype') === 'no_translate_inline'
+            ? carrier + ' ' + tag + ' ' + carrier
+            : tag,
+    );
+}
+
 /** Returns an actionable retry reason when a translation changes YFM structure. */
 export function markupStructureIssue(source: string, translation: string): string | undefined {
     if (source === translation) {
@@ -87,8 +108,20 @@ export function markupStructureIssue(source: string, translation: string): strin
                     {useSource: true},
                 ),
             );
-        const expected = markupSignature(render(source));
-        const actual = markupSignature(render(translation));
+        // Validate the original XML before introducing comparison-only context.
+        const renderedSource = render(source);
+        const renderedTranslation = render(translation);
+        let carrier = 'inlinecontext';
+        while (source.includes(carrier) || translation.includes(carrier)) {
+            carrier += 'x';
+        }
+        const normalize = plainOpaqueUnit(source) && plainOpaqueUnit(translation);
+        const expected = markupSignature(
+            normalize ? render(inlineContext(source, carrier)) : renderedSource,
+        );
+        const actual = markupSignature(
+            normalize ? render(inlineContext(translation, carrier)) : renderedTranslation,
+        );
         if (JSON.stringify(expected) !== JSON.stringify(actual)) {
             return 'The translation changed Markdown/YFM structure. Preserve the original formatting, links, code, directives and placeholders; do not add formatting to plain text.';
         }

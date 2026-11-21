@@ -66,6 +66,123 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    counters; a preservation run that makes zero model requests is not a quality
    check of newly translated text.
 
+   A punctuation, spacing or case-only change is still a source-prose echo.
+   Changing a product name can also leave an ordinary Russian sentence behind.
+   For Russian sources targeting a different script, reject unprotected lowercase
+   source-script word runs in fresh answers and generated cache. Count only
+   source-script letters when recognizing single-letter symbols next to CJK.
+   Protect the union of glossary matches in the original prose so overlapping
+   required spellings do not depend on glossary order. Keep titlecase names,
+   acronyms, protected literals, exact glossary spellings and approved seed
+   preservation separate from ordinary prose. Reuse the isolated untranslated
+   retry without describing the failed attempt in its prompt; such feedback can
+   reproduce the echo. Zero counters still require inspection of native output.
+
+   An explicit prohibition can name literal words as data. Exempt only exact
+   quoted mentions from the same complete source unit, bounded by their source
+   occurrence counts and a translated prohibition/list structure. Keep checking
+   the surrounding prose and explanations. Ordinary quoted prose, a bare list,
+   new spellings and later instructions do not create a general quote exemption.
+   Apply the same source-aware check to generated cache after healing.
+
+   For Cyrillic Russian to a Han Chinese target, an ordinary Latin phrase with
+   no unprotected Han is also a refusal when both source and target contain at
+   least two prose words and the target has lowercase wording. Respect explicit
+   scripts such as zh-Latn, technical names, identifiers and address components.
+   Exempt glossary spellings only when their source term occurs in this fragment.
+   Generated cache must be validated after healing: added backticks cannot hide
+   English or source-language prose that composition exposes again. Approved seed
+   retains its separate preservation contract. This conservative check does not
+   classify single words, titlecase names or mixed Latin/Han prose completely.
+   A blanket lowercase-Latin refusal inside Han also rejects legitimate technical
+   terms such as slug, offer and campaign. Latin source terms can adjoin Cyrillic
+   after a hyphen (`boolean-значения`). Inspect actual source context before
+   treating such words as ordinary English leftovers.
+
+   A received answer that still fails the first markup retry gets up to two
+   isolated single-unit requests without document context or memory hints. Only
+   another received invalid answer authorizes the second isolated request;
+   missing or failed answers do not extend the budget. Keep every validation
+   guard and the source fallback/cache exclusion after the limit. `markupRetried`
+   counts distinct units; request metrics include the additional attempts.
+   A last retry for plain prose can keep one original internal line break out
+   of the model by sending its two adjacent source parts. Require exactly two
+   nonempty, translated replies, without pruning extra edge separators, then
+   rejoin them with the exact source tag before all original unit guards. These
+   are wire parts of one source unit, not two retry/cache units. Never infer a
+   missing boundary's position from translated prose or add a fifth request.
+   A verified code/link/code sentence can similarly send three prose slots in
+   the final request. Accept only the narrow six-tag shape with unique generated
+   IDs, two distinct masked ASCII code identifiers and one nonnested link. Rebuilding
+   the masked source from quote-aware original nodes must match byte for byte.
+   Keep source whitespace and markup outside the model, reject added markup,
+   opaque IDs, translation-unit references and duplicated hidden code values in
+   replies, then apply every original whole-unit guard. Broader shapes retain
+   the ordinary retry path.
+   The last isolated request must differ even without groups. It can list
+   generated group/line-break IDs and known structural types as a checklist.
+   Apply the same address and literal-code masks, then
+   allow only safe unique identifiers and types matching quote-aware metadata
+   from the original fragment. Address masking can read attribute-like text
+   inside another attribute; malformed or duplicate source tags can retain raw
+   attributes. Retry feedback must not promote arbitrary source attributes into
+   system instructions. Translate all ordinary prose inside and outside the
+   preserved groups.
+   A single provable unmatched prose backtick and at most one valid original
+   `x/lb` can use local opaque placeholders only in that last request. A line
+   break needs a unique original ID, exact original/masked tag equality and an
+   unambiguous balanced fragment. Omit its replaced ID from the retry checklist.
+   Restore the exact source bytes
+   before the original guards and cache validation; reject missing, changed or
+   repeated placeholders and additional synthetic IDs, including plain text and
+   incomplete tags. Compare residue counts after all masks are restored so an
+   existing literal ID in source code or an address is not a false refusal.
+   Do not infer or repair line-break positions: a restored marker moved to an
+   edge or another group must still fail the original structural guard.
+   Ambiguous delimiters, code, addresses and malformed XML keep their original
+   path and budget. This does not repair the source or authorize target editing.
+
+   Structural validation must distinguish document markup from extraction placement.
+   A protected inline can be hoisted into the skeleton at the beginning of prose;
+   moving that same XML placeholder there is not a new directive. Normalize only
+   typed opaque placeholders in plain units for comparison, never matching literals
+   inside URLs, code or escaped text. Keep other formatting and opaque guards strict.
+   Valid XML emphasis can still compose into invalid Markdown when translated
+   punctuation touches following prose. Repair only fresh model-response delimiter
+   boundaries with the Markdown parser's own flanking rules, then validate and store
+   the repaired response. Approved seed formatting must not enter this repair path.
+   Sentence splitting can represent that emphasis as paired `x` placeholders with
+   `bold_open`/`bold_close` or `italic_open`/`italic_close`, rather than one `g`.
+   Match their nesting, type and delimiter before repairing a boundary; unmatched
+   cross-unit markers and markers inside code must remain unchanged.
+
+   Compact extraction can hoist inline-code delimiters into the skeleton while
+   leaving a bare word as a translation unit. Snapshot string leaves before
+   extraction mutates YAML/JSON, and prove whole-unit inline ownership per
+   occurrence by composing a probe and comparing parsed code spans. Preserve
+   the existing unit and seed keys. Such literals bypass generated cache,
+   in-flight reuse and model requests; only actual matches from that file's
+   approved sequence retain their approved wording. A shared dictionary hit is
+   insufficient provenance. Literal indexes must not consume prose seed hints.
+   When matching moved approved units outside the common subsequence, consume
+   unused entries per source text, rather than advancing one global cursor.
+
+   Final line-break recovery can keep a single ordinary word on one side when
+   the other side has multiple prose words. Require the complete new shape to
+   contain only ordinary prose and sentence punctuation; finding letters inside
+   directives, identifiers or symbols is insufficient. Keep the exact two-part
+   response, original source-owned join and the existing four-request limit.
+
+   Opaque code can hide the identifier needed to interpret a value description.
+   Only a leading, proven uppercase underscore identifier followed by prose
+   supplies a read-only identity reference. Ordinary inline examples remain
+   opaque, and the final isolated markup request omits the reference. Reject
+   added prose copies of exposed identities, including copies in sibling units;
+   keep that batch scope across smaller and isolated retries. Validate generated
+   cache after healing while preserving approved seed wording. Unit and seed
+   keys stay unchanged. These guards do not establish semantic correctness;
+   inspect live output before accepting the change.
+
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).
@@ -112,6 +229,12 @@ npm run typecheck
 npm run lint
 npm run lint:fix
 ```
+
+Run lint through npm. The infra ESLint configuration enables its Prettier layer
+only when `npm_command` is set; a direct ESLint invocation can miss formatting
+errors and report unavailable legacy rules. For a scoped CI-equivalent check,
+set `npm_command=run-script` without disabling rules. After switching between
+branches with different lockfiles, install the selected branch's dependencies.
 
 ## Release verification
 
