@@ -49,7 +49,8 @@
     "tests",
     "!tests/e2e/translate-eval.spec.ts",
     "!tests/eval",
-    "vitest.integration.config.ts"
+    "vitest.integration.config.ts",
+    "dependency-train"
   ],
   "scripts": {
     "build": "npm run build:clean && node scripts/build.cli.js",
@@ -84,7 +85,7 @@
   },
   "dependencies": {
     "@diplodoc/ajv": "^0.15.0",
-    "@diplodoc/client": "^5.14.10",
+    "@diplodoc/client": "file:dependency-train/payload/client.tgz",
     "@diplodoc/color-extension": "^1.0.0",
     "@diplodoc/liquid": "^1.5.3",
     "@diplodoc/transform": "^4.78.14",
@@ -186,6 +187,7 @@
     },
     "markdown-it-meta": {
       "js-yaml": "3.15.2"
-    }
+    },
+    "@diplodoc/client": "file:dependency-train/payload/client.tgz"
   }
 }
