@@ -1,0 +1,47 @@
+{
+  "schema": 3,
+  "trainId": "9f36d5f7e99f3745",
+  "toolSha": "ba428531629cef35146e8112d7020de6036a0352",
+  "packages": [
+    {
+      "repo": "client",
+      "name": "@diplodoc/client",
+      "sourceSha": "0ee349ed4702427a859224b0e69dfcf84b0f89db",
+      "archiveSha256": "4c9c75ff0e82daf2b8abc2fc2aba5bbe4749b59a5f3c722623f177529be50291",
+      "sourceLockSha256": "48a3ceeb65d5131a9eca095a236afe41a7b302ea64d3cc884b4730ea9237a692",
+      "resolutions": []
+    }
+  ],
+  "hostPeers": [],
+  "cliBaseLockSha256": "d389f2c05856cecb588bebe7b028621e6150b44c37d71668d5506b60742ecd4e",
+  "builds": [
+    {
+      "scope": "package-build",
+      "repo": "components",
+      "sourceSha": "e4bcf2259adb5417fb980937670e7968511ccb2b",
+      "sourceLockSha256": "4c01cfb63438279db61deaf43269af12db583ccc94e3edc4cd7e22e8414a24da",
+      "archiveSha256": "384b4aa889237e90f97e6509828c8c90ca8f9bb542fb592c837059cd0704018b",
+      "inputs": [],
+      "cohortInput": {
+        "name": "storybook",
+        "version": "10.6.5"
+      }
+    },
+    {
+      "scope": "package-build",
+      "repo": "client",
+      "sourceSha": "0ee349ed4702427a859224b0e69dfcf84b0f89db",
+      "sourceLockSha256": "48a3ceeb65d5131a9eca095a236afe41a7b302ea64d3cc884b4730ea9237a692",
+      "archiveSha256": "4c9c75ff0e82daf2b8abc2fc2aba5bbe4749b59a5f3c722623f177529be50291",
+      "inputs": [
+        {
+          "repo": "components",
+          "sourceSha": "e4bcf2259adb5417fb980937670e7968511ccb2b",
+          "archiveSha256": "384b4aa889237e90f97e6509828c8c90ca8f9bb542fb592c837059cd0704018b"
+        }
+      ]
+    }
+  ],
+  "integrations": [],
+  "cliBaseSha": "39316d081a2fffd94aa50ace17df4db462b0454e"
+}
