@@ -37,7 +37,6 @@ export function collectAnchorIds(html: string, anchorIds: Set<string>) {
         const id = getAnchorId(attributes);
         if (id) {
             // V8 may retain the entire rendered HTML behind a sliced ID string.
-            // Copy UTF-16 code units so cached IDs have their own small backing store.
             anchorIds.add(Buffer.from(id, 'utf16le').toString('utf16le'));
         }
 

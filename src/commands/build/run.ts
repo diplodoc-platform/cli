@@ -485,7 +485,6 @@ export class Run extends BaseRun<BuildConfig> {
             });
             this.titlesCache.set(key, cached);
         }
-        // Callers can customize their options without mutating the shared title dictionary.
         return {...(await cached)};
     }
 }

@@ -1,7 +1,7 @@
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
 
 import {execFile} from 'node:child_process';
-import {mkdtemp, rm, writeFile} from 'node:fs/promises';
+import {mkdtemp, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -73,10 +73,7 @@ describe('collectAnchorIds', () => {
     );
 
     it.each([
-        'a-long-ascii-anchor-identifier',
-        'длинный-пользовательский-якорь',
-        'astral-🚀-characters-🚀-anchor',
-        'combining-e\u0301-and-é-anchor',
+        'якорь-e\u0301-é-🚀-anchor',
         'isolated-high-\ud800-surrogate-anchor',
         'isolated-low-\udc00-surrogate-anchor',
     ])('preserves every UTF-16 code unit in %j', (id) => {
@@ -204,12 +201,10 @@ it('does not retain rendered documents through cached anchor IDs', async () => {
                 globalThis.retainedIds = ids;
             })();
         `;
-        const runner = join(directory, 'run.cjs');
-        await writeFile(runner, script);
         const {stdout} = await promisify(execFile)(
             process.execPath,
-            ['--expose-gc', '--max-old-space-size=256', runner],
-            {env: {...process.env, NODE_OPTIONS: ''}, timeout: 30000},
+            ['--expose-gc', '--max-old-space-size=256', '-e', script],
+            {cwd: directory, env: {...process.env, NODE_OPTIONS: ''}, timeout: 30000},
         );
         const result = JSON.parse(stdout) as {count: number; retainedBytes: number};
         expect(result.count).toBe(60);

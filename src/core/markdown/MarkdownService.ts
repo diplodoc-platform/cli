@@ -76,7 +76,6 @@ type PackedContext = {
     headings: HeadingInfo[];
 };
 
-/** Serialize only plain data without changing descriptors or invoking accessors. */
 function canPack(value: unknown, seen = new Set<object>()): boolean {
     if (typeof value !== 'object' || value === null) {
         return typeof value !== 'function' && typeof value !== 'symbol';
@@ -463,9 +462,7 @@ export class MarkdownService {
                 }
             }
         } catch {
-            // This is acceptable.
-            // If this is a real file and someone depends on his titles,
-            // then we throw exception in md plugin.
+            // The Markdown plugin reports missing titles when the link is used.
         }
 
         return titles;
@@ -516,7 +513,6 @@ export class MarkdownService {
             compressed.copy(packed);
         } catch {
             // Plugin-provided parsed data may contain values V8 cannot serialize.
-            // Keep the original cache in that case rather than re-running the loader.
             return;
         }
         const sourcemap = this.pathToSourcemap.get(key);
