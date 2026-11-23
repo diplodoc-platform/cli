@@ -4,6 +4,7 @@ import type {IncludeInfo} from '~/core/markdown';
 
 import {describe, expect, it, vi} from 'vitest';
 import {LogLevels, normalizeConfig} from '@diplodoc/yfmlint';
+import visibility from '@diplodoc/transform/lib/plugins/visibility';
 
 import {normalizePath} from '~/core/utils';
 
@@ -267,4 +268,50 @@ describe('page audience link diagnostics', () => {
             }
         },
     );
+});
+
+describe('Markdown audience lint', () => {
+    it('validates visibility without reading title metadata', async () => {
+        const run = setupRun({
+            outputFormat: 'md',
+            langs: ['en'],
+            idGenerator: 'constant',
+            content: {maxInlineSvgSize: 0},
+            lint: {enabled: true, config: {}},
+        });
+        vi.spyOn(run.markdown, 'titles').mockRejectedValue(new Error('unneeded title lookup'));
+        vi.spyOn(run['anchors'], 'index').mockRejectedValue(new Error('unneeded anchor lookup'));
+
+        const errors = await run.lint(
+            normalizePath('en/page.md'),
+            '# Heading\n\n:::visibility robots\nText.\n:::',
+            {deps: [], assets: []},
+            [visibility],
+        );
+
+        expect(errors?.some((error) => error.ruleNames.includes('YFM023'))).toBe(true);
+    });
+
+    it.each(['md', 'html'] as const)('keeps %s lint contracts independent', async (format) => {
+        const run = setupRun({
+            outputFormat: format,
+            langs: ['en'],
+            idGenerator: 'constant',
+            content: {maxInlineSvgSize: 0},
+            lint: {enabled: true, config: {}},
+        });
+        const titles = vi.spyOn(run.markdown, 'titles').mockResolvedValue({});
+        const index = vi.spyOn(run['anchors'], 'index').mockResolvedValue(new Map());
+        const code = '`' + 'x'.repeat(120) + '`';
+        const errors = await run.lint(
+            normalizePath('en/page.md'),
+            '# Heading\n\n' + code + '\n\n:::visibility robots\nText.\n:::',
+            {deps: [], assets: []},
+            [visibility],
+        );
+        expect(index).toHaveBeenCalledTimes(format === 'html' ? 1 : 0);
+        expect(titles).toHaveBeenCalledTimes(format === 'html' ? 1 : 0);
+        expect(errors?.some((error) => error.ruleNames.includes('YFM023'))).toBe(true);
+        expect(errors?.some((error) => error.ruleNames.includes('YFM001'))).toBe(true);
+    });
 });

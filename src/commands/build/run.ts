@@ -5,6 +5,7 @@ import type {Lang} from '@diplodoc/transform/lib/typings';
 
 import {basename, dirname, isAbsolute, join, relative, resolve, sep} from 'node:path';
 import {uniq} from 'lodash';
+import {yfmlint} from '@diplodoc/yfmlint';
 import transformer from '@diplodoc/transform/lib/md';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {createIDGeneratorByStrategy} from '@diplodoc/utils';
@@ -188,19 +189,31 @@ export class Run extends BaseRun<BuildConfig> {
         options: TransformOptions,
         plugins = this.markdown.plugins,
     ) {
+        const isMarkdown = this.config.outputFormat === 'md';
+        // Markdown reports audience errors, so linked titles and anchor targets are unnecessary.
         const {source, assets, pluginOptions} = await this.prepareTransform(
             file,
             markdown,
             options,
+            true,
+            !isMarkdown,
         );
         const lintOptions = {
             ...pluginOptions,
             plugins,
             anchorIndex:
-                getLocalAnchorRuleConfig(this.config.lint.config) === false
+                isMarkdown || getLocalAnchorRuleConfig(this.config.lint.config) === false
                     ? undefined
                     : await this.anchors.index(file, assets),
         };
+
+        if (isMarkdown) {
+            return yfmlint(source, file, {
+                lintConfig: this.config.lint.config,
+                pluginOptions: lintOptions,
+                plugins,
+            });
+        }
 
         return lintWithLocalAnchors(source, file, {
             lintConfig: this.config.lint.config,
@@ -314,6 +327,7 @@ export class Run extends BaseRun<BuildConfig> {
         markdown: string,
         options: TransformOptions,
         reportErrors = true,
+        loadTitles = true,
     ) {
         const {deps} = options;
         const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
@@ -337,7 +351,7 @@ export class Run extends BaseRun<BuildConfig> {
         const transformOptions = {
             ...this.transformConfig(file, assetsRemap),
             files,
-            titles: await remap(titles, this.titles),
+            titles: loadTitles ? await remap(titles, this.titles) : {},
             assets: assetsRemap,
         };
         return {source: content, assets, pluginOptions: transformOptions};
