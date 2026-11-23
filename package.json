@@ -49,7 +49,8 @@
     "tests",
     "!tests/e2e/translate-eval.spec.ts",
     "!tests/eval",
-    "vitest.integration.config.ts"
+    "vitest.integration.config.ts",
+    "dependency-train"
   ],
   "scripts": {
     "build": "npm run build:clean && node scripts/build.cli.js",
@@ -88,7 +89,7 @@
     "@diplodoc/color-extension": "^1.0.0",
     "@diplodoc/liquid": "^1.5.3",
     "@diplodoc/transform": "^4.78.14",
-    "@diplodoc/translation": "^1.10.3",
+    "@diplodoc/translation": "file:dependency-train/payload/translation.tgz",
     "@diplodoc/utils": "^2.3.6",
     "@gravity-ui/uikit-themer": "^1.7.0",
     "@inquirer/prompts": "^8.3.2",
@@ -186,6 +187,331 @@
     },
     "markdown-it-meta": {
       "js-yaml": "3.15.2"
+    },
+    "@diplodoc/translation": {
+      ".": "file:dependency-train/payload/translation.tgz",
+      "@diplodoc/transform": {
+        ".": "4.78.12",
+        "cheerio": {
+          ".": "1.2.0",
+          "cheerio-select": {
+            ".": "2.1.0",
+            "boolbase": "1.0.0",
+            "css-select": {
+              ".": "5.2.2",
+              "boolbase": "1.0.0",
+              "css-what": "6.2.2",
+              "domhandler": {
+                ".": "5.0.3",
+                "domelementtype": "2.3.0"
+              },
+              "domutils": {
+                ".": "3.2.2",
+                "dom-serializer": {
+                  ".": "2.0.0",
+                  "domelementtype": "2.3.0",
+                  "domhandler": {
+                    ".": "5.0.3",
+                    "domelementtype": "2.3.0"
+                  },
+                  "entities": "4.5.0"
+                },
+                "domelementtype": "2.3.0",
+                "domhandler": {
+                  ".": "5.0.3",
+                  "domelementtype": "2.3.0"
+                }
+              },
+              "nth-check": {
+                ".": "2.1.1",
+                "boolbase": "1.0.0"
+              }
+            },
+            "css-what": "6.2.2",
+            "domelementtype": "2.3.0",
+            "domhandler": {
+              ".": "5.0.3",
+              "domelementtype": "2.3.0"
+            },
+            "domutils": {
+              ".": "3.2.2",
+              "dom-serializer": {
+                ".": "2.0.0",
+                "domelementtype": "2.3.0",
+                "domhandler": {
+                  ".": "5.0.3",
+                  "domelementtype": "2.3.0"
+                },
+                "entities": "4.5.0"
+              },
+              "domelementtype": "2.3.0",
+              "domhandler": {
+                ".": "5.0.3",
+                "domelementtype": "2.3.0"
+              }
+            }
+          },
+          "dom-serializer": {
+            ".": "2.0.0",
+            "domelementtype": "2.3.0",
+            "domhandler": {
+              ".": "5.0.3",
+              "domelementtype": "2.3.0"
+            },
+            "entities": "4.5.0"
+          },
+          "domhandler": {
+            ".": "5.0.3",
+            "domelementtype": "2.3.0"
+          },
+          "domutils": {
+            ".": "3.2.2",
+            "dom-serializer": {
+              ".": "2.0.0",
+              "domelementtype": "2.3.0",
+              "domhandler": {
+                ".": "5.0.3",
+                "domelementtype": "2.3.0"
+              },
+              "entities": "4.5.0"
+            },
+            "domelementtype": "2.3.0",
+            "domhandler": {
+              ".": "5.0.3",
+              "domelementtype": "2.3.0"
+            }
+          },
+          "encoding-sniffer": {
+            ".": "0.2.1",
+            "iconv-lite": {
+              ".": "0.6.3",
+              "safer-buffer": "2.1.2"
+            },
+            "whatwg-encoding": {
+              ".": "3.1.1",
+              "iconv-lite": {
+                ".": "0.6.3",
+                "safer-buffer": "2.1.2"
+              }
+            }
+          },
+          "htmlparser2": {
+            ".": "10.1.0",
+            "domelementtype": "2.3.0",
+            "domhandler": {
+              ".": "5.0.3",
+              "domelementtype": "2.3.0"
+            },
+            "domutils": {
+              ".": "3.2.2",
+              "dom-serializer": {
+                ".": "2.0.0",
+                "domelementtype": "2.3.0",
+                "domhandler": {
+                  ".": "5.0.3",
+                  "domelementtype": "2.3.0"
+                },
+                "entities": "4.5.0"
+              },
+              "domelementtype": "2.3.0",
+              "domhandler": {
+                ".": "5.0.3",
+                "domelementtype": "2.3.0"
+              }
+            },
+            "entities": "7.0.1"
+          },
+          "parse5": {
+            ".": "7.3.0",
+            "entities": "6.0.1"
+          },
+          "parse5-htmlparser2-tree-adapter": {
+            ".": "7.1.0",
+            "domhandler": {
+              ".": "5.0.3",
+              "domelementtype": "2.3.0"
+            },
+            "parse5": {
+              ".": "7.3.0",
+              "entities": "6.0.1"
+            }
+          },
+          "parse5-parser-stream": {
+            ".": "7.1.2",
+            "parse5": {
+              ".": "7.3.0",
+              "entities": "6.0.1"
+            }
+          },
+          "undici": "7.30.2",
+          "whatwg-mimetype": "4.0.0"
+        }
+      },
+      "cheerio": {
+        ".": "1.2.0",
+        "cheerio-select": {
+          ".": "2.1.0",
+          "boolbase": "1.0.0",
+          "css-select": {
+            ".": "5.2.2",
+            "boolbase": "1.0.0",
+            "css-what": "6.2.2",
+            "domhandler": {
+              ".": "5.0.3",
+              "domelementtype": "2.3.0"
+            },
+            "domutils": {
+              ".": "3.2.2",
+              "dom-serializer": {
+                ".": "2.0.0",
+                "domelementtype": "2.3.0",
+                "domhandler": {
+                  ".": "5.0.3",
+                  "domelementtype": "2.3.0"
+                },
+                "entities": "4.5.0"
+              },
+              "domelementtype": "2.3.0",
+              "domhandler": {
+                ".": "5.0.3",
+                "domelementtype": "2.3.0"
+              }
+            },
+            "nth-check": {
+              ".": "2.1.1",
+              "boolbase": "1.0.0"
+            }
+          },
+          "css-what": "6.2.2",
+          "domelementtype": "2.3.0",
+          "domhandler": {
+            ".": "5.0.3",
+            "domelementtype": "2.3.0"
+          },
+          "domutils": {
+            ".": "3.2.2",
+            "dom-serializer": {
+              ".": "2.0.0",
+              "domelementtype": "2.3.0",
+              "domhandler": {
+                ".": "5.0.3",
+                "domelementtype": "2.3.0"
+              },
+              "entities": "4.5.0"
+            },
+            "domelementtype": "2.3.0",
+            "domhandler": {
+              ".": "5.0.3",
+              "domelementtype": "2.3.0"
+            }
+          }
+        },
+        "dom-serializer": {
+          ".": "2.0.0",
+          "domelementtype": "2.3.0",
+          "domhandler": {
+            ".": "5.0.3",
+            "domelementtype": "2.3.0"
+          },
+          "entities": "4.5.0"
+        },
+        "domhandler": {
+          ".": "5.0.3",
+          "domelementtype": "2.3.0"
+        },
+        "domutils": {
+          ".": "3.2.2",
+          "dom-serializer": {
+            ".": "2.0.0",
+            "domelementtype": "2.3.0",
+            "domhandler": {
+              ".": "5.0.3",
+              "domelementtype": "2.3.0"
+            },
+            "entities": "4.5.0"
+          },
+          "domelementtype": "2.3.0",
+          "domhandler": {
+            ".": "5.0.3",
+            "domelementtype": "2.3.0"
+          }
+        },
+        "encoding-sniffer": {
+          ".": "0.2.1",
+          "iconv-lite": {
+            ".": "0.6.3",
+            "safer-buffer": "2.1.2"
+          },
+          "whatwg-encoding": {
+            ".": "3.1.1",
+            "iconv-lite": {
+              ".": "0.6.3",
+              "safer-buffer": "2.1.2"
+            }
+          }
+        },
+        "htmlparser2": {
+          ".": "10.1.0",
+          "domelementtype": "2.3.0",
+          "domhandler": {
+            ".": "5.0.3",
+            "domelementtype": "2.3.0"
+          },
+          "domutils": {
+            ".": "3.2.2",
+            "dom-serializer": {
+              ".": "2.0.0",
+              "domelementtype": "2.3.0",
+              "domhandler": {
+                ".": "5.0.3",
+                "domelementtype": "2.3.0"
+              },
+              "entities": "4.5.0"
+            },
+            "domelementtype": "2.3.0",
+            "domhandler": {
+              ".": "5.0.3",
+              "domelementtype": "2.3.0"
+            }
+          },
+          "entities": "7.0.1"
+        },
+        "parse5": {
+          ".": "7.3.0",
+          "entities": "6.0.1"
+        },
+        "parse5-htmlparser2-tree-adapter": {
+          ".": "7.1.0",
+          "domhandler": {
+            ".": "5.0.3",
+            "domelementtype": "2.3.0"
+          },
+          "parse5": {
+            ".": "7.3.0",
+            "entities": "6.0.1"
+          }
+        },
+        "parse5-parser-stream": {
+          ".": "7.1.2",
+          "parse5": {
+            ".": "7.3.0",
+            "entities": "6.0.1"
+          }
+        },
+        "undici": "7.30.2",
+        "whatwg-mimetype": "4.0.0"
+      },
+      "markdown-it-meta": {
+        ".": "0.0.1",
+        "js-yaml": {
+          ".": "3.15.2",
+          "argparse": {
+            ".": "1.0.10",
+            "sprintf-js": "1.0.3"
+          },
+          "esprima": "4.0.1"
+        }
+      }
     }
   }
 }
