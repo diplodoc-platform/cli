@@ -315,3 +315,42 @@ describe('Markdown audience lint', () => {
         expect(errors?.some((error) => error.ruleNames.includes('YFM001'))).toBe(true);
     });
 });
+
+describe('Compact linked title cache', () => {
+    it('shares concurrent title loading and returns independent dictionaries', async () => {
+        const run = setupRun({});
+        const titles = vi
+            .spyOn(run.markdown, 'titles')
+            .mockResolvedValue({'#': 'Title', '#custom': 'Пример 🧩 \ud800'});
+        const file = normalizePath('page.md');
+        const [first, second] = await Promise.all([run['titles'](file), run['titles'](file)]);
+        expect(titles).toHaveBeenCalledTimes(1);
+        expect(first).toEqual(second);
+        first['#'] = 'Changed by consumer';
+        expect((await run['titles'](file))['#']).toBe('Title');
+        expect(second['#custom']).toBe('Пример 🧩 \ud800');
+    });
+
+    it('invalidates the dictionary after Markdown changes', async () => {
+        const run = setupRun({});
+        const titles = vi
+            .spyOn(run.markdown, 'titles')
+            .mockResolvedValueOnce({'#': 'Before'})
+            .mockResolvedValueOnce({'#': 'After'});
+        const file = normalizePath('page.md');
+        expect(await run['titles'](file)).toEqual({'#': 'Before'});
+        run.markdown.release(file);
+        expect(await run['titles'](file)).toEqual({'#': 'After'});
+        expect(titles).toHaveBeenCalledTimes(2);
+    });
+
+    it('retries a failed dictionary lookup', async () => {
+        const run = setupRun({});
+        vi.spyOn(run.markdown, 'titles')
+            .mockRejectedValueOnce(new Error('read failed'))
+            .mockResolvedValueOnce({'#': 'Recovered'});
+        const file = normalizePath('page.md');
+        await expect(run['titles'](file)).rejects.toThrow('read failed');
+        await expect(run['titles'](file)).resolves.toEqual({'#': 'Recovered'});
+    });
+});

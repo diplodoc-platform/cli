@@ -88,6 +88,10 @@ export class Run extends BaseRun<BuildConfig> {
 
     private entriesCache?: {index: ReadonlySet<NormalizedPath>; paths: NormalizedPath[]};
 
+    private readonly titlesCache = new Map<NormalizedPath, Promise<Hash<string>>>();
+
+    private titlesRevision = -1;
+
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
     }
@@ -456,7 +460,33 @@ export class Run extends BaseRun<BuildConfig> {
             return {};
         }
 
-        return this.markdown.titles(path);
+        if (this.titlesRevision !== this.markdown.revision) {
+            this.titlesCache.clear();
+            this.titlesRevision = this.markdown.revision;
+        }
+        let cached = this.titlesCache.get(path);
+        if (!cached) {
+            const key = path;
+            const value = this.markdown
+                .withContext(key, () => this.markdown.titles(key))
+                .then((titles) =>
+                    Object.fromEntries(
+                        Object.entries(titles).map(([anchor, title]) => [
+                            Buffer.from(anchor, 'utf16le').toString('utf16le'),
+                            Buffer.from(title, 'utf16le').toString('utf16le'),
+                        ]),
+                    ),
+                );
+            cached = value.catch((error) => {
+                if (this.titlesCache.get(key) === cached) {
+                    this.titlesCache.delete(key);
+                }
+                throw error;
+            });
+            this.titlesCache.set(key, cached);
+        }
+        // Callers can customize their options without mutating the shared title dictionary.
+        return {...(await cached)};
     }
 }
 

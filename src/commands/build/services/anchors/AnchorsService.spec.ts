@@ -21,7 +21,11 @@ describe('AnchorsService', () => {
             deps: [],
             assets: [],
         };
-        const markdown = {revision: 0, graph: vi.fn(async () => graph)};
+        const markdown = {
+            revision: 0,
+            graph: vi.fn(async () => graph),
+            withContext: (_path: NormalizedPath, read: () => Promise<unknown>) => read(),
+        };
         const collectAnchors = vi.fn(async () => new Set(['page']));
         const service = new AnchorsService({
             input,
@@ -205,7 +209,11 @@ describe('AnchorsService', () => {
             input,
             exists: (path: string) => path === join(input, 'page.md'),
             toc: {entrySet: new Set(['page.md'])},
-            markdown: {revision: 0, graph: vi.fn(async () => graph)},
+            markdown: {
+                revision: 0,
+                graph: vi.fn(async () => graph),
+                withContext: (_path: NormalizedPath, read: () => Promise<unknown>) => read(),
+            },
             collectAnchors,
         } as unknown as Run;
         const service = new AnchorsService(run);
@@ -262,7 +270,11 @@ describe('AnchorsService', () => {
             input,
             exists: (path: string) => path === join(input, 'page.md'),
             toc: {entrySet: new Set(['page.md'])},
-            markdown: {revision: 0, graph: vi.fn(async () => graph)},
+            markdown: {
+                revision: 0,
+                graph: vi.fn(async () => graph),
+                withContext: (_path: NormalizedPath, read: () => Promise<unknown>) => read(),
+            },
             collectAnchors,
         } as unknown as Run;
         const service = new AnchorsService(run);

@@ -2,9 +2,10 @@ import {join, relative} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 
 import {Logger} from '~/core/logger';
-import {normalizePath} from '~/core/utils';
+import {Defer, normalizePath} from '~/core/utils';
 
 import {MarkdownService} from './MarkdownService';
+import {getHooks} from './hooks';
 
 type Run = ConstructorParameters<typeof MarkdownService>[0];
 
@@ -148,5 +149,262 @@ describe('Markdown resource relations', () => {
         expect(graph.dependentsOf('_assets/plus.svg')).toContain('page.md');
         expect(embedded).not.toHaveBeenCalled();
         expect(run.read).toHaveBeenCalledWith(normalizePath(join('/docs', 'page.md')));
+    });
+});
+
+describe('Include context lifetime', () => {
+    const page = normalizePath('page.md');
+    const include = normalizePath('_includes/button.md');
+
+    function setup() {
+        return createMarkdown({
+            'page.md': '{% include [Button](_includes/button.md) %}',
+            '_includes/button.md': '# Button\n\n![Icon](../icon.svg)',
+        });
+    }
+
+    function reads(run: Run) {
+        return vi
+            .mocked(run.read)
+            .mock.calls.filter(([path]) => path.endsWith('/_includes/button.md')).length;
+    }
+
+    it('restores a cold include without reading or processing it again', async () => {
+        const {markdown, run} = setup();
+        const revision = markdown.revision;
+        await markdown.withContext(page, async () => {
+            await markdown.graph(page);
+            await markdown.graph(page);
+            expect(reads(run)).toBe(1);
+        });
+        expect(markdown.revision).toBe(revision);
+        const graph = await markdown.withContext(page, () => markdown.graph(page));
+        expect(reads(run)).toBe(1);
+        expect(graph.deps[0].content).toContain('# Button');
+        expect(graph.deps[0].assets[0].path).toBe('icon.svg');
+        expect(
+            vi.mocked(run.read).mock.calls.filter(([path]) => path.endsWith('/page.md')),
+        ).toHaveLength(1);
+    });
+
+    it('keeps data until all overlapping readers of the same context finish', async () => {
+        const {markdown, run} = setup();
+        const ready = new Defer<void>();
+        const release = new Defer<void>();
+        const second = markdown.withContext(page, async () => {
+            await markdown.graph(page);
+            ready.resolve(undefined);
+            await release.promise;
+            await markdown.graph(page);
+            expect(reads(run)).toBe(1);
+        });
+        try {
+            await ready.promise;
+            await markdown.withContext(page, () => markdown.graph(page));
+            expect(reads(run)).toBe(1);
+        } finally {
+            release.resolve(undefined);
+            await second;
+        }
+        await markdown.withContext(page, () => markdown.graph(page));
+        expect(reads(run)).toBe(1);
+    });
+
+    it('cleans up after a failed reader', async () => {
+        const {markdown, run} = setup();
+        await expect(
+            markdown.withContext(page, async () => {
+                await markdown.graph(page);
+                throw new Error('reader failed');
+            }),
+        ).rejects.toThrow('reader failed');
+        await markdown.withContext(page, () => markdown.graph(page));
+        expect(reads(run)).toBe(1);
+    });
+
+    it('preserves include data for another active article context', async () => {
+        const {markdown, run} = setup();
+        const other = normalizePath('other.md');
+        await markdown.load(include, other);
+        await markdown.withContext(page, () => markdown.graph(page));
+        await markdown.load(include, other);
+        expect(reads(run)).toBe(2);
+    });
+
+    it('does not expire Markdown-output include contexts', async () => {
+        const {markdown, run} = setup();
+        run.config.outputFormat = 'md';
+        await markdown.withContext(page, () => markdown.graph(page));
+        await markdown.withContext(page, () => markdown.graph(page));
+        expect(reads(run)).toBe(1);
+    });
+
+    it('does not expire a page context while a nested title lookup finishes', async () => {
+        const {markdown, run} = setup();
+        await markdown.withContext(page, async () => {
+            await markdown.graph(page);
+            const titles = await markdown.titles(page);
+            expect(titles['#']).toBe('Button');
+            await markdown.graph(page);
+            expect(reads(run)).toBe(1);
+        });
+        await markdown.withContext(page, () => markdown.graph(page));
+        expect(reads(run)).toBe(1);
+    });
+});
+
+describe('Context semantic diagnostic probe', () => {
+    it('does not duplicate loader diagnostics for one unchanged context', async () => {
+        const {markdown, run} = createMarkdown({
+            'page.md': '{% include [Broken](_includes/broken.md) %}',
+            '_includes/broken.md': '::: page-constructor\nblocks: [\n:::\n',
+        });
+        run.logger.warn = Object.assign(vi.fn(), {count: 0});
+        const page = normalizePath('page.md');
+        await markdown.withContext(page, () => markdown.graph(page));
+        const first = vi.mocked(run.logger.warn).mock.calls.length;
+        await markdown.withContext(page, () => markdown.graph(page));
+        const second = vi.mocked(run.logger.warn).mock.calls.length;
+        expect(first).toBeGreaterThan(0);
+        expect(second).toBe(first);
+    });
+});
+
+describe('Packed include context compatibility', () => {
+    const page = normalizePath('page.md');
+    const include = normalizePath('_includes/part.md');
+
+    it('invalidates packed data when an include changes during watch', async () => {
+        const files = {
+            'page.md': '{% include [Part](_includes/part.md) %}',
+            '_includes/part.md': '# Before',
+        };
+        const {markdown, run} = createMarkdown(files);
+        await markdown.withContext(page, () => markdown.graph(page));
+        files['_includes/part.md'] = '# After';
+        markdown.release(include, page);
+        const graph = await markdown.withContext(page, () => markdown.graph(page));
+        expect(graph.deps[0].content).toBe('# After');
+        expect(
+            vi.mocked(run.read).mock.calls.filter(([path]) => path.endsWith('/_includes/part.md')),
+        ).toHaveLength(2);
+    });
+
+    it('preserves Unicode and lone surrogates across a cold restore', async () => {
+        const content = 'Text: Пример, 🧩, \ud800 and \udfff';
+        const {markdown, run} = createMarkdown({
+            'page.md': '{% include [Part](_includes/part.md) %}',
+            '_includes/part.md': content,
+        });
+        const before = await markdown.withContext(page, () => markdown.graph(page));
+        const after = await markdown.withContext(page, () => markdown.graph(page));
+        expect(after.deps[0].content).toBe(before.deps[0].content);
+        expect(after.deps[0].content).toBe(content);
+        expect(
+            vi.mocked(run.read).mock.calls.filter(([path]) => path.endsWith('/_includes/part.md')),
+        ).toHaveLength(1);
+    });
+
+    it('keeps nonserializable plugin metadata cached without rerunning the collector', async () => {
+        const {markdown, run} = createMarkdown({
+            'page.md': '{% include [Part](_includes/part.md) %}',
+            '_includes/part.md': '# Part',
+        });
+        const visits = vi.fn();
+        getHooks(markdown).Collects.tap('test', () => [
+            async function (content) {
+                visits(this.path);
+                this.api.meta.set({custom: () => 'plugin value'});
+                return content;
+            },
+        ]);
+        await markdown.init();
+        await markdown.withContext(page, () => markdown.graph(page));
+        await markdown.withContext(page, () => markdown.graph(page));
+        expect(visits.mock.calls.filter(([path]) => path === include)).toHaveLength(1);
+        expect(
+            vi.mocked(run.read).mock.calls.filter(([path]) => path.endsWith('/_includes/part.md')),
+        ).toHaveLength(1);
+    });
+});
+
+describe('Custom metadata packing fallback', () => {
+    it('does not invoke metadata accessors or change custom prototypes', async () => {
+        class Marker {
+            value = 'plugin';
+        }
+        const marker = new Marker();
+        const getter = vi.fn(() => 'value');
+        const metadata = Object.defineProperty({marker}, 'dynamic', {
+            enumerable: true,
+            get: getter,
+        });
+        const {markdown, run} = createMarkdown({
+            'page.md': '{% include [Part](_includes/part.md) %}',
+            '_includes/part.md': '# Part',
+        });
+        getHooks(markdown).Collects.tap('test', () => [
+            async function (content) {
+                this.api.meta.set(metadata);
+                return content;
+            },
+        ]);
+        await markdown.init();
+        const page = normalizePath('page.md');
+        await markdown.withContext(page, () => markdown.graph(page));
+        await markdown.withContext(page, () => markdown.graph(page));
+        expect(getter).not.toHaveBeenCalled();
+        const calls = vi.mocked(run.meta.add).mock.calls;
+        expect(calls.every(([, meta]) => meta.marker === marker)).toBe(true);
+        expect(
+            vi.mocked(run.read).mock.calls.filter(([path]) => path.endsWith('/_includes/part.md')),
+        ).toHaveLength(1);
+    });
+});
+
+describe('Packed cache allocation', () => {
+    it('does not retain a separate zlib output chunk for each tiny cache entry', async () => {
+        const files: Record<string, string> = {'_includes/part.md': '# Part'};
+        for (let index = 0; index < 200; index++) {
+            files[`page${index}.md`] = '{% include [Part](_includes/part.md) %}';
+        }
+        const {markdown} = createMarkdown(files);
+        for (let index = 0; index < 200; index++) {
+            const page = normalizePath(`page${index}.md`);
+            await markdown.withContext(page, () => markdown.graph(page));
+        }
+        const cached = (markdown as unknown as {packedContexts: Map<string, {data: Buffer}>})
+            .packedContexts;
+        const buffers = [...cached.values()].map(({data}) => data);
+        expect(buffers).toHaveLength(400);
+        const backing = new Set(buffers.map((buffer) => buffer.buffer));
+        const retained = [...backing].reduce((sum, buffer) => sum + buffer.byteLength, 0);
+        const encoded = buffers.reduce((sum, buffer) => sum + buffer.byteLength, 0);
+        // Allow the first/last shared slabs and eight-byte allocation alignment.
+        expect(retained).toBeLessThanOrEqual(encoded + 2 * Buffer.poolSize + 7 * buffers.length);
+    });
+});
+
+describe('Cold cache plugin metadata compatibility', () => {
+    it('preserves shared plain metadata between a collector and later cached reads', async () => {
+        const custom = {label: 'before'};
+        const {markdown, run} = createMarkdown({'page.md': '# Page'});
+        getHooks(markdown).Collects.tap('test', () => [
+            async function (content) {
+                this.api.meta.set({custom});
+                return content;
+            },
+        ]);
+        await markdown.init();
+        const page = normalizePath('page.md');
+        const read = () => markdown.withContext(page, () => markdown.graph(page));
+        await read();
+        custom.label = 'updated by collector';
+        vi.mocked(run.meta.add).mockClear();
+        await read();
+        const last = vi.mocked(run.meta.add).mock.calls.at(-1)?.[1];
+        expect(last?.custom).toEqual({label: 'updated by collector'});
+        expect(last?.custom).toBe(custom);
+        expect(run.read).toHaveBeenCalledTimes(1);
     });
 });
