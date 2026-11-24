@@ -21,7 +21,7 @@ import {
     zip,
 } from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks, resolveLlmsConfig} from '~/core/toc';
+import {getHooks as getTocHooks, getTocItemName, resolveLlmsConfig} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getMetaHooks} from '~/core/meta';
@@ -34,12 +34,7 @@ import {findAgentPageTargets} from '../../page-audience-links';
 import {getLeadingMarkdown} from '../../leading-markdown';
 import {buildLlmsAlternate} from '../output-md/utils';
 
-import {
-    createTocItemNameLookup,
-    filterBundledExtensionAssets,
-    getBaseMdItPlugins,
-    getCustomMdItPlugins,
-} from './utils';
+import {filterBundledExtensionAssets, getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
 
 const tocJS = (path: NormalizedPath) => setExt(path, '.js');
 
@@ -50,8 +45,6 @@ export class OutputHtml {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('Html', async (run) => {
-                const findTocItemName = createTocItemNameLookup();
-
                 const setBaseHref = (template: Template) => {
                     template.setBaseHref(run.config.baseHref);
                 };
@@ -152,7 +145,7 @@ export class OutputHtml {
                     const state = await run.entry.state(vfile.path, data);
                     const tocItemName =
                         !state.data.meta.title && !state.data.title
-                            ? findTocItemName(sourceToc, vfile.path)
+                            ? getTocItemName(sourceToc, vfile.path)
                             : undefined;
                     const template = new Template(vfile.path, state.lang, [__Entry__]);
                     template.setCspDisabled(Boolean(run.config.disableCsp));

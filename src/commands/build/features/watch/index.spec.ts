@@ -198,6 +198,56 @@ describe('Build watch feature', () => {
     });
 
     describe('toc', () => {
+        it('updates the HTML title after a TOC item is renamed', async () => {
+            watch.end();
+            await promise;
+            watch.reset();
+
+            const toc = (name: string, hiddenAlias: string) =>
+                dump({
+                    title: 'Docs',
+                    items: [
+                        {name: hiddenAlias, href: 'page.md', hidden: true},
+                        {
+                            name,
+                            href: 'page.md',
+                            items: [{name: 'Child page', href: 'child.md'}],
+                        },
+                    ],
+                });
+            const page = 'A page without a heading.';
+            await setup('', {
+                globs: {'**/toc.yaml': ['toc.yaml'] as NormalizedPath[]},
+                files: {
+                    'toc.yaml': toc('Original name', 'Hidden alias'),
+                    'page.md': page,
+                    'child.md': '# Child page',
+                },
+            });
+
+            const currentRun = run(build);
+            const pageOutput = join(currentRun.output, 'page.html');
+            const writes = vi.mocked(currentRun.write);
+            const pageHtml = () =>
+                String(writes.mock.calls.filter(([path]) => path === pageOutput).at(-1)?.[1]);
+
+            expect(pageHtml()).toContain('<title>Original name | Docs</title>');
+            await register('./page.md', page);
+            processEntry.mockClear();
+            writes.mockClear();
+
+            await change('./toc.yaml', toc('Renamed section', 'Hidden alias'));
+
+            expect(pageHtml()).toContain('<title>Renamed section | Docs</title>');
+            expect(processEntry.mock.calls).toEqual([['page.md']]);
+
+            processEntry.mockClear();
+            await change('./toc.yaml', toc('Renamed section', 'Renamed hidden alias'));
+
+            expect(processEntry).not.toHaveBeenCalled();
+            expect(currentRun.logger.error).not.toHaveBeenCalled();
+        });
+
         it.each(['md', 'html'])(
             'updates page outputs when only inherited visibility changes (%s)',
             async (format) => {

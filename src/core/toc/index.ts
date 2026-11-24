@@ -6,4 +6,5 @@ export {IncludeMode} from './loader';
 export {TocService} from './TocService';
 export {PageAudienceConflictError} from './audience';
 
+export {getTocItemName} from './item-name';
 export {resolveLlmsConfig} from './llms';

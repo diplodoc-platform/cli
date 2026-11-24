@@ -1,9 +1,7 @@
 import type Token from 'markdown-it/lib/token';
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
 import type MarkdownIt from 'markdown-it';
-import type {Toc, TocItem} from '~/core/toc';
 
-import {dirname, join} from 'node:path';
 import {parseHref} from '@diplodoc/utils';
 import {colorPlugin} from '@diplodoc/color-extension';
 import notes from '@diplodoc/transform/lib/plugins/notes';
@@ -35,7 +33,7 @@ import * as openapi from '@diplodoc/openapi-extension';
 import * as pageConstructor from '@diplodoc/page-constructor-extension/plugin/csr';
 import {noTranslate} from '@diplodoc/translation';
 
-import {filterTokens, getHrefTokenAttr, isExternalHref, normalizePath} from '~/core/utils';
+import {filterTokens, getHrefTokenAttr} from '~/core/utils';
 
 import includes from './plugins/includes';
 import includesDetect from './plugins/includes-detect';
@@ -60,51 +58,6 @@ export function getPageLinkPlugins() {
         blockAnchor,
         visibility,
     ];
-}
-
-type TocItemName = {
-    name: string;
-    hidden: boolean;
-};
-
-function indexTocItemNames(toc: Toc) {
-    const names = new Map<NormalizedPath, TocItemName>();
-    const tocDir = dirname(toc.path);
-
-    function visit(items: TocItem[] = [], ancestorHidden = false) {
-        for (const {href, name, hidden, items: children} of items) {
-            const isHidden = ancestorHidden || hidden === true;
-
-            if (name && href && !isExternalHref(href)) {
-                const path = normalizePath(join(tocDir, href));
-                const current = names.get(path);
-
-                if (!current || (current.hidden && !isHidden)) {
-                    names.set(path, {name, hidden: isHidden});
-                }
-            }
-
-            visit(children, isHidden);
-        }
-    }
-
-    visit(toc.items);
-
-    return names;
-}
-
-export function createTocItemNameLookup() {
-    const indexes = new WeakMap<Toc, Map<NormalizedPath, TocItemName>>();
-
-    return function findTocItemName(toc: Toc, path: NormalizedPath) {
-        let names = indexes.get(toc);
-        if (!names) {
-            names = indexTocItemNames(toc);
-            indexes.set(toc, names);
-        }
-
-        return names.get(path)?.name;
-    };
 }
 
 export function getBaseMdItPlugins() {

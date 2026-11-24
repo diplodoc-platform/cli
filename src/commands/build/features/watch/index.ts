@@ -10,7 +10,7 @@ import {MAIN_TIMER_ID} from '~/constants';
 import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
-import {PageAudienceConflictError, resolveLlmsConfig} from '~/core/toc';
+import {PageAudienceConflictError, getTocItemName, resolveLlmsConfig} from '~/core/toc';
 import {compareJson, console, normalizePath, setExt} from '~/core/utils';
 import * as threads from '~/commands/threads';
 
@@ -281,6 +281,18 @@ export class Watch {
         const oldTocsPaths = oldFiles.filter(state.isKnownToc);
         oldTocsPaths.forEach((path) => state.affectedTocs.add(path));
         const oldEntries = await state.getEntries(oldTocsPaths);
+        const isHtml = state.run.config.outputFormat === OutputFormat.html;
+        if (isHtml) {
+            for (const entry of oldEntries) {
+                if (!state.previousTocItemNames.has(entry)) {
+                    state.previousTocItemNames.set(
+                        entry,
+                        getTocItemName(state.run.toc.for(entry), entry),
+                    );
+                }
+            }
+        }
+
         const getLlmsUrl = (path: NormalizedPath) =>
             resolveLlmsConfig(state.run.config.llms, state.run.toc.for(path)).url || '';
         const oldLlmsUrls = new Map(oldTocsPaths.map((path) => [path, getLlmsUrl(path)]));
@@ -326,6 +338,18 @@ export class Watch {
             newTocsPaths.filter((path) => oldLlmsUrls.get(path) !== getLlmsUrl(path)),
         );
         this.invalidateLlmsEntries(state, newEntries, changedLlmsTocs);
+
+        if (isHtml) {
+            for (const entry of newEntries) {
+                if (
+                    state.previousTocItemNames.has(entry) &&
+                    state.previousTocItemNames.get(entry) !==
+                        getTocItemName(state.run.toc.for(entry), entry)
+                ) {
+                    state.invalidateEntry(entry);
+                }
+            }
+        }
 
         const entriesDiff = diff(oldEntries, newEntries);
 

@@ -5,14 +5,10 @@ import MarkdownIt from 'markdown-it';
 import file from '@diplodoc/transform/lib/plugins/file';
 import visibility from '@diplodoc/transform/lib/plugins/visibility';
 
+import {getTocItemName} from '~/core/toc';
 import {normalizePath} from '~/core/utils';
 
-import {
-    createTocItemNameLookup,
-    decodeAnchor,
-    filterBundledExtensionAssets,
-    getBaseMdItPlugins,
-} from './utils';
+import {decodeAnchor, filterBundledExtensionAssets, getBaseMdItPlugins} from './utils';
 
 describe('output-html utils ', () => {
     it('indexes each resolved TOC once and prefers visible item names', () => {
@@ -38,12 +34,11 @@ describe('output-html utils ', () => {
                 return items();
             },
         };
-        const lookup = createTocItemNameLookup();
         const path = normalizePath('ru/page.md');
 
-        expect(lookup(toc, path)).toBe('Visible name');
-        expect(lookup(toc, normalizePath('ru/hidden.md'))).toBe('Hidden-only page');
-        expect(lookup(toc, normalizePath('ru/missing.md'))).toBeUndefined();
+        expect(getTocItemName(toc, path)).toBe('Visible name');
+        expect(getTocItemName(toc, normalizePath('ru/hidden.md'))).toBe('Hidden-only page');
+        expect(getTocItemName(toc, normalizePath('ru/missing.md'))).toBeUndefined();
         expect(items).toHaveBeenCalledTimes(1);
 
         const reloaded: Toc = {
@@ -51,7 +46,7 @@ describe('output-html utils ', () => {
             path: toc.path,
             items: [{id: 'page', name: 'Renamed page', href: page}],
         };
-        expect(lookup(reloaded, path)).toBe('Renamed page');
+        expect(getTocItemName(reloaded, path)).toBe('Renamed page');
     });
 
     describe('decodeAnchor', () => {

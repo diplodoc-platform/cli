@@ -22,6 +22,9 @@ export class WatchState {
     // Keep the audience of the last completed build while a TOC edit is invalid.
     pageAudiences: ReadonlyMap<NormalizedPath, PageAudience>;
 
+    // A rejected TOC edit may already have changed the graph.
+    readonly previousTocItemNames = new Map<NormalizedPath, string | undefined>();
+
     readonly run: Run;
 
     readonly logger: Run['logger'];
@@ -65,6 +68,7 @@ export class WatchState {
             entries: new Set(this.rebuiltEntries),
         });
         this.pageAudiences = this.run.toc.getPageAudiences();
+        this.previousTocItemNames.clear();
         this.processedFiles.clear();
         this.affectedTocs.clear();
         this.rebuiltEntries.clear();
