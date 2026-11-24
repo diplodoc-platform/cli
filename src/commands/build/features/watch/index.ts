@@ -10,11 +10,12 @@ import {MAIN_TIMER_ID} from '~/constants';
 import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
-import {PageAudienceConflictError, getTocItemName, resolveLlmsConfig} from '~/core/toc';
+import {PageAudienceConflictError, resolveLlmsConfig} from '~/core/toc';
 import {compareJson, console, normalizePath, setExt} from '~/core/utils';
 import * as threads from '~/commands/threads';
 
 import {OutputFormat} from '../../config';
+import {getHooks as getBuildHooks} from '../../hooks';
 
 import {options} from './config';
 import {Watcher} from './Watcher';
@@ -34,6 +35,8 @@ export class Watch {
     private channels: Hash<ServerResponse> = {};
 
     apply(program: Build) {
+        const watchStates = new WeakMap<Run, WatchState>();
+
         this.server = createServer((req, res) => {
             const url = new URL('http://localhost' + req.url);
 
@@ -73,6 +76,8 @@ export class Watch {
                 return;
             }
 
+            watchStates.set(run, new WatchState(program, run));
+
             getEntryHooks(run.entry).Page.tap('Watch', (template) => {
                 template.addCsp({
                     'connect-src': ['http://localhost:3000'],
@@ -92,10 +97,17 @@ export class Watch {
             });
         });
 
+        getBuildHooks(program)
+            .Entry.for(OutputFormat.html)
+            .tap('Watch', (run, entry) => {
+                watchStates.get(run)?.rememberTocTitle(entry);
+            });
+
         getBaseHooks<Run>(program).AfterAnyRun.tapPromise(
             {name: 'Watch', stage: Infinity},
             async (run) => {
-                if (!run.config.watch) {
+                const state = watchStates.get(run);
+                if (!state) {
                     return;
                 }
 
@@ -106,7 +118,7 @@ export class Watch {
 
                 const socket = this.server.listen(3000);
                 const watch = new Watcher(run);
-                const state = new WatchState(program, run);
+                state.pageAudiences = run.toc.getPageAudiences();
 
                 console.log('Watching for changes...');
 
@@ -281,18 +293,6 @@ export class Watch {
         const oldTocsPaths = oldFiles.filter(state.isKnownToc);
         oldTocsPaths.forEach((path) => state.affectedTocs.add(path));
         const oldEntries = await state.getEntries(oldTocsPaths);
-        const isHtml = state.run.config.outputFormat === OutputFormat.html;
-        if (isHtml) {
-            for (const entry of oldEntries) {
-                if (!state.previousTocItemNames.has(entry)) {
-                    state.previousTocItemNames.set(
-                        entry,
-                        getTocItemName(state.run.toc.for(entry), entry),
-                    );
-                }
-            }
-        }
-
         const getLlmsUrl = (path: NormalizedPath) =>
             resolveLlmsConfig(state.run.config.llms, state.run.toc.for(path)).url || '';
         const oldLlmsUrls = new Map(oldTocsPaths.map((path) => [path, getLlmsUrl(path)]));
@@ -339,17 +339,7 @@ export class Watch {
         );
         this.invalidateLlmsEntries(state, newEntries, changedLlmsTocs);
 
-        if (isHtml) {
-            for (const entry of newEntries) {
-                if (
-                    state.previousTocItemNames.has(entry) &&
-                    state.previousTocItemNames.get(entry) !==
-                        getTocItemName(state.run.toc.for(entry), entry)
-                ) {
-                    state.invalidateEntry(entry);
-                }
-            }
-        }
+        state.invalidateChangedTocTitles(newEntries);
 
         const entriesDiff = diff(oldEntries, newEntries);
 
@@ -365,6 +355,7 @@ export class Watch {
             // If entry is not attached to any toc, then we don't need to process it.
             if (!state.isGraphPart('toc', entry)) {
                 state.run.entry.relations.release(entry);
+                state.forgetTocTitle(entry);
                 continue;
             }
 

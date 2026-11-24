@@ -248,6 +248,68 @@ describe('Build watch feature', () => {
             expect(currentRun.logger.error).not.toHaveBeenCalled();
         });
 
+        it('updates the HTML title when a nested TOC takes ownership after a conflict', async () => {
+            watch.end();
+            await promise;
+            watch.reset();
+
+            const nestedToc = (includePage = false, conflict = false) =>
+                dump({
+                    title: 'Nested',
+                    items: [
+                        {
+                            name: 'Shared',
+                            href: '../shared.md',
+                            ...(conflict && {visibility: 'agent'}),
+                        },
+                        ...(includePage ? [{name: 'New page', href: 'page.md'}] : []),
+                    ],
+                });
+            const page = 'A page without a heading.';
+            await setup('', {
+                globs: {'**/toc.yaml': ['toc.yaml', 'nested/toc.yaml'] as NormalizedPath[]},
+                files: {
+                    'toc.yaml': dump({
+                        title: 'Root',
+                        items: [
+                            {name: 'Original page', href: 'nested/page.md'},
+                            {name: 'Shared', href: 'shared.md'},
+                        ],
+                    }),
+                    'nested/toc.yaml': nestedToc(),
+                    'nested/page.md': page,
+                    'shared.md': '# Shared',
+                },
+            });
+
+            const currentRun = run(build);
+            const writes = vi.mocked(currentRun.write);
+            const pageHtml = join(currentRun.output, 'nested/page.html');
+
+            expect(writes).toHaveBeenCalledWith(
+                pageHtml,
+                expect.stringContaining('<title>Original page | Root</title>'),
+                true,
+            );
+            await register('./nested/page.md', page);
+            writes.mockClear();
+
+            await change('./nested/toc.yaml', nestedToc(true, true));
+            expect(currentRun.logger.error).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    message: expect.stringContaining('Conflicting visibility'),
+                }),
+            );
+            expect(writes).not.toHaveBeenCalled();
+
+            await change('./nested/toc.yaml', nestedToc(true));
+            expect(writes).toHaveBeenCalledWith(
+                pageHtml,
+                expect.stringContaining('<title>New page | Nested</title>'),
+                true,
+            );
+        });
+
         it.each(['md', 'html'])(
             'updates page outputs when only inherited visibility changes (%s)',
             async (format) => {

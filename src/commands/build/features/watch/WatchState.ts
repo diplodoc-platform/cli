@@ -3,8 +3,13 @@ import type {EntryTocItem, PageAudience, Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 
+import {getTocItemName} from '~/core/toc';
 import {Graph, bounded, normalizePath} from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build/hooks';
+
+import {OutputFormat} from '../../config';
+
+type TocTitleSource = Pick<Toc, 'path' | 'title'> & {itemName?: string};
 
 export class WatchState {
     readonly changed = new Map<NormalizedPath, boolean>();
@@ -20,10 +25,7 @@ export class WatchState {
     readonly rebuiltEntries = new Set<NormalizedPath>();
 
     // Keep the audience of the last completed build while a TOC edit is invalid.
-    pageAudiences: ReadonlyMap<NormalizedPath, PageAudience>;
-
-    // A rejected TOC edit may already have changed the graph.
-    readonly previousTocItemNames = new Map<NormalizedPath, string | undefined>();
+    pageAudiences: ReadonlyMap<NormalizedPath, PageAudience> = new Map();
 
     readonly run: Run;
 
@@ -31,11 +33,47 @@ export class WatchState {
 
     private program: Build;
 
+    private readonly tocTitleSources?: Map<NormalizedPath, TocTitleSource>;
+
     constructor(program: Build, run: Run) {
         this.program = program;
         this.run = run;
         this.logger = run.logger;
-        this.pageAudiences = run.toc.getPageAudiences();
+
+        if (run.config.outputFormat === OutputFormat.html) {
+            this.tocTitleSources = new Map();
+        }
+    }
+
+    rememberTocTitle(entry: NormalizedPath) {
+        this.tocTitleSources?.set(entry, this.getTocTitleSource(entry));
+    }
+
+    invalidateChangedTocTitles(entries: NormalizedPath[]) {
+        if (!this.tocTitleSources) {
+            return;
+        }
+
+        for (const entry of entries) {
+            if (this.run.toc.audience(entry) === 'agent') {
+                continue;
+            }
+
+            const previous = this.tocTitleSources.get(entry);
+            const {path, title, itemName} = this.getTocTitleSource(entry);
+            if (
+                !previous ||
+                previous.path !== path ||
+                previous.title !== title ||
+                previous.itemName !== itemName
+            ) {
+                this.invalidateEntry(entry);
+            }
+        }
+    }
+
+    forgetTocTitle(entry: NormalizedPath) {
+        this.tocTitleSources?.delete(entry);
     }
 
     @bounded invalidateToc(path: NormalizedPath) {
@@ -68,7 +106,6 @@ export class WatchState {
             entries: new Set(this.rebuiltEntries),
         });
         this.pageAudiences = this.run.toc.getPageAudiences();
-        this.previousTocItemNames.clear();
         this.processedFiles.clear();
         this.affectedTocs.clear();
         this.rebuiltEntries.clear();
@@ -144,6 +181,11 @@ export class WatchState {
         }
 
         return [...entries];
+    }
+
+    private getTocTitleSource(entry: NormalizedPath): TocTitleSource {
+        const toc = this.run.toc.for(entry);
+        return {path: toc.path, title: toc.title, itemName: getTocItemName(toc, entry)};
     }
 
     private releaseEntryDependencies(entry: NormalizedPath) {
