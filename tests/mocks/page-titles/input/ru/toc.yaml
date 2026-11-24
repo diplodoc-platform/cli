@@ -1,0 +1,12 @@
+title: Fixture Docs
+href: index.yaml
+items:
+  - name: YAML section
+    href: section.yaml
+    items:
+      - name: Markdown page
+        href: page.md
+      - name: TOC override
+        href: explicit.yaml
+      - name: TOC heading
+        href: heading.md

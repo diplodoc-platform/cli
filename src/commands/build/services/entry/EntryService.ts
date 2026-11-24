@@ -7,7 +7,7 @@ import type {EntryData, MarkdownData, PageData, PageState} from './types';
 import type {Template} from '~/core/template';
 
 import {extname, join} from 'node:path';
-import {isEmpty} from 'lodash';
+import {escape, isEmpty} from 'lodash';
 import {dedent} from 'ts-dedent';
 import {render} from '@diplodoc/client/ssr';
 
@@ -141,8 +141,10 @@ export class EntryService {
         return state;
     }
 
-    async page(template: Template, state: PageState, toc: Toc) {
+    async page(template: Template, state: PageState, toc: Toc, tocItemName?: string) {
         const {staticContent, resources} = this.config;
+        const data = state.data;
+
         const {
             style = [],
             script = [],
@@ -155,9 +157,10 @@ export class EntryService {
             __metadata = [],
             tags = [],
             ...restYamlConfigMeta
-        } = (state.data.meta as Meta) || {};
+        } = (data.meta as Meta) || {};
 
-        const baseTitle = metaTitle || state.data.title;
+        const baseTitle = metaTitle || data.title || escape(tocItemName);
+
         const title = getTitle(toc.title as string, baseTitle);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
 

@@ -123,13 +123,17 @@ export class OutputHtml {
 
                     const data = getStateData(vfile.data);
                     const state = await run.entry.state(vfile.path, data);
+                    const tocItemName =
+                        !state.data.meta.title && !state.data.title
+                            ? findTocItemName(run.toc.for(vfile.path), vfile.path)
+                            : undefined;
                     const template = new Template(vfile.path, state.lang, [__Entry__]);
                     template.setCspDisabled(Boolean(run.config.disableCsp));
 
                     const html = injectOpenapiCompanionComment(
                         run,
                         vfile.path,
-                        await run.entry.page(template, state, toc.data),
+                        await run.entry.page(template, state, toc.data, tocItemName),
                     );
                     vfile.path = setExt(vfile.path, '.html');
                     vfile.format(() => html);
@@ -321,6 +325,33 @@ function injectOpenapiCompanionComment(run: Run, entryPath: NormalizedPath, html
     return html.includes('</body>')
         ? html.replace('</body>', `        ${comment}\n    </body>`)
         : `${html}\n${comment}`;
+}
+
+function findTocItemName(toc: Toc, path: NormalizedPath): string | undefined {
+    const tocDir = dirname(toc.path);
+
+    function find(items: TocItem[] | undefined): string | undefined {
+        for (const {href, name, items: children} of items || []) {
+            if (
+                name &&
+                href &&
+                !isExternalHref(href) &&
+                normalizePath(join(tocDir, href)) === path
+            ) {
+                return name;
+            }
+
+            const nestedName = find(children);
+
+            if (nestedName) {
+                return nestedName;
+            }
+        }
+
+        return undefined;
+    }
+
+    return find(toc.items);
 }
 
 function getStateData(entry: EntryData): PageData {
