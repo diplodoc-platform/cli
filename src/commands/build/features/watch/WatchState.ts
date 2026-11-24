@@ -62,8 +62,7 @@ export class WatchState {
             const previous = this.tocTitleSources.get(entry);
             const {path, title, itemName} = this.getTocTitleSource(entry);
             if (
-                !previous ||
-                previous.path !== path ||
+                previous?.path !== path ||
                 previous.title !== title ||
                 previous.itemName !== itemName
             ) {
