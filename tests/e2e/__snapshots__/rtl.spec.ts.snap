@@ -186,7 +186,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
-        <title>Documentation</title>
+        <title>Documentation | Documentation</title>
         <link rel="canonical" href="en/page.html">
         <link rel="alternate" href="ar/page.html" hreflang="ar" />
         <link rel="alternate" href="en/page.html" hreflang="en" />
