@@ -15,6 +15,7 @@ import {compareJson, console, normalizePath, setExt} from '~/core/utils';
 import * as threads from '~/commands/threads';
 
 import {OutputFormat} from '../../config';
+import {getHooks as getBuildHooks} from '../../hooks';
 
 import {options} from './config';
 import {Watcher} from './Watcher';
@@ -34,6 +35,8 @@ export class Watch {
     private channels: Hash<ServerResponse> = {};
 
     apply(program: Build) {
+        const watchStates = new WeakMap<Run, WatchState>();
+
         this.server = createServer((req, res) => {
             const url = new URL('http://localhost' + req.url);
 
@@ -73,6 +76,8 @@ export class Watch {
                 return;
             }
 
+            watchStates.set(run, new WatchState(program, run));
+
             getEntryHooks(run.entry).Page.tap('Watch', (template) => {
                 template.addCsp({
                     'connect-src': ['http://localhost:3000'],
@@ -92,10 +97,17 @@ export class Watch {
             });
         });
 
+        getBuildHooks(program)
+            .Entry.for(OutputFormat.html)
+            .tap('Watch', (run, entry) => {
+                watchStates.get(run)?.rememberTocTitle(entry);
+            });
+
         getBaseHooks<Run>(program).AfterAnyRun.tapPromise(
             {name: 'Watch', stage: Infinity},
             async (run) => {
-                if (!run.config.watch) {
+                const state = watchStates.get(run);
+                if (!state) {
                     return;
                 }
 
@@ -106,7 +118,7 @@ export class Watch {
 
                 const socket = this.server.listen(3000);
                 const watch = new Watcher(run);
-                const state = new WatchState(program, run);
+                state.pageAudiences = run.toc.getPageAudiences();
 
                 console.log('Watching for changes...');
 
@@ -327,6 +339,8 @@ export class Watch {
         );
         this.invalidateLlmsEntries(state, newEntries, changedLlmsTocs);
 
+        state.invalidateChangedTocTitles(newEntries);
+
         const entriesDiff = diff(oldEntries, newEntries);
 
         // Update added to toc entries
@@ -341,6 +355,7 @@ export class Watch {
             // If entry is not attached to any toc, then we don't need to process it.
             if (!state.isGraphPart('toc', entry)) {
                 state.run.entry.relations.release(entry);
+                state.forgetTocTitle(entry);
                 continue;
             }
 

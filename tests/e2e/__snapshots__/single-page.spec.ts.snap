@@ -103,7 +103,7 @@ exports[`Single page mode > simple md2html single page with lang dirs 4`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../../" />
-        <title>Documentation</title>
+        <title>Config | Documentation</title>
         <link rel="canonical" href="ru/project/config.html">
         <link rel="alternate" href="ru/project/config.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">

@@ -3199,7 +3199,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 25`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
-        <title></title>
+        <title>includes</title>
         <link rel="alternate" href="includes.md" type="text/markdown" title="Markdown version" />
         <link rel="describedby" href="llms.txt" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">

@@ -2694,7 +2694,7 @@ exports[`Regression > internal 40`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
-        <title></title>
+        <title>3</title>
         <link rel="describedby" href="../llms.txt" />
         <link rel="alternate" href="generic/3.md" type="text/markdown" title="Markdown version" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
@@ -2874,7 +2874,7 @@ exports[`Regression > internal 46`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
-        <title></title>
+        <title>includes</title>
         <link rel="alternate" href="includes.md" type="text/markdown" title="Markdown version" />
         <link rel="describedby" href="llms.txt" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
@@ -2904,7 +2904,7 @@ exports[`Regression > internal 47`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
-        <title></title>
+        <title>Fragments</title>
         <link rel="describedby" href="../llms.txt" />
         <link rel="alternate" href="includes/fragments.md" type="text/markdown" title="Markdown version" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
@@ -2934,7 +2934,7 @@ exports[`Regression > internal 48`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
-        <title></title>
+        <title>Verbose root (index.yaml) will be transformed to index.html</title>
         <link rel="alternate" href="index.yaml" type="application/yaml" title="Yaml version" />
         <link rel="describedby" href="llms.txt" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
@@ -4127,7 +4127,7 @@ exports[`Regression > internal 60`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../../" />
-        <title></title>
+        <title>Test x-hidden attribute</title>
         <link rel="describedby" href="../../llms.txt" />
         <link rel="alternate" href="openapi/test-controller/getHiddenTest.md" type="text/markdown" title="Markdown version" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
@@ -4157,7 +4157,7 @@ exports[`Regression > internal 61`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../../" />
-        <title></title>
+        <title>Simple get operation. тест новой верстки 3</title>
         <link rel="describedby" href="../../llms.txt" />
         <link rel="alternate" href="openapi/test-controller/getWithPayloadResponse.md" type="text/markdown" title="Markdown version" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">

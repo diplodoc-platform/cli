@@ -92,7 +92,7 @@ exports[`Allow load custom resources > md2html with metadata 4`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
-        <title>Documentation</title>
+        <title>Config | Documentation</title>
         <meta http-equiv="last-modified" content="2025-10-15T00:00:00.000Z">
         <meta property="article:modified_time" content="2025-10-15T00:00:00.000Z">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">

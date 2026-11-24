@@ -21,7 +21,7 @@ import {
     zip,
 } from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks, resolveLlmsConfig} from '~/core/toc';
+import {getHooks as getTocHooks, getTocItemName, resolveLlmsConfig} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getMetaHooks} from '~/core/meta';
@@ -138,17 +138,22 @@ export class OutputHtml {
 
                 // Transform any entry to final html page
                 getEntryHooks(run.entry).Dump.tapPromise('Html', async (vfile) => {
-                    const toc = await run.toc.dump(vfile.path);
+                    const sourceToc = run.toc.for(vfile.path);
+                    const toc = await run.toc.dump(vfile.path, sourceToc);
 
                     const data = getStateData(vfile.data);
                     const state = await run.entry.state(vfile.path, data);
+                    const tocItemName =
+                        !state.data.meta.title && !state.data.title
+                            ? getTocItemName(sourceToc, vfile.path)
+                            : undefined;
                     const template = new Template(vfile.path, state.lang, [__Entry__]);
                     template.setCspDisabled(Boolean(run.config.disableCsp));
 
                     const html = injectOpenapiCompanionComment(
                         run,
                         vfile.path,
-                        await run.entry.page(template, state, toc.data),
+                        await run.entry.page(template, state, toc.data, tocItemName),
                     );
                     vfile.path = setExt(vfile.path, '.html');
                     vfile.format(() => html);

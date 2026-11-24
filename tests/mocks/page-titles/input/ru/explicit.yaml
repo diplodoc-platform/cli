@@ -1,0 +1,5 @@
+meta:
+  title: Explicit title
+blocks:
+  - type: header-block
+    title: Ignored YAML header
