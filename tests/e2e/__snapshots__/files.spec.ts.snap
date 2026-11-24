@@ -231,7 +231,7 @@ exports[`Static files from _assets directory > Download link should be enabled 9
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
-        <title>Test123</title>
+        <title>Yaml index | Test123</title>
         <link rel="describedby" href="llms.txt" />
         <link rel="alternate" href="pc-index.yaml" type="application/yaml" title="Yaml version" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
