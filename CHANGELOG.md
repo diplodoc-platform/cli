@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.71.1](https://github.com/diplodoc-platform/cli/compare/v5.71.0...v5.71.1) (2026-11-24)
+
+
+### Bug Fixes
+
+* **build:** reduce memory retained during large builds ([#2434](https://github.com/diplodoc-platform/cli/issues/2434)) ([5531b4d](https://github.com/diplodoc-platform/cli/commit/5531b4d13f06d2465f6c433418df1e9f2ec103a4))
+* fixed PC titles ([#2437](https://github.com/diplodoc-platform/cli/issues/2437)) ([68034e3](https://github.com/diplodoc-platform/cli/commit/68034e31e81fe1d3237793ea636f63954330a58a))
+
 ## [5.71.0](https://github.com/diplodoc-platform/cli/compare/v5.70.3...v5.71.0) (2026-11-18)
 
 
