@@ -5,6 +5,7 @@ import type {Lang} from '@diplodoc/transform/lib/typings';
 
 import {basename, dirname, isAbsolute, join, relative, resolve, sep} from 'node:path';
 import {uniq} from 'lodash';
+import {yfmlint} from '@diplodoc/yfmlint';
 import transformer from '@diplodoc/transform/lib/md';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {createIDGeneratorByStrategy} from '@diplodoc/utils';
@@ -86,6 +87,10 @@ export class Run extends BaseRun<BuildConfig> {
     private readonly agentPageLinks = new WeakMap<object, ReadonlySet<NormalizedPath>>();
 
     private entriesCache?: {index: ReadonlySet<NormalizedPath>; paths: NormalizedPath[]};
+
+    private readonly titlesCache = new Map<NormalizedPath, Promise<Hash<string>>>();
+
+    private titlesRevision = -1;
 
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
@@ -185,22 +190,33 @@ export class Run extends BaseRun<BuildConfig> {
     async lint(
         file: NormalizedPath,
         markdown: string,
-        options: TransformOptions,
+        options: TransformOptions & {prepareLinks?: boolean},
         plugins = this.markdown.plugins,
     ) {
+        const {prepareLinks = true} = options;
         const {source, assets, pluginOptions} = await this.prepareTransform(
             file,
             markdown,
             options,
+            true,
+            prepareLinks,
         );
         const lintOptions = {
             ...pluginOptions,
             plugins,
             anchorIndex:
-                getLocalAnchorRuleConfig(this.config.lint.config) === false
+                !prepareLinks || getLocalAnchorRuleConfig(this.config.lint.config) === false
                     ? undefined
                     : await this.anchors.index(file, assets),
         };
+
+        if (!prepareLinks) {
+            return yfmlint(source, file, {
+                lintConfig: this.config.lint.config,
+                pluginOptions: lintOptions,
+                plugins,
+            });
+        }
 
         return lintWithLocalAnchors(source, file, {
             lintConfig: this.config.lint.config,
@@ -314,6 +330,7 @@ export class Run extends BaseRun<BuildConfig> {
         markdown: string,
         options: TransformOptions,
         reportErrors = true,
+        loadTitles = true,
     ) {
         const {deps} = options;
         const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
@@ -337,7 +354,7 @@ export class Run extends BaseRun<BuildConfig> {
         const transformOptions = {
             ...this.transformConfig(file, assetsRemap),
             files,
-            titles: await remap(titles, this.titles),
+            titles: loadTitles ? await remap(titles, this.titles) : {},
             assets: assetsRemap,
         };
         return {source: content, assets, pluginOptions: transformOptions};
@@ -442,7 +459,32 @@ export class Run extends BaseRun<BuildConfig> {
             return {};
         }
 
-        return this.markdown.titles(path);
+        if (this.titlesRevision !== this.markdown.revision) {
+            this.titlesCache.clear();
+            this.titlesRevision = this.markdown.revision;
+        }
+        let cached = this.titlesCache.get(path);
+        if (!cached) {
+            const key = path;
+            const value = this.markdown
+                .withContext(key, () => this.markdown.titles(key))
+                .then((titles) =>
+                    Object.fromEntries(
+                        Object.entries(titles).map(([anchor, title]) => [
+                            Buffer.from(anchor, 'utf16le').toString('utf16le'),
+                            Buffer.from(title, 'utf16le').toString('utf16le'),
+                        ]),
+                    ),
+                );
+            cached = value.catch((error) => {
+                if (this.titlesCache.get(key) === cached) {
+                    this.titlesCache.delete(key);
+                }
+                throw error;
+            });
+            this.titlesCache.set(key, cached);
+        }
+        return {...(await cached)};
     }
 }
 

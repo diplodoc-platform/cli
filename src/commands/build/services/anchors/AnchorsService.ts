@@ -85,7 +85,11 @@ export class AnchorsService {
         return value;
     }
 
-    private async refresh(path: NormalizedPath): Promise<ReadonlySet<string>> {
+    private refresh(path: NormalizedPath): Promise<ReadonlySet<string>> {
+        return this.run.markdown.withContext(path, () => this.refreshInContext(path));
+    }
+
+    private async refreshInContext(path: NormalizedPath): Promise<ReadonlySet<string>> {
         const graph = await this.run.markdown.graph(path);
         const signature = getGraphSignature(graph);
         const cached = this.cache.get(path);

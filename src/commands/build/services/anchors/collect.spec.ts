@@ -1,6 +1,13 @@
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
 
+import {execFile} from 'node:child_process';
+import {mkdtemp, rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {promisify} from 'node:util';
 import {describe, expect, it} from 'vitest';
+import {buildSync} from 'esbuild';
 import MarkdownIt from 'markdown-it';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import blockAnchor from '@diplodoc/transform/lib/plugins/block-anchor';
@@ -64,6 +71,16 @@ describe('collectAnchorIds', () => {
             expect(anchorIds).toEqual(new Set(['raw-text', 'after']));
         },
     );
+
+    it.each([
+        'якорь-e\u0301-é-🚀-anchor',
+        'isolated-high-\ud800-surrogate-anchor',
+        'isolated-low-\udc00-surrogate-anchor',
+    ])('preserves every UTF-16 code unit in %j', (id) => {
+        const anchorIds = new Set<string>();
+        collectAnchorIds(`<div id="${id}"></div>`, anchorIds);
+        expect([...anchorIds]).toEqual([id]);
+    });
 
     it('collects a slugified heading anchor', () => {
         const anchorIds = collect('## Automatic heading');
@@ -144,4 +161,56 @@ describe('collectAnchorIds', () => {
 
         expect(anchorIds).toEqual(new Set(['raw&anchor']));
     });
+});
+
+it('does not retain rendered documents through cached anchor IDs', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'anchor-retention-'));
+    try {
+        buildSync({
+            entryPoints: [fileURLToPath(new URL('./collect.ts', import.meta.url))],
+            outfile: join(directory, 'collect.cjs'),
+            bundle: true,
+            platform: 'node',
+            format: 'cjs',
+            logLevel: 'silent',
+        });
+        const script = `
+            const {collectAnchorIds} = require('./collect.cjs');
+            const {setImmediate} = require('node:timers/promises');
+            function retainIds() {
+                const ids = new Set();
+                for (let index = 0; index < 60; index++) {
+                    const id = 'anchor-long-enough-to-be-a-slice-' + index;
+                    const html = JSON.parse(JSON.stringify(
+                        '<!-- ignored --><div id="' + id + '">' + 'x'.repeat(1024 * 1024) + '</div>'
+                    ));
+                    collectAnchorIds(html, ids);
+                }
+                return ids;
+            }
+            (async () => {
+                for (let index = 0; index < 3; index++) global.gc();
+                const before = process.memoryUsage().heapUsed;
+                const ids = retainIds();
+                await setImmediate();
+                for (let index = 0; index < 3; index++) global.gc();
+                console.log(JSON.stringify({
+                    count: ids.size,
+                    retainedBytes: process.memoryUsage().heapUsed - before
+                }));
+                globalThis.retainedIds = ids;
+            })();
+        `;
+        const {stdout} = await promisify(execFile)(
+            process.execPath,
+            ['--expose-gc', '--max-old-space-size=256', '-e', script],
+            {cwd: directory, env: {...process.env, NODE_OPTIONS: ''}, timeout: 30000},
+        );
+        const result = JSON.parse(stdout) as {count: number; retainedBytes: number};
+        expect(result.count).toBe(60);
+        // Allow the final document retained by V8's regexp state, but not all 60 documents.
+        expect(result.retainedBytes).toBeLessThan(8 * 1024 * 1024);
+    } finally {
+        await rm(directory, {recursive: true, force: true});
+    }
 });

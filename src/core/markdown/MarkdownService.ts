@@ -15,6 +15,9 @@ import type {
 } from './types';
 
 import {dirname, join} from 'node:path';
+import {deserialize, serialize} from 'node:v8';
+import {deflateRawSync, inflateRawSync} from 'node:zlib';
+import {types} from 'node:util';
 import {SourceMap} from '@diplodoc/liquid';
 
 import {Buckets, Defer, Graph, VFile, all, bounded, fullPath, normalizePath} from '~/core/utils';
@@ -62,6 +65,54 @@ interface CacheItem {
     varsMetadata?: Hash;
     varsSystem?: Hash;
     meta: Meta;
+}
+
+type PackedContext = {
+    value: Pick<CacheItem, 'content'>;
+    comments: Location[];
+    deps: IncludeInfo[];
+    codeSources: NormalizedPath[];
+    assets: AssetInfo[];
+    headings: HeadingInfo[];
+};
+
+function canPack(value: unknown, seen = new Set<object>()): boolean {
+    if (typeof value !== 'object' || value === null) {
+        return typeof value !== 'function' && typeof value !== 'symbol';
+    }
+    if (types.isProxy(value) || !Object.isExtensible(value)) {
+        return false;
+    }
+    if (seen.has(value)) {
+        return true;
+    }
+    const array = Array.isArray(value);
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== (array ? Array.prototype : Object.prototype)) {
+        return false;
+    }
+    seen.add(value);
+    for (const key of Reflect.ownKeys(value)) {
+        if (array && key === 'length') {
+            if (!Object.getOwnPropertyDescriptor(value, key)?.writable) {
+                return false;
+            }
+            continue;
+        }
+        const descriptor = Object.getOwnPropertyDescriptor(value, key);
+        if (
+            typeof key !== 'string' ||
+            !descriptor ||
+            !('value' in descriptor) ||
+            !descriptor.enumerable ||
+            !descriptor.writable ||
+            !descriptor.configurable ||
+            !canPack(descriptor.value, seen)
+        ) {
+            return false;
+        }
+    }
+    return true;
 }
 
 function hash(path: NormalizedPath, from?: NormalizedPath) {
@@ -112,6 +163,24 @@ export class MarkdownService {
 
     private cache: Hash<Promise<CacheItem> | CacheItem> = {};
 
+    private readonly contextKeys = new Map<NormalizedPath, Set<string>>();
+
+    private readonly packedContexts = new Map<
+        string,
+        {
+            data: Buffer;
+            meta: CacheItem['meta'];
+            parsedMeta: Meta;
+            varsMetadata: CacheItem['varsMetadata'];
+            varsSystem: CacheItem['varsSystem'];
+            sourcemap: Record<number | string, string>;
+        }
+    >();
+
+    private readonly pendingPacking = new Set<NormalizedPath>();
+
+    private readonly contextReaders = new Map<NormalizedPath, number>();
+
     private _revision = 0;
 
     /** Changes when a page or an include context is released, including during watch rebuilds. */
@@ -134,6 +203,13 @@ export class MarkdownService {
     @bounded async load(path: RelativePath, from?: NormalizedPath) {
         const file = normalizePath(path);
         const key = hash(file, from);
+
+        if (from && this.config.outputFormat !== 'md') {
+            const keys = this.contextKeys.get(from) || new Set<string>();
+            keys.add(key);
+            this.contextKeys.set(from, keys);
+        }
+        this.restoreCacheKey(key);
 
         if (key in this.cache) {
             const {content, varsMetadata, varsSystem, meta} = await this.cache[key];
@@ -215,11 +291,13 @@ export class MarkdownService {
     }
 
     async meta(path: RelativePath) {
-        return this._meta(normalizePath(path));
+        const file = normalizePath(path);
+        return this.withContext(file, () => this._meta(file), false);
     }
 
     async deps(path: RelativePath) {
-        return this._deps(normalizePath(path));
+        const file = normalizePath(path);
+        return this.withContext(file, () => this._deps(file), false);
     }
 
     /** Resolves includes for either a complete article or an embedded Markdown field. */
@@ -245,48 +323,27 @@ export class MarkdownService {
     }
 
     async graph(path: RelativePath) {
-        return this._graph(normalizePath(path));
+        const file = normalizePath(path);
+        return this.withContext(file, () => this._graph(file), false);
     }
 
     async relations(path: RelativePath) {
-        return this._relations(normalizePath(path));
+        const file = normalizePath(path);
+        return this.withContext(file, () => this._relations(file), false);
     }
 
     async assets(path: RelativePath) {
-        return this._assets(normalizePath(path));
+        const file = normalizePath(path);
+        return this.withContext(file, () => this._assets(file), false);
     }
 
     async headings(path: RelativePath) {
-        return this._headings(normalizePath(path));
+        const file = normalizePath(path);
+        return this.withContext(file, () => this._headings(file), false);
     }
 
     async titles(path: RelativePath) {
-        const file = normalizePath(path);
-
-        const titles: Hash<string> = {};
-
-        try {
-            const headings = await this.headings(file);
-            const contents = headings.map(({content}) => content);
-
-            for (const content of contents) {
-                const {level, title, anchors} = parseHeading(content);
-
-                if (level === 1 && !titles['#']) {
-                    titles['#'] = title;
-                }
-
-                for (const anchor of anchors) {
-                    titles[anchor] = title;
-                }
-            }
-        } catch {
-            // This is acceptable.
-            // If this is a real file and someone depends on his titles,
-            // then we throw exception in md plugin.
-        }
-
-        return titles;
+        return this.withContext(normalizePath(path), () => this._titles(path), false);
     }
 
     @bounded async inspect(path: RelativePath, raw: string, vars: Hash) {
@@ -303,6 +360,7 @@ export class MarkdownService {
 
     remap(path: RelativePath, line: number): number {
         const file = normalizePath(path);
+        this.restoreCacheKey(hash(file));
         const sourcemap = this.pathToSourcemap.get(file);
 
         if (!sourcemap) {
@@ -316,14 +374,42 @@ export class MarkdownService {
         const key = hash(path, from);
 
         this._revision++;
-        delete this.cache[key];
-        this.pathToDeps.delete(key);
-        this.pathToCodeSources.delete(key);
-        this.pathToMeta.delete(key);
-        this.pathToAssets.delete(key);
-        this.pathToHeadings.delete(key);
-        this.pathToComments.delete(key);
-        this.pathToSourcemap.delete(key);
+        if (from) {
+            const keys = this.contextKeys.get(from);
+            keys?.delete(key);
+            if (!keys?.size) {
+                this.contextKeys.delete(from);
+            }
+        }
+        this.clearCacheKey(key);
+    }
+
+    /** Pack completed page/include data only after the last reader has finished. */
+    async withContext<T>(file: NormalizedPath, read: () => Promise<T>, compact = true): Promise<T> {
+        if (this.config.outputFormat === 'md') {
+            return read();
+        }
+        if (compact) {
+            this.pendingPacking.add(file);
+        }
+        this.contextReaders.set(file, (this.contextReaders.get(file) || 0) + 1);
+        try {
+            return await read();
+        } finally {
+            const readers = (this.contextReaders.get(file) as number) - 1;
+            if (readers) {
+                this.contextReaders.set(file, readers);
+            } else {
+                this.contextReaders.delete(file);
+                if (this.pendingPacking.delete(file)) {
+                    this.packContext(hash(file));
+                    for (const key of this.contextKeys.get(file) || []) {
+                        this.packContext(key);
+                    }
+                    this.contextKeys.delete(file);
+                }
+            }
+        }
     }
 
     /** Returns assets from reachable embedded sources using each source's own logical path. */
@@ -353,6 +439,106 @@ export class MarkdownService {
         [...roots, ...deps].forEach(visit);
 
         return assets;
+    }
+
+    private async _titles(path: RelativePath) {
+        const file = normalizePath(path);
+
+        const titles: Hash<string> = {};
+
+        try {
+            const headings = await this.headings(file);
+            const contents = headings.map(({content}) => content);
+
+            for (const content of contents) {
+                const {level, title, anchors} = parseHeading(content);
+
+                if (level === 1 && !titles['#']) {
+                    titles['#'] = title;
+                }
+
+                for (const anchor of anchors) {
+                    titles[anchor] = title;
+                }
+            }
+        } catch {
+            // The Markdown plugin reports missing titles when the link is used.
+        }
+
+        return titles;
+    }
+
+    private restoreCacheKey(key: string) {
+        const packed = this.packedContexts.get(key);
+        if (packed) {
+            const context = deserialize(inflateRawSync(packed.data)) as PackedContext;
+            this.cache[key] = {
+                ...context.value,
+                meta: packed.meta,
+                varsMetadata: packed.varsMetadata,
+                varsSystem: packed.varsSystem,
+            };
+            this.pathToMeta.set(key, packed.parsedMeta);
+            this.pathToComments.set(key, context.comments);
+            this.pathToDeps.set(key, context.deps);
+            this.pathToCodeSources.set(key, context.codeSources);
+            this.pathToAssets.set(key, context.assets);
+            this.pathToHeadings.set(key, context.headings);
+            this.pathToSourcemap.set(key, packed.sourcemap);
+            this.packedContexts.delete(key);
+        }
+    }
+
+    private packContext(key: string) {
+        const value = this.cache[key];
+        if (!value || value instanceof Promise) {
+            return;
+        }
+        const context: PackedContext = {
+            value: {content: value.content},
+            comments: this.pathToComments.get(key),
+            deps: this.pathToDeps.get(key),
+            codeSources: this.pathToCodeSources.get(key),
+            assets: this.pathToAssets.get(key),
+            headings: this.pathToHeadings.get(key),
+        };
+        let packed: Buffer;
+        try {
+            if (!canPack(context)) {
+                return;
+            }
+            // Avoid retaining zlib chunks through shared Buffer slabs.
+            const compressed = deflateRawSync(serialize(context), {level: 1});
+            packed = Buffer.alloc(compressed.length);
+            compressed.copy(packed);
+        } catch {
+            // Plugin-provided parsed data may contain values V8 cannot serialize.
+            return;
+        }
+        const sourcemap = this.pathToSourcemap.get(key);
+        const parsedMeta = this.pathToMeta.get(key);
+        this.clearCacheKey(key);
+        // Keep metadata shared with plugins, tracked variables and lazy source maps by reference.
+        this.packedContexts.set(key, {
+            data: packed,
+            meta: value.meta,
+            parsedMeta,
+            varsMetadata: value.varsMetadata,
+            varsSystem: value.varsSystem,
+            sourcemap,
+        });
+    }
+
+    private clearCacheKey(key: string) {
+        this.packedContexts.delete(key);
+        delete this.cache[key];
+        this.pathToDeps.delete(key);
+        this.pathToCodeSources.delete(key);
+        this.pathToMeta.delete(key);
+        this.pathToAssets.delete(key);
+        this.pathToHeadings.delete(key);
+        this.pathToComments.delete(key);
+        this.pathToSourcemap.delete(key);
     }
 
     private async _meta(file: NormalizedPath, from?: NormalizedPath) {
