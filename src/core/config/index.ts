@@ -6,6 +6,8 @@ import {cyan, yellow} from 'chalk';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
+import {parseYfmConfig} from './yfm-includes';
+
 export function toArray(value: string | string[], previous: string | string[]) {
     value = ([] as string[]).concat(value);
 
@@ -170,15 +172,21 @@ export function option(o: OptionInfo) {
 }
 
 export const configPath = Symbol('configPath');
+export const expandedYfm = Symbol('expandedYfm');
 
 type ConfigUtils = {
     [configPath]: AbsolutePath | null;
+    [expandedYfm]?: Hash;
     resolve(subpath: string): AbsolutePath;
 };
 
 export type Config<T> = T & ConfigUtils;
 
-export function withConfigUtils<T extends Hash = Hash>(path: string | null, config: T): Config<T> {
+export function withConfigUtils<T extends Hash = Hash>(
+    path: string | null,
+    config: T,
+    expanded?: Hash,
+): Config<T> {
     return Object.setPrototypeOf(
         {...config},
         {
@@ -190,6 +198,7 @@ export function withConfigUtils<T extends Hash = Hash>(path: string | null, conf
                 return resolve(dirname(path), subpath) as AbsolutePath;
             },
             [configPath]: path === null ? path : resolve(path),
+            [expandedYfm]: expanded,
         },
     );
 }
@@ -200,17 +209,25 @@ export async function resolveConfig<T extends Hash = {}>(
         defaults,
         fallback,
         filter = identity,
+        yfm = false,
     }: {
         filter?: (data: Hash) => T;
+        yfm?: boolean;
         defaults?: T;
         fallback?: T | null;
     } = {},
 ): Promise<Config<T>> {
     try {
         const content = (await readFile(path, 'utf8')) || '{}';
-        const data = load(content) as Hash;
+        const {data, hasIncludes} = yfm
+            ? parseYfmConfig(content, path)
+            : {data: load(content) as Hash, hasIncludes: false};
 
-        return withConfigUtils(path, merge({}, defaults, filter(data)));
+        return withConfigUtils(
+            path,
+            merge({}, defaults, filter(data)),
+            hasIncludes ? data : undefined,
+        );
         // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (error: any) {
         switch (error.code) {

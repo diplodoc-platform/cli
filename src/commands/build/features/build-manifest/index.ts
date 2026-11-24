@@ -6,7 +6,7 @@ import {join, parse} from 'node:path';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {resolveConfig, valuable} from '~/core/config';
+import {expandedYfm, resolveConfig, valuable} from '~/core/config';
 
 import {getHooks as getEntryHooks} from '../../services/entry';
 
@@ -116,7 +116,7 @@ export class BuildManifest {
 
                 const redirects = run.redirects.rawRedirects;
                 const fileTrie = this.buildFileTrie(run);
-                const yfmConfig = await this.readYfmConfig(run);
+                const yfmConfig = run.config[expandedYfm] ?? (await this.readYfmConfig(run));
                 const openapiCompanions = this.collectOpenapiCompanions(run);
                 const pageMetadata = await this.collectPageMetadata(run);
 
@@ -240,7 +240,7 @@ export class BuildManifest {
         try {
             const yfmConfigPath = run.configPath;
 
-            return (await resolveConfig(yfmConfigPath)) ?? {};
+            return (await resolveConfig(yfmConfigPath, {yfm: true})) ?? {};
         } catch (error) {
             run.logger.warn(`BuildManifest: Failed to read YFM config: ${error}`);
 
