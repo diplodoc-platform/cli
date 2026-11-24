@@ -159,7 +159,8 @@ export class EntryService {
             ...restYamlConfigMeta
         } = (data.meta as Meta) || {};
 
-        const baseTitle = metaTitle || data.title || escape(tocItemName);
+        const tocFallbackTitle = tocItemName === toc.title ? '' : escape(tocItemName);
+        const baseTitle = metaTitle || data.title || tocFallbackTitle;
 
         const title = getTitle(toc.title as string, baseTitle);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';

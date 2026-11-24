@@ -31,7 +31,12 @@ import {getHooks as getEntryHooks} from '../../services/entry';
 import {getHooks as getSearchHooks} from '../../services/search';
 import {buildLlmsAlternate} from '../output-md/utils';
 
-import {filterBundledExtensionAssets, getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
+import {
+    createTocItemNameLookup,
+    filterBundledExtensionAssets,
+    getBaseMdItPlugins,
+    getCustomMdItPlugins,
+} from './utils';
 
 const tocJS = (path: NormalizedPath) => setExt(path, '.js');
 
@@ -42,6 +47,8 @@ export class OutputHtml {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('Html', async (run) => {
+                const findTocItemName = createTocItemNameLookup();
+
                 const setBaseHref = (template: Template) => {
                     template.setBaseHref(run.config.baseHref);
                 };
@@ -119,13 +126,14 @@ export class OutputHtml {
 
                 // Transform any entry to final html page
                 getEntryHooks(run.entry).Dump.tapPromise('Html', async (vfile) => {
-                    const toc = await run.toc.dump(vfile.path);
+                    const sourceToc = run.toc.for(vfile.path);
+                    const toc = await run.toc.dump(vfile.path, sourceToc);
 
                     const data = getStateData(vfile.data);
                     const state = await run.entry.state(vfile.path, data);
                     const tocItemName =
                         !state.data.meta.title && !state.data.title
-                            ? findTocItemName(run.toc.for(vfile.path), vfile.path)
+                            ? findTocItemName(sourceToc, vfile.path)
                             : undefined;
                     const template = new Template(vfile.path, state.lang, [__Entry__]);
                     template.setCspDisabled(Boolean(run.config.disableCsp));
@@ -325,33 +333,6 @@ function injectOpenapiCompanionComment(run: Run, entryPath: NormalizedPath, html
     return html.includes('</body>')
         ? html.replace('</body>', `        ${comment}\n    </body>`)
         : `${html}\n${comment}`;
-}
-
-function findTocItemName(toc: Toc, path: NormalizedPath): string | undefined {
-    const tocDir = dirname(toc.path);
-
-    function find(items: TocItem[] | undefined): string | undefined {
-        for (const {href, name, items: children} of items || []) {
-            if (
-                name &&
-                href &&
-                !isExternalHref(href) &&
-                normalizePath(join(tocDir, href)) === path
-            ) {
-                return name;
-            }
-
-            const nestedName = find(children);
-
-            if (nestedName) {
-                return nestedName;
-            }
-        }
-
-        return undefined;
-    }
-
-    return find(toc.items);
 }
 
 function getStateData(entry: EntryData): PageData {

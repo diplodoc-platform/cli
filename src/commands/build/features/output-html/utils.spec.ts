@@ -1,11 +1,59 @@
-import {describe, expect, it} from 'vitest';
+import type {Toc, TocItem} from '~/core/toc';
+
+import {describe, expect, it, vi} from 'vitest';
 import MarkdownIt from 'markdown-it';
 import file from '@diplodoc/transform/lib/plugins/file';
 import visibility from '@diplodoc/transform/lib/plugins/visibility';
 
-import {decodeAnchor, filterBundledExtensionAssets, getBaseMdItPlugins} from './utils';
+import {normalizePath} from '~/core/utils';
+
+import {
+    createTocItemNameLookup,
+    decodeAnchor,
+    filterBundledExtensionAssets,
+    getBaseMdItPlugins,
+} from './utils';
 
 describe('output-html utils ', () => {
+    it('indexes each resolved TOC once and prefers visible item names', () => {
+        const page = normalizePath('page.md');
+        const hiddenPage = normalizePath('hidden.md');
+        const items = vi.fn((): TocItem[] => [
+            {
+                id: 'section',
+                name: 'Hidden section',
+                hidden: true,
+                items: [
+                    {id: 'alias', name: 'Hidden alias', href: page},
+                    {id: 'hidden', name: 'Hidden-only page', href: hiddenPage},
+                ],
+            },
+            {id: 'page', name: 'Visible name', href: page},
+            {id: 'duplicate', name: 'Another visible name', href: page},
+        ]);
+        const toc: Toc = {
+            id: 'toc',
+            path: normalizePath('ru/toc.yaml'),
+            get items() {
+                return items();
+            },
+        };
+        const lookup = createTocItemNameLookup();
+        const path = normalizePath('ru/page.md');
+
+        expect(lookup(toc, path)).toBe('Visible name');
+        expect(lookup(toc, normalizePath('ru/hidden.md'))).toBe('Hidden-only page');
+        expect(lookup(toc, normalizePath('ru/missing.md'))).toBeUndefined();
+        expect(items).toHaveBeenCalledTimes(1);
+
+        const reloaded: Toc = {
+            id: toc.id,
+            path: toc.path,
+            items: [{id: 'page', name: 'Renamed page', href: page}],
+        };
+        expect(lookup(reloaded, path)).toBe('Renamed page');
+    });
+
     describe('decodeAnchor', () => {
         it('returns null for empty, nullish or hash-only input', () => {
             expect(decodeAnchor(null)).toBeNull();

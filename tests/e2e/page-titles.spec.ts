@@ -25,6 +25,7 @@ test.each(['.html URLs', 'extensionless URLs'])(
                 'index.html': 'Fixture Docs',
                 'explicit.html': 'Explicit title | Fixture Docs',
                 'heading.html': 'Markdown heading | Fixture Docs',
+                'same-title.html': 'Fixture Docs',
             };
 
             for (const [filename, title] of Object.entries(titles)) {

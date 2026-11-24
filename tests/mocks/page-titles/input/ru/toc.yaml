@@ -4,9 +4,16 @@ items:
   - name: YAML section
     href: section.yaml
     items:
+      - name: Hidden section
+        hidden: true
+        items:
+          - name: Hidden Markdown alias
+            href: page.md
       - name: Markdown page
         href: page.md
       - name: TOC override
         href: explicit.yaml
       - name: TOC heading
         href: heading.md
+      - name: Fixture Docs
+        href: same-title.md
