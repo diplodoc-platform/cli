@@ -1,0 +1,819 @@
+{
+  "schema": 3,
+  "trainId": "dad11fc67b7ba1e5",
+  "toolSha": "5337e03030e881cf6a888db32043329b6b3f6ae4",
+  "packages": [
+    {
+      "repo": "algolia-extension",
+      "name": "@diplodoc/algolia-extension",
+      "sourceSha": "f889d0b9483d84f541437cd3fe69716b5f6b0453",
+      "archiveSha256": "f3f70e28b49a0264bd3f49ece36c128f358578df82834e93b191db4117b8e2fb",
+      "sourceLockSha256": "3ae23094233340c45c34e3287cb8f4244dcd28d8a959b7bce770de678a12a800",
+      "resolutions": [
+        {
+          "path": "node_modules/@diplodoc/search-extension",
+          "version": "3.1.5"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/he",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/lunr",
+          "version": "2.3.9"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/lunr-languages",
+          "version": "1.14.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser",
+          "version": "6.1.13"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select",
+          "version": "5.2.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/nth-check",
+          "version": "2.1.1"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/css-select/node_modules/nth-check/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/@diplodoc/search-extension/node_modules/node-html-parser/node_modules/he",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/algoliasearch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/abtesting",
+          "version": "1.26.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/abtesting/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/abtesting/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/abtesting/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/abtesting/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/abtesting/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/abtesting/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/abtesting/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-abtesting",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-abtesting/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-abtesting/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-abtesting/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-abtesting/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-abtesting/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-abtesting/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-abtesting/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-analytics",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-analytics/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-analytics/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-analytics/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-analytics/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-analytics/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-analytics/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-analytics/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-insights",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-insights/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-insights/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-insights/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-insights/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-insights/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-insights/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-insights/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-personalization",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-personalization/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-personalization/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-personalization/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-personalization/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-personalization/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-personalization/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-personalization/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-query-suggestions",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-query-suggestions/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-query-suggestions/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-query-suggestions/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-query-suggestions/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-query-suggestions/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-query-suggestions/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-query-suggestions/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-search",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-search/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-search/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-search/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-search/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-search/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-search/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/client-search/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/ingestion",
+          "version": "1.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/ingestion/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/ingestion/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/ingestion/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/ingestion/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/ingestion/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/ingestion/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/ingestion/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/monitoring",
+          "version": "1.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/monitoring/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/monitoring/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/monitoring/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/monitoring/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/monitoring/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/monitoring/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/monitoring/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/recommend",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/recommend/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/recommend/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/recommend/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/recommend/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/recommend/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/recommend/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/recommend/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/requester-browser-xhr",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/requester-browser-xhr/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/requester-fetch",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/requester-fetch/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/requester-node-http",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/algoliasearch/node_modules/@algolia/requester-node-http/node_modules/@algolia/client-common",
+          "version": "5.60.0"
+        },
+        {
+          "path": "node_modules/cheerio",
+          "version": "1.2.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select",
+          "version": "2.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select",
+          "version": "5.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check",
+          "version": "2.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-select/node_modules/nth-check/node_modules/boolbase",
+          "version": "1.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/css-what",
+          "version": "6.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/cheerio-select/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer",
+          "version": "0.2.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding",
+          "version": "3.1.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite",
+          "version": "0.6.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/encoding-sniffer/node_modules/whatwg-encoding/node_modules/iconv-lite/node_modules/safer-buffer",
+          "version": "2.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2",
+          "version": "10.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils",
+          "version": "3.2.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer",
+          "version": "2.0.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/dom-serializer/node_modules/entities",
+          "version": "4.5.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/domutils/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/htmlparser2/node_modules/entities",
+          "version": "7.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter",
+          "version": "7.1.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler",
+          "version": "5.0.3"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/domhandler/node_modules/domelementtype",
+          "version": "2.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-htmlparser2-tree-adapter/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream",
+          "version": "7.1.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5",
+          "version": "7.3.0"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/parse5-parser-stream/node_modules/parse5/node_modules/entities",
+          "version": "6.0.1"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/undici",
+          "version": "7.30.2"
+        },
+        {
+          "path": "node_modules/cheerio/node_modules/whatwg-mimetype",
+          "version": "4.0.0"
+        },
+        {
+          "path": "node_modules/lodash",
+          "version": "4.18.1"
+        },
+        {
+          "path": "node_modules/ts-dedent",
+          "version": "2.2.0"
+        }
+      ]
+    }
+  ],
+  "hostPeers": [],
+  "cliBaseLockSha256": "d389f2c05856cecb588bebe7b028621e6150b44c37d71668d5506b60742ecd4e",
+  "builds": [
+    {
+      "scope": "package-build",
+      "repo": "algolia-extension",
+      "sourceSha": "f889d0b9483d84f541437cd3fe69716b5f6b0453",
+      "sourceLockSha256": "3ae23094233340c45c34e3287cb8f4244dcd28d8a959b7bce770de678a12a800",
+      "archiveSha256": "f3f70e28b49a0264bd3f49ece36c128f358578df82834e93b191db4117b8e2fb",
+      "inputs": [],
+      "cohortInput": {
+        "name": "algoliasearch",
+        "version": "5.60.0"
+      }
+    }
+  ],
+  "integrations": [
+    {
+      "repo": "algolia-extension",
+      "name": "@diplodoc/algolia-extension",
+      "sourceSha": "f889d0b9483d84f541437cd3fe69716b5f6b0453",
+      "scope": "generated-fixture",
+      "formats": [
+        "html",
+        "md"
+      ],
+      "checks": [
+        "markdown-preservation",
+        "algolia-provider",
+        "algolia-local-index",
+        "algolia-search-page"
+      ]
+    }
+  ],
+  "cliBaseSha": "39316d081a2fffd94aa50ace17df4db462b0454e"
+}
