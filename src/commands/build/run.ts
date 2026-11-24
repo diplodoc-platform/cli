@@ -190,28 +190,27 @@ export class Run extends BaseRun<BuildConfig> {
     async lint(
         file: NormalizedPath,
         markdown: string,
-        options: TransformOptions,
+        options: TransformOptions & {prepareLinks?: boolean},
         plugins = this.markdown.plugins,
     ) {
-        const isMarkdown = this.config.outputFormat === 'md';
-        // Markdown reports audience errors, so linked titles and anchor targets are unnecessary.
+        const {prepareLinks = true} = options;
         const {source, assets, pluginOptions} = await this.prepareTransform(
             file,
             markdown,
             options,
             true,
-            !isMarkdown,
+            prepareLinks,
         );
         const lintOptions = {
             ...pluginOptions,
             plugins,
             anchorIndex:
-                isMarkdown || getLocalAnchorRuleConfig(this.config.lint.config) === false
+                !prepareLinks || getLocalAnchorRuleConfig(this.config.lint.config) === false
                     ? undefined
                     : await this.anchors.index(file, assets),
         };
 
-        if (isMarkdown) {
+        if (!prepareLinks) {
             return yfmlint(source, file, {
                 lintConfig: this.config.lint.config,
                 pluginOptions: lintOptions,

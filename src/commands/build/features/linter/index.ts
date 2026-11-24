@@ -127,7 +127,7 @@ export class Lint {
                         const errors = await run.lint(
                             vfile.path,
                             vfile.data,
-                            {deps, assets},
+                            {deps, assets, prepareLinks: format !== 'md'},
                             lintPlugins,
                         );
                         // Markdown output only needs the audience directive validation added for

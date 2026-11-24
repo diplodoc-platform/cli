@@ -271,7 +271,52 @@ describe('page audience link diagnostics', () => {
 });
 
 describe('Markdown audience lint', () => {
-    it.each(['md', 'html'] as const)('keeps %s lint contracts independent', async (format) => {
+    it('preserves linked titles and anchor data for Markdown lint plugins by default', async () => {
+        const run = setupRun({
+            outputFormat: 'md',
+            langs: ['en'],
+            idGenerator: 'constant',
+            content: {maxInlineSvgSize: 0},
+            lint: {enabled: true, config: {}},
+        });
+        const file = normalizePath('en/page.md');
+        const target = normalizePath('en/target.md');
+        vi.spyOn(run.markdown, 'titles').mockResolvedValue({'#details': 'Details'});
+        const anchorIndex = new Map([[target, new Set(['details'])]]);
+        vi.spyOn(run['anchors'], 'index').mockResolvedValue(anchorIndex);
+        const plugin = vi.fn((_md: MarkdownIt, options: Record<string, unknown>) => {
+            expect(options.titles).toMatchObject({[target]: {'#details': 'Details'}});
+            expect(options.anchorIndex).toBe(anchorIndex);
+        });
+
+        await run.lint(
+            file,
+            '# Heading\n\n[{#T}](target.md#details)',
+            {
+                deps: [],
+                assets: [
+                    {
+                        path: target,
+                        hash: '#details',
+                        search: null,
+                        type: 'link',
+                        title: '{#T}',
+                        autotitle: true,
+                        location: [3, 0],
+                    },
+                ],
+            },
+            [plugin],
+        );
+
+        expect(plugin).toHaveBeenCalled();
+    });
+
+    it.each([
+        ['md', true],
+        ['html', true],
+        ['md', false],
+    ] as const)('keeps %s lint diagnostics with prepareLinks=%s', async (format, prepareLinks) => {
         const run = setupRun({
             outputFormat: format,
             langs: ['en'],
@@ -279,17 +324,27 @@ describe('Markdown audience lint', () => {
             content: {maxInlineSvgSize: 0},
             lint: {enabled: true, config: {}},
         });
-        const titles = vi.spyOn(run.markdown, 'titles').mockResolvedValue({});
-        const index = vi.spyOn(run['anchors'], 'index').mockResolvedValue(new Map());
+        const titles = vi.spyOn(run.markdown, 'titles').mockImplementation(async () => {
+            if (!prepareLinks) {
+                throw new Error('Unneeded title lookup');
+            }
+            return {};
+        });
+        const index = vi.spyOn(run['anchors'], 'index').mockImplementation(async () => {
+            if (!prepareLinks) {
+                throw new Error('Unneeded anchor lookup');
+            }
+            return new Map();
+        });
         const code = '`' + 'x'.repeat(120) + '`';
         const errors = await run.lint(
             normalizePath('en/page.md'),
             '# Heading\n\n' + code + '\n\n:::visibility robots\nText.\n:::',
-            {deps: [], assets: []},
+            {deps: [], assets: [], prepareLinks},
             [visibility],
         );
-        expect(index).toHaveBeenCalledTimes(format === 'html' ? 1 : 0);
-        expect(titles).toHaveBeenCalledTimes(format === 'html' ? 1 : 0);
+        expect(index).toHaveBeenCalledTimes(prepareLinks ? 1 : 0);
+        expect(titles).toHaveBeenCalledTimes(prepareLinks ? 1 : 0);
         expect(errors?.some((error) => error.ruleNames.includes('YFM023'))).toBe(true);
         expect(errors?.some((error) => error.ruleNames.includes('YFM001'))).toBe(true);
     });
