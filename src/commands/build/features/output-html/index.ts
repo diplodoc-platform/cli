@@ -16,11 +16,12 @@ import {
     isMediaLink,
     normalizePath,
     own,
+    resolveAbsoluteHref,
     setExt,
     zip,
 } from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getTocHooks, resolveLlmsConfig} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getMetaHooks} from '~/core/meta';
@@ -29,6 +30,8 @@ import {ASSETS_FOLDER} from '~/constants';
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {getHooks as getEntryHooks} from '../../services/entry';
 import {getHooks as getSearchHooks} from '../../services/search';
+import {findAgentPageTargets} from '../../page-audience-links';
+import {getLeadingMarkdown} from '../../leading-markdown';
 import {buildLlmsAlternate} from '../output-md/utils';
 
 import {
@@ -58,7 +61,14 @@ export class OutputHtml {
                 getSearchHooks(run.search).Page.tap('Html.BaseHref', setBaseHref);
 
                 getTocHooks(run.toc).Dump.tapPromise('Html', async (vfile) => {
+                    if (vfile.data.visibility === 'agent') {
+                        delete vfile.data.href;
+                        vfile.data.items = [];
+                    }
                     await run.toc.walkItems([vfile.data as Toc], (item: Toc | TocItem) => {
+                        if (item.visibility === 'agent') {
+                            return undefined;
+                        }
                         if (own(item, 'hidden') && item.hidden) {
                             return undefined;
                         }
@@ -84,14 +94,23 @@ export class OutputHtml {
                     // Include files (_includes/) are not part of any toc, so skip them.
                     if (!file.includes('/_includes/') && !file.startsWith('_includes/')) {
                         try {
-                            const tocDir = dirname(run.toc.for(file).path) as NormalizedPath;
+                            const toc = run.toc.for(file);
+                            const tocDir = dirname(toc.path) as NormalizedPath;
+                            const llmsConfig = resolveLlmsConfig(run.config.llms, toc);
                             const llmsAlternate = buildLlmsAlternate(
-                                run.config.llms,
+                                llmsConfig,
                                 file,
                                 tocDir,
                                 run.config.baseHref,
                             );
                             if (llmsAlternate) {
+                                // HTML <base> points to the publication root; Markdown uses the page directory.
+                                if (!llmsConfig.url) {
+                                    llmsAlternate.href = resolveAbsoluteHref(
+                                        normalizePath(join(tocDir, 'llms.txt')),
+                                        run.config.baseHref,
+                                    );
+                                }
                                 meta.alternate = [...(meta.alternate || []), llmsAlternate];
                             }
                         } catch {
@@ -172,15 +191,7 @@ export class OutputHtml {
                         const {path, lang, vars} = this;
                         const options = {lang: fallbackLang(lang)} as PreloadParams;
 
-                        const strings = new Set<string>();
-                        const extract = (_lang: string, string: string) => {
-                            strings.add(string);
-                            return string;
-                        };
-
-                        preprocess(leading as ConfigData, options, extract);
-
-                        const keys = [...strings];
+                        const keys = getLeadingMarkdown(leading, options);
                         if (!keys.length) {
                             return leading;
                         }
@@ -212,10 +223,7 @@ export class OutputHtml {
                 });
 
                 getLeadingHooks(run.leading).Dump.tapPromise('Html', async (vfile) => {
-                    vfile.data = await run.leading.walkLinks(
-                        vfile.data,
-                        getHref(run.input, vfile.path),
-                    );
+                    vfile.data = await run.leading.walkLinks(vfile.data, getHref(run, vfile.path));
                 });
 
                 // Transform markdown to html
@@ -264,6 +272,7 @@ export class OutputHtml {
                 // they must not be shipped into every doc's `_bundle` (mirrors `search-extension/**`).
                 await run.copy(ASSETS_FOLDER, run.bundlePath, [
                     'search-extension/**',
+                    'external-search/**',
                     'highlight-styles/**',
                 ]);
 
@@ -354,17 +363,32 @@ function getStateData(entry: EntryData): PageData {
     }
 }
 
-function getHref(root: AbsolutePath, path: NormalizedPath) {
+function getHref(run: Run, path: NormalizedPath) {
+    const human = run.toc.audience(path) !== 'agent';
+    const reported = new Set<NormalizedPath>();
+
     return function (href: string) {
         if (isExternalHref(href)) {
             return href;
         }
 
+        const hasDocumentPath = href.split(/[?#]/, 1)[0].length > 0;
         if (!href.startsWith('/')) {
             href = normalizePath(join(dirname(path), href));
         }
 
-        const filePath = join(root, href);
+        if (human && hasDocumentPath) {
+            for (const target of findAgentPageTargets(href, (file) => run.toc.audience(file))) {
+                if (!reported.has(target)) {
+                    reported.add(target);
+                    run.logger.error(
+                        `Human page ${path} links to agent-only page ${target}. Remove this link or make the page agent-only.`,
+                    );
+                }
+            }
+        }
+
+        const filePath = join(run.input, href);
 
         if (isFileExists(filePath)) {
             href = href.replace(/\.(md|ya?ml)$/gi, '.html');

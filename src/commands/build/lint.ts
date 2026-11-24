@@ -6,6 +6,12 @@ import {LogLevels, normalizeConfig, yfmlint} from '@diplodoc/yfmlint';
 const ANCHOR_RULE = 'YFM025';
 const ANCHOR_ALIAS = 'missing-local-anchor';
 
+export function getLocalAnchorRuleConfig(lintConfig: Parameters<typeof yfmlint>[2]['lintConfig']) {
+    return normalizeConfig({
+        [ANCHOR_RULE]: lintConfig?.[ANCHOR_RULE] ?? lintConfig?.[ANCHOR_ALIAS] ?? LogLevels.WARN,
+    })[ANCHOR_RULE];
+}
+
 /**
  * Reports CLI anchor diagnostics independently of the legacy YFM002 rule.
  * yfmlint does not accept CLI-specific rules, so reuse its link rule on a copy of
@@ -17,12 +23,7 @@ export async function lintWithLocalAnchors(
     path: string,
     options: Parameters<typeof yfmlint>[2],
 ) {
-    const ruleConfig = normalizeConfig({
-        [ANCHOR_RULE]:
-            options.lintConfig?.[ANCHOR_RULE] ??
-            options.lintConfig?.[ANCHOR_ALIAS] ??
-            LogLevels.WARN,
-    })[ANCHOR_RULE];
+    const ruleConfig = getLocalAnchorRuleConfig(options.lintConfig);
 
     if (ruleConfig === false) {
         return yfmlint(content, path, options);

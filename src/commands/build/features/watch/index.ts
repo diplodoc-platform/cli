@@ -10,8 +10,11 @@ import {MAIN_TIMER_ID} from '~/constants';
 import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
-import {compareJson, console, normalizePath} from '~/core/utils';
+import {PageAudienceConflictError, resolveLlmsConfig} from '~/core/toc';
+import {compareJson, console, normalizePath, setExt} from '~/core/utils';
 import * as threads from '~/commands/threads';
+
+import {OutputFormat} from '../../config';
 
 import {options} from './config';
 import {Watcher} from './Watcher';
@@ -114,17 +117,15 @@ export class Watch {
                     const input = normalizePath(join(run.input, file)) as AbsolutePath;
 
                     try {
-                        state.changed.add(file);
-
                         switch (type) {
                             case 'add':
                             case 'change':
                                 await run.copy(origin, input);
-                                await this.handleChange(state);
+                                await this.handleChange(state, file);
                                 break;
                             case 'unlink':
                                 await run.remove(input);
-                                await this.handleChange(state, {hasNewContent: false});
+                                await this.handleChange(state, file, false);
                                 break;
                         }
                     } catch (error) {
@@ -138,76 +139,97 @@ export class Watch {
         );
     }
 
-    private async handleChange(state: WatchState, {hasNewContent = true} = {}) {
-        for (const file of state.changed) {
-            state.changed.delete(file);
-
-            const isTocGraphPart = state.isGraphPart('toc', file);
-            const isEntryGraphPart = state.isGraphPart('entry', file);
-            const isDetachedEntryGraphPart = state.isGraphPart('detached', file);
-            const isVarsGraphPart = state.isGraphPart('vars', file);
-            const isGraphPart =
-                isTocGraphPart || isEntryGraphPart || isDetachedEntryGraphPart || isVarsGraphPart;
-
-            // New file was added.
-            // Some kind of new files should be handled.
-            if (!isGraphPart) {
-                if (state.isToc(file)) {
-                    const tocs = await state.run.toc.init([file]);
-                    for (const toc of tocs) {
-                        await state.processToc(toc);
-                    }
-
-                    const entries = await state.getEntries(tocs);
-                    for (const entry of entries) {
-                        await state.processEntry(entry);
-                    }
+    private async handleChange(state: WatchState, file: NormalizedPath, hasNewContent = true) {
+        // Try the latest edit first: it may resolve the conflict blocking older events.
+        let next: [NormalizedPath, boolean] | undefined = [file, hasNewContent];
+        while (next) {
+            const [path, exists] = next;
+            state.changed.delete(path);
+            try {
+                await this.processChange(state, path, exists);
+            } catch (error) {
+                if (error instanceof PageAudienceConflictError) {
+                    state.changed.set(path, exists);
                 }
-
-                if (state.isPreset(file)) {
-                    await this.handleChangeVars(file, state);
-                }
+                throw error;
             }
-
-            if (isVarsGraphPart) {
-                await this.handleChangeVars(file, state, {hasNewContent});
-            }
-
-            if (isTocGraphPart) {
-                await this.handleChangeToc(file, state, {hasNewContent});
-            }
-
-            if (isEntryGraphPart) {
-                await this.handleChangeEntry(file, state, {hasNewContent});
-            }
-
-            if (isDetachedEntryGraphPart) {
-                await this.handleChangeDetachedEntry(file, state, {hasNewContent});
-            }
-
-            if (state.invalide.size) {
-                const tocs = [...state.invalide].filter(state.isKnownToc);
-                for (const toc of tocs) {
-                    state.invalide.delete(toc);
-                    await state.processToc(state.run.toc.for(toc)).catch(state.logger.error);
-                }
-
-                const entries = [...state.invalide].filter(state.isKnownEntry);
-                for (const entry of entries) {
-                    state.invalide.delete(entry);
-                    await state.processEntry(entry).catch(state.logger.error);
-                }
-
-                for (const other of state.invalide) {
-                    state.invalide.delete(other);
-                }
-            }
-
-            // Only first changed file can be handled as removed
-            hasNewContent = true;
+            state.processedFiles.add(path);
+            next = state.changed.entries().next().value;
         }
 
+        await state.complete();
         this.update();
+    }
+
+    private async processChange(state: WatchState, file: NormalizedPath, hasNewContent: boolean) {
+        const isTocGraphPart = state.isGraphPart('toc', file);
+        const isEntryGraphPart = state.isGraphPart('entry', file);
+        const isDetachedEntryGraphPart = state.isGraphPart('detached', file);
+        const isVarsGraphPart = state.isGraphPart('vars', file);
+        const isGraphPart =
+            isTocGraphPart || isEntryGraphPart || isDetachedEntryGraphPart || isVarsGraphPart;
+
+        // New file was added.
+        // Some kind of new files should be handled.
+        if (!isGraphPart) {
+            if (state.isToc(file)) {
+                const tocs = await state.run.toc.init([file]);
+                for (const toc of tocs) {
+                    await state.processToc(toc);
+                }
+
+                const entries = await state.getEntries(tocs);
+                for (const entry of entries) {
+                    await state.processEntry(entry);
+                }
+            }
+
+            if (state.isPreset(file)) {
+                await this.handleChangeVars(file, state);
+            }
+        }
+
+        if (isVarsGraphPart) {
+            await this.handleChangeVars(file, state, {hasNewContent});
+        }
+
+        if (isTocGraphPart) {
+            await this.handleChangeToc(file, state, {hasNewContent});
+        }
+
+        // Only a TOC edit can recover an invalid audience graph. Defer other files
+        // before publishing any pending output or completing this batch.
+        state.run.toc.getPageAudiences();
+
+        if (isEntryGraphPart) {
+            await this.handleChangeEntry(file, state, {hasNewContent});
+        }
+
+        if (isDetachedEntryGraphPart) {
+            await this.handleChangeDetachedEntry(file, state, {hasNewContent});
+        }
+
+        await this.rebuildInvalidated(state);
+    }
+
+    private async rebuildInvalidated(state: WatchState) {
+        if (!state.invalide.size) {
+            return;
+        }
+
+        const tocs = [...state.invalide].filter(state.isKnownToc);
+        for (const toc of tocs) {
+            state.invalide.delete(toc);
+            await state.processToc(state.run.toc.for(toc)).catch(state.logger.error);
+        }
+
+        const entries = [...state.invalide].filter(state.isKnownEntry);
+        for (const entry of entries) {
+            state.invalide.delete(entry);
+            await state.processEntry(entry).catch(state.logger.error);
+        }
+
+        state.invalide.clear();
     }
 
     private async handleChangeVars(
@@ -231,7 +253,7 @@ export class Watch {
         const changed = state.run.vars.getAffectedFiles(file, diff.changed);
         const specified = state.run.vars.getSpecifiedFiles(file, diff.added, diff.removed);
         for (const file of [...changed, ...specified]) {
-            state.changed.add(file as NormalizedPath);
+            state.changed.set(file as NormalizedPath, true);
         }
 
         // When we handle removed preset, at second step we remove it from vars graph
@@ -257,7 +279,11 @@ export class Watch {
         const oldDeps = state.getChilds('toc', file) as NormalizedPath[];
         // This is a list of tocs which should be updated.
         const oldTocsPaths = oldFiles.filter(state.isKnownToc);
+        oldTocsPaths.forEach((path) => state.affectedTocs.add(path));
         const oldEntries = await state.getEntries(oldTocsPaths);
+        const getLlmsUrl = (path: NormalizedPath) =>
+            resolveLlmsConfig(state.run.config.llms, state.run.toc.for(path)).url || '';
+        const oldLlmsUrls = new Map(oldTocsPaths.map((path) => [path, getLlmsUrl(path)]));
 
         // Drop cache for all related files.
         for (const file of oldFiles) {
@@ -283,10 +309,23 @@ export class Watch {
         // Reinit detached toc.yaml to transform them.
         await this.reinitTocs(state, detachedTocsPaths);
 
-        const newTocsPaths = [file, ...detachedTocsPaths, ...state.getParents('toc', file)]
-            .filter(state.isKnownToc)
-            .filter(isExistedToc);
+        // A conflict can be fixed by editing another TOC. Finish every pending TOC together.
+        const touched = new Set([
+            file,
+            ...state.affectedTocs,
+            ...detachedTocsPaths,
+            ...state.getParents('toc', file),
+        ]);
+        const newTocsPaths = [...touched].filter(state.isKnownToc).filter(isExistedToc);
         const newEntries = await state.getEntries(newTocsPaths);
+        await this.invalidateAudienceEntries(state, newEntries);
+
+        // TOC-only URL edits also affect existing page metadata. Check ownership
+        // only when a resolved URL changed, preserving nested TOC overrides.
+        const changedLlmsTocs = new Set(
+            newTocsPaths.filter((path) => oldLlmsUrls.get(path) !== getLlmsUrl(path)),
+        );
+        this.invalidateLlmsEntries(state, newEntries, changedLlmsTocs);
 
         const entriesDiff = diff(oldEntries, newEntries);
 
@@ -321,11 +360,57 @@ export class Watch {
         }
     }
 
+    private async invalidateAudienceEntries(state: WatchState, entries: NormalizedPath[]) {
+        const {run, pageAudiences: previous} = state;
+        const html = run.config.outputFormat === OutputFormat.html;
+        const current = run.toc.getPageAudiences();
+        const changed = entries.filter(
+            (entry) => previous.has(entry) && previous.get(entry) !== current.get(entry),
+        );
+        if (!changed.length) {
+            return;
+        }
+
+        // Static HTML embeds its TOC in every page. Other formats read the TOC separately.
+        const affected = html && run.config.staticContent ? entries : changed;
+        for (const entry of affected) {
+            state.invalidateEntry(entry);
+        }
+
+        if (html) {
+            const obsolete = new Set<NormalizedPath>();
+            for (const entry of changed) {
+                if (current.get(entry) === 'agent') {
+                    obsolete.add(setExt(entry, '.html'));
+                    if (run.config.ai.mdCompanions) {
+                        obsolete.add(entry);
+                    }
+                }
+            }
+            await run.removeOutputFiles(obsolete);
+        }
+    }
+
+    private invalidateLlmsEntries(
+        state: WatchState,
+        entries: NormalizedPath[],
+        changedTocs: ReadonlySet<NormalizedPath>,
+    ) {
+        if (!changedTocs.size) {
+            return;
+        }
+        for (const entry of entries) {
+            if (changedTocs.has(state.run.toc.for(entry).path)) {
+                state.invalidateEntry(entry);
+            }
+        }
+    }
+
     private async reinitTocs(state: WatchState, tocs: NormalizedPath[]) {
         for (const toc of tocs) {
+            state.invalidateToc(toc);
             try {
                 await state.run.toc.init([toc]);
-                state.invalidateToc(toc);
             } catch (error) {
                 console.log(error);
                 state.logger.error(error);

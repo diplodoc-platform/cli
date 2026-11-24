@@ -1,14 +1,18 @@
 import type {Build} from '~/commands/build';
+import type {PreloadParams} from '@diplodoc/client/ssr';
 import type {Command} from '~/core/config';
 
 import {join} from 'node:path';
 
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
+import {fallbackLang, langFromPath} from '~/core/utils';
 import {configPath, defined} from '~/core/config';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
+
+import {getLeadingMarkdown} from '../../leading-markdown';
 
 import {getCustomCollectPlugins} from './utils';
 import {MarkdownOutputRenderer, prepareMarkdownMeta} from './renderer';
@@ -111,21 +115,56 @@ export class OutputMd {
                 const renderer = new MarkdownOutputRenderer(run);
 
                 getMetaHooks(run.meta).Dump.tap('Build.Md', (meta, file) => {
+                    if (run.toc.audience(file) === 'agent') {
+                        meta.pageAudience = 'agent';
+                    } else {
+                        delete meta.pageAudience;
+                    }
                     return prepareMarkdownMeta(run, meta, file);
                 });
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     {name: 'Build.Md', stage: -Infinity},
-                    (vfile) => renderer.collectMarkdown(vfile),
+                    async (vfile) => {
+                        if (run.toc.hasAgentPages && run.toc.audience(vfile.path) !== 'agent') {
+                            await run.checkMarkdownPageLinks(
+                                vfile.path,
+                                vfile.data,
+                                await run.markdown.deps(vfile.path),
+                            );
+                        }
+                        await renderer.collectMarkdown(vfile);
+                    },
                 );
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', (vfile) =>
                     renderer.finalizeMarkdown(vfile),
                 );
 
-                getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', (vfile) =>
-                    renderer.renderLeading(vfile),
-                );
+                getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', async (vfile) => {
+                    const {path, data} = vfile;
+                    if (
+                        data.blocks &&
+                        run.toc.hasAgentPages &&
+                        run.toc.audience(path) !== 'agent'
+                    ) {
+                        const lang = fallbackLang(langFromPath(path, run.config));
+                        const strings = getLeadingMarkdown(data, {lang} as PreloadParams);
+                        for (const value of strings) {
+                            const {content, deps} = await run.markdown.inspect(
+                                path,
+                                value,
+                                run.vars.for(path),
+                            );
+                            await run.checkMarkdownPageLinks(
+                                path,
+                                content,
+                                await run.markdown.expandIncludes(deps, path),
+                            );
+                        }
+                    }
+                    await renderer.renderLeading(vfile);
+                });
             });
 
         getBuildHooks(program)

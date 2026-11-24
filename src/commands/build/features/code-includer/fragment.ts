@@ -19,10 +19,17 @@ export function selectCodeFragment(source: string, lines?: string): SelectedFrag
 
 export function removeCommonIndent(content: string) {
     const sourceLines = content.split('\n');
-    const indents = sourceLines
-        .filter((line) => line.trim().length > 0)
-        .map((line) => /^\s*/.exec(line)?.[0].length || 0);
-    const commonIndent = indents.length ? Math.min(...indents) : 0;
+    // Avoid spreading one argument per line: large code files can exceed the
+    // engine's argument limit before a selected fragment reaches the renderer.
+    let commonIndent = Infinity;
+    for (const line of sourceLines) {
+        if (line.trim()) {
+            commonIndent = Math.min(commonIndent, /^\s*/.exec(line)?.[0].length || 0);
+        }
+    }
+    if (commonIndent === Infinity) {
+        commonIndent = 0;
+    }
 
     if (!commonIndent) {
         return content;

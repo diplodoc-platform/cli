@@ -8,46 +8,52 @@ import {findFencedCodeBlockRanges} from '~/core/markdown';
 import {normalizePath} from '~/core/utils';
 
 import {removeCommonIndent, selectCodeFragment} from './fragment';
-import {parseCodeDirective} from './parse';
+import {parseCodeDirective, parseCodeTarget} from './parse';
 import {renderCodeFence} from './render';
+import {CodeSources, isLiteralProbeMiss, isMissingCodeSource} from './sources';
 
 const CODE_DIRECTIVE = /{%\s*code(?=\s|%})[\s\S]*?%}/g;
 const ERROR_PLACEHOLDER = '<!-- code directive failed -->';
 
-export const collect: Collect = async function (content) {
-    // This collect runs before `resolveComments` registers comment ranges,
-    // so detect HTML comments here to keep a commented-out `{% code %}`
-    // inert — mirroring how `{% include %}` is skipped inside comments.
-    const commentRanges = findCommentRanges(content);
-    const fencedRanges = findFencedCodeBlockRanges(content, commentRanges);
-    const inlineCodeRanges = findInlineCodeRanges(content, [...commentRanges, ...fencedRanges]);
-    const matches = [...content.matchAll(CODE_DIRECTIVE)];
-    const output: string[] = [];
-    const codeSources = new Set<NormalizedPath>();
-    let cursor = 0;
+/** Creates a collector whose source cache is scoped to one build run. */
+export function createCollect(getRevision: () => number = () => 0): Collect {
+    const sources = new CodeSources(getRevision);
+    return async function (content) {
+        // This collect runs before `resolveComments` registers comment ranges,
+        // so detect HTML comments here to keep a commented-out `{% code %}`
+        // inert — mirroring how `{% include %}` is skipped inside comments.
+        const commentRanges = findCommentRanges(content);
+        const fencedRanges = findFencedCodeBlockRanges(content, commentRanges);
+        const inlineCodeRanges = findInlineCodeRanges(content, [...commentRanges, ...fencedRanges]);
+        const matches = [...content.matchAll(CODE_DIRECTIVE)];
+        const output: string[] = [];
+        const codeSources = new Set<NormalizedPath>();
+        let cursor = 0;
 
-    for (const match of matches) {
-        const start = match.index;
-        output.push(content.slice(cursor, start));
-        cursor = start + match[0].length;
-        output.push(
-            await expandDirective(
-                this,
-                content,
-                start,
-                match[0],
-                fencedRanges,
-                commentRanges,
-                inlineCodeRanges,
-                codeSources,
-            ),
-        );
-    }
+        for (const match of matches) {
+            const start = match.index;
+            output.push(content.slice(cursor, start));
+            cursor = start + match[0].length;
+            output.push(
+                await expandDirective(
+                    this,
+                    content,
+                    start,
+                    match[0],
+                    fencedRanges,
+                    commentRanges,
+                    inlineCodeRanges,
+                    codeSources,
+                    sources,
+                ),
+            );
+        }
 
-    this.api.codeSources.set([...codeSources]);
-    output.push(content.slice(cursor));
-    return output.join('');
-};
+        this.api.codeSources.set([...codeSources]);
+        output.push(content.slice(cursor));
+        return output.join('');
+    };
+}
 
 async function expandDirective(
     context: LoaderContext,
@@ -58,6 +64,7 @@ async function expandDirective(
     commentRanges: Location[],
     inlineCodeRanges: Location[],
     codeSources: Set<NormalizedPath>,
+    sources: CodeSources,
 ): Promise<string> {
     const end = start + source.length;
     if (
@@ -83,40 +90,39 @@ async function expandDirective(
     }
 
     const directive = parsed.directive;
-    const target = resolveCodePath(context.path, directive.path);
-    if (target === '..' || target.startsWith('../')) {
-        context.logger.error(
-            formatMessage(context.path, `source path "${directive.path}" escapes the input root`),
+    if (directive.lines !== undefined) {
+        context.logger.info(
+            formatMessage(
+                context.path,
+                'attribute "lines" is deprecated; use a named region in "path#region" instead',
+            ),
         );
-        return indentReplacement(content, start, ERROR_PLACEHOLDER);
     }
-
-    codeSources.add(target);
-    const replacement = await readAndRender(context, directive, target);
+    const replacement = await readAndRender(context, directive, codeSources, sources);
     return indentReplacement(content, start, replacement);
 }
 
 async function readAndRender(
     context: LoaderContext,
     directive: CodeDirective,
-    target: NormalizedPath,
+    codeSources: Set<NormalizedPath>,
+    sources: CodeSources,
 ): Promise<string> {
-    let source: string;
-    try {
-        source = await context.readFile(target);
-    } catch (error) {
-        context.logger.error(formatReadError(context.path, directive.path, error));
+    const resolved = await resolveSource(context, directive, codeSources, sources);
+    if ('error' in resolved) {
+        context.logger.error(resolved.error);
         return ERROR_PLACEHOLDER;
     }
+    const {source, path, region} = resolved;
 
     try {
-        const selected = selectCodeFragment(source, directive.lines);
+        const selected =
+            region === undefined
+                ? selectCodeFragment(source.content, directive.lines)
+                : {content: source.selectRegion(region), warnings: []};
         for (const warning of selected.warnings) {
             context.logger.warn(
-                formatMessage(
-                    context.path,
-                    `${warning.message} while including "${directive.path}"`,
-                ),
+                formatMessage(context.path, `${warning.message} while including "${path}"`),
             );
         }
 
@@ -133,12 +139,69 @@ async function readAndRender(
     }
 }
 
-function resolveCodePath(currentPath: NormalizedPath, sourcePath: string): NormalizedPath {
+async function resolveSource(
+    context: LoaderContext,
+    directive: CodeDirective,
+    codeSources: Set<NormalizedPath>,
+    sources: CodeSources,
+): Promise<
+    | {source: Awaited<ReturnType<CodeSources['read']>>; path: string; region?: string}
+    | {error: string}
+> {
+    const literal = resolveLiteralPath(context.path, directive.path);
+    if (literal && !('error' in literal)) {
+        codeSources.add(literal.target);
+        try {
+            return {source: await sources.read(context, literal.target), path: directive.path};
+        } catch (error) {
+            if (!isLiteralProbeMiss(error) || !directive.path.includes('#')) {
+                return {error: formatReadError(context.path, directive.path, error)};
+            }
+        }
+    }
+
+    const selected = parseCodeTarget(directive.path, directive.lines);
+    if ('error' in selected) {
+        return {error: formatMessage(context.path, selected.error)};
+    }
+    const resolved = resolveCodePath(context.path, selected.path);
+    if ('error' in resolved) {
+        return {error: formatMessage(context.path, resolved.error)};
+    }
+    codeSources.add(resolved.target);
+    try {
+        return {
+            source: await sources.read(context, resolved.target),
+            path: selected.path,
+            region: selected.region,
+        };
+    } catch (error) {
+        return {error: formatReadError(context.path, selected.path, error)};
+    }
+}
+
+function resolveLiteralPath(currentPath: NormalizedPath, sourcePath: string) {
+    const separator = sourcePath.lastIndexOf('#');
+    // A selector is opaque: resolving its dot segments could name another file.
+    if (separator >= 0 && /[\\/]\.{1,2}(?:[\\/]|$)/.test(sourcePath.slice(separator + 1))) {
+        return undefined;
+    }
+    return resolveCodePath(currentPath, sourcePath);
+}
+
+function resolveCodePath(
+    currentPath: NormalizedPath,
+    sourcePath: string,
+): {target: NormalizedPath} | {error: string} {
     const target = sourcePath.startsWith('/')
         ? sourcePath.slice(1)
         : join(dirname(currentPath), sourcePath);
 
-    return normalizePath(target);
+    const normalized = normalizePath(target);
+    if (normalized === '..' || normalized.startsWith('../')) {
+        return {error: `source path "${sourcePath}" escapes the input root`};
+    }
+    return {target: normalized};
 }
 
 function indentReplacement(content: string, start: number, replacement: string) {
@@ -225,8 +288,7 @@ function formatMessage(path: NormalizedPath, message: string) {
 }
 
 function formatReadError(path: NormalizedPath, sourcePath: string, error: unknown) {
-    const code = error && typeof error === 'object' && 'code' in error ? error.code : undefined;
-    const kind = code === 'ENOENT' ? 'file was not found' : 'file could not be read';
+    const kind = isMissingCodeSource(error) ? 'file was not found' : 'file could not be read';
 
     return formatMessage(path, `${kind}: "${sourcePath}"`);
 }

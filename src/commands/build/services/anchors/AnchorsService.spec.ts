@@ -22,18 +22,13 @@ describe('AnchorsService', () => {
             assets: [],
         };
         const markdown = {revision: 0, graph: vi.fn(async () => graph)};
-        const transform = vi.fn(
-            async (_path: string, _content: string, options: {anchorIds?: Set<string>}) => {
-                options.anchorIds?.add('page');
-                return ['', {}] as const;
-            },
-        );
+        const collectAnchors = vi.fn(async () => new Set(['page']));
         const service = new AnchorsService({
             input,
             exists: () => true,
             toc: {entrySet: new Set(['page.md'])},
             markdown,
-            transform,
+            collectAnchors,
         } as unknown as Run);
         const asset: AssetInfo = {
             path: 'page.md' as NormalizedPath,
@@ -47,11 +42,11 @@ describe('AnchorsService', () => {
         };
         const index = (file = 'index.md') => service.index(file as NormalizedPath, [asset]);
 
-        return {asset, service, content, graph, markdown, transform, index};
+        return {asset, service, content, graph, markdown, collectAnchors, index};
     }
 
     it('shares graph construction, hashing and rendering across concurrent source pages', async () => {
-        const {content, graph, markdown, transform, index} = setupCachedService();
+        const {content, graph, markdown, collectAnchors, index} = setupCachedService();
         const pending = new Defer<EntryGraph>();
         markdown.graph.mockReturnValueOnce(pending.promise);
 
@@ -69,11 +64,11 @@ describe('AnchorsService', () => {
         expect(markdown.graph).toHaveBeenCalledTimes(1);
         // One content read for the signature and one for the renderer.
         expect(content).toHaveBeenCalledTimes(2);
-        expect(transform).toHaveBeenCalledTimes(1);
+        expect(collectAnchors).toHaveBeenCalledTimes(1);
     });
 
     it('rehashes after invalidation but retains the render when content is unchanged', async () => {
-        const {content, markdown, transform, index} = setupCachedService();
+        const {content, markdown, collectAnchors, index} = setupCachedService();
         await index();
 
         markdown.revision++;
@@ -81,17 +76,17 @@ describe('AnchorsService', () => {
 
         expect(markdown.graph).toHaveBeenCalledTimes(2);
         expect(content).toHaveBeenCalledTimes(3);
-        expect(transform).toHaveBeenCalledTimes(1);
+        expect(collectAnchors).toHaveBeenCalledTimes(1);
     });
 
     it('retries a failed graph lookup', async () => {
-        const {markdown, transform, index} = setupCachedService();
+        const {markdown, collectAnchors, index} = setupCachedService();
         markdown.graph.mockRejectedValueOnce(new Error('graph failed'));
 
         await expect(index()).rejects.toThrow('graph failed');
         await expect(index()).resolves.toBeInstanceOf(Map);
         expect(markdown.graph).toHaveBeenCalledTimes(2);
-        expect(transform).toHaveBeenCalledTimes(1);
+        expect(collectAnchors).toHaveBeenCalledTimes(1);
     });
 
     it('does not let an old failed lookup evict a newer generation', async () => {
@@ -145,7 +140,7 @@ describe('AnchorsService', () => {
                 exists: (path: string) => path === join(input, 'page.md'),
                 toc: {entrySet: new Set(['page.md'])},
                 markdown: {revision: 0, graph},
-                transform: vi.fn(async () => ['', {}] as const),
+                collectAnchors: vi.fn(async () => new Set<string>()),
             } as unknown as Run;
             const service = new AnchorsService(run);
             const asset: AssetInfo = {
@@ -171,13 +166,13 @@ describe('AnchorsService', () => {
         ['def', '#:~:text=selected'],
         ['def', '#missing:~:text=selected'],
     ] as const)('does not index a %s target with fragment directive %s', async (type, hash) => {
-        const {asset, service, markdown, transform} = setupCachedService();
+        const {asset, service, markdown, collectAnchors} = setupCachedService();
 
         const index = await service.index('index.md' as NormalizedPath, [{...asset, type, hash}]);
 
         expect(index.size).toBe(0);
         expect(markdown.graph).not.toHaveBeenCalled();
-        expect(transform).not.toHaveBeenCalled();
+        expect(collectAnchors).not.toHaveBeenCalled();
     });
 
     it('reuses unchanged anchors and refreshes changed pages and includes', async () => {
@@ -199,21 +194,19 @@ describe('AnchorsService', () => {
             ],
             assets: [],
         };
-        const transform = vi.fn(
-            async (_path: NormalizedPath, content: string, options: {anchorIds?: Set<string>}) => {
-                options.anchorIds?.add(content.includes('Updated') ? 'updated' : 'page');
-                options.anchorIds?.add(
+        const collectAnchors = vi.fn(
+            async (_path: NormalizedPath, content: string) =>
+                new Set([
+                    content.includes('Updated') ? 'updated' : 'page',
                     graph.deps[0].content.includes('Revised') ? 'revised' : 'included',
-                );
-                return ['', {}] as const;
-            },
+                ]),
         );
         const run = {
             input,
             exists: (path: string) => path === join(input, 'page.md'),
             toc: {entrySet: new Set(['page.md'])},
             markdown: {revision: 0, graph: vi.fn(async () => graph)},
-            transform,
+            collectAnchors,
         } as unknown as Run;
         const service = new AnchorsService(run);
         const asset: AssetInfo = {
@@ -232,26 +225,26 @@ describe('AnchorsService', () => {
 
         expect(first.get('page.md' as NormalizedPath)).toEqual(new Set(['page', 'included']));
         expect(second.get('page.md' as NormalizedPath)).toEqual(new Set(['page', 'included']));
-        expect(transform).toHaveBeenCalledTimes(1);
+        expect(collectAnchors).toHaveBeenCalledTimes(1);
 
         const mixed = await service.index('index.md' as NormalizedPath, [
             {...asset, search: '?version=v25.1'},
             {...asset, search: '?mode=compact'},
         ]);
         expect(mixed.get('page.md' as NormalizedPath)).toEqual(new Set(['page', 'included']));
-        expect(transform).toHaveBeenCalledTimes(1);
+        expect(collectAnchors).toHaveBeenCalledTimes(1);
 
         Object.assign(run.markdown, {revision: 1});
         graph.content = '# Updated';
         const updated = await service.index('index.md' as NormalizedPath, [asset]);
         expect(updated.get('page.md' as NormalizedPath)).toEqual(new Set(['updated', 'included']));
-        expect(transform).toHaveBeenCalledTimes(2);
+        expect(collectAnchors).toHaveBeenCalledTimes(2);
 
         Object.assign(run.markdown, {revision: 2});
         graph.deps[0].content = '## Revised';
         const revised = await service.index('index.md' as NormalizedPath, [asset]);
         expect(revised.get('page.md' as NormalizedPath)).toEqual(new Set(['updated', 'revised']));
-        expect(transform).toHaveBeenCalledTimes(3);
+        expect(collectAnchors).toHaveBeenCalledTimes(3);
     });
 
     it('does not cache a failed render so a later lookup can retry', async () => {
@@ -261,25 +254,16 @@ describe('AnchorsService', () => {
             deps: [],
             assets: [],
         };
-        const transform = vi
+        const collectAnchors = vi
             .fn()
             .mockRejectedValueOnce(new Error('boom'))
-            .mockImplementationOnce(
-                async (
-                    _path: NormalizedPath,
-                    _content: string,
-                    options: {anchorIds?: Set<string>},
-                ) => {
-                    options.anchorIds?.add('page');
-                    return ['', {}] as const;
-                },
-            );
+            .mockResolvedValueOnce(new Set(['page']));
         const run = {
             input,
             exists: (path: string) => path === join(input, 'page.md'),
             toc: {entrySet: new Set(['page.md'])},
             markdown: {revision: 0, graph: vi.fn(async () => graph)},
-            transform,
+            collectAnchors,
         } as unknown as Run;
         const service = new AnchorsService(run);
         const asset: AssetInfo = {
@@ -298,6 +282,6 @@ describe('AnchorsService', () => {
         const retried = await service.index('index.md' as NormalizedPath, [asset]);
 
         expect(retried.get('page.md' as NormalizedPath)).toEqual(new Set(['page']));
-        expect(transform).toHaveBeenCalledTimes(2);
+        expect(collectAnchors).toHaveBeenCalledTimes(2);
     });
 });

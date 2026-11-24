@@ -5,10 +5,11 @@ import type {MockInstance} from 'vitest';
 import {join} from 'node:path';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {load} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
 import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getBaseHooks} from '~/core/program';
 import {normalizePath} from '~/core/utils';
 
 import {run, runBuild, setupBuild} from '../../__tests__';
@@ -102,10 +103,13 @@ const args = (...args: string[]) => '-i /dev/null/input -o /dev/null/output -w '
 describe('Build watch feature', () => {
     let build: Build, promise: Promise<void>, processEntry: MockInstance;
 
-    async function setup() {
-        build = setupBuild();
+    async function setup(extraArgs = '', state?: Parameters<typeof setupBuild>[0]) {
+        build = setupBuild(state);
+        getBaseHooks(build).BeforeAnyRun.tap('Watch tests', (currentRun) => {
+            vi.mocked(currentRun.copy).mockResolvedValue([]);
+        });
         promise = runBuild(
-            args('-f', 'html', '--vars-preset', 'internal', '--allow-custom-resources'),
+            args('-f', 'html', '--vars-preset', 'internal', '--allow-custom-resources', extraArgs),
             build,
         );
 
@@ -127,14 +131,18 @@ describe('Build watch feature', () => {
                 .thenReturn(!(content instanceof Error));
         }
 
-        if (content instanceof Error) {
-            when(run(build).read)
-                .calledWith(normalizePath(input) as AbsolutePath)
-                .thenReject(content);
-        } else {
-            when(run(build).read)
-                .calledWith(normalizePath(input) as AbsolutePath)
-                .thenResolve(content);
+        // The Markdown loader joins paths with the platform's native separator.
+        // Match both spellings for reads too, rather than returning undefined on Windows.
+        for (const file of new Set([input, normalizePath(input)])) {
+            if (content instanceof Error) {
+                when(run(build).read)
+                    .calledWith(file as AbsolutePath)
+                    .thenReject(content);
+            } else {
+                when(run(build).read)
+                    .calledWith(file as AbsolutePath)
+                    .thenResolve(content);
+            }
         }
     }
 
@@ -149,7 +157,7 @@ describe('Build watch feature', () => {
     }
 
     async function remove(path: RelativePath) {
-        await register(path, new Error('ENOENT'));
+        await register(path, Object.assign(new Error('ENOENT'), {code: 'ENOENT'}));
         await watch.event({type: 'unlink', file: path});
     }
 
@@ -190,6 +198,417 @@ describe('Build watch feature', () => {
     });
 
     describe('toc', () => {
+        it.each(['md', 'html'])(
+            'updates page outputs when only inherited visibility changes (%s)',
+            async (format) => {
+                watch.end();
+                await promise;
+                watch.reset();
+                const toc = (agent: boolean, conflict = false) =>
+                    dump({
+                        items: [
+                            {name: 'Home', href: 'home.md'},
+                            ...(conflict ? [{name: 'Duplicate', href: '..steps.md'}] : []),
+                            {
+                                name: 'Operations',
+                                ...(agent && {visibility: 'agent'}),
+                                items: [
+                                    {name: 'Steps', href: '..steps.md'},
+                                    {name: 'Overview', href: 'overview.yaml'},
+                                ],
+                            },
+                        ],
+                    });
+                await setup(`-f ${format} --ai-md-companions --no-llms --static-content`, {
+                    globs: {'**/toc.yaml': ['toc.yaml'] as NormalizedPath[]},
+                    files: {
+                        'toc.yaml': toc(false),
+                        'home.md': '# Home',
+                        '..steps.md': '# Steps',
+                        'overview.yaml': 'title: Overview\nlinks: []',
+                    },
+                });
+
+                const currentRun = run(build);
+                const writes = vi.mocked(currentRun.write);
+                const output = (file: string) =>
+                    writes.mock.calls.find(([path]) => path === join(currentRun.output, file))?.[1];
+                const remove = vi.spyOn(currentRun.fs, 'rm').mockResolvedValue(undefined);
+                try {
+                    writes.mockClear();
+                    await change('./toc.yaml', toc(true, true));
+                    expect(currentRun.logger.error).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            message: expect.stringContaining('Conflicting visibility'),
+                        }),
+                    );
+                    expect(remove).not.toHaveBeenCalled();
+                    vi.mocked(currentRun.logger.error).mockClear();
+                    await change('./toc.yaml', toc(true));
+                    for (const file of ['..steps.md', 'overview.yaml']) {
+                        if (format === 'md') {
+                            expect(output(file)).toContain('pageAudience: agent');
+                            expect(output('home.md')).toBeUndefined();
+                        } else {
+                            expect(remove).toHaveBeenCalledWith(join(currentRun.output, file), {
+                                force: true,
+                            });
+                        }
+                    }
+                    if (format === 'html') {
+                        for (const file of ['..steps.html', 'overview.html']) {
+                            expect(remove).toHaveBeenCalledWith(join(currentRun.output, file), {
+                                force: true,
+                            });
+                            expect(output(file)).toBeUndefined();
+                        }
+                        expect(output('home.html')).toBeDefined();
+                        expect(output('home.html')).not.toContain('..steps.html');
+                    }
+
+                    writes.mockClear();
+                    await change('./toc.yaml', toc(false));
+                    for (const file of ['..steps.md', 'overview.yaml']) {
+                        expect(output(file)).toBeDefined();
+                        expect(output(file)).not.toContain('pageAudience: agent');
+                    }
+                    if (format === 'html') {
+                        expect(output('..steps.html')).toBeDefined();
+                        expect(output('overview.html')).toBeDefined();
+                        expect(output('home.html')).toContain('..steps.html');
+                    }
+                    expect(currentRun.logger.error).not.toHaveBeenCalled();
+                } finally {
+                    remove.mockRestore();
+                }
+            },
+        );
+
+        it('finishes pending page and TOC changes when another TOC resolves a conflict', async () => {
+            watch.end();
+            await promise;
+            watch.reset();
+            const toc = (hrefs: string[], agent = false) =>
+                dump({
+                    items: hrefs.map((href) => ({
+                        name: href,
+                        href,
+                        ...(agent && {visibility: 'agent'}),
+                    })),
+                });
+            const source = ['shared.md', 'other.md'];
+            const secondaryToc = (agent = false) =>
+                dump({
+                    items: [
+                        {name: 'Shared', href: '../shared.md', ...(agent && {visibility: 'agent'})},
+                        {name: 'Unchanged', href: '../unchanged.md'},
+                    ],
+                });
+            await setup('-f md --llms', {
+                globs: {'**/toc.yaml': ['toc.yaml', 'second/toc.yaml'] as NormalizedPath[]},
+                files: {
+                    'toc.yaml': toc(source),
+                    'second/toc.yaml': secondaryToc(),
+                    'unchanged.md': '# Unchanged\n\nOld body.',
+                    'shared.md': '# Shared',
+                    'other.md': '# Other',
+                },
+            });
+            const currentRun = run(build);
+            const writes = vi.mocked(currentRun.write);
+            writes.mockClear();
+            await change('./toc.yaml', toc(source, true));
+            expect(currentRun.logger.error).toHaveBeenCalled();
+            expect(writes).not.toHaveBeenCalled();
+            await change('./unrelated.txt', 'unrelated');
+            await change('./unchanged.md', '# Unchanged\n\nEdited during TOC conflict.');
+            expect(writes).not.toHaveBeenCalled();
+            vi.mocked(currentRun.logger.error).mockClear();
+
+            await change('./second/toc.yaml', secondaryToc(true));
+            for (const page of source) {
+                expect(writes).toHaveBeenCalledWith(
+                    join(currentRun.output, page),
+                    expect.stringContaining('pageAudience: agent'),
+                    true,
+                );
+            }
+            expect(writes).toHaveBeenCalledWith(
+                join(currentRun.output, 'toc.yaml'),
+                expect.stringContaining('visibility: agent'),
+                true,
+            );
+            for (const file of ['unchanged.md', 'second/llms-full.txt']) {
+                expect(writes).toHaveBeenCalledWith(
+                    join(currentRun.output, file),
+                    expect.stringContaining('Edited during TOC conflict.'),
+                    true,
+                );
+            }
+            expect(currentRun.logger.error).not.toHaveBeenCalled();
+        });
+
+        it.each(['html', 'md'])(
+            'refreshes every LLMS metadata field and only its dependent outputs (%s)',
+            async (format) => {
+                watch.end();
+                await promise;
+                watch.reset();
+                const initial = {description: 'Initial summary', details: 'Initial details'};
+                const toc = (llms: typeof initial | Record<string, string>) =>
+                    dump({
+                        title: 'Docs',
+                        llms,
+                        items: [
+                            {href: 'index.md'},
+                            {include: {path: '_includes/toc.yaml', mode: 'root_merge'}},
+                        ],
+                    });
+                const included = (description: string) =>
+                    dump({llms: {description}, items: [{href: '_includes/extra.md'}]});
+                await setup(`-f ${format} --llms --ai-md-companions`, {
+                    globs: {'**/toc.yaml': ['toc.yaml', 'nested/toc.yaml'] as NormalizedPath[]},
+                    files: {
+                        'toc.yaml': toc(initial),
+                        'index.md': '# Introduction\n\nArticle body.',
+                        '_includes/toc.yaml': included('Ignored summary'),
+                        '_includes/extra.md': '# Included\n\nIncluded body.',
+                        'nested/toc.yaml': dump({items: [{href: 'page.md'}]}),
+                        'nested/page.md': '# Nested\n\nNested body.',
+                    },
+                });
+                const currentRun = run(build);
+                Object.assign(currentRun.config.llms, {
+                    description: 'Default summary',
+                    details: 'Default details',
+                    url: 'https://example.com/default.txt',
+                });
+                await register('./index.md', '# Introduction\n\nArticle body.');
+                const writes = vi.mocked(currentRun.write);
+                const written = (file: string) =>
+                    writes.mock.calls.filter(([path]) => path === join(currentRun.output, file));
+                const index = () => String(written('llms.txt').at(-1)?.[1]);
+                expect(index()).toContain('> Initial summary\n\nInitial details');
+                const originalIndex = index();
+
+                for (const [metadata, expectedHeader] of [
+                    [
+                        {...initial, description: 'Updated summary'},
+                        '> Updated summary\n\nInitial details',
+                    ],
+                    [
+                        {...initial, details: 'Updated details'},
+                        '> Initial summary\n\nUpdated details',
+                    ],
+                    [{details: 'Details only'}, '> Default summary\n\nDetails only'],
+                    [{description: 'Summary only'}, '> Summary only\n\nDefault details'],
+                    [{}, '> Default summary\n\nDefault details'],
+                    [{description: '', details: ''}, '# Docs\n\n## Documentation'],
+                ] as const) {
+                    writes.mockClear();
+                    processEntry.mockClear();
+                    vi.mocked(currentRun.read).mockClear();
+                    await change('./toc.yaml', toc(metadata));
+
+                    expect(index()).toContain(expectedHeader);
+                    expect(index().slice(index().indexOf('## Documentation'))).toBe(
+                        originalIndex.slice(originalIndex.indexOf('## Documentation')),
+                    );
+                    expect(written('llms.txt')).toHaveLength(1);
+                    expect(written('llms-full.txt')).toHaveLength(0);
+                    expect(written('llms-full-agent.txt')).toHaveLength(0);
+                    expect(processEntry).not.toHaveBeenCalled();
+                    expect(writes.mock.calls.some(([path]) => path.includes('/nested/'))).toBe(
+                        false,
+                    );
+                    expect(currentRun.read).not.toHaveBeenCalledWith(
+                        normalizePath(join(currentRun.input, 'index.md')),
+                    );
+                    expect(currentRun.logger.error).not.toHaveBeenCalled();
+                }
+
+                writes.mockClear();
+                await change('./toc.yaml', toc({description: '', details: ''}));
+                expect(written('llms.txt')).toHaveLength(0);
+
+                writes.mockClear();
+                await register('./nested/page.md', '# Nested\n\nNested body.');
+                await change(
+                    './nested/toc.yaml',
+                    dump({llms: {details: 'Nested details'}, items: [{href: 'page.md'}]}),
+                );
+                expect(String(written('nested/llms.txt').at(-1)?.[1])).toContain(
+                    '> Default summary\n\nNested details',
+                );
+                expect(written('llms.txt')).toHaveLength(0);
+                expect(written('nested/llms-full.txt')).toHaveLength(0);
+                expect(currentRun.logger.error).not.toHaveBeenCalled();
+
+                writes.mockClear();
+                await change('./_includes/toc.yaml', included('Another ignored summary'));
+                expect(written('llms.txt')).toHaveLength(0);
+                expect(written('llms-full.txt')).toHaveLength(0);
+                expect(currentRun.logger.error).not.toHaveBeenCalled();
+            },
+        );
+
+        it.each(['html', 'md'])(
+            'refreshes index links and full corpora after content or TOC structure changes (%s)',
+            async (format) => {
+                watch.end();
+                await promise;
+                watch.reset();
+                const article =
+                    '# Original title\n\n{% include [body](_includes/body.md) %}\n\n' +
+                    ':::visibility agent\nAgent body.\n:::\n';
+                const toc = (items: string[], description = 'Summary') =>
+                    dump({
+                        title: 'Docs',
+                        llms: {description},
+                        items: items.map((href) => ({href})),
+                    });
+                await setup(`-f ${format} --llms --ai-md-companions`, {
+                    globs: {'**/toc.yaml': ['toc.yaml', 'nested/toc.yaml'] as NormalizedPath[]},
+                    files: {
+                        'toc.yaml': toc(['index.md']),
+                        'index.md': article,
+                        '_includes/body.md': 'Old body.',
+                        'nested/toc.yaml': dump({items: [{href: '../index.md'}]}),
+                    },
+                });
+                const currentRun = run(build);
+                const writes = vi.mocked(currentRun.write);
+                const content = (file: string) =>
+                    String(
+                        writes.mock.calls
+                            .filter(([path]) => path === join(currentRun.output, file))
+                            .at(-1)?.[1],
+                    );
+                if (format === 'md') {
+                    expect(content('llms-full-agent.txt')).toContain('Agent body.');
+                }
+                writes.mockClear();
+                await change('./_includes/body.md', 'New included body.');
+                expect(content('llms-full.txt')).toContain('New included body.');
+                expect(content('nested/llms-full.txt')).toContain('New included body.');
+                writes.mockClear();
+                await change('./index.md', '# Updated title\n\nNew body.');
+                expect(content('llms.txt')).toContain('[Updated title]');
+                expect(content('llms-full.txt')).toContain('New body.');
+                expect(content('llms-full.txt')).not.toContain('Old body.');
+                if (format === 'md') {
+                    expect(currentRun.remove).toHaveBeenCalledWith(
+                        join(currentRun.output, 'llms-full-agent.txt'),
+                    );
+                }
+
+                writes.mockClear();
+                await register('./second.md', '# Second\n\nSecond body.');
+                await change('./toc.yaml', toc(['index.md', 'second.md'], 'New summary'));
+                expect(content('llms.txt')).toContain('> New summary');
+                expect(content('llms.txt')).toContain('[Second]');
+                expect(content('llms-full.txt')).toContain('New body.');
+                expect(content('llms-full.txt')).toContain('Second body.');
+
+                vi.mocked(currentRun.remove).mockClear();
+                await change('./toc.yaml', toc([]));
+                for (const file of ['llms.txt', 'llms-full.txt', 'llms-full-agent.txt']) {
+                    expect(currentRun.remove).toHaveBeenCalledWith(join(currentRun.output, file));
+                }
+                await change('./toc.yaml', toc(['index.md']));
+                vi.mocked(currentRun.remove).mockClear();
+                await remove('./toc.yaml');
+                for (const file of ['llms.txt', 'llms-full.txt', 'llms-full-agent.txt']) {
+                    expect(currentRun.remove).toHaveBeenCalledWith(join(currentRun.output, file));
+                }
+                expect(currentRun.logger.error).not.toHaveBeenCalled();
+            },
+        );
+
+        it.each([true, false])(
+            'refreshes HTML and Markdown LLMS links without changing entries (enabled: %s)',
+            async (enabled) => {
+                watch.end();
+                await promise;
+                watch.reset();
+                await setup('--ai-md-companions');
+
+                const currentRun = run(build);
+                currentRun.config.llms.enabled = enabled;
+                currentRun.config.llms.url = 'https://example.com/default.txt';
+
+                await register('./index.md', '# Introduction');
+                await register('./nested/page.md', '# Nested');
+                await create(
+                    './nested/toc.yaml',
+                    dump({
+                        llms: {url: 'https://example.com/nested.txt'},
+                        items: [{href: 'page.md'}],
+                    }),
+                );
+
+                const toc = (url?: string, description = 'Summary') =>
+                    dump({
+                        llms: {url, description},
+                        items: [{href: 'index.md'}, {href: 'nested/page.md'}],
+                    });
+                const expectLinks = (url?: string) => {
+                    for (const extension of ['html', 'md']) {
+                        const output = vi
+                            .mocked(currentRun.write)
+                            .mock.calls.find(
+                                ([path]) => path === join(currentRun.output, `index.${extension}`),
+                            );
+                        expect(output, `index.${extension} was rewritten`).toBeDefined();
+                        const content = String(output?.[1]);
+                        if (url) {
+                            expect(content).toContain(
+                                extension === 'html'
+                                    ? `rel="describedby" href="${url}"`
+                                    : `href: ${url}\n    rel: describedby`,
+                            );
+                        } else {
+                            expect(content).not.toContain(
+                                extension === 'html' ? 'rel="describedby"' : 'rel: describedby',
+                            );
+                        }
+                    }
+                };
+
+                await create('./toc.yaml', toc('https://example.com/first.txt'));
+                expectLinks('https://example.com/first.txt');
+
+                for (const [url, expected] of [
+                    ['https://example.com/second.txt', 'https://example.com/second.txt'],
+                    [undefined, 'https://example.com/default.txt'],
+                    ['', enabled ? 'llms.txt' : undefined],
+                    ['https://example.com/default.txt', 'https://example.com/default.txt'],
+                ]) {
+                    processEntry.mockClear();
+                    vi.mocked(currentRun.write).mockClear();
+                    await change('./toc.yaml', toc(url));
+
+                    expect(processEntry).toHaveBeenCalledExactlyOnceWith('index.md');
+                    expectLinks(expected);
+                    if (!enabled) {
+                        expect(
+                            vi
+                                .mocked(currentRun.write)
+                                .mock.calls.some(([path]) =>
+                                    /\/llms(?:-full(?:-agent)?)?\.txt$/.test(normalizePath(path)),
+                                ),
+                        ).toBe(false);
+                    }
+                }
+
+                processEntry.mockClear();
+                // Removing an override equal to the default, or editing its summary,
+                // does not change the page link and must not rebuild pages.
+                await change('./toc.yaml', toc(undefined, 'Updated summary'));
+                expect(processEntry).not.toHaveBeenCalled();
+            },
+        );
+
         it('should handle new empty toc', async () => {
             expect(run(build).toc.relations.hasNode('toc.yaml')).toBe(false);
 
@@ -1375,6 +1794,43 @@ describe('Build watch feature', () => {
 
             expect(processEntry).toBeCalledTimes(2);
             expect(processEntry).toHaveBeenLastCalledWith('index.md');
+        });
+
+        it('should refresh cached code regions and track both file candidates', async () => {
+            await register('./index.md', "{% code './example.ts#r' %}");
+            await register('./example.ts#r', Object.assign(new Error('ENOENT'), {code: 'ENOENT'}));
+            await register('./example.ts', '// #region r\nold();\n// #endregion');
+            const nativeSourcePath = join(run(build).input, 'example.ts') as AbsolutePath;
+            expect(await run(build).read(nativeSourcePath)).toContain('old();');
+            await create('./toc.yaml', 'href: index.md');
+
+            depends('entry', 'index.md', 'example.ts');
+            expect(await run(build).markdown.load('index.md' as RelativePath)).toContain('old();');
+            await change('./example.ts', '// [START r]\nnew();\n// [END r]');
+            const content = await run(build).markdown.load('index.md' as RelativePath);
+            expect(content).toContain('new();');
+            expect(content).not.toContain('old();');
+            expect(processEntry).toBeCalledTimes(2);
+        });
+
+        it('should refresh literal-path precedence when a hash-containing file is created or removed', async () => {
+            await register('./index.md', "{% code './example.ts#r' %}");
+            await register('./example.ts#r', Object.assign(new Error('ENOENT'), {code: 'ENOENT'}));
+            await register('./example.ts', '// #region r\nregion();\n// #endregion');
+            await create('./toc.yaml', 'href: index.md');
+            expect(await run(build).markdown.load('index.md' as RelativePath)).toContain(
+                'region();',
+            );
+            depends('entry', 'index.md', 'example.ts#r');
+            await create('./example.ts#r', 'literal();');
+            expect(await run(build).markdown.load('index.md' as RelativePath)).toContain(
+                'literal();',
+            );
+            await remove('./example.ts#r');
+            expect(await run(build).markdown.load('index.md' as RelativePath)).toContain(
+                'region();',
+            );
+            expect(processEntry).toBeCalledTimes(3);
         });
 
         it('should handle asset change without releasing markdown includes', async () => {

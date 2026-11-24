@@ -14,8 +14,10 @@ permissions:
 
 jobs:
   verify-dependabot-lock:
-    name: Verify Dependabot lockfile
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    name: Verify immutable lockfile
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      startsWith(github.event.pull_request.head.ref, 'codex/dependency-candidate-')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dependency update
@@ -31,7 +33,7 @@ jobs:
       - name: Validate the existing lockfile
         run: npm ci --no-workspaces --ignore-scripts
       - name: Summary
-        run: echo 'Dependabot owns this lockfile. npm ci validated it without lifecycle scripts; no bot token or write-back is used.' >> "$GITHUB_STEP_SUMMARY"
+        run: echo 'The PR owns this immutable lockfile. npm ci validated it without lifecycle scripts; no bot token or write-back is used.' >> "$GITHUB_STEP_SUMMARY"
 
   update-package-lock:
     name: Regenerate package-lock.json
@@ -43,6 +45,7 @@ jobs:
     if: |
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.login != 'dependabot[bot]' &&
+      !startsWith(github.event.pull_request.head.ref, 'codex/dependency-candidate-') &&
       github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout code
@@ -101,7 +104,7 @@ jobs:
     steps:
       - name: Require the applicable lockfile check to succeed
         env:
-          LOCK_RESULT: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && needs.verify-dependabot-lock.result || needs.update-package-lock.result }}
+          LOCK_RESULT: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' || startsWith(github.event.pull_request.head.ref, 'codex/dependency-candidate-')) && needs.verify-dependabot-lock.result || needs.update-package-lock.result }}
         run: |
           echo "Applicable lockfile check: $LOCK_RESULT" >> "$GITHUB_STEP_SUMMARY"
           test "$LOCK_RESULT" = success

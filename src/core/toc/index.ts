@@ -4,3 +4,6 @@ export type {LoaderContext} from './loader';
 export {getHooks} from './hooks';
 export {IncludeMode} from './loader';
 export {TocService} from './TocService';
+export {PageAudienceConflictError} from './audience';
+
+export {resolveLlmsConfig} from './llms';

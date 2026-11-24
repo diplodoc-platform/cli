@@ -1,16 +1,26 @@
 import type {Build, Run} from '~/commands/build';
-import type {EntryTocItem, Toc} from '~/core/toc';
+import type {EntryTocItem, PageAudience, Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 
 import {Graph, bounded, normalizePath} from '~/core/utils';
+import {getHooks as getBuildHooks} from '~/commands/build/hooks';
 
 export class WatchState {
-    readonly changed = new Set<NormalizedPath>();
+    readonly changed = new Map<NormalizedPath, boolean>();
+
+    readonly processedFiles = new Set<NormalizedPath>();
 
     readonly invalide = new Set<NormalizedPath>();
 
     readonly detachedEntries: Graph = new Graph();
+
+    readonly affectedTocs = new Set<NormalizedPath>();
+
+    readonly rebuiltEntries = new Set<NormalizedPath>();
+
+    // Keep the audience of the last completed build while a TOC edit is invalid.
+    pageAudiences: ReadonlyMap<NormalizedPath, PageAudience>;
 
     readonly run: Run;
 
@@ -22,6 +32,7 @@ export class WatchState {
         this.program = program;
         this.run = run;
         this.logger = run.logger;
+        this.pageAudiences = run.toc.getPageAudiences();
     }
 
     @bounded invalidateToc(path: NormalizedPath) {
@@ -35,7 +46,8 @@ export class WatchState {
     }
 
     async processToc(...args: Parameters<Build['processToc']>) {
-        return this.program.processToc(...args);
+        await this.program.processToc(...args);
+        this.affectedTocs.add(args[0].path);
     }
 
     async processEntry(entry: NormalizedPath) {
@@ -43,6 +55,19 @@ export class WatchState {
         this.releaseEntryDependencies(entry);
         await this.program.processEntry(entry);
         this.detachedEntries.release(entry);
+        this.rebuiltEntries.add(entry);
+    }
+
+    async complete() {
+        await getBuildHooks(this.program).AfterRebuild.promise(this.run, {
+            files: new Set(this.processedFiles),
+            tocs: new Set(this.affectedTocs),
+            entries: new Set(this.rebuiltEntries),
+        });
+        this.pageAudiences = this.run.toc.getPageAudiences();
+        this.processedFiles.clear();
+        this.affectedTocs.clear();
+        this.rebuiltEntries.clear();
     }
 
     @bounded isKnownEntry(path: NormalizedPath) {

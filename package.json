@@ -1,6 +1,6 @@
 {
   "name": "@diplodoc/cli",
-  "version": "5.67.2",
+  "version": "5.71.0",
   "description": "Make documentation using yfm-docs in Markdown and HTML formats",
   "keywords": [
     "markdown",
@@ -83,11 +83,11 @@
     ]
   },
   "dependencies": {
-    "@diplodoc/ajv": "^0.11.0",
-    "@diplodoc/client": "^5.14.9",
+    "@diplodoc/ajv": "^0.15.0",
+    "@diplodoc/client": "^5.14.10",
     "@diplodoc/color-extension": "^1.0.0",
     "@diplodoc/liquid": "^1.5.3",
-    "@diplodoc/transform": "^4.78.13",
+    "@diplodoc/transform": "^4.78.14",
     "@diplodoc/translation": "^1.10.3",
     "@diplodoc/utils": "^2.3.6",
     "@gravity-ui/uikit-themer": "^1.7.0",
@@ -133,7 +133,7 @@
     "@diplodoc/infra": "2.3.0",
     "@diplodoc/latex-extension": "^2.0.2",
     "@diplodoc/mermaid-extension": "^2.2.3",
-    "@diplodoc/openapi-extension": "^5.3.1",
+    "@diplodoc/openapi-extension": "^5.3.2",
     "@diplodoc/page-constructor-extension": "^0.13.17",
     "@diplodoc/search-extension": "^3.1.5",
     "@diplodoc/yfmlint": "^1.11.2",

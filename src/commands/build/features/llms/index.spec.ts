@@ -1,6 +1,6 @@
 import type {Build, BuildArgs, EntryInfo, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type * as CoreUtils from '~/core/utils';
-import type {Toc} from '~/core/toc';
+import type {Toc, TocLlmsConfig} from '~/core/toc';
 import type {LlmsConfig} from './index';
 import type * as Collection from '../output-md/collect';
 
@@ -79,6 +79,7 @@ function createMockRun(
     } = {},
 ): Run {
     return {
+        toc: {audience: vi.fn().mockReturnValue('common')},
         config: {
             outputFormat: options.outputFormat ?? OutputFormat.html,
             llms: {
@@ -133,7 +134,13 @@ type TestableLlms = {
     collectEntries(toc: Toc, tocDir: string): unknown[];
     excludeNoIndex(run: Run, entries: unknown[]): Promise<unknown[]>;
     generate(run: Run, toc: Toc): Promise<void>;
-    renderIndex(run: Run, title: string, entries: unknown[], tocDir: string): Promise<string>;
+    renderIndex(
+        run: Run,
+        title: string,
+        entries: unknown[],
+        tocDir: string,
+        config?: TocLlmsConfig,
+    ): Promise<string>;
     renderFull(
         run: Run,
         title: string,
@@ -640,6 +647,31 @@ describe('LLMs Plugin Architecture', () => {
     });
 
     describe('renderIndex logic', () => {
+        it('places localized optional details between the summary and link sections', async () => {
+            const result = await llmsInstance.renderIndex(createMockRun(), 'Docs', [], 'en', {
+                description: 'English summary',
+                details: 'Read the guides first.\n\n- Examples use the latest release.',
+            });
+
+            expect(result).toContain(
+                '# Docs\n\n> English summary\n\n' +
+                    'Read the guides first.\n\n- Examples use the latest release.\n\n' +
+                    '## Documentation',
+            );
+            expect(result).not.toContain('AI Assistant Context Description');
+            expect(result).not.toContain('## Optional');
+        });
+
+        it('omits explicitly cleared description and details', async () => {
+            const result = await llmsInstance.renderIndex(createMockRun(), 'Docs', [], 'en', {
+                description: '',
+                details: '',
+            });
+
+            expect(result).toContain('# Docs\n\n## Documentation');
+            expect(result).not.toContain('AI Assistant Context Description');
+        });
+
         it('should correctly format llms.txt index with title and description', async () => {
             const run = createMockRun({outputFormat: OutputFormat.html});
             const entries = [
@@ -1280,6 +1312,7 @@ describe('LLMs Plugin Architecture', () => {
         it('should stop adding articles and log YFM022 when limit is exceeded', async () => {
             // Set a very small limit so the first article already exceeds it
             const run = createMockRun({llmsFullMaxSize: 10});
+            const collectBody = vi.spyOn(llmsInstance, 'collectBody');
             const entries = [
                 {
                     href: normalizedPath('page1.md'),
@@ -1302,6 +1335,8 @@ describe('LLMs Plugin Architecture', () => {
             expect(result).toContain('# Full Book');
             // The first article should NOT be added (it exceeds the 10-byte limit)
             expect(result).not.toContain('Collected Markdown Content');
+            expect(collectBody).toHaveBeenCalledTimes(1);
+            expect(collectBody.mock.calls[0][2]).toBe('docs/page1.md');
             // YFM022 should be logged as info
             expect(run.logger.info).toHaveBeenCalledWith(
                 'YFM022',

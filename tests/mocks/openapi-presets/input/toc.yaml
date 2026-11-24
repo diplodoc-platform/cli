@@ -1,0 +1,13 @@
+title: OpenAPI presets
+items:
+  - name: API
+    include:
+      path: api
+      includers:
+        - name: openapi
+          input: petstore.yaml
+          noindex:
+            endpoint: vars.noIndexOperations contains operationId
+      mode: link
+  - name: Nested API
+    href: nested/api/index.md

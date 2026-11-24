@@ -65,6 +65,10 @@ describe('selectCodeFragment', () => {
 });
 
 describe('removeCommonIndent', () => {
+    it('handles large code fragments without exceeding the argument limit', () => {
+        const content = '  line\n'.repeat(150000);
+        expect(removeCommonIndent(content)).toBe('line\n'.repeat(150000));
+    });
     it('removes the common indentation of non-empty lines', () => {
         expect(removeCommonIndent('    one\n      two\n\n    three')).toBe('one\n  two\n\nthree');
     });

@@ -12,9 +12,45 @@
 # yfm-docs
 
 Yfm-docs lets you build a full-fledged documentation project: with navigation, internal transitions, and full
-[Yandex Flavored Markdown (YFM)](https://diplodoc.com/docs/en/index-yfm) support.
+[Yandex Flavored Markdown (YFM)](https://diplodoc.com/docs/en/syntax/) support.
 
 ![Example of displaying a documentation page](.github/assets/overview.jpg)
+
+## Agent-only pages
+
+Set `visibility: agent` on a `toc.yaml` page, group, include, or root to restrict the
+whole subtree to the agent representation. The restriction cannot be reset below
+that ancestor; omit the field for shared pages. Conflicting shared/agent references
+to the same document fail the build. The error identifies both references by their
+positions in the resolved TOCs (after includes expand). Other explicit values are invalid.
+
+Human HTML, navigation, search, sitemap, single-page and PDF omit agent-only pages.
+Markdown builds preserve the source and emit generated `pageAudience: agent` metadata
+for the Viewer. In watch mode, changing only TOC visibility refreshes the affected
+pages. HTML builds remove a newly restricted page and its enabled human Markdown or
+YAML companion, and render them again when the page becomes shared. Run a full build
+to refresh snapshot outputs such as the sitemap, search index, single-page HTML, and PDF.
+Page restrictions combine with `:::visibility human|agent` blocks.
+Both HTML and Viewer Markdown builds report an error if a human-visible Markdown link
+points to an agent-only page. This includes Markdown text in Page Constructor blocks.
+Place these links inside `:::visibility agent` blocks. This check runs even with `--no-lint`.
+HTML builds also diagnose structured links from shared YAML pages to agent-only pages.
+Remove those links from the shared page or make the whole YAML page agent-only.
+
+With `--llms`, projects using page visibility also produce `llms-agent.txt` and
+`llms-full-agent.txt`. Viewer serves these through the canonical LLMS endpoints with
+`?audience=agent`; matching Viewer/MCP support and a documentation rebuild are required.
+Static hosting uses the separate filenames and filtered `.agent.md`/`.agent.yaml`
+source artifacts because it cannot select content by query parameters.
+Without `--base-href`, each static agent index links to the full corpus in its own directory.
+Links inside these artifacts select the target's agent artifact, including YAML
+links. Linked hidden/noIndex pages get individual artifacts without being added
+to LLMS indexes or corpora. Each target is generated once per owning TOC, including
+cyclic references.
+Extensionless document links and directory links such as `guide/` use the same
+page index for diagnostics and agent artifacts. Explicit file links such as
+`guide.md` never select the different document `guide/index.md`. Structured YAML
+`href` fields follow these rules; ordinary prose remains unchanged.
 
 ## Documentation
 
@@ -253,6 +289,25 @@ Presets (`presets.yaml`), includes and variables are resolved relative to a proj
 | `--sanitize-html` / `--no-sanitize-html` | `true`    | Sanitize the produced HTML                                |
 | `--id-generator <strategy>`              | `random`  | Element id strategy: `random`, `deterministic`, etc.      |
 | `-s, --strict`                           | `false`   | Exit with a non-zero code on warnings                     |
+
+### Legacy code selector notices
+
+The legacy `{% code "./example.ts" lines="BEGIN-END" %}` selector remains supported.
+It emits an informational `INFO` notice recommending named regions. This notice
+does not fail a `--strict` build and is hidden by `--quiet`. Other warnings, including
+missing substring markers and ignored directive attributes, still fail strict builds.
+
+Code paths may contain literal `#` characters, for example `./C#/Program.cs`.
+Normally, the complete existing file path takes precedence. Only when it does not name a
+file is the final `#` interpreted as a named-region selector, so
+`./C#/Program#v2.cs#auth` selects `auth` from `./C#/Program#v2.cs`.
+Suffixes after the final `#` with `/./` or `/../` segments (including a trailing
+`/.` or `/..`) are treated as region names without probing a literal path. These
+segments are never normalized as part of the file path.
+
+Hash region markers require a space, tab, end of line or block-comment terminator
+after `#region` or `#endregion`. Text such as `#region-banner` or `#endregion-old`
+remains ordinary source text.
 
 ### Local anchor diagnostics
 

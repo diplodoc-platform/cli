@@ -1,0 +1,4 @@
+default:
+  noIndexOperations: [listPets]
+public:
+  noIndexOperations: []

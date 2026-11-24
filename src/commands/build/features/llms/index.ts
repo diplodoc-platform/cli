@@ -1,9 +1,17 @@
-import type {Build, BuildArgs, EntryInfo, OpenapiCompanionEntry, Run} from '~/commands/build';
+import type {
+    Build,
+    BuildArgs,
+    EntryInfo,
+    OpenapiCompanionEntry,
+    RebuildChanges,
+    Run,
+} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {Toc} from '~/core/toc';
+import type {Toc, TocLlmsConfig} from '~/core/toc';
 
 import {dirname, join, relative} from 'node:path';
 import {eachSeries} from 'async';
+import {dump, load} from 'js-yaml';
 import {extractFrontMatter} from '@diplodoc/liquid';
 import {
     type ContentAudience,
@@ -11,12 +19,14 @@ import {
 } from '@diplodoc/transform/lib/plugins/visibility';
 
 import {defined} from '~/core/config';
+import {resolveLlmsConfig} from '~/core/toc';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {isExternalHref, normalizePath, resolveAbsoluteHref, setExt, shortLink} from '~/core/utils';
 import {OutputFormat} from '~/commands/build/config';
 
 import {getHooks as getEntryHooks} from '../../services/entry/hooks';
 import {getHooks as getBuildHooks} from '../../hooks';
+import {resolvePageTarget} from '../../page-audience-links';
 import {CollectedContentCache, MarkdownCollector, SELF_CONTAINED} from '../output-md/collect';
 import {resolveAbsolutePaths} from '../output-md/plugins/merge-includes';
 
@@ -26,6 +36,7 @@ import {options, resolveLlmsFullMaxSize} from './config';
 export const LLMS_INDEX_FILENAME = 'llms.txt';
 export const LLMS_FULL_FILENAME = 'llms-full.txt';
 export const LLMS_FULL_AGENT_FILENAME = 'llms-full-agent.txt';
+export const LLMS_AGENT_FILENAME = 'llms-agent.txt';
 
 const LLMS_SEPARATOR = '\n\n';
 const LLMS_SEPARATOR_SIZE = Buffer.byteLength(LLMS_SEPARATOR, 'utf8');
@@ -37,9 +48,8 @@ export type LlmsArgs = {
 };
 
 export type LlmsConfig = {
-    llms: {
+    llms: TocLlmsConfig & {
         enabled: boolean;
-        description?: string;
         llmsFullMaxSize: number;
         /**
          * Override URL for `llms.txt` used in md companion AI hints.
@@ -67,12 +77,86 @@ type LlmsTocItem = {
     items?: LlmsTocItem[];
 };
 
+function staticAgentFile(source: NormalizedPath): NormalizedPath {
+    return setExt(source, source.endsWith('.md') ? '.agent.md' : '.agent.yaml');
+}
+
+/** A generated file may be linked by several TOCs, including through hidden pages. */
+class WatchedStaticTargets {
+    private readonly byToc = new Map<NormalizedPath, Set<NormalizedPath>>();
+    private readonly counts = new Map<NormalizedPath, number>();
+
+    record(toc: NormalizedPath, file: NormalizedPath) {
+        let files = this.byToc.get(toc);
+        if (!files) {
+            files = new Set();
+            this.byToc.set(toc, files);
+        }
+        if (!files.has(file)) {
+            files.add(file);
+            this.counts.set(file, (this.counts.get(file) ?? 0) + 1);
+        }
+    }
+
+    async prune(run: Run, toc: NormalizedPath, written?: ReadonlySet<NormalizedPath>) {
+        const owned = this.byToc.get(toc);
+        if (!owned) {
+            return;
+        }
+        const keep = new Set(written && Array.from(written, staticAgentFile));
+        const released = [...owned].filter((file) => !keep.has(file));
+        const obsolete = new Set<NormalizedPath>();
+        for (const file of released) {
+            if (this.counts.get(file) !== 1) {
+                continue;
+            }
+            if (run.config.ai.mdCompanions && run.toc.audience(file) === 'common') {
+                // The agent file occupied this shared page's human companion path.
+                run.entry.release(file);
+                await run.entry.dump(file);
+            } else {
+                obsolete.add(file);
+            }
+        }
+
+        if (obsolete.size) {
+            await run.removeOutputFiles(obsolete);
+        }
+        for (const file of released) {
+            owned.delete(file);
+            const count = (this.counts.get(file) ?? 1) - 1;
+            if (count) {
+                this.counts.set(file, count);
+            } else {
+                this.counts.delete(file);
+            }
+        }
+        if (!owned.size) {
+            this.byToc.delete(toc);
+        }
+    }
+}
+
 type CollectionOptions = {
+    pageVisibility?: boolean;
     audience: ContentAudience;
     fileName: string;
     reportErrors?: boolean;
     audienceSpecificContent?: Set<ContentAudience>;
     pageTitles?: Map<NormalizedPath, string>;
+    staticArtifacts?: {
+        toc: NormalizedPath;
+        pending: Set<NormalizedPath>;
+        written: Set<NormalizedPath>;
+    };
+};
+
+type CachedIndex = {
+    header: string;
+    body: string;
+    tocShape: string;
+    agent: boolean;
+    agentIndexBody?: string;
 };
 
 /**
@@ -101,6 +185,10 @@ export class Llms {
     >();
 
     private readonly collections = new WeakMap<Run, CollectedContentCache>();
+
+    private readonly indexes = new WeakMap<Run, Map<NormalizedPath, CachedIndex>>();
+
+    private readonly staticTargets = new WeakMap<Run, WatchedStaticTargets>();
 
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Llms', (command: Command) => {
@@ -187,6 +275,116 @@ export class Llms {
                 }
             }
         });
+
+        getBuildHooks(program).AfterRebuild.tapPromise('Llms', (run, changes) =>
+            this.refresh(run, changes),
+        );
+    }
+
+    private async refresh(run: Run, changes: RebuildChanges) {
+        if (!run.config.llms?.enabled) {
+            return;
+        }
+
+        // Merged toc.yaml includes are TOC sources too, but not standalone TOCs.
+        const metadataOnly = [...changes.files].every(
+            (path) => /(^|\/)toc\.yaml$/.test(path) && !run.toc.isGenerator(path),
+        );
+        const affected = new Set(changes.tocs);
+        if (!metadataOnly) {
+            this.addReferencingTocs(run, changes.entries, affected);
+            // Bound retained collection data across repeated watch edits.
+            this.collections.delete(run);
+        }
+
+        await eachSeries(affected.values(), async (path) => {
+            try {
+                await this.refreshToc(run, path, metadataOnly);
+            } catch (error) {
+                run.logger.error(`Unable to generate llms.txt for ${path}: ${error}`);
+            }
+        });
+    }
+
+    private addReferencingTocs(
+        run: Run,
+        entries: RebuildChanges['entries'],
+        affected: Set<NormalizedPath>,
+    ) {
+        // Page/include/preset edits can affect every TOC that references a page,
+        // not just the nearest TOC used by its navigation and describedby link.
+        const pending: string[] = [...entries];
+        const visited = new Set<string>();
+        for (const entry of pending) {
+            if (visited.has(entry) || !run.toc.relations.hasNode(entry)) {
+                continue;
+            }
+            visited.add(entry);
+            for (const path of run.toc.relations.directDependentsOf(entry)) {
+                if (run.toc.isToc(path as NormalizedPath)) {
+                    affected.add(path as NormalizedPath);
+                }
+                pending.push(path);
+            }
+        }
+    }
+
+    private async refreshToc(run: Run, path: NormalizedPath, metadataOnly: boolean) {
+        if (!run.toc.isToc(path)) {
+            await this.removeArtifacts(run, path);
+            return;
+        }
+        const toc = run.toc.for(path);
+        const cached = this.indexes.get(run)?.get(path);
+        if (metadataOnly && cached?.tocShape === this.tocShape(toc)) {
+            // Summary/details affect only the index header. Reuse the links
+            // and full corpora instead of reading and collecting every article.
+            const header = this.renderIndexHeader(
+                toc.title || '',
+                resolveLlmsConfig(run.config.llms, toc),
+            );
+            if (header !== cached.header) {
+                await run.write(
+                    join(run.output, dirname(path), LLMS_INDEX_FILENAME),
+                    header + cached.body,
+                    true,
+                );
+                if (cached.agentIndexBody !== undefined) {
+                    await run.write(
+                        join(run.output, dirname(path), LLMS_AGENT_FILENAME),
+                        header + cached.agentIndexBody,
+                        true,
+                    );
+                }
+                cached.header = header;
+            }
+        } else {
+            await this.generate(run, toc);
+        }
+    }
+
+    private tocShape(toc: Toc) {
+        return JSON.stringify({...toc, llms: undefined});
+    }
+
+    private async removeArtifacts(run: Run, path: NormalizedPath) {
+        await this.staticTargets.get(run)?.prune(run, path);
+        const indexes = this.indexes.get(run);
+        if (!indexes?.has(path)) {
+            return;
+        }
+        await eachSeries(
+            [
+                LLMS_INDEX_FILENAME,
+                LLMS_FULL_FILENAME,
+                LLMS_FULL_AGENT_FILENAME,
+                LLMS_AGENT_FILENAME,
+            ],
+            async (file) => {
+                await run.remove(join(run.output, dirname(path), file));
+            },
+        );
+        indexes.delete(path);
     }
 
     private collectionCache(run: Run) {
@@ -215,13 +413,16 @@ export class Llms {
 
     private async generate(run: Run, toc: Toc) {
         const tocDir = dirname(toc.path);
-        const entries = await this.excludeNoIndex(run, this.collectEntries(toc, tocDir));
+        const allEntries = await this.excludeNoIndex(run, this.collectEntries(toc, tocDir));
+        const entries = allEntries.filter((entry) => run.toc.audience(entry.path) !== 'agent');
 
-        if (!entries.length) {
+        if (!allEntries.length) {
+            await this.removeArtifacts(run, toc.path);
             return;
         }
 
         const title = toc.title || '';
+        const config = resolveLlmsConfig(run.config.llms, toc);
 
         // Reuse the human collection for titles, retaining only strings rather
         // than another copy of every assembled article in memory.
@@ -233,22 +434,154 @@ export class Llms {
             audienceSpecificContent,
             pageTitles,
         });
-        const index = await this.renderIndex(run, title, entries, tocDir, pageTitles);
+        const index = await this.renderIndex(run, title, entries, tocDir, config, pageTitles);
 
         await run.write(join(run.output, tocDir, LLMS_INDEX_FILENAME), index, true);
         await run.write(join(run.output, tocDir, LLMS_FULL_FILENAME), full, true);
 
-        // Viewer builds use the md output as their storage artifact. Keep a separate agent
-        // corpus there so the runtime endpoint can select an audience without buffering and
-        // reparsing the whole llms-full file on every request. Static html builds only expose the
-        // canonical human corpus above.
-        if (run.config.outputFormat === OutputFormat.md && audienceSpecificContent.size > 0) {
-            const agentFull = await this.renderFull(run, title, entries, {
+        // Build audience artifacts once; the viewer selects them without reparsing a corpus.
+        const hasAgentPages = allEntries.length !== entries.length;
+        const agent =
+            hasAgentPages ||
+            (run.config.outputFormat === OutputFormat.md && audienceSpecificContent.size > 0);
+        let agentIndex: string | undefined;
+        let staticArtifacts: CollectionOptions['staticArtifacts'];
+        if (agent) {
+            const agentTitles = new Map<NormalizedPath, string>();
+            staticArtifacts =
+                hasAgentPages && run.config.outputFormat === OutputFormat.html
+                    ? {
+                          toc: toc.path,
+                          pending: new Set(allEntries.map((entry) => entry.path)),
+                          written: new Set<NormalizedPath>(),
+                      }
+                    : undefined;
+            const agentFull = await this.renderFull(run, title, allEntries, {
+                pageVisibility: hasAgentPages,
                 audience: 'agent',
                 fileName: LLMS_FULL_AGENT_FILENAME,
-                reportErrors: false,
+                reportErrors: hasAgentPages,
+                pageTitles: agentTitles,
+                staticArtifacts,
             });
             await run.write(join(run.output, tocDir, LLMS_FULL_AGENT_FILENAME), agentFull, true);
+            if (hasAgentPages) {
+                agentIndex = await this.renderIndex(
+                    run,
+                    title,
+                    allEntries,
+                    tocDir,
+                    config,
+                    agentTitles,
+                    'agent',
+                );
+                await run.write(join(run.output, tocDir, LLMS_AGENT_FILENAME), agentIndex, true);
+                if (staticArtifacts) {
+                    await this.writeStaticAgentTargets(run, staticArtifacts);
+                }
+            }
+        } else if (this.indexes.get(run)?.get(toc.path)?.agent) {
+            await run.remove(join(run.output, tocDir, LLMS_FULL_AGENT_FILENAME));
+        }
+        if (!hasAgentPages && this.indexes.get(run)?.get(toc.path)?.agentIndexBody !== undefined) {
+            await run.remove(join(run.output, tocDir, LLMS_AGENT_FILENAME));
+        }
+
+        await this.staticTargets.get(run)?.prune(run, toc.path, staticArtifacts?.written);
+        this.cacheIndex(run, toc, title, config, index, agent, agentIndex);
+    }
+
+    private cacheIndex(
+        run: Run,
+        toc: Toc,
+        title: string,
+        config: TocLlmsConfig,
+        index: string,
+        agent: boolean,
+        agentIndex: string | undefined,
+    ) {
+        if (!run.config.watch) {
+            return;
+        }
+        let indexes = this.indexes.get(run);
+        if (!indexes) {
+            indexes = new Map();
+            this.indexes.set(run, indexes);
+        }
+        const header = this.renderIndexHeader(title, config);
+        indexes.set(toc.path, {
+            header,
+            body: index.slice(header.length),
+            tocShape: this.tocShape(toc),
+            agent,
+            agentIndexBody: agentIndex?.slice(header.length),
+        });
+    }
+
+    /** Write each linked target once, without adding hidden/noIndex pages to a corpus. */
+    private async writeStaticAgentTargets(
+        run: Run,
+        staticArtifacts: NonNullable<CollectionOptions['staticArtifacts']>,
+    ) {
+        // Consume the live iterator in order, including targets discovered by earlier pages.
+        await eachSeries(staticArtifacts.pending.values(), async (path) => {
+            if (staticArtifacts.written.has(path)) {
+                return;
+            }
+            let content: string;
+            if (path.endsWith('.md')) {
+                const collector = new MarkdownCollector(run, SELF_CONTAINED, {
+                    audience: 'agent',
+                    processedContent: this.collectionCache(run),
+                });
+                content = await this.collectBody(run, collector, path, {
+                    audience: 'agent',
+                    pageVisibility: true,
+                    fileName: LLMS_AGENT_FILENAME,
+                    staticArtifacts,
+                });
+            } else {
+                const raw = await run.read(join(run.input, path) as AbsolutePath);
+                content = dump(
+                    filterAgentYaml(load(raw), (value, key) => {
+                        const resolveLink = (href: string) =>
+                            resolveAgentPageLink(run, path, href, staticArtifacts.pending);
+                        const filtered = filterAudienceContent(value, 'agent').content;
+                        // Structured hrefs are links even without an extension.
+                        // Other strings retain Markdown-only rewriting for prose.
+                        return key === 'href' ||
+                            /^\S+\.(?:md|html|ya?ml)(?:[?#].*)?$/i.test(filtered)
+                            ? resolveLink(filtered)
+                            : resolveAbsolutePaths(
+                                  filtered,
+                                  path,
+                                  run.config.baseHref || '',
+                                  resolveLink,
+                              );
+                    }),
+                );
+            }
+
+            await this.writeStaticAgentFile(run, path, content, staticArtifacts);
+        });
+    }
+
+    private async writeStaticAgentFile(
+        run: Run,
+        source: NormalizedPath,
+        content: string,
+        artifacts: CollectionOptions['staticArtifacts'],
+    ) {
+        const file = staticAgentFile(source);
+        await run.write(join(run.output, file), content, true);
+        artifacts?.written.add(source);
+        if (run.config.watch && artifacts) {
+            let targets = this.staticTargets.get(run);
+            if (!targets) {
+                targets = new WatchedStaticTargets();
+                this.staticTargets.set(run, targets);
+            }
+            targets.record(artifacts.toc, file);
         }
     }
 
@@ -349,22 +682,13 @@ export class Llms {
         title: string,
         entries: LlmsEntry[],
         tocDir: string,
+        config: TocLlmsConfig = run.config.llms,
         pageTitles?: ReadonlyMap<NormalizedPath, string>,
+        audience: ContentAudience = 'human',
     ) {
         const html = run.config.outputFormat === OutputFormat.html;
-        const lines: string[] = [];
-
-        if (title) {
-            lines.push(`# ${title}`, '');
-        }
-
-        const description = run.config.llms?.description || '';
-
-        if (description) {
-            lines.push(`> ${description}`, '');
-        }
-
-        lines.push('## Documentation', '');
+        const staticAgent = html && audience === 'agent';
+        const lines: string[] = ['## Documentation', ''];
 
         const seenOpenapiCompanions = new Set<string>();
         // Loading includes can replace shared page metadata. Finish each entry
@@ -372,7 +696,8 @@ export class Llms {
         await eachSeries(entries, async (entry) => {
             this.appendOpenapiCompanions(run, entry, tocDir, lines, seenOpenapiCompanions);
 
-            const prepared = this.pages.get(run)?.get(entry.path);
+            const prepared =
+                audience === 'human' ? this.pages.get(run)?.get(entry.path) : undefined;
             const pageTitle =
                 prepared?.h1 ??
                 pageTitles?.get(entry.path) ??
@@ -396,24 +721,52 @@ export class Llms {
             // Link to the artifact that readers can fetch directly. Static HTML
             // builds use source-format companions when enabled; otherwise they
             // keep the HTML route and honor extensionless publishing.
-            const relativeHref = resolveEntryHref(run, entry.href, html);
-            const href = resolveAbsoluteHref(relativeHref, run.config.baseHref, tocDir);
+            let relativeHref: string;
+            if (staticAgent) {
+                const extension = entry.path.endsWith('.md') ? '.agent.md' : '.agent.yaml';
+                relativeHref = setExt(entry.href, extension);
+            } else {
+                relativeHref = resolveEntryHref(run, entry.href, html);
+            }
+            let href = resolveAbsoluteHref(relativeHref, run.config.baseHref, tocDir);
+            if (!html && audience === 'agent') {
+                href += `${href.includes('?') ? '&' : '?'}audience=agent`;
+            }
 
             lines.push(`- [${label}](${href})${suffix}`);
         });
 
-        const fullHref = run.config.baseHref
-            ? resolveAbsoluteHref(LLMS_FULL_FILENAME, run.config.baseHref, tocDir)
-            : `/${LLMS_FULL_FILENAME}`;
+        const fullName = staticAgent ? LLMS_FULL_AGENT_FILENAME : LLMS_FULL_FILENAME;
+        let fullHref =
+            staticAgent || run.config.baseHref
+                ? resolveAbsoluteHref(fullName, run.config.baseHref, tocDir)
+                : `/${fullName}`;
+        if (audience === 'agent' && !html) {
+            fullHref += '?audience=agent';
+        }
 
         lines.push(
             '',
             '---',
             '',
-            `For more comprehensive documentation, see [${LLMS_FULL_FILENAME}](${fullHref})`,
+            `For more comprehensive documentation, see [${fullName}](${fullHref})`,
         );
 
-        return lines.join('\n') + '\n';
+        return this.renderIndexHeader(title, config) + lines.join('\n') + '\n';
+    }
+
+    private renderIndexHeader(title: string, config: TocLlmsConfig) {
+        const lines: string[] = [];
+        if (title) {
+            lines.push(`# ${title}`, '');
+        }
+        if (config.description) {
+            lines.push(`> ${config.description}`, '');
+        }
+        if (config.details) {
+            lines.push(config.details.trimEnd(), '');
+        }
+        return lines.length ? lines.join('\n') + '\n' : '';
     }
 
     private async loadPageTitle(
@@ -532,7 +885,9 @@ export class Llms {
             parts.join(LLMS_SEPARATOR) + LLMS_TRAILING_NEWLINE,
             'utf8',
         );
+        let fullLimitReached = false;
 
+        const staticAgent = audience === 'agent' && run.config.outputFormat === OutputFormat.html;
         for (const entry of entries) {
             // Leading (yaml) pages have no markdown body to inline; they still
             // appear in the index above.
@@ -548,7 +903,11 @@ export class Llms {
             });
             const body = await this.collectBody(run, collector, entry.path, options);
 
-            if (!body) {
+            if (staticAgent) {
+                await this.writeStaticAgentFile(run, entry.path, body, options.staticArtifacts);
+            }
+
+            if (!body || fullLimitReached) {
                 continue;
             }
 
@@ -558,17 +917,22 @@ export class Llms {
                 (parts.length > 0 ? LLMS_SEPARATOR_SIZE : 0) +
                 Buffer.byteLength(body, 'utf8');
 
-            if (candidateSize > maxSize) {
-                run.logger.info(
-                    'YFM022',
-                    `${fileName}: size limit reached at ${currentSize} bytes ` +
-                        `(limit ${maxSize}), stopped before adding ${entry.path}`,
-                );
-                break;
+            if (candidateSize <= maxSize) {
+                parts.push(body);
+                currentSize = candidateSize;
+                continue;
             }
 
-            parts.push(body);
-            currentSize = candidateSize;
+            run.logger.info(
+                'YFM022',
+                `${fileName}: size limit reached at ${currentSize} bytes ` +
+                    `(limit ${maxSize}), stopped before adding ${entry.path}`,
+            );
+            if (!staticAgent) {
+                break;
+            }
+            // The corpus is complete. Remaining static entries still need individual files.
+            fullLimitReached = true;
         }
 
         return parts.join(LLMS_SEPARATOR) + LLMS_TRAILING_NEWLINE;
@@ -582,6 +946,7 @@ export class Llms {
     ): Promise<string> {
         const {
             audience,
+            pageVisibility = false,
             fileName,
             reportErrors = true,
             audienceSpecificContent,
@@ -617,6 +982,11 @@ export class Llms {
                 }
             }
 
+            if (audience === 'agent' && pageVisibility) {
+                return resolveAbsolutePaths(body, entryPath, run.config.baseHref || '', (href) =>
+                    resolveAgentPageLink(run, entryPath, href, options.staticArtifacts?.pending),
+                );
+            }
             return run.config.baseHref
                 ? resolveAbsolutePaths(body, entryPath, run.config.baseHref)
                 : body;
@@ -626,6 +996,72 @@ export class Llms {
             return '';
         }
     }
+}
+
+function filterAgentYaml(
+    value: unknown,
+    rewrite: (value: string, key?: string) => string,
+    seen = new WeakMap<object, unknown>(),
+    property?: string,
+): unknown {
+    if (typeof value === 'string') {
+        return rewrite(value, property);
+    }
+    if (value && typeof value === 'object') {
+        if (seen.has(value)) {
+            return seen.get(value);
+        }
+        const result: unknown[] | Record<string, unknown> = Array.isArray(value) ? [] : {};
+        seen.set(value, result);
+        for (const [key, item] of Object.entries(value)) {
+            // YAML keys such as __proto__ must remain own data properties.
+            Object.defineProperty(result, key, {
+                value: filterAgentYaml(item, rewrite, seen, key),
+                enumerable: true,
+                configurable: true,
+                writable: true,
+            });
+        }
+        return result;
+    }
+    return value;
+}
+
+function resolveAgentPageLink(
+    run: Run,
+    fromPath: NormalizedPath,
+    href: string,
+    staticTargets?: Set<NormalizedPath>,
+): string {
+    if (isExternalHref(href) || /^[#*{]/.test(href)) {
+        return href;
+    }
+    const [pathAndQuery, ...hashParts] = href.split('#');
+    const [path, query] = pathAndQuery.split('?');
+    if (!path) {
+        return href;
+    }
+    const absolute = normalizePath(
+        path.startsWith('/') ? path.slice(1) : join(dirname(fromPath), path),
+    );
+    const target = resolvePageTarget(absolute, (candidate) => run.toc.audience(candidate));
+    if (!target) {
+        return href;
+    }
+    const search = new URLSearchParams(query || '');
+    let destination = path;
+    if (run.config.outputFormat === OutputFormat.html) {
+        staticTargets?.add(target);
+        destination = setExt(
+            normalizePath(relative(dirname(fromPath), target)),
+            target.endsWith('.md') ? '.agent.md' : '.agent.yaml',
+        );
+    } else if (!search.has('audience')) {
+        search.set('audience', 'agent');
+    }
+    const querySuffix = search.size ? `?${search}` : '';
+    const hashSuffix = hashParts.length ? `#${hashParts.join('#')}` : '';
+    return `${destination}${querySuffix}${hashSuffix}`;
 }
 
 function resolveEntryHref(run: Run, entryHref: NormalizedPath, html: boolean) {

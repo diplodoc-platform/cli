@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {parseCodeDirective} from './parse';
+import {parseCodeDirective, parseCodeTarget} from './parse';
 
 describe('parseCodeDirective', () => {
     it('parses the public directive arguments', () => {
@@ -44,6 +44,49 @@ describe('parseCodeDirective', () => {
         });
     });
 
+    it.each([
+        './example.ts#auth',
+        './C#/Program.cs',
+        './file#with spaces.ts',
+        './file#',
+        './C#/Program.cs#auth',
+    ])('keeps the complete path until literal-file resolution: %s', (path) => {
+        expect(parseCodeDirective(`{% code '${path}' %}`)).toMatchObject({
+            directive: {path},
+            warnings: [],
+        });
+    });
+
+    it('preserves a literal hash path with the legacy selector', () => {
+        expect(parseCodeDirective(`{% code './C#/Program.cs' lines='BEGIN-END' %}`)).toMatchObject({
+            directive: {path: './C#/Program.cs', lines: 'BEGIN-END'},
+            warnings: [],
+        });
+    });
+
+    it.each(['', 'auth name', 'auth?x', 'авторизация'])(
+        'rejects an invalid region name: %s',
+        (region) => {
+            expect(parseCodeTarget(`./example.ts#${region}`)).toMatchObject({
+                error: expect.stringContaining('invalid region name'),
+            });
+        },
+    );
+
+    it('rejects combined region and legacy selectors, including an empty lines value', () => {
+        for (const lines of ['A-B', '']) {
+            expect(parseCodeTarget('./example.ts#auth', lines)).toMatchObject({
+                error: 'a region and attribute "lines" cannot be combined',
+            });
+        }
+    });
+
+    it('still passes jsonpath through when the path contains a hash', () => {
+        expect(parseCodeDirective(`{% code './data.json#literal' jsonpath='$.value' %}`)).toEqual({
+            passthrough: true,
+        });
+    });
+
     it.each([`{% codec './example.ts' %}`, `{% code './example.ts'`])(
         'rejects invalid directive syntax: %s',
         (source) => {
@@ -53,4 +96,17 @@ describe('parseCodeDirective', () => {
             });
         },
     );
+});
+
+describe('parseCodeTarget after a missing literal file', () => {
+    it.each(['auth', 'auth-v2', 'sdk/auth.v2', '2-3'])('parses the region name %s', (region) => {
+        expect(parseCodeTarget(`./example.ts#${region}`)).toEqual({path: './example.ts', region});
+    });
+
+    it('splits at the final hash so directory and file names can contain hashes', () => {
+        expect(parseCodeTarget('./C#/Program#example.cs#auth')).toEqual({
+            path: './C#/Program#example.cs',
+            region: 'auth',
+        });
+    });
 });

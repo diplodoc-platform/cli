@@ -6,6 +6,7 @@ import type {
     GraphData,
     GraphTocData,
     IncludeInfo,
+    PageAudience,
     RawToc,
     RawTocItem,
     Toc,
@@ -33,6 +34,7 @@ import {
 import {getHooks, withHooks} from './hooks';
 import {isEntryItem, resolveNoIndex} from './utils';
 import {isMergeMode, loader} from './loader';
+import {applyPageAudiences} from './audience';
 
 export type TocServiceConfig = {
     ignore: string[];
@@ -122,6 +124,12 @@ export class TocService {
 
     private entryIndex?: {revision: number; value: ReadonlySet<NormalizedPath>};
 
+    private audienceIndex?: {
+        revision: number;
+        value: ReadonlyMap<NormalizedPath, PageAudience>;
+        hasAgentPages: boolean;
+    };
+
     private run: Run;
 
     private logger: Run['logger'];
@@ -150,10 +158,27 @@ export class TocService {
         };
     }
 
+    /** Returns the inherited page audience without scanning TOCs for each page or link. */
+    audience(path: NormalizedPath): PageAudience | undefined {
+        return this.getPageAudiences().get(path);
+    }
+
+    /** Returns the immutable audience index for the current TOC graph revision. */
+    getPageAudiences(): ReadonlyMap<NormalizedPath, PageAudience> {
+        return this.getAudienceIndex().value;
+    }
+
+    get hasAgentPages(): boolean {
+        return this.getAudienceIndex().hasAgentPages;
+    }
+
     async init(paths: NormalizedPath[]) {
         for (const path of paths) {
             await this.load(path);
         }
+
+        // Validate conflicts before writing any audience-dependent build artifacts.
+        this.getPageAudiences();
 
         return this.tocs.filter((toc) => paths.includes(toc.path));
     }
@@ -276,6 +301,18 @@ export class TocService {
         const data = this.relations.getNodeData(path);
 
         return data.type === 'generator';
+    }
+
+    private getAudienceIndex() {
+        if (this.audienceIndex?.revision !== this.relations.revision) {
+            const value = applyPageAudiences(this.tocs);
+            this.audienceIndex = {
+                revision: this.relations.revision,
+                value,
+                hasAgentPages: [...value.values()].includes('agent'),
+            };
+        }
+        return this.audienceIndex;
     }
 
     @memoize('path')

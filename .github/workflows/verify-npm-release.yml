@@ -19,7 +19,7 @@ jobs:
        (github.event.workflow_run.event == 'workflow_dispatch' &&
         github.event.workflow_run.display_title == 'Release Package to npm'))
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - name: Resolve published stable version
         id: release
@@ -68,6 +68,33 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Wait for published CLI availability
+        if: steps.release.outputs.version != ''
+        timeout-minutes: 22
+        env:
+          CLI_VERSION: ${{ steps.release.outputs.version }}
+          NPM_CONFIG_CACHE: ${{ runner.temp }}/cli-install-cache
+          NPM_CONFIG_USERCONFIG: /dev/null
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="@diplodoc/cli@$CLI_VERSION"
+          deadline=$((SECONDS + 1200))
+          while true; do
+            if version=$(npm view "$package" version --prefer-online --fetch-retries=0 --fetch-timeout=10000) && [[ "$version" == "$CLI_VERSION" ]]; then
+              echo "$package is available in public npm."
+              break
+            fi
+            remaining=$((deadline - SECONDS))
+            if ((remaining <= 0)); then
+              echo "::error::$package did not become available in public npm within 20 minutes."
+              exit 1
+            fi
+            echo "Waiting for $package to become available in public npm (${remaining}s remaining)."
+            sleep "$((remaining < 30 ? remaining : 30))"
+          done
+
       - name: Install and start published CLI
         if: steps.release.outputs.version != ''
         env:
@@ -85,7 +112,7 @@ jobs:
           for attempt in 1 2 3; do
             cd "$(mktemp -d)"
             printf '{"private":true}\n' > package.json
-            if npm install "@diplodoc/cli@$CLI_VERSION" --no-audit --no-fund --fetch-retries=1 --fetch-timeout=30000; then
+            if npm install "@diplodoc/cli@$CLI_VERSION" --prefer-online --no-audit --no-fund --fetch-retries=1 --fetch-timeout=30000; then
               ./node_modules/.bin/yfm --version
               exit 0
             fi

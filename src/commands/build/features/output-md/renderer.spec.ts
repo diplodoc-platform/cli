@@ -50,6 +50,25 @@ describe('MarkdownOutputRenderer', () => {
         });
     });
 
+    it('uses the page TOC URL over the project default even when generation is disabled', () => {
+        const run = setupRun({
+            ...baseConfig,
+            llms: {enabled: false, url: 'https://example.com/root.txt'},
+        } as unknown as BuildConfig);
+        vi.spyOn(run.toc, 'for').mockReturnValue({
+            path: 'en/toc.yaml',
+            llms: {url: 'https://example.com/en.txt'},
+        } as never);
+        vi.mocked(run.exists).mockReturnValue(false);
+
+        expect(prepareMarkdownMeta(run, {}, normalizePath('en/guide.md')).alternate).toContainEqual(
+            {
+                href: 'https://example.com/en.txt',
+                rel: 'describedby',
+            },
+        );
+    });
+
     it('renders a human Markdown companion and copies bounded media assets once', async () => {
         const run = setupRun(baseConfig as unknown as BuildConfig);
         vi.spyOn(run.toc, 'for').mockReturnValue({path: 'toc.yaml'} as never);

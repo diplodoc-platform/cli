@@ -3,7 +3,7 @@ import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
 import type {Lang} from '@diplodoc/transform/lib/typings';
 
-import {dirname, join, resolve} from 'node:path';
+import {basename, dirname, isAbsolute, join, relative, resolve, sep} from 'node:path';
 import {uniq} from 'lodash';
 import transformer from '@diplodoc/transform/lib/md';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
@@ -24,8 +24,11 @@ import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
 import {AnchorsService, collectAnchorIds} from './services/anchors';
+import {AnchorRenderCache} from './services/anchors/RenderCache';
 import {extractIncludedBlocks} from './extract-included';
-import {lintWithLocalAnchors} from './lint';
+import {getLocalAnchorRuleConfig, lintWithLocalAnchors} from './lint';
+import {findAgentPageLinks} from './page-audience-links';
+import {getPageLinkPlugins} from './features/output-html/utils';
 import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
 
 type TransformOptions = {
@@ -78,6 +81,10 @@ export class Run extends BaseRun<BuildConfig> {
 
     private readonly anchors: AnchorsService;
 
+    private readonly anchorRenders = new AnchorRenderCache<ReturnType<typeof transformer>['env']>();
+
+    private readonly agentPageLinks = new WeakMap<object, ReadonlySet<NormalizedPath>>();
+
     private entriesCache?: {index: ReadonlySet<NormalizedPath>; paths: NormalizedPath[]};
 
     get configPath() {
@@ -126,15 +133,192 @@ export class Run extends BaseRun<BuildConfig> {
         this.redirects = new RedirectsService(this);
     }
 
+    /** Removes previously generated files, keeping watch cleanup inside the output directory. */
+    async removeOutputFiles(paths: ReadonlySet<NormalizedPath>): Promise<void> {
+        if (!paths.size) {
+            return;
+        }
+
+        const root = await this.realpath(this.output);
+        const directories = new Map<string, AbsolutePath>();
+        for (const path of paths) {
+            const directory = dirname(join(root, path));
+            const resolved = directories.get(directory) || (await this.realpath(directory));
+            directories.set(directory, resolved);
+            const file = join(resolved, basename(path));
+            const fromRoot = relative(root, file);
+            if (!fromRoot || fromRoot.split(sep, 1)[0] === '..' || isAbsolute(fromRoot)) {
+                throw new Error(`Page output outside the build directory: ${path}`);
+            }
+            await this.fs.rm(file, {force: true});
+        }
+    }
+
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
-        const {deps, anchorIds, reportErrors = true} = options;
+        return this.render(file, markdown, options, false);
+    }
+
+    /** Check the human token stream without rendering or loading the linked documents and assets. */
+    async checkMarkdownPageLinks(file: NormalizedPath, markdown: string, deps: IncludeInfo[]) {
+        const {content, files} = await this.transformSource(file, markdown, deps);
+        const {parse} = transformer({
+            ...this.transformConfig(file, {}),
+            files,
+            extractTitle: false,
+            plugins: this.markdown.plugins.concat(getPageLinkPlugins()),
+        });
+        const targets = findAgentPageLinks(parse(content), (path) => this.toc.audience(path), file);
+        this.reportAgentPageLinks(file, targets);
+    }
+
+    async collectAnchors(
+        file: NormalizedPath,
+        markdown: string,
+        options: TransformOptions,
+    ): Promise<ReadonlySet<string>> {
+        const anchorIds = new Set<string>();
+        await this.render(file, markdown, {...options, anchorIds, reportErrors: false}, true);
+
+        return anchorIds;
+    }
+
+    async lint(
+        file: NormalizedPath,
+        markdown: string,
+        options: TransformOptions,
+        plugins = this.markdown.plugins,
+    ) {
+        const {source, assets, pluginOptions} = await this.prepareTransform(
+            file,
+            markdown,
+            options,
+        );
+        const lintOptions = {
+            ...pluginOptions,
+            plugins,
+            anchorIndex:
+                getLocalAnchorRuleConfig(this.config.lint.config) === false
+                    ? undefined
+                    : await this.anchors.index(file, assets),
+        };
+
+        return lintWithLocalAnchors(source, file, {
+            lintConfig: this.config.lint.config,
+            pluginOptions: lintOptions,
+            plugins,
+        });
+    }
+
+    alternates(file: NormalizedPath) {
+        const langs = this.config.langs;
+        const alternates = this.getAlternateMap();
+        const [lang, base] = extractLang(file, langs);
+
+        if (!lang) {
+            return [];
+        }
+
+        return alternates[base] || [];
+    }
+
+    private async render(
+        file: NormalizedPath,
+        markdown: string,
+        options: TransformOptions,
+        forAnchors: boolean,
+    ) {
+        const revision = this.markdown.revision;
+        const {anchorIds, reportErrors = true} = options;
+        const {source, pluginOptions: transformOptions} = await this.prepareTransform(
+            file,
+            markdown,
+            options,
+            reportErrors,
+        );
+        this.anchorRenders.reset(this.markdown.revision);
+        const signature = this.anchorRenderSignature(
+            source,
+            transformOptions,
+            revision,
+            forAnchors,
+        );
+        const cached = !forAnchors && signature ? this.anchorRenders.take(signature) : undefined;
+        if (cached) {
+            if (reportErrors) {
+                this.reportAgentPageLinks(file, this.agentPageLinks.get(cached[1]));
+            }
+            if (anchorIds) {
+                collectAnchorIds(cached[0], anchorIds);
+            }
+
+            return cached;
+        }
+
+        const {parse, compile, env} = transformer(transformOptions);
+
+        const tokens = parse(source);
+        if ((reportErrors || forAnchors) && this.toc.audience(file) !== 'agent') {
+            const targets = findAgentPageLinks(tokens, (path) => this.toc.audience(path));
+            this.agentPageLinks.set(env, targets);
+            if (reportErrors) {
+                this.reportAgentPageLinks(file, targets);
+            }
+        }
+        const result = compile(tokens);
+        if (anchorIds) {
+            collectAnchorIds(result, anchorIds);
+        }
+
+        const output = [result, env] as const;
+        if (forAnchors && signature && revision === this.markdown.revision) {
+            this.anchorRenders.set(signature, output);
+        }
+
+        return output;
+    }
+
+    private anchorRenderSignature(
+        source: string,
+        options: Record<string, unknown>,
+        revision: number,
+        forAnchors: boolean,
+    ) {
+        if (
+            this.config.outputFormat === 'md' ||
+            revision !== this.markdown.revision ||
+            (!forAnchors && !this.anchorRenders.size)
+        ) {
+            return undefined;
+        }
+        return this.anchorRenders.signature(source, options, this.config.idGenerator);
+    }
+
+    private reportAgentPageLinks(file: NormalizedPath, targets?: ReadonlySet<NormalizedPath>) {
+        for (const target of targets || []) {
+            this.logger.error(
+                `Human page ${file} links to agent-only page ${target}. Put this link inside a visibility agent block.`,
+            );
+        }
+    }
+
+    private async transformSource(file: NormalizedPath, markdown: string, deps: IncludeInfo[]) {
+        const {content, files: embedded, errors} = extractIncludedBlocks(markdown, file);
+        const loaded = await remap(deps.map(get('path')), (path) =>
+            typeof embedded[path] === 'string' ? embedded[path] : this.files(path, file),
+        );
+        return {content, files: {...loaded, ...embedded}, errors};
+    }
+
+    private async prepareTransform(
+        file: NormalizedPath,
+        markdown: string,
+        options: TransformOptions,
+        reportErrors = true,
+    ) {
+        const {deps} = options;
         const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
 
-        const {
-            content: cleanMarkdown,
-            files: includedFiles,
-            errors,
-        } = extractIncludedBlocks(markdown, file);
+        const {content, files, errors} = await this.transformSource(file, markdown, deps);
         if (reportErrors) {
             for (const error of errors) {
                 this.logger.error(error);
@@ -150,90 +334,13 @@ export class Run extends BaseRun<BuildConfig> {
             }
         });
 
-        const depFiles = await remap(deps.map(get('path')), (path) => {
-            const embedded = includedFiles[path];
-            if (typeof embedded === 'string') {
-                return embedded;
-            }
-            return this.files(path, file);
-        });
-
-        const {parse, compile, env} = transformer({
+        const transformOptions = {
             ...this.transformConfig(file, assetsRemap),
-            files: {...depFiles, ...includedFiles},
+            files,
             titles: await remap(titles, this.titles),
-            assets: assetsRemap,
-        });
-
-        const result = compile(parse(cleanMarkdown));
-        if (anchorIds) {
-            collectAnchorIds(result, anchorIds);
-        }
-
-        return [result, env] as const;
-    }
-
-    async lint(
-        file: NormalizedPath,
-        markdown: string,
-        options: TransformOptions,
-        plugins = this.markdown.plugins,
-    ) {
-        const {deps} = options;
-        const assets = [...options.assets, ...this.markdown.embeddedAssets(file, markdown, deps)];
-
-        const {
-            content: cleanMarkdown,
-            files: includedFiles,
-            errors,
-        } = extractIncludedBlocks(markdown, file);
-        for (const error of errors) {
-            this.logger.error(error);
-        }
-
-        const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
-        const assetsRemap = await remap(assets.map(get('path')), async (path) => {
-            if (path?.endsWith('.svg')) {
-                return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
-            } else {
-                return true;
-            }
-        });
-
-        const depFiles = await remap(deps.map(get('path')), (path) => {
-            const embedded = includedFiles[path];
-            if (typeof embedded === 'string') {
-                return embedded;
-            }
-            return this.files(path, file);
-        });
-
-        const pluginOptions = {
-            ...this.transformConfig(file, assetsRemap),
-            plugins,
-            files: {...depFiles, ...includedFiles},
-            titles: await remap(titles, this.titles),
-            anchorIndex: await this.anchors.index(file, assets),
             assets: assetsRemap,
         };
-
-        return lintWithLocalAnchors(cleanMarkdown, file, {
-            lintConfig: this.config.lint.config,
-            pluginOptions,
-            plugins,
-        });
-    }
-
-    alternates(file: NormalizedPath) {
-        const langs = this.config.langs;
-        const alternates = this.getAlternateMap();
-        const [lang, base] = extractLang(file, langs);
-
-        if (!lang) {
-            return [];
-        }
-
-        return alternates[base] || [];
+        return {source: content, assets, pluginOptions: transformOptions};
     }
 
     private transformConfig(path: NormalizedPath, assets: Record<string, unknown>) {
