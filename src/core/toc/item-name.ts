@@ -13,8 +13,8 @@ function indexTocItemNames(toc: Toc) {
     const names = new Map<NormalizedPath, TocItemName>();
     const tocDir = dirname(toc.path);
 
-    function visit(items: TocItem[] = [], ancestorHidden = false) {
-        for (const {href, name, hidden, items: children} of items) {
+    function visit(items?: TocItem[] | null, ancestorHidden = false) {
+        for (const {href, name, hidden, items: children} of items ?? []) {
             const isHidden = ancestorHidden || hidden === true;
 
             if (name && href && !isExternalHref(href)) {
