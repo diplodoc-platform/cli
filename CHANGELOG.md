@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.71.2](https://github.com/diplodoc-platform/cli/compare/v5.71.1...v5.71.2) (2026-11-25)
+
+
+### Bug Fixes
+
+* **cli:** handle empty TOC items when indexing page titles ([#2447](https://github.com/diplodoc-platform/cli/issues/2447)) ([b94670d](https://github.com/diplodoc-platform/cli/commit/b94670d5c868c5e96e86518ebd4e495f370ec7ec))
+
 ## [5.71.1](https://github.com/diplodoc-platform/cli/compare/v5.71.0...v5.71.1) (2026-11-24)
 
 
