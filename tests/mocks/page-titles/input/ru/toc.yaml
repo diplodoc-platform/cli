@@ -4,6 +4,8 @@ items:
   - name: YAML section
     href: section.yaml
     items:
+      - name: Empty section
+        items:
       - name: Hidden section
         hidden: true
         items:
