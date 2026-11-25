@@ -118,6 +118,13 @@ export class Provider {
                             }
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         } catch (error: any) {
+                            if (
+                                config.updateManifest &&
+                                error instanceof TranslateError &&
+                                error.fatal
+                            ) {
+                                throw error;
+                            }
                             stat.filesFailed++;
                             this.report?.addError(
                                 reportError(error, {target: target.language, path: file}),
@@ -153,6 +160,9 @@ export class Provider {
 
             this.report.addError(reportError(error));
             this.report.close(this.logger, 'failed');
+            if (config.updateManifest) {
+                throw error;
+            }
             process.exit(1);
         }
     }

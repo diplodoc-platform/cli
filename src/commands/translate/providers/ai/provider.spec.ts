@@ -3,7 +3,7 @@ import type {AITranslationConfig} from './index';
 import type {LLMClient} from './clients/types';
 import type {Defer} from './utils';
 
-import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
@@ -511,6 +511,45 @@ describe('translate ai provider', () => {
             expect(readFileSync(join(output, 'en', 'test.md'), 'utf8')).toBe(
                 `- Fixed in [8013fee](${COMMIT}).\n- [Issue](${ISSUE} "Задача") fixed.\n`,
             );
+        });
+
+        it('propagates a fatal update failure to the command', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-update-failure-')) as AbsolutePath;
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            const report = join(root, 'report.json');
+            const exit = vi.spyOn(process, 'exit').mockImplementation(() => {
+                throw new Error('process exited');
+            });
+            try {
+                mkdirSync(join(input, 'ru'), {recursive: true});
+                writeFileSync(join(input, 'ru', 'test.md'), 'Привет, мир.\n');
+                const failure = new LLMAuthError('Authentication failed');
+                const client = makeClient(() => failure);
+                const provider = new Provider(() => client, {quiet: true} as AITranslationConfig);
+                const {params} = makeParams(client, {
+                    input,
+                    output,
+                    report,
+                    updateManifest: join(root, 'update.json'),
+                    source: {language: 'ru', locale: 'RU'},
+                    target: [{language: 'en', locale: 'US'}],
+                    vars: {},
+                    maxBatchTokens: 100,
+                });
+
+                await expect(provider.translate(['ru/test.md'], params.config)).rejects.toBe(
+                    failure,
+                );
+                expect(exit).not.toHaveBeenCalled();
+                expect(JSON.parse(readFileSync(report, 'utf8'))).toMatchObject({
+                    status: 'failed',
+                    errors: [{code: 'LLM_AUTH_ERROR', message: 'Authentication failed'}],
+                });
+            } finally {
+                exit.mockRestore();
+                rmSync(root, {recursive: true, force: true});
+            }
         });
 
         it('should record errors in the run report and mark the run partial', async () => {

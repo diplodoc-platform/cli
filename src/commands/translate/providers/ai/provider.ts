@@ -155,6 +155,7 @@ export class Provider {
                     files,
                     maxConcurrency,
                     dryRun,
+                    propagateFatalError: Boolean(config.updateManifest),
                     store,
                     processFile,
                     stat,
@@ -202,6 +203,9 @@ export class Provider {
             }
             this.report.addError(reportError(error));
             this.report.close(this.logger, 'failed');
+            if (config.updateManifest) {
+                throw error;
+            }
             process.exit(1);
         }
     }
@@ -216,12 +220,22 @@ export class Provider {
         files: string[];
         maxConcurrency: number;
         dryRun: boolean;
+        propagateFatalError: boolean;
         store?: TranslationStore;
         processFile: (file: string) => Promise<string[]>;
         stat: TargetStat;
         target: string;
     }) {
-        const {files, maxConcurrency, dryRun, store, processFile, stat, target} = params;
+        const {
+            files,
+            maxConcurrency,
+            dryRun,
+            propagateFatalError,
+            store,
+            processFile,
+            stat,
+            target,
+        } = params;
         const failed: string[] = [];
 
         const run = async (file: string, finalPass: boolean) => {
@@ -237,6 +251,9 @@ export class Provider {
                 }
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
+                if (propagateFatalError && error instanceof TranslateError && error.fatal) {
+                    throw error;
+                }
                 // Transient errors exhaust their retry budget under load,
                 // but the endpoint usually recovers by the end of the run -
                 // queue the file for one final sweep.
