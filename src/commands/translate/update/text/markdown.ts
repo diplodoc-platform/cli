@@ -122,9 +122,34 @@ markdown.block.ruler.before(
     {alt: ['paragraph', 'reference', 'blockquote', 'list']},
 );
 
+function rawLines(document: string) {
+    const lines: {start: number; text: string}[] = [];
+    let start = 0;
+    for (const ending of document.matchAll(/\r\n|[\r\n]/g)) {
+        lines.push({start, text: document.slice(start, ending.index)});
+        start = ending.index + ending[0].length;
+    }
+    if (start < document.length) {
+        lines.push({start, text: document.slice(start)});
+    }
+    return lines;
+}
+
+function trimLineBreaks(text: string) {
+    let start = 0;
+    let stop = text.length;
+    while (text[start] === '\n') {
+        start++;
+    }
+    while (stop > start && text[stop - 1] === '\n') {
+        stop--;
+    }
+    return text.slice(start, stop);
+}
+
 /** Retain raw source offsets, selecting complete native blocks. */
 function readBlocks(document: string): Block[] {
-    const lines = [...document.matchAll(/([^\r\n]*)(?:\r\n|\r|\n|$)/g)].filter(([line]) => line);
+    const lines = rawLines(document);
     const normalized = normalizeEol(document);
     const fences = new Map<number, number>();
     if (normalized.includes('{%') || normalized.includes('#|') || normalized.includes(':::')) {
@@ -139,19 +164,19 @@ function readBlocks(document: string): Block[] {
     const items: {first: number; indent: number; marker: string; level: number}[] = [];
     let cursor = 0;
     const indentation = (index: number) =>
-        lines[index][1].length - lines[index][1].trimStart().length;
+        lines[index].text.length - lines[index].text.trimStart().length;
     const emit = (first: number, end: number, kind: string, scope: typeof items = []) => {
-        while (first < end && !lines[first][1].trim()) {
+        while (first < end && !lines[first].text.trim()) {
             first++;
         }
-        while (end > first && !lines[end - 1][1].trim()) {
+        while (end > first && !lines[end - 1].text.trim()) {
             end--;
         }
         if (first === end) {
             return;
         }
-        const start = lines[first].index;
-        const stop = lines[end - 1].index + lines[end - 1][1].length;
+        const start = lines[first].start;
+        const stop = lines[end - 1].start + lines[end - 1].text.length;
         const text = document.slice(start, stop);
         const inline =
             kind === 'opaque' || kind === 'fence'
@@ -218,7 +243,7 @@ function readBlocks(document: string): Block[] {
         } else if (
             token.type === 'paragraph_open' &&
             items.at(-2)?.first !== first &&
-            !lines[first][1].slice(0, indentation(first)).includes('\t')
+            !lines[first].text.slice(0, indentation(first)).includes('\t')
         ) {
             kind = onMarkerLine ? 'item:' + item.marker : 'paragraph';
         }
@@ -343,7 +368,7 @@ function markdownTables(doc: string) {
         if (
             block.shape !== '/0/opaque' ||
             !block.text.includes('#|') ||
-            /^\s*\{%\s*(?:else|elsif|elif)\b/m.test(block.text)
+            /^[^\S\r\n]*\{%[^\S\r\n]*(?:else|elsif|elif)\b/m.test(block.text)
         ) {
             continue;
         }
@@ -628,7 +653,7 @@ export function planMarkdown(beforeText: string, afterText: string, targetText: 
             if (index && parts[index * 2 - 1] !== String(index)) {
                 conflict('changed blocks reordered');
             }
-            const part = parts[index * 2].replace(/^\n+|\n+$/g, '');
+            const part = trimLineBreaks(parts[index * 2]);
             if (!part.trim() || part.includes('<!-- diplodoc-update-block-')) {
                 conflict('invalid translated block');
             }

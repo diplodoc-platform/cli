@@ -166,7 +166,7 @@ export function yfmInlineInventory(markdown: string): InlineInventory {
 /** Recognize a standalone include in the native skeleton and preserve its raw directive. */
 export function standaloneInclude(markdown: string): string | undefined {
     const content = markdown.split(/\r\n|\r|\n/).filter((line) => line.trim());
-    if (content.length !== 1 || !content[0].startsWith('{%')) {
+    if (content.length !== 1 || !/^{%[ \t]+include\b/.test(content[0])) {
         return undefined;
     }
     const {skeleton, units, warnings} = extractYfm(content[0]);

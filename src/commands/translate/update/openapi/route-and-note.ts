@@ -13,7 +13,7 @@ type Value = string | number | boolean | null | Value[] | {[key: string]: Value}
 type Obj = {[key: string]: Value};
 function object(value: Value): Obj {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
-        throw Error('Expected an OpenAPI mapping');
+        throw new Error('Expected an OpenAPI mapping');
     }
     return value;
 }
@@ -50,12 +50,12 @@ function noteTitle(line: string) {
 }
 function routeBlock(yaml: string, path: string) {
     if (!/^\/[\w/.{}~-]+$/.test(path)) {
-        throw Error('Unsupported YAML route key');
+        throw new Error('Unsupported YAML route key');
     }
     const header = '  ' + path + ':\n';
     const start = yaml.indexOf('\n' + header) + 1;
-    if (!start || yaml.indexOf('\n' + header, start) !== -1) {
-        throw Error('Expected a unique path in the bundled target');
+    if (!start || yaml.includes('\n' + header, start)) {
+        throw new Error('Expected a unique path in the bundled target');
     }
     const body = start + header.length;
     const next = /^(?: {2}\S|[^\s#])/m.exec(yaml.slice(body));
@@ -143,8 +143,7 @@ export function planAddedRoute(
     live: ReadonlyMap<string, string>,
     changedNote: {file: string; header: string},
     current: string,
-    sourceLang: string,
-    targetLang: string,
+    ...[sourceLang, targetLang]: [sourceLang: string, targetLang: string]
 ) {
     const untranslated = untranslatedMarker(sourceLang, targetLang);
     const same = equality();
@@ -189,7 +188,7 @@ export function planAddedRoute(
     const target = object(parse(current));
     const targets = object(target.paths);
     if (Object.prototype.hasOwnProperty.call(targets, path)) {
-        throw Error('Target already contains the new OpenAPI path');
+        throw new Error('Target already contains the new OpenAPI path');
     }
     const method = Object.keys(operation)[0];
     const id = object(operation[method]).operationId;
@@ -201,7 +200,7 @@ export function planAddedRoute(
             ),
         )
     ) {
-        throw Error('Missing or duplicate operationId');
+        throw new Error('Missing or duplicate operationId');
     }
     const units = new Map<string, number>();
     const register = (text: string) => {
@@ -216,8 +215,13 @@ export function planAddedRoute(
         }
         const old = object(before[k]),
             next = object(after[k]);
-        if (!isDeepStrictEqual(Object.keys(old).sort(), Object.keys(next).sort())) {
-            throw Error('Another operation also changed');
+        if (
+            !isDeepStrictEqual(
+                Object.keys(old).sort((left, right) => left.localeCompare(right)),
+                Object.keys(next).sort((left, right) => left.localeCompare(right)),
+            )
+        ) {
+            throw new Error('Another operation also changed');
         }
         for (const verb of Object.keys(old)) {
             if (same(old[verb], next[verb])) {
@@ -230,19 +234,19 @@ export function planAddedRoute(
                 typeof a.description !== 'string' ||
                 typeof b.description !== 'string'
             ) {
-                throw Error('Another operation contract also changed');
+                throw new Error('Another operation contract also changed');
             }
             const x = a.description.split('\n'),
                 y = b.description.split('\n');
             const changes = x.map((line, i) => (line !== y[i] ? i : -1)).filter((i) => i >= 0);
             if (x.length !== y.length || changes.length !== 1) {
-                throw Error('Expected one note title change');
+                throw new Error('Expected one note title change');
             }
             const i = changes[0],
                 left = noteTitle(x[i]),
                 right = noteTitle(y[i]);
             if (!left || !right || left.prefix !== right.prefix || left.suffix !== right.suffix) {
-                throw Error('Existing description change is not a note title');
+                throw new Error('Existing description change is not a note title');
             }
             const localized = object(object(targets[k])[verb]);
             if (
@@ -250,7 +254,7 @@ export function planAddedRoute(
                 typeof localized.description !== 'string' ||
                 localized.description.split('\n').filter((l) => l === x[i]).length !== 1
             ) {
-                throw Error('Existing target note does not match the previous source');
+                throw new Error('Existing target note does not match the previous source');
             }
             patches.push({route: k, old: x[i], title: right.title});
             register(right.title);
@@ -308,7 +312,7 @@ export function planAddedRoute(
     // Translation memory must describe the same unchanged contract. Use the
     // referenced common fields within corresponding, unchanged methods.
     if (patches.length !== 1) {
-        throw Error('Could not align the changed note title');
+        throw new Error('Could not align the changed note title');
     }
     const latestFile = live.get(changedNote.file);
     const oldFile = previous.get(changedNote.file);
@@ -318,20 +322,20 @@ export function planAddedRoute(
         latestFile !== newFile &&
         !(latestFile && sameChangedNote(newFile, latestFile, changedNote.header))
     ) {
-        throw Error('Current source changed the selected note');
+        throw new Error('Current source changed the selected note');
     }
     const liveRoot = live.get(root);
     if (!liveRoot) {
-        throw Error('Missing current OpenAPI root');
+        throw new Error('Missing current OpenAPI root');
     }
     const currentPaths = object(object(parse(liveRoot)).paths);
     const oldRegistration = same(currentPaths[path], oldPaths[path]);
     if (!oldRegistration && !same(currentPaths[path], newPaths[path])) {
-        throw Error('Current source changed the new path registration');
+        throw new Error('Current source changed the new path registration');
     }
     for (const patch of patches) {
         if (!same(currentPaths[patch.route], newPaths[patch.route])) {
-            throw Error('Current source changed the note path registration');
+            throw new Error('Current source changed the note path registration');
         }
     }
     // Resolve only the new operation against current dependencies. An addition
@@ -346,7 +350,7 @@ export function planAddedRoute(
     }
     dependencies.set(root, stringify({...rawAfter, paths: {[path]: newPaths[path]}}));
     if (!same(readContractGraph(root, dependencies, parsed).api.paths, {[path]: operation})) {
-        throw Error('Current source changed the operation or its dependencies');
+        throw new Error('Current source changed the operation or its dependencies');
     }
     for (const k of Object.keys(before)) {
         if (targets[k] && same(before[k], after[k])) {
@@ -366,7 +370,7 @@ export function planAddedRoute(
             return v;
         }
         if (trail.has(v)) {
-            throw Error('Cannot inline a recursive operation into the target');
+            throw new Error('Cannot inline a recursive operation into the target');
         }
         trail.add(v);
         const out: Value = Array.isArray(v)
@@ -397,13 +401,13 @@ export function planAddedRoute(
         apply(translations: readonly string[]) {
             for (const [i, text] of translations.entries()) {
                 if (untranslated?.test(yfmProse(text))) {
-                    throw Error('Untranslated prose in fragment ' + (i + 1));
+                    throw new Error('Untranslated prose in fragment ' + (i + 1));
                 }
             }
             const translate = (v: string) => {
                 const t = translations[units.get(v)!];
                 if (!t) {
-                    throw Error('Missing translated segment');
+                    throw new Error('Missing translated segment');
                 }
                 return t;
             };
@@ -420,7 +424,7 @@ export function planAddedRoute(
                     n = noteTitle(patch.old)!;
                 const value = translate(patch.title);
                 if (/["{}\r\n]/.test(value) || b.text.split(patch.old).length !== 2) {
-                    throw Error('Target note is ambiguous');
+                    throw new Error('Target note is ambiguous');
                 }
                 output =
                     output.slice(0, b.start) +
@@ -433,7 +437,7 @@ export function planAddedRoute(
                     .find((k) => Object.prototype.hasOwnProperty.call(targets, k));
             const last = Object.keys(targets).at(-1);
             if (!anchor && !last) {
-                throw Error('Target paths are empty');
+                throw new Error('Target paths are empty');
             }
             const at = anchor ? routeBlock(output, anchor).start : routeBlock(output, last!).end;
             const block =
@@ -445,7 +449,7 @@ export function planAddedRoute(
             const patched = output.slice(0, at) + block + output.slice(at);
             const parsed = object(parse(patched));
             if (!same(object(parsed.paths)[path], translated)) {
-                throw Error('Cannot round-trip new route');
+                throw new Error('Cannot round-trip new route');
             }
             return patched;
         },

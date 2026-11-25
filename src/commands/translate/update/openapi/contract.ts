@@ -12,7 +12,7 @@ import {
     valueAt,
 } from './graph';
 import {markup, textPlanner, textValue, trimTrailing} from './annotations';
-import {YamlEdits, child, property, readTarget, yamlAt} from './yaml-edits';
+import {YamlEdits, child, property, readTarget, scanLines, yamlAt} from './yaml-edits';
 import {isTextPointer} from './text-fields';
 
 type SourceGraph = ReturnType<typeof readContractGraph>;
@@ -568,18 +568,18 @@ function enumExplanation(
     }
     const [from, to] = node.range;
     const raw = target.slice(from, to);
-    const lines = [...raw.matchAll(/([^\r\n]*)(\r\n|\n|$)/g)];
-    const anchors = lines.filter((line) => bullet.exec(line[1].trimStart())?.[3] === previous);
+    const lines = scanLines(raw);
+    const anchors = lines.filter((line) => bullet.exec(line.text.trimStart())?.[3] === previous);
     if (
         anchors.length !== 1 ||
-        lines.some((line) => bullet.exec(line[1].trimStart())?.[3] === added)
+        lines.some((line) => bullet.exec(line.text.trimStart())?.[3] === added)
     ) {
         conflict('target enum explanation has no unique anchor', change.address);
     }
     const [anchor] = anchors;
-    const adjacent = bullet.exec(anchor[1].trimStart())!;
-    const indent = anchor[1].match(/^ */)![0];
-    if (!anchor[2] || !indent) {
+    const adjacent = bullet.exec(anchor.text.trimStart())!;
+    const indent = anchor.text.slice(0, anchor.text.length - anchor.text.trimStart().length);
+    if (!anchor.eol || !indent) {
         conflict('invalid enum explanation indentation', change.address);
     }
     const prefix =
@@ -594,13 +594,13 @@ function enumExplanation(
         adjacent[5] +
         ' ';
     const prose = planner.prepare(source[6]);
-    const at = from + anchor.index! + anchor[1].length;
+    const at = from + anchor.offset + anchor.text.length;
     edits.add(at, at, (translations) => {
         const value = prose(translations);
         if (/[\r\n]/.test(value)) {
             conflict('enum explanation must remain one line', change.address);
         }
-        return anchor[2] + prefix + value;
+        return anchor.eol + prefix + value;
     });
     return true;
 }

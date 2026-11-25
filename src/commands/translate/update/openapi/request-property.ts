@@ -5,6 +5,8 @@ import {type YAMLMap, isMap, isScalar, isSeq, parseDocument, stringify} from 'ya
 
 import {yfmInlineInventory, yfmProse} from '../text/yfm-units';
 
+import {trimTrailingNewlines} from './literal';
+
 type Value = string | number | boolean | null | Value[] | Mapping;
 interface Mapping {
     [key: string]: Value;
@@ -32,6 +34,7 @@ const propertyFields = new Set([
     'items',
 ]);
 const annotations = new Set(['description', 'deprecated']);
+const localSchemaReference = /^#\/([A-Za-z]\w*)$/;
 const externalItemReference = /^([\w./-]+\.(?:ya?ml|json))#\/([A-Za-z][\w.-]*)$/;
 function conflict(reason: string): never {
     throw new Error(`Cannot project added OpenAPI request property: ${reason}`);
@@ -119,7 +122,7 @@ function readRequest(text: string, fragment: PathItem): RequestSchema {
     const id = operation.get('operationId');
     const request = plainMap(operation.get('requestBody', true));
     const alias = mapping(request.getIn(['content', 'application/json', 'schema'], true));
-    const pointer = typeof alias.$ref === 'string' && alias.$ref.match(/^#\/([A-Za-z]\w*)$/);
+    const pointer = typeof alias.$ref === 'string' && localSchemaReference.exec(alias.$ref);
     if (typeof id !== 'string' || !id || !pointer || Object.keys(alias).length !== 1) {
         conflict('expected one local requestBody schema reference');
     }
@@ -151,7 +154,7 @@ function sameRequestIdentity(left: RequestSchema, right: RequestSchema): boolean
 /** Follow the local request's existing schema references using OpenAPI 3.0 reference semantics. */
 function technicalSchema(schema: Mapping, root?: YAMLMap, seen = new Set<string>()): Mapping {
     if (Object.prototype.hasOwnProperty.call(schema, '$ref')) {
-        const pointer = typeof schema.$ref === 'string' && schema.$ref.match(/^#\/([A-Za-z]\w*)$/);
+        const pointer = typeof schema.$ref === 'string' && localSchemaReference.exec(schema.$ref);
         if (
             !root ||
             !pointer ||
@@ -195,7 +198,7 @@ function targetItemReference(
     readDependency: ReadDependency,
 ): string {
     const items = asMapping(reference);
-    const match = typeof items.$ref === 'string' && items.$ref.match(externalItemReference);
+    const match = typeof items.$ref === 'string' && externalItemReference.exec(items.$ref);
     if (!match || match[1].startsWith('/') || Object.keys(items).length !== 1) {
         conflict('expected one local array item reference');
     }
@@ -229,13 +232,13 @@ function proseStructure(markdown: string) {
         }
         return {
             protectedText,
-            indent: paragraph.split('\n').map((line) => line.match(/^[ \t]*/)![0]),
+            indent: paragraph.split('\n').map((line) => /^[ \t]*/.exec(line)![0]),
         };
     });
 }
 
 function trimEol(markdown: string) {
-    return markdown.replace(/\r\n/g, '\n').replace(/\n+$/, '');
+    return trimTrailingNewlines(markdown.replace(/\r\n/g, '\n'));
 }
 
 function addedReferencedProperty(

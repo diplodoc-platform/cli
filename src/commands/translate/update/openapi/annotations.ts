@@ -1,11 +1,12 @@
 import {isDeepStrictEqual} from 'node:util';
 import {compose} from '@diplodoc/translation';
-import {XMLBuilder} from 'fast-xml-parser';
+import XMLBuilder from 'fast-xml-builder';
 import MarkdownIt from 'markdown-it';
 
 import {type UnitNode, extractYfm, sourceNodes, yfmInlineInventory} from '../text/yfm-units';
 
 import {conflict} from './graph';
+import {trimTrailingNewlines} from './literal';
 
 const placeholder = /%%%(\d+)%%%/g;
 const inlineSlots = /%%%\d+%%%(?:[ \t]+%%%\d+%%%)*/g;
@@ -29,7 +30,7 @@ export function textValue(value: unknown): value is string {
 }
 
 export function trimTrailing(value: string) {
-    return value.replace(/\r\n/g, '\n').replace(/\n+$/, '');
+    return trimTrailingNewlines(value.replace(/\r\n/g, '\n'));
 }
 
 /** With existing bundles, derive identity from native protected spans. */
@@ -108,7 +109,14 @@ function unitStructure(nodes: UnitNode[], references: (value: string) => unknown
     if (literal !== undefined) {
         conflict('unpaired native code token');
     }
-    return {tags, code: code.sort(), hasProse};
+    // Keep byte-distinct tokens ordered even when the locale collates them as equal.
+    code.sort((left, right) => {
+        if (left === right) {
+            return 0;
+        }
+        return left.localeCompare(right) || (left < right ? -1 : 1);
+    });
+    return {tags, code, hasProse};
 }
 
 function annotation(text: string) {
@@ -172,7 +180,7 @@ export function textPlanner() {
         if (compose(source.skeleton, source.units, {useSource: true}) !== original) {
             conflict('YFM annotation cannot round-trip without loss');
         }
-        const joined = source.units.map((unit, i) => joinSoftLines(unit, source.nodes[i]));
+        const joined = source.units.map((unit, index) => joinSoftLines(unit, source.nodes[index]));
         const reflowed = joined.some((unit, i) => unit !== source.units[i])
             ? compose(source.skeleton, joined, {useSource: true})
             : original;

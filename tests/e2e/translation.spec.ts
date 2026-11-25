@@ -1,6 +1,7 @@
 import type {TranslateRunArgs} from '../fixtures';
 
 import {existsSync, mkdtempSync, readFileSync, realpathSync} from 'node:fs';
+import {mkdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {glob} from 'glob';
@@ -16,6 +17,71 @@ import {
     getTestPaths,
     startMockModel,
 } from '../fixtures';
+
+test('applies a structural source update with the project file filters enabled', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'yfm-update-'));
+    try {
+        await mkdir(join(dir, 'docs/en'), {recursive: true});
+        await writeFile(
+            join(dir, 'docs/.yfm'),
+            [
+                'translate:',
+                '  include: ["other.md"]',
+                '  exclude: ["**/toc.yaml"]',
+                '  copyAssets: true',
+                '  includeVcsDiff: true',
+            ].join('\n'),
+        );
+        const before = 'items:\n  - name: Help\n    href: help.md\n';
+        const target = before.replace('Help', 'Aide');
+        const entry = '  - include: more/toc.yaml\n';
+        const manifest = join(dir, 'update.json');
+        await writeFile(
+            manifest,
+            JSON.stringify({
+                version: 1,
+                kind: 'toc',
+                file: 'toc.yaml',
+                before,
+                after: before + entry,
+                target,
+            }),
+        );
+        const report = join(dir, 'run-report.json');
+        const result = await TestAdapter.runner.runRaw([
+            'translate',
+            '-i',
+            join(dir, 'docs'),
+            '-o',
+            join(dir, 'out'),
+            '--provider',
+            'openai',
+            '--auth',
+            'fixture',
+            '--source',
+            'en',
+            '--target',
+            'fr',
+            '--api-base',
+            'http://127.0.0.1:9/v1',
+            '--include',
+            'en/toc.yaml',
+            '--update-manifest',
+            manifest,
+            '--report',
+            report,
+        ]);
+        expect(result.code, result.stderr).toBe(0);
+        expect(await readFile(join(dir, 'out/fr/toc.yaml'), 'utf8')).toBe(target + entry);
+        expect(JSON.parse(await readFile(report, 'utf8'))).toMatchObject({
+            status: 'success',
+            update: {version: 1, file: 'toc.yaml'},
+            totals: {requests: {total: 0}, files: {translated: 1}},
+        });
+    } finally {
+        await rm(dir, {recursive: true, force: true});
+    }
+});
 
 const generateMapTestTemplate = (
     testTitle: string,

@@ -12,12 +12,14 @@ import {
     keepsProtections,
     literalScalar,
     paragraph,
+    physicalLines,
     preserveTargetProtections,
     protectedSpans,
     readInline,
     readLiteral,
     readParagraphs,
     sameStructure,
+    trimTrailingNewlines,
 } from './literal';
 import {pointerTokens} from './graph';
 
@@ -217,18 +219,18 @@ type LiteralProjection = {
 
 /** Each item occupies one physical line and uses the same top-level bullet marker. */
 function flatListItems(block: Paragraph, literal: Literal): Paragraph[] | undefined {
-    const marker = block.text.match(/^[*+-] /)?.[0];
+    const marker = /^[*+-] /.exec(block.text)?.[0];
     if (!marker) {
         return undefined;
     }
     const items: Paragraph[] = [];
     const raw = literal.raw.slice(block.start - literal.from, block.end - literal.from);
     const prefix = literal.indent + marker;
-    for (const line of raw.matchAll(/([^\r\n]+)(?:\r\n|\n|$)/g)) {
-        if (!line[1].startsWith(prefix)) {
+    for (const line of physicalLines(raw)) {
+        if (!line.text.startsWith(prefix)) {
             return undefined;
         }
-        const text = line[1].slice(prefix.length);
+        const text = line.text.slice(prefix.length);
         const start = block.start + line.index + prefix.length;
         const item = paragraph(text, start, start + text.trimEnd().length);
         if (!item.prose) {
@@ -240,7 +242,7 @@ function flatListItems(block: Paragraph, literal: Literal): Paragraph[] | undefi
 }
 
 function translatedParagraphs(translated: string, sources: Paragraph[], targets: Paragraph[]) {
-    const normalized = translated.replace(/\r\n/g, '\n').replace(/^\n+|\n+$/g, '');
+    const normalized = trimTrailingNewlines(translated.replace(/\r\n/g, '\n').replace(/^\n+/, ''));
     if (normalized.includes('\r')) {
         conflict('invalid translation line ending');
     }
@@ -600,7 +602,7 @@ function followLocalDescriptionCopies(
         return [attachment];
     }
     if (typeof ref === 'string') {
-        const [, key] = ref.match(/^#\/([\w.-]+)$/) ?? [];
+        const [, key] = /^#\/([\w.-]+)$/.exec(ref) ?? [];
         if (!key || activeReferences.has(ref)) {
             return [];
         }

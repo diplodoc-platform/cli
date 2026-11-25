@@ -239,6 +239,22 @@ export function paragraph(text: string, start: number, end: number): Paragraph {
     return {start, end, text, protectedText: JSON.stringify(signature), prose};
 }
 
+export function trimTrailingNewlines(value: string) {
+    let end = value.length;
+    while (end && value[end - 1] === '\n') {
+        end--;
+    }
+    return value.slice(0, end);
+}
+
+export function* physicalLines(text: string) {
+    let index = 0;
+    for (const line of text.split('\n')) {
+        yield {text: line.endsWith('\r') ? line.slice(0, -1) : line, index};
+        index += line.length + 1;
+    }
+}
+
 export function readParagraphs(text: string, indent = '', offset = 0): Paragraph[] {
     const blocks: Paragraph[] = [];
     let lines: string[] = [];
@@ -250,22 +266,19 @@ export function readParagraphs(text: string, indent = '', offset = 0): Paragraph
         }
         lines = [];
     };
-    for (const line of text.matchAll(/([^\r\n]*)(?:\r\n|\n|$)/g)) {
-        if (!line[0]) {
-            continue;
-        }
-        if (!line[1].trim()) {
+    for (const line of physicalLines(text)) {
+        if (!line.text.trim()) {
             flush();
             continue;
         }
-        if (!line[1].startsWith(indent)) {
+        if (!line.text.startsWith(indent)) {
             conflict('nonuniform literal indentation');
         }
         if (!lines.length) {
             start = offset + line.index;
         }
-        end = offset + line.index + line[1].length;
-        lines.push(line[1].slice(indent.length));
+        end = offset + line.index + line.text.length;
+        lines.push(line.text.slice(indent.length));
     }
     flush();
     return blocks;
@@ -275,7 +288,9 @@ export function readLiteral(text: string, node: unknown): Literal {
     const scalar = literalScalar(node) ?? conflict('expected a literal description');
     const [from, to] = scalar.range;
     const raw = text.slice(from, to);
-    const header = raw.match(/^\|(?:[1-9][+-]?|[+-][1-9]?)?(?:[ \t]+(?:#.*)?)?(\r\n|\n)/);
+    const lineEnd = raw.indexOf('\n');
+    const firstLine = lineEnd < 0 ? '' : raw.slice(0, lineEnd + 1);
+    const header = /^\|(?:[1-9][+-]?|[+-][1-9]?)?(?:[ \t]+(?:#.*)?)?(\r?\n)$/.exec(firstLine);
     if (!header) {
         return conflict('invalid literal header');
     }
@@ -292,7 +307,7 @@ export function readLiteral(text: string, node: unknown): Literal {
     }
     const physicalValue = lines.map((line) => line.slice(indentLength)).join('\n');
     const value = scalar.value;
-    if (physicalValue.replace(/\n+$/, '') !== value.replace(/\n+$/, '')) {
+    if (trimTrailingNewlines(physicalValue) !== trimTrailingNewlines(value)) {
         conflict('literal indentation does not match YAML');
     }
     const indent = ' '.repeat(indentLength);

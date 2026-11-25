@@ -61,25 +61,23 @@ function items(sequence: YAMLSeq): Item[] {
     });
 }
 
-function leafKeys(node: YAMLMap): string[] {
+function leafKeys(node: YAMLMap): Set<string> {
     const list = node.get('items', true);
     if (!yaml.isSeq(list)) {
-        return [];
+        return new Set();
     }
-    return [
-        ...new Set(
-            items(list).flatMap((item) => [
-                ...(item.stableKey ? [item.stableKey] : []),
-                ...leafKeys(item.node),
-            ]),
-        ),
-    ].sort();
+    return new Set(
+        items(list).flatMap((item) => [
+            ...(item.stableKey ? [item.stableKey] : []),
+            ...leafKeys(item.node),
+        ]),
+    );
 }
 
 function findItem(target: Item[], source: Item) {
-    const leaves = source.stableKey ? [] : leafKeys(source.node);
+    const leaves = source.stableKey ? new Set<string>() : leafKeys(source.node);
     const matches = target.filter((candidate) =>
-        source.stableKey || !leaves.length
+        source.stableKey || leaves.size === 0
             ? candidate.key === source.key
             : !candidate.stableKey && isDeepStrictEqual(leaves, leafKeys(candidate.node)),
     );

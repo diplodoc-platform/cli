@@ -72,6 +72,96 @@ describe('translate with a source update manifest', () => {
         });
     });
 
+    it.each([
+        [null, 'manifest version'],
+        [{...data, version: 8}, 'manifest version'],
+        [{...data, file: 'a//b.md'}, 'relative file'],
+        [{...data, kind: 'toc'}, 'kind does not match'],
+        [{...data, kind: 'yaml'}, 'Unknown source update'],
+        [{...data, before: 0}, 'contents'],
+        [{...data, target: []}, 'contents'],
+        [{...data, kind: 'openapi'}, 'localized YAML'],
+        [{...data, kind: 'openapi', file: 'spec.yaml', before: []}, 'snapshot keyed'],
+        [{...data, kind: 'openapi', file: 'spec.yaml', before: {'../dep': 'bad'}}, 'relative file'],
+        [{...data, kind: 'openapi', file: 'spec.yaml', before: {'dep.yaml': 3}}, 'file contents'],
+    ])(
+        'rejects an invalid manifest before invoking the provider (%#)',
+        async (manifestValue, reason) => {
+            await writeFile(manifest, JSON.stringify(manifestValue));
+            await expect(translateUpdate(provider, config, manifest)).rejects.toThrow(
+                String(reason),
+            );
+            expect(provider.translate).not.toHaveBeenCalled();
+        },
+    );
+
+    it('updates a structural OpenAPI manifest and applies the selected source file filter', async () => {
+        const file = 'api/spec.yaml';
+        const spec = 'openapi: 3.0.3\npaths: {}\n';
+        const graph = {[file]: spec};
+        await writeFile(
+            manifest,
+            JSON.stringify({
+                version: 1,
+                kind: 'openapi',
+                file,
+                before: graph,
+                after: graph,
+                current: graph,
+                target: spec,
+            }),
+        );
+        await expect(
+            translateUpdate(provider, {...config, include: ['en/other.md']}, manifest),
+        ).rejects.toThrow('Include');
+        await translateUpdate(provider, {...config, include: ['en/' + file]}, manifest);
+        expect(await readFile(join(config.output, 'fr', file), 'utf8')).toBe(spec);
+        expect(provider.translate).not.toHaveBeenCalled();
+    });
+
+    it('retains provider usage and cleans up the temporary payload on fatal errors', async () => {
+        let temporaryInput = dir;
+        provider.translate = async (_, cfg) => {
+            temporaryInput = cfg.input;
+            const report = RunReport.start(cfg, 1, 0);
+            const stat = createTargetStat();
+            stat.requests = 2;
+            stat.filesFailed = 1;
+            report.addTarget('fr', stat);
+            report.finalize('failed');
+            report.write();
+            throw new Error('Provider unavailable');
+        };
+        await expect(translateUpdate(provider, config, manifest)).rejects.toThrow(
+            'Provider unavailable',
+        );
+        expect(JSON.parse(await readFile(config.report!, 'utf8'))).toMatchObject({
+            status: 'failed',
+            totals: {requests: {total: 2}},
+        });
+        await expect(readFile(temporaryInput, 'utf8')).rejects.toMatchObject({code: 'ENOENT'});
+    });
+
+    it('estimates a changed page without requiring provider output or modifying the target', async () => {
+        await mkdir(dirname(output), {recursive: true});
+        await writeFile(output, data.target);
+        provider.translate = async (_, cfg) => {
+            expect(cfg.dryRun).toBe(true);
+            const report = RunReport.start(cfg, 1, 0);
+            const stat = createTargetStat();
+            stat.filesTranslated = 1;
+            report.addTarget('fr', stat);
+            report.finalize();
+            report.write();
+        };
+        await translateUpdate(provider, {...config, dryRun: true}, manifest);
+        expect(await readFile(output, 'utf8')).toBe(data.target);
+        expect(JSON.parse(await readFile(config.report!, 'utf8'))).toMatchObject({
+            dryRun: true,
+            update: {file},
+        });
+    });
+
     it('does not call the provider for an unchanged page', async () => {
         await writeFile(manifest, JSON.stringify({...data, after: data.before}));
         await translateUpdate(provider, config, manifest);

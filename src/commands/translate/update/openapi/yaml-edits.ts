@@ -71,6 +71,20 @@ export function yamlAt(root: Node, address: Address, strict = true): Node | unde
     return node;
 }
 
+/** Read line contents and offsets without backtracking over long scalar values. */
+export function scanLines(text: string) {
+    const lines: {text: string; eol: string; offset: number}[] = [];
+    let offset = 0;
+    for (const match of text.matchAll(/\r\n|[\r\n]/g)) {
+        const end = match.index!;
+        const [eol] = match;
+        lines.push({text: text.slice(offset, end), eol, offset});
+        offset = end + eol.length;
+    }
+    lines.push({text: text.slice(offset), eol: '', offset});
+    return lines;
+}
+
 type Edit = {from: number; to: number; render: (translated: readonly string[]) => string};
 export function readTarget(target: string): YAMLMap {
     const doc = parseDocument(target);
@@ -167,13 +181,17 @@ export class YamlEdits {
         }
         const [start, end] = node.range!;
         const raw = this.target.slice(start, end);
-        const last = [...raw.matchAll(/([^\r\n]*\S[^\r\n]*)(?:\r?\n|$)/g)].at(-1);
-        const body = raw.slice(raw.indexOf('\n') + 1);
-        const indent = body.match(/^ *\S/m)?.[0].slice(0, -1);
+        const lines = scanLines(raw);
+        const last = lines.filter((line) => line.text.trim()).at(-1);
+        const indent = lines
+            .slice(1)
+            .map((line) => /^ *\S/.exec(line.text))
+            .find(Boolean)?.[0]
+            .slice(0, -1);
         if (!indent || !last) {
             conflict('expected an indented literal description', address);
         }
-        const at = start + last.index! + last[1].length;
+        const at = start + last.offset + last.text.length;
         this.add(at, at, (translated) => {
             const paragraph = render(translated)
                 .split('\n')
