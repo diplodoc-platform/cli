@@ -62,8 +62,9 @@ jobs:
           success() && steps.coverage-run.outputs.ran == 'true' &&
           github.event_name == 'pull_request' &&
           (github.event.pull_request.head.repo.full_name != github.repository ||
-           github.event.pull_request.user.login == 'dependabot[bot]')
-        run: echo 'Coverage tests and artifact completed. Sonar upload is not run for fork or Dependabot PRs; no scan token is provided to candidate code.' >> "$GITHUB_STEP_SUMMARY"
+           github.event.pull_request.user.login == 'dependabot[bot]' ||
+           startsWith(github.event.pull_request.head.ref, 'codex/dependency-group-'))
+        run: echo 'Coverage tests and artifact completed. Sonar upload is not run for fork, Dependabot or prepared dependency PRs; no scan token is provided to candidate code.' >> "$GITHUB_STEP_SUMMARY"
 
       # Dependabot PRs have the same secret restrictions as fork PRs.
       # Check the PR author so a human rerun cannot expose the scan token.
@@ -74,7 +75,8 @@ jobs:
           github.actor != 'dependabot[bot]' &&
           (github.event_name != 'pull_request' ||
            (github.event.pull_request.head.repo.full_name == github.repository &&
-            github.event.pull_request.user.login != 'dependabot[bot]'))
+            github.event.pull_request.user.login != 'dependabot[bot]' &&
+            !startsWith(github.event.pull_request.head.ref, 'codex/dependency-group-')))
         uses: SonarSource/sonarqube-scan-action@v7.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -25,6 +25,7 @@ entries:
       - yfmlint
       - vsc
       - ajv
+      - screencaster
       - algolia-extension
       - color-extension
       - cut-extension
@@ -33,6 +34,7 @@ entries:
       - html-extension
       - latex-extension
       - mermaid-extension
+      - notes-extension
       - openapi-extension
       - page-constructor-extension
       - quote-link-extension
@@ -52,8 +54,76 @@ entries:
       distribution: https://github.com/diplodoc-platform/infra/actions/runs/37463691539
     owner: diplodoc-platform/team
     introduced-at: 2026-10-06T00:00:00.000Z
-    review-after: 2026-12-01T00:00:00.000Z
-    expires-at: 2026-12-01T00:00:00.000Z
+    review-after: 2027-01-15T00:00:00.000Z
+    expires-at: 2027-02-01T00:00:00.000Z
     exit-criteria:
       - Reassess the managed dev-tool pin contract after stabilization
       - Keep distribution review-only until hosted pilots pass
+  - id: DEP-0005
+    dependency: js-yaml
+    repositories:
+      - cli
+      - transform
+      - translation
+    allowed-version: 4.3.2
+    ignored-versions: []
+    risk: medium
+    category: runtime-baseline
+    verification-profile: document-transform
+    reason: >-
+      Keep the reviewed candidate-train runtime baseline explicit across library source locks and the CLI consumer lock;
+      upgrades require coordinated validation.
+    evidence:
+      baseline-pr: https://github.com/diplodoc-platform/cli/pull/2385
+    owner: diplodoc-platform/team
+    introduced-at: 2026-11-09T00:00:00.000Z
+    review-after: 2026-12-01T00:00:00.000Z
+    expires-at: 2027-02-01T00:00:00.000Z
+    exit-criteria:
+      - A coordinated dependency update passes canonical lock and installed-version checks
+      - Refresh or remove the pin after reviewing the replacement runtime baseline
+  - id: DEP-0006
+    dependency: lodash
+    repositories:
+      - cli
+      - transform
+      - translation
+    allowed-version: 4.18.1
+    ignored-versions: []
+    risk: medium
+    category: runtime-baseline
+    verification-profile: document-transform
+    reason: >-
+      Keep the reviewed candidate-train runtime baseline explicit across library source locks and the CLI consumer lock;
+      upgrades require coordinated validation.
+    evidence:
+      baseline-pr: https://github.com/diplodoc-platform/transform/pull/1181
+    owner: diplodoc-platform/team
+    introduced-at: 2026-11-09T00:00:00.000Z
+    review-after: 2026-12-01T00:00:00.000Z
+    expires-at: 2027-02-01T00:00:00.000Z
+    exit-criteria:
+      - A coordinated dependency update passes canonical lock and installed-version checks
+      - Refresh or remove the pin after reviewing the replacement runtime baseline
+  - id: DEP-0007
+    dependency: ajv
+    repositories:
+      - cli
+      - translation
+    allowed-version: 8.20.0
+    ignored-versions: []
+    risk: medium
+    category: runtime-baseline
+    verification-profile: document-transform
+    reason: >-
+      Keep the reviewed candidate-train runtime baseline explicit across library source locks and the CLI consumer lock;
+      upgrades require coordinated validation.
+    evidence:
+      baseline-pr: https://github.com/diplodoc-platform/translation/pull/303
+    owner: diplodoc-platform/team
+    introduced-at: 2026-11-09T00:00:00.000Z
+    review-after: 2026-12-01T00:00:00.000Z
+    expires-at: 2027-02-01T00:00:00.000Z
+    exit-criteria:
+      - A coordinated dependency update passes canonical lock and installed-version checks
+      - Refresh or remove the pin after reviewing the replacement runtime baseline
