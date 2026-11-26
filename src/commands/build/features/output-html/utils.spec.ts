@@ -1,9 +1,10 @@
 import type {Toc, TocItem} from '~/core/toc';
 
 import {describe, expect, it, vi} from 'vitest';
-import MarkdownIt from 'markdown-it';
-import file from '@diplodoc/transform/lib/plugins/file';
-import visibility from '@diplodoc/transform/lib/plugins/visibility';
+import file from '@diplodoc/transform/plugins/file';
+import visibility from '@diplodoc/transform/plugins/visibility';
+
+import {MarkdownItConstructor} from '~/core/markdown/parser';
 
 import {getTocItemName} from '~/core/toc';
 import {normalizePath} from '~/core/utils';
@@ -172,7 +173,7 @@ describe('output-html utils ', () => {
 
     describe('file plugin integration', () => {
         it('should process yfm_file tokens correctly', () => {
-            const md = new MarkdownIt();
+            const md = new MarkdownItConstructor();
             md.use(file);
 
             const content = '{% file src="_assets/test.yaml" name="Config" %}';
@@ -182,7 +183,7 @@ describe('output-html utils ', () => {
         });
 
         it('should handle file plugin with nested paths', () => {
-            const md = new MarkdownIt();
+            const md = new MarkdownItConstructor();
             md.use(file);
 
             const content = '{% file src="_assets/docs/file.pdf" name="PDF" %}';

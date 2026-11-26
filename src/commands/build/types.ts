@@ -2,6 +2,7 @@ import type {DocAnalytics} from '@diplodoc/client';
 import type {IDGeneratorStrategy} from '@diplodoc/utils';
 import type {NeuroExpertBase, NeuroExpertConfig} from './features/neuro-expert';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
+import type {Langs} from '~/core/utils';
 import type {VarsService} from '~/core/vars';
 import type {Config} from '~/core/config';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
@@ -31,6 +32,7 @@ import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
 import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
 
+export type {Langs} from '~/core/utils';
 export type {SearchProvider, SearchServiceConfig} from './services/search';
 export type {SearchCorpus, SearchDocument} from './features/search-index';
 export type {EntryData, PageData} from './services/entry';
@@ -41,14 +43,6 @@ type BaseArgs = {
     output: AbsolutePath;
     baseHref?: string;
 };
-
-type ExtendedLang = {
-    lang: string;
-    tld?: string;
-    href?: string;
-};
-
-export type Langs = (string | ExtendedLang)[];
 
 export type ContentConfig = {
     maxInlineSvgSize: number;
@@ -121,6 +115,8 @@ type BaseConfig = {
     vars: Hash;
     allowHtml: boolean;
     sanitizeHtml: boolean;
+    /** General Markdown attributes compatibility; defaults to true, explicit false is retained. */
+    enableMarkdownAttrs?: boolean;
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];

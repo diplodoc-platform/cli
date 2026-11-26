@@ -1,9 +1,15 @@
-import type {Langs} from '~/commands/build/types';
-
 import {dirname, extname, isAbsolute, join, normalize, relative} from 'node:path';
 import _normalizePath from 'normalize-path';
 
 import {isExternalHref} from '~/core/utils';
+
+type ExtendedLang = {
+    lang: string;
+    tld?: string;
+    href?: string;
+};
+
+export type Langs = (string | ExtendedLang)[];
 
 export function normalizePath(path: string): NormalizedPath {
     return _normalizePath(normalize(_normalizePath(path, false)), false);

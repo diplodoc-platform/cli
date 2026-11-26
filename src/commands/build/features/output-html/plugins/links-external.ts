@@ -1,5 +1,5 @@
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
-import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
+import type {StateCore} from '~/core/markdown/parser';
+import type {MarkdownItPluginCb} from '@diplodoc/transform/types';
 import type {Logger} from '~/core/logger';
 
 import {isExternalHref} from '~/core/utils';

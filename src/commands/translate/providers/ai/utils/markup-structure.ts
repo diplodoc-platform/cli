@@ -35,6 +35,8 @@ function boundaries(source: string): [string, string] {
 /** Structural inventory from the same YFM extractor used by translation. */
 export function markupSignature(markdown: string): string[] {
     const {skeleton, units, warnings} = extract(markdown, {
+        // Internal comparison of generated alternatives must not report source deprecations again.
+        deprecationWarnings: false,
         compact: false,
         source: {language: 'en', locale: 'US'},
         target: {language: 'ru', locale: 'RU'},

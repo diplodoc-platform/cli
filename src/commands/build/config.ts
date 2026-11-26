@@ -517,6 +517,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
         langs.push(Lang.RU);
     }
 
+    config.deprecationWarnings = defined('deprecationWarnings', args, config) ?? true;
     config.ignoreStage = [].concat(ignoreStage);
     config.ignore = [].concat(ignore).map((rule: string) => {
         // Don't add /** to file patterns with extensions that don't end with *
@@ -588,6 +589,7 @@ export const options = {
     output: globalOptions.output,
     config: globalOptions.config,
     strict: globalOptions.strict,
+    deprecationWarnings: globalOptions.deprecationWarnings,
     originAsInput: globalOptions.originAsInput,
     copyOnWrite: globalOptions.copyOnWrite,
     workerMaxOldSpace: globalOptions.workerMaxOldSpace,

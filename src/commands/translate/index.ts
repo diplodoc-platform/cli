@@ -70,7 +70,10 @@ export type TranslateArgs = BaseArgs & {
     report?: string;
 };
 
-export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
+export type TranslateConfig = Pick<
+    BaseArgs,
+    'input' | 'strict' | 'quiet' | 'deprecationWarnings'
+> & {
     output: AbsolutePath;
     provider: string;
     source: Locale;
@@ -256,7 +259,10 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
 
         this.command.helpOption(true).allowUnknownOption(false);
 
-        await this.parse(args(this.command));
+        // The provider adds options after the first parse. Replay the original argv
+        // through the entry command so global flags keep their owner.
+        const entry = this.command.parent ?? this.command;
+        await entry.parseAsync(args(entry));
     }
 
     private getVcsDiffFiles(): NormalizedPath[] {

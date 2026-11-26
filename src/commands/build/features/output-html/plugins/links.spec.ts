@@ -1,8 +1,11 @@
 import type {AnchorIndex} from '~/commands/build/services/anchors';
 
 import {describe, expect, it} from 'vitest';
-import MarkdownIt from 'markdown-it';
-import file from '@diplodoc/transform/lib/plugins/file';
+import file from '@diplodoc/transform/plugins/file';
+import {getLogger} from '@diplodoc/transform/log';
+
+import {normalizePath} from '~/core/utils';
+import {MarkdownItConstructor} from '~/core/markdown/parser';
 
 import linksPlugin from './links';
 
@@ -12,14 +15,17 @@ describe('Links plugin', () => {
         anchorIndex?: AnchorIndex,
         projectFiles = entries,
     ) {
-        const md = new MarkdownIt({html: true});
+        const md = new MarkdownItConstructor({html: true});
         md.use(file);
         md.use(linksPlugin, {
-            path: 'index.md',
+            path: normalizePath('index.md'),
             root: '',
-            directoryPath: '',
+            lang: 'ru',
+            rootPublicPath: '',
+            isLintRun: false,
+            log: getLogger({error: () => {}, warn: () => {}, info: () => {}}),
             existsInProject: (path: string) => projectFiles.includes(path),
-            entries,
+            entries: entries.map(normalizePath),
             anchorIndex,
             resolveAnchorPage: (path: NormalizedPath) => {
                 return path.endsWith('.md') && projectFiles.includes(path) ? path : null;

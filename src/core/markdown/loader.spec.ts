@@ -11,6 +11,7 @@ import {Logger} from '~/core/logger';
 
 import {inspectMarkdown, loader} from './loader';
 import {extractIncludedBlocks} from './included';
+import {resolveNoTranslate} from './loader/resolve-no-translate';
 
 vi.mock('~/core/logger');
 vi.mock('~/core/utils', async (importOriginal) => {
@@ -1700,6 +1701,148 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(result).toEqual('Text\nPlugin 1\nPlugin 2');
+        });
+    });
+
+    describe('no-translate code protection', () => {
+        it('preserves literal directives in code while resolving authored directives', () => {
+            const source = [
+                ':::note {type=info}',
+                '',
+                '#|',
+                '||```md',
+                ':::',
+                ':::no-translate',
+                'literal',
+                ':::',
+                '```',
+                '||',
+                '|#',
+                '',
+                ':::',
+                '',
+                '`::no-translate[inline]` and ::no-translate[real]',
+                '',
+                ':::no-translate',
+                'actual',
+                ':::',
+                '',
+                '::: ',
+            ].join('\r\n');
+            const expected = source
+                .replace('and ::no-translate[real]', 'and real')
+                .replace(':::no-translate\r\nactual\r\n:::', 'actual');
+            const result = resolveNoTranslate.call(loaderContext(source), source);
+            expect(result).toBe(expected);
+        });
+
+        it('does not preprocess translation input', () => {
+            const source = ':::no-translate\n:no-translate[example]\n:::';
+            const context = {...loaderContext(source), mode: 'translate' as const};
+            expect(resolveNoTranslate.call(context, source)).toBe(source);
+        });
+
+        it('protects a table fence immediately inside no-translate', () => {
+            const source =
+                ':::no-translate\n#|\n||```md\n:::\n:no-translate[literal]\n```\n||\n|#\n:::';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(
+                '#|\n||```md\n:::\n:no-translate[literal]\n```\n||\n|#',
+            );
+        });
+
+        it('unwraps real no-translate nested in another directive and preserves unmatched closers', () => {
+            const source = ':::note {type=info}\n\n:::no-translate\nActual\n:::\n\n:::\n\n:::';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(
+                ':::note {type=info}\n\nActual\n\n:::\n\n:::',
+            );
+        });
+
+        it('preserves code with padded delimiters', () => {
+            const source = '`` :no-translate[x] `` and `::no-translate[y]` and :no-translate[z]';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(
+                '`` :no-translate[x] `` and `::no-translate[y]` and z',
+            );
+        });
+
+        it('preserves nested list and quote code fences with CRLF', () => {
+            const source =
+                '> ```md\r\n> :::\r\n> :no-translate[literal]\r\n> ```\r\n\r\n' +
+                '- ```md\r\n  ::no-translate[also literal]\r\n  ```\r\n\r\n:no-translate[real]';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(
+                source.replace(':no-translate[real]', 'real'),
+            );
+        });
+
+        it('preserves a code span when matching text also occurs in an HTML attribute', () => {
+            const source =
+                '<a title="`:no-translate[x]`">link</a> `:no-translate[x]` :no-translate[real]';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(
+                '<a title="`x`">link</a> `:no-translate[x]` real',
+            );
+        });
+
+        it('keeps original offsets across emoji, NUL and CRLF', () => {
+            const source = '😀\0\r\n\r\n`::no-translate[code]` :no-translate[actual]';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(
+                '😀\0\r\n\r\n`::no-translate[code]` actual',
+            );
+        });
+
+        it.each([
+            ['quote', '> `code`\n> :no-translate[real]', '> `code`\n> real'],
+            ['list', '- `code`\n  :no-translate[real]', '- `code`\n  real'],
+        ])('unwraps a live directive after code in a multiline %s', (_name, source, expected) => {
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(expected);
+        });
+
+        it('preserves indented directive examples as code', () => {
+            const source = '    :::no-translate\n    literal\n    :::';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(source);
+        });
+
+        it('does not consume a code closing bracket for an unclosed directive', () => {
+            const source = ':no-translate[unclosed\n\n```md\nliteral]\n```';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(source);
+        });
+
+        it('does not consume an entire fenced block inside an unclosed directive', () => {
+            const source = ':no-translate[unclosed\n\n```md\nliteral\n```\n\n]';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(source);
+        });
+
+        it.each([
+            ['single', ':::no-translate\r\nA\r\n:::', 'A'],
+            [
+                'nested',
+                'prefix\r\n:::no-translate\r\n:::no-translate\r\nA\r\n:::\r\n:::',
+                'prefix\r\nA',
+            ],
+        ])(
+            'removes %s CRLF wrappers at EOF without a stray carriage return',
+            (_name, source, expected) => {
+                expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(expected);
+            },
+        );
+
+        it('removes nested no-translate wrappers at EOF without adding a newline', () => {
+            const source = ':::no-translate\n:::no-translate\nbody\n:::\n:::';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe('body');
+        });
+
+        it('unwraps an authored directive around inline code', () => {
+            const source = 'Before :no-translate[`literal`] after';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(
+                'Before `literal` after',
+            );
+        });
+
+        it('preserves fenced and inline code while resolving neighboring forms', () => {
+            const source =
+                '```md\n:::\n:no-translate[example]\n```\n\n' +
+                '`` :no-translate[inline] `` :no-translate[real]';
+            expect(resolveNoTranslate.call(loaderContext(source), source)).toBe(
+                source.replace(':no-translate[real]', 'real'),
+            );
         });
     });
 

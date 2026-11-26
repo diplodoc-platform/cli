@@ -119,6 +119,14 @@ function hash(path: NormalizedPath, from?: NormalizedPath) {
     return `${path}${from ? '+' + from : ''}`;
 }
 
+function includeBranch(file: NormalizedPath, ancestors: readonly NormalizedPath[]) {
+    if (ancestors.includes(file)) {
+        throw new Error(`Circular includes: ${[...ancestors, file].join(' ▶ ')}`);
+    }
+
+    return [...ancestors, file];
+}
+
 const byLocation = (a: HeadingInfo, b: HeadingInfo) => a.location[0] - b.location[0];
 
 @withHooks
@@ -301,11 +309,15 @@ export class MarkdownService {
     }
 
     /** Resolves includes for either a complete article or an embedded Markdown field. */
-    async expandIncludes(deps: IncludeInfo[], from: NormalizedPath): Promise<IncludeInfo[]> {
+    async expandIncludes(
+        deps: IncludeInfo[],
+        from: NormalizedPath,
+        ancestors: readonly NormalizedPath[] = [],
+    ): Promise<IncludeInfo[]> {
         const internals: IncludeInfo[][] = await all(
             deps.map(async ({path}) => {
                 try {
-                    return await this._deps(path, from);
+                    return await this._deps(path, from, ancestors);
                 } catch (error) {
                     const isMergedInput =
                         this.config.outputFormat !== 'md' && this.config.preprocess?.mergeIncludes;
@@ -549,15 +561,25 @@ export class MarkdownService {
         return this.pathToMeta.get(key);
     }
 
-    private async _deps(file: NormalizedPath, from?: NormalizedPath): Promise<IncludeInfo[]> {
+    private async _deps(
+        file: NormalizedPath,
+        from?: NormalizedPath,
+        ancestors: readonly NormalizedPath[] = [],
+    ): Promise<IncludeInfo[]> {
+        const branch = includeBranch(file, ancestors);
         const key = hash(file, from);
 
         await this.load(file, from);
 
-        return this.expandIncludes(this.pathToDeps.get(key) || [], from || file);
+        return this.expandIncludes(this.pathToDeps.get(key) || [], from || file, branch);
     }
 
-    private async _graph(path: NormalizedPath, from?: NormalizedPath): Promise<EntryGraph> {
+    private async _graph(
+        path: NormalizedPath,
+        from?: NormalizedPath,
+        ancestors: readonly NormalizedPath[] = [],
+    ): Promise<EntryGraph> {
+        const branch = includeBranch(path, ancestors);
         const key = hash(path, from);
 
         const content = await this.load(path, from);
@@ -566,7 +588,7 @@ export class MarkdownService {
             (this.pathToDeps.get(key) || []).map(async (dep) => {
                 return {
                     ...dep,
-                    ...(await this._graph(dep.path, from || path)),
+                    ...(await this._graph(dep.path, from || path, branch)),
                 };
             }),
         );
@@ -577,7 +599,9 @@ export class MarkdownService {
     private async _relations(
         path: NormalizedPath,
         from?: NormalizedPath,
+        ancestors: readonly NormalizedPath[] = [],
     ): Promise<Graph<GraphInfo>> {
+        const branch = includeBranch(path, ancestors);
         const key = hash(path, from);
         const graph = new Graph<GraphInfo>();
 
@@ -591,7 +615,7 @@ export class MarkdownService {
 
         await all(
             (this.pathToDeps.get(key) || []).map(async (dep) => {
-                graph.consume(await this._relations(dep.path, from || path));
+                graph.consume(await this._relations(dep.path, from || path, branch));
                 graph.setNodeData(dep.path, {type: 'source'});
                 graph.addDependency(path, dep.path);
             }),
@@ -645,7 +669,12 @@ export class MarkdownService {
         return graph;
     }
 
-    private async _assets(file: NormalizedPath, from?: NormalizedPath) {
+    private async _assets(
+        file: NormalizedPath,
+        from?: NormalizedPath,
+        ancestors: readonly NormalizedPath[] = [],
+    ) {
+        const branch = includeBranch(file, ancestors);
         const key = hash(file, from);
 
         const content = await this.load(file, from);
@@ -653,7 +682,7 @@ export class MarkdownService {
         const assets = this.pathToAssets.get(key) || [];
         const internals: AssetInfo[][] = await all(
             (this.pathToDeps.get(key) || []).map(async ({path}) => {
-                return this._assets(path, from || file);
+                return this._assets(path, from || file, branch);
             }),
         );
 
@@ -662,7 +691,12 @@ export class MarkdownService {
         return assets.concat(...internals, this.embeddedAssets(file, content, embeddedDeps));
     }
 
-    private async _headings(file: NormalizedPath, from?: NormalizedPath) {
+    private async _headings(
+        file: NormalizedPath,
+        from?: NormalizedPath,
+        ancestors: readonly NormalizedPath[] = [],
+    ) {
+        const branch = includeBranch(file, ancestors);
         const key = hash(file, from);
 
         await this.load(file, from);
@@ -670,7 +704,7 @@ export class MarkdownService {
         const headings = this.pathToHeadings.get(key) || [];
         const internals: HeadingInfo[][] = await all(
             (this.pathToDeps.get(key) || []).map(async ({path, location}) => {
-                const headings = await this._headings(path, from || file);
+                const headings = await this._headings(path, from || file, branch);
                 return headings.map((heading) => ({...heading, location}));
             }),
         );

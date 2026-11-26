@@ -1,4 +1,6 @@
-import {unescapeAll} from 'markdown-it/lib/common/utils';
+import MarkdownIt from 'markdown-it';
+
+const {unescapeAll} = new MarkdownIt().utils;
 
 const HTML_TAG = /<(\/?)([A-Za-z][\w:-]*)(?=[\s/>])((?:"[^"]*"|'[^']*'|[^'">])*)>/g;
 const HTML_ATTRIBUTE = /([^\s=/>]+)(?:\s*=\s*(?:(["'])(.*?)\2|([^\s"'=<>`]+)))?/gs;

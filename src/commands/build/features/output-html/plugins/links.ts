@@ -1,7 +1,6 @@
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
-import type Token from 'markdown-it/lib/token';
-import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
-import type {Logger} from '~/core/logger';
+import type {StateCore, Token} from '~/core/markdown/parser';
+import type {MarkdownItPluginCb} from '@diplodoc/transform/types';
+import type {LogConsumer} from '@diplodoc/transform/log';
 import type {AnchorIndex, ResolveAnchorPage} from '~/commands/build/services/anchors';
 
 import {formatHref, parseHref} from '@diplodoc/utils';
@@ -18,7 +17,7 @@ const DOC_ASSETS_FOLDER = '_assets';
 
 type Options = {
     path: NormalizedPath;
-    log: Logger;
+    log: LogConsumer;
     entries: NormalizedPath[];
     entrySet?: ReadonlySet<NormalizedPath>;
     existsInProject: (path: NormalizedPath) => boolean;

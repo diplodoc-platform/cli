@@ -1,4 +1,4 @@
-import type {Heading} from '@diplodoc/transform/lib/typings';
+import type {Heading} from '@diplodoc/transform/types';
 import type {Toc} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
 import type {Meta} from '~/core/meta';

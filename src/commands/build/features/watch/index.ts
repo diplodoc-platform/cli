@@ -125,6 +125,7 @@ export class Watch {
                 await threads.terminate();
 
                 for await (const {file, type} of watch.events) {
+                    run.resetPageDeprecations();
                     const origin = normalizePath(join(run.originalInput, file)) as AbsolutePath;
                     const input = normalizePath(join(run.input, file)) as AbsolutePath;
 

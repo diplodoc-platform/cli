@@ -1,13 +1,13 @@
 import type {BuildConfig, Langs} from '.';
 import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
-import type {Lang} from '@diplodoc/transform/lib/typings';
+import type {DocumentEnv, Lang} from '@diplodoc/transform/types';
 
 import {basename, dirname, isAbsolute, join, relative, resolve, sep} from 'node:path';
 import {uniq} from 'lodash';
 import {yfmlint} from '@diplodoc/yfmlint';
-import transformer from '@diplodoc/transform/lib/md';
-import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
+import transformer from '@diplodoc/transform/parser';
+import {getPublicPath} from '@diplodoc/transform/utils/fs';
 import {createIDGeneratorByStrategy} from '@diplodoc/utils';
 
 import {configPath} from '~/core/config';
@@ -21,6 +21,8 @@ import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
 import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} from '~/core/utils';
 
+import {highlighter} from '../../core/markdown/highlighter';
+
 import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
@@ -31,12 +33,15 @@ import {getLocalAnchorRuleConfig, lintWithLocalAnchors} from './lint';
 import {findAgentPageLinks} from './page-audience-links';
 import {getPageLinkPlugins} from './features/output-html/utils';
 import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
+import {configureTransform} from './transform-configuration';
+import {inspectFootnoteSyntax, inspectMergeSourceSyntax} from './footnote-inspection';
 
 type TransformOptions = {
     deps: IncludeInfo[];
     assets: AssetInfo[];
     anchorIds?: Set<string>;
     reportErrors?: boolean;
+    pageDiagnostics?: boolean;
 };
 
 type Manifest = Hash<{
@@ -82,7 +87,7 @@ export class Run extends BaseRun<BuildConfig> {
 
     private readonly anchors: AnchorsService;
 
-    private readonly anchorRenders = new AnchorRenderCache<ReturnType<typeof transformer>['env']>();
+    private readonly anchorRenders = new AnchorRenderCache<DocumentEnv>();
 
     private readonly agentPageLinks = new WeakMap<object, ReadonlySet<NormalizedPath>>();
 
@@ -91,6 +96,10 @@ export class Run extends BaseRun<BuildConfig> {
     private readonly titlesCache = new Map<NormalizedPath, Promise<Hash<string>>>();
 
     private titlesRevision = -1;
+
+    private seenPageDeprecations?: Set<string>;
+
+    private readonly pageLog: typeof this.logger;
 
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
@@ -108,8 +117,12 @@ export class Run extends BaseRun<BuildConfig> {
         return require(join(__dirname, 'manifest.json')) as Manifest;
     }
 
-    constructor(config: BuildConfig) {
+    constructor(config: BuildConfig, sendPageDeprecation?: (message: string) => void) {
         super(config);
+        this.pageLog = createPageLogger(
+            this.logger,
+            sendPageDeprecation ?? ((message) => this.reportPageDeprecation(message)),
+        );
 
         this.originalInput = this.realpathSync(config.input);
         this.output = this.realpathSync(config.output);
@@ -159,6 +172,21 @@ export class Run extends BaseRun<BuildConfig> {
         }
     }
 
+    reportPageDeprecation(message: string) {
+        if (!this.logger.deprecationWarnings) {
+            return;
+        }
+        this.seenPageDeprecations ??= new Set();
+        if (!this.seenPageDeprecations.has(message)) {
+            this.seenPageDeprecations.add(message);
+            this.logger.deprecation(message);
+        }
+    }
+
+    resetPageDeprecations() {
+        this.seenPageDeprecations = undefined;
+    }
+
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
         return this.render(file, markdown, options, false);
     }
@@ -166,13 +194,16 @@ export class Run extends BaseRun<BuildConfig> {
     /** Check the human token stream without rendering or loading the linked documents and assets. */
     async checkMarkdownPageLinks(file: NormalizedPath, markdown: string, deps: IncludeInfo[]) {
         const {content, files} = await this.transformSource(file, markdown, deps);
-        const {parse} = transformer({
-            ...this.transformConfig(file, {}),
-            files,
-            extractTitle: false,
-            plugins: this.markdown.plugins.concat(getPageLinkPlugins()),
-        });
-        const targets = findAgentPageLinks(parse(content), (path) => this.toc.audience(path), file);
+        const parser = transformer(
+            configureTransform({
+                ...this.transformConfig(file, {}),
+                files,
+                extractTitle: false,
+                plugins: this.markdown.plugins.concat(getPageLinkPlugins()),
+            }),
+        );
+        const {tokens} = parser.parseDocument(content);
+        const targets = findAgentPageLinks(tokens, (path) => this.toc.audience(path), file);
         this.reportAgentPageLinks(file, targets);
     }
 
@@ -187,12 +218,22 @@ export class Run extends BaseRun<BuildConfig> {
         return anchorIds;
     }
 
+    /** Inspect source grammar without rendering or mutating the active document. */
+    inspectFootnotes(source: string, path: NormalizedPath): boolean {
+        return inspectFootnoteSyntax(source, this.transformConfig(path, {}));
+    }
+
+    /** Reuse the single canonical inspection for all Markdown merge decisions. */
+    inspectMergeSource(source: string, path: NormalizedPath) {
+        return inspectMergeSourceSyntax(source, this.transformConfig(path, {}));
+    }
+
     async lint(
         file: NormalizedPath,
         markdown: string,
         options: TransformOptions & {prepareLinks?: boolean},
         plugins = this.markdown.plugins,
-    ) {
+    ): ReturnType<typeof lintWithLocalAnchors> {
         const {prepareLinks = true} = options;
         const {source, assets, pluginOptions} = await this.prepareTransform(
             file,
@@ -213,6 +254,7 @@ export class Run extends BaseRun<BuildConfig> {
         if (!prepareLinks) {
             return yfmlint(source, file, {
                 lintConfig: this.config.lint.config,
+                enableMarkdownAttrs: pluginOptions.enableMarkdownAttrs,
                 pluginOptions: lintOptions,
                 plugins,
             });
@@ -220,6 +262,7 @@ export class Run extends BaseRun<BuildConfig> {
 
         return lintWithLocalAnchors(source, file, {
             lintConfig: this.config.lint.config,
+            enableMarkdownAttrs: pluginOptions.enableMarkdownAttrs,
             pluginOptions: lintOptions,
             plugins,
         });
@@ -270,22 +313,22 @@ export class Run extends BaseRun<BuildConfig> {
             return cached;
         }
 
-        const {parse, compile, env} = transformer(transformOptions);
+        const parser = transformer(configureTransform(transformOptions));
 
-        const tokens = parse(source);
+        const document = parser.parseDocument(source);
         if ((reportErrors || forAnchors) && this.toc.audience(file) !== 'agent') {
-            const targets = findAgentPageLinks(tokens, (path) => this.toc.audience(path));
-            this.agentPageLinks.set(env, targets);
+            const targets = findAgentPageLinks(document.tokens, (path) => this.toc.audience(path));
+            this.agentPageLinks.set(document.env, targets);
             if (reportErrors) {
                 this.reportAgentPageLinks(file, targets);
             }
         }
-        const result = compile(tokens);
+        const result = parser.compileDocument(document);
         if (anchorIds) {
             collectAnchorIds(result, anchorIds);
         }
 
-        const output = [result, env] as const;
+        const output = [result, document.env] as const;
         if (forAnchors && signature && revision === this.markdown.revision) {
             this.anchorRenders.set(signature, output);
         }
@@ -352,7 +395,7 @@ export class Run extends BaseRun<BuildConfig> {
         });
 
         const transformOptions = {
-            ...this.transformConfig(file, assetsRemap),
+            ...this.transformConfig(file, assetsRemap, options.pageDiagnostics),
             files,
             titles: loadTitles ? await remap(titles, this.titles) : {},
             assets: assetsRemap,
@@ -360,10 +403,17 @@ export class Run extends BaseRun<BuildConfig> {
         return {source: content, assets, pluginOptions: transformOptions};
     }
 
-    private transformConfig(path: NormalizedPath, assets: Record<string, unknown>) {
+    private transformConfig(
+        path: NormalizedPath,
+        assets: Record<string, unknown>,
+        pageDiagnostics = false,
+    ) {
         const generateID = createIDGeneratorByStrategy(this.config.idGenerator);
 
         return {
+            highlighter,
+            // Retain authored attributes until CLI content opts into the new Transform default.
+            enableMarkdownAttrs: this.config.enableMarkdownAttrs ?? true,
             allowHTML: this.config.allowHtml,
             needToSanitizeHtml: this.config.sanitizeHtml,
             breaks: this.config.breaks,
@@ -375,7 +425,8 @@ export class Run extends BaseRun<BuildConfig> {
             lang: langFromPath(path, this.config) as Lang,
             getPublicPath,
             extractTitle: true,
-            log: this.logger,
+            log: pageDiagnostics ? this.pageLog : this.logger,
+            deprecationWarnings: this.config.deprecationWarnings,
             entries: this.getEntries(),
             entrySet: this.toc.entrySet,
             existsInProject: this.existsInProject,
@@ -486,6 +537,34 @@ export class Run extends BaseRun<BuildConfig> {
         }
         return {...(await cached)};
     }
+}
+
+// Only physical Markdown pages share occurrences across lint, indexing and rendering.
+// Fragments embedded in a leading page have independent source coordinates.
+function createPageLogger(logger: Run['logger'], report: (message: string) => void): Run['logger'] {
+    const deprecation = (...messages: unknown[]) => {
+        if (!logger.deprecationWarnings) {
+            return;
+        }
+
+        const [message] = messages;
+        // The host currently receives formatted text. Only the reporter envelope
+        // identifies an occurrence; forward unstructured plugin messages unchanged.
+        if (
+            messages.length === 1 &&
+            typeof message === 'string' &&
+            message.startsWith('[DEPRECATED ') &&
+            message.includes(' at ') &&
+            message.includes('. Use ') &&
+            message.includes('. Removal: ')
+        ) {
+            report(message);
+        } else {
+            logger.deprecation(...messages);
+        }
+    };
+    Object.defineProperty(deprecation, 'count', {get: () => logger.deprecation.count});
+    return Object.assign(Object.create(logger), {deprecation});
 }
 
 function extractLang(file: NormalizedPath, langs: Langs) {

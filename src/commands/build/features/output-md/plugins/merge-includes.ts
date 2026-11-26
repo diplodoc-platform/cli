@@ -1,4 +1,4 @@
-import type Token from 'markdown-it/lib/token';
+import type {MarkdownIt as MarkdownItInstance, Token} from 'markdown-it';
 import type {Run} from '../../..';
 import type {HashedGraphNode, Scheduler, StepFunction} from '../utils';
 
@@ -404,6 +404,9 @@ export function canInlineInclude(
     parentContent: string,
     checkTermBoundary = true,
 ): boolean {
+    if (dep.paddedIncludeParagraph) {
+        return false;
+    }
     if (checkTermBoundary) {
         const firstTermDefPos = parentContent.search(TERM_DEF_RE);
         if (firstTermDefPos >= 0 && dep.location[0] >= firstTermDefPos) {
@@ -1335,7 +1338,7 @@ function rewriteTermReferences(
 type TermReferenceBlockKind = 'prose' | 'fence' | 'code';
 type TermReferenceBlock = {start: number; end: number; kind: TermReferenceBlockKind};
 
-let markdownBlockParser: MarkdownIt | undefined;
+let markdownBlockParser: MarkdownItInstance | undefined;
 
 /** Parses source blocks only; YFM term definitions must not become link definitions. */
 function parseMarkdownBlocks(lines: string[]): {tokens: Token[]; parserLines: string[]} {
@@ -1776,6 +1779,7 @@ function processTermSectionDeps(
     seen: Set<string>,
     fallbackEntries: FallbackEntry[],
     allTerms: TermWithSource[],
+    protectParent: boolean,
 ): void {
     let termSectionText = parentContent.slice(firstTermDefPos);
 
@@ -1783,7 +1787,7 @@ function processTermSectionDeps(
     termDeps.sort((a, b) => b.location[0] - a.location[0]);
 
     for (const dep of termDeps) {
-        if (!canInlineInclude(dep, parentContent, false)) {
+        if (protectParent || dep.footnoteScope || !canInlineInclude(dep, parentContent, false)) {
             addFallbackDep(dep, seen, fallbackEntries);
             continue;
         }
@@ -1889,6 +1893,7 @@ export function mergeIncludes(
     parentContent: string,
     enableSourceMaps = true,
     rootMode = true,
+    protectParent = false,
 ): StepFunction {
     return async function (scheduler, entry): Promise<void> {
         if (deps.length === 0) {
@@ -1923,6 +1928,7 @@ export function mergeIncludes(
                 seen,
                 fallbackEntries,
                 allTerms,
+                protectParent,
             );
         }
 
@@ -1931,7 +1937,11 @@ export function mergeIncludes(
                 continue;
             }
 
-            if (canInlineInclude(dep, parentContent, rootMode)) {
+            if (
+                !protectParent &&
+                !dep.footnoteScope &&
+                canInlineInclude(dep, parentContent, rootMode)
+            ) {
                 const trailingSuffix = getTrailingSuffix(parentContent, dep.location[1]);
                 const inlinedContent = prepareInlinedContent(
                     dep,

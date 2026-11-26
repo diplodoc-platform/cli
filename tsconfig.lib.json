@@ -8,7 +8,6 @@
     "plugins": [
       { "transform": "typescript-transform-paths", "afterDeclarations": true },
     ],
-    "baseUrl": ".",
     "declaration": true,
     "noEmitOnError": false,
     "emitDeclarationOnly": true,

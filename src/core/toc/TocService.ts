@@ -13,7 +13,6 @@ import type {
     WithItems,
 } from './types';
 import type {LoaderContext} from './loader';
-import type {WatchConfig} from '~/commands/build/features/watch';
 
 import {basename, dirname, join, relative} from 'node:path';
 import {dump, load} from 'js-yaml';
@@ -57,7 +56,8 @@ export type TocServiceConfig = {
     search?: {
         hiddenPolicy?: boolean;
     };
-} & Partial<WatchConfig>;
+    watch?: boolean;
+};
 
 type WalkStepResult<I> = I | I[] | null | undefined;
 

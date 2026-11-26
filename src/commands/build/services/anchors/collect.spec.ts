@@ -1,5 +1,3 @@
-import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
-
 import {execFile} from 'node:child_process';
 import {mkdtemp, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -8,9 +6,11 @@ import {fileURLToPath} from 'node:url';
 import {promisify} from 'node:util';
 import {describe, expect, it} from 'vitest';
 import {buildSync} from 'esbuild';
-import MarkdownIt from 'markdown-it';
-import anchors from '@diplodoc/transform/lib/plugins/anchors';
-import blockAnchor from '@diplodoc/transform/lib/plugins/block-anchor';
+import {getLogger} from '@diplodoc/transform/log';
+import anchors from '@diplodoc/transform/plugins/anchors';
+import blockAnchor from '@diplodoc/transform/plugins/block-anchor';
+
+import {MarkdownItConstructor} from '~/core/markdown/parser';
 
 import {collectAnchorIds} from './collect';
 
@@ -20,12 +20,16 @@ type AnchorsOptions = {
 };
 
 function collect(markdown: string, options: AnchorsOptions = {}) {
-    const md = new MarkdownIt({html: true});
+    const md = new MarkdownItConstructor({html: true});
 
     md.use(blockAnchor);
-    md.use(anchors as unknown as MarkdownItPluginCb<AnchorsOptions>, {
+    md.use(anchors, {
         path: 'index.md',
-        log: {warn() {}, error() {}},
+        log: getLogger({info() {}, warn() {}, error() {}}),
+        lang: 'ru',
+        root: '',
+        rootPublicPath: '',
+        isLintRun: false,
         transformLink: (v: string) => v,
         getPublicPath: () => '',
         extractTitle: false,
@@ -143,7 +147,7 @@ describe('collectAnchorIds', () => {
     });
 
     it('does not collect raw HTML IDs when HTML rendering is disabled', () => {
-        const html = new MarkdownIt({html: false}).render('<div id="raw-anchor"></div>');
+        const html = new MarkdownItConstructor({html: false}).render('<div id="raw-anchor"></div>');
         const anchorIds = new Set<string>();
 
         collectAnchorIds(html, anchorIds);

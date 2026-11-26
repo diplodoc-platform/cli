@@ -49,7 +49,7 @@ export type ExtractArgs = BaseArgs & {
     refResolve?: boolean;
 };
 
-export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
+export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet' | 'deprecationWarnings'> & {
     output: AbsolutePath;
     source: Locale;
     target: Locale[];
@@ -152,6 +152,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 input,
                 output,
                 schema,
+                logger: this.logger,
             });
 
             this.logger.skipped(skipped);
@@ -194,10 +195,11 @@ export type PipelineParameters = {
     source: ExtractOptions['source'];
     target: ExtractOptions['target'];
     schema?: ExtractOptions['schema'];
+    logger?: TranslateLogger;
 };
 
 function pipeline(params: PipelineParameters) {
-    const {input, output, source, target, schema} = params;
+    const {input, output, source, target, schema, logger} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -218,13 +220,21 @@ function pipeline(params: PipelineParameters) {
             path,
             customSchemaPath: schema,
         });
-        const {xliff, skeleton, units} = extract(content, {
-            originalFile: path,
-            source,
-            target,
-            schemas,
-            ajvOptions,
-        });
+        const {xliff, skeleton, units, warnings} = extract(
+            content,
+            {
+                originalFile: path,
+                source,
+                target,
+                schemas,
+                ajvOptions,
+            },
+            logger,
+        );
+
+        for (const warning of warnings) {
+            logger?.warn(path, warning);
+        }
 
         if (!units.length) {
             throw new EmptyTokensError();

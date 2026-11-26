@@ -2,6 +2,7 @@ import type {BaseArgs} from '~/core/program';
 import type {Config} from '~/core/config';
 import type {CodeMode, Locale, VarsResolver} from '../utils';
 import type {ConfigDefaults} from '../utils/config';
+import type {TranslationLog} from '../utils/units';
 import type {AlignedUnits} from '../providers/ai/utils';
 import type {SeedDocument} from '../providers/ai/utils/cache';
 
@@ -44,6 +45,7 @@ import {getHooks, withHooks} from './hooks';
 const MAX_CONCURRENCY = 50;
 
 export type SeedParams = {
+    log?: TranslationLog;
     input: AbsolutePath;
     /** Input-relative paths of source language files. */
     files: string[];
@@ -101,6 +103,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         files,
         sourceLanguage,
         targetLanguage,
+        log,
         vars: flatVars = {},
         varsFor = () => flatVars,
         code = 'adaptive',
@@ -209,6 +212,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         // would keep or drop other conditional blocks and misalign the units.
         const vars = varsFor(file);
         const source = await loadTranslationUnits({
+            log,
             inputPath,
             path: file,
             sourceLanguage,
@@ -222,6 +226,7 @@ export async function seedTranslations(params: SeedParams): Promise<SeedStats> {
         }
 
         const target = await loadTranslationUnits({
+            log,
             inputPath: targetPath,
             path: relative(inputRoot, targetPath),
             sourceLanguage: targetLanguage,
@@ -271,7 +276,7 @@ export type SeedArgs = BaseArgs & {
     cacheDir: string;
 };
 
-export type SeedConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
+export type SeedConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet' | 'deprecationWarnings'> & {
     /** Not configurable: Run requires it, seeding never writes there. */
     output: AbsolutePath;
     source: Locale;
@@ -392,6 +397,7 @@ export class Seed extends BaseProgram<SeedConfig, SeedArgs> {
 
         for (const target of targets) {
             const stats = await seedTranslations({
+                log: this.logger,
                 input,
                 files: Array.from(files),
                 sourceLanguage: source.language,

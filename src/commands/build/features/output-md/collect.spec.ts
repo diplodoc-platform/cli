@@ -123,6 +123,10 @@ describe('content-keyed collection cache', () => {
             markdown: {graph: vi.fn(async () => graph)},
             config: {content: {}},
             logger: {warn: vi.fn()},
+            inspectMergeSource: vi.fn((source: string) => ({
+                footnotes: source.includes('[^note]'),
+                paddedIncludeParagraphs: [],
+            })),
         } as unknown as Run;
         const cache = new CollectedContentCache();
         const collect = (audience: 'human' | 'agent' = 'human') =>
@@ -151,6 +155,25 @@ describe('content-keyed collection cache', () => {
         expect(beta).not.toContain('# Alpha');
         graph.deps[0].content = '# Alpha';
         expect(await collect()).toContain('# Alpha');
+    });
+
+    it('preserves protected footnote includes when a different parent reuses a cached child', async () => {
+        const {graph, collect, run} = setup();
+        graph.deps[0].content = 'Text[^note]\n\n[^note]: Explanation';
+        const initial = await collect();
+        expect(initial).toContain('{% included');
+        expect(initial).toContain('[^note]: Explanation');
+
+        graph.content += '\n\nAnother parent paragraph.';
+        const reused = await collect();
+        expect(reused).toContain('{% included');
+        expect(reused).toContain('[^note]: Explanation');
+        expect(reused).toContain('Another parent paragraph.');
+        expect(
+            vi
+                .mocked(run.inspectMergeSource)
+                .mock.calls.filter(([source]) => source === graph.deps[0].content),
+        ).toHaveLength(1);
     });
 
     it('keeps include fragment and notitle semantics on a cache hit', async () => {

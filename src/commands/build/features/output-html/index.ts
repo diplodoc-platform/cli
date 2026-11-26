@@ -7,7 +7,7 @@ import {basename, dirname, extname, join} from 'node:path';
 import {v4 as uuid} from 'uuid';
 import pmap from 'p-map';
 import {preprocess} from '@diplodoc/client/ssr';
-import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
+import {isFileExists} from '@diplodoc/transform/utils/fs';
 
 import {Template} from '~/core/template';
 import {
@@ -238,6 +238,7 @@ export class OutputHtml {
                     }
 
                     const [result, env] = await run.transform(vfile.path, vfile.data, {
+                        pageDiagnostics: true,
                         deps,
                         assets,
                     });
