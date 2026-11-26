@@ -225,7 +225,7 @@ export async function sectionValue<T>(
         return undefined;
     }
 
-    const root: Hash = await resolveConfig(path, {fallback: {}});
+    const root: Hash = await resolveConfig(path, {yfm: true, fallback: {}});
 
     for (const name of sections) {
         const value = sectionOf(root, name)?.[key];

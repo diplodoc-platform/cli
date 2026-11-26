@@ -87,6 +87,22 @@ are available. Consumers must omit dates for missing entries instead of assignin
 the project revision date. A compatible documentation viewer uses this map to
 populate article `<lastmod>` tags in `sitemap.xml`.
 
+## YAML fragments in `.yfm`
+
+Use the local YAML tag `!include` to load a value from another file:
+
+```yaml
+# .yfm
+search:
+  cluster:
+    projects: !include ./shared/projects.yaml
+```
+
+A fragment containing `[spyt, chyt]` supplies that sequence as the value of `projects`.
+A fragment can also contain a mapping, a scalar, or another `!include`.
+Paths are relative to the file containing the tag and must resolve within the project config directory.
+Markdown builds write the expanded values to the output `.yfm` and to the build manifest when enabled.
+
 ## `yfm init`
 
 Initialize a new Diplodoc documentation project.

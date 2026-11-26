@@ -3,10 +3,11 @@ import type {PreloadParams} from '@diplodoc/client/ssr';
 import type {Command} from '~/core/config';
 
 import {join} from 'node:path';
+import {dump} from 'js-yaml';
 
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {fallbackLang, langFromPath} from '~/core/utils';
-import {configPath, defined} from '~/core/config';
+import {configPath, defined, expandedYfm} from '~/core/config';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getMetaHooks} from '~/core/meta';
@@ -170,9 +171,12 @@ export class OutputMd {
         getBuildHooks(program)
             .AfterRun.for('md')
             .tapPromise('Build.Md', async (run) => {
-                // TODO: save normalized config instead
-                if (run.config[configPath]) {
-                    await run.copy(run.config[configPath], join(run.output, '.yfm'));
+                const target = join(run.output, '.yfm');
+                const expanded = run.config[expandedYfm];
+                if (expanded) {
+                    await run.write(target, dump(expanded), true);
+                } else if (run.config[configPath]) {
+                    await run.copy(run.config[configPath], target);
                 }
             });
     }

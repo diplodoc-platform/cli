@@ -185,6 +185,7 @@ export class BaseProgram<
             (strictScope && strictScopeConfig(strictScope)) || (scope && scopeConfig(scope));
 
         const config = await resolveConfig(configPath, {
+            yfm: true,
             filter: filter || undefined,
             defaults: defaults,
             fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,
