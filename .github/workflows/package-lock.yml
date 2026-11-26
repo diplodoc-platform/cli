@@ -17,7 +17,14 @@ jobs:
     name: Verify immutable lockfile
     if: >-
       github.event.pull_request.user.login == 'dependabot[bot]' ||
-      startsWith(github.event.pull_request.head.ref, 'codex/dependency-candidate-')
+      startsWith(github.event.pull_request.head.ref, 'codex/dependency-candidate-') ||
+      ((github.event.pull_request.user.login == 'diplodoc-bot' ||
+        (github.repository == 'diplodoc-platform/algolia-extension' &&
+         github.event.pull_request.user.login == 'diplodoc-app[bot]' &&
+         github.event.pull_request.user.id == 238451397 &&
+         startsWith(github.event.pull_request.head.ref, 'codex/dependency-group-reconcile-'))) &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       startsWith(github.event.pull_request.head.ref, 'codex/dependency-group-'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dependency update
@@ -46,6 +53,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.login != 'dependabot[bot]' &&
       !startsWith(github.event.pull_request.head.ref, 'codex/dependency-candidate-') &&
+      !startsWith(github.event.pull_request.head.ref, 'codex/dependency-group-') &&
       github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout code
@@ -104,7 +112,17 @@ jobs:
     steps:
       - name: Require the applicable lockfile check to succeed
         env:
-          LOCK_RESULT: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' || startsWith(github.event.pull_request.head.ref, 'codex/dependency-candidate-')) && needs.verify-dependabot-lock.result || needs.update-package-lock.result }}
+          LOCK_RESULT: >-
+            ${{ (github.event.pull_request.user.login == 'dependabot[bot]' ||
+            startsWith(github.event.pull_request.head.ref, 'codex/dependency-candidate-') ||
+            ((github.event.pull_request.user.login == 'diplodoc-bot' ||
+              (github.repository == 'diplodoc-platform/algolia-extension' &&
+               github.event.pull_request.user.login == 'diplodoc-app[bot]' &&
+               github.event.pull_request.user.id == 238451397 &&
+               startsWith(github.event.pull_request.head.ref, 'codex/dependency-group-reconcile-'))) &&
+             github.event.pull_request.head.repo.full_name == github.repository &&
+             startsWith(github.event.pull_request.head.ref, 'codex/dependency-group-'))) &&
+            needs.verify-dependabot-lock.result || needs.update-package-lock.result }}
         run: |
           echo "Applicable lockfile check: $LOCK_RESULT" >> "$GITHUB_STEP_SUMMARY"
           test "$LOCK_RESULT" = success

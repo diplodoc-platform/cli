@@ -15,6 +15,9 @@ jobs:
   dependency-risk-assessment:
     name: Dependency Risk Assessment
     runs-on: ubuntu-latest
+    outputs:
+      run-deep: ${{ steps.decision.outputs.run-deep }}
+      profile: ${{ steps.decision.outputs.profile }}
     steps:
       - name: Checkout PR head
         uses: actions/checkout@v5
@@ -31,7 +34,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: diplodoc-platform/infra
-          ref: eb3a8c662deabc01345d5258ace6fcb0fcae67cd
+          ref: 2770bc7b3f315f149e825efc04eff39e62306cd9
           path: trusted-infra
           persist-credentials: false
       - name: Install locked dependencies safely
@@ -73,6 +76,7 @@ jobs:
             --after-pkg /tmp/after-pkg.json \
             --before-lock /tmp/before-lock.json \
             --after-lock /tmp/after-lock.json \
+            --repo "${{ github.event.repository.name }}" \
             --head-sha ${{ github.event.pull_request.head.sha }} \
             --pr ${{ github.event.pull_request.number }} \
             --comment artifacts/dependency-risk/comment.md \
@@ -81,6 +85,12 @@ jobs:
             '${{ github.event.pull_request.number }}' \
             '${{ github.event.pull_request.head.sha }}' \
             > artifacts/dependency-risk/metadata.json
+      - name: Export deep verification decision
+        id: decision
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        run: node trusted-infra/scripts/dependency-verification-decision.js artifacts/dependency-risk/assessment.json
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
       - name: Write job summary
         if: always()
         run: |
@@ -96,3 +106,15 @@ jobs:
           if-no-files-found: error
           retention-days: 7
     timeout-minutes: 15
+  deep-verification:
+    name: Run Selected Deep Profile
+    needs: dependency-risk-assessment
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && needs.dependency-risk-assessment.outputs.run-deep == 'true'
+    permissions:
+      contents: read
+    uses: diplodoc-platform/testpack/.github/workflows/downstream-check.yml@master
+    with:
+      package: ${{ github.event.repository.name }}
+      pr-sha: ${{ github.event.pull_request.head.sha }}
+      pr-number: ${{ github.event.pull_request.number }}
+      profile: ${{ needs.dependency-risk-assessment.outputs.profile }}
