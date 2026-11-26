@@ -5,7 +5,6 @@ import file from '@diplodoc/transform/plugins/file';
 import visibility from '@diplodoc/transform/plugins/visibility';
 
 import {MarkdownItConstructor} from '~/core/markdown/parser';
-
 import {getTocItemName} from '~/core/toc';
 import {normalizePath} from '~/core/utils';
 
