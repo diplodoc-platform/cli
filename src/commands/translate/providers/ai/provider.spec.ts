@@ -31,6 +31,7 @@ import {
 import {
     LLMAuthError,
     LLMRateLimitError,
+    LLMRequestError,
     SeedStore,
     TranslationStore,
     cacheFingerprint,
@@ -155,6 +156,66 @@ function makeFullClient() {
 
 describe('translate ai provider', () => {
     describe('Provider.translate', () => {
+        it('rejects an approved seed that duplicates a protected OpenAPI link label', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-openapi-seed-'));
+            const input = join(root, 'docs') as AbsolutePath;
+            const output = join(root, 'out') as AbsolutePath;
+            const cacheDir = join(root, 'cache') as AbsolutePath;
+            const file = 'ru/api.yaml';
+            const source = wrap('Формат ключа');
+            const approved = wrap(
+                '[Key format <x ctype="no_translate_inline" equiv-text=":no-translate[UUID]" id="x-1"/>]',
+            );
+            const seeds = new SeedStore(seedFilePath(cacheDir, 'ru', 'en'));
+            seeds.record(file, [[source, approved]]);
+            seeds.flush();
+
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(
+                join(input, file),
+                JSON.stringify({
+                    openapi: '3.0.3',
+                    info: {
+                        title: 'API',
+                        version: '1.0.0',
+                        description: '[Формат ключа :no-translate[UUID]](*uuid)',
+                    },
+                    paths: {},
+                }),
+            );
+
+            const client = makeClient((fragments) =>
+                fragments.map((fragment) => fragment.replace('Формат ключа', 'Key format')),
+            );
+            const provider = new Provider(() => client, {} as never);
+            Object.assign(provider, {
+                logger: {
+                    translate: vi.fn(),
+                    translated: vi.fn(),
+                    request: vi.fn(),
+                    stat: vi.fn(),
+                    warn: vi.fn(),
+                    error: vi.fn(),
+                },
+            });
+            const {params} = makeParams(client);
+            await provider.translate([file], {
+                ...params.config,
+                input,
+                output,
+                cacheDir,
+                model: 'fixture',
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+            });
+
+            expect(readFileSync(join(output, 'en', 'api.yaml'), 'utf8')).toContain(
+                '[Key format :no-translate[UUID]](*uuid)',
+            );
+            expect(client.complete).toHaveBeenCalled();
+        });
+
         it('should translate files end to end and write a judge report', async () => {
             const root = mkdtempSync(join(tmpdir(), 'yfm-ai-e2e-'));
             const input = join(root, 'docs');
@@ -385,6 +446,70 @@ describe('translate ai provider', () => {
             expect(Object.keys(target.judge.distribution)).toHaveLength(11);
 
             expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('run success'));
+        });
+
+        it('reports every written file that keeps an untranslated model unit as partial', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-partial-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            const reportPath = join(root, 'report.json');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'first.md'), 'Текст для повтора.\n');
+            writeFileSync(join(input, 'ru', 'second.md'), 'Текст для повтора.\n');
+            writeFileSync(join(input, 'ru', 'complete.md'), 'Готовый текст.\n');
+            const client = makeClient((fragments) =>
+                fragments.map((part) => part.replace('Готовый текст.', 'Complete text.')),
+            );
+            const provider = new Provider(() => client, {} as never);
+            Object.assign(provider, {
+                logger: {
+                    translate: vi.fn(),
+                    translated: vi.fn(),
+                    request: vi.fn(),
+                    stat: vi.fn(),
+                    warn: vi.fn(),
+                    error: vi.fn(),
+                },
+            });
+
+            await provider.translate(['ru/first.md', 'ru/second.md', 'ru/complete.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+                report: reportPath,
+            } as unknown as AITranslationConfig);
+
+            expect(readFileSync(join(output, 'en', 'first.md'), 'utf8')).toContain(
+                'Текст для повтора.',
+            );
+            expect(readFileSync(join(output, 'en', 'second.md'), 'utf8')).toContain(
+                'Текст для повтора.',
+            );
+            expect(readFileSync(join(output, 'en', 'complete.md'), 'utf8')).toContain(
+                'Complete text.',
+            );
+            const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+            expect(report.status).toBe('partial');
+            expect(report.totals.files).toEqual({translated: 3, failed: 0, retried: 0, partial: 2});
+            expect(report.totals.units.untranslated).toBe(1);
+            expect(report.errors).toHaveLength(2);
+            expect(report.errors).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({path: 'ru/first.md', code: 'UNTRANSLATED_UNITS'}),
+                    expect.objectContaining({path: 'ru/second.md', code: 'UNTRANSLATED_UNITS'}),
+                ]),
+            );
         });
 
         it('should not double the markup a model puts back around a bold line', async () => {
@@ -1313,6 +1438,17 @@ describe('translate ai provider', () => {
                 expect(userMessage(client, 1)).not.toContain('Translation memory.');
             });
 
+            it('drops memory for an echoed edit made only of previously seen words', async () => {
+                const source = 'Чтобы настроить колонкам по статусам.';
+                const complete = 'Column setup by status:';
+                const client = answering([[source], [complete]]);
+                const {params} = makeParams(client, {}, seededStore());
+
+                expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([complete]);
+                expect(userMessage(client, 0)).toContain('Translation memory.');
+                expect(userMessage(client, 1)).toBe(source);
+            });
+
             it('retries an untranslated inserted phrase without the misleading memory', async () => {
                 const source = 'Важное уточнение: ' + previous;
                 const complete = 'Important clarification: To set up columns by status:';
@@ -1585,6 +1721,159 @@ describe('translate ai provider', () => {
             expect(stat.markupDamaged).toBe(0);
             expect(client.complete).toHaveBeenCalledTimes(2);
             expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('damaged markup'));
+        });
+
+        it('retries only unrepaired fragments individually without document context', async () => {
+            const units = [wrap('Первый текст'), wrap('Второй текст'), wrap('Третий текст')];
+            const client = makeClient((_, call) => {
+                if (call === 0) {
+                    return ['- First text', '- Second text', 'Third text'];
+                }
+                if (call === 1) {
+                    return ['- First text', 'Second text'];
+                }
+                return ['First text'];
+            });
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 500,
+                systemPrompt: '{{context}}',
+            });
+
+            expect(await makeTranslator(params)('ru/file.md', units)).toEqual([
+                wrap('First text'),
+                wrap('Second text'),
+                wrap('Third text'),
+            ]);
+            const requests = vi.mocked(client.complete).mock.calls;
+            expect(requests).toHaveLength(3);
+            expect(requests[1][0][0].content).toContain('Document context:');
+            expect(requests[2][0][0].content).not.toContain('Document context:');
+            expect(requests[2][0].at(-1)?.content).toBe('Первый текст');
+            expect(stat.requests).toBe(3);
+            expect(stat.markupRetried).toBe(2);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('keeps the source when the markup retry has a transport error', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) =>
+                call === 0 ? ['- Connection setup - details.'] : new Error('network blip'),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+        });
+
+        it('isolates a fragment when the markup retry returns the wrong count', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) => {
+                if (call === 0) {
+                    return ['- Connection setup - details.'];
+                }
+                if (call === 1) {
+                    return ['Connection setup', 'Details.'];
+                }
+                return ['Connection setup - details.'];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap('Connection setup - details.'),
+            ]);
+            expect(stat.requests).toBe(3);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('uses the configured fallback model for a fragment the isolated markup retry rejects', async () => {
+            const unit = wrap(`Используйте ${CODE_OPEN}value${CODE_CLOSE}.`);
+            const client = makeClient(() => ['Use value.']);
+            const fallback = makeClient((fragments) =>
+                fragments.map((fragment) => fragment.replace('Используйте', 'Use')),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, undefined, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([
+                wrap(`Use ${CODE_OPEN}value${CODE_CLOSE}.`),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.requests).toBe(4);
+            expect(stat.fallbackRequests).toBe(1);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('validates the fallback model answer before writing or caching it', async () => {
+            const unit = wrap(`Используйте ${CODE_OPEN}value${CODE_CLOSE}.`);
+            const client = makeClient(() => ['Use value.']);
+            const fallback = makeClient(() => ['Try the new value.']);
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'yfm-ai-isolated-fallback-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([unit]);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('retries an echo first returned by the formatting retry without formatting feedback', async () => {
+            const unit = wrap('Включите уведомления.');
+            const healthy = wrap('Проверьте настройки.');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? ['- Enable notifications.', 'Check the settings.'] : fragments,
+            );
+            const fallback = makeClient(() => ['Enable notifications.']);
+            const {params, stat} = makeParams(
+                client,
+                {maxBatchTokens: 500, systemPrompt: '{{context}}'},
+                undefined,
+                fallback,
+            );
+
+            expect(await makeTranslator(params)('ru/notifications.md', [unit, healthy])).toEqual([
+                wrap('Enable notifications.'),
+                wrap('Check the settings.'),
+            ]);
+            const primary = vi.mocked(client.complete).mock.calls;
+            expect(primary).toHaveLength(3);
+            expect(primary[1][0][0].content).toContain('Formatting correction:');
+            expect(primary[2][0][0].content).not.toContain('Formatting correction:');
+            expect(primary[2][0][0].content).not.toContain('Document context:');
+            const [[fallbackMessages]] = vi.mocked(fallback.complete).mock.calls;
+            expect(fallbackMessages.at(-1)?.content).toBe('Включите уведомления.');
+            expect(stat.fallbackRequests).toBe(1);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslated).toBe(0);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('keeps a formatting-retry echo as an untranslated refusal if recovery stays invalid', async () => {
+            const unit = wrap('Включите уведомления.');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? ['- Enable notifications.'] : fragments,
+            );
+            const fallback = makeClient(() => ['- Enable notifications.']);
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'yfm-ai-format-echo-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store, fallback);
+
+            expect(await makeTranslator(params)('ru/notifications.md', [unit])).toEqual([unit]);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.fallbackRequests).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
         });
 
         it.each([
@@ -1933,6 +2222,127 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(2);
         });
 
+        it('uses the configured fallback model after an isolated echo retry still copies the source', async () => {
+            const echo = wrap('Исходный текст.');
+            const healthy = wrap('Другой текст.');
+            const client = makeClient((fragments) =>
+                fragments.map((part) => part.replace('Другой текст.', 'Other text.')),
+            );
+            const fallback = makeClient(() => ['Source text.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, undefined, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [echo, healthy])).toEqual([
+                wrap('Source text.'),
+                wrap('Other text.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(vi.mocked(fallback.complete).mock.calls[0][0].at(-1)?.content).toBe(
+                'Исходный текст.',
+            );
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.fallbackRequests).toBe(1);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('isolates only the source echo left over from a batch prose retry', async () => {
+            const first = wrap('Первый текст.');
+            const second = wrap('Второй текст.');
+            const client = makeClient((fragments, call) => {
+                if (call === 0) return fragments;
+                if (fragments.length > 1) return [fragments[0], 'Second text.'];
+                return ['First text.'];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('ru/file.md', [first, second])).toEqual([
+                wrap('First text.'),
+                wrap('Second text.'),
+            ]);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls).toHaveLength(3);
+            expect(calls[2][0].at(-1)?.content).toBe('Первый текст.');
+            expect(stat.untranslatedRetried).toBe(2);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('does not fan out prose retries after both models fail on the batch', async () => {
+            const units = [wrap('Первый текст.'), wrap('Второй текст.')];
+            const client = makeClient((fragments, call) =>
+                call === 0 ? fragments : new LLMRateLimitError('limit exhausted'),
+            );
+            const fallback = makeClient(
+                () => new LLMRequestError(503, 'service unavailable', {retryable: true}),
+            );
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'yfm-ai-batch-unavailable-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', units)).toEqual(units);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslatedKept).toBe(2);
+            expect(units.map((unit) => store.get(unit))).toEqual([undefined, undefined]);
+        });
+
+        it('retries known source prose individually after the contextual markup retry fails', async () => {
+            const unit = wrap(`Укажите ${CODE_OPEN}value${CODE_CLOSE}.`);
+            const client = makeClient((fragments, call) => {
+                if (call === 0) return fragments;
+                if (call === 1) return ['Enter value.'];
+                if (call === 2) return new Error('network blip');
+                return fragments.map((fragment) => fragment.replace('Укажите', 'Enter'));
+            });
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 500,
+                systemPrompt: '{{context}}',
+            });
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([
+                wrap(`Enter ${CODE_OPEN}value${CODE_CLOSE}.`),
+            ]);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls).toHaveLength(4);
+            expect(calls[2][0][0].content).toContain('Formatting correction:');
+            expect(calls[3][0][0].content).not.toContain('Formatting correction:');
+            expect(calls[3][0][0].content).not.toContain('Document context:');
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('uses the reserve model when isolated recovery from a formatting echo has a transport error', async () => {
+            const unit = wrap('Включите уведомления.');
+            const client = makeClient((fragments, call) => {
+                if (call === 0) return ['- Enable notifications.'];
+                if (call === 1) return fragments;
+                return new Error('network blip');
+            });
+            const fallback = makeClient(() => ['Enable notifications.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, undefined, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([
+                wrap('Enable notifications.'),
+            ]);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('keeps a composable echo if the fallback model produces damaged markup', async () => {
+            const unit = wrap('Исходный текст.');
+            const client = makeClient((fragments) => fragments);
+            const fallback = makeClient(() => ['- Source text.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, undefined, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(stat.markupRetried).toBe(0);
+        });
+
         it('should retry only the echoed fragment in a mixed batch', async () => {
             const unit1 = wrap('Первый текст');
             const unit2 = wrap('Второй текст');
@@ -2203,6 +2613,37 @@ describe('translate ai provider', () => {
                 'file.md',
                 expect.stringContaining('smaller batches'),
             );
+        });
+
+        it('keeps successful siblings when one fragment still has the wrong response count', async () => {
+            const first = wrap('Первый текст.');
+            const second = wrap('Второй текст.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'yfm-ai-fragment-count-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient((fragments) => {
+                if (fragments.length === 2) {
+                    return ['Merged'];
+                }
+                if (fragments[0] === 'Первый текст.') {
+                    return ['First text.', 'Extra text.'];
+                }
+                return ['Second text.'];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [first, second])).toEqual([
+                first,
+                wrap('Second text.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.translatedUnits).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(store.get(first)).toBeUndefined();
+            expect(store.get(second)).toBe(wrap('Second text.'));
         });
 
         it('drops automatic document context when retrying an unseeded echo', async () => {

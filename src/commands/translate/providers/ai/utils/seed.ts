@@ -1,6 +1,8 @@
 import type {JSONObject} from '@diplodoc/translation';
 import type {SkeletonFragment} from './skeleton';
 
+import MarkdownIt from 'markdown-it';
+
 import {
     alignBlocks,
     linkRelation,
@@ -92,6 +94,31 @@ export function alignTranslationUnits(
         blocks: {source: sourceBlocks.length, target: targetBlocks.length, paired: 0},
     };
     const seeded = new Set<number>();
+    const protectedLabels = target.units.some(isBracketedProtectedLabel)
+        ? protectedLinkLabelIds(source.skeleton)
+        : new Set<number>();
+
+    function seedPair(s: number, targetUnit: string) {
+        const sourceUnit = source.units[s];
+
+        if (protectedLabels.has(s) && addsBracketedProtectedLabel(sourceUnit, targetUnit)) {
+            return;
+        }
+
+        seeded.add(s);
+
+        if (sourceUnit === targetUnit && marker?.test(sourceUnit)) {
+            result.skipped++;
+            return;
+        }
+
+        if (doubtful(sourceUnit, targetUnit)) {
+            result.doubtful++;
+            result.pairs.push([sourceUnit, targetUnit, true]);
+        } else {
+            result.pairs.push([sourceUnit, targetUnit]);
+        }
+    }
 
     for (const [i, j] of blockPairs) {
         result.blocks.paired++;
@@ -103,27 +130,69 @@ export function alignTranslationUnits(
             target.units,
             linkLanguages,
         )) {
-            const sourceUnit = source.units[s];
-
-            seeded.add(s);
-
-            if (sourceUnit === targetUnit && marker?.test(sourceUnit)) {
-                result.skipped++;
-                continue;
-            }
-
-            if (doubtful(sourceUnit, targetUnit)) {
-                result.doubtful++;
-                result.pairs.push([sourceUnit, targetUnit, true]);
-            } else {
-                result.pairs.push([sourceUnit, targetUnit]);
-            }
+            seedPair(s, targetUnit);
         }
     }
 
     result.unseeded = source.units.length - seeded.size;
 
     return result;
+}
+
+function isBracketedProtectedLabel(unit: string): boolean {
+    if (!unit.includes('ctype="no_translate_inline"')) {
+        return false;
+    }
+    const text = unwrap(unit).trim();
+    return text.startsWith('[') && text.endsWith(']');
+}
+
+export function addsBracketedProtectedLabel(source: string, translation: string): boolean {
+    return isBracketedProtectedLabel(translation) && !isBracketedProtectedLabel(source);
+}
+
+const markdown = new MarkdownIt('commonmark');
+
+/** Standalone link labels whose brackets and protected text are restored by the skeleton. */
+export function protectedLinkLabelIds(skeleton: TranslationSide['skeleton']): Set<number> {
+    const ids = new Set<number>();
+    visit(skeleton);
+    return ids;
+
+    function visit(value: unknown): void {
+        if (typeof value === 'string') {
+            if (!value.includes(':no-translate[') || !value.includes('%%%')) {
+                return;
+            }
+            collectLinkLabels(value);
+        } else if (value && typeof value === 'object') {
+            Object.values(value).forEach(visit);
+        }
+    }
+
+    function collectIds(label?: string) {
+        if (label?.includes(':no-translate[')) {
+            for (const [, id] of label.matchAll(/%%%(\d+)%%%/g)) {
+                ids.add(Number(id));
+            }
+        }
+    }
+
+    function collectLinkLabels(value: string) {
+        for (const block of markdown.parse(value, {})) {
+            let label: string | undefined;
+            for (const token of block.children ?? []) {
+                if (token.type === 'link_open') {
+                    label = '';
+                } else if (token.type === 'link_close') {
+                    collectIds(label);
+                    label = undefined;
+                } else if (token.type === 'text' && label !== undefined) {
+                    label += token.content;
+                }
+            }
+        }
+    }
 }
 
 /**

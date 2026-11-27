@@ -23,6 +23,18 @@ function side(lines: string[]) {
     return {skeleton, units};
 }
 
+function openApiSide(description: string) {
+    return extract(
+        {openapi: '3.0.3', info: {title: 'Example', version: '1', description}, paths: {}},
+        {
+            compact: true,
+            unitLocalIds: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'en', locale: 'US'},
+        },
+    );
+}
+
 describe('translate seed pairs', () => {
     describe('compatibleUnits', () => {
         const code = (text: string) =>
@@ -268,6 +280,101 @@ describe('translate seed pairs', () => {
             expect(result.pairs).toEqual([[unit('Пункт.'), unit('Item.')]]);
             expect(result.unseeded).toBe(2);
             expect(result.blocks.paired).toBe(2);
+        });
+
+        it('rejects a legacy bracketed unit that duplicates a protected link label', () => {
+            const source = openApiSide('[Что такое :no-translate[HTTP]](./protocol.md)');
+            const legacy = openApiSide(
+                '[What is :no-translate[HTTP]]:no-translate[(./protocol.md)]',
+            );
+
+            const result = alignTranslationUnits(source, legacy, RU_EN);
+
+            expect(result.pairs).toEqual([[unit('Example'), unit('Example')]]);
+            expect(result.unseeded).toBe(1);
+        });
+
+        it('validates a protected link label with escaped brackets and a balanced destination', () => {
+            const source = openApiSide(
+                '[Что такое :no-translate[HTTP] \\[v2\\]](./protocol(v2).md)',
+            );
+            const legacy = openApiSide(
+                '[What is :no-translate[HTTP]]:no-translate[(./protocol(v2).md)]',
+            );
+
+            const result = alignTranslationUnits(source, legacy, RU_EN);
+
+            expect(result.pairs).toEqual([[unit('Example'), unit('Example')]]);
+        });
+
+        it('does not treat a protected link example inside fenced code as a link label', () => {
+            const source = {
+                skeleton: {
+                    description:
+                        '\x60\x60\x60\n[%%%0%%% :no-translate[HTTP]](./protocol.md)\n\x60\x60\x60',
+                },
+                units: [unit('Описание')],
+            };
+            const target = openApiSide(
+                '[Description :no-translate[HTTP]]:no-translate[(./protocol.md)]',
+            );
+            const candidate = {
+                skeleton: {description: '%%%0%%%'},
+                units: [target.units[1]],
+            };
+
+            expect(alignTranslationUnits(source, candidate, RU_EN).pairs).toEqual([
+                [source.units[0], candidate.units[0]],
+            ]);
+        });
+
+        it('reuses an approved link label when the skeleton restores its protected text', () => {
+            const source = openApiSide('[Что такое :no-translate[HTTP]](./protocol.md)');
+            const target = openApiSide('[What is :no-translate[HTTP]](./protocol.md)');
+
+            const result = alignTranslationUnits(source, target, RU_EN);
+
+            expect(result.pairs).toEqual([
+                [unit('Example'), unit('Example')],
+                [unit('Что такое'), unit('What is')],
+            ]);
+        });
+
+        it('does not shift OpenAPI seed pairs when legacy protection hides YFM captions', () => {
+            const source = openApiSide(
+                '{% cut "Подробности запроса" %}\n\n' +
+                    '{% note info "Важные сведения" %}\n\n' +
+                    'Обычный текст.\n\n{% endnote %}\n\n{% endcut %}\n',
+            );
+            const target = openApiSide(
+                ':::no-translate\n{% cut "Подробности запроса" %}\n:::\n\n' +
+                    ':::no-translate\n{% note info "Важные сведения" %}\n:::\n\n' +
+                    'Ordinary prose.\n\n{% endnote %}\n\n{% endcut %}\n',
+            );
+
+            expect(alignTranslationUnits(source, target, RU_EN).pairs).toEqual([
+                [unit('Example'), unit('Example')],
+                [unit('Обычный текст.'), unit('Ordinary prose.')],
+            ]);
+        });
+
+        it('keeps the approved caption of a later OpenAPI note in its own block', () => {
+            const source = openApiSide(
+                '{% note info "Настройка" %}\n\nПодключите модуль.\n\n{% endnote %}\n\n' +
+                    '{% note info "Проверка" %}\n\nВыполните запрос.\n\n{% endnote %}\n',
+            );
+            const target = openApiSide(
+                ':::no-translate\n{% note info "Настройка" %}\n:::\n\n' +
+                    'Connect the module.\n\n{% endnote %}\n\n' +
+                    '{% note info "Verification" %}\n\nSend a request.\n\n{% endnote %}\n',
+            );
+
+            expect(alignTranslationUnits(source, target, RU_EN).pairs).toEqual([
+                [unit('Example'), unit('Example')],
+                [unit('Подключите модуль.'), unit('Connect the module.')],
+                [unit('Проверка'), unit('Verification')],
+                [unit('Выполните запрос.'), unit('Send a request.')],
+            ]);
         });
 
         it('should still pair anchored units of a paragraph with a merged sentence', () => {
