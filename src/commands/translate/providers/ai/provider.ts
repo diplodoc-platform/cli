@@ -893,6 +893,20 @@ export function makeTranslator(params: TranslatorParams): Translate {
     // never reaches the report.
     const repairs = new Map<string, number>();
 
+    function rememberAnswer(fragment: string, answer: string) {
+        const literalKey = JSON.stringify([fragment, answer]);
+        const invalid = invalidLiterals.has(literalKey);
+        const stripped = repairs.get(fragment) || 0;
+        return () => {
+            repairs.set(fragment, stripped);
+            if (invalid) {
+                invalidLiterals.add(literalKey);
+            } else {
+                invalidLiterals.delete(literalKey);
+            }
+        };
+    }
+
     function keepsUnitMarkup(fragment: string, part: string) {
         const source = unwrapUnit(fragment).text;
         const text = unwrapUnit(part).text;
@@ -1207,7 +1221,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
         fragments: string[],
         parts: string[],
         context: string,
-        hints: (SeedHint | undefined)[] = [],
+        hints: (SeedHint | undefined)[],
+        proseRetried: ReadonlySet<number>,
     ): Promise<string[]> {
         if (dryRun) {
             return parts;
@@ -1261,6 +1276,27 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
             if (candidate !== undefined && keepsUnitMarkup(fragment, candidate)) {
                 result[index] = candidate;
+
+                // A formatting correction can restore the markup by copying
+                // the source. Give this newly observed echo a prose retry.
+                if (refusedTranslation(fragment, candidate, hints[index])) {
+                    if (!proseRetried.has(index)) {
+                        stat.untranslatedRetried++;
+                    }
+                    logger.warn(path, '1 fragment(s) came back untranslated; retrying them.');
+                    const restore = rememberAnswer(fragment, candidate);
+                    const isolated = await retryIsolated(path, fragment, {
+                        what: 'Untranslated retry',
+                        accepts: (part) =>
+                            !refusedTranslation(fragment, part, hints[index]) &&
+                            keepsUnitMarkup(fragment, part),
+                    });
+                    if (isolated !== undefined) {
+                        result[index] = isolated;
+                    } else {
+                        restore();
+                    }
+                }
                 continue;
             }
 
@@ -1296,7 +1332,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
         path: string,
         fragments: string[],
         parts: string[],
-        hints: (SeedHint | undefined)[] = [],
+        hints: (SeedHint | undefined)[],
+        proseRetried: Set<number>,
     ): Promise<string[]> {
         if (dryRun || marker === null) {
             return parts;
@@ -1314,18 +1351,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // if the retry answer arrives with damaged markup that the repair
         // cannot save, the fragment falls back to its source text there.
         stat.untranslatedRetried += indexes.length;
+        indexes.forEach((index) => proseRetried.add(index));
         logger.warn(path, `${indexes.length} fragment(s) came back untranslated; retrying them.`);
 
         // Keep the original answer's validation state if every retry is discarded.
-        const originalChecks = indexes.map((index) => {
-            const fragment = fragments[index];
-            const literalKey = JSON.stringify([fragment, parts[index]]);
-            return {
-                literalKey,
-                invalid: invalidLiterals.has(literalKey),
-                stripped: repairs.get(fragment) || 0,
-            };
-        });
+        const restoreOriginalChecks = indexes.map((index) =>
+            rememberAnswer(fragments[index], parts[index]),
+        );
 
         // Retry isolated prose without the source-language document title:
         // the exact same context can reproduce an echo, even without memory.
@@ -1371,13 +1403,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 continue;
             }
 
-            const {literalKey, invalid, stripped} = originalChecks[position];
-            repairs.set(fragment, stripped);
-            if (invalid) {
-                invalidLiterals.add(literalKey);
-            } else {
-                invalidLiterals.delete(literalKey);
-            }
+            restoreOriginalChecks[position]();
         }
 
         return result;
@@ -1435,8 +1461,9 @@ export function makeTranslator(params: TranslatorParams): Translate {
             parts = [candidate];
         }
 
-        const retried = await retryUntranslated(path, fragments, parts, hints);
-        return repairDamaged(path, fragments, retried, context, hints);
+        const proseRetried = new Set<number>();
+        const retried = await retryUntranslated(path, fragments, parts, hints, proseRetried);
+        return repairDamaged(path, fragments, retried, context, hints, proseRetried);
     }
 
     return async function translate(

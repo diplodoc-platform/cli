@@ -1753,6 +1753,57 @@ describe('translate ai provider', () => {
             expect(store.get(unit)).toBeUndefined();
         });
 
+        it('retries an echo first returned by the formatting retry without formatting feedback', async () => {
+            const unit = wrap('Включите уведомления.');
+            const healthy = wrap('Проверьте настройки.');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? ['- Enable notifications.', 'Check the settings.'] : fragments,
+            );
+            const fallback = makeClient(() => ['Enable notifications.']);
+            const {params, stat} = makeParams(
+                client,
+                {maxBatchTokens: 500, systemPrompt: '{{context}}'},
+                undefined,
+                fallback,
+            );
+
+            expect(await makeTranslator(params)('ru/notifications.md', [unit, healthy])).toEqual([
+                wrap('Enable notifications.'),
+                wrap('Check the settings.'),
+            ]);
+            const primary = vi.mocked(client.complete).mock.calls;
+            expect(primary).toHaveLength(3);
+            expect(primary[1][0][0].content).toContain('Formatting correction:');
+            expect(primary[2][0][0].content).not.toContain('Formatting correction:');
+            expect(primary[2][0][0].content).not.toContain('Document context:');
+            const [[fallbackMessages]] = vi.mocked(fallback.complete).mock.calls;
+            expect(fallbackMessages.at(-1)?.content).toBe('Включите уведомления.');
+            expect(stat.fallbackRequests).toBe(1);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslated).toBe(0);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('keeps a formatting-retry echo as an untranslated refusal if recovery stays invalid', async () => {
+            const unit = wrap('Включите уведомления.');
+            const client = makeClient((fragments, call) =>
+                call === 0 ? ['- Enable notifications.'] : fragments,
+            );
+            const fallback = makeClient(() => ['- Enable notifications.']);
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'yfm-ai-format-echo-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store, fallback);
+
+            expect(await makeTranslator(params)('ru/notifications.md', [unit])).toEqual([unit]);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.fallbackRequests).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
         it.each([
             '**Connection setup** - details.',
             '*Connection setup* - details.',
