@@ -175,9 +175,10 @@ describe('Translate command', () => {
         const root = await realpath(await mkdtemp(join(tmpdir(), 'diplodoc-extract-warning-')));
         const input = join(root, 'input');
         const source = `:::tabs\n\n- \`{selected}\` {#custom}\n\n:::\n${prose}`;
-        const file = join(input, 'ru/ambiguous.md');
+        const relativePath = join('ru', 'ambiguous.md');
+        const file = join(input, relativePath);
         const warning =
-            'WARN ru/ambiguous.md Tabs item source left untranslated ' +
+            `WARN ${relativePath} Tabs item source left untranslated ` +
             '(atomic-inline-marker) at normalized input line 3.';
 
         try {
@@ -207,7 +208,9 @@ describe('Translate command', () => {
                 ]);
                 expect(await readFile(file, 'utf8')).toBe(source);
 
-                const produced = (await glob('**/*', {cwd: output, nodir: true})).sort();
+                const produced = (
+                    await glob('**/*', {cwd: output, nodir: true, posix: true})
+                ).sort();
 
                 if (hasUnits) {
                     expect(produced).toEqual(['en/ambiguous.md.skl', 'en/ambiguous.md.xliff']);
@@ -236,7 +239,7 @@ describe('Translate command', () => {
 
                     if (!quiet) {
                         expect(strip(report.stdout)).toContain(
-                            'SKIPPED [notokens] ru/ambiguous.md',
+                            `SKIPPED [notokens] ${relativePath}`,
                         );
                     }
                 }
