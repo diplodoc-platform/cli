@@ -387,6 +387,70 @@ describe('translate ai provider', () => {
             expect(logger.stat).toHaveBeenCalledWith(expect.stringContaining('run success'));
         });
 
+        it('reports every written file that keeps an untranslated model unit as partial', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-partial-'));
+            const input = join(root, 'docs');
+            const output = join(root, 'out');
+            const reportPath = join(root, 'report.json');
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(join(input, 'ru', 'first.md'), 'Текст для повтора.\n');
+            writeFileSync(join(input, 'ru', 'second.md'), 'Текст для повтора.\n');
+            writeFileSync(join(input, 'ru', 'complete.md'), 'Готовый текст.\n');
+            const client = makeClient((fragments) =>
+                fragments.map((part) => part.replace('Готовый текст.', 'Complete text.')),
+            );
+            const provider = new Provider(() => client, {} as never);
+            Object.assign(provider, {
+                logger: {
+                    translate: vi.fn(),
+                    translated: vi.fn(),
+                    request: vi.fn(),
+                    stat: vi.fn(),
+                    warn: vi.fn(),
+                    error: vi.fn(),
+                },
+            });
+
+            await provider.translate(['ru/first.md', 'ru/second.md', 'ru/complete.md'], {
+                input,
+                output,
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+                dryRun: false,
+                userPrompt: '{{fragments}}',
+                promptMode: 'append',
+                glossaryPairs: [],
+                temperature: 0,
+                maxOutputTokens: 200,
+                maxBatchTokens: 100,
+                maxConcurrency: 2,
+                retry: 0,
+                report: reportPath,
+            } as unknown as AITranslationConfig);
+
+            expect(readFileSync(join(output, 'en', 'first.md'), 'utf8')).toContain(
+                'Текст для повтора.',
+            );
+            expect(readFileSync(join(output, 'en', 'second.md'), 'utf8')).toContain(
+                'Текст для повтора.',
+            );
+            expect(readFileSync(join(output, 'en', 'complete.md'), 'utf8')).toContain(
+                'Complete text.',
+            );
+            const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+            expect(report.status).toBe('partial');
+            expect(report.totals.files).toEqual({translated: 3, failed: 0, retried: 0, partial: 2});
+            expect(report.totals.units.untranslated).toBe(1);
+            expect(report.errors).toHaveLength(2);
+            expect(report.errors).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({path: 'ru/first.md', code: 'UNTRANSLATED_UNITS'}),
+                    expect.objectContaining({path: 'ru/second.md', code: 'UNTRANSLATED_UNITS'}),
+                ]),
+            );
+        });
+
         it('should not double the markup a model puts back around a bold line', async () => {
             const root = mkdtempSync(join(tmpdir(), 'yfm-ai-markup-'));
             const input = join(root, 'docs');
@@ -1587,6 +1651,108 @@ describe('translate ai provider', () => {
             expect(warn).toHaveBeenCalledWith('file.md', expect.stringContaining('damaged markup'));
         });
 
+        it('retries only unrepaired fragments individually without document context', async () => {
+            const units = [wrap('Первый текст'), wrap('Второй текст'), wrap('Третий текст')];
+            const client = makeClient((_, call) => {
+                if (call === 0) {
+                    return ['- First text', '- Second text', 'Third text'];
+                }
+                if (call === 1) {
+                    return ['- First text', 'Second text'];
+                }
+                return ['First text'];
+            });
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 500,
+                systemPrompt: '{{context}}',
+            });
+
+            expect(await makeTranslator(params)('ru/file.md', units)).toEqual([
+                wrap('First text'),
+                wrap('Second text'),
+                wrap('Third text'),
+            ]);
+            const requests = vi.mocked(client.complete).mock.calls;
+            expect(requests).toHaveLength(3);
+            expect(requests[1][0][0].content).toContain('Document context:');
+            expect(requests[2][0][0].content).not.toContain('Document context:');
+            expect(requests[2][0].at(-1)?.content).toBe('Первый текст');
+            expect(stat.requests).toBe(3);
+            expect(stat.markupRetried).toBe(2);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('keeps the source when the markup retry has a transport error', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) =>
+                call === 0 ? ['- Connection setup - details.'] : new Error('network blip'),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+        });
+
+        it('isolates a fragment when the markup retry returns the wrong count', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) => {
+                if (call === 0) {
+                    return ['- Connection setup - details.'];
+                }
+                if (call === 1) {
+                    return ['Connection setup', 'Details.'];
+                }
+                return ['Connection setup - details.'];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap('Connection setup - details.'),
+            ]);
+            expect(stat.requests).toBe(3);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('uses the configured fallback model for a fragment the isolated markup retry rejects', async () => {
+            const unit = wrap(`Используйте ${CODE_OPEN}value${CODE_CLOSE}.`);
+            const client = makeClient(() => ['Use value.']);
+            const fallback = makeClient((fragments) =>
+                fragments.map((fragment) => fragment.replace('Используйте', 'Use')),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, undefined, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([
+                wrap(`Use ${CODE_OPEN}value${CODE_CLOSE}.`),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.requests).toBe(4);
+            expect(stat.fallbackRequests).toBe(1);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('validates the fallback model answer before writing or caching it', async () => {
+            const unit = wrap(`Используйте ${CODE_OPEN}value${CODE_CLOSE}.`);
+            const client = makeClient(() => ['Use value.']);
+            const fallback = makeClient(() => ['Try the new value.']);
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'yfm-ai-isolated-fallback-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([unit]);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
         it.each([
             '**Connection setup** - details.',
             '*Connection setup* - details.',
@@ -1933,6 +2099,42 @@ describe('translate ai provider', () => {
             expect(client.complete).toHaveBeenCalledTimes(2);
         });
 
+        it('uses the configured fallback model after an isolated echo retry still copies the source', async () => {
+            const echo = wrap('Исходный текст.');
+            const healthy = wrap('Другой текст.');
+            const client = makeClient((fragments) =>
+                fragments.map((part) => part.replace('Другой текст.', 'Other text.')),
+            );
+            const fallback = makeClient(() => ['Source text.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, undefined, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [echo, healthy])).toEqual([
+                wrap('Source text.'),
+                wrap('Other text.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(vi.mocked(fallback.complete).mock.calls[0][0].at(-1)?.content).toBe(
+                'Исходный текст.',
+            );
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.fallbackRequests).toBe(1);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('keeps a composable echo if the fallback model produces damaged markup', async () => {
+            const unit = wrap('Исходный текст.');
+            const client = makeClient((fragments) => fragments);
+            const fallback = makeClient(() => ['- Source text.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, undefined, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(stat.markupRetried).toBe(0);
+        });
+
         it('should retry only the echoed fragment in a mixed batch', async () => {
             const unit1 = wrap('Первый текст');
             const unit2 = wrap('Второй текст');
@@ -2203,6 +2405,37 @@ describe('translate ai provider', () => {
                 'file.md',
                 expect.stringContaining('smaller batches'),
             );
+        });
+
+        it('keeps successful siblings when one fragment still has the wrong response count', async () => {
+            const first = wrap('Первый текст.');
+            const second = wrap('Второй текст.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'yfm-ai-fragment-count-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient((fragments) => {
+                if (fragments.length === 2) {
+                    return ['Merged'];
+                }
+                if (fragments[0] === 'Первый текст.') {
+                    return ['First text.', 'Extra text.'];
+                }
+                return ['Second text.'];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [first, second])).toEqual([
+                first,
+                wrap('Second text.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.translatedUnits).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(store.get(first)).toBeUndefined();
+            expect(store.get(second)).toBe(wrap('Second text.'));
         });
 
         it('drops automatic document context when retrying an unseeded echo', async () => {

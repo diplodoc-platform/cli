@@ -62,6 +62,7 @@ const WHOLE_VARIABLE = /^\{\{\s*[\w.-]+\s*\}\}$/;
 const LANGUAGE_NAMES = new Set(['lang', 'language', 'locale', 'lng']);
 const CODE_MARKER = /<x\s[^>]*ctype="code_(open|close)"[^>]*\/>/g;
 const NUMBER = /\d+(?:\.\d+)*/g;
+const YFM_CAPTION_DIRECTIVE = /^[ \t]*\{%[ \t]*(cut|note|endcut|endnote)\b[^\r\n]*%\}[ \t]*\r?$/m;
 // Scheme and host of an absolute link, the scheme optional (`//host/...`):
 // a translation may lead to another domain.
 const ORIGIN = /^(?:[a-z][a-z\d+.-]*:)?\/\/([^/?#]*)/i;
@@ -609,8 +610,9 @@ function codeSpans(text: string): string[] {
  *
  * Markdown: every line carrying a placeholder is a block. Lines without
  * placeholders (blank lines, fences, `{% endcut %}`) are the structure between
- * blocks. Yaml: every string property carrying a placeholder is a block,
- * identified by its property path with array indexes dropped.
+ * blocks. YAML strings are identified by their property path with array indexes
+ * dropped. OpenAPI fields with cut and note directives also keep the Markdown
+ * blocks within the field.
  *
  * Units that no skeleton line carries (there should be none) are appended as
  * blocks of their own, so that every unit belongs to exactly one block.
@@ -779,6 +781,7 @@ export function lineAnchors(line: string): {body: string; anchors: {id: string; 
  */
 function objectBlocks(skeleton: JSONObject, units: string[], languages: string[]): Block[] {
     const blocks: Block[] = [];
+    const openApi = typeof skeleton.openapi === 'string';
 
     visit(skeleton, '', []);
 
@@ -788,7 +791,11 @@ function objectBlocks(skeleton: JSONObject, units: string[], languages: string[]
         if (typeof node === 'string') {
             const ids = Array.from(node.matchAll(PLACEHOLDER), (match) => Number(match[1]));
             if (ids.length) {
-                blocks.push(makeBlock(ids, path, path, context, units, languages));
+                if (openApi && YFM_CAPTION_DIRECTIVE.test(node)) {
+                    blocks.push(...openApiMarkdownBlocks(node, path, context, units, languages));
+                } else {
+                    blocks.push(makeBlock(ids, path, path, context, units, languages));
+                }
             }
             return;
         }
@@ -813,6 +820,45 @@ function objectBlocks(skeleton: JSONObject, units: string[], languages: string[]
             visit(value, path ? `${path}.${name}` : name, scalars);
         }
     }
+}
+
+function openApiMarkdownBlocks(
+    skeleton: string,
+    path: string,
+    context: string[],
+    units: string[],
+    languages: string[],
+): Block[] {
+    const byLine = new Map(
+        markdownBlocks(skeleton, units, languages).map((block) => [block.line, block]),
+    );
+    const directives: string[] = [];
+    const blocks = skeleton.split('\n').flatMap((line, index) => {
+        const block = byLine.get(index);
+        const [id] = block?.units ?? [];
+        // An older target can protect an opener with no-translate. The
+        // extractor then treats its closing tag as a plain text unit.
+        const literal =
+            line.trim() === `%%%${id}%%%`
+                ? YFM_CAPTION_DIRECTIVE.exec(unwrap(units[id] ?? ''))?.[1]
+                : undefined;
+        const directive = literal ?? YFM_CAPTION_DIRECTIVE.exec(line)?.[1];
+        if (directive) {
+            directives.push(directive);
+        }
+        return block ? [{block, position: directives.length, literal, line}] : [];
+    });
+
+    // The property and the directive sequence keep similarly formatted
+    // headings in distinct fields, and each occurrence within its own block.
+    const frame = JSON.stringify([path, directives]);
+    return blocks.map(({block, position, literal, line}) => {
+        const scope = `${frame}\n${position}\n`;
+        const signature = scope + (literal ?? block.signature);
+        const structure = scope + (literal ?? block.structure);
+        const anchors = context.concat(lineAnchors(line).anchors.map(({id}) => 'id:' + id));
+        return makeBlock(block.units, signature, structure, anchors, units, languages);
+    });
 }
 
 function isPlainScalar(value: unknown): boolean {

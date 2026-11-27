@@ -23,6 +23,18 @@ function side(lines: string[]) {
     return {skeleton, units};
 }
 
+function openApiSide(description: string) {
+    return extract(
+        {openapi: '3.0.3', info: {title: 'Example', version: '1', description}, paths: {}},
+        {
+            compact: true,
+            unitLocalIds: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'en', locale: 'US'},
+        },
+    );
+}
+
 describe('translate seed pairs', () => {
     describe('compatibleUnits', () => {
         const code = (text: string) =>
@@ -268,6 +280,43 @@ describe('translate seed pairs', () => {
             expect(result.pairs).toEqual([[unit('Пункт.'), unit('Item.')]]);
             expect(result.unseeded).toBe(2);
             expect(result.blocks.paired).toBe(2);
+        });
+
+        it('does not shift OpenAPI seed pairs when legacy protection hides YFM captions', () => {
+            const source = openApiSide(
+                '{% cut "Подробности запроса" %}\n\n' +
+                    '{% note info "Важные сведения" %}\n\n' +
+                    'Обычный текст.\n\n{% endnote %}\n\n{% endcut %}\n',
+            );
+            const target = openApiSide(
+                ':::no-translate\n{% cut "Подробности запроса" %}\n:::\n\n' +
+                    ':::no-translate\n{% note info "Важные сведения" %}\n:::\n\n' +
+                    'Ordinary prose.\n\n{% endnote %}\n\n{% endcut %}\n',
+            );
+
+            expect(alignTranslationUnits(source, target, RU_EN).pairs).toEqual([
+                [unit('Example'), unit('Example')],
+                [unit('Обычный текст.'), unit('Ordinary prose.')],
+            ]);
+        });
+
+        it('keeps the approved caption of a later OpenAPI note in its own block', () => {
+            const source = openApiSide(
+                '{% note info "Настройка" %}\n\nПодключите модуль.\n\n{% endnote %}\n\n' +
+                    '{% note info "Проверка" %}\n\nВыполните запрос.\n\n{% endnote %}\n',
+            );
+            const target = openApiSide(
+                ':::no-translate\n{% note info "Настройка" %}\n:::\n\n' +
+                    'Connect the module.\n\n{% endnote %}\n\n' +
+                    '{% note info "Verification" %}\n\nSend a request.\n\n{% endnote %}\n',
+            );
+
+            expect(alignTranslationUnits(source, target, RU_EN).pairs).toEqual([
+                [unit('Example'), unit('Example')],
+                [unit('Подключите модуль.'), unit('Connect the module.')],
+                [unit('Проверка'), unit('Verification')],
+                [unit('Выполните запрос.'), unit('Send a request.')],
+            ]);
         });
 
         it('should still pair anchored units of a paragraph with a merged sentence', () => {
