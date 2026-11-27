@@ -196,6 +196,11 @@ const report = option({
     `,
 });
 
+const updateManifest = option({
+    flags: '--update-manifest <path>',
+    desc: 'Apply a source update manifest to one existing translation or create a newly added page.',
+});
+
 const useSource = option({
     flags: '--use-source',
     desc: `
@@ -262,6 +267,7 @@ export const options = {
     copyAssets,
     timeout,
     report,
+    updateManifest,
     useSource,
     schema,
     filter,

@@ -36,6 +36,8 @@ module: `TranslateRunReport`, `TranslateReportCounters`,
 `TranslateReportTarget`, `TranslateReportJudge`, `TranslateReportError` and
 the `TRANSLATE_REPORT_SCHEMA_VERSION` constant.
 
+For a [source update](./translate-source-updates.md), a successful report also identifies the manifest file in `update.file` and the manifest version in `update.version`.
+
 ## Report structure
 
 Top-level fields:

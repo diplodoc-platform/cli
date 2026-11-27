@@ -35,6 +35,7 @@ import {
     resolveVcsDiffFiles,
 } from './utils';
 import {Run} from './run';
+import {translateUpdate} from './update';
 import {configDefaults} from './utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from './extract-openapi';
 
@@ -59,6 +60,7 @@ export type TranslateArgs = BaseArgs & {
     provider: string;
     source?: string;
     target?: string | string[];
+    files?: string[];
     include?: string[];
     exclude?: string[];
     includeVcsDiff?: string | boolean;
@@ -68,6 +70,7 @@ export type TranslateArgs = BaseArgs & {
     code?: CodeMode;
     copyAssets?: boolean;
     report?: string;
+    updateManifest?: string;
 };
 
 export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
@@ -95,6 +98,7 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     timeout: number;
     /** Absolute path of the JSON run report. Not written when unset. */
     report?: AbsolutePath;
+    updateManifest?: AbsolutePath;
 } & ConfigDefaults;
 
 @withHooks
@@ -126,6 +130,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         options.copyAssets,
         options.timeout,
         options.report,
+        options.updateManifest,
         options.config(YFM_CONFIG_FILENAME),
     ];
 
@@ -188,19 +193,22 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 quiet,
                 strict,
                 source,
-                files,
+                files: args.updateManifest ? args.files : files,
                 target,
-                include,
-                exclude,
-                includeVcsDiff,
+                include: args.updateManifest ? args.include || [] : include,
+                exclude: args.updateManifest ? args.exclude || [] : exclude,
+                includeVcsDiff: args.updateManifest ? args.includeVcsDiff : includeVcsDiff,
                 vars,
                 presets,
                 varsPreset,
                 code: resolveCodeMode(args, config),
                 provider: defined('provider', args, config),
                 dryRun: defined('dryRun', args, config) || false,
-                copyAssets: defined('copyAssets', args, config) || false,
+                copyAssets: args.updateManifest
+                    ? Boolean(args.copyAssets)
+                    : defined('copyAssets', args, config) || false,
                 report,
+                updateManifest: args.updateManifest ? resolve(args.updateManifest) : undefined,
                 // No global default here: each provider applies its own
                 // (5s for yandex, 60s for LLM providers).
                 timeout: defined('timeout', args, config) as number,
@@ -209,7 +217,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
     }
 
     async action() {
-        if (this.config.includeVcsDiff) {
+        if (this.config.includeVcsDiff && !this.config.updateManifest) {
             const changed = this.getVcsDiffFiles();
             const {include, files} = this.config;
 
@@ -226,12 +234,15 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
 
         await this.run.prepareRun();
-        const [files, skipped] = await this.run.getFiles();
 
         // Presets are loaded by now: hand providers the per-file vars.
         this.config.varsFor = (path) => this.run.vars.for(normalizePath(path));
 
         if (this.provider) {
+            if (this.config.updateManifest) {
+                return translateUpdate(this.provider, this.config, this.config.updateManifest);
+            }
+            const [files, skipped] = await this.run.getFiles();
             await this.provider.skip(skipped, this.config);
             await this.provider.translate(files, this.config);
 

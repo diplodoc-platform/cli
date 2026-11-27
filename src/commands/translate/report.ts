@@ -72,6 +72,8 @@ export type TranslateReportTarget = TranslateReportCounters & {
 
 export type TranslateRunReport = {
     schemaVersion: number;
+    /** Present after applying a versioned source update manifest. */
+    update?: {version: 1; file: string};
     /** ISO 8601 start time of the CLI process. */
     startedAt: string;
     finishedAt: string;
