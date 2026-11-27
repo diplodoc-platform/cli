@@ -62,7 +62,7 @@ export function filterBlocksByConditions<T>(
             }) as T;
     }
 
-    if (obj && typeof obj === 'object' && obj !== null) {
+    if (obj && typeof obj === 'object' && !(obj instanceof Date)) {
         const result: Record<string, unknown> = {};
 
         for (const [key, value] of Object.entries(obj)) {

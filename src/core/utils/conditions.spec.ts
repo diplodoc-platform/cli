@@ -185,6 +185,13 @@ describe('conditions', () => {
             expect(filterBlocksByConditions(null, {}, false)).toBe(null);
         });
 
+        it('preserves YAML timestamps while filtering nested values', () => {
+            const updatedAt = new Date('2026-11-12T00:00:00.000Z');
+            const result = filterBlocksByConditions({meta: {updatedAt}}, {}, false);
+
+            expect(result.meta.updatedAt).toBe(updatedAt);
+        });
+
         it('should handle deep nested structures (3+ levels)', () => {
             const data = {
                 level1: {

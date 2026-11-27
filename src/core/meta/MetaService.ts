@@ -3,9 +3,10 @@ import type {Alternate, Meta, RawResources} from './types';
 
 import {flow, isEqual, omit, uniqWith} from 'lodash';
 
-import {copyJson, get, normalizePath, shortLink, zip} from '~/core/utils';
+import {copyJson, get, normalizePath, own, shortLink, zip} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
+import {normalizeUpdatedAt} from './updated-at';
 
 type Config = {
     rawAddMeta: boolean;
@@ -50,6 +51,10 @@ export class MetaService {
     private logger: Run<Config>['logger'];
 
     private meta: Map<NormalizedPath, Meta> = new Map();
+
+    private warnedUpdatedAt = new Set<NormalizedPath>();
+
+    private authoredUpdatedAt = new Map<NormalizedPath, string>();
 
     /**
      * Creates a new MetaService instance.
@@ -133,6 +138,36 @@ export class MetaService {
         this.removeEmptyFields(meta);
 
         return meta;
+    }
+
+    getAuthoredUpdatedAt(file: NormalizedPath): string | undefined {
+        return this.authoredUpdatedAt.get(file);
+    }
+
+    addSource(file: NormalizedPath, record: Hash) {
+        if (!own(record, 'updatedAt')) {
+            this.clearAuthoredUpdatedAt(file);
+            return this.add(file, record, true);
+        }
+
+        const updatedAt = normalizeUpdatedAt(record.updatedAt);
+        if (updatedAt === undefined) {
+            this.clearAuthoredUpdatedAt(file);
+            if (!this.warnedUpdatedAt.has(file)) {
+                this.warnedUpdatedAt.add(file);
+                this.logger.warn(
+                    `${file}: Invalid updatedAt; expected YYYY-MM-DD or an ISO date-time with a time zone.`,
+                );
+            }
+            return this.add(file, omit(record, ['updatedAt']), true);
+        }
+
+        this.authoredUpdatedAt.set(file, updatedAt);
+        return this.add(
+            file,
+            updatedAt === record.updatedAt ? record : {...record, updatedAt},
+            true,
+        );
     }
 
     /**
@@ -346,6 +381,16 @@ export class MetaService {
         meta.__system = Object.assign({}, meta.__system, vars);
 
         this.meta.set(file, meta);
+    }
+
+    private clearAuthoredUpdatedAt(file: NormalizedPath) {
+        if (this.authoredUpdatedAt.delete(file)) {
+            const meta = this.meta.get(file);
+            if (meta) {
+                const {updatedAt: _updatedAt, ...rest} = meta;
+                this.meta.set(file, rest);
+            }
+        }
     }
 
     private normalizeArrayFields(meta: Meta) {

@@ -37,6 +37,12 @@ The service uses a `Map<NormalizedPath, Meta>` to store metadata indexed by norm
 4. **Resource Management**: Handles scripts, styles, and CSP directives separately
 5. **Hook System**: Provides hooks for extending metadata processing
 
+On source load, `addSource` accepts a quoted calendar date or a time-zone-qualified ISO timestamp in
+`updatedAt`. It also preserves legacy unquoted YAML timestamps as ISO timestamps. The source date
+is tracked separately from the VCS result and cleared when removed or replaced with an invalid
+value. Invalid input warns once per path. The date applies to the page that declares it, not to
+pages that include that file.
+
 ## Usage Examples
 
 ### Basic Metadata Management

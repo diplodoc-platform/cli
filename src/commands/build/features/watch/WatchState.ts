@@ -92,6 +92,7 @@ export class WatchState {
 
     async processEntry(entry: NormalizedPath) {
         this.run.entry.release(entry);
+        this.run.vcs.releaseModifiedTime(entry);
         this.releaseEntryDependencies(entry);
         await this.program.processEntry(entry);
         this.detachedEntries.release(entry);

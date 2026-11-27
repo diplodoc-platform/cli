@@ -1,4 +1,4 @@
-import type {Build} from '~/commands/build';
+import type {Build, Run} from '~/commands/build';
 import type {RawToc} from '~/core/toc';
 import type {MockInstance} from 'vitest';
 
@@ -196,6 +196,59 @@ describe('Build watch feature', () => {
         watch.end();
         await promise;
     });
+
+    it.each(['', "updatedAt: '2026-11-31'\n"])(
+        'replaces a removed or invalid manual date with the configured date',
+        async (replacement) => {
+            const path = normalizePath('page.md');
+            const article = (field: string) => `---\ntitle: Page\n${field}---\n\n# Page`;
+            watch.end();
+            await promise;
+            watch.reset();
+
+            build = setupBuild({
+                globs: {'**/toc.yaml': ['toc.yaml'] as NormalizedPath[]},
+                files: {
+                    'toc.yaml': 'title: Docs\nitems:\n  - name: Page\n    href: page.md\n',
+                    [path]: article("updatedAt: '2026-11-12'\n"),
+                },
+            });
+            const history = vi.fn().mockResolvedValue(Date.parse('2026-03-20T12:00:00Z') / 1000);
+            getBaseHooks<Run>(build).BeforeAnyRun.tap('Watch dates', (currentRun) => {
+                vi.spyOn(currentRun.vcs, 'getModifiedTimeByPath').mockImplementation(history);
+            });
+            promise = runBuild(args('-f', 'html', '--mtimes'), build);
+            promise.catch(watch.end);
+            await watch.ready();
+
+            const currentRun = run(build);
+            const output = join(currentRun.output, 'page.html');
+            const writes = vi.mocked(currentRun.write);
+            const html = () =>
+                String(writes.mock.calls.filter(([file]) => file === output).slice(-1)[0]?.[1]);
+
+            expect(html()).toContain('property="article:modified_time" content="2026-11-12"');
+            expect(history).not.toHaveBeenCalled();
+
+            await change(path, article(replacement));
+
+            expect(html()).toContain(
+                'property="article:modified_time" content="2026-03-20T12:00:00.000Z"',
+            );
+            expect(history).toHaveBeenCalledExactlyOnceWith(path);
+
+            await change(path, article("updatedAt: '2026-11-13'\n"));
+            expect(html()).toContain('property="article:modified_time" content="2026-11-13"');
+            expect(history).toHaveBeenCalledTimes(1);
+
+            history.mockResolvedValue(Date.parse('2026-03-21T12:00:00Z') / 1000);
+            await change(path, article(replacement));
+            expect(html()).toContain(
+                'property="article:modified_time" content="2026-03-21T12:00:00.000Z"',
+            );
+            expect(history).toHaveBeenCalledTimes(2);
+        },
+    );
 
     describe('toc', () => {
         it('updates the HTML title after a TOC item is renamed', async () => {
