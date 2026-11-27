@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.71.3](https://github.com/diplodoc-platform/cli/compare/v5.71.2...v5.71.3) (2026-11-27)
+
+
+### Bug Fixes
+
+* **deps:** allow compatible ts-dedent versions ([46f873d](https://github.com/diplodoc-platform/cli/commit/46f873dce97879a48e54a1acfe1b79515751264e))
+* **deps:** Update @diplodoc/transform@4.78.15 ([f8bccde](https://github.com/diplodoc-platform/cli/commit/f8bccdead9f33d6263ac8dcbec90a422419c7161))
+* **deps:** Update @diplodoc/translation@1.10.5 ([0a81b00](https://github.com/diplodoc-platform/cli/commit/0a81b000e0dd706ed26806f7a0db20a94a4e6a94))
+
 ## [5.71.2](https://github.com/diplodoc-platform/cli/compare/v5.71.1...v5.71.2) (2026-11-25)
 
 
