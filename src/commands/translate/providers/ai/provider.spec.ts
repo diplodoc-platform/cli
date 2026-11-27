@@ -31,6 +31,7 @@ import {
 import {
     LLMAuthError,
     LLMRateLimitError,
+    LLMRequestError,
     SeedStore,
     TranslationStore,
     cacheFingerprint,
@@ -1377,6 +1378,17 @@ describe('translate ai provider', () => {
                 expect(userMessage(client, 1)).not.toContain('Translation memory.');
             });
 
+            it('drops memory for an echoed edit made only of previously seen words', async () => {
+                const source = 'Чтобы настроить колонкам по статусам.';
+                const complete = 'Column setup by status:';
+                const client = answering([[source], [complete]]);
+                const {params} = makeParams(client, {}, seededStore());
+
+                expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([complete]);
+                expect(userMessage(client, 0)).toContain('Translation memory.');
+                expect(userMessage(client, 1)).toBe(source);
+            });
+
             it('retries an untranslated inserted phrase without the misleading memory', async () => {
                 const source = 'Важное уточнение: ' + previous;
                 const complete = 'Important clarification: To set up columns by status:';
@@ -2170,6 +2182,91 @@ describe('translate ai provider', () => {
             );
             expect(stat.untranslatedRetried).toBe(1);
             expect(stat.fallbackRequests).toBe(1);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('isolates only the source echo left over from a batch prose retry', async () => {
+            const first = wrap('Первый текст.');
+            const second = wrap('Второй текст.');
+            const client = makeClient((fragments, call) => {
+                if (call === 0) return fragments;
+                if (fragments.length > 1) return [fragments[0], 'Second text.'];
+                return ['First text.'];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('ru/file.md', [first, second])).toEqual([
+                wrap('First text.'),
+                wrap('Second text.'),
+            ]);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls).toHaveLength(3);
+            expect(calls[2][0].at(-1)?.content).toBe('Первый текст.');
+            expect(stat.untranslatedRetried).toBe(2);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('does not fan out prose retries after both models fail on the batch', async () => {
+            const units = [wrap('Первый текст.'), wrap('Второй текст.')];
+            const client = makeClient((fragments, call) =>
+                call === 0 ? fragments : new LLMRateLimitError('limit exhausted'),
+            );
+            const fallback = makeClient(
+                () => new LLMRequestError(503, 'service unavailable', {retryable: true}),
+            );
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'yfm-ai-batch-unavailable-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', units)).toEqual(units);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslatedKept).toBe(2);
+            expect(units.map((unit) => store.get(unit))).toEqual([undefined, undefined]);
+        });
+
+        it('retries known source prose individually after the contextual markup retry fails', async () => {
+            const unit = wrap(`Укажите ${CODE_OPEN}value${CODE_CLOSE}.`);
+            const client = makeClient((fragments, call) => {
+                if (call === 0) return fragments;
+                if (call === 1) return ['Enter value.'];
+                if (call === 2) return new Error('network blip');
+                return fragments.map((fragment) => fragment.replace('Укажите', 'Enter'));
+            });
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 500,
+                systemPrompt: '{{context}}',
+            });
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([
+                wrap(`Enter ${CODE_OPEN}value${CODE_CLOSE}.`),
+            ]);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls).toHaveLength(4);
+            expect(calls[2][0][0].content).toContain('Formatting correction:');
+            expect(calls[3][0][0].content).not.toContain('Formatting correction:');
+            expect(calls[3][0][0].content).not.toContain('Document context:');
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('uses the reserve model when isolated recovery from a formatting echo has a transport error', async () => {
+            const unit = wrap('Включите уведомления.');
+            const client = makeClient((fragments, call) => {
+                if (call === 0) return ['- Enable notifications.'];
+                if (call === 1) return fragments;
+                return new Error('network blip');
+            });
+            const fallback = makeClient(() => ['Enable notifications.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, undefined, fallback);
+
+            expect(await makeTranslator(params)('ru/file.md', [unit])).toEqual([
+                wrap('Enable notifications.'),
+            ]);
+            expect(fallback.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslatedRetried).toBe(1);
             expect(stat.untranslated).toBe(0);
         });
 

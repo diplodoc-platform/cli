@@ -677,7 +677,7 @@ type TranslatorParams = {
 
 class FragmentCountError extends LLMResponseError {}
 
-type RetryPart = string | FragmentCountError | undefined;
+type RetryPart = string | FragmentCountError | LLMAuthError | undefined;
 type RequestModel = 'primary' | 'fallback';
 
 const unitIssueMessages = {
@@ -921,8 +921,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
     }
 
     // `hints` is parallel to `fragments`: the previous version of a
-    // fragment travels with it through formatting retries. A language retry
-    // can omit misleading memory when it caused source edits to be copied.
+    // fragment can travel with it through formatting retries. Language
+    // retries translate from the source without memory hints.
     async function translateBatch(
         path: string,
         fragments: string[],
@@ -1125,6 +1125,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 return [error];
             }
 
+            if (error instanceof LLMAuthError) {
+                return fragments.map(() => error);
+            }
+
             // Only a malformed answer is worth splitting; a rate limit or a
             // server error would meet every fragment the same way.
             if (!(error instanceof LLMResponseError) || fragments.length < 2) {
@@ -1178,7 +1182,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             if (model === 'fallback') {
                 logger.warn(
                     path,
-                    `${what} returned an invalid reply; retrying with the fallback model.`,
+                    `${what} did not return a usable result; retrying with the fallback model.`,
                 );
             }
             try {
@@ -1198,7 +1202,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     path,
                     `${what} failed (${error instanceof Error ? error.message : error}).`,
                 );
-                if (!(error instanceof FragmentCountError)) {
+                if (error instanceof LLMAuthError) {
                     return undefined;
                 }
             }
@@ -1252,51 +1256,60 @@ export function makeTranslator(params: TranslatorParams): Translate {
             indexes.map((index) => fragments[index]),
             context,
             'Markup retry',
-            indexes.map((index) => hints[index]),
+            indexes.map((index) => (proseRetried.has(index) ? undefined : hints[index])),
             feedback,
         );
 
         const result = [...parts];
         let unfixed = 0;
+        // A failed formatting batch can indicate an unavailable service.
+        // A malformed reply, or a failure for one known unit, can still
+        // benefit from stripping the formatting instruction and context.
+        const canRetryMissing = (retry: RetryPart) =>
+            retry instanceof FragmentCountError || (indexes.length === 1 && retry === undefined);
 
         for (const [position, index] of indexes.entries()) {
             const fragment = fragments[index];
             const retry = retried[position];
-            const candidate =
+            const accepts = (part: string) =>
+                keepsUnitMarkup(fragment, part) &&
+                !refusedTranslation(fragment, part, hints[index]);
+            let candidate = typeof retry === 'string' ? retry : undefined;
+            const knownProseIssue = proseRetried.has(index);
+            const needsProseRetry =
+                candidate === undefined
+                    ? knownProseIssue && canRetryMissing(retry)
+                    : refusedTranslation(fragment, candidate, hints[index]);
+
+            if (needsProseRetry) {
+                if (!knownProseIssue) {
+                    stat.untranslatedRetried++;
+                }
+                logger.warn(path, '1 fragment(s) came back untranslated; retrying them.');
+                const restore =
+                    candidate === undefined ? undefined : rememberAnswerChecks(fragment, candidate);
+                const isolated = await retryIsolated(path, fragment, {
+                    what: 'Untranslated retry',
+                    accepts,
+                });
+                if (isolated === undefined) {
+                    restore?.();
+                } else {
+                    candidate = isolated;
+                }
+            } else if (
                 retry instanceof FragmentCountError ||
-                (retry !== undefined && !keepsUnitMarkup(fragment, retry))
-                    ? await retryIsolated(path, fragment, {
-                          what: 'Markup retry',
-                          accepts: (part) =>
-                              keepsUnitMarkup(fragment, part) &&
-                              !refusedTranslation(fragment, part, hints[index]),
-                          markupFeedback: feedback,
-                      })
-                    : retry;
+                (candidate !== undefined && !keepsUnitMarkup(fragment, candidate))
+            ) {
+                candidate = await retryIsolated(path, fragment, {
+                    what: 'Markup retry',
+                    accepts,
+                    markupFeedback: feedback,
+                });
+            }
 
             if (candidate !== undefined && keepsUnitMarkup(fragment, candidate)) {
                 result[index] = candidate;
-
-                // A formatting correction can restore the markup by copying
-                // the source. Give this newly observed echo a prose retry.
-                if (refusedTranslation(fragment, candidate, hints[index])) {
-                    if (!proseRetried.has(index)) {
-                        stat.untranslatedRetried++;
-                    }
-                    logger.warn(path, '1 fragment(s) came back untranslated; retrying them.');
-                    const restore = rememberAnswerChecks(fragment, candidate);
-                    const isolated = await retryIsolated(path, fragment, {
-                        what: 'Untranslated retry',
-                        accepts: (part) =>
-                            !refusedTranslation(fragment, part, hints[index]) &&
-                            keepsUnitMarkup(fragment, part),
-                    });
-                    if (isolated === undefined) {
-                        restore();
-                    } else {
-                        result[index] = isolated;
-                    }
-                }
                 continue;
             }
 
@@ -1359,16 +1372,13 @@ export function makeTranslator(params: TranslatorParams): Translate {
             rememberAnswerChecks(fragments[index], parts[index]),
         );
 
-        // Retry isolated prose without the source-language document title:
-        // the exact same context can reproduce an echo, even without memory.
+        // A small retry batch usually recovers the prose. Drop the document
+        // title and memory so an echo does not repeat for the same reason.
         const retried = await retryFragments(
             path,
             indexes.map((index) => fragments[index]),
             '',
             'Untranslated retry',
-            indexes.map((index) =>
-                copiedEdit(fragments[index], parts[index], hints[index]) ? undefined : hints[index],
-            ),
         );
 
         const result = [...parts];
@@ -1382,25 +1392,26 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 !refusedTranslation(fragment, part, hints[index]);
             const acceptsIsolated = (part: string) =>
                 acceptsProse(part) && keepsUnitMarkup(fragment, part);
-            let candidate: string | undefined;
-            if (retry instanceof FragmentCountError) {
-                candidate = await retryIsolated(path, fragment, {
-                    what: 'Untranslated retry',
-                    accepts: acceptsIsolated,
-                });
-            } else if (retry !== undefined && acceptsProse(retry)) {
-                candidate = retry;
-            } else if (retry !== undefined && fallbackClient) {
-                candidate = await retryIsolated(path, fragment, {
-                    what: 'Untranslated retry',
-                    accepts: acceptsIsolated,
-                    firstModel: 'fallback',
-                });
+            if (typeof retry === 'string' && acceptsProse(retry)) {
+                result[index] = retry;
+                continue;
             }
 
-            if (candidate !== undefined) {
-                result[index] = candidate;
-                continue;
+            // Give each remaining unit its own request. A singleton already
+            // sent alone only needs the reserve, unless its framing was invalid.
+            // A transport failure already had the configured bulk fallback.
+            const needsPrimary = indexes.length > 1 || retry instanceof FragmentCountError;
+            const hasReply = typeof retry === 'string' || retry instanceof FragmentCountError;
+            if (hasReply && (needsPrimary || fallbackClient)) {
+                const candidate = await retryIsolated(path, fragment, {
+                    what: 'Untranslated retry',
+                    accepts: acceptsIsolated,
+                    firstModel: needsPrimary ? 'primary' : 'fallback',
+                });
+                if (candidate !== undefined) {
+                    result[index] = candidate;
+                    continue;
+                }
             }
 
             restoreOriginalChecks[position]();
