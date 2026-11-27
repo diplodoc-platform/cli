@@ -60,6 +60,7 @@ export class VcsService implements VcsConnector {
     async metadata(path: RelativePath, deps: NormalizedPath[] = []) {
         const file = normalizePath(path);
         const meta = this.run.meta.get(file);
+        const authoredUpdatedAt = this.run.meta.getAuthoredUpdatedAt(file);
 
         const result: VcsMetadata = {};
 
@@ -67,7 +68,8 @@ export class VcsService implements VcsConnector {
             this.config.vcsPath.enabled ? this.realpath(file) : undefined,
             this.config.authors.enabled ? this.getAuthor(file, meta?.author) : undefined,
             this.config.contributors.enabled ? this.getContributors(file, deps) : [],
-            this.config.mtimes.enabled ? this.getMTime(file, deps) : undefined,
+            authoredUpdatedAt ??
+                (this.config.mtimes.enabled ? this.getMTime(file, deps) : undefined),
         ]);
 
         result.vcsPath = vcsPath || undefined;
@@ -80,6 +82,10 @@ export class VcsService implements VcsConnector {
         Object.assign(result, await this.getResources(file, result));
 
         return result;
+    }
+
+    releaseModifiedTime(path: NormalizedPath) {
+        memoize.release(this.getMTime, path);
     }
 
     @memoize()

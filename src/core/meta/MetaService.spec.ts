@@ -52,6 +52,64 @@ describe('MetaService', () => {
         metaService = new MetaService(createMockRun());
     });
 
+    it.each(['2026-02-29', '2026-11-31', '2026-11-12T12:00:00', '', null, 20261112])(
+        'ignores invalid authored updatedAt %j and warns once',
+        async (updatedAt) => {
+            const file = 'article.md' as NormalizedPath;
+            const run = createMockRun();
+            const metaService = new MetaService(run);
+            const fallback = '2026-03-20T12:00:00.000Z';
+
+            metaService.addSource(file, {updatedAt});
+            expect(metaService.get(file).updatedAt).toBeUndefined();
+            metaService.add(file, {updatedAt: fallback});
+            metaService.addSource(file, {updatedAt});
+
+            expect((await metaService.dump(file)).updatedAt).toBe(fallback);
+            expect(run.logger.warn).toHaveBeenCalledOnce();
+            expect(run.logger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('article.md: Invalid updatedAt'),
+            );
+        },
+    );
+
+    it.each(['2028-02-29', '2026-11-12T12:00:00+03:00', '2026-11-12T09:00:00.000Z'])(
+        'preserves authored updatedAt %s',
+        async (updatedAt) => {
+            const file = 'article.md' as NormalizedPath;
+            metaService.addSource(file, {updatedAt});
+
+            expect((await metaService.dump(file)).updatedAt).toBe(updatedAt);
+        },
+    );
+
+    it.each([false, true])('preserves a YAML timestamp in rawAddMeta=%s', async (rawAddMeta) => {
+        const file = 'article.md' as NormalizedPath;
+        const metaService = new MetaService(createMockRun({rawAddMeta}));
+        const updatedAt = new Date('2026-11-12T12:00:00+03:00');
+        const record = {updatedAt};
+
+        metaService.addSource(file, record);
+
+        expect(metaService.getAuthoredUpdatedAt(file)).toBe('2026-11-12T09:00:00.000Z');
+        expect((await metaService.dump(file)).updatedAt).toBe('2026-11-12T09:00:00.000Z');
+        expect(record.updatedAt).toBe(updatedAt);
+    });
+
+    it.each([{title: 'Updated'}, {updatedAt: '2026-11-31'}])(
+        'clears the previous authored date when the source changes to %j',
+        (record) => {
+            const file = 'article.md' as NormalizedPath;
+            metaService.addSource(file, {updatedAt: '2026-11-12'});
+            expect(metaService.getAuthoredUpdatedAt(file)).toBe('2026-11-12');
+
+            metaService.addSource(file, record);
+
+            expect(metaService.getAuthoredUpdatedAt(file)).toBeUndefined();
+            expect(metaService.get(file).updatedAt).toBeUndefined();
+        },
+    );
+
     it('deduplicates equal CSP records while preserving distinct rules', async () => {
         const file = 'page.md' as NormalizedPath;
         metaService.addResources(file, {

@@ -215,7 +215,7 @@ export class MarkdownService {
             const {content, varsMetadata, varsSystem, meta} = await this.cache[key];
             this.run.meta.addMetadata(file, varsMetadata);
             this.run.meta.addSystemVars(file, varsSystem);
-            this.run.meta.add(file, meta, true);
+            this.run.meta.addSource(file, meta);
             return content;
         }
 
@@ -239,7 +239,7 @@ export class MarkdownService {
 
             this.run.meta.addMetadata(file, vars.__metadata);
             this.run.meta.addSystemVars(file, vars.__system);
-            this.run.meta.add(file, meta, true);
+            this.run.meta.addSource(file, meta);
 
             const result = {
                 content,

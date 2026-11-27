@@ -31,7 +31,7 @@ function createMarkdown(files: Record<string, string>) {
         meta: {
             addMetadata: vi.fn(),
             addSystemVars: vi.fn(),
-            add: vi.fn(),
+            addSource: vi.fn(),
             get: () => ({}),
         },
         read: vi.fn(async (path: string) => {
@@ -284,7 +284,7 @@ describe('HTML context cache', () => {
         expect(getter).not.toHaveBeenCalled();
         expect(
             vi
-                .mocked(run.meta.add)
+                .mocked(run.meta.addSource)
                 .mock.calls.every(([, meta]) => meta.marker === marker && meta.custom === custom),
         ).toBe(true);
         expect(visits.mock.calls.filter(([path]) => path === include)).toHaveLength(1);
@@ -324,9 +324,9 @@ describe('HTML context cache', () => {
         await markdown.init();
         await read(markdown);
         custom.label = 'updated by collector';
-        vi.mocked(run.meta.add).mockClear();
+        vi.mocked(run.meta.addSource).mockClear();
         await read(markdown);
-        const last = vi.mocked(run.meta.add).mock.calls.at(-1)?.[1];
+        const last = vi.mocked(run.meta.addSource).mock.calls.at(-1)?.[1];
         expect(last?.custom).toEqual({label: 'updated by collector'});
         expect(last?.custom).toBe(custom);
         expect(run.read).toHaveBeenCalledTimes(1);

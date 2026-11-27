@@ -88,7 +88,8 @@ export async function resolvePropagatedFrontmatter(
 
         const frontmatter = await run.markdown.meta(node.path);
         if (isMeaningfulFrontmatter(frontmatter)) {
-            return copyJson(frontmatter as Meta) ?? null;
+            const {updatedAt: _updatedAt, ...propagated} = frontmatter as Meta;
+            return copyJson(propagated) ?? null;
         }
 
         node = getSoleIncludeDep(node);

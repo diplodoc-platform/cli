@@ -65,6 +65,18 @@ describe('build manifest article modification dates', () => {
                 '  href: guide.md',
                 '- name: Landing',
                 '  href: landing.yaml',
+                '- name: Manual',
+                '  href: manual.md',
+                '- name: Invalid',
+                '  href: invalid.md',
+                '- name: Manual leading',
+                '  href: manual-leading.yaml',
+                '- name: Unquoted',
+                '  href: unquoted.md',
+                '- name: Unquoted leading',
+                '  href: unquoted-leading.yaml',
+                '- name: Wrapper',
+                '  href: wrapper.md',
                 '',
             ].join('\n'),
         );
@@ -74,6 +86,31 @@ describe('build manifest article modification dates', () => {
             '# Guide\n\n{% include [Common](_includes/common.md) %}\n',
         );
         writeFileSync(join(input, 'landing.yaml'), 'title: Landing\nlinks: []\n');
+        writeFileSync(
+            join(input, 'manual.md'),
+            "---\nupdatedAt: '2026-11-12'\n---\n\n# Manual\n\n{% include [Common](_includes/common.md) %}\n",
+        );
+        writeFileSync(
+            join(input, 'invalid.md'),
+            "---\nupdatedAt: '2026-11-31'\n---\n\n# Invalid\n",
+        );
+        writeFileSync(
+            join(input, 'manual-leading.yaml'),
+            "title: Manual leading\nlinks: []\nmeta:\n  updatedAt: '2026-11-12'\n",
+        );
+        writeFileSync(
+            join(input, 'unquoted.md'),
+            '---\nupdatedAt: 2026-11-12T12:00:00+03:00\n---\n\n# Unquoted\n',
+        );
+        writeFileSync(
+            join(input, 'unquoted-leading.yaml'),
+            'title: Unquoted leading\nlinks: []\nmeta:\n  updatedAt: 2026-11-12\n',
+        );
+        writeFileSync(join(input, 'wrapper.md'), '{% include [Wrapped](_includes/wrapped.md) %}\n');
+        writeFileSync(
+            join(input, '_includes/wrapped.md'),
+            "---\ntitle: Wrapped\nupdatedAt: '2026-11-12'\n---\n\n# Wrapped\n",
+        );
         writeFileSync(join(input, '_includes/common.md'), 'Original include\n');
         git(['init']);
         git(['add', '.']);
@@ -104,6 +141,12 @@ describe('build manifest article modification dates', () => {
                 index: '2026-01-10T12:00:00.000Z',
                 guide: '2026-03-20T12:00:00.000Z',
                 landing: '2026-01-10T12:00:00.000Z',
+                manual: '2026-11-12T00:00:00.000Z',
+                invalid: '2026-01-10T12:00:00.000Z',
+                'manual-leading': '2026-11-12T00:00:00.000Z',
+                unquoted: '2026-11-12T09:00:00.000Z',
+                'unquoted-leading': '2026-11-12T00:00:00.000Z',
+                wrapper: '2026-01-10T12:00:00.000Z',
             });
             const guide = readFileSync(join(output, 'guide.md'), 'utf8');
             expect(guide).toContain(includeUpdatedAt.replace('Z', '.000Z'));
@@ -111,6 +154,10 @@ describe('build manifest article modification dates', () => {
                 meta: {updatedAt: string};
             };
             expect(landing.meta.updatedAt).toBe(createdAt.replace('Z', '.000Z'));
+            const wrapper = readFileSync(join(output, 'wrapper.md'), 'utf8');
+            expect(wrapper).toContain('title: Wrapped');
+            expect(wrapper).toContain(createdAt.replace('Z', '.000Z'));
+            expect(wrapper).not.toContain('2026-11-12');
         },
     );
 
@@ -122,5 +169,26 @@ describe('build manifest article modification dates', () => {
         });
         const manifest = JSON.parse(readFileSync(join(output, 'yfm-build-manifest.json'), 'utf8'));
         expect(manifest).not.toHaveProperty('pageModifiedTimes');
+    });
+
+    it.each([
+        ['--no-vcs --no-mtimes', false],
+        ['--no-vcs --mtimes', true],
+        ['--vcs --no-mtimes', false],
+        ['--vcs --mtimes', true],
+    ])('keeps the manual date in both output formats with %s', async (args, hasFallback) => {
+        const output = join(root, `manual-date-${args.replace(/ /g, '-')}`);
+        await TestAdapter.testBuildPass(input, output, {
+            args: `${args} --vcs-owner fixture --vcs-repo fixture`,
+        });
+
+        const markdown = readFileSync(join(output, 'manual.md'), 'utf8');
+        const html = readFileSync(join(output + '-html', 'manual.html'), 'utf8');
+        const invalid = readFileSync(join(output, 'invalid.md'), 'utf8');
+
+        expect(markdown).toContain("updatedAt: '2026-11-12'");
+        expect(html).toContain('<meta property="article:modified_time" content="2026-11-12">');
+        expect(invalid.includes('updatedAt:')).toBe(hasFallback);
+        expect(invalid).not.toContain('2026-11-31');
     });
 });

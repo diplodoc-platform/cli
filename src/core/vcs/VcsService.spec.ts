@@ -75,6 +75,7 @@ describe('VcsService', () => {
         // Create mock services
         mockMetaService = {
             get: vi.fn().mockReturnValue({}),
+            getAuthoredUpdatedAt: vi.fn(),
         } as unknown as MetaService;
 
         mockTocService = {} as TocService;
@@ -96,6 +97,39 @@ describe('VcsService', () => {
     });
 
     describe('metadata() method', () => {
+        it.each([
+            ['2026-11-12', true],
+            ['2026-11-12', false],
+            ['2026-11-12T12:00:00+03:00', true],
+        ] as const)('uses %s without looking up dates (mtimes: %s)', async (updatedAt, enabled) => {
+            vi.mocked(mockMetaService.getAuthoredUpdatedAt).mockReturnValue(updatedAt);
+            vcsService.config.mtimes.enabled = enabled;
+            const connector = new MockVcsConnector();
+            vcsService['connector'] = connector;
+            const getModifiedTime = vi.spyOn(connector, 'getModifiedTimeByPath');
+
+            const result = await vcsService.metadata(asRelativePath('article.md'), [
+                asNormalizedPath('include.md'),
+            ]);
+
+            expect(result.updatedAt).toBe(updatedAt);
+            expect(getModifiedTime).not.toHaveBeenCalled();
+        });
+
+        it('does not treat an earlier computed date as authored metadata', async () => {
+            vi.mocked(mockMetaService.get).mockReturnValue({updatedAt: '2026-11-12T00:00:00.000Z'});
+            const connector = new MockVcsConnector();
+            vcsService['connector'] = connector;
+            const getModifiedTime = vi.spyOn(connector, 'getModifiedTimeByPath');
+
+            const result = await vcsService.metadata(asRelativePath('article.md'), [
+                asNormalizedPath('include.md'),
+            ]);
+
+            expect(result.updatedAt).toBeUndefined();
+            expect(getModifiedTime).toHaveBeenCalledTimes(2);
+        });
+
         describe('when connector is DefaultVcsConnector', () => {
             it('should NOT set author when connector is DefaultVcsConnector and author is provided', async () => {
                 // Mock the connector to be DefaultVcsConnector
