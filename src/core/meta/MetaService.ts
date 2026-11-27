@@ -170,16 +170,6 @@ export class MetaService {
         );
     }
 
-    private clearAuthoredUpdatedAt(file: NormalizedPath) {
-        if (this.authoredUpdatedAt.delete(file)) {
-            const meta = this.meta.get(file);
-            if (meta) {
-                const {updatedAt: _updatedAt, ...rest} = meta;
-                this.meta.set(file, rest);
-            }
-        }
-    }
-
     /**
      * Adds/merges metadata for a path.
      *
@@ -391,6 +381,16 @@ export class MetaService {
         meta.__system = Object.assign({}, meta.__system, vars);
 
         this.meta.set(file, meta);
+    }
+
+    private clearAuthoredUpdatedAt(file: NormalizedPath) {
+        if (this.authoredUpdatedAt.delete(file)) {
+            const meta = this.meta.get(file);
+            if (meta) {
+                const {updatedAt: _updatedAt, ...rest} = meta;
+                this.meta.set(file, rest);
+            }
+        }
     }
 
     private normalizeArrayFields(meta: Meta) {
