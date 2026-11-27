@@ -4,7 +4,9 @@ const {createRequire} = require('node:module');
 const {resolve} = require('node:path');
 
 const binary = process.env.DIPLODOC_BINARY_PATH;
-const requireFromCli = binary ? createRequire(realpathSync(resolve(binary))) : require;
+// The fixture must share the CLI's hook instances, including inside the pkg snapshot.
+const entrypoint = process.pkg?.entrypoint || (binary && realpathSync(resolve(binary)));
+const requireFromCli = entrypoint ? createRequire(entrypoint) : require;
 const {definePlugin} = requireFromCli('@diplodoc/transform/configuration');
 const {getHooks: programHooks} = requireFromCli('@diplodoc/cli/lib/program');
 const {getHooks: markdownHooks} = requireFromCli('@diplodoc/cli/lib/markdown');

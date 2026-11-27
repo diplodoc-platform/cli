@@ -1,9 +1,10 @@
 import {mkdir, mkdtemp, readFile, realpath, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join, resolve} from 'node:path';
-import {execa} from 'execa';
+import {join} from 'node:path';
 import {parse} from 'node-html-parser';
 import {expect, test} from 'vitest';
+
+import runner from '../fixtures/runner';
 
 function renderedPage(html: string) {
     const page = parse(html);
@@ -57,8 +58,6 @@ test.each(['regular', 'radio', 'dropdown', 'accordion'])(
     'preserves colon %s through direct HTML, default MD and rebuilt HTML',
     async (variant) => {
         const root = await realpath(await mkdtemp(join(tmpdir(), 'diplodoc-colon-blocks-')));
-        const binary =
-            process.env.DIPLODOC_BINARY_PATH || resolve(__dirname, '../../build/index.js');
         const input = join(root, 'input');
         const direct = join(root, 'direct');
         const md = join(root, 'md');
@@ -117,8 +116,7 @@ Legacy body.
                 [input, md, ['-f', 'md']],
                 [md, rebuilt, []],
             ] as const) {
-                const result = await execa(process.execPath, [
-                    binary,
+                const result = await runner.runRaw([
                     '-i',
                     source,
                     '-o',
@@ -127,6 +125,7 @@ Legacy body.
                     'constant',
                     ...extra,
                 ]);
+                expect(result.code, result.stderr).toBe(0);
                 expect(result.stdout + result.stderr).not.toMatch(
                     /LEGACY_(CUT|TABS|NOTES)_CALLBACK/,
                 );

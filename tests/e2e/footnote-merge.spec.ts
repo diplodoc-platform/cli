@@ -1,12 +1,17 @@
 import {mkdir, mkdtemp, readFile, realpath, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join, resolve} from 'node:path';
-import {execa} from 'execa';
+import {join} from 'node:path';
 import {expect, test} from 'vitest';
+
+import runner from '../fixtures/runner';
+
+async function build(input: string, output: string, ...flags: string[]) {
+    const result = await runner.runRaw(['-i', input, '-o', output, ...flags]);
+    expect(result.code, result.stderr).toBe(0);
+}
 
 test('preserves each included footnote scope through default Markdown and HTML builds', async () => {
     const root = await realpath(await mkdtemp(join(tmpdir(), 'diplodoc-footnote-merge-')));
-    const binary = process.env.DIPLODOC_BINARY_PATH || resolve(__dirname, '../../build/index.js');
     const input = join(root, 'input');
     const direct = join(root, 'direct');
     const md = join(root, 'md');
@@ -19,9 +24,9 @@ test('preserves each included footnote scope through default Markdown and HTML b
             '# Page\n\n{% include [first](child.md) %}\n\n{% include [second](child.md) %}\n',
         );
         await writeFile(join(input, 'child.md'), 'Child reference[^x].\n\n[^x]: Child body.\n');
-        await execa(process.execPath, [binary, '-i', input, '-o', direct]);
-        await execa(process.execPath, [binary, '-i', input, '-o', md, '-f', 'md']);
-        await execa(process.execPath, [binary, '-i', md, '-o', rebuilt]);
+        await build(input, direct);
+        await build(input, md, '-f', 'md');
+        await build(md, rebuilt);
         const directHtml = await readFile(join(direct, 'index.html'), 'utf8');
         const rebuiltHtml = await readFile(join(rebuilt, 'index.html'), 'utf8');
         expect(directHtml.match(/Child body\./g)).toHaveLength(2);
@@ -88,8 +93,6 @@ test.each(cases)(
     'preserves default MD scope for $name',
     async ({page, files, bodies, retainInclude}) => {
         const root = await realpath(await mkdtemp(join(tmpdir(), 'diplodoc-footnote-scope-')));
-        const binary =
-            process.env.DIPLODOC_BINARY_PATH || resolve(__dirname, '../../build/index.js');
         const input = join(root, 'input');
         const direct = join(root, 'direct');
         const md = join(root, 'md');
@@ -103,9 +106,9 @@ test.each(cases)(
             await writeFile(join(input, 'index.md'), '# Page\n\n' + page + '\n');
             for (const [name, content] of Object.entries(files))
                 await writeFile(join(input, name), content + '\n');
-            await execa(process.execPath, [binary, '-i', input, '-o', direct]);
-            await execa(process.execPath, [binary, '-i', input, '-o', md, '-f', 'md']);
-            await execa(process.execPath, [binary, '-i', md, '-o', rebuilt]);
+            await build(input, direct);
+            await build(input, md, '-f', 'md');
+            await build(md, rebuilt);
             const output = await readFile(join(md, 'index.md'), 'utf8');
             const directHtml = await readFile(join(direct, 'index.html'), 'utf8');
             const rebuiltHtml = await readFile(join(rebuilt, 'index.html'), 'utf8');
