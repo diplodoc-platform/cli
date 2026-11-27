@@ -10,7 +10,7 @@ import type {TargetStat, TranslateReportJudge} from '../../report';
 
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, extname, join, resolve} from 'node:path';
-import {asyncify, eachLimit} from 'async';
+import {asyncify, eachLimit, eachSeries} from 'async';
 
 import {LogLevel} from '~/core/logger';
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
@@ -591,15 +591,7 @@ function makeProcessor(params: ProcessorParams) {
         // cross-file reuse. Localization belongs to this file's composition.
         const localized = localizedUrls(store?.memory(path) || [], languages);
         const parts = translated.map((part) => restoreLocalizedUrls(part, localized));
-        for (const ids of tableTitles) {
-            if (ids.some((id) => isTableTitleFallback(parts[id]))) {
-                for (const id of ids) parts[id] = units[id];
-                const warning =
-                    'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
-                logger?.warn(path, warning);
-                warnings.push(warning);
-            }
-        }
+        restoreTableTitles(path, units, parts, tableTitles, warnings);
 
         onTranslated?.(path, units, parts);
 
@@ -610,6 +602,26 @@ function makeProcessor(params: ProcessorParams) {
 
         return warnings;
     };
+
+    function restoreTableTitles(
+        path: string,
+        units: string[],
+        parts: string[],
+        tableTitles: number[][],
+        warnings: FileWarning[],
+    ) {
+        for (const ids of tableTitles) {
+            if (ids.some((id) => isTableTitleFallback(parts[id]))) {
+                for (const id of ids) {
+                    parts[id] = units[id];
+                }
+                const warning =
+                    'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
+                logger?.warn(path, warning);
+                warnings.push(warning);
+            }
+        }
+    }
 
     /**
      * The output is composed from the source skeleton, so what the
@@ -679,6 +691,28 @@ type TranslatorParams = {
 };
 
 class FragmentCountError extends LLMResponseError {}
+
+function splitBatchReply(text: string, count: number): string[] {
+    const parts = splitFragments(text);
+
+    // Models sometimes emit stray edge delimiters (e.g. a lone separator
+    // for a fragment they decided to keep as is) - empty edge parts are
+    // framing noise, not translations.
+    while (parts.length > count && parts[parts.length - 1] === '') {
+        parts.pop();
+    }
+    while (parts.length > count && parts[0] === '') {
+        parts.shift();
+    }
+
+    if (parts.length !== count) {
+        throw new FragmentCountError(
+            `Expected ${count} fragments in LLM response, got ${parts.length}`,
+        );
+    }
+
+    return parts;
+}
 
 type RetryPart = string | FragmentCountError | LLMAuthError | undefined;
 type RequestModel = 'primary' | 'fallback';
@@ -1054,23 +1088,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             stat.outputTokens += result.usage.outputTokens;
         }
 
-        const parts = splitFragments(result.text);
-
-        // Models sometimes emit stray edge delimiters (e.g. a lone separator
-        // for a fragment they decided to keep as is) - empty edge parts are
-        // framing noise, not translations.
-        while (parts.length > fragments.length && parts[parts.length - 1] === '') {
-            parts.pop();
-        }
-        while (parts.length > fragments.length && parts[0] === '') {
-            parts.shift();
-        }
-
-        if (parts.length !== fragments.length) {
-            throw new FragmentCountError(
-                `Expected ${fragments.length} fragments in LLM response, got ${parts.length}`,
-            );
-        }
+        const parts = splitBatchReply(result.text, fragments.length);
 
         // Restore the wrapper; unwrap defensively in case the model echoed it.
         // An empty translation of a non-empty fragment is never valid - keep
@@ -1271,7 +1289,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
         const canRetryMissing = (retry: RetryPart) =>
             retry instanceof FragmentCountError || (indexes.length === 1 && retry === undefined);
 
-        for (const [position, index] of indexes.entries()) {
+        await eachSeries(indexes.entries(), async ([position, index]) => {
             const fragment = fragments[index];
             const retry = retried[position];
             const accepts = (part: string) =>
@@ -1289,17 +1307,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     stat.untranslatedRetried++;
                 }
                 logger.warn(path, '1 fragment(s) came back untranslated; retrying them.');
-                const restore =
-                    candidate === undefined ? undefined : rememberAnswerChecks(fragment, candidate);
-                const isolated = await retryIsolated(path, fragment, {
-                    what: 'Untranslated retry',
-                    accepts,
-                });
-                if (isolated === undefined) {
-                    restore?.();
-                } else {
-                    candidate = isolated;
-                }
+                candidate = await recoverProse(fragment, candidate, accepts);
             } else if (
                 retry instanceof FragmentCountError ||
                 (candidate !== undefined && !keepsUnitMarkup(fragment, candidate))
@@ -1313,7 +1321,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
             if (candidate !== undefined && keepsUnitMarkup(fragment, candidate)) {
                 result[index] = candidate;
-                continue;
+                return;
             }
 
             unfixed++;
@@ -1321,7 +1329,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             incomplete.set(fragment, 'UNTRANSLATED_UNITS');
             repairs.set(fragment, 0);
             result[index] = tableTitleFallback(fragment);
-        }
+        });
 
         if (unfixed) {
             logger.warn(
@@ -1331,6 +1339,24 @@ export function makeTranslator(params: TranslatorParams): Translate {
         }
 
         return result;
+
+        async function recoverProse(
+            fragment: string,
+            candidate: string | undefined,
+            accepts: (part: string) => boolean,
+        ) {
+            const restore =
+                candidate === undefined ? undefined : rememberAnswerChecks(fragment, candidate);
+            const isolated = await retryIsolated(path, fragment, {
+                what: 'Untranslated retry',
+                accepts,
+            });
+            if (isolated === undefined) {
+                restore?.();
+                return candidate;
+            }
+            return isolated;
+        }
     }
 
     /**
@@ -1388,7 +1414,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         // Reject echoes and copied new prose, not every source-script word:
         // existing localized names and literal code can legitimately survive.
-        for (const [position, index] of indexes.entries()) {
+        await eachSeries(indexes.entries(), async ([position, index]) => {
             const fragment = fragments[index];
             const retry = retried[position];
             const acceptsProse = (part: string) =>
@@ -1397,7 +1423,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 acceptsProse(part) && keepsUnitMarkup(fragment, part);
             if (typeof retry === 'string' && acceptsProse(retry)) {
                 result[index] = retry;
-                continue;
+                return;
             }
 
             // Give each remaining unit its own request. A singleton already
@@ -1413,12 +1439,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 });
                 if (candidate !== undefined) {
                     result[index] = candidate;
-                    continue;
+                    return;
                 }
             }
 
             restoreOriginalChecks[position]();
-        }
+        });
 
         return result;
     }
@@ -1540,6 +1566,41 @@ export function makeTranslator(params: TranslatorParams): Translate {
         } else if (store) {
             resolved = store.resolve(path, texts);
         }
+        function readStoredTranslation(index: number, text: string) {
+            const stored = resolved[index];
+            if (stored === undefined) {
+                return undefined;
+            }
+            const seeded = Boolean(store?.isSeeded(path, text, stored));
+            const {text: healed, normalized, stripped} = cachedRepair(text, stored, seeded);
+            // Identity entries for units that still contain source-script
+            // characters were cached by older runs that stored untranslated
+            // responses. Treat them as misses so the unit gets another chance.
+            const refused =
+                invalidCachedProse(index, text, healed, normalized) ||
+                (!store?.isFileSeeded(path, text, stored) &&
+                    Boolean(
+                        markupIssueForUnit(
+                            text,
+                            // Seeded translations may legitimately localize URLs.
+                            // Check their shape with the source addresses, without
+                            // changing the cached translation used for composition.
+                            unmaskAddresses(text, maskAddresses(healed)),
+                        ),
+                    ));
+            if (refused) {
+                return undefined;
+            }
+            if (normalized !== stored && !dryRun) {
+                // Heal wrapper noise cached by older runs. A dry run
+                // estimates, it does not rewrite.
+                store?.set(text, normalized);
+            }
+            stat.cached++;
+            stat.markupStripped += stripped;
+            return healed;
+        }
+
         let buffer: string[] = [];
         let bufferHints: (SeedHint | undefined)[] = [];
         let bufferTokens = 0;
@@ -1612,6 +1673,25 @@ export function makeTranslator(params: TranslatorParams): Translate {
             bufferTokens = 0;
         };
 
+        function enqueueUnit(text: string, tokens: number, hint: SeedHint | undefined) {
+            // The memory entry goes out in the same request as the unit, so
+            // it counts towards the batch budget. Only towards the batch: a
+            // unit that fits alone is still sent with its memory.
+            const size = hint
+                ? tokens + estimateTokens(renderMemoryEntry(buffer.length + 1, text, hint))
+                : tokens;
+
+            if (bufferTokens + size > maxBatchTokens && buffer.length) {
+                release();
+            }
+            buffer.push(text);
+            bufferHints.push(hint);
+            if (hint) {
+                stat.memoryHints++;
+            }
+            bufferTokens += size;
+        }
+
         for (const [index, text] of texts.entries()) {
             const tokens = estimateTokens(text);
 
@@ -1629,36 +1709,10 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 continue;
             }
 
-            const stored = resolved[index];
-            if (stored !== undefined) {
-                const seeded = Boolean(store?.isSeeded(path, text, stored));
-                const {text: healed, normalized, stripped} = cachedRepair(text, stored, seeded);
-                // Identity entries for units that still contain source-script
-                // characters were cached by older runs that stored untranslated
-                // responses. Treat them as misses so the unit gets another chance.
-                const refused =
-                    invalidCachedProse(index, text, healed, normalized) ||
-                    (!store?.isFileSeeded(path, text, stored) &&
-                        Boolean(
-                            markupIssueForUnit(
-                                text,
-                                // Seeded translations may legitimately localize URLs.
-                                // Check their shape with the source addresses, without
-                                // changing the cached translation used for composition.
-                                unmaskAddresses(text, maskAddresses(healed)),
-                            ),
-                        ));
-                if (!refused) {
-                    if (normalized !== stored && !dryRun) {
-                        // Heal wrapper noise cached by older runs. A dry run
-                        // estimates, it does not rewrite.
-                        store?.set(text, normalized);
-                    }
-                    stat.cached++;
-                    stat.markupStripped += stripped;
-                    promises.push(Promise.resolve(healed));
-                    continue;
-                }
+            const cachedTranslation = readStoredTranslation(index, text);
+            if (cachedTranslation !== undefined) {
+                promises.push(Promise.resolve(cachedTranslation));
+                continue;
             }
 
             if (store) {
@@ -1676,23 +1730,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             cache.set(text, defer);
             promises.push(defer.promise);
 
-            // The memory entry goes out in the same request as the unit, so
-            // it counts towards the batch budget. Only towards the batch: a
-            // unit that fits alone is still sent with its memory.
-            const hint = hinted[index];
-            const size = hint
-                ? tokens + estimateTokens(renderMemoryEntry(buffer.length + 1, text, hint))
-                : tokens;
-
-            if (bufferTokens + size > maxBatchTokens && buffer.length) {
-                release();
-            }
-            buffer.push(text);
-            bufferHints.push(hint);
-            if (hint) {
-                stat.memoryHints++;
-            }
-            bufferTokens += size;
+            enqueueUnit(text, tokens, hinted[index]);
         }
 
         release();

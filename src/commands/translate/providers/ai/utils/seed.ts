@@ -98,6 +98,28 @@ export function alignTranslationUnits(
         ? protectedLinkLabelIds(source.skeleton)
         : new Set<number>();
 
+    function seedPair(s: number, targetUnit: string) {
+        const sourceUnit = source.units[s];
+
+        if (protectedLabels.has(s) && addsBracketedProtectedLabel(sourceUnit, targetUnit)) {
+            return;
+        }
+
+        seeded.add(s);
+
+        if (sourceUnit === targetUnit && marker?.test(sourceUnit)) {
+            result.skipped++;
+            return;
+        }
+
+        if (doubtful(sourceUnit, targetUnit)) {
+            result.doubtful++;
+            result.pairs.push([sourceUnit, targetUnit, true]);
+        } else {
+            result.pairs.push([sourceUnit, targetUnit]);
+        }
+    }
+
     for (const [i, j] of blockPairs) {
         result.blocks.paired++;
 
@@ -108,25 +130,7 @@ export function alignTranslationUnits(
             target.units,
             linkLanguages,
         )) {
-            const sourceUnit = source.units[s];
-
-            if (protectedLabels.has(s) && addsBracketedProtectedLabel(sourceUnit, targetUnit)) {
-                continue;
-            }
-
-            seeded.add(s);
-
-            if (sourceUnit === targetUnit && marker?.test(sourceUnit)) {
-                result.skipped++;
-                continue;
-            }
-
-            if (doubtful(sourceUnit, targetUnit)) {
-                result.doubtful++;
-                result.pairs.push([sourceUnit, targetUnit, true]);
-            } else {
-                result.pairs.push([sourceUnit, targetUnit]);
-            }
+            seedPair(s, targetUnit);
         }
     }
 
@@ -166,6 +170,14 @@ export function protectedLinkLabelIds(skeleton: TranslationSide['skeleton']): Se
         }
     }
 
+    function collectIds(label?: string) {
+        if (label?.includes(':no-translate[')) {
+            for (const [, id] of label.matchAll(/%%%(\d+)%%%/g)) {
+                ids.add(Number(id));
+            }
+        }
+    }
+
     function collectLinkLabels(value: string) {
         for (const block of markdown.parse(value, {})) {
             let label: string | undefined;
@@ -173,11 +185,7 @@ export function protectedLinkLabelIds(skeleton: TranslationSide['skeleton']): Se
                 if (token.type === 'link_open') {
                     label = '';
                 } else if (token.type === 'link_close') {
-                    if (label?.includes(':no-translate[')) {
-                        for (const [, id] of label.matchAll(/%%%(\d+)%%%/g)) {
-                            ids.add(Number(id));
-                        }
-                    }
+                    collectIds(label);
                     label = undefined;
                 } else if (token.type === 'text' && label !== undefined) {
                     label += token.content;
