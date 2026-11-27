@@ -7,7 +7,7 @@ import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'n
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
-import {extract} from '@diplodoc/translation';
+import {compose, extract} from '@diplodoc/translation';
 
 import {createTargetStat} from '../../report';
 import {markTableTitle} from '../../utils/table-title';
@@ -31,6 +31,7 @@ import {
 import {
     LLMAuthError,
     LLMRateLimitError,
+    LLMResponseError,
     SeedStore,
     TranslationStore,
     cacheFingerprint,
@@ -110,6 +111,7 @@ const translated = (fragments: string[]) => fragments.map((text) => `T:${text}`)
 const BOLD_CLOSE = '<x ctype="bold_close" equiv-text="**" id="x-1"/>';
 const CODE_OPEN = '<x ctype="code_open" equiv-text="`" id="x-1"/>';
 const CODE_CLOSE = '<x ctype="code_close" equiv-text="`" id="x-2"/>';
+const IDENTIFIER_CODE = CODE_OPEN + 'COURIER_TO_MERCHANT' + CODE_CLOSE;
 
 const wrap = (text: string) => `<source xml:space="preserve">${text}</source>`;
 const codeWrap = (text: string) =>
@@ -120,6 +122,16 @@ const codeWrap = (text: string) =>
 const COMMIT = 'https://github.com/ytsaurus/ytsaurus/commit/8013fee';
 const ISSUE = 'https://github.com/ytsaurus/ytsaurus/issues/930';
 const LINK_OPEN = `<g ctype="link" equiv-text="[{{text}}](${COMMIT})" id="g-1" x-begin="[" x-end="](${COMMIT})">`;
+const thresholdUnit = () =>
+    wrap(
+        `${CODE_OPEN}MINIMUM_FOR_PROMOS${CODE_CLOSE} — товары с ` +
+            LINK_OPEN.split(COMMIT).join('*minimumForBestseller') +
+            'установленным минимумом по цене для акций</g>, который соответствует порогу ' +
+            CODE_OPEN.replace('x-1', 'x-3') +
+            'maxPromoPrice' +
+            CODE_CLOSE.replace('x-2', 'x-4') +
+            '.',
+    );
 const LINK_TAIL =
     '<x ctype="link_text_part_close" equiv-text="]" id="x-1"/>' +
     '<x ctype="link_attributes_part_open" equiv-text="(" id="x-2"/>' +
@@ -302,7 +314,7 @@ describe('translate ai provider', () => {
             const input = join(root, 'docs');
             const output = join(root, 'out');
             mkdirSync(join(input, 'ru'), {recursive: true});
-            writeFileSync(join(input, 'ru', 'test.md'), '# Заголовок\n\nПривет, мир.\n');
+            writeFileSync(join(input, 'ru', 'test.md'), '# Title\n\nHello, world.\n');
 
             const inner = makeFullClient();
             const client: LLMClient = {
@@ -644,7 +656,7 @@ describe('translate ai provider', () => {
             const input = join(root, 'docs');
             const output = join(root, 'out');
             mkdirSync(join(input, 'ru'), {recursive: true});
-            writeFileSync(join(input, 'ru', 'test.md'), '# Заголовок\n\nПривет, мир.\n');
+            writeFileSync(join(input, 'ru', 'test.md'), '# Title\n\nHello, world.\n');
 
             const primary: LLMClient = {
                 name: 'fake',
@@ -690,7 +702,7 @@ describe('translate ai provider', () => {
             } as unknown as AITranslationConfig);
 
             const result = readFileSync(join(output, 'en', 'test.md'), 'utf8');
-            expect(result).toContain('T:Привет, мир.');
+            expect(result).toContain('T:Hello, world.');
             expect(logger.error).not.toHaveBeenCalled();
             expect(logger.warn).toHaveBeenCalledWith(
                 'ru/test.md',
@@ -1160,9 +1172,13 @@ describe('translate ai provider', () => {
                     const source = markTableTitle(wrap('Имя'));
                     const bad = markTableTitle(wrap('Example } details'));
                     const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
-                    if (seeded) seeds.record('ru/a.md', [[source, bad]]);
+                    if (seeded) {
+                        seeds.record('ru/a.md', [[source, bad]]);
+                    }
                     const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
-                    if (!seeded) store.set(source, bad);
+                    if (!seeded) {
+                        store.set(source, bad);
+                    }
                     const client = makeClient(() => ['Table title']);
                     const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
                     expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([
@@ -1554,6 +1570,8 @@ describe('translate ai provider', () => {
                       ),
             );
             const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+            params.sourceLanguage = 'en';
+            params.targetLanguage = 'ru';
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
@@ -1576,6 +1594,8 @@ describe('translate ai provider', () => {
                     : [`Включите с помощью ${CODE_OPEN}a.b.c`],
             );
             const {params, stat, warn} = makeParams(client, {maxBatchTokens: 500});
+            params.sourceLanguage = 'en';
+            params.targetLanguage = 'ru';
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
@@ -1608,6 +1628,1495 @@ describe('translate ai provider', () => {
             );
         });
 
+        it('isolates one final markup retry without the document title', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const answer = 'Connection setup - details.';
+            const title = 'Исходный заголовок страницы';
+            const client = makeClient((_, call) => [
+                call < 2 ? '*Connection setup* - details.' : answer,
+            ]);
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'isolated-markup-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(
+                client,
+                {maxBatchTokens: 500, userPrompt: undefined},
+                store,
+            );
+
+            expect(await makeTranslator(params)('file.md', [unit], {title})).toEqual([
+                wrap(answer),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls[1][0].at(-1)?.content).toContain(title);
+            expect(calls[2][0].at(-1)?.content).not.toContain(title);
+            expect(calls[2][0].at(-1)?.content).toContain('Установка соединения');
+            expect(calls[2][0][0].content).toContain('Formatting correction:');
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(wrap(answer));
+        });
+
+        it('resends only the unresolved markup unit on the final retry', async () => {
+            const bad = wrap('Установка соединения - подробности.');
+            const good = wrap('Другой раздел.');
+            const client = makeClient((_, call) =>
+                call === 0
+                    ? ['*Connection setup* - details.', 'Another section.']
+                    : [
+                          call === 1
+                              ? '*Connection setup* - details.'
+                              : 'Connection setup - details.',
+                      ],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [bad, good])).toEqual([
+                wrap('Connection setup - details.'),
+                wrap('Another section.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(vi.mocked(client.complete).mock.calls[2][0].at(-1)?.content).toBe(
+                'Установка соединения - подробности.',
+            );
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it('recovers on a second isolated markup answer without document context or memory', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const previous = wrap('Установка соединения - сведения.');
+            const answer = wrap('Connection setup - details.');
+            const title = 'Исходный заголовок страницы';
+            const dir = mkdtempSync(join(tmpdir(), 'second-isolated-markup-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+            seeds.record('ru/a.md', [[previous, wrap('Connection setup - information.')]]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient((_, call) => [
+                call < 3 ? '*Connection setup* - details.' : 'Connection setup - details.',
+            ]);
+            const {params, stat} = makeParams(
+                client,
+                {maxBatchTokens: 500, userPrompt: undefined},
+                store,
+            );
+            const translate = makeTranslator(params);
+
+            expect(await translate('ru/a.md', [unit], {title})).toEqual([answer]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls[1][0].at(-1)?.content).toContain(title);
+            expect(calls[1][0].at(-1)?.content).toContain('Translation memory.');
+            for (const index of [2, 3]) {
+                const user = calls[index][0].at(-1)?.content;
+                expect(user).toContain('Установка соединения - подробности.');
+                expect(user).not.toContain(title);
+                expect(user).not.toContain('Translation memory.');
+                expect(user).not.toContain(`\n${FRAGMENT_SEPARATOR}\n`);
+                expect(calls[index][0][0].content).toContain('Formatting correction:');
+            }
+            expect(calls[2][0][0].content).toBe(calls[1][0][0].content);
+            expect(calls[3][0][0].content).not.toBe(calls[2][0][0].content);
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(answer);
+            expect(await translate('ru/a.md', [unit], {title})).toEqual([answer]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+        });
+
+        it('adds only safe group types and IDs to the last isolated markup request', async () => {
+            const url = 'https://example.test/guide?private_key=hidden-query';
+            const literal = 'PRIVATE_LITERAL_VALUE';
+            const bold =
+                '<g ctype="bold" data-note=\'private-note id="g-999" https://bold.test/?private=bold\' equiv-text="**{{text}}**" id="g-700" x-begin="**" x-end="**">';
+            const link = `<g ctype="link" equiv-text="[{{text}}](${url})" id="g-701" x-begin="[" x-end="](${url})" data-hidden="hidden-attribute">`;
+            const unit = wrap(
+                `Читайте ${bold}${link}описание</g></g> с ${CODE_OPEN}${literal}${CODE_CLOSE}.`,
+            );
+            // Fixed replies exercise request construction, not model quality.
+            const client = makeClient((fragments, call) =>
+                fragments.map((fragment) => {
+                    const translated = fragment
+                        .replace('Читайте ', 'Read ')
+                        .replace('описание', 'the guide')
+                        .replace(' с ', ' with ');
+                    return call < 3 ? translated.replace(/<\/?g\b[^>]*>/g, '') : translated;
+                }),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap(
+                    `Read ${bold}${link}the guide</g></g> with ${CODE_OPEN}${literal}${CODE_CLOSE}.`,
+                ),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const calls = vi.mocked(client.complete).mock.calls;
+            const firstIsolated = calls[2][0][0].content;
+            const lastIsolated = calls[3][0][0].content;
+            expect(calls[3][0]).not.toEqual(calls[2][0]);
+            expect(lastIsolated).not.toBe(firstIsolated);
+            expect(calls[1][0][0].content).toContain('Preserve every original XML g group');
+            expect(calls[1][0][0].content).toContain('attributes, IDs and nesting');
+            expect(lastIsolated).toContain('- bold group g-700\n- link group g-701');
+            expect(lastIsolated).toContain('not replacement tags');
+            expect(lastIsolated).toContain('full original tags, attributes and nesting');
+            expect(lastIsolated).toContain(
+                'Translate all ordinary prose inside and outside groups',
+            );
+            expect(lastIsolated.match(/<g\b[^>]*>/g)).toBeNull();
+            expect(firstIsolated.match(/<g\b[^>]*>/g)).toBeNull();
+            expect(calls[1][0][0].content.match(/<g\b[^>]*>/g)).toBeNull();
+            expect(calls[0][0][0].content).not.toContain('Formatting correction:');
+            for (const hidden of [
+                url,
+                'private_key',
+                'hidden-query',
+                'hidden-attribute',
+                'private-note',
+                'g-999',
+                'bold.test',
+                literal,
+            ]) {
+                for (const [messages] of calls) {
+                    expect(messages[0].content).not.toContain(hidden);
+                }
+            }
+            for (const prose of ['Читайте', 'описание', 'the guide']) {
+                expect(lastIsolated).not.toContain(prose);
+            }
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it.each<[string, string, string, boolean]>([
+            ['missing ID', '', 'link', false],
+            ['duplicate ID', ' id="g-701"', 'link', true],
+            ['non-generated ID', ' id="private-group-id"', 'link', false],
+            ['unknown type', ' id="g-701"', 'private-group-type', false],
+        ])(
+            'does not promote private source attributes for a group with %s',
+            async (_, id, type, duplicate) => {
+                const url = 'https://example.test/guide?private_key=PRIVATE_QUERY';
+                const group = `<g ctype="${type}" equiv-text="[{{text}}](${url})"${id} x-begin="[" x-end="](${url})">`;
+                const unit = wrap(
+                    `Читайте ${group}описание</g>.` + (duplicate ? ` См. ${group}раздел</g>.` : ''),
+                );
+                const client = makeClient(() => ['Read the guide.']);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const calls = vi.mocked(client.complete).mock.calls;
+                for (const [messages] of calls) {
+                    const system = messages[0].content;
+                    for (const hidden of [
+                        url,
+                        'PRIVATE_QUERY',
+                        'private-group-id',
+                        'private-group-type',
+                    ]) {
+                        expect(system).not.toContain(hidden);
+                    }
+                }
+                expect(calls[3][0][0].content).not.toBe(calls[2][0][0].content);
+                if (type !== 'link' || !id || duplicate) {
+                    expect(calls[3][0].at(-1)?.content).toContain(url);
+                }
+                expect(stat.markupRetried).toBe(1);
+                expect(stat.markupDamaged).toBe(1);
+            },
+        );
+
+        it.each([
+            [
+                'ID',
+                '<g ctype="link" data-note=\'text id="g-424242"\' id="g-12" x-begin="[" x-end="](https://example.test)">',
+                'id="g-424242"',
+            ],
+            [
+                'type',
+                '<g data-note=\'text ctype="link"\' ctype="bold" id="g-12" x-begin="**" x-end="**">',
+                'ctype="link"',
+            ],
+        ])(
+            'omits a group when address masking changed its structural %s',
+            async (_, group, fake) => {
+                const unit = wrap(`Читайте ${group}описание</g>.`);
+                const client = makeClient(() => ['Read the guide.']);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const calls = vi.mocked(client.complete).mock.calls;
+                expect(calls[0][0].at(-1)?.content).toContain(fake);
+                expect(calls[3][0][0].content).not.toBe(calls[2][0][0].content);
+                expect(calls[3][0][0].content).not.toContain('group g-424242');
+                expect(calls[3][0][0].content).not.toContain('link group g-12');
+                expect(stat.markupRetried).toBe(1);
+                expect(stat.markupDamaged).toBe(1);
+            },
+        );
+
+        it('does not invent group inventory without source formatting groups', async () => {
+            const literal = 'PRIVATE_LITERAL_VALUE';
+            const unit = wrap(`Выполните ${CODE_OPEN}${literal}${CODE_CLOSE}.`);
+            const client = makeClient((fragments, call) =>
+                call < 3
+                    ? ['Run another value.']
+                    : fragments.map((text) => text.replace('Выполните', 'Run')),
+            );
+            const {params} = makeParams(client, {maxBatchTokens: 1000});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap(`Run ${CODE_OPEN}${literal}${CODE_CLOSE}.`),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const calls = vi.mocked(client.complete).mock.calls;
+            const lastIsolated = calls[3][0][0].content;
+            expect(lastIsolated).not.toBe(calls[2][0][0].content);
+            expect(lastIsolated.match(/<g\b[^>]*>/g)).toBeNull();
+            expect(lastIsolated).not.toContain(literal);
+        });
+
+        it('exposes protected identifier identities only as read-only request context', async () => {
+            const code = IDENTIFIER_CODE;
+            const unit = wrap(code + ' — курьер передает код продавцу для получения заказа.');
+            const translated = code + ' — 快递员将代码交给卖家以领取订单。';
+            const client = makeClient((parts) => [
+                parts[0].replace(
+                    ' — курьер передает код продавцу для получения заказа.',
+                    ' — 快递员将代码交给卖家以领取订单。',
+                ),
+            ]);
+            const {params} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(translated)]);
+            const messages = vi.mocked(client.complete).mock.calls[0][0];
+            expect(messages[0].content).toContain('literal-eb129a3d34307c7a');
+            expect(messages[0].content).toContain('COURIER_TO_MERCHANT');
+            expect(messages.at(-1)?.content).not.toContain('COURIER_TO_MERCHANT');
+            expect(client.complete).toHaveBeenCalledTimes(1);
+        });
+
+        it.each(['COURIER_TO_MERCHANT', '&#67;OURIER_TO_MERCHANT', '`COURIER_TO_MERCHANT`'])(
+            'rejects an echoed protected identifier without expanding the retry budget: %s',
+            async (echo) => {
+                const code = IDENTIFIER_CODE;
+                const unit = wrap(code + ' — курьер получает заказ.');
+                const client = makeClient((parts) => [
+                    parts[0].replace(
+                        ' — курьер получает заказ.',
+                        ' ' + echo + ' — 快递员领取订单。',
+                    ),
+                ]);
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'identifier-echo-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.markupDamaged).toBe(1);
+                expect(stat.untranslated).toBe(1);
+                expect(store.get(unit)).toBeUndefined();
+            },
+        );
+
+        it('keeps the identifier echo guard across isolated retries of another batch unit', async () => {
+            const code = IDENTIFIER_CODE;
+            const unit = wrap(code + ' — курьер получает заказ.');
+            const prose = wrap('Описание поля.');
+            const client = makeClient((parts) =>
+                parts.map((part) =>
+                    part.includes('literal-')
+                        ? part.replace(' — курьер получает заказ.', ' — 快递员领取订单。')
+                        : 'COURIER_TO_MERCHANT 字段说明。',
+                ),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit, prose])).toEqual([
+                wrap(code + ' — 快递员领取订单。'),
+                prose,
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+        });
+
+        it('rejects identifier echoes in generated cache after healing', async () => {
+            const code = IDENTIFIER_CODE;
+            const unit = wrap(code + ' — курьер получает заказ.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'identifier-cache-')), 'cache.json'),
+                'fp',
+            );
+            store.set(unit, wrap(code + ' COURIER_TO_MERCHANT — 快递员领取订单。'));
+            const client = makeClient((parts) => [
+                parts[0].replace(' — курьер получает заказ.', ' — 快递员领取订单。'),
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                wrap(code + ' — 快递员领取订单。'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.cached).toBe(0);
+        });
+
+        it('keeps approved identifier wording outside the new model-response guard', async () => {
+            const unit = wrap(IDENTIFIER_CODE + ' — курьер получает заказ.');
+            const approved = wrap(IDENTIFIER_CODE + ' COURIER_TO_MERCHANT — 快递员领取订单。');
+            const dir = mkdtempSync(join(tmpdir(), 'identifier-approved-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/a.md', [[unit, approved]]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient(() => ['新的翻译。']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/a.md', [unit])).toEqual([approved]);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
+        it('recovers an identifier echo while preserving a valid sibling', async () => {
+            const unit = wrap(IDENTIFIER_CODE + ' — курьер получает заказ.');
+            const sibling = wrap('Описание поля.');
+            const client = makeClient((parts, call) =>
+                parts.map((part) => {
+                    if (!part.includes('literal-')) return '字段说明。';
+                    return part.replace(
+                        ' — курьер получает заказ.',
+                        (call === 0 ? ' COURIER_TO_MERCHANT' : '') + ' — 快递员领取订单。',
+                    );
+                }),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit, sibling])).toEqual([
+                wrap(IDENTIFIER_CODE + ' — 快递员领取订单。'),
+                wrap('字段说明。'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.unitsTotal).toBe(2);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it.each([false, true])(
+            'preserves a literal unmatched backtick with bounded retries (valid fourth=%s)',
+            async (validFourth) => {
+                const unit = wrap(
+                    'В запросе можно указать либо фильтр `offerIds, либо любые другие фильтры товаров.',
+                );
+                // Recorded bad replies all balanced a source backtick that is literal text.
+                // The valid control changes only that punctuation, independently of prompts.
+                const replies = [
+                    '在请求中可以指定 `offerIds` 筛选器，或者任意其他商品筛选器。',
+                    '在请求中可以指定 `offerIds` 过滤器，或者指定任何其他商品过滤器。',
+                    '在请求中可以指定 `offerIds` 过滤器，或者任意其他商品过滤器。',
+                    '在请求中可以指定 `offerIds` 过滤器，或者指定任意其他商品过滤器。',
+                ];
+                if (validFourth) replies[3] = replies[3].replace('`offerIds`', '`offerIds');
+                const client = makeClient((fragments, call) => {
+                    const token = fragments[0].match(
+                        /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                    )?.[0];
+                    return [
+                        validFourth && call === 3 && token
+                            ? replies[call].replace('`', token)
+                            : replies[call],
+                    ];
+                });
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'literal-backtick-retry-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                    validFourth ? wrap(replies[3]) : unit,
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const calls = vi.mocked(client.complete).mock.calls;
+                expect(calls[3][0]).not.toEqual(calls[2][0]);
+                const last = calls[3][0][0].content;
+                expect(last).not.toContain('literal unmatched backtick characters:');
+                expect(last).not.toContain('offerIds');
+                expect(last).not.toContain('В запросе');
+                for (let call = 0; call < 3; call++) {
+                    expect(calls[call][0].at(-1)?.content).not.toContain('literal-backtick-');
+                }
+                expect(calls[3][0].at(-1)?.content).toContain(
+                    '<x ctype="code_literal" id="literal-backtick-1"/>',
+                );
+                expect(calls[3][0].at(-1)?.content).not.toContain('`');
+                expect(stat.markupRetried).toBe(1);
+                expect(stat.markupDamaged).toBe(validFourth ? 0 : 1);
+                expect(stat.untranslated).toBe(validFourth ? 0 : 1);
+                expect(store.get(unit)).toBe(validFourth ? wrap(replies[3]) : undefined);
+            },
+        );
+
+        it.each([
+            'missing',
+            'duplicate',
+            'changed attrs',
+            'unknown ID',
+            'unknown malformed node',
+            'attribute lookalike',
+            'comment lookalike',
+            'CDATA lookalike',
+        ])('rejects a final literal token with %s without extending the budget', async (fault) => {
+            const unit = wrap('В запросе укажите `offerIds либо другой фильтр.');
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['在请求中指定 `offerIds` 或其他筛选器。'];
+                const token =
+                    fragments[0].match(
+                        /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                    )?.[0] ?? '';
+                let opaque = token;
+                if (fault === 'missing') opaque = '`';
+                if (fault === 'duplicate') opaque += token;
+                if (fault === 'changed attrs')
+                    opaque = token.replace('/>', ' data-note="changed"/>');
+                if (fault === 'unknown ID')
+                    opaque += '<x ctype="code_literal" id="literal-backtick-999"/>';
+                if (fault === 'unknown malformed node')
+                    opaque +=
+                        '<x ctype="no_translate_inline" id="literal-backtick-999" id="literal-backtick-999"/>';
+                if (fault === 'attribute lookalike')
+                    opaque = `<g ctype="bold" data-note='${token}'>值</g>\``;
+                if (fault === 'comment lookalike') opaque = `<!-- ${token} -->`;
+                if (fault === 'CDATA lookalike') opaque = `<![CDATA[${token}]]>`;
+                return [`在请求中指定 ${opaque}offerIds 或其他筛选器。`];
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'backtick-token-refusal-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).toContain(
+                'literal-backtick-',
+            );
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('keeps a source echo untranslated after restoring the final literal token', async () => {
+            const unit = wrap('В запросе укажите `offerIds либо другой фильтр.');
+            const client = makeClient((fragments, call) =>
+                call < 3 ? ['在请求中指定 `offerIds` 或其他筛选器。'] : fragments,
+            );
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'backtick-token-echo-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).toContain(
+                'literal-backtick-',
+            );
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('allocates a final literal token outside the original fragment IDs', async () => {
+            const existing =
+                '<x ctype="no_translate_inline" equiv-text="VALUE" id="literal-backtick-1"/>';
+            const unit = wrap(`Текст ${existing} с \`значением.`);
+            const translated = `Text ${existing} with \`a value.`;
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['*Some text*.'];
+                const token = fragments[0].match(
+                    /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                )?.[0];
+                return [token ? translated.replace('`', token) : translated];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(translated)]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const last = vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content;
+            expect(last).toContain(existing);
+            expect(last).toContain('<x ctype="code_literal" id="literal-backtick-2"/>');
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it.each(['<x id="literal-backtick-999', ' literal-backtick-1'])(
+            'rejects synthetic residue after a valid final literal token: %s',
+            async (suffix) => {
+                const unit = wrap('В запросе укажите `offerIds либо другой фильтр.');
+                const client = makeClient((fragments, call) => {
+                    if (call < 3) return ['在请求中指定 `offerIds` 或其他筛选器。'];
+                    const token =
+                        fragments[0].match(
+                            /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                        )?.[0] ?? '';
+                    return [`在请求中指定 ${token}offerIds 或其他筛选器。${suffix}`];
+                });
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'backtick-residue-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.markupDamaged).toBe(1);
+                expect(stat.untranslated).toBe(1);
+                expect(store.get(unit)).toBeUndefined();
+            },
+        );
+
+        it.each(['', ' literal-backtick-10', ' literal-backtick-1'])(
+            'bounds preexisting literal-ID spelling by exact source counts: %s',
+            async (suffix) => {
+                const unit = wrap('Значение literal-backtick-10 и `другие значения.');
+                const translated = '值 literal-backtick-10 和 `其他值。';
+                const client = makeClient((fragments, call) => {
+                    if (call < 3) return ['值 literal-backtick-10 和 `其他值`。'];
+                    const token =
+                        fragments[0].match(
+                            /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                        )?.[0] ?? '';
+                    return [translated.replace('`', token) + suffix];
+                });
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'backtick-existing-residue-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                    suffix ? unit : wrap(translated),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.markupDamaged).toBe(suffix ? 1 : 0);
+                expect(store.get(unit)).toBe(suffix ? undefined : wrap(translated));
+            },
+        );
+
+        it.each([
+            'Текст \\`значение.',
+            'Текст https://example.test/private`value.',
+            'Текст <g ctype="link" id="g-1" x-end="](https://private.test/`value)">ссылка</g>.',
+            'Текст <x ctype="lb" data-note="private `value" id="x-1"/>продолжение.',
+            'Текст <x ctype="code_open" equiv-text="``" id="x-1"/>private`value<x ctype="code_close" equiv-text="``" id="x-2"/>.',
+            'Текст <x ctype="code_open" equiv-text="``" id="x-1"/>private`value.',
+            'Текст <g ctype="bold" data-note="private `value',
+            'Текст <g ctype="bold" id="g-1"> продолжение `значение.',
+            'Текст </g> `значение.',
+            'Текст <g ctype="bold" id="g-1">часть</g data-note="x"> `значение.',
+            'Текст </code> `значение.',
+            'Текст ``непарное значение.',
+            'Текст `код` и \\`значение.',
+        ])('does not mask protected or ambiguous raw backticks: %s', async (source) => {
+            const unit = wrap(source);
+            const client = makeClient(() => ['*See* details.']);
+            const {params} = makeParams(client, {maxBatchTokens: 1000});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).not.toContain(
+                'literal-backtick-',
+            );
+        });
+
+        it.each([false, true])(
+            'preserves source-owned inline literals before generated cache: %s',
+            async (cached) => {
+                const unit = wrap('limit');
+                const client = makeClient(() => ['限制']);
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'literal-inline-')), 'cache.json'),
+                    'fp',
+                );
+                if (cached) store.set(unit, wrap('限制'));
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+                expect(
+                    await makeTranslator(params)('ru/a.md', [unit], {literalUnitIds: new Set([0])}),
+                ).toEqual([unit]);
+                expect(client.complete).not.toHaveBeenCalled();
+                expect(stat.untranslated).toBe(0);
+                expect(stat.markupDamaged).toBe(0);
+                expect(store.get(unit)).toBe(cached ? wrap('限制') : undefined);
+            },
+        );
+
+        it.each([
+            [true, true],
+            [true, false],
+            [false, true],
+            [false, false],
+        ])(
+            'preserves only same-file approved inline literals: %s, hints=%s',
+            async (sameFile, memoryHints) => {
+                const unit = wrap('limit');
+                const approved = wrap('ApprovedLimit');
+                const dir = mkdtempSync(join(tmpdir(), 'literal-inline-seed-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+                seeds.record(sameFile ? 'ru/a.md' : 'ru/other.md', [[unit, approved]]);
+                const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+                const client = makeClient(() => ['限制']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000, memoryHints}, store);
+                params.targetLanguage = 'zh';
+                expect(
+                    await makeTranslator(params)('ru/a.md', [unit], {literalUnitIds: new Set([0])}),
+                ).toEqual([sameFile ? approved : unit]);
+                expect(client.complete).not.toHaveBeenCalled();
+            },
+        );
+
+        it('translates prose without sharing its in-flight result with an inline literal', async () => {
+            const unit = wrap('limit');
+            let sent: string[] = [];
+            const client = makeClient((parts) => {
+                sent = parts;
+                return parts.map(() => '限制');
+            });
+            const {params} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(
+                await makeTranslator(params)('ru/a.md', [unit, unit], {
+                    literalUnitIds: new Set([1]),
+                }),
+            ).toEqual([wrap('限制'), unit]);
+            expect(sent).toEqual(['limit']);
+        });
+
+        it('does not assign an approved prose occurrence to a newly added literal', async () => {
+            const unit = wrap('limit');
+            const intro = wrap('Introduction.');
+            const end = wrap('Conclusion.');
+            const dir = mkdtempSync(join(tmpdir(), 'literal-occurrence-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/a.md', [
+                [intro, wrap('介绍。')],
+                [unit, wrap('限制')],
+                [end, wrap('结论。')],
+            ]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient(() => ['限制']);
+            const {params} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(
+                await makeTranslator(params)('ru/a.md', [intro, unit, end, unit], {
+                    literalUnitIds: new Set([3]),
+                }),
+            ).toEqual([wrap('介绍。'), wrap('限制'), wrap('结论。'), unit]);
+            expect(client.complete).not.toHaveBeenCalled();
+        });
+
+        it('preserves an approved literal moved outside the common subsequence', async () => {
+            const literal = wrap('limit');
+            const anchors = ['AnchorA', 'AnchorB', 'AnchorC'].map(wrap);
+            const dir = mkdtempSync(join(tmpdir(), 'moved-literal-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/a.md', [
+                [literal, wrap('ApprovedLimit')],
+                ...anchors.map((text) => [text, text] as [string, string]),
+            ]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient(() => ['限制']);
+            const {params} = makeParams(client, {maxBatchTokens: 1000, memoryHints: true}, store);
+            params.targetLanguage = 'zh';
+            expect(
+                await makeTranslator(params)('ru/a.md', [...anchors, literal], {
+                    literalUnitIds: new Set([3]),
+                }),
+            ).toEqual([...anchors, wrap('ApprovedLimit')]);
+            expect(client.complete).not.toHaveBeenCalled();
+        });
+
+        it.each([true, false])(
+            'keeps all approved literals when their order reverses: hints=%s',
+            async (memoryHints) => {
+                const units = ['A', 'B', 'C'].map(wrap);
+                const approved = ['ApprovedA', 'ApprovedB', 'ApprovedC'].map(wrap);
+                const dir = mkdtempSync(join(tmpdir(), 'reversed-literals-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+                seeds.record(
+                    'ru/a.md',
+                    units.map((source, index) => [source, approved[index]]),
+                );
+                const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+                const client = makeClient(() => ['限制']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000, memoryHints}, store);
+                params.targetLanguage = 'zh';
+                expect(
+                    await makeTranslator(params)('ru/a.md', [...units].reverse(), {
+                        literalUnitIds: new Set([0, 1, 2]),
+                    }),
+                ).toEqual([...approved].reverse());
+                expect(client.complete).not.toHaveBeenCalled();
+            },
+        );
+
+        it('reserves seed hints for prose instead of source-owned inline literals', async () => {
+            const old = wrap('limit old wording');
+            const literal = wrap('limit new wording');
+            const prose = wrap('limit old wording changed');
+            const dir = mkdtempSync(join(tmpdir(), 'literal-hints-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/a.md', [[old, wrap('Old approved translation')]]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient(() => ['新措辞']);
+            const {params, stat} = makeParams(
+                client,
+                {maxBatchTokens: 1000, memoryHints: true},
+                store,
+            );
+            params.targetLanguage = 'zh';
+            expect(
+                await makeTranslator(params)('ru/a.md', [literal, prose], {
+                    literalUnitIds: new Set([0]),
+                }),
+            ).toEqual([literal, wrap('新措辞')]);
+            expect(vi.mocked(client.complete).mock.calls[0][0].at(-1)?.content).toContain(
+                'Old approved translation',
+            );
+            expect(stat.memoryHints).toBe(1);
+        });
+
+        it('keeps a verified inline skeleton outside the final model response', async () => {
+            const unit = thresholdUnit();
+            let lastSent: string[] = [];
+            const client = makeClient((parts, call) => {
+                if (call < 3) return ['商品条件。'];
+                lastSent = parts;
+                return ['— 商品已设置', '促销最低价格', '，对应阈值'];
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'inline-skeleton-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            const expected = unit
+                .replace('— товары с', '— 商品已设置')
+                .replace('установленным минимумом по цене для акций', '促销最低价格')
+                .replace(', который соответствует порогу', '，对应阈值');
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([expected]);
+            expect(lastSent).toEqual([
+                '— товары с',
+                'установленным минимумом по цене для акций',
+                ', который соответствует порогу',
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.unitsTotal).toBe(1);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(expected);
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([expected]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+        });
+
+        it('does not confuse an ASCII code identifier with a prose substring', async () => {
+            const unit = thresholdUnit().replace('MINIMUM_FOR_PROMOS', 'id');
+            const client = makeClient((_parts, call) =>
+                call < 3
+                    ? ['商品条件。']
+                    : ['— items with', 'a valid minimum price', ', matching the threshold'],
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                unit
+                    .replace('— товары с', '— items with')
+                    .replace('установленным минимумом по цене для акций', 'a valid minimum price')
+                    .replace(', который соответствует порогу', ', matching the threshold'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it.each([
+            ['仅一段。'],
+            ['甲', '乙'],
+            ['甲', '乙', '丙', '丁'],
+            ['', '甲', '乙', '丙'],
+            ['甲', '乙', '丙', ''],
+            ['甲', '', '丙'],
+            ['甲', '&amp;', '丙'],
+            ['甲', '<source></source>', '丙'],
+            ['甲', '<g ctype="link" id="g-1">价格</g>', '丙'],
+            ['甲', '&lt;x id="x-1"/&gt;', '丙'],
+            ['甲', 'literal-0123456789abcdef', '丙'],
+            ['товары с', '价格', '丙'],
+            ['甲', '价格', 'Goods with'],
+            ['MINIMUM_FOR_PROMOS 商品', '价格', '丙'],
+            ['甲', '价格', 'maxPromoPrice 阈值'],
+            ['甲', '促销最低价格 %%%1%%%', '丙'],
+            ['甲', '促销最低价格 &#37;&#37;&#37;0&#37;&#37;&#37;', '丙'],
+        ])('refuses incomplete or unsafe inline prose slots: %j', async (...answers) => {
+            const unit = thresholdUnit();
+            let lastSent: string[] = [];
+            const client = makeClient((parts, call) => {
+                if (call < 3) return ['商品条件。'];
+                lastSent = parts;
+                return answers;
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'bad-inline-skeleton-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(lastSent).toEqual([
+                '— товары с',
+                'установленным минимумом по цене для акций',
+                ', который соответствует порогу',
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.unitsTotal).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it.each([
+            ['duplicate ID', (unit: string) => unit.replace('id="x-4"', 'id="x-1"')],
+            [
+                'equal code identities',
+                (unit: string) => unit.replace('MINIMUM_FOR_PROMOS', 'maxPromoPrice'),
+            ],
+            [
+                'source unit reference',
+                (unit: string) => unit.replace('— товары с', '%%%1%%% — товары с'),
+            ],
+            [
+                'unknown attribute',
+                (unit: string) => unit.replace('ctype="link"', 'ctype="link" data-note="value"'),
+            ],
+            ['wrong link wrapper', (unit: string) => unit.replace('x-begin="["', 'x-begin="!["')],
+            [
+                'ambiguous code',
+                (unit: string) => unit.replace('MINIMUM_FOR_PROMOS', 'MINIMUM FOR PROMOS'),
+            ],
+            [
+                'wrong code delimiter',
+                (unit: string) => unit.replace('equiv-text="`"', 'equiv-text="``"'),
+            ],
+            [
+                'nested formatting',
+                (unit: string) =>
+                    unit.replace(
+                        'установленным минимумом',
+                        '<g ctype="bold" id="g-2">установленным</g> минимумом',
+                    ),
+            ],
+            ['comment', (unit: string) => unit.replace('— товары с', '<!-- note -->— товары с')],
+            [
+                'raw directive',
+                (unit: string) => unit.replace('— товары с', '{{private}} — товары с'),
+            ],
+            [
+                'raw address',
+                (unit: string) => unit.replace('— товары с', 'https://private.test — товары с'),
+            ],
+            ['stray angle bracket', (unit: string) => unit.replace('— товары с', '< — товары с')],
+            [
+                'prose outside the skeleton',
+                (unit: string) => unit.replace('</source>', ' Дополнительный текст.</source>'),
+            ],
+        ])(
+            'keeps an unproven inline skeleton on the ordinary final path: %s',
+            async (_fault, mutate) => {
+                const unit = mutate(thresholdUnit());
+                let lastSent: string[] = [];
+                const client = makeClient((parts, call) => {
+                    if (call === 3) lastSent = parts;
+                    return ['商品条件。'];
+                });
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(lastSent).toHaveLength(1);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+            },
+        );
+
+        it.each([
+            ['Порядок', 'идентификаторов значения не имеет.', '标识符的顺序', '无关紧要。'],
+            ['Значения не зависят от', 'порядка.', '这些值不取决于', '顺序。'],
+        ])(
+            'transports a prose word next to a source line break: %s',
+            async (left, right, first, last) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const unit = wrap(left + lb + right);
+                let sent: string[] = [];
+                const bad = [lb + '标识符的顺序无关紧要。', '标识符的顺序无关紧要。'];
+                const client = makeClient((parts, call) => {
+                    if (call < 3) return [bad[Math.min(call, 1)]];
+                    sent = parts;
+                    return [first, last];
+                });
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([
+                    wrap(first + lb + last),
+                ]);
+                expect(sent).toEqual([left, right]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.unitsTotal).toBe(1);
+                expect(stat.untranslated).toBe(0);
+                expect(stat.markupDamaged).toBe(0);
+            },
+        );
+
+        it.each(['A', 'я', '...', '123', '{{порядок}}', 'id123', '%%%порядок%%%', '/порядок/'])(
+            'does not split a symbol or non-prose line-break edge: %s',
+            async (left) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const unit = wrap(left + lb + 'идентификаторов значения не имеет.');
+                let sent: string[] = [];
+                const client = makeClient((parts, call) => {
+                    if (call === 3) sent = parts;
+                    return ['标识符的顺序无关紧要。'];
+                });
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(sent).toHaveLength(1);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+            },
+        );
+
+        it.each(['foo_bar', 'A+B', 'https://private.test', '<x id="x-2"/>', 'Порядок'])(
+            'does not broaden a word-only recovery into ambiguous prose: %s',
+            async (right) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const unit = wrap('Порядок' + lb + right);
+                let sent: string[] = [];
+                const client = makeClient((parts, call) => {
+                    if (call === 3) sent = parts;
+                    return ['标识符的顺序无关紧要。'];
+                });
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(sent).toHaveLength(1);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+            },
+        );
+
+        it.each(['配送费用相同，无论', '&#x914D;送费用相同，无论'])(
+            'translates two adjacent source parts in one final completion: %s',
+            async (firstAnswer) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const left = 'Стоимость доставки будет одинакова независимо';
+                const right = 'от того, кто доставляет заказ.';
+                const unit = wrap(left + lb + right);
+                let lastSent: string[] = [];
+                const client = makeClient((parts, call) => {
+                    if (call < 3) return ['配送费用相同。'];
+                    lastSent = parts;
+                    return [firstAnswer, '由谁配送订单。'];
+                });
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'split-linebreak-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+                const expected = wrap(firstAnswer + lb + '由谁配送订单。');
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([expected]);
+                expect(lastSent).toEqual([left, right]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(stat.requests).toBe(4);
+                expect(stat.unitsTotal).toBe(1);
+                expect(stat.translatedUnits).toBe(1);
+                expect(stat.markupDamaged).toBe(0);
+                expect(stat.untranslated).toBe(0);
+                expect(store.get(unit)).toBe(expected);
+            },
+        );
+
+        it.each([
+            [],
+            ['只有一段。'],
+            ['甲', '乙', '丙'],
+            ['', '甲', '乙'],
+            ['甲', '乙', ''],
+            ['', '乙'],
+            ['甲', ''],
+            ['<source xml:space="preserve"></source>', '乙'],
+            ['Стоимость доставки одинакова', '由谁配送订单。'],
+            ['The delivery cost is the same', '由谁配送订单。'],
+            ['&amp;', '由谁配送订单。'],
+            ['&nbsp;', '由谁配送订单。'],
+            ['&#x20;', '由谁配送订单。'],
+            ['literal-linebreak-1', '由谁配送订单。'],
+            ['配送费用相同 literal-backtick-999', '由谁配送订单。'],
+        ])('rejects incomplete or refused final wire parts: %j', async (...answers) => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const left = 'Стоимость доставки будет одинакова независимо';
+            const right = 'от того, кто доставляет заказ.';
+            const unit = wrap(left + lb + right);
+            let lastSent: string[] = [];
+            const client = makeClient((parts, call) => {
+                if (call < 3) return ['配送费用相同。'];
+                lastSent = parts;
+                return answers;
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'invalid-split-linebreak-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(lastSent).toEqual([left, right]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.unitsTotal).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('keeps an internal line break inside translated prose on the final retry', async () => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const unit = wrap(
+                `Стоимость${lb}доставки одинакова независимо от того, кто доставляет заказ: <g ctype="bold" id="g-2">Маркет</g> или сам продавец.`,
+            );
+            const bad = `无论订单由谁配送\u2014\u2014Market还是卖家自行配送，配送费用都将相同。${lb}`;
+            const good = `配送费用相同，无论${lb}订单由谁配送：<g ctype="bold" id="g-2">Market</g> 还是卖家自行配送。`;
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return [call === 0 ? bad : '无论订单由谁配送，配送费用都是相同的。'];
+                const token = fragments[0].match(
+                    /<x ctype="code_literal" id="literal-linebreak-\d+"\/>/,
+                )?.[0];
+                return [token ? good.replace(lb, token) : good];
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'linebreak-recovery-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(good)]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const calls = vi.mocked(client.complete).mock.calls;
+            expect(calls[3][0]).not.toEqual(calls[2][0]);
+            expect(calls[3][0][0].content).not.toContain('- lb placeholder x-1');
+            expect(calls[3][0].at(-1)?.content).not.toContain(lb);
+            expect(calls[3][0].at(-1)?.content).toContain(
+                '<x ctype="code_literal" id="literal-linebreak-1"/>',
+            );
+            expect(calls[3][0][0].content).toContain('between translated prose');
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(store.get(unit)).toBe(wrap(good));
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(good)]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+        });
+
+        it.each([
+            'missing',
+            'duplicate',
+            'attrs',
+            'attribute lookalike',
+            'comment lookalike',
+            'CDATA lookalike',
+            'residue',
+            'malformed residue',
+            'hoisted',
+            'echo',
+        ])('keeps final line-break transport strict for %s', async (fault) => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const unit = wrap(`Текст${lb}после.`);
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['文本前后。'];
+                const token =
+                    fragments[0].match(
+                        /<x ctype="code_literal" id="literal-linebreak-\d+"\/>/,
+                    )?.[0] ?? '';
+                if (fault === 'echo') return fragments;
+                let opaque = token;
+                if (fault === 'missing') opaque = lb;
+                if (fault === 'duplicate') opaque += token;
+                if (fault === 'attrs') opaque = token.replace('/>', ' data-note="changed"/>');
+                if (fault === 'attribute lookalike')
+                    opaque = `<g ctype="bold" data-note='${token}'>值</g>`;
+                if (fault === 'comment lookalike') opaque = `<!-- ${token} -->`;
+                if (fault === 'CDATA lookalike') opaque = `<![CDATA[${token}]]>`;
+                const suffix = fault === 'residue' ? 'literal-linebreak-1' : '';
+                if (fault === 'malformed residue')
+                    return [`文本前${opaque}和后。<x id="literal-linebreak-999`];
+                return [
+                    fault === 'hoisted'
+                        ? `${opaque}文本前和后。`
+                        : `文本前${opaque}和后。${suffix}`,
+                ];
+            });
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'linebreak-strict-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).toContain(
+                'literal-linebreak-',
+            );
+            expect(stat.markupDamaged).toBe(fault === 'echo' ? 0 : 1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('rejects moving a restored line break outside its formatting parent', async () => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const open = '<g ctype="bold" id="g-1" x-begin="**" x-end="**">';
+            const unit = wrap(`${open}Текст${lb}внутри</g> снаружи.`);
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['文本内外。'];
+                const token =
+                    fragments[0].match(
+                        /<x ctype="code_literal" id="literal-linebreak-\d+"\/>/,
+                    )?.[0] ?? '';
+                return [`${open}内部文本</g>${token}外部文本。`];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(vi.mocked(client.complete).mock.calls[3][0][0].content).toContain(
+                '- bold group g-1',
+            );
+            expect(stat.markupDamaged).toBe(1);
+        });
+
+        it.each(['', '\\'])(
+            'does not capture a line-break-looking node inside raw code: %j',
+            async (suffix) => {
+                const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+                const unit = wrap(`Текст \`до${lb}после${suffix}\`.`);
+                const client = makeClient(() => ['文本内容。']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                expect(vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content).not.toContain(
+                    'literal-linebreak-',
+                );
+            },
+        );
+
+        it('restores backtick and line-break tokens atomically with noisy source collisions', async () => {
+            const lb = '<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>';
+            const source = `Значения literal-linebreak-1 и literal-backtick-1: \`первое ${lb}и второе.`;
+            const translated = `值 literal-linebreak-1 和 literal-backtick-1：\`第一个 ${lb}和第二个。`;
+            const unit = wrap(source);
+            const client = makeClient((fragments, call) => {
+                if (call < 3) return ['值不正确。'];
+                const tick = fragments[0].match(
+                    /<x ctype="code_literal" id="literal-backtick-\d+"\/>/,
+                )?.[0];
+                const line = fragments[0].match(
+                    /<x ctype="code_literal" id="literal-linebreak-\d+"\/>/,
+                )?.[0];
+                return [translated.replace('`', tick ?? '`').replace(lb, line ?? lb)];
+            });
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([wrap(translated)]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            const sent = vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content;
+            expect(sent).toContain('id="literal-backtick-2"');
+            expect(sent).toContain('id="literal-linebreak-2"');
+            expect(stat.markupDamaged).toBe(0);
+        });
+
+        it.each([
+            '<x ctype="lb" id="x-1"/>текст<x ctype="lb" id="x-2"/>',
+            '<g ctype="bold" id="x-1" x-begin="**" x-end="**">текст</g><x ctype="lb" id="x-1"/>',
+            '<x data-note=\'private ctype="link_attributes_href" id="x-99"\' ctype="lb" id="x-1"/>',
+        ])(
+            'skips an ineligible line break without disabling the backtick mask: %s',
+            async (middle) => {
+                const unit = wrap(`Значение \`первое ${middle} второе.`);
+                const client = makeClient(() => ['文本内容。']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const sent = vi.mocked(client.complete).mock.calls[3][0].at(-1)?.content;
+                expect(sent).toContain('id="literal-backtick-1"');
+                expect(sent).not.toContain('id="literal-linebreak-');
+            },
+        );
+
+        it.each<[string, string, boolean, string | undefined]>([
+            [
+                'quoted fake ID',
+                '<x ctype="lb" data-note=\'private `note id="x-424242"\' data-url="https://private.test/?key=SECRET" id="x-12" equiv-text="&amp;#10;"/>',
+                false,
+                '- lb placeholder x-12',
+            ],
+            ['duplicate ID', '<x ctype="lb" id="x-12" equiv-text="&amp;#10;"/>', true, undefined],
+            ['missing ID', '<x ctype="lb" equiv-text="&amp;#10;"/>', false, undefined],
+            [
+                'malformed ID',
+                '<x ctype="lb" id="private-lb-id" equiv-text="&amp;#10;"/>',
+                false,
+                undefined,
+            ],
+            [
+                'masked fake type',
+                '<x data-note=\'private ctype="link_attributes_href" id="x-424242" private `note\' ctype="lb" id="x-12" equiv-text="&amp;#10;"/>',
+                false,
+                undefined,
+            ],
+        ])(
+            'keeps line-break checklist metadata safe for %s',
+            async (_, lb, duplicate, expected) => {
+                const unit = wrap(`A${lb}идентификаторов${duplicate ? lb : ''}не имеет значения.`);
+                const client = makeClient(() => ['标识符的顺序无关紧要。']);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const last = vi.mocked(client.complete).mock.calls[3][0][0].content;
+                if (
+                    vi
+                        .mocked(client.complete)
+                        .mock.calls[3][0].at(-1)
+                        ?.content.includes('id="literal-linebreak-')
+                )
+                    expect(last).not.toContain('- lb placeholder');
+                else if (expected) expect(last).toContain(expected);
+                else expect(last).not.toContain('- lb placeholder');
+                for (const hidden of [
+                    'x-424242',
+                    'private-lb-id',
+                    'private `note',
+                    'private.test',
+                    'SECRET',
+                    'literal unmatched backtick characters:',
+                ])
+                    expect(last).not.toContain(hidden);
+                expect(stat.markupDamaged).toBe(1);
+            },
+        );
+
+        it.each([
+            `См. https://example.test/private\`address для деталей.`,
+            `Используйте <x ctype="code_open" equiv-text="\`\`" id="x-1"/>PRIVATE\`VALUE <x ctype="lb" id="x-99"/><x ctype="code_close" equiv-text="\`\`" id="x-2"/> для деталей.`,
+            'Используйте `PRIVATE_VALUE` для деталей.',
+        ])(
+            'does not derive literal backtick feedback from protected code or addresses: %s',
+            async (source) => {
+                const unit = wrap(source);
+                const client = makeClient(() => ['*See* details.']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000});
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(4);
+                const last = vi.mocked(client.complete).mock.calls[3][0][0].content;
+                for (const hidden of [
+                    'literal unmatched backtick characters:',
+                    'PRIVATE',
+                    'example.test',
+                    'lb placeholder',
+                ])
+                    expect(last).not.toContain(hidden);
+            },
+        );
+
+        it.each<[string, Error]>([
+            ['transport failure', new Error('Service unavailable')],
+            ['missing fragment', new LLMResponseError('Expected one fragment, received none')],
+        ])('does not extend the budget after an isolated %s', async (_, missing) => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) =>
+                call < 2 ? ['*Connection setup* - details.'] : missing,
+            );
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'missing-isolated-markup-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it.each<[string, number, string]>([
+            ['empty wrapper in the ordinary retry', 1, wrap('')],
+            ['whitespace wrapper in the ordinary retry', 1, wrap(' \n ')],
+            ['separator only in the ordinary retry', 1, FRAGMENT_SEPARATOR],
+            ['empty wrapper in the first isolated retry', 2, wrap('')],
+            ['whitespace wrapper in the first isolated retry', 2, wrap(' \n ')],
+            ['separator only in the first isolated retry', 2, FRAGMENT_SEPARATOR],
+        ])(
+            'stops after %s instead of treating source fallback as an answer',
+            async (_, at, empty) => {
+                const unit = wrap(`Используйте ${CODE_OPEN}A${CODE_CLOSE}.`);
+                const client = makeClient((_, call) => [
+                    call === at ? empty : 'Use another value.',
+                ]);
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'empty-markup-answer-')), 'cache.json'),
+                    'fp',
+                );
+                const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+                expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+                expect(client.complete).toHaveBeenCalledTimes(at + 1);
+                expect(stat.requests).toBe(at + 1);
+                expect(stat.markupRetried).toBe(1);
+                expect(stat.markupDamaged).toBe(1);
+                expect(stat.untranslated).toBe(1);
+                expect(store.get(unit)).toBeUndefined();
+            },
+        );
+
+        it('retains a valid sibling when another markup retry answer is empty', async () => {
+            const empty = wrap(`Используйте ${CODE_OPEN}A${CODE_CLOSE}.`);
+            const sibling = wrap('Подробности подключения.');
+            const translated = wrap('Connection details.');
+            const client = makeClient((_, call) =>
+                call === 0
+                    ? ['Use another value.', '*Connection* details.']
+                    : [wrap(''), 'Connection details.'],
+            );
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'partly-empty-markup-answer-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+
+            expect(await makeTranslator(params)('file.md', [empty, sibling])).toEqual([
+                empty,
+                translated,
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.requests).toBe(2);
+            expect(stat.markupRetried).toBe(2);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(empty)).toBeUndefined();
+            expect(store.get(sibling)).toBe(translated);
+        });
+
+        it.each([
+            ['literal code', wrap(`Используйте ${CODE_OPEN}A${CODE_CLOSE}.`), 'Use another value.'],
+            ['link placeholders', wrap(`Читайте ${LINK_OPEN}документацию</g>.`), 'Read the guide.'],
+            [
+                'document structure',
+                wrap('Установка соединения - подробности.'),
+                'Setup.\n\nDetails.',
+            ],
+            ['table title', markTableTitle(wrap('Имя')), 'The "table" name'],
+        ])('still validates %s on the fourth markup answer', async (_, unit, last) => {
+            const invalid = unit.includes('data-yfm-context="wide-table-title"')
+                ? 'Invalid "title".'
+                : '*Invalid* formatting.';
+            const client = makeClient((_, call) => [call < 3 ? invalid : last]);
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'fourth-markup-guard-')), 'cache.json'),
+                'fp',
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+            const expected = unit.includes('data-yfm-context="wide-table-title"')
+                ? '<source data-yfm-title-fallback="true" data-yfm-context="wide-table-title" xml:space="preserve">Имя</source>'
+                : unit;
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([expected]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('keeps a source echo on the fourth markup answer out of cache', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'fourth-markup-echo-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient((_, call) => [
+                call < 3 ? '*Connection setup* - details.' : unwrapUnit(unit).text,
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.translatedUnits).toBe(0);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('keeps a source echo returned by the final markup request out of cache', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const store = new TranslationStore(
+                join(mkdtempSync(join(tmpdir(), 'markup-echo-')), 'cache.json'),
+                'fp',
+            );
+            const client = makeClient((_, call) => [
+                call < 2 ? '*Connection setup* - details.' : 'Установка соединения - подробности.',
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(3);
+            expect(stat.markupDamaged).toBe(0);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.translatedUnits).toBe(0);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('does not add a final markup request after a retry transport failure', async () => {
+            const unit = wrap('Установка соединения - подробности.');
+            const client = makeClient((_, call) =>
+                call === 0 ? ['*Connection setup* - details.'] : new Error('Service unavailable'),
+            );
+            const {params, stat} = makeParams(client, {maxBatchTokens: 500});
+
+            expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.markupRetried).toBe(1);
+            expect(stat.markupDamaged).toBe(1);
+            expect(stat.untranslated).toBe(1);
+        });
+
         it('should not cache a translation that keeps inventing formatting', async () => {
             const unit = wrap('Установка соединения - подробности.');
             const store = new TranslationStore(
@@ -1617,6 +3126,9 @@ describe('translate ai provider', () => {
             const client = makeClient(() => ['*Connection setup* - details.']);
             const {params, stat} = makeParams(client, {maxBatchTokens: 500}, store);
             expect(await makeTranslator(params)('file.md', [unit])).toEqual([unit]);
+            expect(client.complete).toHaveBeenCalledTimes(4);
+            expect(stat.requests).toBe(4);
+            expect(stat.markupRetried).toBe(1);
             expect(stat.markupDamaged).toBe(1);
             expect(stat.untranslated).toBe(1);
             expect(store.get(unit)).toBeUndefined();
@@ -1937,14 +3449,14 @@ describe('translate ai provider', () => {
             const unit1 = wrap('Первый текст');
             const unit2 = wrap('Второй текст');
             const client = makeClient((fragments, call) =>
-                call === 0 ? [`T:${fragments[0]}`, fragments[1]] : [`T:${fragments[0]}`],
+                call === 0 ? ['First text', fragments[1]] : ['Second text'],
             );
             const {params, stat} = makeParams(client, {maxBatchTokens: 500});
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit1, unit2]);
 
-            expect(result).toEqual([wrap('T:Первый текст'), wrap('T:Второй текст')]);
+            expect(result).toEqual([wrap('First text'), wrap('Second text')]);
             expect(stat.untranslatedRetried).toBe(1);
             expect(client.complete).toHaveBeenCalledTimes(2);
 
@@ -1970,7 +3482,345 @@ describe('translate ai provider', () => {
             expect(stat.untranslatedRetried).toBe(1);
         });
 
-        it('should accept a changed retry answer even when it keeps source-script text', async () => {
+        it('retries a source prose echo with localized punctuation before caching it', async () => {
+            const unit = wrap('Значение всегда ' + CODE_OPEN + 'false' + CODE_CLOSE + '.');
+            const client = makeClient((fragments, call) =>
+                fragments.map((part) =>
+                    call === 0
+                        ? part.replace(/\.$/, '。')
+                        : part.replace('Значение всегда', '值始终为').replace(/\.$/, '。'),
+                ),
+            );
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-prose-echo-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            const result = await makeTranslator(params)('ru/echo.md', [unit]);
+            expect(result).toEqual([wrap('值始终为 ' + CODE_OPEN + 'false' + CODE_CLOSE + '。')]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(result[0]);
+        });
+
+        it.each([
+            ['Возможные значения.', 'Possible values.', '可能的值。'],
+            [
+                'Курьер передает код продавцу для получения заказа.',
+                'The courier gives the code to the seller to receive the order.',
+                '快递员将代码交给卖家以取走订单。',
+            ],
+        ])(
+            'retries English prose returned for a Chinese target: %s',
+            async (source, english, chinese) => {
+                const unit = wrap(source);
+                const client = makeClient((_, call) => [call === 0 ? english : chinese]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                    wrap(chinese),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(2);
+                expect(stat.untranslatedRetried).toBe(1);
+                expect(stat.untranslated).toBe(0);
+            },
+        );
+
+        it.each(['zh-Hans', 'zh-Hant'])('checks the Han target script for %s', async (target) => {
+            const unit = wrap('Возможные значения.');
+            const client = makeClient((_, call) => [
+                call === 0 ? 'Possible values.' : '可能的值。',
+            ]);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = target;
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('可能的值。'),
+            ]);
+            expect(stat.untranslatedRetried).toBe(1);
+        });
+        it('limits the source-language heuristic to Cyrillic Russian', async () => {
+            const unit = wrap('هذا نص');
+            const client = makeClient(() => ['Possible values.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.sourceLanguage = 'ru-Arab';
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('Possible values.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('preserves a requested Chinese Latin script', async () => {
+            const unit = wrap('Код подтверждения.');
+            const client = makeClient(() => ['Que ren ma.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh-Latn';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('Que ren ma.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslated).toBe(0);
+        });
+        it('preserves the applicable required target glossary phrase', async () => {
+            const unit = wrap('Название системы.');
+            const client = makeClient(() => ['some lower name']);
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 1000,
+                glossaryPairs: [
+                    {sourceText: 'Название системы', translatedText: 'some lower name'},
+                ],
+            });
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('some lower name'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslated).toBe(0);
+        });
+
+        it('counts persistent English prose for Chinese without caching it', async () => {
+            const unit = wrap('Возможные значения.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-wrong-language-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const client = makeClient(() => ['Possible values.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('Possible values.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it.each([
+            ['Возможные значения.', 'Possible values.', '可能的值。'],
+            ['Откройте кабинет продавца.', 'Откройте кабинет продавца.', '打开卖家账户。'],
+        ])(
+            'validates generated cache prose after removing added code markup: %s',
+            async (source, stored, translated) => {
+                const unit = wrap(source);
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-healed-language-cache-'));
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+                store.load();
+                store.set(unit, wrap(String.fromCharCode(96) + stored + String.fromCharCode(96)));
+                const client = makeClient(() => [translated]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+                expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                    wrap(translated),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+                expect(stat.cached).toBe(0);
+            },
+        );
+
+        it('rejects English prose from generated Chinese cache', async () => {
+            const unit = wrap('Возможные значения.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-wrong-language-cache-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, wrap('Possible values.'));
+            const client = makeClient(() => ['可能的值。']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('可能的值。'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.cached).toBe(0);
+        });
+
+        it('does not let an unrelated glossary target hide English prose for Chinese', async () => {
+            const unit = wrap('Возможные значения.');
+            const client = makeClient((_, call) => [
+                call === 0 ? 'Possible values.' : '可能的值。',
+            ]);
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 1000,
+                glossaryPairs: [{sourceText: 'другое значение', translatedText: 'values'}],
+            });
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('可能的值。'),
+            ]);
+            expect(stat.untranslatedRetried).toBe(1);
+        });
+
+        it('preserves an approved English spelling in a Chinese seed', async () => {
+            const unit = wrap('Название системы.');
+            const approved = wrap('A seller account.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-approved-wrong-language-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/name.md', [[unit, approved]]);
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+            const client = makeClient(() => ['卖家账户。']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(await makeTranslator(params)('ru/name.md', [unit])).toEqual([approved]);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
+        it('retries residual source prose after a product name changes', async () => {
+            const unit = wrap('Для модели Экспресс коды не проверяются.');
+            const partial = 'Для модели Express коды не проверяются。';
+            const translated = 'Express 模式不检查代码。';
+            const client = makeClient((_, call) => [call === 0 ? partial : translated]);
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-partial-prose-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([wrap(translated)]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslated).toBe(0);
+            expect(store.get(unit)).toBe(wrap(translated));
+        });
+
+        it('counts a partial source-language answer that survives retry without caching it', async () => {
+            const unit = wrap('Откройте кабинет продавца.');
+            const partial = '打开 кабинет。';
+            const client = makeClient(() => [partial]);
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-partial-refusal-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([wrap(partial)]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslatedRetried).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(stat.untranslated).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('rejects a partial source-language answer from generated cache', async () => {
+            const unit = wrap('Откройте кабинет продавца.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-partial-cache-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, wrap('打开 кабинет。'));
+            const client = makeClient(() => ['打开卖家账户。']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+
+            expect(await makeTranslator(params)('ru/prose.md', [unit])).toEqual([
+                wrap('打开卖家账户。'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.cached).toBe(0);
+        });
+
+        it.each([
+            ['zh', '不要使用“скидка”和“подарок”。'],
+            ['en', 'Do not use "скидка" or "подарок".'],
+        ])(
+            'preserves exact prohibited examples in a translated %s instruction and cache',
+            async (language, translated) => {
+                const unit = wrap('Не используйте слова «скидка», «подарок».');
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-prohibited-examples-'));
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+                store.load();
+                const client = makeClient(() => [translated]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = language;
+
+                expect(await makeTranslator(params)('ru/examples.md', [unit])).toEqual([
+                    wrap(translated),
+                ]);
+                expect(store.get(unit)).toBe(wrap(translated));
+                expect(await makeTranslator(params)('ru/examples.md', [unit])).toEqual([
+                    wrap(translated),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+                expect(stat.untranslatedRetried).toBe(0);
+                expect(stat.untranslated).toBe(0);
+                expect(stat.cached).toBe(1);
+            },
+        );
+
+        it.each([
+            '不要使用“скидка”和“подарок”。 Исходный текст остался.',
+            '不要使用“скидка”和“новинка”。',
+            'Не используйте слова“скидка”和“подарок”。',
+        ])(
+            'rejects unprotected source prose in a healed prohibited-list cache: %s',
+            async (stored) => {
+                const unit = wrap('Не используйте слова «скидка», «подарок».');
+                const translated = '不要使用“скидка”和“подарок”。';
+                const dir = mkdtempSync(join(tmpdir(), 'yfm-prohibited-cache-'));
+                const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+                store.load();
+                store.set(unit, wrap('`' + stored + '`'));
+                const client = makeClient(() => [translated]);
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+
+                expect(await makeTranslator(params)('ru/examples.md', [unit])).toEqual([
+                    wrap(translated),
+                ]);
+                expect(client.complete).toHaveBeenCalledTimes(1);
+                expect(stat.cached).toBe(0);
+                expect(stat.untranslated).toBe(0);
+                expect(store.get(unit)).toBe(wrap(translated));
+            },
+        );
+
+        it('counts a punctuation-only echo that survives retry and keeps it out of the store', async () => {
+            const unit = wrap('Исходный текст.');
+            const client = makeClient((fragments) =>
+                fragments.map((part) => part.replace(/\.$/, '。')),
+            );
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-echo-refusal-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            await makeTranslator(params)('ru/echo.md', [unit]);
+            expect(client.complete).toHaveBeenCalledTimes(2);
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+            expect(store.get(unit)).toBeUndefined();
+        });
+
+        it('retranslates a punctuation-only echo from generated cache', async () => {
+            const unit = wrap('Исходный текст.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-echo-cache-'));
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp');
+            store.load();
+            store.set(unit, wrap('Исходный текст。'));
+            const client = makeClient(() => ['Source text.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            expect(await makeTranslator(params)('ru/echo.md', [unit])).toEqual([
+                wrap('Source text.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.cached).toBe(0);
+        });
+
+        it('preserves an approved localized name with different punctuation', async () => {
+            const unit = wrap('Яндекс.'),
+                approved = wrap('Яндекс!');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-approved-name-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+            seeds.record('ru/name.md', [[unit, approved]]);
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+            const client = makeClient(() => ['Yandex.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            expect(await makeTranslator(params)('ru/name.md', [unit])).toEqual([approved]);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
+        it('rejects a changed retry answer that retains ordinary source prose', async () => {
             const unit = wrap('Исходный текст');
             const retryAnswer = 'Source text. Пример на исходном языке.';
             const dir = mkdtempSync(join(tmpdir(), 'yfm-ai-store-'));
@@ -1984,13 +3834,39 @@ describe('translate ai provider', () => {
 
             const result = await translate('file.md', [unit]);
 
-            // Deliberate: see the acceptance-rule rationale comment in
-            // provider.ts (`retryUntranslated`) - a changed answer is a
-            // translation even if it still carries source-script text.
-            expect(result).toEqual([wrap(retryAnswer)]);
-            expect(store.get(unit)).toBe(wrap(retryAnswer));
-            expect(stat.untranslated).toBe(0);
-            expect(stat.untranslatedKept).toBe(0);
+            // A changed prefix does not translate the remaining ordinary prose.
+            expect(result).toEqual([unit]);
+            expect(store.get(unit)).toBeUndefined();
+            expect(stat.untranslated).toBe(1);
+            expect(stat.untranslatedKept).toBe(1);
+        });
+
+        it('preserves lowercase source wording in an approved seed', async () => {
+            const unit = wrap('Название системы.');
+            const approved = wrap('The system название.');
+            const dir = mkdtempSync(join(tmpdir(), 'yfm-approved-partial-name-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
+            seeds.record('ru/name.md', [[unit, approved]]);
+            const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
+            const client = makeClient(() => ['A translated name.']);
+            const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+            expect(await makeTranslator(params)('ru/name.md', [unit])).toEqual([approved]);
+            expect(client.complete).not.toHaveBeenCalled();
+            expect(stat.cached).toBe(1);
+        });
+
+        it('accepts an explicit lowercase source-script glossary spelling', async () => {
+            const unit = wrap('Используйте название.');
+            const client = makeClient(() => ['Use название.']);
+            const {params, stat} = makeParams(client, {
+                maxBatchTokens: 1000,
+                glossaryPairs: [{sourceText: 'название', translatedText: 'название'}],
+            });
+            expect(await makeTranslator(params)('ru/name.md', [unit])).toEqual([
+                wrap('Use название.'),
+            ]);
+            expect(client.complete).toHaveBeenCalledTimes(1);
+            expect(stat.untranslatedRetried).toBe(0);
         });
 
         it('should not retry an identity response without source-script text', async () => {
@@ -2057,13 +3933,13 @@ describe('translate ai provider', () => {
             const store = new TranslationStore(join(dir, 'store.json'), 'fp');
             store.load();
             store.set(unit, unit);
-            const client = makeClient(translated);
+            const client = makeClient(() => ['Source text']);
             const {params, stat} = makeParams(client, {maxBatchTokens: 100}, store);
             const translate = makeTranslator(params);
 
             const result = await translate('file.md', [unit]);
 
-            const retranslated = '<source xml:space="preserve">T:Исходный текст</source>';
+            const retranslated = '<source xml:space="preserve">Source text</source>';
             expect(client.complete).toHaveBeenCalledTimes(1);
             expect(result).toEqual([retranslated]);
             expect(store.get(unit)).toBe(retranslated);
@@ -2227,10 +4103,15 @@ describe('translate ai provider', () => {
                 wrap,
             );
             const client = makeClient((_, call) => {
-                if (call === 0)
+                if (call === 0) {
                     return ['- First text', '- Second text', '- Third text', '- Fourth text'];
-                if (call === 1) return ['merged'];
-                if (call === 2) return new LLMAuthError('denied');
+                }
+                if (call === 1) {
+                    return ['merged'];
+                }
+                if (call === 2) {
+                    return new LLMAuthError('denied');
+                }
                 return ['Third text', 'Fourth text'];
             });
             const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
@@ -2431,5 +4312,77 @@ describe('translate ai provider', () => {
             expect(stat.requests).toBe(1);
             expect(stat.inputTokens).toBeGreaterThan(0);
         });
+    });
+});
+
+describe('inline boundary preservation in model responses', () => {
+    it('preserves paired bold placeholders inside a paragraph without retrying', async () => {
+        const extracted = extract('Описание. **Метка:** продолжение.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'zh', locale: 'CN'},
+        });
+        expect(extracted.units.join('')).toContain('ctype="bold_open"');
+        const client = makeClient((parts) =>
+            parts.map((part) =>
+                part
+                    .replace('Описание.', '说明。')
+                    .replace('Метка:', '标签：')
+                    .replace('продолжение.', '后续内容。')
+                    .replace(/(ctype="bold_close"[^>]*\/>)\s+/g, '$1'),
+            ),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        params.targetLanguage = 'zh';
+        const translated = await makeTranslator(params)('ru/paired.md', extracted.units);
+        expect(String(compose(extracted.skeleton, translated, {useSource: true}))).toBe(
+            '说明。 **标签：** 后续内容。',
+        );
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupRetried).toBe(0);
+        expect(stat.untranslated).toBe(0);
+    });
+    it('keeps opaque-inline word order without a markup retry', async () => {
+        const extracted = extract('Используйте :no-translate[FORMAT-A] здесь.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'en', locale: 'US'},
+        });
+        const client = makeClient((parts) =>
+            parts.map((p) => p.replace('Используйте ', '').replace('здесь.', 'is used here.')),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        const translated = await makeTranslator(params)('ru/opaque.md', extracted.units);
+        expect(String(compose(extracted.skeleton, translated, {useSource: true}))).toBe(
+            ':no-translate[FORMAT-A] is used here.',
+        );
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupRetried).toBe(0);
+        expect(stat.markupDamaged).toBe(0);
+    });
+    it('preserves rendered bold at a punctuation boundary and reuses the repaired response', async () => {
+        const extracted = extract('**Для токена:** возвращает список.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'zh', locale: 'CN'},
+        });
+        const client = makeClient((parts) =>
+            parts.map((p) =>
+                p
+                    .replace('Для токена:', '对于令牌：')
+                    .replace('возвращает список.', '返回列表。')
+                    .replace(/<\/g>\s+/g, '</g>'),
+            ),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        params.targetLanguage = 'zh';
+        const translate = makeTranslator(params),
+            translated = await translate('ru/bold.md', extracted.units);
+        const rendered = String(compose(extracted.skeleton, translated, {useSource: true}));
+        expect(rendered).toBe('**对于令牌：** 返回列表。');
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupDamaged).toBe(0);
+        expect(await translate('ru/bold.md', extracted.units)).toEqual(translated);
+        expect(client.complete).toHaveBeenCalledTimes(1);
     });
 });

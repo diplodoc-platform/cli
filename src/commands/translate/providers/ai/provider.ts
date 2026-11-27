@@ -11,6 +11,7 @@ import type {TargetStat, TranslateReportJudge} from '../../report';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
+import {unescapeAll} from 'markdown-it/lib/common/utils';
 
 import {LogLevel} from '~/core/logger';
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
@@ -59,10 +60,22 @@ import {
     renderMemoryEntry,
     splitFragments,
 } from './prompts';
-import {untranslatedMarker} from './utils/script';
-import {hasCopiedEdit, hasSourceProse} from './utils/edited-prose';
-import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
+import {scriptsOf, untranslatedMarker} from './utils/script';
+import {
+    hasCopiedEdit,
+    hasLowercaseSourceProse,
+    hasUnexpectedEnglishProse,
+    isProseEcho,
+} from './utils/edited-prose';
+import {
+    keepsLiteralCode,
+    keepsLiteralCodeIdentities,
+    literalCodeIdentities,
+    maskLiteralCode,
+    unmaskLiteralCode,
+} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
+import {repairInlineSpacing} from './utils/inline-spacing';
 import {documentFingerprint} from './utils/cache';
 import {localizedUrls, restoreLocalizedUrls, revertedUrls} from './utils/links';
 import {restoreFragments} from './utils/skeleton';
@@ -405,6 +418,8 @@ type Translate = (path: string, texts: string[], context?: DocContext) => Promis
 
 export type DocContext = {
     title?: string;
+    /** Original indexes proven to be whole source-owned inline code. */
+    literalUnitIds?: ReadonlySet<number>;
 };
 
 const SOURCE_OPEN = '<source';
@@ -443,6 +458,517 @@ function markupIssueForUnit(source: string, translation: string): string | undef
     return isCodeUnit(source) || isTableTitleUnit(source)
         ? undefined
         : markupStructureIssue(unwrapUnit(source).text, unwrapUnit(translation).text);
+}
+
+type MarkupGroup = {id?: string; type?: string};
+
+const STRUCTURAL_TAG =
+    /<!--[\s\S]*?(?:-->|$)|<!\[CDATA\[[\s\S]*?(?:\]\]>|$)|<\?[\s\S]*?(?:\?>|$)|<\/?[A-Za-z][\w:-]*\b(?:"[^"]*"|'[^']*'|[^'">])*?>/g;
+
+function structuralAttributes(tag: string): Map<string, string> | undefined {
+    const opening = /^<[A-Za-z][\w:-]*/.exec(tag);
+    if (!opening) return undefined;
+    const end = tag.length - (tag.endsWith('/>') ? 2 : 1);
+    const attributes = new Map<string, string>();
+    const attribute = /\s+([A-Za-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/y;
+    let offset = opening[0].length;
+    while (offset < end) {
+        attribute.lastIndex = offset;
+        const match = attribute.exec(tag);
+        if (!match) return tag.slice(offset, end).trim() ? undefined : attributes;
+        if (attributes.has(match[1])) return undefined;
+        attributes.set(match[1], match[2] ?? match[3]);
+        offset = attribute.lastIndex;
+    }
+    return attributes;
+}
+
+function markupGroups(text: string, name: 'g' | 'x'): MarkupGroup[] {
+    const tags = (text.match(STRUCTURAL_TAG) ?? []).filter((tag) =>
+        new RegExp(`^<${name}\\b`).test(tag),
+    );
+    const groups: MarkupGroup[] = [];
+    for (const tag of tags) {
+        if (tag.endsWith('/>') !== (name === 'x')) return [];
+        const attributes = structuralAttributes(tag);
+        if (!attributes) return [];
+        groups.push({id: attributes.get('id'), type: attributes.get('ctype')});
+    }
+    return groups;
+}
+
+/** Promote only generated structural metadata, never source attributes, into feedback. */
+function markupGroupChecklist(
+    fragment: string,
+    name: 'g' | 'x',
+    hiddenIds?: ReadonlySet<string>,
+): string[] {
+    const text = unwrapUnit(fragment).text;
+    const original = markupGroups(maskLiteralCode(text), name);
+    const groups = markupGroups(maskLiteralCode(maskAddresses(text)), name);
+    if (name === 'g' && original.length !== groups.length) return [];
+    const originalCounts = new Map<string, number>();
+    for (const {id} of original) {
+        if (id !== undefined) originalCounts.set(id, (originalCounts.get(id) ?? 0) + 1);
+    }
+    const counts = new Map<string, number>();
+    for (const {id} of groups) {
+        if (id !== undefined) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return groups.flatMap(({id, type}, index) => {
+        // Existing address masking may read an attribute-looking string inside
+        // another attribute. Do not promote that normalized metadata into SYSTEM.
+        const source = name === 'g' ? original[index] : original.find((group) => group.id === id);
+        if (id !== source?.id || type !== source?.type) return [];
+        if (
+            !id ||
+            !(name === 'g' ? /^g-\d+$/ : /^x-\d+$/).test(id) ||
+            counts.get(id) !== 1 ||
+            originalCounts.get(id) !== 1
+        )
+            return [];
+        if (hiddenIds?.has(id)) return [];
+        if (name === 'x') return type === 'lb' ? [`- lb placeholder ${id}`] : [];
+        return type === 'link' || type === 'bold' || type === 'italic'
+            ? [`- ${type} group ${id}`]
+            : [];
+    });
+}
+
+type FinalLiteralMask = {
+    text: string;
+    hiddenSourceIds: ReadonlySet<string>;
+    restore: (answer: string) => {text: string; valid: boolean};
+};
+
+function keepsLiteralResidue(source: string, translation: string): boolean {
+    const residue = /literal-(?:(?:backtick|linebreak)-\d+|[0-9a-f]{16})/g;
+    const counts = new Map<string, number>();
+    for (const id of source.match(residue) ?? []) {
+        counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    for (const id of translation.match(residue) ?? []) {
+        const remaining = counts.get(id) ?? 0;
+        if (!remaining) return false;
+        counts.set(id, remaining - 1);
+    }
+    return true;
+}
+
+function backtickWord(text: string, offset: number): string {
+    return (
+        (text.slice(0, offset).match(/\S*$/)?.[0] ?? '') +
+        (text.slice(offset).match(/^\S*/)?.[0] ?? '')
+    );
+}
+
+function literalBacktickOffset(text: string): number | undefined {
+    const tags = new Map(
+        [...text.matchAll(STRUCTURAL_TAG)].map((match) => [match.index, match[0]]),
+    );
+    const opened: string[] = [];
+    let position: number | undefined;
+    for (let offset = 0; offset < text.length; offset++) {
+        if (text[offset] === '<') {
+            const tag = tags.get(offset);
+            if (!tag) return undefined;
+            const name = /^<(\/?)([A-Za-z][\w:-]*)\b/.exec(tag);
+            if (!name || /^(?:code|pre)$/i.test(name[2])) return undefined;
+            if (name[1]) {
+                if (!/^<\/[A-Za-z][\w:-]*\s*>$/.test(tag) || opened.pop() !== name[2])
+                    return undefined;
+            } else {
+                const attributes = structuralAttributes(tag);
+                if (!attributes) return undefined;
+                const type = attributes.get('ctype');
+                if (type?.startsWith('code') && type !== 'code_literal') return undefined;
+                if (!tag.endsWith('/>')) opened.push(name[2]);
+            }
+            offset += tag.length - 1;
+        } else if (text[offset] === '\\') {
+            if (++offset === text.length) return undefined;
+        } else if (text[offset] === '`') {
+            if (position !== undefined || text[offset + 1] === '`') return undefined;
+            // A bare address or ambiguous destination must stay untouched.
+            if (/[/:@<>\\]|[\p{L}\p{N}]\.[\p{L}\p{N}]/u.test(backtickWord(text, offset)))
+                return undefined;
+            position = offset;
+        }
+    }
+    return opened.length ? undefined : position;
+}
+
+type StructuralNode = {tag: string; start: number; name: string; attributes: Map<string, string>};
+
+function linebreakNodes(text: string): StructuralNode[] | undefined {
+    const rawTicks = text.replace(STRUCTURAL_TAG, ' ').match(/`/g)?.length ?? 0;
+    if (rawTicks > 1) return undefined;
+    const nodes: StructuralNode[] = [];
+    const opened: string[] = [];
+    let end = 0;
+    for (const match of text.matchAll(STRUCTURAL_TAG)) {
+        const tag = match[0];
+        if (text.slice(end, match.index).includes('<')) return undefined;
+        end = match.index + tag.length;
+        const name = /^<(\/?)([A-Za-z][\w:-]*)\b/.exec(tag);
+        if (!name || /^(?:code|pre)$/i.test(name[2])) return undefined;
+        if (name[1]) {
+            if (!/^<\/[A-Za-z][\w:-]*\s*>$/.test(tag) || opened.pop() !== name[2]) return undefined;
+            continue;
+        }
+        const attributes = structuralAttributes(tag);
+        if (!attributes || attributes.get('ctype')?.startsWith('code')) return undefined;
+        if (!tag.endsWith('/>')) {
+            if (name[2] === 'x') return undefined;
+            opened.push(name[2]);
+        }
+        nodes.push({tag, start: match.index, name: name[2], attributes});
+    }
+    return opened.length || text.slice(end).includes('<') ? undefined : nodes;
+}
+
+function eligibleLinebreak(fragment: string, text: string): StructuralNode | undefined {
+    const original = linebreakNodes(unwrapUnit(fragment).text);
+    const masked = linebreakNodes(text);
+    if (!original || !masked) return undefined;
+    const lb = (nodes: StructuralNode[]) =>
+        nodes.filter((node) => node.name === 'x' && node.attributes.get('ctype') === 'lb');
+    const before = lb(original),
+        after = lb(masked);
+    if (before.length !== 1 || after.length !== 1 || before[0].tag !== after[0].tag)
+        return undefined;
+    const id = before[0].attributes.get('id');
+    if (!id || !/^x-\d+$/.test(id)) return undefined;
+    const unique = (nodes: StructuralNode[]) =>
+        nodes.filter((node) => node.attributes.get('id') === id).length === 1;
+    return unique(original) && unique(masked) ? after[0] : undefined;
+}
+
+type FinalProseTransport = {
+    parts: string[];
+    inline: boolean;
+    join: (answers: string[]) => string;
+    hiddenIds: ReadonlySet<string>;
+    hiddenLiterals?: string[];
+};
+
+function splitFinalLinebreak(fragment: string, text: string): FinalProseTransport | undefined {
+    if (isCodeUnit(fragment) || isTableTitleUnit(fragment)) return undefined;
+    const node = eligibleLinebreak(fragment, text);
+    if (!node || unwrapUnit(fragment).text !== text || linebreakNodes(text)?.length !== 1)
+        return undefined;
+    const parts = [text.slice(0, node.start), text.slice(node.start + node.tag.length)];
+    const words = parts.map((part) => part.match(/[\p{L}\p{M}]+/gu) ?? []);
+    if (
+        words.every((part) => part.length < 2) ||
+        (words.some((part) => part.length === 1) &&
+            parts.some((part) => !/^[\p{L}\p{M}\s.,!?;:…]+$/u.test(part))) ||
+        parts.some(
+            (part, index) =>
+                /[<>`\r\n]|\b(?:[a-z][a-z0-9+.-]*:\/\/|mailto:|www\.)/iu.test(part) ||
+                !words[index].length ||
+                (words[index].length === 1 && (words[index][0].match(/\p{L}/gu)?.length ?? 0) < 2),
+        )
+    )
+        return undefined;
+    return {
+        parts,
+        inline: false,
+        join: (answers) => answers[0] + node.tag + answers[1],
+        hiddenIds: new Set([String(node.attributes.get('id'))]),
+    };
+}
+
+function finalInlineCode(original: string, nodes: RegExpMatchArray[], index: number) {
+    const end = (offset: number) => Number(nodes[offset].index) + nodes[offset][0].length;
+    for (const [offset, type] of ['code_open', 'code_close'].entries()) {
+        const attrs = structuralAttributes(nodes[index + offset][0]);
+        if (
+            !/^<x\s/.test(nodes[index + offset][0]) ||
+            !nodes[index + offset][0].endsWith('/>') ||
+            attrs?.size !== 3 ||
+            attrs.get('ctype') !== type ||
+            attrs.get('equiv-text') !== '`' ||
+            !/^x-\d+$/.test(attrs.get('id') ?? '')
+        )
+            return undefined;
+    }
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(original.slice(end(index), nodes[index + 1].index)))
+        return undefined;
+    const masked = maskLiteralCode(original.slice(Number(nodes[index].index), end(index + 1)));
+    return /^<x ctype="code_literal" id="literal-[0-9a-f]{16}"\/>$/.test(masked)
+        ? masked
+        : undefined;
+}
+
+function finalInlineLink(nodes: RegExpMatchArray[]): string | undefined {
+    const link = structuralAttributes(nodes[2][0]);
+    const destination = link?.get('x-end') ?? '';
+    if (
+        !/^<g\s/.test(nodes[2][0]) ||
+        nodes[2][0].endsWith('/>') ||
+        nodes[3][0] !== '</g>' ||
+        link?.size !== 5 ||
+        link.get('ctype') !== 'link' ||
+        !/^g-\d+$/.test(link.get('id') ?? '') ||
+        link.get('x-begin') !== '[' ||
+        !destination.startsWith('](') ||
+        !destination.endsWith(')') ||
+        link.get('equiv-text') !== '[{{text}}' + destination
+    )
+        return undefined;
+
+    return `<g ctype="link" id="${link.get('id')}">`;
+}
+
+/** Keep a small, proven code/link skeleton outside the final prose response. */
+function splitFinalInline(fragment: string, text: string): FinalProseTransport | undefined {
+    if (isCodeUnit(fragment) || isTableTitleUnit(fragment)) return undefined;
+    const original = unwrapUnit(fragment).text;
+    const nodes = [...original.matchAll(STRUCTURAL_TAG)];
+    if (nodes.length !== 6) return undefined;
+    const attributes = nodes.map(([tag]) => structuralAttributes(tag));
+    const ids = new Set<string>();
+    for (const index of [0, 1, 2, 4, 5]) {
+        const attrs = attributes[index];
+        const id = attrs?.get('id');
+        if (!id || !/^(?:x|g)-\d+$/.test(id) || ids.has(id)) return undefined;
+        ids.add(id);
+    }
+    const end = (index: number) => nodes[index].index + nodes[index][0].length;
+    const first = finalInlineCode(original, nodes, 0),
+        last = finalInlineCode(original, nodes, 4);
+    const maskedLink = finalInlineLink(nodes);
+    if (!first || !last || first === last || !maskedLink) return undefined;
+
+    const prefix = original.slice(0, nodes[0].index),
+        suffix = original.slice(end(5));
+    if (prefix.trim() || /[^\p{P}\p{Z}\s]/u.test(suffix) || /[<>`&]/.test(suffix)) return undefined;
+    const prose = [
+        original.slice(end(1), nodes[2].index),
+        original.slice(end(2), nodes[3].index),
+        original.slice(end(3), nodes[4].index),
+    ];
+    if (
+        prose.some(
+            (part) =>
+                /[<>`&\r\n]|%%%|\b(?:[a-z][a-z0-9+.-]*:\/\/|mailto:|www\.)|\{[{%]/iu.test(part) ||
+                /\b(?:[gx]-\d+|literal-[\w-]+)/.test(part) ||
+                (part.match(/[\p{L}\p{M}]+/gu)?.length ?? 0) < 2,
+        )
+    )
+        return undefined;
+    const parts = prose.map((part) => part.trim());
+    const slot = (index: number, answer: string) =>
+        (prose[index].match(/^\s*/)?.[0] ?? '') + answer + (prose[index].match(/\s*$/)?.[0] ?? '');
+    const join = (answers: string[]) =>
+        prefix +
+        first +
+        slot(0, answers[0]) +
+        maskedLink +
+        slot(1, answers[1]) +
+        '</g>' +
+        slot(2, answers[2]) +
+        last +
+        suffix;
+    // The regex-based masks must agree byte for byte with the validated tree.
+    if (join(parts) !== text) return undefined;
+    return {
+        parts,
+        join,
+        inline: true,
+        hiddenIds: ids,
+        hiddenLiterals: [
+            original.slice(end(0), nodes[1].index),
+            original.slice(end(4), nodes[5].index),
+        ],
+    };
+}
+
+function finalProseTransport(fragment: string, text: string) {
+    return splitFinalLinebreak(fragment, text) ?? splitFinalInline(fragment, text);
+}
+
+function responseParts(
+    response: string,
+    expected: number,
+    refused: (source: string, answer: string) => boolean,
+    split?: FinalProseTransport,
+): string[] {
+    const parts = splitFragments(response);
+    if (split) {
+        // A dropped half or extra separator is never framing noise here.
+        if (parts.length !== split.parts.length) {
+            throw new LLMResponseError(
+                `Expected ${split.parts.length} adjacent parts, got ${parts.length}`,
+            );
+        }
+        const answers = parts.map((part) => unwrapUnit(stripFence(part)).text);
+        if (
+            answers.some((answer, index) => {
+                const decoded = unescapeAll(answer);
+                const identifiers: readonly string[] =
+                    decoded.match(/[A-Za-z_][A-Za-z0-9_]*/g) ?? [];
+                if (
+                    split.inline &&
+                    (/[<>`]|%%%|\b(?:[gx]-\d+|literal-[\w-]+)/.test(decoded) ||
+                        split.hiddenLiterals?.some((literal) => identifiers.includes(literal)))
+                )
+                    return true;
+                const visible = decoded.replace(STRUCTURAL_TAG, ' ');
+                return !/\p{L}/u.test(visible) || refused(split.parts[index], visible);
+            })
+        ) {
+            throw new LLMResponseError('An adjacent part was empty or returned untranslated');
+        }
+        return [split.join(answers)];
+    }
+    // Preserve the ordinary batch framing policy outside source-owned splitting.
+    while (parts.length > expected && parts[parts.length - 1] === '') parts.pop();
+    while (parts.length > expected && parts[0] === '') parts.shift();
+    if (parts.length !== expected) {
+        throw new LLMResponseError(
+            `Expected ${expected} fragments in LLM response, got ${parts.length}`,
+        );
+    }
+    return parts;
+}
+
+/** Final-request transport masks, never source or translation repairs. */
+function maskFinalLiterals(fragment: string, text: string): FinalLiteralMask | undefined {
+    if (isCodeUnit(fragment) || isTableTitleUnit(fragment)) return undefined;
+    const position = literalBacktickOffset(text);
+    const linebreak = eligibleLinebreak(fragment, text);
+    const entries: {start: number; raw: string; id: string; token: string}[] = [];
+    const add = (family: string, start: number, raw: string) => {
+        let serial = 1;
+        while (
+            fragment.includes(`literal-${family}-${serial}`) ||
+            text.includes(`literal-${family}-${serial}`)
+        )
+            serial++;
+        const id = `literal-${family}-${serial}`;
+        entries.push({start, raw, id, token: `<x ctype="code_literal" id="${id}"/>`});
+    };
+    if (position !== undefined) add('backtick', position, '`');
+    if (linebreak) add('linebreak', linebreak.start, linebreak.tag);
+    if (!entries.length) return undefined;
+    let masked = text;
+    for (const entry of entries.slice().sort((left, right) => right.start - left.start)) {
+        masked =
+            masked.slice(0, entry.start) +
+            entry.token +
+            masked.slice(entry.start + entry.raw.length);
+    }
+    const sourceIds = new Set(
+        [...fragment.matchAll(STRUCTURAL_TAG), ...text.matchAll(STRUCTURAL_TAG)].map(([tag]) =>
+            structuralAttributes(tag)?.get('id'),
+        ),
+    );
+    return {
+        text: masked,
+        hiddenSourceIds: new Set(linebreak ? [String(linebreak.attributes.get('id'))] : []),
+        restore(answer) {
+            const found = new Map<string, number>();
+            for (const match of answer.matchAll(STRUCTURAL_TAG)) {
+                const attributes = structuralAttributes(match[0]);
+                if (/^<[A-Za-z]/.test(match[0]) && !attributes) return {text: answer, valid: false};
+                const candidate = attributes?.get('id');
+                const entry = entries.find((item) => item.id === candidate);
+                if (entry) {
+                    if (found.has(entry.id) || match[0] !== entry.token)
+                        return {text: answer, valid: false};
+                    found.set(entry.id, match.index);
+                } else if (
+                    /^literal-(?:backtick|linebreak)-/.test(candidate ?? '') &&
+                    !sourceIds.has(candidate)
+                ) {
+                    return {text: answer, valid: false};
+                }
+            }
+            if (found.size !== entries.length) return {text: answer, valid: false};
+            let restored = answer;
+            for (const entry of entries
+                .slice()
+                .sort((left, right) => Number(found.get(right.id)) - Number(found.get(left.id)))) {
+                const start = Number(found.get(entry.id));
+                restored =
+                    restored.slice(0, start) +
+                    entry.raw +
+                    restored.slice(start + entry.token.length);
+            }
+            return {text: restored, valid: true};
+        },
+    };
+}
+
+function finalMarkupFeedback(
+    fragment: string,
+    text = maskLiteralCode(maskAddresses(unwrapUnit(fragment).text)),
+    hiddenIds?: ReadonlySet<string>,
+): string {
+    // Only raw prose delimiters are relevant. Attributes, protected literals,
+    // addresses, escapes and complete raw code spans must not supply this fact.
+    const prose = text
+        .replace(STRUCTURAL_TAG, ' ')
+        .replace(/(?:https?:\/\/|mailto:)[^\s<>]*/gi, ' ')
+        .replace(/\\[\s\S]/g, ' ')
+        .replace(/(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g, ' ');
+    const backticks =
+        isCodeUnit(fragment) || isTableTitleUnit(fragment) ? 0 : (prose.match(/`/g)?.length ?? 0);
+    const checklist = [
+        ...markupGroupChecklist(fragment, 'g', hiddenIds),
+        ...markupGroupChecklist(fragment, 'x', hiddenIds),
+        ...(backticks ? [`- literal unmatched backtick characters: ${backticks}`] : []),
+    ];
+    return (
+        '\n\nFinal structural check: preserve the source structure exactly, including literal unmatched backticks. Do not balance or repair source delimiters. Keep each original line-break placeholder between translated prose when it occurs inside source prose; do not move it to a fragment edge. Translate all ordinary prose inside and outside groups.' +
+        (checklist.length
+            ? '\nRead-only original structural checklist (not replacement tags):\n' +
+              checklist.join('\n') +
+              '\nKeep the full original tags, attributes and nesting from the user fragment.'
+            : '')
+    );
+}
+
+function finalRequestFeedback(
+    fragment: string,
+    text: string,
+    transport?: FinalProseTransport,
+    hiddenIds?: ReadonlySet<string>,
+): string {
+    if (transport?.inline) {
+        return '\n\nTranslate the three adjacent prose parts of one source sentence separately and in order. Return exactly three translations separated by the existing fragment separator. Do not merge the parts or return an empty part. Do not add XML, code, placeholders or identifiers. Original code and link markup is restored outside the model.';
+    }
+    return (
+        finalMarkupFeedback(fragment, text, transport?.hiddenIds ?? hiddenIds) +
+        (transport
+            ? '\n\nTranslate the two adjacent parts of one source sentence separately and in order. Return exactly two translations separated by the existing fragment separator. Do not merge the parts or return an empty part. The original line break is restored outside the model.'
+            : '')
+    );
+}
+
+function protectedIdentifierReference(identities: ReadonlyMap<string, string>): string {
+    if (!identities.size) return '';
+    return (
+        '\n\nRead-only source identifier reference (not additional fragments):\n' +
+        [...identities].map(([id, value]) => `${id} = ${value}`).join('\n') +
+        '\nUse these original identifier identities only as context. Return the original opaque placeholders unchanged. Do not copy this reference or its identifier values into translated prose.'
+    );
+}
+
+function describedIdentifier(fragment: string): [string, string][] {
+    if (isCodeUnit(fragment)) return [];
+    const source = unwrapUnit(fragment).text;
+    // Only a leading identifier with a prose definition supplies this context.
+    // Values in ordinary inline examples remain opaque.
+    const label =
+        /^\s*<x ctype="code_literal" id="(literal-[0-9a-f]{16})"\/>\s*(?:\u2014|[-:])\s+\p{L}/u.exec(
+            maskLiteralCode(source),
+        );
+    if (!label) return [];
+    const value = literalCodeIdentities(source).get(label[1]);
+    return value === undefined ? [] : [[label[1], value]];
 }
 
 /**
@@ -546,6 +1072,7 @@ function makeProcessor(params: ProcessorParams) {
             ajvOptions,
             warnings,
             tableTitles = [],
+            literalUnitIds,
         } = await loadTranslationUnits({
             inputPath,
             path,
@@ -560,14 +1087,19 @@ function makeProcessor(params: ProcessorParams) {
             return warnings;
         }
 
-        const translated = await translate(path, units, {title: extractTitle(content.data)});
+        const translated = await translate(path, units, {
+            title: extractTitle(content.data),
+            literalUnitIds,
+        });
         // Model/cache answers retain source addresses for validation and
         // cross-file reuse. Localization belongs to this file's composition.
         const localized = localizedUrls(store?.memory(path) || [], languages);
         const parts = translated.map((part) => restoreLocalizedUrls(part, localized));
         for (const ids of tableTitles) {
             if (ids.some((id) => isTableTitleFallback(parts[id]))) {
-                for (const id of ids) parts[id] = units[id];
+                for (const id of ids) {
+                    parts[id] = units[id];
+                }
                 const warning =
                     'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
                 logger?.warn(path, warning);
@@ -678,7 +1210,7 @@ export function makeStore(
     const fingerprint = cacheFingerprint({
         // Old generated answers may contain copied edits or translated code.
         // Approved repository translations use the separately versioned seed.
-        validationPolicy: 3,
+        validationPolicy: 5,
         provider: client.name,
         model: config.model,
         source: sourceLanguage,
@@ -834,11 +1366,29 @@ export function makeTranslator(params: TranslatorParams): Translate {
     let temperatureWarned = false;
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
     const allowedSpellings = glossaryPairs.map((pair) => pair.translatedText);
+    const residualProse = (source: string, text: string) =>
+        sourceLanguage.split('-')[0].toLowerCase() === 'ru' &&
+        hasLowercaseSourceProse(text, marker, allowedSpellings, source);
+    const wrongTargetProse = (fragment: string, part: string) =>
+        sourceLanguage.split('-')[0].toLowerCase() === 'ru' &&
+        scriptsOf(sourceLanguage).includes('Cyrl') &&
+        targetLanguage.split('-')[0].toLowerCase() === 'zh' &&
+        scriptsOf(targetLanguage).includes('Han') &&
+        hasUnexpectedEnglishProse(fragment, part, marker, glossaryPairs);
     const copiedEdit = (fragment: string, part: string, hint?: SeedHint) =>
         hasCopiedEdit(fragment, part, hint, marker, allowedSpellings);
     const refusedTranslation = (fragment: string, part: string | undefined, hint?: SeedHint) =>
         part !== undefined &&
-        ((part === fragment && hasSourceProse(part, marker)) || copiedEdit(fragment, part, hint));
+        (isProseEcho(fragment, part, marker) ||
+            residualProse(fragment, part) ||
+            wrongTargetProse(fragment, part) ||
+            copiedEdit(fragment, part, hint));
+    const cachedProseEcho = (text: string, normalized: string, seeded: boolean) =>
+        ((!seeded || normalized === text) && isProseEcho(text, normalized, marker)) ||
+        (!seeded &&
+            (residualProse(text, normalized) ||
+                wrongTargetProse(text, normalized) ||
+                !keepsLiteralCodeIdentities(text, normalized)));
     const cachedRepair = (text: string, stored: string, seeded: boolean): CachedRepair => {
         if (!seeded) {
             return healCached(text, stored);
@@ -853,6 +1403,22 @@ export function makeTranslator(params: TranslatorParams): Translate {
     // Literal identities are stricter than formatting shape: replacing one
     // code value with another must fail even if the delimiters still match.
     const invalidLiterals = new Set<string>();
+    // Retain the identities exposed with a unit when a smaller retry no longer
+    // contains its original siblings. This also guards cross-unit hint echoes.
+    const identityContexts = new Map<string, ReadonlyMap<string, string>>();
+    const identifierContext = (fragments: string[], enabled: boolean) => {
+        const identities = new Map(enabled ? fragments.flatMap(describedIdentifier) : []);
+        for (const fragment of fragments) {
+            const previous = identityContexts.get(fragment);
+            if (identities.size) {
+                identityContexts.set(
+                    fragment,
+                    previous ? new Map([...previous, ...identities]) : identities,
+                );
+            }
+        }
+        return identities;
+    };
     // Markers cut from the answer currently held for a unit. A retry
     // overwrites the entry, so a repair on an answer that was thrown away
     // never reaches the report.
@@ -867,6 +1433,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
         context: string,
         hints: (SeedHint | undefined)[] = [],
         markupFeedback?: string,
+        missingAnswers?: Set<number>,
+        finalMarkup = false,
     ): Promise<string[]> {
         if (!fragments.length) {
             return [];
@@ -876,9 +1444,22 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // Link and image addresses stay out of the request, see
         // `maskAddresses`. The memory reads the same way as the fragments,
         // with the ids of the fragment it goes with.
-        const masked = wrappers.map((wrapper) => maskLiteralCode(maskAddresses(wrapper.text)));
-        const sent = wrappers.map(({open, close}, index) => open + masked[index] + close);
-        const messages = buildMessages(masked, {
+        const baseMasked = wrappers.map((wrapper) => maskLiteralCode(maskAddresses(wrapper.text)));
+        const splitTransport =
+            finalMarkup && fragments.length === 1
+                ? finalProseTransport(fragments[0], baseMasked[0])
+                : undefined;
+        const literalMasks = baseMasked.map((text, index) =>
+            finalMarkup && !splitTransport ? maskFinalLiterals(fragments[index], text) : undefined,
+        );
+        const masked = baseMasked.map((text, index) => literalMasks[index]?.text ?? text);
+        const requestTexts = splitTransport?.parts ?? masked;
+        const identities = identifierContext(fragments, !finalMarkup);
+        // Adjacent wire parts still belong to one original unit and cache key.
+        const sent = splitTransport
+            ? requestTexts
+            : wrappers.map(({open, close}, index) => open + masked[index] + close);
+        const messages = buildMessages(requestTexts, {
             systemPrompt,
             userPrompt,
             promptMode,
@@ -886,29 +1467,43 @@ export function makeTranslator(params: TranslatorParams): Translate {
             targetLanguage,
             glossaryPairs,
             contextFiles,
-            context,
-            hints: hints.map((hint, index) => {
-                if (!hint) {
-                    return undefined;
-                }
+            context: splitTransport ? '' : context,
+            hints: splitTransport
+                ? []
+                : hints.map((hint, index) => {
+                      if (!hint) {
+                          return undefined;
+                      }
 
-                const {source, translation} = renumberMemory(wrappers[index].text, hint);
+                      const {source, translation} = renumberMemory(wrappers[index].text, hint);
 
-                const memory = {
-                    source: maskLiteralCode(maskAddresses(source)),
-                    translation: maskLiteralCode(maskAddresses(translation)),
-                };
-                // An older locale may intentionally use other code literals.
-                // It cannot supply opaque identities for the current source.
-                return keepsLiteralCode(masked[index], memory.source) &&
-                    keepsLiteralCode(masked[index], memory.translation)
-                    ? memory
-                    : undefined;
-            }),
+                      const memory = {
+                          source: maskLiteralCode(maskAddresses(source)),
+                          translation: maskLiteralCode(maskAddresses(translation)),
+                      };
+                      // An older locale may intentionally use other code literals.
+                      // It cannot supply opaque identities for the current source.
+                      return keepsLiteralCode(masked[index], memory.source) &&
+                          keepsLiteralCode(masked[index], memory.translation)
+                          ? memory
+                          : undefined;
+                  }),
         });
 
+        messages[0].content += protectedIdentifierReference(identities);
+
         if (markupFeedback) {
-            messages[0].content += '\n\nFormatting correction: ' + markupFeedback;
+            messages[0].content +=
+                '\n\nFormatting correction: ' +
+                markupFeedback +
+                (finalMarkup
+                    ? finalRequestFeedback(
+                          fragments[0],
+                          masked[0],
+                          splitTransport,
+                          literalMasks[0]?.hiddenSourceIds,
+                      )
+                    : '');
         }
 
         if (dryRun) {
@@ -982,23 +1577,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             stat.outputTokens += result.usage.outputTokens;
         }
 
-        const parts = splitFragments(result.text);
-
-        // Models sometimes emit stray edge delimiters (e.g. a lone separator
-        // for a fragment they decided to keep as is) - empty edge parts are
-        // framing noise, not translations.
-        while (parts.length > fragments.length && parts[parts.length - 1] === '') {
-            parts.pop();
-        }
-        while (parts.length > fragments.length && parts[0] === '') {
-            parts.shift();
-        }
-
-        if (parts.length !== fragments.length) {
-            throw new LLMResponseError(
-                `Expected ${fragments.length} fragments in LLM response, got ${parts.length}`,
-            );
-        }
+        const parts = responseParts(
+            result.text,
+            fragments.length,
+            refusedTranslation,
+            splitTransport,
+        );
 
         // Restore the wrapper; unwrap defensively in case the model echoed it.
         // An empty translation of a non-empty fragment is never valid - keep
@@ -1007,8 +1591,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
         return parts.map((part, index) => {
             const {open, text, close} = wrappers[index];
             const answer = unwrapUnit(stripFence(part)).text;
+            if (!answer.trim()) {
+                missingAnswers?.add(index);
+            }
+            const literal = literalMasks[index]?.restore(answer) ?? {text: answer, valid: true};
             const translation = answer
-                ? unmaskAddresses(text, unmaskLiteralCode(text, answer))
+                ? unmaskAddresses(text, unmaskLiteralCode(text, literal.text))
                 : text;
             const repair =
                 isCodeUnit(fragments[index]) || isTableTitleUnit(fragments[index])
@@ -1019,9 +1607,24 @@ export function makeTranslator(params: TranslatorParams): Translate {
             // the text and its repair.
             repairs.set(fragments[index], repair.stripped);
 
-            const restored = open + repair.text + close;
+            const restored =
+                open +
+                (isCodeUnit(fragments[index]) || isTableTitleUnit(fragments[index])
+                    ? repair.text
+                    : repairInlineSpacing(repair.text)) +
+                close;
             const literalKey = JSON.stringify([fragments[index], restored]);
-            if (keepsLiteralCode(masked[index], answer)) {
+            if (
+                literal.valid &&
+                (!(literalMasks[index] || splitTransport) ||
+                    keepsLiteralResidue(text, translation)) &&
+                keepsLiteralCode(baseMasked[index], literal.text) &&
+                keepsLiteralCodeIdentities(
+                    text,
+                    literal.text,
+                    identityContexts.get(fragments[index]),
+                )
+            ) {
                 invalidLiterals.delete(literalKey);
             } else {
                 invalidLiterals.add(literalKey);
@@ -1045,9 +1648,22 @@ export function makeTranslator(params: TranslatorParams): Translate {
         what: string,
         hints: (SeedHint | undefined)[] = [],
         markupFeedback?: string,
+        finalMarkup = false,
     ): Promise<(string | undefined)[]> {
         try {
-            return await translateBatch(path, fragments, context, hints, markupFeedback);
+            // Only markup retries distinguish a missing answer from the source
+            // fallback translateBatch keeps for ordinary translation requests.
+            const missing = markupFeedback === undefined ? undefined : new Set<number>();
+            const parts = await translateBatch(
+                path,
+                fragments,
+                context,
+                hints,
+                markupFeedback,
+                missing,
+                finalMarkup,
+            );
+            return parts.map((part, index) => (missing?.has(index) ? undefined : part));
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             logger.warn(path, `${what} failed (${error.message}).`);
@@ -1074,6 +1690,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                     what,
                     hints.slice(start, end),
                     markupFeedback,
+                    finalMarkup,
                 )),
             );
         }
@@ -1087,9 +1704,11 @@ export function makeTranslator(params: TranslatorParams): Translate {
      * loses the formatting or leaves an unpaired delimiter in the line,
      * and a link placeholder lost or repeated breaks the link.
      *
-     * One more request is cheaper than a broken line, and a fragment the
-     * retry does not fix keeps its source text: untranslated composes
-     * cleanly, damaged markup does not.
+     * Retry together once, then give received, still-invalid answers up to
+     * two isolated requests without document context or memory hints. Missing
+     * answers do not trigger another request. A fragment that still
+     * fails keeps its source text: untranslated composes cleanly, damaged
+     * markup does not.
      */
     async function repairDamaged(
         path: string,
@@ -1128,27 +1747,48 @@ export function makeTranslator(params: TranslatorParams): Translate {
             `${indexes.length} fragment(s) came back with damaged markup; retrying them.`,
         );
 
+        const feedback =
+            'Preserve all original Markdown/YFM structure and placeholders. Preserve every original XML g group, including attributes, IDs and nesting. These groups already encode the source links and formatting. Translate all ordinary prose inside and outside groups while keeping each opening and closing tag intact. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
+            (indexes.some((index) => tableTitleIssue(fragments[index], parts[index]))
+                ? ' For a wide-table title, rephrase the translation without double quotes, literal closing braces or line breaks. Preserve variable placeholders exactly. Do not use backslash or HTML entity escaping.'
+                : '');
         const retried = await retryFragments(
             path,
             indexes.map((index) => fragments[index]),
             context,
             'Markup retry',
             indexes.map((index) => hints[index]),
-            'Preserve all original Markdown/YFM structure and placeholders. Do not add emphasis, code, links, images, lists, headings, HTML or directives. Translate only the prose.' +
-                (indexes.some((index) => tableTitleIssue(fragments[index], parts[index]))
-                    ? ' For a wide-table title, rephrase the translation without double quotes, literal closing braces or line breaks. Preserve variable placeholders exactly. Do not use backslash or HTML entity escaping.'
-                    : ''),
+            feedback,
         );
 
         const result = [...parts];
         let unfixed = 0;
 
-        indexes.forEach((index, position) => {
-            const candidate = retried[position];
+        for (const [position, index] of indexes.entries()) {
+            let candidate = retried[position];
+
+            for (
+                let isolated = 0;
+                isolated < 2 && candidate !== undefined && !kept(fragments[index], candidate);
+                isolated++
+            ) {
+                logger.warn(path, '1 fragment(s) came back with damaged markup; retrying them.');
+                // The counter above counts distinct units; requests records
+                // the additional attempts. Retain the same validation guards.
+                [candidate] = await retryFragments(
+                    path,
+                    [fragments[index]],
+                    '',
+                    'Markup retry',
+                    [],
+                    feedback,
+                    isolated === 1,
+                );
+            }
 
             if (candidate !== undefined && kept(fragments[index], candidate)) {
                 result[index] = candidate;
-                return;
+                continue;
             }
 
             unfixed++;
@@ -1156,7 +1796,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
             damaged.add(fragments[index]);
             repairs.set(fragments[index], 0);
             result[index] = tableTitleFallback(fragments[index]);
-        });
+        }
 
         if (unfixed) {
             logger.warn(
@@ -1217,8 +1857,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         const result = [...parts];
 
-        // Reject echoes and copied new prose, not every source-script word:
-        // existing localized names and literal code can legitimately survive.
+        // Refuse partial Russian prose as well as echoes and copied edits.
+        // Proper names, acronyms, protected code and glossary spellings survive.
         indexes.forEach((index, position) => {
             const candidate = retried[position];
 
@@ -1283,10 +1923,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // searched for previous versions at all.
         let resolved: (string | undefined)[] = [];
         let hinted: (SeedHint | undefined)[] = [];
-        if (store && memoryHints) {
-            ({translations: resolved, hints: hinted} = store.lookup(path, texts));
-        } else if (store) {
-            resolved = store.resolve(path, texts);
+        let fileMatchedIndices: ReadonlySet<number> = new Set();
+        if (store) {
+            const memory = memoryHints
+                ? store.lookupWithProvenance(path, texts, docContext?.literalUnitIds)
+                : {...store.resolveWithProvenance(path, texts), hints: []};
+            ({translations: resolved, hints: hinted, fileMatchedIndices} = memory);
         }
         let buffer: string[] = [];
         let bufferHints: (SeedHint | undefined)[] = [];
@@ -1358,11 +2000,25 @@ export function makeTranslator(params: TranslatorParams): Translate {
             bufferTokens = 0;
         };
 
-        for (const [index, text] of texts.entries()) {
-            const tokens = estimateTokens(text);
+        const sourceLiteral = (index: number, text: string): string | undefined => {
+            if (!docContext?.literalUnitIds?.has(index)) return undefined;
+            const approved = fileMatchedIndices.has(index) ? resolved[index] : undefined;
+            if (approved === undefined) return text;
+            stat.cached++;
+            return normalizeCached(text, approved);
+        };
 
+        for (const [index, text] of texts.entries()) {
             stat.unitsTotal++;
             stat.sourceChars += text.length;
+
+            const literal = sourceLiteral(index, text);
+            if (literal !== undefined) {
+                promises.push(Promise.resolve(literal));
+                continue;
+            }
+
+            const tokens = estimateTokens(text);
 
             if (tokens > maxBatchTokens) {
                 logger.warn(
@@ -1378,12 +2034,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             if (stored !== undefined) {
                 const seeded = Boolean(store?.isSeeded(path, text, stored));
                 const {text: healed, normalized, stripped} = cachedRepair(text, stored, seeded);
-                // Identity entries for units that still contain source-script
-                // characters were cached by older runs that stored untranslated
-                // responses. Treat them as misses so the unit gets another chance.
+                // Generated answers can retain source prose after translating only
+                // a product name or part of a sentence. Treat refusals as misses;
+                // approved seed keeps its existing identity contract.
                 const refused =
                     tableTitleIssue(text, healed) ||
-                    (normalized === text && hasSourceProse(text, marker)) ||
+                    cachedProseEcho(text, seeded ? normalized : healed, seeded) ||
                     (!store?.isFileSeeded(path, text, stored) &&
                         Boolean(
                             markupIssueForUnit(

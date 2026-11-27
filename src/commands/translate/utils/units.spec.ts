@@ -27,6 +27,22 @@ function file(content: string, name = 'article.md') {
 
 describe('translate units loader', () => {
     describe('loadTranslationUnits', () => {
+        it.each(['Параметры:\n\n* `limit`\n* `pageToken`\n', '> `limit`\n', '``limit``\n'])(
+            'preserves ownership of inline-code-only units in %j',
+            async (markdown) => {
+                const loaded = await loadTranslationUnits({
+                    inputPath: file(markdown),
+                    path: 'ru/article.md',
+                    sourceLanguage: 'ru',
+                    targetLanguage: 'zh',
+                    vars: {},
+                });
+                const index = loaded.units.findIndex((unit) => />limit<\/source>$/.test(unit));
+                expect(loaded.literalUnitIds?.has(index)).toBe(true);
+                expect(compose(loaded.skeleton, loaded.units, {useSource: true})).toBe(markdown);
+            },
+        );
+
         it.each([
             '- Исправление обработчика, [abc123]( https://example.com/commit/abc123).\n',
             'Read [docs](  https://example.com/search?a=1&b=2 "Title").\n',
@@ -41,6 +57,47 @@ describe('translate units loader', () => {
             });
 
             expect(compose(loaded.skeleton, loaded.units, {useSource: true})).toBe(approved);
+        });
+
+        it('preserves inline ownership in OpenAPI descriptions while keeping prose separate', async () => {
+            const source = JSON.stringify({
+                openapi: '3.0.0',
+                info: {title: 'Test', version: '1'},
+                paths: {},
+                components: {
+                    schemas: {
+                        First: {type: 'string', description: '* `limit`'},
+                        Second: {type: 'string', description: 'limit'},
+                    },
+                },
+            });
+            const loaded = await loadTranslationUnits({
+                inputPath: file(source, 'api.yaml'),
+                path: 'ru/api.yaml',
+                sourceLanguage: 'ru',
+                targetLanguage: 'zh',
+                vars: {},
+            });
+            const indexes = loaded.units.flatMap((unit, index) =>
+                />limit<\/source>$/.test(unit) ? [index] : [],
+            );
+            expect(indexes).toHaveLength(2);
+            expect(loaded.literalUnitIds?.has(indexes[0])).toBe(true);
+            expect(loaded.literalUnitIds?.has(indexes[1])).toBe(false);
+        });
+
+        it('proves a hoisted literal beside other inline code retained inside prose units', async () => {
+            const source = 'Пример `other` внутри текста.\n\n* `limit`\n';
+            const loaded = await loadTranslationUnits({
+                inputPath: file(source),
+                path: 'ru/article.md',
+                sourceLanguage: 'ru',
+                targetLanguage: 'zh',
+                vars: {},
+            });
+            const index = loaded.units.findIndex((unit) => />limit<\/source>$/.test(unit));
+            expect(loaded.literalUnitIds?.has(index)).toBe(true);
+            expect(compose(loaded.skeleton, loaded.units, {useSource: true})).toBe(source);
         });
 
         it('keeps fenced code context on extracted comments and placeholders', async () => {
