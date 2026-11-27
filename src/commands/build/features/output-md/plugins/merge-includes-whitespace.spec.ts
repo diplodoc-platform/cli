@@ -1,5 +1,6 @@
 import type {HashedGraphNode} from '../utils';
 
+import {resolve} from 'node:path';
 import {describe, expect, it} from 'vitest';
 import transform from '@diplodoc/transform';
 import includes from '@diplodoc/transform/plugins/includes';
@@ -47,12 +48,14 @@ async function merge(source: string, dep: HashedGraphNode, sourceMaps: boolean, 
 }
 
 function render(source: string) {
+    const root = resolve('docs');
+
     return transform(source, {
         included: true,
         disableLiquid: true,
         plugins: [includes],
-        root: '/docs',
-        path: '/docs/main.md',
+        root,
+        path: resolve(root, 'main.md'),
     }).result.html;
 }
 
