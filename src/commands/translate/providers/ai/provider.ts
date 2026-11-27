@@ -397,7 +397,7 @@ type ProcessorParams = {
     /** Seed memory of the files: localized skeleton fragments and links. */
     store?: TranslationStore;
     stat?: TargetStat;
-    logger?: Pick<TranslateLogger, 'warn'>;
+    logger?: Pick<TranslateLogger, 'info' | 'warn' | 'error'>;
     onTranslated?: (path: string, units: string[], parts: string[]) => void;
 };
 
@@ -547,6 +547,7 @@ function makeProcessor(params: ProcessorParams) {
             warnings,
             tableTitles = [],
         } = await loadTranslationUnits({
+            log: logger,
             inputPath,
             path,
             sourceLanguage,

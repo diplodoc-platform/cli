@@ -162,6 +162,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.multilineTermDefinitions,
         options.idGenerator,
         options.strict,
+        options.deprecationWarnings,
         options.originAsInput,
         options.copyOnWrite,
         options.workerMaxOldSpace,
@@ -218,7 +219,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     async action() {
         const {outputFormat} = this.config;
 
-        this.run = new Run(this.config);
+        this.run = new Run(this.config, threads.sendPageDeprecation);
 
         this.run.logger.pipe(this.logger);
 
@@ -237,7 +238,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             return;
         }
 
-        await threads.setup();
+        await threads.setup((message) => this.run.reportPageDeprecation(message));
 
         console.log('Collect project files info');
         const paths = await this.run.glob('**/toc.yaml', {

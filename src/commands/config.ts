@@ -30,8 +30,14 @@ const strict = option({
     flags: '-s, --strict',
     desc: `
         Run in strict mode.
-        Process will exit with non zero code if there was some errors or warnings.
+        Exit with a nonzero code for errors and warnings. Deprecation warnings do not fail the build.
     `,
+});
+
+const deprecationWarnings = option({
+    flags: '--deprecation-warnings',
+    desc: 'Show deprecation warnings. Use --no-deprecation-warnings to silence them.',
+    defaultInfo: true,
 });
 
 const jobs = option({
@@ -130,6 +136,7 @@ const originAsInput = option({
 export const options = {
     quiet,
     strict,
+    deprecationWarnings,
     jobs,
     workerMaxOldSpace,
     extensions,

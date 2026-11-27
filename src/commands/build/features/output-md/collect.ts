@@ -6,13 +6,14 @@ import type {
     AudienceFilterResult,
     ContentAudience,
     VisibilityError,
-} from '@diplodoc/transform/lib/plugins/visibility';
+} from '@diplodoc/transform/plugins/visibility';
 
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
-import {filterAudienceContent} from '@diplodoc/transform/lib/plugins/visibility';
+import {filterAudienceContent} from '@diplodoc/transform/plugins/visibility';
 
 import {all, get} from '~/core/utils';
+import {hasPaddedIncludeParagraph} from '~/commands/build/footnote-inspection';
 import {getPublicMeta} from '~/core/meta';
 
 import {Scheduler, addMetaFrontmatter, rehashContent, signlink} from './utils';
@@ -53,6 +54,7 @@ type CollectedGraphNode = Omit<EntryGraph, 'deps'> & {
     deps: CollectedDependency[];
     hash: string;
     audienceResults: AudienceFilterResult[];
+    footnoteScope: boolean;
     cacheKey?: string;
 };
 
@@ -312,8 +314,8 @@ export class MarkdownCollector {
 
         const filtered = this.audience ? filterGraphAudience(graph, this.audience) : null;
         const source = filtered?.graph || graph;
-        const deps = await all(source.deps.map(this.dumpDep));
-        const cacheKey = this.contentKey(graph, deps, write);
+        const collectedDeps = await all(source.deps.map(this.dumpDep));
+        const cacheKey = this.contentKey(graph, collectedDeps, write);
         if (cacheKey) {
             const shared = this.processedContent?.get(cacheKey);
             if (shared) {
@@ -321,10 +323,32 @@ export class MarkdownCollector {
                 return shared;
             }
         }
+        const inspection = config.mergeIncludes
+            ? run.inspectMergeSource(source.content, source.path)
+            : undefined;
+        const deps = collectedDeps.map((dep) => ({
+            ...dep,
+            paddedIncludeParagraph: inspection
+                ? source.content.slice(...dep.location) === dep.match &&
+                  hasPaddedIncludeParagraph(
+                      inspection.paddedIncludeParagraphs,
+                      dep.location,
+                      dep.match,
+                  )
+                : false,
+        }));
+        const ownFootnotes = Boolean(inspection?.footnotes);
         const scheduler = new Scheduler([
             config.hashIncludes && !config.mergeIncludes && rehashIncludes(run, deps),
             config.mergeIncludes &&
-                mergeIncludes(run, deps, source.content, config.mergeIncludesSourceMaps, !write),
+                mergeIncludes(
+                    run,
+                    deps,
+                    source.content,
+                    config.mergeIncludesSourceMaps,
+                    !write,
+                    ownFootnotes,
+                ),
             config.mergeAutotitles && mergeAutotitles(run, titles, source.assets),
             config.mergeSvg && mergeSvg(run, svgList, source.assets),
         ]);
@@ -341,6 +365,7 @@ export class MarkdownCollector {
             deps,
             content,
             hash,
+            footnoteScope: ownFootnotes || deps.some((dep) => dep.footnoteScope),
             audienceResults: [
                 ...(filtered ? [filtered.result] : []),
                 ...deps.flatMap((dep) => dep.audienceResults),

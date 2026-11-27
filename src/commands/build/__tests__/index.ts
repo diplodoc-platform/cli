@@ -53,6 +53,7 @@ export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
         new Run({
             input: '/dev/null/input',
             output: '/dev/null/output',
+            template: {enabled: false, features: {}, scopes: {code: false}},
             ...config,
         } as BuildConfig);
 
@@ -77,7 +78,7 @@ export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
         vi.spyOn(run, method).mockImplementation(impl(method));
     }
 
-    for (const method of ['proc', 'info', 'warn', 'error'] as string[]) {
+    for (const method of ['proc', 'info', 'warn', 'error', 'deprecation'] as string[]) {
         // @ts-ignore
         vi.spyOn(run.logger, method).mockImplementation(() => {});
     }

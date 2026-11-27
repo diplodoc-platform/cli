@@ -1,11 +1,15 @@
-import type Token from 'markdown-it/lib/token';
+import type {Token} from 'markdown-it';
 
-type TokenWalker = (
-    token: Token,
+type TokenWalker<T> = (
+    token: T,
     state: {commented: boolean; index: number},
 ) => void | undefined | {skip: number};
 
-export function filterTokens(tokens: Token[], type: string, handler: TokenWalker) {
+export function filterTokens<T extends {type: string; content: string}>(
+    tokens: T[],
+    type: string,
+    handler: TokenWalker<T>,
+) {
     let commented = false;
 
     if (!tokens || !tokens.length) {
@@ -38,7 +42,7 @@ export function filterTokens(tokens: Token[], type: string, handler: TokenWalker
 }
 
 export function getHrefTokenAttr(token: Token) {
-    const href = token.attrGet('href') || '';
+    const href = String(token.attrGet('href') ?? '');
     try {
         return decodeURI(href);
     } catch {}

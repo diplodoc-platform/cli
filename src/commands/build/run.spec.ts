@@ -1,15 +1,20 @@
+import type {MarkdownIt} from '@diplodoc/transform/types';
 import type {RawLintConfig} from '@diplodoc/yfmlint';
-import type MarkdownIt from 'markdown-it';
 import type {IncludeInfo} from '~/core/markdown';
 
-import {describe, expect, it, vi} from 'vitest';
+import {afterEach, describe, expect, it, vi} from 'vitest';
+import transformer from '@diplodoc/transform/parser';
 import {LogLevels, normalizeConfig} from '@diplodoc/yfmlint';
-import visibility from '@diplodoc/transform/lib/plugins/visibility';
+import {definePlugin} from '@diplodoc/transform/configuration';
+import visibility from '@diplodoc/transform/plugins/visibility';
 
+import {Logger} from '~/core/logger';
 import {normalizePath} from '~/core/utils';
 
 import {Run} from './run';
+import {configureTransform} from './transform-configuration';
 import {setupRun} from './__tests__';
+import {getBaseMdItPlugins} from './features/output-html/utils';
 
 describe('Disabled local anchor checks', () => {
     const cases: [string, RawLintConfig, boolean][] = [
@@ -71,6 +76,217 @@ describe('Transform SVG entity limit forwarding', () => {
         } else {
             expect(options).toHaveProperty('svgMaxEntityCount', svgMaxEntityCount);
         }
+    });
+});
+
+describe('CLI parser configuration boundary', () => {
+    it('keeps hook order and legacy data while isolating configured options and collection', () => {
+        const calls: string[] = [];
+        const collect = vi.fn((content: string) => content);
+        const configured = definePlugin<{path: string; label: string}, {}>({
+            id: 'fixture/configured',
+            collect,
+            setup(md, options, context) {
+                calls.push('configured');
+                expect(options).toEqual({path: 'plugin-only', label: 'badge'});
+                expect(context.path).toBe('en/index.md');
+                expect(context).not.toHaveProperty('label');
+                md.renderer.rules.text = () => options.label;
+            },
+        })({path: 'plugin-only', label: 'badge'});
+        const run = {
+            config: {
+                langs: ['en'],
+                idGenerator: 'constant',
+                content: {maxInlineSvgSize: 1024},
+                codeLineWrapping: false,
+                supportGithubAnchors: true,
+            },
+            logger: new Logger(),
+            markdown: {plugins: []},
+            toc: {entrySet: new Set()},
+            getEntries: () => ['en/index.md'],
+            anchors: {resolve: vi.fn()},
+        } as unknown as Run;
+        const base = Run.prototype['transformConfig'].call(
+            run,
+            'en/index.md' as NormalizedPath,
+            {},
+        );
+        const legacyData = {
+            files: {'part.md': 'part'},
+            assets: {'image.svg': '<svg/>'},
+            titles: {},
+        };
+        const flat = {
+            ...base,
+            ...legacyData,
+            plugins: [
+                (
+                    _md: Parameters<typeof configured.plugin>[0],
+                    options: typeof base & typeof legacyData,
+                ) => {
+                    calls.push('legacy');
+                    expect(options.files).toBe(legacyData.files);
+                    expect(options.assets).toBe(legacyData.assets);
+                    expect(options.entries).toEqual(['en/index.md']);
+                    expect(options.codeLineWrapping).toBe(false);
+                    expect(options.supportGithubAnchors).toBe(true);
+                },
+                configured.plugin,
+            ],
+        };
+        const migrated = configureTransform(flat);
+        expect(migrated).not.toHaveProperty('plugins');
+        expect(base).toHaveProperty('plugins');
+        expect(base).not.toHaveProperty('pluginConfiguration');
+        expect(migrated.pluginConfiguration?.plugins?.[1].plugin.collect).toBe(collect);
+
+        const oldParser = transformer(flat);
+        const newParser = transformer(migrated);
+        expect(newParser.compile(newParser.parse('text'))).toBe(
+            oldParser.compile(oldParser.parse('text')),
+        );
+        expect(calls).toEqual(['legacy', 'configured', 'legacy', 'configured']);
+        expect(collect).not.toHaveBeenCalled();
+    });
+});
+
+describe('CLI owned document rendering', () => {
+    afterEach(() => vi.restoreAllMocks());
+    function setupDocumentRun() {
+        const run = setupRun({
+            langs: ['en'],
+            idGenerator: 'constant',
+            allowHtml: true,
+            sanitizeHtml: true,
+            content: {maxInlineSvgSize: 1024},
+        });
+        const plugins = vi
+            .spyOn(run.markdown, 'plugins', 'get')
+            .mockReturnValue(getBaseMdItPlugins());
+        vi.spyOn(run.markdown, 'titles').mockResolvedValue({});
+
+        return {run, plugins};
+    }
+
+    it('reports page occurrences once per build or watch batch and keeps fragment diagnostics', async () => {
+        const {run} = setupDocumentRun();
+        const file = normalizePath('en/example.md');
+        const source = '#|\n|| A {.cell-align-center} ||\n|| B {.cell-align-center} ||\n|#';
+        const options = {deps: [], assets: []};
+        const page = {...options, pageDiagnostics: true};
+
+        await run.transform(file, source, page);
+        await run.transform(file, source, page);
+        const messages = vi.mocked(run.logger.deprecation).mock.calls;
+        expect(messages).toHaveLength(2);
+        expect(messages[0][0]).toContain('en/example.md:2:3');
+        expect(messages[1][0]).toContain('en/example.md:3:3');
+
+        await run.transform(file, source, options);
+        await run.transform(file, source, options);
+        expect(messages).toHaveLength(6);
+
+        run.resetPageDeprecations();
+        await run.transform(file, source, page);
+        expect(messages).toHaveLength(8);
+    });
+
+    it('preserves ordinary logger topics and unlocated plugin deprecations', () => {
+        const {run} = setupDocumentRun();
+        const {log} = run['transformConfig'](normalizePath('a.md'), {}, true);
+        expect(log.warn).toBe(run.logger.warn);
+        expect(log.error).toBe(run.logger.error);
+        expect(log.info).toBe(run.logger.info);
+        expect(log.proc).toBe(run.logger.proc);
+        expect(log.deprecation.count).toBe(run.logger.deprecation.count);
+        log.warn('[DEPRECATED CUSTOM]', 'from plugin');
+        expect(run.logger.warn).toHaveBeenCalledWith('[DEPRECATED CUSTOM]', 'from plugin');
+
+        log.deprecation('plugin warning');
+        log.deprecation('plugin warning');
+        log.deprecation('legacy', 'component');
+        expect(run.logger.deprecation).toHaveBeenCalledTimes(3);
+        expect(run.logger.deprecation).toHaveBeenCalledWith('legacy', 'component');
+
+        run.logger.setup({deprecationWarnings: false});
+        log.deprecation(
+            '[DEPRECATED CODE] Feature at a.md:2:3. Use replacement. Removal: version 6.',
+        );
+        expect(run.logger.deprecation).toHaveBeenCalledTimes(3);
+    });
+
+    it('returns separate actual document resources for consecutive roots and materialized includes', async () => {
+        const {run} = setupDocumentRun();
+        const [first, firstEnv] = await run.transform(
+            normalizePath('en/a.md'),
+            `# Root A
+
+{% include [part](part.md) %}
+
+{% included (part.md) %}
+{% file src="asset.txt" name="Included file" %}
+{% endincluded %}
+`,
+            {deps: [], assets: []},
+        );
+        const [second, secondEnv] = await run.transform(
+            normalizePath('en/b.md'),
+            '# Root B\n\nClean body.',
+            {deps: [], assets: []},
+        );
+
+        expect(first).toContain('Included file');
+        expect(firstEnv.meta?.style).toContain('_assets/file-extension.css');
+        expect(second).toContain('Clean body.');
+        expect(secondEnv.title).toBe('Root B');
+        expect(second).not.toContain('Included file');
+        expect(secondEnv).not.toBe(firstEnv);
+        expect(secondEnv.meta?.style || []).not.toContain('_assets/file-extension.css');
+        expect(firstEnv.meta?.style).toContain('_assets/file-extension.css');
+    });
+
+    it('recovers with a fresh configured parser after rendering fails', async () => {
+        const {run, plugins} = setupDocumentRun();
+        const base = getBaseMdItPlugins();
+        plugins.mockReturnValue([
+            ...base,
+            (md) => {
+                md.renderer.rules.paragraph_open = () => {
+                    throw new Error('fixture render failure');
+                };
+            },
+        ]);
+        await expect(
+            run.transform(normalizePath('en/failed.md'), 'Failed body.', {deps: [], assets: []}),
+        ).rejects.toThrow('fixture render failure');
+        plugins.mockReturnValue(base);
+        const [html, env] = await run.transform(normalizePath('en/good.md'), 'Recovered body.', {
+            deps: [],
+            assets: [],
+        });
+
+        expect(html).toContain('Recovered body.');
+        expect(html).not.toContain('Failed body.');
+        expect(env.meta?.style || []).toEqual([]);
+    });
+
+    it('keeps CLI-configured handles associated through interleaved and derived-token compilation', () => {
+        const {run} = setupDocumentRun();
+        const options = configureTransform(
+            run['transformConfig'](normalizePath('en/index.md'), {}),
+        );
+        const parser = transformer(options);
+        const first = parser.parseDocument('# First\n\nFirst body.');
+        const second = parser.parseDocument('# Second\n\nSecond body.');
+        const html = parser.compileDocument(first);
+
+        expect(html).toContain('First body.');
+        expect(html).not.toContain('Second body.');
+        expect(parser.compile(first.tokens.slice(), first)).toBe(html);
+        expect(parser.compileDocument(second)).toContain('Second body.');
+        expect(transformer(options).compileDocument.bind(null, first)).toThrow();
     });
 });
 

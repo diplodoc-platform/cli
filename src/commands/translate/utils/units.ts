@@ -1,14 +1,17 @@
 import type {ExtractOptions, JSONObject} from '@diplodoc/translation';
+import type {LogConsumer} from '@diplodoc/transform/log';
 import type {CodeMode} from './config';
 
 import {isEqual} from 'lodash';
 import {extractFrontMatter} from '@diplodoc/liquid';
-import liquid from '@diplodoc/transform/lib/liquid';
+import {liquidDocument as liquid} from '@diplodoc/transform/lib/liquid';
 
 import {FileLoader, resolveSchemas} from './fs';
 import {extract} from './translate';
 import {markTableTitle} from './table-title';
 import {codeUnitIds, markCodeUnit} from './unit-context';
+
+export type TranslationLog = LogConsumer & {readonly deprecationWarnings?: boolean};
 
 export type LoadTranslationUnitsParams = {
     /** Absolute path of the file to read. */
@@ -18,6 +21,7 @@ export type LoadTranslationUnitsParams = {
     sourceLanguage: string;
     targetLanguage: string;
     vars: Record<string, unknown>;
+    log?: TranslationLog;
     /** Code processing mode of the run, see `--code`. Engine default when unset. */
     code?: CodeMode;
 };
@@ -30,8 +34,15 @@ export type LoadTranslationUnitsParams = {
  * escaped space breaks the extraction of a heading repeating the title. The
  * re-serialized frontmatter stays only when a condition in it changed a value.
  */
-export function applyConditions(text: string, vars: Hash, path: string): string {
+export function applyConditions(
+    text: string,
+    vars: Hash,
+    path: string,
+    log?: TranslationLog,
+): string {
     const result = liquid(text, vars, path, {
+        log,
+        deprecationWarnings: log?.deprecationWarnings,
         conditions: 'strict',
         substitutions: false,
         cycles: false,
@@ -74,13 +85,13 @@ export type LoadedTranslationUnits = {
 export async function loadTranslationUnits(
     params: LoadTranslationUnitsParams,
 ): Promise<LoadedTranslationUnits> {
-    const {inputPath, path, sourceLanguage, targetLanguage, vars, code} = params;
+    const {inputPath, path, sourceLanguage, targetLanguage, vars, code, log} = params;
 
     const content = new FileLoader(inputPath);
     await content.load();
 
     if (Object.keys(vars).length && content.isString) {
-        content.set(applyConditions(content.data as string, vars, inputPath));
+        content.set(applyConditions(content.data as string, vars, inputPath, log));
     }
 
     if (!content.data) {
@@ -88,18 +99,23 @@ export async function loadTranslationUnits(
     }
 
     const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
-    const {units, skeleton, warnings, tableTitles} = extract(content.data, {
-        compact: true,
-        code,
-        // Unit texts are cache and seed keys: with document-wide placeholder
-        // ids a unit's text depends on the markup above it, so a section
-        // added at the top of a file invalidates every unit below.
-        unitLocalIds: true,
-        source: {language: sourceLanguage, locale: 'RU'},
-        target: {language: targetLanguage, locale: 'US'},
-        schemas,
-        ajvOptions,
-    });
+    const {units, skeleton, warnings, tableTitles} = extract(
+        content.data,
+        {
+            compact: true,
+            originalFile: path,
+            code,
+            // Unit texts are cache and seed keys: with document-wide placeholder
+            // ids a unit's text depends on the markup above it, so a section
+            // added at the top of a file invalidates every unit below.
+            unitLocalIds: true,
+            source: {language: sourceLanguage, locale: 'RU'},
+            target: {language: targetLanguage, locale: 'US'},
+            schemas,
+            ajvOptions,
+        },
+        log,
+    );
 
     const titleIds = new Set(tableTitles.flat());
     const codeIds =

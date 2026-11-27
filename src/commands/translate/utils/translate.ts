@@ -1,4 +1,5 @@
 import type {ComposeOptions, ExtractOptions} from '@diplodoc/translation';
+import type {TranslationLog} from './units';
 
 import {compose as _compose, extract as _extract} from '@diplodoc/translation';
 
@@ -6,9 +7,15 @@ import {ComposeError, ExtractError} from './errors';
 
 type Content = Parameters<typeof _extract>[0];
 
-export function extract(content: Content, options: ExtractOptions) {
+export function extract(content: Content, options: ExtractOptions, log?: TranslationLog) {
     try {
-        const result = _extract(content, options);
+        const result = _extract(content, {
+            ...options,
+            ...(log && {
+                log,
+                deprecationWarnings: log.deprecationWarnings ?? options.deprecationWarnings,
+            }),
+        });
         const {xliff, units, skeleton, warnings = []} = result;
         // Optional until the paired translation-library release is installed.
         const {tableTitles = []} = result as typeof result & {tableTitles?: number[][]};

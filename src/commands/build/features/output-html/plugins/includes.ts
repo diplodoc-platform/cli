@@ -1,10 +1,16 @@
-import type Token from 'markdown-it/lib/token';
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
-import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform/lib/typings';
+import type {StateCore, Token} from '~/core/markdown/parser';
+import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform/types';
+import type {ParsedDocumentFragment} from '@diplodoc/transform/document';
+import type {TokenSourceInfo} from '@diplodoc/yfmlint';
 
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 import {extractFrontMatter} from '@diplodoc/liquid';
+import {
+    materializeFootnoteTokens,
+    parseDocumentFragmentResult,
+    replayDocumentFragment,
+} from '@diplodoc/transform/document';
 
 import {filterTokens, normalizePath} from '~/core/utils';
 
@@ -23,25 +29,35 @@ export function contentWithoutFrontmatter(raw: string): string {
     return content;
 }
 
-/**
- * Tags tokens (and their children) with include source metadata.
- * Tokens already tagged by a deeper nested include are not overwritten.
- */
+/** Attach host attribution to owned token copies without mutating authored metadata. */
 function tagTokensWithSource(
     tokens: Token[],
     sourceFile: string,
     includeChain: IncludeChainEntry[],
+    cachedChain: IncludeChainEntry[],
 ) {
     for (const token of tokens) {
-        if (!token.meta?.sourceFile) {
-            token.meta = token.meta || {};
-            token.meta.sourceFile = sourceFile;
-            token.meta.includeChain = includeChain;
-        }
-
-        if (token.children) {
-            tagTokensWithSource(token.children, sourceFile, includeChain);
-        }
+        const sourced: Token & {sourceInfo?: TokenSourceInfo} = token;
+        const previous = sourced.sourceInfo;
+        const prefixMatches =
+            previous &&
+            cachedChain.every(
+                (entry, index) =>
+                    previous.includeChain[index]?.file === entry.file &&
+                    previous.includeChain[index]?.line === entry.line,
+            );
+        sourced.sourceInfo =
+            previous && prefixMatches
+                ? {
+                      sourceFile: previous.sourceFile,
+                      includeChain: [
+                          ...includeChain,
+                          ...previous.includeChain.slice(cachedChain.length),
+                      ],
+                  }
+                : previous || {sourceFile, includeChain: [...includeChain]};
+        if (token.children)
+            tagTokensWithSource(token.children, sourceFile, includeChain, cachedChain);
     }
 }
 
@@ -93,7 +109,7 @@ export function mergeNestedMeta(
     }
 }
 
-type CacheEntry = {tokens: Token[]; meta?: Record<string, unknown>};
+type CacheEntry = {fragment: ParsedDocumentFragment; includeChain: IncludeChainEntry[]};
 
 export default ((md, options) => {
     const {path: optPath, log} = options;
@@ -102,7 +118,7 @@ export default ((md, options) => {
 
     const plugin = (state: StateCore) => {
         const {env} = state;
-        const path = env.path || optPath;
+        const path = normalizePath(env.path || optPath);
 
         env.includes = env.includes || [];
 
@@ -114,8 +130,11 @@ export default ((md, options) => {
         }
 
         env.includes.push(path);
-        unfoldIncludes(path, state, options, cache);
-        env.includes.pop();
+        try {
+            unfoldIncludes(path, state, options, cache);
+        } finally {
+            env.includes.pop();
+        }
     };
 
     try {
@@ -173,30 +192,44 @@ function unfoldIncludes(
 
             const bodyContent = contentWithoutFrontmatter(includeContent);
 
-            const parentChain: IncludeChainEntry[] = env.includeChain || [];
+            const parentChain: IncludeChainEntry[] = Array.isArray(env.includeChain)
+                ? env.includeChain.filter(
+                      (entry): entry is IncludeChainEntry =>
+                          typeof entry === 'object' &&
+                          entry !== null &&
+                          typeof entry.file === 'string' &&
+                          typeof entry.line === 'number',
+                  )
+                : [];
             const currentChain: IncludeChainEntry[] = includeLine
                 ? [...parentChain, {file: path, line: includeLine}]
                 : [...parentChain];
 
-            const cached = cache[includeFullPath];
-            let fileTokens: Token[];
-            let nestedMeta: Record<string, unknown> | undefined;
-
-            if (cached) {
-                fileTokens = cached.tokens;
-                nestedMeta = cached.meta;
-            } else {
-                const nestedEnv = {
-                    ...env,
-                    path: includeFullPath,
-                    includeChain: currentChain,
-                };
-                fileTokens = md.parse(bodyContent, nestedEnv);
-                nestedMeta = nestedEnv.meta as Record<string, unknown> | undefined;
-                cache[includeFullPath] = {tokens: fileTokens, meta: nestedMeta};
+            let cached = cache[includeFullPath];
+            if (!cached) {
+                const originalChain = Object.getOwnPropertyDescriptor(env, 'includeChain');
+                if (originalChain && !originalChain.configurable) {
+                    throw new TypeError('Cannot temporarily set non-configurable includeChain');
+                }
+                try {
+                    Object.defineProperty(env, 'includeChain', {
+                        value: [...currentChain],
+                        writable: true,
+                        configurable: true,
+                        enumerable: true,
+                    });
+                    const fragment = parseDocumentFragmentResult(md, bodyContent, env, {
+                        purpose: 'reference',
+                        path: includeFullPath,
+                    });
+                    cached = {fragment, includeChain: [...currentChain]};
+                    cache[includeFullPath] = cached;
+                } finally {
+                    if (originalChain) Object.defineProperty(env, 'includeChain', originalChain);
+                    else Reflect.deleteProperty(env, 'includeChain');
+                }
             }
-
-            mergeNestedMeta(env, nestedMeta);
+            const fileTokens = cached.fragment.tokens;
 
             let includedTokens: Token[];
             if (hash) {
@@ -218,22 +251,20 @@ function unfoldIncludes(
             if (keyword === 'notitle') {
                 includedTokens = stripTitleTokens(includedTokens);
             }
+            if (!includedTokens.length) {
+                tokens.splice(index, 1);
+                return {skip: 0};
+            }
 
-            // Always deep-copy the tokens before they enter the stream.  The
-            // cached token tree is the canonical parse result and MUST stay
-            // pristine: once tokens are spliced into the parent stream they are
-            // mutated in place by later core rules (`curly_attributes`) and by
-            // `tagTokensWithSource` below.  Previously we only copied on a cache
-            // *hit*, so the first (cache-miss) consumer leaked the original
-            // tokens into the stream and corrupted the cache for every
-            // subsequent include of the same file.  Under `-j2` the order in
-            // which files seed/mutate the shared cache is non-deterministic,
-            // which produced flaky output (e.g. a `#hash` section randomly
-            // losing or keeping a sibling heading).  Copying unconditionally
-            // keeps the cache canonical and the output deterministic.
-            includedTokens = includedTokens.map((token) => copyToken(state, token));
-
-            tagTokensWithSource(includedTokens, includeFullPath, currentChain);
+            // The materializer needs original selected identities and the actual
+            // placeholder; ordinary selections are still copied before tagging.
+            const materialized = materializeFootnoteTokens(fileTokens, includedTokens, token);
+            includedTokens =
+                materialized === includedTokens
+                    ? includedTokens.map((item) => copyToken(state, item))
+                    : materialized;
+            tagTokensWithSource(includedTokens, includeFullPath, currentChain, cached.includeChain);
+            replayDocumentFragment(md, cached.fragment, env, {purpose: 'include'});
 
             tokens.splice(index, 1, ...includedTokens);
 
@@ -247,15 +278,16 @@ function unfoldIncludes(
     });
 }
 
-function copyToken(state: StateCore, token: Token) {
+function copyToken(state: StateCore, token: Token): Token {
     const result = new state.Token(token.type, token.tag, token.nesting);
-
-    Object.assign(result, token);
-
-    result.attrs = token.attrs?.map(([key, value]) => [key, value]) || null;
-    result.map = (token.map?.slice() as [number, number]) || null;
-    result.children = token.children?.map((token) => copyToken(state, token)) || null;
-
+    const descriptors = Object.getOwnPropertyDescriptors(token);
+    if (descriptors.attrs?.value)
+        descriptors.attrs.value = token.attrs?.map(([key, value]) => [key, value]);
+    if (descriptors.map?.value && token.map) descriptors.map.value = [token.map[0], token.map[1]];
+    if (descriptors.children?.value)
+        descriptors.children.value = token.children?.map((child) => copyToken(state, child));
+    Object.setPrototypeOf(result, Object.getPrototypeOf(token));
+    Object.defineProperties(result, descriptors);
     return result;
 }
 

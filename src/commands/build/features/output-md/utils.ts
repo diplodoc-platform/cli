@@ -151,6 +151,8 @@ export type HashedGraphNode = IncludeInfo & {
     content: string;
     hash: string;
     deps: HashedGraphNode[];
+    footnoteScope?: boolean;
+    paddedIncludeParagraph?: boolean;
 };
 
 // TODO(major): Deprecate

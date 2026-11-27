@@ -1,39 +1,33 @@
-import type Token from 'markdown-it/lib/token';
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
-import type MarkdownIt from 'markdown-it';
+import type {Plugin} from '~/core/markdown';
+import type {StateCore, Token} from '~/core/markdown/parser';
 
 import {parseHref} from '@diplodoc/utils';
-import {colorPlugin} from '@diplodoc/color-extension';
-import notes from '@diplodoc/transform/lib/plugins/notes';
-import anchors from '@diplodoc/transform/lib/plugins/anchors';
-import code from '@diplodoc/transform/lib/plugins/code';
-import cut from '@diplodoc/transform/lib/plugins/cut';
-import deflist from '@diplodoc/transform/lib/plugins/deflist';
-import images from '@diplodoc/transform/lib/plugins/images';
-import imsize from '@diplodoc/transform/lib/plugins/imsize';
-import sup from '@diplodoc/transform/lib/plugins/sup';
-import tabs from '@diplodoc/transform/lib/plugins/tabs';
-import video from '@diplodoc/transform/lib/plugins/video';
-import monospace from '@diplodoc/transform/lib/plugins/monospace';
-import table from '@diplodoc/transform/lib/plugins/table';
-import term from '@diplodoc/transform/lib/plugins/term';
-import blockAnchor from '@diplodoc/transform/lib/plugins/block-anchor';
-import inlineCode from '@diplodoc/transform/lib/plugins/inline-code';
-import file from '@diplodoc/transform/lib/plugins/file';
-import visibility from '@diplodoc/transform/lib/plugins/visibility';
-import * as mermaid from '@diplodoc/mermaid-extension';
-import * as latex from '@diplodoc/latex-extension';
-import * as openapi from '@diplodoc/openapi-extension';
-// Use CSR mode: renders empty placeholder + data-content-encoded at build time,
-// runtime uses createRoot (not hydrateRoot) to render from scratch.
-// SSR mode is broken because its HTML passes through browser's HTML parser
-// (via dangerouslySetInnerHTML in the client app), which auto-fixes invalid
-// nested <a> tags from @gravity-ui/page-constructor's ImageCard component,
-// causing React hydration mismatches (#418/#423).
-import * as pageConstructor from '@diplodoc/page-constructor-extension/plugin/csr';
-import {noTranslate} from '@diplodoc/translation';
+import {createNotesPlugin} from '@diplodoc/notes-extension/plugin';
+import {bold} from 'chalk';
+import anchors from '@diplodoc/transform/plugins/anchors';
+import code from '@diplodoc/transform/plugins/code';
+import {transform as createCut} from '@diplodoc/cut-extension';
+import deflist from '@diplodoc/transform/plugins/deflist';
+import images from '@diplodoc/transform/plugins/images';
+import imsize from '@diplodoc/transform/plugins/imsize';
+import sup from '@diplodoc/transform/plugins/sup';
+import {transform as createTabs} from '@diplodoc/tabs-extension';
+import video from '@diplodoc/transform/plugins/video';
+import monospace from '@diplodoc/transform/plugins/monospace';
+import table from '@diplodoc/transform/plugins/table';
+import term from '@diplodoc/transform/plugins/term';
+import blockAnchor from '@diplodoc/transform/plugins/block-anchor';
+import inlineCode from '@diplodoc/transform/plugins/inline-code';
+import file from '@diplodoc/transform/plugins/file';
+import visibility from '@diplodoc/transform/plugins/visibility';
+import underline from '@diplodoc/transform/plugins/underline';
+import subscript from '@diplodoc/transform/plugins/subscript';
+import footnotes from '@diplodoc/transform/plugins/footnotes';
+import taskList from '@diplodoc/transform/plugins/task-list';
 
 import {filterTokens, getHrefTokenAttr} from '~/core/utils';
+
+import {extensionPlugins} from '../../../../core/markdown/extension-plugins';
 
 import includes from './plugins/includes';
 import includesDetect from './plugins/includes-detect';
@@ -41,8 +35,18 @@ import links from './plugins/links';
 import linksAutotitles from './plugins/links-autotitles';
 import linksExternal from './plugins/links-external';
 
+const notes = createNotesPlugin(bold, undefined, {directiveSyntax: 'enabled'});
+const cut = createCut({bundle: false, directiveSyntax: 'enabled'});
+const tabs = createTabs({
+    bundle: false,
+    directiveSyntax: 'enabled',
+    features: {
+        enabledVariants: {radio: true, regular: true, dropdown: true, accordion: true},
+    },
+});
+
 /** Syntax rules that can contain links or change which links are visible. */
-export function getPageLinkPlugins() {
+export function getPageLinkPlugins(): Plugin[] {
     return [
         deflist,
         includes,
@@ -60,7 +64,8 @@ export function getPageLinkPlugins() {
     ];
 }
 
-export function getBaseMdItPlugins() {
+export function getBaseMdItPlugins(): Plugin[] {
+    const extensions = extensionPlugins();
     return [
         deflist,
         includes,
@@ -82,29 +87,18 @@ export function getBaseMdItPlugins() {
         term,
         inlineCode,
         file,
-        openapi.transform(),
-        mermaid.transform({
-            bundle: false,
-            runtime: '_bundle/mermaid-extension.js',
-        }),
-        latex.transform({
-            bundle: false,
-            runtime: {
-                script: '_bundle/latex-extension.js',
-                style: '_bundle/latex-extension.css',
-            },
-        }),
-        pageConstructor.transform({
-            bundle: false,
-            runtime: {
-                script: '_bundle/page-constructor-extension.js',
-                style: '_bundle/page-constructor-extension.css',
-            },
-        }),
+        extensions.openapi,
+        extensions.mermaid,
+        extensions.latex,
+        extensions.pageConstructor,
         blockAnchor,
-        (md: MarkdownIt) => colorPlugin(md, {inline: true}),
-        noTranslate({mode: 'render'}),
+        extensions.color,
+        extensions.noTranslate,
         visibility,
+        underline,
+        subscript,
+        footnotes,
+        taskList,
     ];
 }
 
@@ -179,7 +173,7 @@ export function walkLinks(state: StateCore, handler: LinkWalker) {
         const childrenTokens = inline.children || [];
 
         filterTokens(childrenTokens, 'link_open', (link, {index}) => {
-            const tokenClass = link.attrGet('class');
+            const tokenClass = String(link.attrGet('class') ?? '');
             const href = getHrefTokenAttr(link);
             const {pathname, hash} = parseHref(href);
 

@@ -1,6 +1,6 @@
 import type {MarkupViolation} from './types';
 import type {ProseLine} from './markdown';
-import type Token from 'markdown-it/lib/token';
+import type {Token} from 'markdown-it';
 
 import MarkdownIt from 'markdown-it';
 // @ts-expect-error The plugin does not ship type declarations.

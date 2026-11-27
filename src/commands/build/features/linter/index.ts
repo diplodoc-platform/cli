@@ -5,8 +5,8 @@ import type {Command} from '~/core/config';
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 import {LogLevels, getLogLevel, log, normalizeConfig} from '@diplodoc/yfmlint';
-import deflist from '@diplodoc/transform/lib/plugins/deflist';
-import visibility from '@diplodoc/transform/lib/plugins/visibility';
+import deflist from '@diplodoc/transform/plugins/deflist';
+import visibility from '@diplodoc/transform/plugins/visibility';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
@@ -127,7 +127,12 @@ export class Lint {
                         const errors = await run.lint(
                             vfile.path,
                             vfile.data,
-                            {deps, assets, prepareLinks: format !== 'md'},
+                            {
+                                deps,
+                                assets,
+                                prepareLinks: format !== 'md',
+                                pageDiagnostics: true,
+                            },
                             lintPlugins,
                         );
                         // Markdown output only needs the audience directive validation added for

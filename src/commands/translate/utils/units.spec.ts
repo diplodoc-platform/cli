@@ -1,7 +1,7 @@
 import {mkdirSync, mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 import {escapeRegExp} from 'lodash';
 import {compose, extract} from '@diplodoc/translation';
 
@@ -217,4 +217,53 @@ describe('translate units loader', () => {
             expect(units).toEqual([]);
         });
     });
+});
+
+it('forwards retained Liquid diagnostics through the supplied application logger', async () => {
+    const inputPath = file('# Title\n\n{% if selected %}Selected {{ name }}{% endif %}\n');
+    const log = {info: vi.fn(), warn: vi.fn(), error: vi.fn()};
+    const params = {
+        inputPath,
+        path: 'article.md',
+        sourceLanguage: 'en',
+        targetLanguage: 'ru',
+        vars: {selected: true},
+        log,
+    };
+    const first = await loadTranslationUnits(params);
+    const second = await loadTranslationUnits(params);
+
+    expect(first.content.data).toContain('Selected {{ name }}');
+    expect(second.units).toEqual(first.units);
+    expect(log.warn).toHaveBeenCalledTimes(2);
+    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining('TRANSFORM_BUNDLED_LIQUID'));
+    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining(inputPath));
+});
+
+it('applies the translation logger policy before standalone Liquid reports a deprecation', async () => {
+    const inputPath = file('{% if selected %}Selected content{% endif %}');
+    const params = {
+        inputPath,
+        path: 'article.md',
+        sourceLanguage: 'en',
+        targetLanguage: 'ru',
+        vars: {selected: true},
+    };
+    const log = {
+        deprecationWarnings: true,
+        deprecation: vi.fn(),
+        warn: vi.fn(),
+        info: vi.fn(),
+        error: vi.fn(),
+    };
+    const enabled = await loadTranslationUnits({...params, log});
+    expect(log.deprecation).toHaveBeenCalledTimes(1);
+    expect(log.warn).not.toHaveBeenCalled();
+
+    log.deprecation.mockClear();
+    log.deprecationWarnings = false;
+    const disabled = await loadTranslationUnits({...params, log});
+    expect(disabled.units).toEqual(enabled.units);
+    expect(log.deprecation).not.toHaveBeenCalled();
+    expect(log.warn).not.toHaveBeenCalled();
 });

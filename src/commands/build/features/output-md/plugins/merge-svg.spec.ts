@@ -2,13 +2,13 @@ import type {AssetInfo} from '~/core/markdown/types';
 import type {Run} from '../../..';
 
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {replaceSvgContent} from '@diplodoc/transform/lib/plugins/images';
+import {replaceSvgContent} from '@diplodoc/transform/plugins/images';
 
 import {Scheduler} from '../utils';
 
 import {mergeSvg} from './merge-svg';
 
-vi.mock('@diplodoc/transform/lib/plugins/images', () => ({
+vi.mock('@diplodoc/transform/plugins/images', () => ({
     replaceSvgContent: vi.fn(() => '<svg/>'),
 }));
 

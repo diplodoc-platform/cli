@@ -1,10 +1,12 @@
+import type {Token} from 'markdown-it';
+
 import {describe, expect, it} from 'vitest';
-import Token from 'markdown-it/lib/token';
+import MarkdownIt from 'markdown-it';
 
 import {filterTokens} from './markdown';
 
 function mkToken(type: string, payload: Record<string, string> = {}): Token {
-    const t = new Token(type, '', 0);
+    const t = new MarkdownIt.Token(type, '', 0);
     for (const [k, v] of Object.entries(payload)) {
         t.attrSet(k, v);
     }

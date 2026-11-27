@@ -3,13 +3,12 @@
   "compilerOptions": {
     "paths": {
       "~/*": ["./src/*"],
-      "@diplodoc/cli/lib/*": ["./lib/*"],
+      "@diplodoc/cli/lib/*": ["./src/core/*"],
       "@diplodoc/cli": ["./src"]
     },
     "plugins": [
       { "transform": "typescript-transform-paths", "afterDeclarations": true }
     ],
-    "baseUrl": ".",
     "declaration": true,
     "noEmitOnError": false,
     "emitDeclarationOnly": true,

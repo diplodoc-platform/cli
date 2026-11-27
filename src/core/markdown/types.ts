@@ -1,4 +1,4 @@
-import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
+import type {MarkdownItPluginCb} from '@diplodoc/transform/types';
 import type {UrlWithStringQuery} from 'node:url';
 import type {Meta} from '~/core/meta';
 import type {LoaderContext} from './loader';

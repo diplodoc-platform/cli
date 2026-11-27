@@ -1,6 +1,7 @@
-import type {LogLevels, LogLevelsAccess} from './logger';
+import type {LogLevels, LogLevelsAccess, StandardLogLevelsAccess} from './logger';
 
-export type LogConsumer = Record<LogLevelsAccess, Writer>;
+export type LogConsumer = Record<StandardLogLevelsAccess, Writer> &
+    Partial<Record<LogLevelsAccess, Writer>>;
 
 export type Writer = (...msgs: string[]) => void;
 

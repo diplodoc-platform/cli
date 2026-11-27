@@ -3,7 +3,7 @@ import type {Run} from '../../..';
 import type {StepFunction} from '../utils';
 
 import {createIDGeneratorByStrategy} from '@diplodoc/utils';
-import {replaceSvgContent} from '@diplodoc/transform/lib/plugins/images';
+import {replaceSvgContent} from '@diplodoc/transform/plugins/images';
 import path from 'node:path';
 
 /**

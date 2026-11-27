@@ -1,4 +1,4 @@
-import type {ContentAudience} from '@diplodoc/transform/lib/plugins/visibility';
+import type {ContentAudience} from '@diplodoc/transform/plugins/visibility';
 import type {CollectConfig} from './collect';
 import type {Run} from '~/commands/build';
 import type {LeadingPage} from '~/core/leading';

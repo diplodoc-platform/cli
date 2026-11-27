@@ -13,7 +13,7 @@ import {Llms} from './index';
 
 vi.mock('../output-md/collect', async (importOriginal) => {
     const actual = await importOriginal<typeof Collection>();
-    const {filterAudienceContent} = await import('@diplodoc/transform/lib/plugins/visibility');
+    const {filterAudienceContent} = await import('@diplodoc/transform/plugins/visibility');
     return {
         ...actual,
         MarkdownCollector: vi.fn().mockImplementation((run: Run, _profile, options) => ({

@@ -9,6 +9,7 @@ export const LogLevel = {
     INFO: 'info',
     WARN: 'warn',
     ERROR: 'error',
+    DEPRECATION: 'deprecation',
 } as const;
 
 export type LogLevels = (typeof LogLevel)[keyof typeof LogLevel];
@@ -19,11 +20,15 @@ const WARN = Symbol.for(LogLevel.WARN);
 
 const ERROR = Symbol.for(LogLevel.ERROR);
 
-export type LogLevelsAccess = typeof INFO | typeof WARN | typeof ERROR;
+const DEPRECATION = Symbol.for(LogLevel.DEPRECATION);
+
+export type StandardLogLevelsAccess = typeof INFO | typeof WARN | typeof ERROR;
+export type LogLevelsAccess = StandardLogLevelsAccess | typeof DEPRECATION;
 
 type LoggerOptions = Readonly<{
     colors: boolean;
     quiet: boolean;
+    deprecationWarnings: boolean;
 }>;
 
 type Color = typeof red;
@@ -46,7 +51,9 @@ function writer(
         const message = msgs.join(' ');
         logger[Write](level, message);
 
-        const hook = ({info: 'Info', warn: 'Warn', error: 'Error'} as const)[level];
+        const hook = (
+            {info: 'Info', warn: 'Warn', error: 'Error', deprecation: 'Deprecation'} as const
+        )[level];
         getHooks(logger)[hook].call(message);
     };
 
@@ -59,14 +66,15 @@ const colors = {
     [LogLevel.INFO]: green,
     [LogLevel.WARN]: yellow,
     [LogLevel.ERROR]: red,
+    [LogLevel.DEPRECATION]: yellow,
 };
 
 /**
- * Logger has three logging channels: info, warning, and error.
+ * Deprecations use a separate channel so strict builds can count actionable warnings.
  * There are also many topics that use one of these channels.
  *
- * By default, the logger has three topics named after the logging channels.
- * New topics should always use one of defined channel.
+ * The built-in topics are info, warn, deprecation and error.
+ * Custom topics use one of these channels.
  *
  * Loggers are also pipeable.
  * In this mode, only the channel is passed along.
@@ -80,15 +88,20 @@ export class Logger implements LogConsumer {
 
     [ERROR] = writer(this, LogLevel.ERROR);
 
+    [DEPRECATION] = writer(this, LogLevel.DEPRECATION);
+
     info = this.topic(LogLevel.INFO, 'INFO');
 
     warn = this.topic(LogLevel.WARN, 'WARN');
+
+    deprecation = this.topic(LogLevel.DEPRECATION, 'WARN');
 
     error = this.topic(LogLevel.ERROR, 'ERR');
 
     private options: LoggerOptions = {
         colors: true,
         quiet: false,
+        deprecationWarnings: true,
     };
 
     private consumer: LogConsumer | null = null;
@@ -96,7 +109,7 @@ export class Logger implements LogConsumer {
     private filters: ((level: LogLevels, message: string) => string)[];
 
     constructor(
-        options: {quiet?: boolean} = {},
+        options: Partial<Pick<LoggerOptions, 'quiet' | 'deprecationWarnings'>> = {},
         filters: ((level: LogLevels, message: string) => string)[] = [],
     ) {
         this.filters = filters;
@@ -104,8 +117,12 @@ export class Logger implements LogConsumer {
         this.reset();
     }
 
-    setup(options: {quiet?: boolean} = {}) {
-        this.options = Object.assign(this.options, pick(options, ['quiet']));
+    get deprecationWarnings() {
+        return this.options.deprecationWarnings !== false;
+    }
+
+    setup(options: Partial<LoggerOptions> = {}) {
+        this.options = Object.assign(this.options, pick(options, ['quiet', 'deprecationWarnings']));
 
         return this;
     }
@@ -151,6 +168,10 @@ export class Logger implements LogConsumer {
         const _color = color || colors[level];
 
         const topic = (...messages: unknown[]) => {
+            if (level === LogLevel.DEPRECATION && !this.deprecationWarnings) {
+                return;
+            }
+
             messages = messages.map(extractMessage);
 
             const message = this.filters.reduce((message, filter) => {
@@ -185,10 +206,13 @@ export class Logger implements LogConsumer {
 
     [Write](level: LogLevels, message: string) {
         if (this.consumer) {
-            this.consumer[Symbol.for(level) as keyof LogConsumer](message);
+            const sink = this.consumer;
+            const channel = Symbol.for(level) as LogLevelsAccess;
+            // Older piped consumers receive the warning through their existing channel.
+            (sink[channel] ?? sink[WARN]).call(sink, message);
         } else {
             // eslint-disable-next-line no-console
-            console[level](message);
+            console[level === LogLevel.DEPRECATION ? 'warn' : level](message);
         }
     }
 }

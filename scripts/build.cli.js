@@ -1,4 +1,4 @@
-const {basename, dirname, join} = require('node:path');
+const {basename, dirname, join, relative, sep} = require('node:path');
 const {chmod, copyFile, mkdir} = require('node:fs/promises');
 const infra = require('@diplodoc/infra/esbuild');
 const deps = require('./deps');
@@ -12,7 +12,7 @@ require('./assets');
 const baseConfig = {
     tsconfig: './tsconfig.json',
     platform: 'node',
-    target: 'node18',
+    target: 'node24',
     sourcemap: true,
     bundle: true,
     logLevel: 'error',
@@ -25,6 +25,25 @@ const baseConfig = {
 };
 
 const externals = new Set();
+const privateMarkdownIt = (outputDirectory) => ({
+    name: 'cli-private-markdown-it',
+    setup(build) {
+        build.onResolve({filter: /^markdown-it$/}, ({importer}) => {
+            if (importer !== join(__dirname, '../src/core/markdown/parser.ts')) {
+                return;
+            }
+
+            const runtime = relative(
+                outputDirectory,
+                join(__dirname, '../lib/markdown/markdown-it-runtime.cjs'),
+            )
+                .split(sep)
+                .join('/');
+
+            return {path: runtime.startsWith('.') ? runtime : './' + runtime, external: true};
+        });
+    },
+});
 const lib = (entry, format) =>
     infra.build({
         ...baseConfig,
@@ -33,6 +52,7 @@ const lib = (entry, format) =>
         entryPoints: [entry],
         packages: 'external',
         plugins: [
+            privateMarkdownIt(join(__dirname, '../lib', basename(dirname(entry)))),
             deps(externals),
             alias({
                 '~/core': ['@diplodoc/cli/lib', true],
@@ -110,17 +130,22 @@ const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});
 
 const files = [[require.resolve('@diplodoc/client/manifest'), 'manifest.json']];
 
-Promise.all([
-    ...libs.map((entry) => lib(entry, 'esm')),
-    ...libs.map((entry) => lib(entry, 'cjs')),
-    ...builds.map(([entry, outfile]) => build(entry, outfile, 'esm')),
-    ...builds.map(([entry, outfile]) => build(entry, outfile, 'cjs')),
-    ...extensions.map(([entry, outfile]) => extension(entry, outfile, 'cjs')),
-    ...files.map(([from, to]) => copy(from, to)),
-]).then(() => {
-    for (const dep of externals) {
-        if (!dependencies[dep]) {
-            throw new Error(`Dependency '${dep}' should be described in prod dependencies.`);
+import('./build-markdown-it.mjs')
+    .then(({buildMarkdownItRuntime}) => buildMarkdownItRuntime())
+    .then(() =>
+        Promise.all([
+            ...libs.map((entry) => lib(entry, 'esm')),
+            ...libs.map((entry) => lib(entry, 'cjs')),
+            ...builds.map(([entry, outfile]) => build(entry, outfile, 'esm')),
+            ...builds.map(([entry, outfile]) => build(entry, outfile, 'cjs')),
+            ...extensions.map(([entry, outfile]) => extension(entry, outfile, 'cjs')),
+            ...files.map(([from, to]) => copy(from, to)),
+        ]),
+    )
+    .then(() => {
+        for (const dep of externals) {
+            if (!dependencies[dep]) {
+                throw new Error(`Dependency '${dep}' should be described in prod dependencies.`);
+            }
         }
-    }
-});
+    });
