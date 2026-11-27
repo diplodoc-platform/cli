@@ -66,6 +66,28 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    counters; a preservation run that makes zero model requests is not a quality
    check of newly translated text.
 
+   A punctuation, spacing or case-only change is still a source-prose echo.
+   Changing a product name can also leave an ordinary Russian sentence behind.
+   For Russian sources targeting a different script, reject unprotected lowercase
+   source-script word runs in fresh answers and generated cache. Count only
+   source-script letters when recognizing single-letter symbols next to CJK.
+   Protect the union of glossary matches in the original prose so overlapping
+   required spellings do not depend on glossary order. Keep titlecase names,
+   acronyms, protected literals, exact glossary spellings and approved seed
+   preservation separate from ordinary prose. Reuse the isolated untranslated
+   retry without describing the failed attempt in its prompt; such feedback can
+   reproduce the echo. Zero counters still require inspection of native output.
+
+   For Cyrillic Russian to a Han Chinese target, an ordinary Latin phrase with
+   no unprotected Han is also a refusal when both source and target contain at
+   least two prose words and the target has lowercase wording. Respect explicit
+   scripts such as zh-Latn, technical names, identifiers and address components.
+   Exempt glossary spellings only when their source term occurs in this fragment.
+   Generated cache must be validated after healing: added backticks cannot hide
+   English or source-language prose that composition exposes again. Approved seed
+   retains its separate preservation contract. This conservative check does not
+   classify single words, titlecase names or mixed Latin/Han prose completely.
+
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).

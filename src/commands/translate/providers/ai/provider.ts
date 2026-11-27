@@ -59,8 +59,13 @@ import {
     renderMemoryEntry,
     splitFragments,
 } from './prompts';
-import {untranslatedMarker} from './utils/script';
-import {hasCopiedEdit, hasSourceProse} from './utils/edited-prose';
+import {scriptsOf, untranslatedMarker} from './utils/script';
+import {
+    hasCopiedEdit,
+    hasLowercaseSourceProse,
+    hasUnexpectedEnglishProse,
+    isProseEcho,
+} from './utils/edited-prose';
 import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
 import {documentFingerprint} from './utils/cache';
@@ -678,7 +683,7 @@ export function makeStore(
     const fingerprint = cacheFingerprint({
         // Old generated answers may contain copied edits or translated code.
         // Approved repository translations use the separately versioned seed.
-        validationPolicy: 3,
+        validationPolicy: 5,
         provider: client.name,
         model: config.model,
         source: sourceLanguage,
@@ -834,11 +839,26 @@ export function makeTranslator(params: TranslatorParams): Translate {
     let temperatureWarned = false;
     const marker = untranslatedMarker(sourceLanguage, targetLanguage);
     const allowedSpellings = glossaryPairs.map((pair) => pair.translatedText);
+    const residualProse = (source: string, text: string) =>
+        sourceLanguage.split('-')[0].toLowerCase() === 'ru' &&
+        hasLowercaseSourceProse(text, marker, allowedSpellings, source);
+    const wrongTargetProse = (fragment: string, part: string) =>
+        sourceLanguage.split('-')[0].toLowerCase() === 'ru' &&
+        scriptsOf(sourceLanguage).includes('Cyrl') &&
+        targetLanguage.split('-')[0].toLowerCase() === 'zh' &&
+        scriptsOf(targetLanguage).includes('Han') &&
+        hasUnexpectedEnglishProse(fragment, part, marker, glossaryPairs);
     const copiedEdit = (fragment: string, part: string, hint?: SeedHint) =>
         hasCopiedEdit(fragment, part, hint, marker, allowedSpellings);
     const refusedTranslation = (fragment: string, part: string | undefined, hint?: SeedHint) =>
         part !== undefined &&
-        ((part === fragment && hasSourceProse(part, marker)) || copiedEdit(fragment, part, hint));
+        (isProseEcho(fragment, part, marker) ||
+            residualProse(fragment, part) ||
+            wrongTargetProse(fragment, part) ||
+            copiedEdit(fragment, part, hint));
+    const cachedProseEcho = (text: string, normalized: string, seeded: boolean) =>
+        ((!seeded || normalized === text) && isProseEcho(text, normalized, marker)) ||
+        (!seeded && (residualProse(text, normalized) || wrongTargetProse(text, normalized)));
     const cachedRepair = (text: string, stored: string, seeded: boolean): CachedRepair => {
         if (!seeded) {
             return healCached(text, stored);
@@ -1217,8 +1237,8 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         const result = [...parts];
 
-        // Reject echoes and copied new prose, not every source-script word:
-        // existing localized names and literal code can legitimately survive.
+        // Refuse partial Russian prose as well as echoes and copied edits.
+        // Proper names, acronyms, protected code and glossary spellings survive.
         indexes.forEach((index, position) => {
             const candidate = retried[position];
 
@@ -1378,12 +1398,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             if (stored !== undefined) {
                 const seeded = Boolean(store?.isSeeded(path, text, stored));
                 const {text: healed, normalized, stripped} = cachedRepair(text, stored, seeded);
-                // Identity entries for units that still contain source-script
-                // characters were cached by older runs that stored untranslated
-                // responses. Treat them as misses so the unit gets another chance.
+                // Generated answers can retain source prose after translating only
+                // a product name or part of a sentence. Treat refusals as misses;
+                // approved seed keeps its existing identity contract.
                 const refused =
                     tableTitleIssue(text, healed) ||
-                    (normalized === text && hasSourceProse(text, marker)) ||
+                    cachedProseEcho(text, seeded ? normalized : healed, seeded) ||
                     (!store?.isFileSeeded(path, text, stored) &&
                         Boolean(
                             markupIssueForUnit(
