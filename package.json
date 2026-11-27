@@ -112,7 +112,7 @@
     "postcss": "^8.5.15",
     "tapable": "2.2.1",
     "threads": "1.7.0",
-    "ts-dedent": "2.2.0",
+    "ts-dedent": "^2.3.0",
     "yaml": "^2.8.0"
   },
   "peerDependencies": {
