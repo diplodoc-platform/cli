@@ -84,9 +84,15 @@ describe('SVG metadata with many counted XML entities', () => {
                     'To inline this SVG, set svgMaxEntityCount in Transform or ' +
                     'content.svgMaxEntityCount / --svg-max-entity-count in CLI.';
                 expect(entityWarnings).toEqual(Array(format === 'html' ? 3 : 2).fill(warning));
-                const remainingWarnings = report.warns.filter(
-                    (message) => !message.includes('SVG entity limit reached'),
-                );
+                const configPath = join(input, '.yfm');
+                const escapedConfigPath = JSON.stringify(configPath).slice(1, -1);
+                const remainingWarnings = report.warns
+                    .filter((message) => !message.includes('SVG entity limit reached'))
+                    .map((message) =>
+                        message
+                            .replace(escapedConfigPath, '<origin>/.yfm')
+                            .replace(configPath, '<origin>/.yfm'),
+                    );
                 expect(remainingWarnings).toEqual(
                     format === 'html'
                         ? []
