@@ -282,6 +282,64 @@ describe('translate seed pairs', () => {
             expect(result.blocks.paired).toBe(2);
         });
 
+        it('rejects a legacy bracketed unit that duplicates a protected link label', () => {
+            const source = openApiSide('[Что такое :no-translate[HTTP]](./protocol.md)');
+            const legacy = openApiSide(
+                '[What is :no-translate[HTTP]]:no-translate[(./protocol.md)]',
+            );
+
+            const result = alignTranslationUnits(source, legacy, RU_EN);
+
+            expect(result.pairs).toEqual([[unit('Example'), unit('Example')]]);
+            expect(result.unseeded).toBe(1);
+        });
+
+        it('validates a protected link label with escaped brackets and a balanced destination', () => {
+            const source = openApiSide(
+                '[Что такое :no-translate[HTTP] \\[v2\\]](./protocol(v2).md)',
+            );
+            const legacy = openApiSide(
+                '[What is :no-translate[HTTP]]:no-translate[(./protocol(v2).md)]',
+            );
+
+            const result = alignTranslationUnits(source, legacy, RU_EN);
+
+            expect(result.pairs).toEqual([[unit('Example'), unit('Example')]]);
+        });
+
+        it('does not treat a protected link example inside fenced code as a link label', () => {
+            const source = {
+                skeleton: {
+                    description:
+                        '\x60\x60\x60\n[%%%0%%% :no-translate[HTTP]](./protocol.md)\n\x60\x60\x60',
+                },
+                units: [unit('Описание')],
+            };
+            const target = openApiSide(
+                '[Description :no-translate[HTTP]]:no-translate[(./protocol.md)]',
+            );
+            const candidate = {
+                skeleton: {description: '%%%0%%%'},
+                units: [target.units[1]],
+            };
+
+            expect(alignTranslationUnits(source, candidate, RU_EN).pairs).toEqual([
+                [source.units[0], candidate.units[0]],
+            ]);
+        });
+
+        it('reuses an approved link label when the skeleton restores its protected text', () => {
+            const source = openApiSide('[Что такое :no-translate[HTTP]](./protocol.md)');
+            const target = openApiSide('[What is :no-translate[HTTP]](./protocol.md)');
+
+            const result = alignTranslationUnits(source, target, RU_EN);
+
+            expect(result.pairs).toEqual([
+                [unit('Example'), unit('Example')],
+                [unit('Что такое'), unit('What is')],
+            ]);
+        });
+
         it('does not shift OpenAPI seed pairs when legacy protection hides YFM captions', () => {
             const source = openApiSide(
                 '{% cut "Подробности запроса" %}\n\n' +

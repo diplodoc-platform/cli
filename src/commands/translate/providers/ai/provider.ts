@@ -893,7 +893,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
     // never reaches the report.
     const repairs = new Map<string, number>();
 
-    function rememberAnswer(fragment: string, answer: string) {
+    function rememberAnswerChecks(fragment: string, answer: string) {
         const literalKey = JSON.stringify([fragment, answer]);
         const invalid = invalidLiterals.has(literalKey);
         const stripped = repairs.get(fragment) || 0;
@@ -1284,17 +1284,17 @@ export function makeTranslator(params: TranslatorParams): Translate {
                         stat.untranslatedRetried++;
                     }
                     logger.warn(path, '1 fragment(s) came back untranslated; retrying them.');
-                    const restore = rememberAnswer(fragment, candidate);
+                    const restore = rememberAnswerChecks(fragment, candidate);
                     const isolated = await retryIsolated(path, fragment, {
                         what: 'Untranslated retry',
                         accepts: (part) =>
                             !refusedTranslation(fragment, part, hints[index]) &&
                             keepsUnitMarkup(fragment, part),
                     });
-                    if (isolated !== undefined) {
-                        result[index] = isolated;
-                    } else {
+                    if (isolated === undefined) {
                         restore();
+                    } else {
+                        result[index] = isolated;
                     }
                 }
                 continue;
@@ -1356,7 +1356,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
 
         // Keep the original answer's validation state if every retry is discarded.
         const restoreOriginalChecks = indexes.map((index) =>
-            rememberAnswer(fragments[index], parts[index]),
+            rememberAnswerChecks(fragments[index], parts[index]),
         );
 
         // Retry isolated prose without the source-language document title:
