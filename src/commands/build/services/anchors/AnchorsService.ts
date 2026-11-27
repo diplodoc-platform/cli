@@ -116,6 +116,7 @@ export class AnchorsService {
         return this.run.collectAnchors(path, graph.content, {
             deps,
             assets,
+            pageDiagnostics: true,
         });
     }
 

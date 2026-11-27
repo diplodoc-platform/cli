@@ -13,7 +13,7 @@ export function platformless(text: string): string {
             .replace(/(ctype|id)="[\r\n]+(.*?)"/g, '$1="$2"')
             .replace(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g, 'UUID')
             .replace(
-                /(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+(?:-[\w-]+)?/g,
+                /(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+(?:-[\w-]+(?:\.[\w-]+)*)?/g,
                 `$1vDIPLODOC-VERSION`,
             )
             .replace(

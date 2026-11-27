@@ -20,13 +20,20 @@ let program: Program;
 let threads: Defer<ThreadAPI>[] = [];
 let argv: string[] = [];
 
+// Page deprecations are merged by the owning build, across all workers.
+type ThreadLog = LogRecord | {pageDeprecation: string};
+const workerLog = isMainThread ? undefined : new Subject<ThreadLog>();
+export const sendPageDeprecation = workerLog
+    ? (message: string) => workerLog.next({pageDeprecation: message})
+    : undefined;
+
 type ThreadAPI = {
     init(argv: string[]): Promise<Subject<LogRecord>>;
     call(method: string, args: unknown[]): Promise<unknown>;
-    logger(): Observable<LogRecord>;
+    logger(): Observable<ThreadLog>;
 };
 
-function writer(subject: Subject<LogRecord>, level: string) {
+function writer(subject: Subject<ThreadLog>, level: string) {
     return function (...msgs: string[]) {
         subject.next({level, message: msgs.join(' ')});
     };
@@ -99,11 +106,12 @@ registerSerializer({
     },
 });
 
-if (!isMainThread) {
-    const subject = new Subject<LogRecord>();
+if (workerLog) {
+    const subject = workerLog;
     const logger = {
         [Symbol.for(LogLevel.INFO)]: writer(subject, LogLevel.INFO),
         [Symbol.for(LogLevel.WARN)]: writer(subject, LogLevel.WARN),
+        [Symbol.for(LogLevel.DEPRECATION)]: writer(subject, LogLevel.DEPRECATION),
         [Symbol.for(LogLevel.ERROR)]: writer(subject, LogLevel.ERROR),
     } as LogConsumer;
 
@@ -174,7 +182,7 @@ export async function init(_program: Program, runargv: string[]) {
     }
 }
 
-export async function setup() {
+export async function setup(onPageDeprecation?: (message: string) => void) {
     if (!threads.length) {
         return;
     }
@@ -193,7 +201,19 @@ export async function setup() {
 
                 await thread.init(argv);
 
-                program.logger.subscribe(thread.logger());
+                const records = thread.logger();
+                program.logger.subscribe({
+                    subscribe: (receive) =>
+                        records.subscribe((record: ThreadLog) => {
+                            if ('pageDeprecation' in record) {
+                                (onPageDeprecation ?? program.logger.deprecation)(
+                                    record.pageDeprecation,
+                                );
+                            } else {
+                                receive(record);
+                            }
+                        }),
+                });
             }),
         ).then(reset.skip),
         reset,

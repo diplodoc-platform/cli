@@ -1,13 +1,10 @@
-import type Token from 'markdown-it/lib/token';
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
 import type {Node as HtmlNode} from 'node-html-parser';
+import type {MarkdownIt, StateCore, Token} from '~/core/markdown/parser';
 
-import MarkdownIt from 'markdown-it';
-import attrs from 'markdown-it-attrs';
-import {HTML_TAG_RE} from 'markdown-it/lib/common/html_re';
 import {HTMLElement, parse as parseHtml} from 'node-html-parser';
-import monospace from '@diplodoc/transform/lib/plugins/monospace';
-import sup from '@diplodoc/transform/lib/plugins/sup';
+import createParser from '@diplodoc/transform/parser';
+import monospace from '@diplodoc/transform/plugins/monospace';
+import sup from '@diplodoc/transform/plugins/sup';
 
 import {isFenceClose, matchFenceOpen} from '~/core/utils';
 
@@ -129,6 +126,11 @@ type TitleEnvironment = {
     heading?: {kind: 'markdown'; token: Token} | {kind: 'html'; parts: (string | Token)[]};
 };
 
+// CommonMark inline HTML boundaries. Keep quoted > and nested tag-like text in
+// attributes, comments, and declarations in the same token.
+const HTML_ATTRIBUTE = String.raw`\s+[a-zA-Z_:][a-zA-Z0-9:._-]*(?:\s*=\s*(?:[^"'=<>\x60\x00-\x20]+|'[^']*'|"[^"]*"))?`;
+const HTML_TAG_SOURCE = String.raw`(?:<[a-zA-Z][a-zA-Z0-9-]*(?:${HTML_ATTRIBUTE})*\s*/?>|</[a-zA-Z][a-zA-Z0-9-]*\s*>|<!---->|<!--(?:-?[^>-])(?:-?[^-])*-->|<\?[\s\S]*?\?>|<![A-Z]+\s+[^>]*>|<!\[CDATA\[[\s\S]*?\]\]>)`;
+
 const HTML_TITLE_CANDIDATE = /<\/?(?:h1|script|style|pre|code|textarea|template)(?=[\s/>])/i;
 const IGNORED_HTML_CONTAINERS = new Set(['script', 'style', 'pre', 'code', 'textarea', 'template']);
 const INVISIBLE_HTML_CONTAINERS = new Set(['script', 'style', 'template']);
@@ -140,7 +142,7 @@ class HtmlHeading {
     private ignoredTag = '';
     private ignoredDepth = 0;
     private comment = false;
-    private readonly tags = new RegExp(HTML_TAG_RE.source.slice(1), 'y');
+    private readonly tags = new RegExp(HTML_TAG_SOURCE, 'y');
 
     get ignoring() {
         return Boolean(this.ignoredTag) || this.comment;
@@ -315,13 +317,37 @@ function parseTitle(state: StateCore) {
 
 // Keep both configurations reusable without changing shared parser options.
 const titleParsers = [true, false].map((html) => {
-    const parser = new MarkdownIt({html}).use(monospace).use(sup).use(attrs, {
-        leftDelimiter: '{',
-        rightDelimiter: '}',
+    let parser: MarkdownIt | undefined;
+    // Core supplies the real plugin context while this parser remains local to title extraction.
+    createParser({
+        allowHTML: html,
+        breaks: false,
+        plugins: [
+            monospace,
+            sup,
+            installTitleAttributes,
+            (md) => {
+                md.core.ruler.at('inline', parseTitle);
+                parser = md;
+            },
+        ],
     });
-    parser.core.ruler.at('inline', parseTitle);
+    if (!parser) {
+        throw new Error('Expected the title parser to initialize its plugins');
+    }
+
     return parser;
 });
+
+/** Bridge the legacy attrs declaration only for the runtime-tested native title parser. */
+function installTitleAttributes(md: MarkdownIt): void {
+    const attrs: unknown = require('markdown-it-attrs');
+    if (typeof attrs !== 'function') {
+        throw new TypeError('Expected callable markdown-it-attrs');
+    }
+
+    attrs(md, {leftDelimiter: '{', rightDelimiter: '}'});
+}
 
 /** Returns the visible text of the first H1 in fully assembled human Markdown. */
 export function getArticleTitle(markdown: string, allowHtml = true): string {

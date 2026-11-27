@@ -13,6 +13,7 @@ export type BaseArgs = {
     config: AbsolutePath;
     quiet: boolean;
     strict: boolean;
+    deprecationWarnings?: boolean;
     jobs: number | true;
     workerMaxOldSpace: number;
     extensions?: string[];
@@ -24,6 +25,7 @@ export type BaseConfig = {
     input: AbsolutePath;
     quiet?: boolean;
     strict?: boolean;
+    deprecationWarnings?: boolean;
     jobs?: number;
     workerMaxOldSpace?: number;
     extensions?: (string | ExtensionInfo)[];

@@ -174,7 +174,10 @@ export class BaseProgram<
     }
 
     private async resolveConfig(args: TArgs) {
-        const defaults = getConfigDefaults(this);
+        const defaults = {
+            ...getConfigDefaults(this),
+            ...pick(this.parent?.config, 'deprecationWarnings'),
+        };
         const {scope, strictScope} = getConfigScope(this);
         const configPath =
             isAbsolute(args.config) || isRelative(args.config)
@@ -212,6 +215,7 @@ export class BaseProgram<
         // because some extensions may affect config parsing.
         // @ts-ignore
         this['config'] = await this.hookConfig(config, args);
+        this.logger.setup({deprecationWarnings: this.config.deprecationWarnings});
 
         try {
             await this.action(args);

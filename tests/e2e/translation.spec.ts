@@ -1,6 +1,7 @@
 import type {TranslateRunArgs} from '../fixtures';
 
 import {existsSync, mkdtempSync, readFileSync, realpathSync} from 'node:fs';
+import {mkdir, mkdtemp, readFile, realpath, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {glob} from 'glob';
@@ -65,6 +66,26 @@ const buildFilesYamlTestTemplate = (
             args: '--no-ai-openapi-companions',
         });
 
+        const llms = await readFile(join(outputPath, 'llms-full.txt'), 'utf8');
+        const rawSpecifications = Array.from(
+            llms.matchAll(/```text translate=no\r?\n([\s\S]*?)\r?\n```/g),
+            ([, body]) => body,
+        ).filter((body) => body.includes('"openapi":'));
+        expect(rawSpecifications).toHaveLength(1);
+        expect(rawSpecifications[0]).toContain(
+            'Defines a simple get :no-translate[skip this] operation',
+        );
+        const specificationPage = await readFile(join(outputPath, 'openapi/index.md'), 'utf8');
+        expect(specificationPage).toContain(
+            'Defines a simple get :no-translate[skip this] operation',
+        );
+        const prose = await readFile(
+            join(outputPath, 'openapi/test-controller/getWithPayloadResponse.md'),
+            'utf8',
+        );
+        expect(prose).toContain('Defines a simple get skip this operation');
+        expect(prose).not.toContain(':no-translate[skip this]');
+
         await compareDirectories(outputPath);
     });
 };
@@ -73,7 +94,7 @@ async function translateWithMockModel(
     testRootPath: string,
     dictionary: Record<string, string>,
     extraArgs: string[] = [],
-    {cacheDir}: {cacheDir?: string} = {},
+    {cacheDir, expectEngineWarning}: {cacheDir?: string; expectEngineWarning?: boolean} = {},
 ) {
     const {inputPath, outputPath} = getTestPaths(testRootPath);
 
@@ -114,6 +135,14 @@ async function translateWithMockModel(
 
         expect(report.errors).toEqual([]);
         expect(report.code).toBe(0);
+        if (expectEngineWarning) {
+            expect(
+                report.warns.some((warning) => warning.includes('TRANSFORM_BUNDLED_LIQUID')),
+            ).toBe(true);
+            expect(
+                report.warns.some((warning) => warning.includes('TRANSFORM_BUNDLED_YFMLINT')),
+            ).toBe(false);
+        }
     } finally {
         await model.close();
     }
@@ -139,6 +168,87 @@ function changedLines(inputPath: string, outputPath: string, file: string) {
 }
 
 describe('Translate command', () => {
+    test.each([
+        {name: 'a refused title with prose', prose: '\nOutside prose.\n', hasUnits: true},
+        {name: 'an all-opaque document', prose: '', hasUnits: false},
+    ])('forwards Tabs extraction warnings for $name', async ({prose, hasUnits}) => {
+        const root = await realpath(await mkdtemp(join(tmpdir(), 'diplodoc-extract-warning-')));
+        const input = join(root, 'input');
+        const source = `:::tabs\n\n- \`{selected}\` {#custom}\n\n:::\n${prose}`;
+        const relativePath = join('ru', 'ambiguous.md');
+        const file = join(input, relativePath);
+        const warning =
+            `WARN ${relativePath} Tabs item source left untranslated ` +
+            '(atomic-inline-marker) at normalized input line 3.';
+
+        try {
+            await mkdir(join(input, 'ru'), {recursive: true});
+            await writeFile(file, source);
+
+            for (const quiet of [false, true]) {
+                const output = join(root, quiet ? 'quiet' : 'normal');
+                const report = await TestAdapter.runner.runRaw([
+                    'translate',
+                    'extract',
+                    '--input',
+                    input,
+                    '--output',
+                    output,
+                    '--source',
+                    'ru-RU',
+                    '--target',
+                    'en-US',
+                    ...(quiet ? ['--quiet'] : []),
+                ]);
+
+                expect(report.code).toBe(0);
+                expect(report.errors).toEqual([]);
+                expect(report.warns.filter((line) => line.includes('Tabs item source'))).toEqual([
+                    warning,
+                ]);
+                expect(await readFile(file, 'utf8')).toBe(source);
+
+                const produced = (
+                    await glob('**/*', {cwd: output, nodir: true, posix: true})
+                ).sort();
+
+                if (hasUnits) {
+                    expect(produced).toEqual(['en/ambiguous.md.skl', 'en/ambiguous.md.xliff']);
+
+                    const xliff = await readFile(join(output, 'en/ambiguous.md.xliff'), 'utf8');
+
+                    expect(xliff).toContain('Outside prose.');
+                    expect(xliff).not.toContain('selected');
+
+                    const restored = join(root, quiet ? 'restored-quiet' : 'restored-normal');
+                    const compose = await TestAdapter.runner.runRaw([
+                        'translate',
+                        'compose',
+                        '--input',
+                        output,
+                        '--output',
+                        restored,
+                        '--use-source',
+                    ]);
+
+                    expect(compose.code).toBe(0);
+                    expect(compose.errors).toEqual([]);
+                    expect(await readFile(join(restored, 'en/ambiguous.md'), 'utf8')).toBe(source);
+                } else {
+                    expect(produced).toEqual([]);
+
+                    if (!quiet) {
+                        expect(strip(report.stdout)).toContain(
+                            `SKIPPED [notokens] ${relativePath}`,
+                        );
+                    }
+                }
+            }
+        } finally {
+            await rm(root, {recursive: true, force: true});
+        }
+    });
+
     buildFilesYamlTestTemplate(
         'build translated md files and remove no-translate directives',
         'mocks/translation/no-translate',
@@ -168,19 +278,44 @@ describe('Translate command', () => {
         },
     );
 
-    generateMapTestTemplate(
-        'extract openapi spec files with custom openapi schema provided',
-        'mocks/translation/openapi',
-        {
-            subcommand: 'extract',
-            source: 'ru-RU',
-            target: 'es-ES',
-            additionalArgs:
-                '--schema mocks/translation/custom-schema/custom-openapi-schema-30.yaml',
-        },
-        false,
-        true,
-    );
+    test('extract openapi spec files with custom openapi schema provided', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/translation/openapi');
+        const schema = join(
+            __dirname,
+            '../mocks/translation/custom-schema/custom-openapi-schema-30.yaml',
+        );
+
+        await cleanupDirectory(outputPath);
+
+        const report = await TestAdapter.runner.runRaw([
+            'translate',
+            'extract',
+            '--input',
+            inputPath,
+            '--output',
+            outputPath,
+            '--source',
+            'ru-RU',
+            '--target',
+            'es-ES',
+            '--schema',
+            schema,
+        ]);
+
+        expect(report.code).toBe(0);
+        expect(report.errors).toEqual([]);
+        expect((await glob('**/*', {cwd: outputPath, nodir: true})).sort()).toEqual([
+            'openapi-spec.yaml.skl',
+            'openapi-spec.yaml.xliff',
+            'toc.yaml.skl',
+            'toc.yaml.xliff',
+        ]);
+
+        const xliff = readFileSync(join(outputPath, 'openapi-spec.yaml.xliff'), 'utf8');
+
+        expect(xliff).toMatch(/<source\b[^>]*>OpenAPI definition<\/source>/);
+        expect(xliff).toContain('Simple get operation.');
+    });
 
     generateFilesYamlTestTemplate('compose openapi spec files', 'mocks/translation/compose', {
         subcommand: 'compose',
@@ -712,6 +847,9 @@ describe('Translate command', () => {
 
         expect(seed.errors).toEqual([]);
         expect(seed.code).toBe(0);
+        expect(seed.warns.some((warning) => warning.includes('TRANSFORM_BUNDLED_LIQUID'))).toBe(
+            true,
+        );
 
         const {outputPath} = await translateWithMockModel(
             'mocks/translation/presets-seed',
@@ -744,11 +882,46 @@ describe('Translate command', () => {
         expect(second).not.toContain('Russian');
     });
 
+    test('forwards retained Liquid warnings from the Yandex provider in offline dry-run mode', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/translation/presets');
+        const report = await TestAdapter.runner.runRaw([
+            'translate',
+            '--input',
+            inputPath,
+            '--output',
+            outputPath,
+            '--source',
+            'ru-RU',
+            '--target',
+            'en-US',
+            '--provider',
+            'yandex',
+            '--auth',
+            't1.synthetic-local-dry-run-value',
+            '--folder',
+            'fixture',
+            '--dry-run',
+            '--presets',
+            '--exclude',
+            'ru/presets.yaml',
+        ]);
+
+        expect(report.code).toBe(0);
+        expect(report.errors).toEqual([]);
+        expect(report.warns.some((warning) => warning.includes('TRANSFORM_BUNDLED_LIQUID'))).toBe(
+            true,
+        );
+        expect(report.warns.some((warning) => warning.includes('TRANSFORM_BUNDLED_YFMLINT'))).toBe(
+            false,
+        );
+    });
+
     test('let --vars override the presets', async () => {
         const {outputPath} = await translateWithMockModel(
             'mocks/translation/presets',
             presetsDictionary,
             ['--exclude', 'ru/presets.yaml', '--presets', '--vars', '{"audience":"internal"}'],
+            {expectEngineWarning: true},
         );
 
         const page = readFileSync(join(outputPath, 'en/index.md'), 'utf8');

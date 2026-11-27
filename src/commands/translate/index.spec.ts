@@ -31,6 +31,46 @@ describe('Translate command', () => {
             });
         });
 
+        describe('deprecation warnings', () => {
+            const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
+
+            it('replays provider options with their global strict and deprecation flags', async () => {
+                const {Program, parse} = await import('~/commands');
+                const {Run} = await import('./run');
+                const program = new Program();
+                vi.spyOn(Run.prototype, 'prepareRun').mockResolvedValue(undefined);
+                mockConfig();
+                const argv = [
+                    'node',
+                    'yfm',
+                    '--strict',
+                    '--no-deprecation-warnings',
+                    'translate',
+                    '--source',
+                    'en-US',
+                    '--target',
+                    'ru-RU',
+                    '--folder',
+                    'local',
+                    '--auth',
+                    't1.test',
+                ];
+                await program.init(parse(argv));
+                await program.parse(argv);
+                expect(program.translate.provider?.translate).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({strict: true, deprecationWarnings: false}),
+                );
+            });
+
+            test(
+                'passes the configured policy to the selected translation provider',
+                '',
+                {deprecationWarnings: false},
+                {deprecationWarnings: false},
+            );
+        });
+
         describe('presets', () => {
             const test = testConfig('--source ru --target en --folder 1 --auth t1.a');
 

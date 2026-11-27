@@ -1,11 +1,11 @@
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
-import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform/lib/typings';
+import type {StateCore} from '~/core/markdown/parser';
+import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform/types';
 
 import {bold} from 'chalk';
 
 import {filterTokens} from '~/core/utils';
 
-const INCLUDE_REGEXP = /^{%\s*include\s*(notitle)?\s*\[(.+?)]\((.+?)\)\s*%}$/;
+export const INCLUDE_REGEXP = /^{%\s*include\s*(?:(notitle)\s*)?\[(.+?)]\((.+?)\)\s*%}$/;
 
 type Options = MarkdownItPluginOpts & {
     path: NormalizedPath;
@@ -29,8 +29,11 @@ export default ((md, options) => {
         }
 
         env.includes.push(path);
-        unfoldIncludes(state, options);
-        env.includes.pop();
+        try {
+            unfoldIncludes(state, options);
+        } finally {
+            env.includes.pop();
+        }
     };
 
     try {
@@ -53,15 +56,19 @@ function unfoldIncludes(state: StateCore, options: Options) {
             return;
         }
 
-        const match = contentToken.content.match(INCLUDE_REGEXP);
+        // Native 13 trimmed Unicode whitespace from paragraph content before this rule.
+        const match = INCLUDE_REGEXP.exec(contentToken.content.trim());
         if (!match) {
             return;
         }
 
         try {
             const [, keyword /* description */, , path] = match;
-            const includeToken = new state.Token('include', '', 0);
-
+            // Keep the real source token and its parser-owned provenance.
+            const includeToken = _openToken;
+            includeToken.type = 'include';
+            includeToken.tag = '';
+            includeToken.nesting = 0;
             includeToken.attrSet('path', path);
             includeToken.attrSet('keyword', keyword);
             includeToken.map = _openToken.map;

@@ -3,16 +3,22 @@ import type {ChangelogItem} from '.';
 
 import {bold} from 'chalk';
 import transform from '@diplodoc/transform';
-import imsize from '@diplodoc/transform/lib/plugins/imsize';
-import changelog from '@diplodoc/transform/lib/plugins/changelog';
+import imsize from '@diplodoc/transform/plugins/imsize';
+import changelog from '@diplodoc/transform/plugins/changelog';
+
+import {highlighter} from '../../../../core/markdown/highlighter';
 
 const BLOCK_START = '{% changelog %}';
 const BLOCK_END = '{% endchangelog %}';
 
-function parseChangelogs(content: string, path?: string) {
+function parseChangelogs(content: string, path: string, log: LoaderContext['logger']) {
     const {
         result: {changelogs},
     } = transform(content, {
+        highlighter,
+        enableMarkdownAttrs: true,
+        log,
+        deprecationWarnings: log.deprecationWarnings,
         plugins: [changelog, imsize],
         extractChangelogs: true,
         path,
@@ -55,7 +61,11 @@ export const collect = (changelogsMap: Record<string, ChangelogItem[]>) =>
         }
 
         if (rawChangelogs.length) {
-            const parsedChangelogs = parseChangelogs(rawChangelogs.join('\n\n'), this.path);
+            const parsedChangelogs = parseChangelogs(
+                rawChangelogs.join('\n\n'),
+                this.path,
+                this.logger,
+            );
             if (parsedChangelogs.length !== rawChangelogs.length) {
                 this.logger.error(`Parsed changelogs less than expected${bold(this.path)}`);
             }

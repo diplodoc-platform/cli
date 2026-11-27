@@ -64,6 +64,7 @@ export class Program extends BaseProgram {
         options.extensions,
         options.quiet,
         options.strict,
+        options.deprecationWarnings,
         options.jobs,
         options.workerMaxOldSpace,
         options.copyOnWrite,

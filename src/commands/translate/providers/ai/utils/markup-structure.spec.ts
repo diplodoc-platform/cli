@@ -24,10 +24,12 @@ describe('markupStructureIssue', () => {
         '| label |\n| --- |\n| value |',
         '```js\nlabel\n```',
         'First paragraph.\n\nSecond paragraph.',
+        // Markdown-it 15 recognizes strong emphasis adjacent to currency symbols.
+        'Цена €__price__€',
     ])('rejects invented structure: %s', (target) => {
         expect(markupStructureIssue('Plain text.', target)).toBeDefined();
     });
-    it.each(['foo__bar__baz', '2 * 3 = 6', String.raw`Use \*literal\* text`, 'Цена €__price__€'])(
+    it.each(['foo__bar__baz', '2 * 3 = 6', String.raw`Use \*literal\* text`])(
         'accepts literal text: %s',
         (target) => {
             expect(markupStructureIssue('Plain text.', target)).toBeUndefined();

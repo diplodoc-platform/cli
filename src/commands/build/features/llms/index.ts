@@ -13,10 +13,7 @@ import {dirname, join, relative} from 'node:path';
 import {eachSeries} from 'async';
 import {dump, load} from 'js-yaml';
 import {extractFrontMatter} from '@diplodoc/liquid';
-import {
-    type ContentAudience,
-    filterAudienceContent,
-} from '@diplodoc/transform/lib/plugins/visibility';
+import {type ContentAudience, filterAudienceContent} from '@diplodoc/transform/plugins/visibility';
 
 import {defined} from '~/core/config';
 import {resolveLlmsConfig} from '~/core/toc';

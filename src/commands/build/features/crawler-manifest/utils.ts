@@ -1,4 +1,4 @@
-import type Token from 'markdown-it/lib/token';
+import type {Env, Token} from 'markdown-it';
 import type {Run} from '~/commands/build';
 import type {CrawlerConfig, CrawlerNotifications} from './types';
 
@@ -12,6 +12,7 @@ import {isExternalHref, isFenceClose, matchFenceOpen, normalizePath, walkLinks} 
 import {FILE_BLOCK_REGEX, IPV4_HOST_RE, REGEXP_LITERAL} from './constants';
 
 const md = new MarkdownIt({html: true, linkify: true});
+md.linkify.set({fuzzyLink: true, fuzzyEmail: true, urlAuth: true});
 const mdNoLinkify = new MarkdownIt({html: true, linkify: false});
 
 function walkTokens(tokens: Token[], links: Set<string>): void {
@@ -19,13 +20,13 @@ function walkTokens(tokens: Token[], links: Set<string>): void {
         if (token.type === 'link_open') {
             const href = token.attrGet('href');
 
-            if (href && isExternalHref(href)) {
+            if (typeof href === 'string' && href && isExternalHref(href)) {
                 links.add(href);
             }
         } else if (token.type === 'image') {
             const src = token.attrGet('src');
 
-            if (src && isExternalHref(src)) {
+            if (typeof src === 'string' && src && isExternalHref(src)) {
                 links.add(src);
             }
         }
@@ -38,7 +39,7 @@ function walkTokens(tokens: Token[], links: Set<string>): void {
 
 export function extractExternalLinks(content: string, {linkify = true} = {}): string[] {
     const links = new Set<string>();
-    const env: {references?: Record<string, {href: string}>} = {};
+    const env: Env = {};
 
     walkTokens((linkify ? md : mdNoLinkify).parse(content, env), links);
 

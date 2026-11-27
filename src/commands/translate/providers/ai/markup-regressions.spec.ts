@@ -158,7 +158,7 @@ describe('markup document regression fixtures', () => {
         expect(first.totals.fixes.markupRetried).toBe(fixture.fault ? 1 : 0);
         if (fixture.title) {
             expect(
-                parse(transform(markdown).result.html)
+                parse(transform(markdown, {enableMarkdownAttrs: true}).result.html)
                     .querySelector('table')
                     ?.getAttribute('title'),
             ).toBe(fixture.title.translated);
@@ -192,7 +192,7 @@ describe('markup document regression fixtures', () => {
             expect(last.totals.fixes.markupDamaged).toBe(1);
             if (fixture.title) {
                 expect(
-                    parse(transform(markdown).result.html)
+                    parse(transform(markdown, {enableMarkdownAttrs: true}).result.html)
                         .querySelector('table')
                         ?.getAttribute('title'),
                 ).toBe(fixture.title.fallback);

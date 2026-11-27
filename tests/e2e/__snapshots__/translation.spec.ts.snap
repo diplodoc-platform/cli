@@ -133,7 +133,7 @@ This is text with empty  directive.
                     "test-controller"
                 ],
                 "summary": "Simple get operation. тест новой верстки 3",
-                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "description": "Defines a simple get :no-translate[skip this] operation with no inputs and a complex",
                 "operationId": "getWithPayloadResponse",
                 "responses": {
                     "200": {
@@ -404,7 +404,7 @@ alternate:
                     "test-controller"
                 ],
                 "summary": "Simple get operation. тест новой верстки 3",
-                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "description": "Defines a simple get :no-translate[skip this] operation with no inputs and a complex",
                 "operationId": "getWithPayloadResponse",
                 "responses": {
                     "200": {
@@ -722,7 +722,7 @@ This is text with empty  directive.
                     "test-controller"
                 ],
                 "summary": "Simple get operation. тест новой верстки 3",
-                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "description": "Defines a simple get :no-translate[skip this] operation with no inputs and a complex",
                 "operationId": "getWithPayloadResponse",
                 "responses": {
                     "200": {
@@ -993,7 +993,7 @@ alternate:
                     "test-controller"
                 ],
                 "summary": "Simple get operation. тест новой верстки 3",
-                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "description": "Defines a simple get :no-translate[skip this] operation with no inputs and a complex",
                 "operationId": "getWithPayloadResponse",
                 "responses": {
                     "200": {

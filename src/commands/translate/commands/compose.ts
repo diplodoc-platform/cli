@@ -27,7 +27,7 @@ export type ComposeArgs = BaseArgs & {
     useSource?: boolean;
 };
 
-export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
+export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet' | 'deprecationWarnings'> & {
     output: AbsolutePath;
     include: string[];
     exclude: string[];

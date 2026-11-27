@@ -1,9 +1,10 @@
+import type {ChangelogItem as TransformChangelogItem} from '@diplodoc/transform/plugins/changelog/types';
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 
 import {basename, dirname, extname, join} from 'node:path';
 import pmap from 'p-map';
-import changelog from '@diplodoc/transform/lib/plugins/changelog';
+import changelog from '@diplodoc/transform/plugins/changelog';
 
 import {defined} from '~/core/config';
 import {getHooks as getBuildHooks} from '~/commands/build';
@@ -22,17 +23,9 @@ export type ChangelogsConfig = {
     changelogs: boolean | string;
 };
 
-export interface ChangelogItem {
-    title: string;
+export interface ChangelogItem extends TransformChangelogItem {
     date?: string;
     index?: number;
-    image: {
-        src: string;
-        alt: string;
-        ratio?: string;
-    };
-    description: string;
-    [x: string]: unknown;
 }
 
 export class Changelogs {

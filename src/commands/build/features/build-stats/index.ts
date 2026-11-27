@@ -165,9 +165,10 @@ export class BuildStats {
             this.startedAt = Date.now();
 
             const loggerHooks = getLoggerHooks(run.logger);
-            loggerHooks.Warn.tap('BuildStats', (message) => {
+            const countWarning = (message: string) =>
                 this.bucketByCode(this.warningsByCode, message);
-            });
+            loggerHooks.Warn.tap('BuildStats', countWarning);
+            loggerHooks.Deprecation.tap('BuildStats', countWarning);
             loggerHooks.Error.tap('BuildStats', (message) => {
                 this.bucketByCode(this.errorsByCode, message);
             });

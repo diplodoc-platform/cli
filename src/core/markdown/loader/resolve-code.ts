@@ -1,11 +1,12 @@
+import type {Token} from '~/core/markdown/parser';
 import type {LoaderContext} from '../loader';
-import type Token from 'markdown-it/lib/token';
 
-import MarkdownIt from 'markdown-it';
 // @ts-ignore
 import deflist from 'markdown-it-deflist';
-import imsize from '@diplodoc/transform/lib/plugins/imsize';
-import yfmTable from '@diplodoc/transform/lib/plugins/table';
+import imsize from '@diplodoc/transform/plugins/imsize';
+import yfmTable from '@diplodoc/transform/plugins/table';
+
+import {MarkdownItConstructor} from '../parser';
 
 function computeLineStarts(lines: string[]): number[] {
     const lineStarts: number[] = [0];
@@ -329,15 +330,10 @@ export function resolveBlockCodes(this: LoaderContext, content: string) {
         this.api.blockCodes.set([]);
         return content;
     }
-    const md = new MarkdownIt({html: true});
-    const diplodocOptions = {
-        notesAutotitle: false,
-        path: '',
-    };
-
-    md.use(deflist, diplodocOptions);
-    md.use(imsize, diplodocOptions);
-    md.use(yfmTable, diplodocOptions);
+    const md = new MarkdownItConstructor({html: true});
+    md.use(deflist);
+    md.use(imsize, {deprecationWarnings: false});
+    md.use(yfmTable, {deprecationWarnings: false});
 
     const tokens = md.parse(content, {});
 

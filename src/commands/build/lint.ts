@@ -1,12 +1,14 @@
-import type MarkdownIt from 'markdown-it';
+import type {MarkdownIt as MarkdownItInstance, Token} from 'markdown-it';
 
-import Token from 'markdown-it/lib/token';
+import MarkdownIt from 'markdown-it';
 import {LogLevels, normalizeConfig, yfmlint} from '@diplodoc/yfmlint';
 
 const ANCHOR_RULE = 'YFM025';
 const ANCHOR_ALIAS = 'missing-local-anchor';
 
-export function getLocalAnchorRuleConfig(lintConfig: Parameters<typeof yfmlint>[2]['lintConfig']) {
+export function getLocalAnchorRuleConfig(
+    lintConfig: Parameters<typeof yfmlint>[2]['lintConfig'],
+): ReturnType<typeof normalizeConfig>[typeof ANCHOR_RULE] {
     return normalizeConfig({
         [ANCHOR_RULE]: lintConfig?.[ANCHOR_RULE] ?? lintConfig?.[ANCHOR_ALIAS] ?? LogLevels.WARN,
     })[ANCHOR_RULE];
@@ -22,7 +24,7 @@ export async function lintWithLocalAnchors(
     content: string,
     path: string,
     options: Parameters<typeof yfmlint>[2],
-) {
+): ReturnType<typeof yfmlint> {
     const ruleConfig = getLocalAnchorRuleConfig(options.lintConfig);
 
     if (ruleConfig === false) {
@@ -30,7 +32,7 @@ export async function lintWithLocalAnchors(
     }
 
     let tokens: Token[] | undefined;
-    const captureTokens = (md: MarkdownIt) => {
+    const captureTokens = (md: MarkdownItInstance) => {
         const parse = md.parse.bind(md);
         md.parse = (markdown, env) => {
             tokens = parse(markdown, env);
@@ -63,7 +65,7 @@ export async function lintWithLocalAnchors(
         ...options,
         lintConfig: {default: false, YFM002: ruleConfig},
         plugins: [
-            (md: MarkdownIt) => {
+            (md: MarkdownItInstance) => {
                 md.parse = () => copyAnchorTokens(anchorTokens);
             },
         ],
@@ -82,7 +84,10 @@ export async function lintWithLocalAnchors(
 
 function copyAnchorTokens(tokens: Token[]): Token[] {
     return tokens.map((token) => {
-        const copy = Object.assign(new Token(token.type, token.tag, token.nesting), token);
+        const copy = Object.assign(
+            new MarkdownIt.Token(token.type, token.tag, token.nesting),
+            token,
+        );
         copy.attrs =
             token.attrs
                 ?.filter(([name]) => name !== 'YFM002')

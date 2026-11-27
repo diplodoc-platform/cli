@@ -453,6 +453,14 @@ describe('getArticleTitle', () => {
         );
     });
 
+    it('keeps quoted HTML boundaries, YFM formatting and reference attributes together', () => {
+        const markdown =
+            'Intro <h1 title="literal > <h1>fake</h1>">Use ##command## with x^2^ ' +
+            '[API][ref]{.link}</h1>\n\n[ref]: /api\n';
+
+        expect(getArticleTitle(markdown)).toBe('Use command with x2 API');
+    });
+
     it.each([
         {markdown: '<h1>HTML title</h1>\n', expected: 'HTML title'},
         {markdown: '<H1 class="title">Uppercase title</H1>\n', expected: 'Uppercase title'},

@@ -1,13 +1,12 @@
-import type Token from 'markdown-it/lib/token';
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
-import type {Heading} from '@diplodoc/transform/lib/typings';
+import type {StateCore, Token} from '~/core/markdown/parser';
+import type {Heading} from '@diplodoc/transform/types';
 
 import {parseHref} from '@diplodoc/utils';
 
 import {filterTokens, isExternalHref, shortLink} from '~/core/utils';
 
 export function getHrefTokenAttr(token: Token) {
-    const href = token.attrGet('href') || '';
+    const href = String(token.attrGet('href') ?? '');
     try {
         return decodeURI(href);
     } catch {}

@@ -76,8 +76,30 @@ describe('SVG metadata with many counted XML entities', () => {
                 const entityWarnings = report.warns.filter((warning) =>
                     warning.includes('SVG entity limit reached'),
                 );
-                expect(entityWarnings).toHaveLength(1);
-                expect(entityWarnings[0]).toContain('--svg-max-entity-count');
+                // HTML has two standalone lint helper invocations and one owned render root.
+                // MD has two standalone merge-SVG helper invocations. Reusing a caller logger
+                // does not implicitly merge those invocation-local diagnostic scopes.
+                const warning =
+                    'WARN SVG entity limit reached: branches.svg. Keeping the image reference. ' +
+                    'To inline this SVG, set svgMaxEntityCount in Transform or ' +
+                    'content.svgMaxEntityCount / --svg-max-entity-count in CLI.';
+                expect(entityWarnings).toEqual(Array(format === 'html' ? 3 : 2).fill(warning));
+                const configPath = join(input, '.yfm');
+                const escapedConfigPath = JSON.stringify(configPath).slice(1, -1);
+                const remainingWarnings = report.warns
+                    .filter((message) => !message.includes('SVG entity limit reached'))
+                    .map((message) =>
+                        message
+                            .replace(escapedConfigPath, '<origin>/.yfm')
+                            .replace(configPath, '<origin>/.yfm'),
+                    );
+                expect(remainingWarnings).toEqual(
+                    format === 'html'
+                        ? []
+                        : [
+                              "WARN BuildManifest: Failed to read YFM config: Error: ENOENT: no such file or directory, open '<origin>/.yfm'",
+                          ],
+                );
                 if (format === 'html') {
                     expect(content).toMatch(/(?:<|&lt;)img\b/);
                     expect(content).toContain('branches.svg');

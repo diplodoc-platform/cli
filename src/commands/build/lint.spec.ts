@@ -1,9 +1,9 @@
-import type MarkdownIt from 'markdown-it';
+import type {MarkdownIt} from 'markdown-it';
 import type {RawLintConfig} from '@diplodoc/yfmlint';
 
 import {describe, expect, it, vi} from 'vitest';
 import {LogLevels} from '@diplodoc/yfmlint';
-import anchors from '@diplodoc/transform/lib/plugins/anchors';
+import anchors from '@diplodoc/transform/plugins/anchors';
 
 import {lintWithLocalAnchors} from './lint';
 
@@ -16,12 +16,13 @@ function markerPlugin(md: MarkdownIt) {
                 if (link.type !== 'link_open') {
                     continue;
                 }
-                const rule = {
+                const rules: Record<string, string> = {
                     '#missing': 'YFM025',
                     '#other': 'YFM025',
                     '#legacy': 'YFM002',
                     '#unreachable': 'YFM003',
-                }[link.attrGet('href') || ''];
+                };
+                const rule = rules[String(link.attrGet('href') ?? '')];
                 if (rule) {
                     link.attrSet(rule, 'test');
                 }

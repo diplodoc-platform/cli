@@ -1,5 +1,5 @@
 import type {UntranslatedLine} from './types';
-import type Token from 'markdown-it/lib/token';
+import type {Token} from 'markdown-it';
 
 import MarkdownIt from 'markdown-it';
 

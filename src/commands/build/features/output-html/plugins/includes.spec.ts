@@ -1,9 +1,22 @@
+import type {MarkdownIt} from '~/core/markdown/parser';
+import type {IncludeChainEntry} from './includes';
+
 import {describe, expect, it} from 'vitest';
-import MarkdownIt from 'markdown-it';
-import attrs from 'markdown-it-attrs';
+import {getLogger} from '@diplodoc/transform/log';
+
+import {normalizePath} from '~/core/utils';
+import {MarkdownItConstructor} from '~/core/markdown/parser';
 
 import includes, {contentWithoutFrontmatter, mergeNestedMeta} from './includes';
 import includesDetect from './includes-detect';
+
+const legacyAttrs: unknown = require('markdown-it-attrs');
+function attrs(md: MarkdownIt, options: {leftDelimiter: string; rightDelimiter: string}) {
+    if (typeof legacyAttrs !== 'function') {
+        throw new TypeError('Expected callable markdown-it-attrs');
+    }
+    legacyAttrs(md, options);
+}
 
 /**
  * Include file content as written by md2md (with csp/metadata frontmatter).
@@ -21,13 +34,15 @@ vcsPath: docs/_includes/support.md
 
 Body only. No metadata in output.`;
 
-const log = {error: () => {}, warn: () => {}, info: () => {}};
+const log = getLogger({error: () => {}, warn: () => {}, info: () => {}});
+const pluginDefaults = {lang: 'ru' as const, root: '', rootPublicPath: '', isLintRun: false};
 
 describe('includes plugin: frontmatter in included content', () => {
     it('full plugin chain: with fix no metadata in HTML, without fix metadata leaks (regression test)', () => {
-        const md = new MarkdownIt();
+        const md = new MarkdownItConstructor();
         const options = {
-            path: 'page.md',
+            ...pluginDefaults,
+            path: normalizePath('page.md'),
             files: {'inc.md': includeContentWithFrontmatter} as Record<string, string>,
             log,
         };
@@ -44,7 +59,7 @@ describe('includes plugin: frontmatter in included content', () => {
 
     it('with fix: contentWithoutFrontmatter strips frontmatter, rendered HTML has no metadata', () => {
         const body = contentWithoutFrontmatter(includeContentWithFrontmatter);
-        const md = new MarkdownIt();
+        const md = new MarkdownItConstructor();
         const html = md.render(body);
 
         expect(html).not.toMatch(/style-src:\s*unsafe-inline/);
@@ -54,7 +69,7 @@ describe('includes plugin: frontmatter in included content', () => {
     });
 
     it('without fix: parsing raw content leaks metadata into HTML (bug reproducer)', () => {
-        const md = new MarkdownIt();
+        const md = new MarkdownItConstructor();
         const htmlFromRaw = md.render(includeContentWithFrontmatter);
 
         expect(htmlFromRaw).toMatch(/style-src/);
@@ -159,17 +174,24 @@ describe('includes plugin: metadata propagation from included files', () => {
                 if (env.path === 'page.md') {
                     return;
                 }
-                env.meta = env.meta || {};
-                env.meta.script = env.meta.script || [];
-                env.meta.script.push(runtime);
+                const meta = env.meta;
+                const scripts =
+                    typeof meta === 'object' &&
+                    meta !== null &&
+                    'script' in meta &&
+                    Array.isArray(meta.script)
+                        ? meta.script
+                        : [];
+                env.meta = {script: [...scripts, runtime]};
             });
         };
     }
 
     it('propagates extension metadata from included file to parent env', () => {
-        const md = new MarkdownIt();
+        const md = new MarkdownItConstructor();
         const options = {
-            path: 'page.md',
+            ...pluginDefaults,
+            path: normalizePath('page.md'),
             files: {'inc.md': '# Inc\n\nContent'} as Record<string, string>,
             log,
         };
@@ -186,9 +208,10 @@ describe('includes plugin: metadata propagation from included files', () => {
     });
 
     it('propagates metadata on cache hit (second include of same file)', () => {
-        const md = new MarkdownIt();
+        const md = new MarkdownItConstructor();
         const options = {
-            path: 'page.md',
+            ...pluginDefaults,
+            path: normalizePath('page.md'),
             files: {'inc.md': '# Inc\n\nContent'} as Record<string, string>,
             log,
         };
@@ -220,9 +243,10 @@ describe('includes plugin: metadata propagation from included files', () => {
  */
 describe('includes plugin: empty include followed by another include (Bug 31)', () => {
     it('processes the second include when the first resolves to empty (notitle + heading-only section)', () => {
-        const md = new MarkdownIt({html: true});
+        const md = new MarkdownItConstructor({html: true});
         const options = {
-            path: 'page.md',
+            ...pluginDefaults,
+            path: normalizePath('page.md'),
             files: {
                 'empty.md': '#### Heading {#anchor}\n',
                 'real.md': '<div style="display: none;"> </div>',
@@ -245,9 +269,10 @@ describe('includes plugin: empty include followed by another include (Bug 31)', 
     });
 
     it('processes the second include when the first include body is empty markdown', () => {
-        const md = new MarkdownIt({html: true});
+        const md = new MarkdownItConstructor({html: true});
         const options = {
-            path: 'page.md',
+            ...pluginDefaults,
+            path: normalizePath('page.md'),
             files: {
                 'empty.md': '',
                 'real.md': '<style>.x { display: none; }</style>',
@@ -259,7 +284,7 @@ describe('includes plugin: empty include followed by another include (Bug 31)', 
         md.use(includes, options);
 
         const tokens = md.parse('{% include [a](empty.md) %}\n\n{% include [b](real.md) %}', {
-            path: 'page.md',
+            path: normalizePath('page.md'),
         });
         const html = md.renderer.render(tokens, md.options, {});
 
@@ -279,10 +304,11 @@ describe('includes plugin: empty include followed by another include (Bug 31)', 
         // includesDetect): `includes` registers `before('curly_attributes')`
         // and `includesDetect` registers `before('includes')`, yielding the
         // correct ruler order [includes_detect, includes, curly_attributes].
-        const md = new MarkdownIt({html: true});
+        const md = new MarkdownItConstructor({html: true});
         md.use(attrs, {leftDelimiter: '{', rightDelimiter: '}'});
         const options = {
-            path: 'page.md',
+            ...pluginDefaults,
+            path: normalizePath('page.md'),
             files: {
                 'reusables.md':
                     '# Title\n\n#### Section {#section}\n\n{% include [inner](inner.md) %}\n',
@@ -295,7 +321,7 @@ describe('includes plugin: empty include followed by another include (Bug 31)', 
         md.use(includesDetect, options);
 
         const tokens = md.parse('{% include notitle [s](reusables.md#section) %}', {
-            path: 'page.md',
+            path: normalizePath('page.md'),
         });
         const html = md.renderer.render(tokens, md.options, {});
 
@@ -319,13 +345,14 @@ describe('includes plugin: empty include followed by another include (Bug 31)', 
         const frag =
             '### F1 {#f1}\n\nContent F1\n\n## F2 {#f2}\n\nContent F2\n\n### F3 {#f3}\n\nContent F3\n';
         const options = {
-            path: 'page.md',
+            ...pluginDefaults,
+            path: normalizePath('page.md'),
             files: {'frag.md': frag} as Record<string, string>,
             log,
         };
 
         const build = () => {
-            const md = new MarkdownIt({html: true});
+            const md = new MarkdownItConstructor({html: true});
             md.use(attrs, {leftDelimiter: '{', rightDelimiter: '}'});
             md.use(includes, options);
             md.use(includesDetect, options);
@@ -354,9 +381,10 @@ describe('includes plugin: empty include followed by another include (Bug 31)', 
     });
 
     it('processes three consecutive includes when middle one resolves to empty', () => {
-        const md = new MarkdownIt({html: true});
+        const md = new MarkdownItConstructor({html: true});
         const options = {
-            path: 'page.md',
+            ...pluginDefaults,
+            path: normalizePath('page.md'),
             files: {
                 'first.md': 'First content.',
                 'empty.md': '#### Heading {#anchor}\n',
@@ -378,4 +406,170 @@ describe('includes plugin: empty include followed by another include (Bug 31)', 
         expect(html).toContain('First content.');
         expect(html).toContain('Last content.');
     });
+});
+
+describe('owned include source attribution', () => {
+    const symbol = Symbol('custom');
+    class CustomMeta {
+        value = 7;
+    }
+    it.each([
+        ['Date', new Date(0)],
+        ['class', new CustomMeta()],
+        ['array', Object.freeze(['value'])],
+        ['frozen', Object.freeze({value: 4})],
+        [
+            'non-enumerable and symbol',
+            Object.defineProperties(
+                {},
+                {
+                    hidden: {value: 3, enumerable: false},
+                    [symbol]: {value: 'symbol', enumerable: false},
+                },
+            ),
+        ],
+    ])('preserves %s metadata identity across repeated cached includes', (_name, meta) => {
+        const md = new MarkdownItConstructor();
+        const options = {
+            ...pluginDefaults,
+            path: normalizePath('root.md'),
+            files: {'part.md': 'Custom metadata body.'},
+            log,
+        };
+        md.use(includesDetect, options);
+        md.use(includes, options);
+        let parsed = 0;
+        md.core.ruler.before('includes_detect', 'assign_custom_meta', (state) => {
+            if (state.env.path !== 'part.md') return;
+            parsed++;
+            for (const token of state.tokens) {
+                if (token.type === 'inline') token.meta = meta;
+            }
+        });
+        const tokens = md.parse(
+            '{% include [first](part.md) %}\n\n{% include [second](part.md) %}',
+            {path: 'root.md'},
+        );
+        const selected = tokens.filter(
+            (token) => token.type === 'inline' && token.content === 'Custom metadata body.',
+        );
+        expect(parsed).toBe(1);
+        expect(selected).toHaveLength(2);
+        for (const token of selected) {
+            const tagged: typeof token & {
+                sourceInfo?: {sourceFile: string; includeChain: IncludeChainEntry[]};
+            } = token;
+            expect(token.meta).toBe(meta);
+            expect(tagged.sourceInfo).toEqual({
+                sourceFile: 'part.md',
+                includeChain: [{file: 'root.md', line: expect.any(Number)}],
+            });
+        }
+        expect(Object.getOwnPropertyDescriptor(meta, 'hidden')?.value).toBe(
+            _name === 'non-enumerable and symbol' ? 3 : undefined,
+        );
+        expect(Object.getOwnPropertyDescriptor(meta, symbol)?.value).toBe(
+            _name === 'non-enumerable and symbol' ? 'symbol' : undefined,
+        );
+    });
+});
+
+it('rebases cached nested source chains for each include occurrence', () => {
+    const md = new MarkdownItConstructor();
+    const options = {
+        ...pluginDefaults,
+        path: normalizePath('root.md'),
+        files: {'a.md': '{% include [b](b.md) %}', 'b.md': 'Nested body.'},
+        log,
+    };
+    md.use(includesDetect, options);
+    md.use(includes, options);
+    const tokens = md.parse(
+        '{% include [a](a.md) %}\n\n{% include [a](a.md) %}\n\n{% include [b](b.md) %}',
+        {path: 'root.md'},
+    );
+    const bodies = tokens.filter(
+        (token) => token.type === 'inline' && token.content === 'Nested body.',
+    );
+    expect(bodies).toHaveLength(3);
+    const attribution = bodies.map((token) => {
+        const sourced: typeof token & {
+            sourceInfo?: {sourceFile: string; includeChain: IncludeChainEntry[]};
+        } = token;
+        return sourced.sourceInfo;
+    });
+    expect(attribution).toEqual([
+        {
+            sourceFile: 'b.md',
+            includeChain: [
+                {file: 'root.md', line: 1},
+                {file: 'a.md', line: 1},
+            ],
+        },
+        {
+            sourceFile: 'b.md',
+            includeChain: [
+                {file: 'root.md', line: 3},
+                {file: 'a.md', line: 1},
+            ],
+        },
+        {sourceFile: 'b.md', includeChain: [{file: 'root.md', line: 5}]},
+    ]);
+});
+
+it('restores includeChain descriptor after a failed child and admits a later sibling', () => {
+    const md = new MarkdownItConstructor();
+    const options = {
+        ...pluginDefaults,
+        path: normalizePath('root.md'),
+        files: {'fail.md': 'Fail body.', 'good.md': 'Good body.'},
+        log,
+    };
+    md.use(includesDetect, options);
+    md.use(includes, options);
+    md.core.ruler.before('includes_detect', 'fail_one_child', (state) => {
+        if (state.env.path === 'fail.md') {
+            state.env.meta = {script: ['failed-resource.js']};
+            throw new Error('expected child failure');
+        }
+    });
+    const originalChain = [{file: 'outside.md', line: 4}];
+    const env = {path: 'root.md'};
+    Object.defineProperty(env, 'includeChain', {
+        value: originalChain,
+        enumerable: false,
+        writable: false,
+        configurable: true,
+    });
+    const descriptor = Object.getOwnPropertyDescriptor(env, 'includeChain');
+    const tokens = md.parse('{% include [bad](fail.md) %}\n\n{% include [good](good.md) %}', env);
+    expect(tokens.some((token) => token.content === 'Good body.')).toBe(true);
+    expect(Object.getOwnPropertyDescriptor(env, 'includeChain')).toEqual(descriptor);
+    expect(Object.getOwnPropertyDescriptor(env, 'includeChain')?.value).toBe(originalChain);
+    expect(env).not.toHaveProperty('meta.script', expect.arrayContaining(['failed-resource.js']));
+});
+
+it('does not parse or replay a child when includeChain is non-configurable', () => {
+    const md = new MarkdownItConstructor();
+    const options = {
+        ...pluginDefaults,
+        path: normalizePath('root.md'),
+        files: {'part.md': 'Child.'},
+        log,
+    };
+    md.use(includesDetect, options);
+    md.use(includes, options);
+    let childParses = 0;
+    md.core.ruler.before('includes_detect', 'count_child', (state) => {
+        if (state.env.path === 'part.md') childParses++;
+    });
+    const chain = [{file: 'outside.md', line: 1}];
+    const env = {path: 'root.md'};
+    Object.defineProperty(env, 'includeChain', {value: chain, configurable: false});
+    const descriptor = Object.getOwnPropertyDescriptor(env, 'includeChain');
+    const tokens = md.parse('{% include [child](part.md) %}', env);
+    expect(childParses).toBe(0);
+    expect(tokens.some((token) => token.content === 'Child.')).toBe(false);
+    expect(Object.getOwnPropertyDescriptor(env, 'includeChain')).toEqual(descriptor);
+    expect(Object.getOwnPropertyDescriptor(env, 'includeChain')?.value).toBe(chain);
 });

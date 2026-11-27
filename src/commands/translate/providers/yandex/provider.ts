@@ -91,7 +91,7 @@ export class Provider {
                 const stat = createTargetStat();
                 const request = requester(translatorParams, cache, stat);
                 const translate = translator(request, cache, this.logger, stat);
-                const process = processor(translatorParams, translate);
+                const process = processor(translatorParams, translate, this.logger);
 
                 await eachLimit(
                     files,
@@ -308,7 +308,7 @@ function requester(params: RequesterParams, cache: Cache, stat: TargetStat): Req
     };
 }
 
-function processor(params: TranslatorParams, translate: Translate) {
+function processor(params: TranslatorParams, translate: Translate, logger: Logger) {
     const {input, output, sourceLanguage, targetLanguage, varsFor, code} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
@@ -329,7 +329,7 @@ function processor(params: TranslatorParams, translate: Translate) {
         await content.load();
 
         if (Object.keys(vars).length && content.isString) {
-            content.set(applyConditions(content.data as string, vars, inputPath));
+            content.set(applyConditions(content.data as string, vars, inputPath, logger));
         }
 
         if (!content.data) {
@@ -338,20 +338,25 @@ function processor(params: TranslatorParams, translate: Translate) {
         }
 
         const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
-        const {units, skeleton, warnings} = extract(content.data, {
-            compact: true,
-            code,
-            source: {
-                language: sourceLanguage,
-                locale: 'RU',
+        const {units, skeleton, warnings} = extract(
+            content.data,
+            {
+                compact: true,
+                originalFile: path,
+                code,
+                source: {
+                    language: sourceLanguage,
+                    locale: 'RU',
+                },
+                target: {
+                    language: targetLanguage,
+                    locale: 'US',
+                },
+                schemas,
+                ajvOptions,
             },
-            target: {
-                language: targetLanguage,
-                locale: 'US',
-            },
-            schemas,
-            ajvOptions,
-        });
+            logger,
+        );
 
         if (!units.length) {
             await content.dump(output);

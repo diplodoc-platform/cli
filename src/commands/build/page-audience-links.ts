@@ -1,5 +1,6 @@
 import type {PageAudience} from '~/core/toc';
-import type Token from 'markdown-it/lib/token';
+import type {Token} from 'markdown-it';
+import type {TokenSourceInfo} from '@diplodoc/yfmlint';
 
 import {dirname, extname, join} from 'node:path';
 
@@ -18,9 +19,12 @@ export function findAgentPageLinks(
         if (token.type === 'link_open') {
             // HTML links are already relative to the project root. Markdown links retain
             // their author's location, including links emitted by nested includes.
-            const from = source && (token.meta?.sourceFile ?? source);
+            const attributed: Token & {sourceInfo?: TokenSourceInfo} = token;
+            const sourceFile = attributed.sourceInfo?.sourceFile ?? token.meta?.sourceFile;
+            const from =
+                source && (typeof sourceFile === 'string' ? normalizePath(sourceFile) : source);
             const href = source ? getHrefTokenAttr(token) : token.attrGet('href');
-            for (const target of findAgentPageTargets(href ?? '', audience, from)) {
+            for (const target of findAgentPageTargets(String(href ?? ''), audience, from)) {
                 targets.add(target);
             }
         }

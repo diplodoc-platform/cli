@@ -3,10 +3,16 @@ import type {Hook, HookMap} from 'tapable';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Hooks = Hash<Hook<any, any> | HookMap<any>>;
 
+type HookAccess<THooks extends Hooks> = readonly [
+    (program: object | undefined) => THooks,
+    <T extends ClassType>(Target: T, context: ClassDecoratorContext) => T,
+    symbol,
+];
+
 export function generateHooksAccess<THooks extends Hooks>(
     name: string,
     hooks: (name: string) => THooks,
-) {
+): HookAccess<THooks> {
     const Hooks = Symbol(`${name}Hooks`);
 
     function getHooks(program: object | undefined): THooks {
