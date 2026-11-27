@@ -156,6 +156,66 @@ function makeFullClient() {
 
 describe('translate ai provider', () => {
     describe('Provider.translate', () => {
+        it('rejects an approved seed that duplicates a protected OpenAPI link label', async () => {
+            const root = mkdtempSync(join(tmpdir(), 'yfm-ai-openapi-seed-'));
+            const input = join(root, 'docs') as AbsolutePath;
+            const output = join(root, 'out') as AbsolutePath;
+            const cacheDir = join(root, 'cache') as AbsolutePath;
+            const file = 'ru/api.yaml';
+            const source = wrap('Формат ключа');
+            const approved = wrap(
+                '[Key format <x ctype="no_translate_inline" equiv-text=":no-translate[UUID]" id="x-1"/>]',
+            );
+            const seeds = new SeedStore(seedFilePath(cacheDir, 'ru', 'en'));
+            seeds.record(file, [[source, approved]]);
+            seeds.flush();
+
+            mkdirSync(join(input, 'ru'), {recursive: true});
+            writeFileSync(
+                join(input, file),
+                JSON.stringify({
+                    openapi: '3.0.3',
+                    info: {
+                        title: 'API',
+                        version: '1.0.0',
+                        description: '[Формат ключа :no-translate[UUID]](*uuid)',
+                    },
+                    paths: {},
+                }),
+            );
+
+            const client = makeClient((fragments) =>
+                fragments.map((fragment) => fragment.replace('Формат ключа', 'Key format')),
+            );
+            const provider = new Provider(() => client, {} as never);
+            Object.assign(provider, {
+                logger: {
+                    translate: vi.fn(),
+                    translated: vi.fn(),
+                    request: vi.fn(),
+                    stat: vi.fn(),
+                    warn: vi.fn(),
+                    error: vi.fn(),
+                },
+            });
+            const {params} = makeParams(client);
+            await provider.translate([file], {
+                ...params.config,
+                input,
+                output,
+                cacheDir,
+                model: 'fixture',
+                source: {language: 'ru', locale: 'RU'},
+                target: [{language: 'en', locale: 'US'}],
+                vars: {},
+            });
+
+            expect(readFileSync(join(output, 'en', 'api.yaml'), 'utf8')).toContain(
+                '[Key format :no-translate[UUID]](*uuid)',
+            );
+            expect(client.complete).toHaveBeenCalled();
+        });
+
         it('should translate files end to end and write a judge report', async () => {
             const root = mkdtempSync(join(tmpdir(), 'yfm-ai-e2e-'));
             const input = join(root, 'docs');

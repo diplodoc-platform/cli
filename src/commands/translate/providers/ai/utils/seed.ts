@@ -110,11 +110,7 @@ export function alignTranslationUnits(
         )) {
             const sourceUnit = source.units[s];
 
-            if (
-                protectedLabels.has(s) &&
-                isBracketedProtectedLabel(targetUnit) &&
-                !isBracketedProtectedLabel(sourceUnit)
-            ) {
+            if (protectedLabels.has(s) && addsBracketedProtectedLabel(sourceUnit, targetUnit)) {
                 continue;
             }
 
@@ -147,10 +143,14 @@ function isBracketedProtectedLabel(unit: string): boolean {
     return text.startsWith('[') && text.endsWith(']');
 }
 
+export function addsBracketedProtectedLabel(source: string, translation: string): boolean {
+    return isBracketedProtectedLabel(translation) && !isBracketedProtectedLabel(source);
+}
+
 const markdown = new MarkdownIt('commonmark');
 
 /** Standalone link labels whose brackets and protected text are restored by the skeleton. */
-function protectedLinkLabelIds(skeleton: TranslationSide['skeleton']): Set<number> {
+export function protectedLinkLabelIds(skeleton: TranslationSide['skeleton']): Set<number> {
     const ids = new Set<number>();
     visit(skeleton);
     return ids;
@@ -160,25 +160,29 @@ function protectedLinkLabelIds(skeleton: TranslationSide['skeleton']): Set<numbe
             if (!value.includes(':no-translate[') || !value.includes('%%%')) {
                 return;
             }
-            for (const block of markdown.parse(value, {})) {
-                let label: string | undefined;
-                for (const token of block.children ?? []) {
-                    if (token.type === 'link_open') {
-                        label = '';
-                    } else if (token.type === 'link_close') {
-                        if (label?.includes(':no-translate[')) {
-                            for (const [, id] of label.matchAll(/%%%(\d+)%%%/g)) {
-                                ids.add(Number(id));
-                            }
-                        }
-                        label = undefined;
-                    } else if (token.type === 'text' && label !== undefined) {
-                        label += token.content;
-                    }
-                }
-            }
+            collectLinkLabels(value);
         } else if (value && typeof value === 'object') {
             Object.values(value).forEach(visit);
+        }
+    }
+
+    function collectLinkLabels(value: string) {
+        for (const block of markdown.parse(value, {})) {
+            let label: string | undefined;
+            for (const token of block.children ?? []) {
+                if (token.type === 'link_open') {
+                    label = '';
+                } else if (token.type === 'link_close') {
+                    if (label?.includes(':no-translate[')) {
+                        for (const [, id] of label.matchAll(/%%%(\d+)%%%/g)) {
+                            ids.add(Number(id));
+                        }
+                    }
+                    label = undefined;
+                } else if (token.type === 'text' && label !== undefined) {
+                    label += token.content;
+                }
+            }
         }
     }
 }

@@ -65,6 +65,7 @@ import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/lite
 import {markupStructureIssue} from './utils/markup-structure';
 import {documentFingerprint} from './utils/cache';
 import {localizedUrls, restoreLocalizedUrls, revertedUrls} from './utils/links';
+import {addsBracketedProtectedLabel, protectedLinkLabelIds} from './utils/seed';
 import {restoreFragments} from './utils/skeleton';
 import {judgeTranslations} from './judge';
 
@@ -418,6 +419,7 @@ type Translate = (
     texts: string[],
     context?: DocContext,
     warnings?: FileWarning[],
+    protectedLabels?: ReadonlySet<number>,
 ) => Promise<string[]>;
 
 export type DocContext = {
@@ -583,6 +585,7 @@ function makeProcessor(params: ProcessorParams) {
             units,
             {title: extractTitle(content.data)},
             warnings,
+            store && protectedLinkLabelIds(skeleton),
         );
         // Model/cache answers retain source addresses for validation and
         // cross-file reuse. Localization belongs to this file's composition.
@@ -1482,12 +1485,24 @@ export function makeTranslator(params: TranslatorParams): Translate {
         texts: string[],
         docContext?: DocContext,
         warnings?: FileWarning[],
+        protectedLabels?: ReadonlySet<number>,
     ) {
         const context = describeDocument(path, docContext);
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
         const pending: string[] = [];
         let oversized = 0;
+
+        const invalidCachedProse = (
+            index: number,
+            source: string,
+            target: string,
+            normalized: string,
+        ) =>
+            tableTitleIssue(source, target) ||
+            (normalized === source && hasSourceProse(source, marker)) ||
+            // The skeleton restores the protected text and link brackets during composition.
+            (protectedLabels?.has(index) && addsBracketedProtectedLabel(source, target));
 
         const appendFileWarnings = () => {
             if (!warnings || dryRun) {
@@ -1622,8 +1637,7 @@ export function makeTranslator(params: TranslatorParams): Translate {
                 // characters were cached by older runs that stored untranslated
                 // responses. Treat them as misses so the unit gets another chance.
                 const refused =
-                    tableTitleIssue(text, healed) ||
-                    (normalized === text && hasSourceProse(text, marker)) ||
+                    invalidCachedProse(index, text, healed, normalized) ||
                     (!store?.isFileSeeded(path, text, stored) &&
                         Boolean(
                             markupIssueForUnit(
