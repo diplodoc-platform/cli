@@ -66,6 +66,31 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
    counters; a preservation run that makes zero model requests is not a quality
    check of newly translated text.
 
+   Structural validation must distinguish document markup from extraction placement.
+   A protected inline can be hoisted into the skeleton at the beginning of prose;
+   moving that same XML placeholder there is not a new directive. Normalize only
+   typed opaque placeholders in plain units for comparison, never matching literals
+   inside URLs, code or escaped text. Keep other formatting and opaque guards strict.
+   Valid XML emphasis can still compose into invalid Markdown when translated
+   punctuation touches following prose. Repair only fresh model-response delimiter
+   boundaries with the Markdown parser's own flanking rules, then validate and store
+   the repaired response. Approved seed formatting must not enter this repair path.
+   Sentence splitting can represent that emphasis as paired `x` placeholders with
+   `bold_open`/`bold_close` or `italic_open`/`italic_close`, rather than one `g`.
+   Match their nesting, type and delimiter before repairing a boundary; unmatched
+   cross-unit markers and markers inside code must remain unchanged.
+
+   Compact extraction can hoist inline-code delimiters into the skeleton while
+   leaving a bare word as a translation unit. Snapshot string leaves before
+   extraction mutates YAML/JSON, and prove whole-unit inline ownership per
+   occurrence by composing a probe and comparing parsed code spans. Preserve
+   the existing unit and seed keys. Such literals bypass generated cache,
+   in-flight reuse and model requests; only actual matches from that file's
+   approved sequence retain their approved wording. A shared dictionary hit is
+   insufficient provenance. Literal indexes must not consume prose seed hints.
+   When matching moved approved units outside the common subsequence, consume
+   unused entries per source text, rather than advancing one global cursor.
+
 4. **content** — render a single file to stdout/file (md or html content fragment)
    - Location: `src/commands/content/`
    - Reuses the build `Run`, its `normalize`/`validate` and `buildConfigDefaults` (`src/commands/build/config.ts`), `MarkdownCollector`/`SELF_CONTAINED` (md) and `getBaseMdItPlugins` (html).
@@ -112,6 +137,12 @@ npm run typecheck
 npm run lint
 npm run lint:fix
 ```
+
+Run lint through npm. The infra ESLint configuration enables its Prettier layer
+only when `npm_command` is set; a direct ESLint invocation can miss formatting
+errors and report unavailable legacy rules. For a scoped CI-equivalent check,
+set `npm_command=run-script` without disabling rules. After switching between
+branches with different lockfiles, install the selected branch's dependencies.
 
 ## Release verification
 

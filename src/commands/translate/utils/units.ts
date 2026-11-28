@@ -8,7 +8,7 @@ import liquid from '@diplodoc/transform/lib/liquid';
 import {FileLoader, resolveSchemas} from './fs';
 import {extract} from './translate';
 import {markTableTitle} from './table-title';
-import {codeUnitIds, markCodeUnit} from './unit-context';
+import {codeUnitIds, markCodeUnit, snapshotInlineLiterals} from './unit-context';
 
 export type LoadTranslationUnitsParams = {
     /** Absolute path of the file to read. */
@@ -61,6 +61,8 @@ export type LoadedTranslationUnits = {
     /** Parts of the file the engine left untranslated, one line each. */
     warnings: string[];
     tableTitles?: number[][];
+    /** Source-owned whole inline-code units, indexed in the final units array. */
+    literalUnitIds?: ReadonlySet<number>;
 };
 
 /**
@@ -88,6 +90,7 @@ export async function loadTranslationUnits(
     }
 
     const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
+    const inlineLiterals = snapshotInlineLiterals(content.data);
     const {units, skeleton, warnings, tableTitles} = extract(content.data, {
         compact: true,
         code,
@@ -114,7 +117,16 @@ export async function loadTranslationUnits(
         typeof content.data === 'string'
             ? preserveLinkPadding(content.data, contextualUnits)
             : contextualUnits;
-    return {content, units: paddedUnits, skeleton, schemas, ajvOptions, warnings, tableTitles};
+    return {
+        content,
+        units: paddedUnits,
+        skeleton,
+        schemas,
+        ajvOptions,
+        warnings,
+        tableTitles,
+        literalUnitIds: inlineLiterals(skeleton, units),
+    };
 }
 
 /** The extractor normalizes link padding; keep it in the original placeholder attributes. */

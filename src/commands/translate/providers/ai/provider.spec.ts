@@ -7,7 +7,7 @@ import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'n
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
-import {extract} from '@diplodoc/translation';
+import {compose, extract} from '@diplodoc/translation';
 
 import {createTargetStat} from '../../report';
 import {markTableTitle} from '../../utils/table-title';
@@ -1160,9 +1160,13 @@ describe('translate ai provider', () => {
                     const source = markTableTitle(wrap('Имя'));
                     const bad = markTableTitle(wrap('Example } details'));
                     const seeds = new SeedStore(seedFilePath(dir, 'ru', 'en'));
-                    if (seeded) seeds.record('ru/a.md', [[source, bad]]);
+                    if (seeded) {
+                        seeds.record('ru/a.md', [[source, bad]]);
+                    }
                     const store = new TranslationStore(join(dir, 'store.json'), 'fp', seeds);
-                    if (!seeded) store.set(source, bad);
+                    if (!seeded) {
+                        store.set(source, bad);
+                    }
                     const client = makeClient(() => ['Table title']);
                     const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
                     expect(await makeTranslator(params)('ru/a.md', [source])).toEqual([
@@ -1188,6 +1192,163 @@ describe('translate ai provider', () => {
                 expect(stat.requests).toBe(2);
             });
         });
+        it.each([false, true])(
+            'preserves source-owned inline literals before generated cache: %s',
+            async (cached) => {
+                const unit = wrap('limit');
+                const client = makeClient(() => ['限制']);
+                const store = new TranslationStore(
+                    join(mkdtempSync(join(tmpdir(), 'literal-inline-')), 'cache.json'),
+                    'fp',
+                );
+                if (cached) store.set(unit, wrap('限制'));
+                const {params, stat} = makeParams(client, {maxBatchTokens: 1000}, store);
+                params.targetLanguage = 'zh';
+                expect(
+                    await makeTranslator(params)('ru/a.md', [unit], {literalUnitIds: new Set([0])}),
+                ).toEqual([unit]);
+                expect(client.complete).not.toHaveBeenCalled();
+                expect(stat.untranslated).toBe(0);
+                expect(stat.markupDamaged).toBe(0);
+                expect(store.get(unit)).toBe(cached ? wrap('限制') : undefined);
+            },
+        );
+
+        it.each([
+            [true, true],
+            [true, false],
+            [false, true],
+            [false, false],
+        ])(
+            'preserves only same-file approved inline literals: %s, hints=%s',
+            async (sameFile, memoryHints) => {
+                const unit = wrap('limit');
+                const approved = wrap('ApprovedLimit');
+                const dir = mkdtempSync(join(tmpdir(), 'literal-inline-seed-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+                seeds.record(sameFile ? 'ru/a.md' : 'ru/other.md', [[unit, approved]]);
+                const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+                const client = makeClient(() => ['限制']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000, memoryHints}, store);
+                params.targetLanguage = 'zh';
+                expect(
+                    await makeTranslator(params)('ru/a.md', [unit], {literalUnitIds: new Set([0])}),
+                ).toEqual([sameFile ? approved : unit]);
+                expect(client.complete).not.toHaveBeenCalled();
+            },
+        );
+
+        it('translates prose without sharing its in-flight result with an inline literal', async () => {
+            const unit = wrap('limit');
+            let sent: string[] = [];
+            const client = makeClient((parts) => {
+                sent = parts;
+                return parts.map(() => '限制');
+            });
+            const {params} = makeParams(client, {maxBatchTokens: 1000});
+            params.targetLanguage = 'zh';
+            expect(
+                await makeTranslator(params)('ru/a.md', [unit, unit], {
+                    literalUnitIds: new Set([1]),
+                }),
+            ).toEqual([wrap('限制'), unit]);
+            expect(sent).toEqual(['limit']);
+        });
+
+        it('does not assign an approved prose occurrence to a newly added literal', async () => {
+            const unit = wrap('limit');
+            const intro = wrap('Introduction.');
+            const end = wrap('Conclusion.');
+            const dir = mkdtempSync(join(tmpdir(), 'literal-occurrence-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/a.md', [
+                [intro, wrap('介绍。')],
+                [unit, wrap('限制')],
+                [end, wrap('结论。')],
+            ]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient(() => ['限制']);
+            const {params} = makeParams(client, {maxBatchTokens: 1000}, store);
+            params.targetLanguage = 'zh';
+            expect(
+                await makeTranslator(params)('ru/a.md', [intro, unit, end, unit], {
+                    literalUnitIds: new Set([3]),
+                }),
+            ).toEqual([wrap('介绍。'), wrap('限制'), wrap('结论。'), unit]);
+            expect(client.complete).not.toHaveBeenCalled();
+        });
+
+        it('preserves an approved literal moved outside the common subsequence', async () => {
+            const literal = wrap('limit');
+            const anchors = ['AnchorA', 'AnchorB', 'AnchorC'].map(wrap);
+            const dir = mkdtempSync(join(tmpdir(), 'moved-literal-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/a.md', [
+                [literal, wrap('ApprovedLimit')],
+                ...anchors.map((text) => [text, text] as [string, string]),
+            ]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient(() => ['限制']);
+            const {params} = makeParams(client, {maxBatchTokens: 1000, memoryHints: true}, store);
+            params.targetLanguage = 'zh';
+            expect(
+                await makeTranslator(params)('ru/a.md', [...anchors, literal], {
+                    literalUnitIds: new Set([3]),
+                }),
+            ).toEqual([...anchors, wrap('ApprovedLimit')]);
+            expect(client.complete).not.toHaveBeenCalled();
+        });
+
+        it.each([true, false])(
+            'keeps all approved literals when their order reverses: hints=%s',
+            async (memoryHints) => {
+                const units = ['A', 'B', 'C'].map(wrap);
+                const approved = ['ApprovedA', 'ApprovedB', 'ApprovedC'].map(wrap);
+                const dir = mkdtempSync(join(tmpdir(), 'reversed-literals-'));
+                const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+                seeds.record(
+                    'ru/a.md',
+                    units.map((source, index) => [source, approved[index]]),
+                );
+                const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+                const client = makeClient(() => ['限制']);
+                const {params} = makeParams(client, {maxBatchTokens: 1000, memoryHints}, store);
+                params.targetLanguage = 'zh';
+                expect(
+                    await makeTranslator(params)('ru/a.md', [...units].reverse(), {
+                        literalUnitIds: new Set([0, 1, 2]),
+                    }),
+                ).toEqual([...approved].reverse());
+                expect(client.complete).not.toHaveBeenCalled();
+            },
+        );
+
+        it('reserves seed hints for prose instead of source-owned inline literals', async () => {
+            const old = wrap('limit old wording');
+            const literal = wrap('limit new wording');
+            const prose = wrap('limit old wording changed');
+            const dir = mkdtempSync(join(tmpdir(), 'literal-hints-'));
+            const seeds = new SeedStore(seedFilePath(dir, 'ru', 'zh'));
+            seeds.record('ru/a.md', [[old, wrap('Old approved translation')]]);
+            const store = new TranslationStore(join(dir, 'cache.json'), 'fp', seeds);
+            const client = makeClient(() => ['新措辞']);
+            const {params, stat} = makeParams(
+                client,
+                {maxBatchTokens: 1000, memoryHints: true},
+                store,
+            );
+            params.targetLanguage = 'zh';
+            expect(
+                await makeTranslator(params)('ru/a.md', [literal, prose], {
+                    literalUnitIds: new Set([0]),
+                }),
+            ).toEqual([literal, wrap('新措辞')]);
+            expect(vi.mocked(client.complete).mock.calls[0][0].at(-1)?.content).toContain(
+                'Old approved translation',
+            );
+            expect(stat.memoryHints).toBe(1);
+        });
+
         describe('memory hints', () => {
             const previous = 'Чтобы настроить колонкам по статусам:';
             const edited = 'Чтобы настроить колонки по статусам:';
@@ -2227,10 +2388,15 @@ describe('translate ai provider', () => {
                 wrap,
             );
             const client = makeClient((_, call) => {
-                if (call === 0)
+                if (call === 0) {
                     return ['- First text', '- Second text', '- Third text', '- Fourth text'];
-                if (call === 1) return ['merged'];
-                if (call === 2) return new LLMAuthError('denied');
+                }
+                if (call === 1) {
+                    return ['merged'];
+                }
+                if (call === 2) {
+                    return new LLMAuthError('denied');
+                }
                 return ['Third text', 'Fourth text'];
             });
             const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
@@ -2431,5 +2597,77 @@ describe('translate ai provider', () => {
             expect(stat.requests).toBe(1);
             expect(stat.inputTokens).toBeGreaterThan(0);
         });
+    });
+});
+
+describe('inline boundary preservation in model responses', () => {
+    it('preserves paired bold placeholders inside a paragraph without retrying', async () => {
+        const extracted = extract('Описание. **Метка:** продолжение.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'zh', locale: 'CN'},
+        });
+        expect(extracted.units.join('')).toContain('ctype="bold_open"');
+        const client = makeClient((parts) =>
+            parts.map((part) =>
+                part
+                    .replace('Описание.', '说明。')
+                    .replace('Метка:', '标签：')
+                    .replace('продолжение.', '后续内容。')
+                    .replace(/(ctype="bold_close"[^>]*\/>)\s+/g, '$1'),
+            ),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        params.targetLanguage = 'zh';
+        const translated = await makeTranslator(params)('ru/paired.md', extracted.units);
+        expect(String(compose(extracted.skeleton, translated, {useSource: true}))).toBe(
+            '说明。 **标签：** 后续内容。',
+        );
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupRetried).toBe(0);
+        expect(stat.untranslated).toBe(0);
+    });
+    it('keeps opaque-inline word order without a markup retry', async () => {
+        const extracted = extract('Используйте :no-translate[FORMAT-A] здесь.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'en', locale: 'US'},
+        });
+        const client = makeClient((parts) =>
+            parts.map((p) => p.replace('Используйте ', '').replace('здесь.', 'is used here.')),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        const translated = await makeTranslator(params)('ru/opaque.md', extracted.units);
+        expect(String(compose(extracted.skeleton, translated, {useSource: true}))).toBe(
+            ':no-translate[FORMAT-A] is used here.',
+        );
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupRetried).toBe(0);
+        expect(stat.markupDamaged).toBe(0);
+    });
+    it('preserves rendered bold at a punctuation boundary and reuses the repaired response', async () => {
+        const extracted = extract('**Для токена:** возвращает список.', {
+            compact: true,
+            source: {language: 'ru', locale: 'RU'},
+            target: {language: 'zh', locale: 'CN'},
+        });
+        const client = makeClient((parts) =>
+            parts.map((p) =>
+                p
+                    .replace('Для токена:', '对于令牌：')
+                    .replace('возвращает список.', '返回列表。')
+                    .replace(/<\/g>\s+/g, '</g>'),
+            ),
+        );
+        const {params, stat} = makeParams(client, {maxBatchTokens: 1000});
+        params.targetLanguage = 'zh';
+        const translate = makeTranslator(params),
+            translated = await translate('ru/bold.md', extracted.units);
+        const rendered = String(compose(extracted.skeleton, translated, {useSource: true}));
+        expect(rendered).toBe('**对于令牌：** 返回列表。');
+        expect(client.complete).toHaveBeenCalledTimes(1);
+        expect(stat.markupDamaged).toBe(0);
+        expect(await translate('ru/bold.md', extracted.units)).toEqual(translated);
+        expect(client.complete).toHaveBeenCalledTimes(1);
     });
 });

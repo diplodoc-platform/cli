@@ -63,6 +63,7 @@ import {untranslatedMarker} from './utils/script';
 import {hasCopiedEdit, hasSourceProse} from './utils/edited-prose';
 import {keepsLiteralCode, maskLiteralCode, unmaskLiteralCode} from './utils/literal-code';
 import {markupStructureIssue} from './utils/markup-structure';
+import {repairInlineSpacing} from './utils/inline-spacing';
 import {documentFingerprint} from './utils/cache';
 import {localizedUrls, restoreLocalizedUrls, revertedUrls} from './utils/links';
 import {restoreFragments} from './utils/skeleton';
@@ -405,6 +406,8 @@ type Translate = (path: string, texts: string[], context?: DocContext) => Promis
 
 export type DocContext = {
     title?: string;
+    /** Original indexes proven to be whole source-owned inline code. */
+    literalUnitIds?: ReadonlySet<number>;
 };
 
 const SOURCE_OPEN = '<source';
@@ -546,6 +549,7 @@ function makeProcessor(params: ProcessorParams) {
             ajvOptions,
             warnings,
             tableTitles = [],
+            literalUnitIds,
         } = await loadTranslationUnits({
             inputPath,
             path,
@@ -560,14 +564,19 @@ function makeProcessor(params: ProcessorParams) {
             return warnings;
         }
 
-        const translated = await translate(path, units, {title: extractTitle(content.data)});
+        const translated = await translate(path, units, {
+            title: extractTitle(content.data),
+            literalUnitIds,
+        });
         // Model/cache answers retain source addresses for validation and
         // cross-file reuse. Localization belongs to this file's composition.
         const localized = localizedUrls(store?.memory(path) || [], languages);
         const parts = translated.map((part) => restoreLocalizedUrls(part, localized));
         for (const ids of tableTitles) {
             if (ids.some((id) => isTableTitleFallback(parts[id]))) {
-                for (const id of ids) parts[id] = units[id];
+                for (const id of ids) {
+                    parts[id] = units[id];
+                }
                 const warning =
                     'Keeping the original wide-table title: its translation remained incompatible with YFM after a retry.';
                 logger?.warn(path, warning);
@@ -1019,7 +1028,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
             // the text and its repair.
             repairs.set(fragments[index], repair.stripped);
 
-            const restored = open + repair.text + close;
+            const restored =
+                open +
+                (isCodeUnit(fragments[index]) || isTableTitleUnit(fragments[index])
+                    ? repair.text
+                    : repairInlineSpacing(repair.text)) +
+                close;
             const literalKey = JSON.stringify([fragments[index], restored]);
             if (keepsLiteralCode(masked[index], answer)) {
                 invalidLiterals.delete(literalKey);
@@ -1283,10 +1297,12 @@ export function makeTranslator(params: TranslatorParams): Translate {
         // searched for previous versions at all.
         let resolved: (string | undefined)[] = [];
         let hinted: (SeedHint | undefined)[] = [];
-        if (store && memoryHints) {
-            ({translations: resolved, hints: hinted} = store.lookup(path, texts));
-        } else if (store) {
-            resolved = store.resolve(path, texts);
+        let fileMatchedIndices: ReadonlySet<number> = new Set();
+        if (store) {
+            const memory = memoryHints
+                ? store.lookupWithProvenance(path, texts, docContext?.literalUnitIds)
+                : {...store.resolveWithProvenance(path, texts), hints: []};
+            ({translations: resolved, hints: hinted, fileMatchedIndices} = memory);
         }
         let buffer: string[] = [];
         let bufferHints: (SeedHint | undefined)[] = [];
@@ -1358,11 +1374,25 @@ export function makeTranslator(params: TranslatorParams): Translate {
             bufferTokens = 0;
         };
 
-        for (const [index, text] of texts.entries()) {
-            const tokens = estimateTokens(text);
+        const sourceLiteral = (index: number, text: string): string | undefined => {
+            if (!docContext?.literalUnitIds?.has(index)) return undefined;
+            const approved = fileMatchedIndices.has(index) ? resolved[index] : undefined;
+            if (approved === undefined) return text;
+            stat.cached++;
+            return normalizeCached(text, approved);
+        };
 
+        for (const [index, text] of texts.entries()) {
             stat.unitsTotal++;
             stat.sourceChars += text.length;
+
+            const literal = sourceLiteral(index, text);
+            if (literal !== undefined) {
+                promises.push(Promise.resolve(literal));
+                continue;
+            }
+
+            const tokens = estimateTokens(text);
 
             if (tokens > maxBatchTokens) {
                 logger.warn(
