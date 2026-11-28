@@ -378,6 +378,22 @@ describe('toc-loader', () => {
             {file: './file.md'},
         ),
     );
+    it('should interpolate external URL variable in item href', async () => {
+                const {run, toc} = setupService();
+                mockData(
+                                run,
+                                'title: Test document\nitems:\n  - name: Index\n    href: index.md\n  - name: External article\n    href: "{{ url }}"\n',
+                    {url: 'https://example.com'},
+                    {},
+                                [],
+                            );
+                await toc.init(['toc.yaml'] as NormalizedPath[]);
+                const vfile = await toc.dump('toc.yaml' as NormalizedPath);
+                expect(vfile.toString()).toContain('href: https://example.com');
+                expect(vfile.toString()).toContain('href: index.md');
+                expect(vfile.toString()).not.toContain('{{ url }}');
+                expect(toc.entries).toEqual(['index.md'] as NormalizedPath[]);
+    });
 
     it(
         'should interpolate nested item',
